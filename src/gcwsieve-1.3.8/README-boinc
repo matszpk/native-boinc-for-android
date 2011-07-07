@@ -1,0 +1,12 @@
+These executables were linked against version 6.2.18 of the BOINC libraries.
+By default they will query boinc_time_to_checkpoint() every 5 seconds.
+
+The .static-cpp executables were statically linked against the C++ libraries
+and so should work on those systems where the C++ libraries have not been
+installed.
+
+There are no Windows excutables because I haven't yet found a way to build
+the BOINC libraries with the MinGW compilers. Please tell me how to do this
+if you know.
+
+Geoffrey Reynolds <g_w_reynolds@yahoo.co.nz>

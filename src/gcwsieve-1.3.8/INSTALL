@@ -1,0 +1,32 @@
+Instructions for building from source with GCC and GNU make:
+
+1. Edit the Makefile.
+   In most cases it should suffice to set three variables: DEBUG; ASSEMBLER;
+   ARCH.
+
+2. Run 'make'.
+   This should produce one executable: gcwsieve.
+
+
+Note that when compiling sieve.c for x86 architectures with ASSEMBLER=yes,
+warnings similar to the following are normal and can be ignored:
+  /tmp/ccM6vgA2.s: Assembler messages:
+  /tmp/ccM6vgA2.s:585: Warning: missing operand; zero assumed
+
+Warnings similar to the following can be ignored when compiling for x86-64
+with the MinGW64 compiler:
+  files.c:93: warning: format '%I64u' expects type 'unsigned int *',
+  but argument 7 has type 'uint64_t *'
+
+
+I use these commands to make binaries for distribution:
+
+  x86-64 Linux:    make ARCH=x86-64 CC="gcc -V3.4"
+  x86-64 Windows:  make ARCH=x86-64-gcc430 CC=x86_64-pc-mingw32-gcc
+  x86 Linux:       make ARCH=x86 CC="gcc -V3.4"
+  x86 Windows:     make ARCH=x86 CC=i586-mingw32msvc-gcc
+
+The i586-mingw32msvc-gcc cross-compiler is part of the Debian mingw32 package.
+
+The x86_64-pc-mingw32 cross-compiler is available at
+http://www.sourceforge.net/projects/mingw-w64/

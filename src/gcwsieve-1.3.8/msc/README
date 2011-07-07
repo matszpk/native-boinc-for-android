@@ -1,0 +1,175 @@
+These are general instructions to compile gcwsieve for Windows using MSC.
+I don't know much about how MSC works, so details are missing, you will
+almost certainly need to make changes to get it to compile. Please let
+me know of any problems.
+
+If possible, please send me a copy of any changes you needed to make,
+including any suggested modifications to these instructions.
+
+Geoffrey Reynolds <g_w_reynolds@yahoo.co.nz>
+
+
+Changes to these instructions:
+1.0.21: File created.
+1.0.22: It is no longer necessary to align the stack.
+
+
+
+
+All builds:
+===========
+
+Add the msc subdirectory to the search path for included headers. This
+directory contains minimal substitutes for some standard C99 and
+GNU/Linux headers. (With GCC this would be done by adding -I./msc to the
+command line)
+
+
+
+
+Build for x86 (32-bit):
+=======================
+
+This builds an executable that should run on any Pentium class hardware
+with cpuid and rdtsc instructions. SSE2 instructions are only used if
+hardware support for them is detected at run time.
+
+
+All C files should be compiled with the following symbols defined:
+(With GCC this is done with the -D switch, e.g. -DUSE_ASM=1)
+
+__i386__=1
+_MSC_VER=<some positive number>
+_WIN32=1
+MULTI_PATH=1
+NDEBUG=1
+PREFETCH_OPT=1
+USE_ASM=1
+
+
+The following C files should be compiled for Pentium architecture, i.e.
+without using any CMOV, SSE, 3dNow, etc. instructions:
+(With GCC this is done by adding -march=i586 to the command line)
+
+object file         source file
+----------------    ----------------
+arithmetic.obj      arithmetic.c
+bitmap.obj          bitmap.c
+clock.obj           clock.c
+cpu.obj             cpu.c
+events.obj          events.c
+factors.obj         factors.c
+files.obj           files.c
+primes.obj          primes.c
+priority.obj        priority.c
+terms.obj           terms.c
+gcwsieve.obj        gcwsieve.c
+util.obj            util.c
+getopt.obj          msc/getopt.c
+
+
+The following C file should be compiled as above, except:
+1. Define the additional symbols SWIZZLE=2, CODE_PATH=1.
+
+object file         source file
+----------------    ----------------
+sieve.obj           sieve.c
+
+
+The following C file should be compiled (again) as above, except:
+1. Define the additional symbols SWIZZLE=4, CODE_PATH=2, __SSE2__=1.
+
+object file         source file
+----------------    ----------------
+sieve2.obj          sieve.c
+
+
+Link all of the above object files together with the following
+pre-assembled object files:
+
+object file
+--------------------
+win32/btop-x86.obj
+win32/btop-x86-sse2.obj
+win32/loop-x86.obj
+win32/loop-x86.p.obj
+win32/loop-x86-sse2.obj
+win32/loop-x86-sse2.p.obj
+win32/misc-i386.obj
+win32/mulmod-i386.obj
+win32/powmod-i386.obj
+win32/powmod-sse2.obj
+
+
+
+
+Build for x86-64 (64-bit):
+==========================
+
+This builds an executable that should run on all x86-64 hardware (in
+64-bit mode), with seperate main loops optimised for Intel Core 2 and
+AMD Athlon 64 CPUs.
+
+
+All C files should be compiled with the following symbols defined:
+(With GCC this is done by using the -D switch, e.g. -DUSE_ASM=1)
+
+__x86_64__=1
+_MSC_VER=<some positive number>
+_WIN64=1
+MULTI_PATH=1
+NDEBUG=1
+PREFETCH_OPT=1
+USE_ASM=1
+
+
+The following C files should be compiled to run on any x86-64
+architecture, i.e. without using any SSE3, 3dNow, etc. instructions:
+(With GCC this is done by adding -march=k8 -mno-3dnow to the command line)
+
+object file         source file
+----------------    ----------------
+arithmetic.obj      arithmetic.c
+bitmap.obj          bitmap.c
+clock.obj           clock.c
+cpu.obj             cpu.c
+events.obj          events.c
+factors.obj         factors.c
+files.obj           files.c
+primes.obj          primes.c
+priority.obj        priority.c
+terms.obj           terms.c
+gcwsieve.obj        gcwsieve.c
+util.obj            util.c
+getopt.obj          msc/getopt.c
+
+
+The following C file should be compiled as above, except:
+1. Define the additional symbols SWIZZLE=4, CODE_PATH=1.
+
+object file         source file
+----------------    ----------------
+sieve.obj           sieve.c
+
+
+The following C file should be compiled (again) as above, except:
+1. Define the additional symbols SWIZZLE=6, CODE_PATH=2.
+
+object file         source file
+----------------    ----------------
+sieve2.obj          sieve.c
+
+
+Link all of the above object files together with the following
+pre-assembled object files:
+
+object file
+--------------------
+win64/btop-x86-64.obj
+win64/loop-a64.obj
+win64/loop-a64.p.obj
+win64/loop-core2.obj
+win64/loop-core2.p.obj
+win64/misc-x86-64.obj
+win64/mulmod-x86-64.obj
+win64/powmod-x86-64.obj

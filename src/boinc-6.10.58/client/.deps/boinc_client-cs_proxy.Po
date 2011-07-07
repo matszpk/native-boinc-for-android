@@ -1,0 +1,353 @@
+boinc_client-cs_proxy.o: cs_proxy.cpp cpp.h ../config.h ../version.h \
+ ../lib/common_defs.h ../lib/miofile.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/string \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/c++config.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/os_defines.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/cpu_defines.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stringfwd.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/char_traits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_algobase.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cstddef \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include/stddef.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/functexcept.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/exception_defines.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/cpp_type_traits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/ext/type_traits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/ext/numeric_traits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_pair.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/move.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/concept_check.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_iterator_base_types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_iterator_base_funcs.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_iterator.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/debug/debug.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/postypes.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cwchar \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/wchar.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/cdefs.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/cdefs_elf.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/stdio.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/_types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/machine/_types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include/stdarg.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/sys/types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/stdint.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/linux/posix_types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/linux/stddef.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/linux/compiler.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/asm/posix_types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/asm/types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/linux/types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/machine/kernel.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/sysmacros.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/time.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/time.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/linux/time.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/asm/siginfo.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/asm-generic/siginfo.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/malloc.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/allocator.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/c++allocator.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/ext/new_allocator.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/new \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/exception \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/localefwd.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/c++locale.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/clocale \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/locale.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/iosfwd \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cctype \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/ctype.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/ostream_insert.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cxxabi-forced.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_function.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/backward/binders.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/basic_string.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/ext/atomicity.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/gthr.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/gthr-default.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/pthread.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/signal.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/limits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/syslimits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/limits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/limits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/linux/limits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/machine/internal_types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/machine/limits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/syslimits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/string.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/asm/signal.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/asm-generic/signal.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sched.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/unistd.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/select.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/sysconf.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/linux/capability.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/pathconf.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/atomic_word.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/initializer_list \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/basic_string.tcc \
+ ../lib/mfile.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cstdio \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cstdarg \
+ client_msgs.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/algorithm \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_algo.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cstdlib \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/stdlib.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/alloca.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/strings.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/memory.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/algorithmfwd.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_heap.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_tempbuf.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_construct.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_uninitialized.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/deque \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_deque.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/deque.tcc \
+ log_flags.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/vector \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_vector.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_bvector.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/vector.tcc \
+ cs_proxy.h ../lib/proxy_info.h
+
+cpp.h:
+
+../config.h:
+
+../version.h:
+
+../lib/common_defs.h:
+
+../lib/miofile.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/string:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/c++config.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/os_defines.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/cpu_defines.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stringfwd.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/char_traits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_algobase.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cstddef:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include/stddef.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/functexcept.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/exception_defines.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/cpp_type_traits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/ext/type_traits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/ext/numeric_traits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_pair.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/move.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/concept_check.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_iterator_base_types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_iterator_base_funcs.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_iterator.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/debug/debug.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/postypes.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cwchar:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/wchar.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/cdefs.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/cdefs_elf.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/stdio.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/_types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/machine/_types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include/stdarg.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/sys/types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/stdint.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/linux/posix_types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/linux/stddef.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/linux/compiler.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/asm/posix_types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/asm/types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/linux/types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/machine/kernel.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/sysmacros.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/time.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/time.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/linux/time.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/asm/siginfo.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/asm-generic/siginfo.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/malloc.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/allocator.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/c++allocator.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/ext/new_allocator.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/new:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/exception:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/localefwd.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/c++locale.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/clocale:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/locale.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/iosfwd:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cctype:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/ctype.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/ostream_insert.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cxxabi-forced.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_function.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/backward/binders.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/basic_string.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/ext/atomicity.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/gthr.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/gthr-default.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/pthread.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/signal.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/limits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/syslimits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/limits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/limits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/linux/limits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/machine/internal_types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/machine/limits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/syslimits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/string.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/asm/signal.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/asm-generic/signal.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sched.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/unistd.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/select.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/sys/sysconf.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/linux/capability.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/pathconf.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/atomic_word.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/initializer_list:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/basic_string.tcc:
+
+../lib/mfile.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cstdio:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cstdarg:
+
+client_msgs.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/algorithm:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_algo.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cstdlib:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/stdlib.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/alloca.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/strings.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/include/memory.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/algorithmfwd.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_heap.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_tempbuf.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_construct.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_uninitialized.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/deque:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_deque.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/deque.tcc:
+
+log_flags.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/vector:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_vector.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_bvector.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/vector.tcc:
+
+cs_proxy.h:
+
+../lib/proxy_info.h:

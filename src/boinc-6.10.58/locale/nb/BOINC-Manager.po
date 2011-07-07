@@ -1,0 +1,3902 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: BOINC 610\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-05-17 11:04-0500\n"
+"PO-Revision-Date: 2009-11-30 12:04+0100\n"
+"Last-Translator: Kenneth Skjold <kenneth@skjold.biz>\n"
+"Language-Team: Hjelp andre <kenneth@skjold.biz>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Translate Toolkit 1.2.1\n"
+"X-Poedit-SearchPath-0: clientgui\n"
+"X-Poedit-Basepath: C:\\Src\\BOINCSVN\\branches\\boinc_core_release_6_10\n"
+"X-BOINC-UTF8-Marker: 简体中文, 日本語\n"
+
+#: clientgui/AccountInfoPage.cpp:376
+msgid "Identify your account "
+msgstr "Identifiser din konto"
+
+#: clientgui/AccountInfoPage.cpp:382
+msgid ""
+"Please enter your account information\n"
+"(to create an account, visit the project's web site)"
+msgstr ""
+"Vennligst skriv inn din konto informasjon\n"
+"(for å lage en konto, besøk prosjektets nettside)"
+
+#: clientgui/AccountInfoPage.cpp:386
+msgid ""
+"This project is not currently accepting new accounts.\n"
+"You can attach only if you already have an account."
+msgstr ""
+
+#: clientgui/AccountInfoPage.cpp:390
+msgid "Are you already running this project?"
+msgstr "Kjører du dette prosjektet allerede?"
+
+#: clientgui/AccountInfoPage.cpp:394
+msgid "&No, new user"
+msgstr "&Nei, ny bruker"
+
+#: clientgui/AccountInfoPage.cpp:397
+msgid "&Yes, existing user"
+msgstr "&Ja, eksisterende bruker"
+
+#: clientgui/AccountInfoPage.cpp:402
+msgid ""
+"We were not able to set up your account information\n"
+"automatically.\n"
+"\n"
+"Please click on the 'Find logon information' link\n"
+"below to find out what to put in the email address and\n"
+"password fields."
+msgstr ""
+
+#: clientgui/AccountInfoPage.cpp:405
+msgid "Find logon information"
+msgstr "Finn påloggings informasjon"
+
+#: clientgui/AccountInfoPage.cpp:425 clientgui/AccountInfoPage.cpp:591
+msgid "&Password:"
+msgstr "&Passord:"
+
+#: clientgui/AccountInfoPage.cpp:432 clientgui/AccountInfoPage.cpp:606
+msgid "Choose a &password:"
+msgstr "Velg et &passord:"
+
+#: clientgui/AccountInfoPage.cpp:435
+#, fuzzy
+msgid "C&onfirm password:"
+msgstr "%w - Proxy passord"
+
+#: clientgui/AccountInfoPage.cpp:442
+#, fuzzy, c-format
+msgid "Are you already running %s?"
+msgstr "Er du sikker på at du vil avslutte?"
+
+#: clientgui/AccountInfoPage.cpp:459
+msgid "&Username:"
+msgstr "&Brukernavn:"
+
+#: clientgui/AccountInfoPage.cpp:473
+msgid "&Email address:"
+msgstr "&Epost adresse:"
+
+#: clientgui/AccountInfoPage.cpp:481
+#, c-format
+msgid "minimum length %d"
+msgstr "minimums lengde %d"
+
+#: clientgui/AccountInfoPage.cpp:488
+msgid "Forgot your password?"
+msgstr "Glemt passordet ditt?"
+
+#: clientgui/AccountInfoPage.cpp:495
+msgid ""
+"If you have not yet registered with this account manager,\n"
+"please do so before proceeding.  Click on the link below\n"
+"to register or to retrieve a forgotten password."
+msgstr ""
+
+#: clientgui/AccountInfoPage.cpp:498
+#, fuzzy
+msgid "Account manager website"
+msgstr "Feil ved åpning av nettside"
+
+#: clientgui/AccountInfoPage.cpp:530
+#, fuzzy
+msgid "Attach to project"
+msgstr "Kryss-prosjekt statistikk"
+
+#: clientgui/AccountInfoPage.cpp:532
+#, fuzzy
+msgid "Update account manager"
+msgstr "Åpne Serveradministrasjon"
+
+#: clientgui/AccountInfoPage.cpp:534
+#, fuzzy
+msgid "Attach to account manager"
+msgstr "Koble til den spesifiserte serveren i Serveradministrasjonen"
+
+#: clientgui/AccountInfoPage.cpp:543
+#, c-format
+msgid ""
+"The minimum password length for this project is %d. Please enter a different "
+"password."
+msgstr ""
+"Minimums passordlengde for dette prosjektet er %d. Vennligst tast inn et "
+"annet passord."
+
+#: clientgui/AccountInfoPage.cpp:549
+#, c-format
+msgid ""
+"The minimum password length for this account manager is %d. Please enter a "
+"different password."
+msgstr ""
+"Minimums passordlengde for denne konto manageren er %d. Vennligst tast inn "
+"et annet passord."
+
+#: clientgui/AccountInfoPage.cpp:560
+msgid ""
+"The password and confirmation password do not match. Please type them again."
+msgstr ""
+"Passordet og bekreftese av passordet stemmer ikke. Vennligst skriv dem igjen."
+
+#: clientgui/AccountManagerInfoPage.cpp:249
+#, fuzzy
+msgid "Choose an account manager"
+msgstr "Åpne Serveradministrasjon"
+
+#: clientgui/AccountManagerInfoPage.cpp:252
+msgid ""
+"To choose an account manager, click its name or \n"
+"type its URL below."
+msgstr ""
+
+#: clientgui/AccountManagerInfoPage.cpp:255
+#, fuzzy
+msgid "Account Manager &URL:"
+msgstr "Klarte ikke åpne URL «%s»"
+
+#: clientgui/AccountManagerProcessingPage.cpp:189
+#: clientgui/AccountManagerPropertiesPage.cpp:195
+#, fuzzy, c-format
+msgid "Communicating with %s."
+msgstr "Erstatt med:"
+
+#: clientgui/AccountManagerProcessingPage.cpp:196
+#: clientgui/AccountManagerPropertiesPage.cpp:202
+#, fuzzy
+msgid "Communicating with server."
+msgstr "Tilkobling med testserveren feilet."
+
+#: clientgui/AccountManagerProcessingPage.cpp:201
+#: clientgui/AccountManagerPropertiesPage.cpp:207
+#, fuzzy
+msgid "Please wait..."
+msgstr "Vent mens utskriften pågår\n"
+
+#: clientgui/AccountManagerProcessingPage.cpp:325
+#, fuzzy
+msgid "An internal server error has occurred.\n"
+msgstr "En intern feil har oppstått i DDEML-en."
+
+#: clientgui/AdvancedFrame.cpp:93
+msgid "Connected"
+msgstr "Tilkoblet"
+
+#: clientgui/AdvancedFrame.cpp:101
+#, fuzzy
+msgid "Disconnected"
+msgstr "Koblet fra serveren"
+
+#: clientgui/AdvancedFrame.cpp:305
+#, fuzzy, c-format
+msgid "Close the %s window"
+msgstr "Lukk vindu"
+
+#: clientgui/AdvancedFrame.cpp:308
+msgid "&Close Window"
+msgstr ""
+
+#: clientgui/AdvancedFrame.cpp:319
+#, c-format
+msgid "Exit %s"
+msgstr "Avslutt %s"
+
+#: clientgui/AdvancedFrame.cpp:324 clientgui/BOINCTaskBar.cpp:641
+msgid "E&xit"
+msgstr "&Avslutt"
+
+#: clientgui/AdvancedFrame.cpp:333
+#, fuzzy
+msgid "&Projects\tCtrl+Shift+P"
+msgstr "Sett bokmerke %i\tCtrl-%i"
+
+#: clientgui/AdvancedFrame.cpp:334
+#, fuzzy
+msgid "Display projects"
+msgstr "Vis innhold"
+
+#: clientgui/AdvancedFrame.cpp:339
+#, fuzzy
+msgid "&Tasks\tCtrl+Shift+T"
+msgstr "Sett bokmerke %i\tCtrl-%i"
+
+#: clientgui/AdvancedFrame.cpp:340
+#, fuzzy
+msgid "Display tasks"
+msgstr "Vis innhold"
+
+#: clientgui/AdvancedFrame.cpp:345
+msgid "Trans&fers\tCtrl+Shift+X"
+msgstr "Overføringer\tCtrl+Shift+X"
+
+#: clientgui/AdvancedFrame.cpp:346
+#, fuzzy
+msgid "Display transfers"
+msgstr "Samtidige overføringer"
+
+#: clientgui/AdvancedFrame.cpp:351
+#, fuzzy
+msgid "&Messages\tCtrl+Shift+M"
+msgstr "Sett bokmerke %i\tCtrl-%i"
+
+#: clientgui/AdvancedFrame.cpp:352
+#, fuzzy
+msgid "Display messages"
+msgstr "Private meldinger"
+
+#: clientgui/AdvancedFrame.cpp:357
+#, fuzzy
+msgid "&Statistics\tCtrl+Shift+S"
+msgstr "Sett bokmerke %i\tCtrl-%i"
+
+#: clientgui/AdvancedFrame.cpp:358
+#, fuzzy
+msgid "Display statistics"
+msgstr "Vis innhold"
+
+#: clientgui/AdvancedFrame.cpp:363
+msgid "&Disk usage\tCtrl+Shift+D"
+msgstr "&Disk bruk\tCtrl+Shift+D"
+
+#: clientgui/AdvancedFrame.cpp:364
+#, fuzzy
+msgid "Display disk usage"
+msgstr "Total diskbruk"
+
+#: clientgui/AdvancedFrame.cpp:371
+msgid "Simple &View...\tCtrl+Shift+V"
+msgstr "Enkel &Visning...\tCtrl+Shift+V"
+
+#: clientgui/AdvancedFrame.cpp:372
+msgid "Display the simple graphical interface."
+msgstr "Vis det enkle grafiske brukergrensesnittet."
+
+#: clientgui/AdvancedFrame.cpp:392
+#, fuzzy
+msgid "&Attach to project or account manager..."
+msgstr "Koble til et &prosjekt eller en konto manager..."
+
+#: clientgui/AdvancedFrame.cpp:393
+msgid "Volunteer for any or all of 30+ projects in many areas of science"
+msgstr ""
+
+#: clientgui/AdvancedFrame.cpp:397
+#, fuzzy, c-format
+msgid "&Synchronize with %s"
+msgstr "Erstatt med:"
+
+#: clientgui/AdvancedFrame.cpp:401
+#, fuzzy, c-format
+msgid "Get current settings from %s"
+msgstr "Slett gjeldende side fra bokmerker"
+
+#: clientgui/AdvancedFrame.cpp:412
+#, fuzzy
+msgid "Attach to &project..."
+msgstr "Kryss-prosjekt statistikk"
+
+#: clientgui/AdvancedFrame.cpp:413
+msgid "Attach to a project to begin processing work"
+msgstr "Koble til et prosjekt for å begynne å prosessere arbeid"
+
+#: clientgui/AdvancedFrame.cpp:417
+#, fuzzy, c-format
+msgid "&Stop using %s..."
+msgstr "Bruker proxy %s"
+
+#: clientgui/AdvancedFrame.cpp:423
+msgid "Remove client from account manager control."
+msgstr "Fjern klient fra konto manager kontroll."
+
+#: clientgui/AdvancedFrame.cpp:432
+#, fuzzy
+msgid "&Run always"
+msgstr "Kjø&r kommando..."
+
+#: clientgui/AdvancedFrame.cpp:433
+msgid "Allow work regardless of preferences"
+msgstr "Tillat arbeid uavhengig av preferanser"
+
+#: clientgui/AdvancedFrame.cpp:437
+msgid "Run based on &preferences"
+msgstr "Kjør basert på &preferansene"
+
+#: clientgui/AdvancedFrame.cpp:438
+msgid "Allow work according to your preferences"
+msgstr "Tillat arbeid i henhold til dine preferanser"
+
+#: clientgui/AdvancedFrame.cpp:442
+msgid "&Suspend"
+msgstr "&Suspendert"
+
+#: clientgui/AdvancedFrame.cpp:443
+msgid "Stop work regardless of preferences"
+msgstr "Stopp arbeid uavhengig av preferanser"
+
+#: clientgui/AdvancedFrame.cpp:468
+msgid "Use GPU always"
+msgstr ""
+
+#: clientgui/AdvancedFrame.cpp:469
+#, fuzzy
+msgid "Allow GPU work regardless of preferences"
+msgstr "Tillat arbeid uavhengig av preferanser"
+
+#: clientgui/AdvancedFrame.cpp:473
+#, fuzzy
+msgid "Use GPU based on &preferences"
+msgstr "Kjør basert på &preferansene"
+
+#: clientgui/AdvancedFrame.cpp:474
+#, fuzzy
+msgid "Allow GPU work according to your preferences"
+msgstr "Tillat arbeid i henhold til dine preferanser"
+
+#: clientgui/AdvancedFrame.cpp:478
+msgid "Use GPU never"
+msgstr ""
+
+#: clientgui/AdvancedFrame.cpp:479
+#, fuzzy
+msgid "Stop GPU work regardless of preferences"
+msgstr "Stopp arbeid uavhengig av preferanser"
+
+#: clientgui/AdvancedFrame.cpp:503
+msgid "&Network activity always available"
+msgstr "&Nettverks aktivitet alltid tillatt"
+
+#: clientgui/AdvancedFrame.cpp:504
+msgid "Allow network activity regardless of preferences"
+msgstr "Tillat nettverks bruk uavhengig av preferansene"
+
+#: clientgui/AdvancedFrame.cpp:508
+msgid "Network activity based on pre&ferences"
+msgstr "Nettverks bruk basert på pre&feransene"
+
+#: clientgui/AdvancedFrame.cpp:509
+msgid "Allow network activity according to your preferences"
+msgstr "Tillat nettverks bruk i henhold til dine preferanser"
+
+#: clientgui/AdvancedFrame.cpp:513
+#, fuzzy
+msgid "Network activity s&uspended"
+msgstr "&Veiviser for nettverkskonfigurasjon..."
+
+#: clientgui/AdvancedFrame.cpp:514
+msgid "Stop BOINC network activity"
+msgstr "Stopp BOINC nettverks aktivitet"
+
+#: clientgui/AdvancedFrame.cpp:521
+#, fuzzy
+msgid "&Options..."
+msgstr "Opsjoner"
+
+#: clientgui/AdvancedFrame.cpp:522
+msgid "Configure GUI options and proxy settings"
+msgstr "Konfigurer GUI alternativer og proxy settinger"
+
+#: clientgui/AdvancedFrame.cpp:526
+#, fuzzy
+msgid "&Preferences..."
+msgstr "&Innstillinger ..."
+
+#: clientgui/AdvancedFrame.cpp:527
+#, fuzzy
+msgid "Configure local preferences"
+msgstr "&Lokalt mappetre"
+
+#: clientgui/AdvancedFrame.cpp:533
+#, c-format
+msgid "Connect to another computer running %s"
+msgstr ""
+
+#: clientgui/AdvancedFrame.cpp:538
+msgid "Select computer..."
+msgstr "Velg datamaskin..."
+
+#: clientgui/AdvancedFrame.cpp:543
+msgid "Shut down connected client..."
+msgstr "Avslutt tilkoblet klient..."
+
+#: clientgui/AdvancedFrame.cpp:544
+msgid "Shut down the currently connected core client"
+msgstr "Avslutt den nåværende tilkoblete kjerne klient"
+
+#: clientgui/AdvancedFrame.cpp:548
+#, fuzzy
+msgid "Run CPU &benchmarks"
+msgstr "&Kjør konfigurasjonsveiviser nå..."
+
+#: clientgui/AdvancedFrame.cpp:549
+msgid "Runs BOINC CPU benchmarks"
+msgstr "Kjører BOINC CPU benchmarks"
+
+#: clientgui/AdvancedFrame.cpp:553
+#, fuzzy
+msgid "Do network &communication"
+msgstr "&Veiviser for nettverkskonfigurasjon..."
+
+#: clientgui/AdvancedFrame.cpp:554
+msgid "Do all pending network communication."
+msgstr ""
+
+#: clientgui/AdvancedFrame.cpp:558
+#, fuzzy
+msgid "Read config file"
+msgstr "Lesefeil i fil «%s»"
+
+#: clientgui/AdvancedFrame.cpp:559
+msgid "Read configuration info from cc_config.xml."
+msgstr "Les konfigurasjon info fra cc_config.xml."
+
+#: clientgui/AdvancedFrame.cpp:563
+#, fuzzy
+msgid "Read local prefs file"
+msgstr "Lesefeil i fil «%s»"
+
+#: clientgui/AdvancedFrame.cpp:564
+msgid "Read preferences from global_prefs_override.xml."
+msgstr "Les preferanser fra global_prefs_overide.xml."
+
+#: clientgui/AdvancedFrame.cpp:574
+#, fuzzy, c-format
+msgid "%s &help"
+msgstr "&Hjelp"
+
+#: clientgui/AdvancedFrame.cpp:580
+#, fuzzy, c-format
+msgid "Show information about %s"
+msgstr "Vis om-dialogen"
+
+#: clientgui/AdvancedFrame.cpp:592
+#, fuzzy, c-format
+msgid "&%s help"
+msgstr "&Hjelp"
+
+#: clientgui/AdvancedFrame.cpp:598
+#, fuzzy, c-format
+msgid "Show information about the %s"
+msgstr "Vis om-dialogen"
+
+#: clientgui/AdvancedFrame.cpp:610
+#, fuzzy, c-format
+msgid "%s &website"
+msgstr "BOINC Nettside"
+
+#: clientgui/AdvancedFrame.cpp:616
+#, c-format
+msgid "Show information about BOINC and %s"
+msgstr "Vis informasjon om BOINC og %s"
+
+#: clientgui/AdvancedFrame.cpp:628 clientgui/BOINCTaskBar.cpp:631
+#, c-format
+msgid "&About %s..."
+msgstr "&Om %s..."
+
+#: clientgui/AdvancedFrame.cpp:634
+msgid "Licensing and copyright information."
+msgstr "Lisensiering og informasjon om opphavsrett."
+
+#: clientgui/AdvancedFrame.cpp:641
+msgid "&File"
+msgstr "&Fil"
+
+#: clientgui/AdvancedFrame.cpp:645
+msgid "&View"
+msgstr "&Visning"
+
+#: clientgui/AdvancedFrame.cpp:649
+msgid "&Tools"
+msgstr "&Verktøy"
+
+#: clientgui/AdvancedFrame.cpp:653
+msgid "&Activity"
+msgstr "&Aktivitet"
+
+#: clientgui/AdvancedFrame.cpp:657
+msgid "A&dvanced"
+msgstr "Avansert"
+
+#: clientgui/AdvancedFrame.cpp:661
+msgid "&Help"
+msgstr "&Hjelp"
+
+#: clientgui/AdvancedFrame.cpp:1028
+msgid "Attaching to project or account manager..."
+msgstr "Kobler til et prosjekt eller en konto manager..."
+
+#: clientgui/AdvancedFrame.cpp:1122
+#, fuzzy, c-format
+msgid "%s - Detach from %s"
+msgstr "Gyldig fra:"
+
+#: clientgui/AdvancedFrame.cpp:1127
+#, c-format
+msgid ""
+"If you stop using %s,\n"
+"you'll keep all your current projects,\n"
+"but you'll have to manage projects manually.\n"
+"\n"
+"Do you want to stop using %s?"
+msgstr ""
+
+#: clientgui/AdvancedFrame.cpp:1313
+#, fuzzy, c-format
+msgid "%s - Language Selection"
+msgstr "Språk valg"
+
+#: clientgui/AdvancedFrame.cpp:1320
+#, c-format
+msgid ""
+"The %s's default language has been changed, in order for this change to take "
+"affect you must restart the %s."
+msgstr ""
+
+#: clientgui/AdvancedFrame.cpp:1483
+#, fuzzy, c-format
+msgid "%s - Shutdown the current client..."
+msgstr "Avbryt nåværende tilkobling?"
+
+#: clientgui/AdvancedFrame.cpp:1492
+#, c-format
+msgid ""
+"%s will shut down the currently connected client,\n"
+"and prompt you for another host to connect to.\n"
+msgstr ""
+
+#: clientgui/AdvancedFrame.cpp:1539
+msgid "Retrying communications for project(s)..."
+msgstr ""
+
+#: clientgui/AdvancedFrame.cpp:1735
+#, c-format
+msgid "%s"
+msgstr "%s"
+
+#: clientgui/AdvancedFrame.cpp:1744
+#, c-format
+msgid "%s has successfully attached to %s"
+msgstr ""
+
+#: clientgui/AdvancedFrame.cpp:1875
+#, c-format
+msgid "%s - (%s)"
+msgstr "%s - (%s)"
+
+#: clientgui/AdvancedFrame.cpp:1878
+#, c-format
+msgid "Connecting to %s"
+msgstr "Kobler til %s"
+
+#: clientgui/AdvancedFrame.cpp:1881
+#, fuzzy, c-format
+msgid "Connected to %s (%s)"
+msgstr "Kobler til %s"
+
+#: clientgui/AlreadyExistsPage.cpp:182
+#, fuzzy
+msgid "Username already in use"
+msgstr "Filetternavnet '%s' finnes allerede i listen"
+
+#: clientgui/AlreadyExistsPage.cpp:185
+msgid ""
+"An account with that username already exists and has a\n"
+"different password than the one you entered.\n"
+"\n"
+"Please visit the project's web site and follow the instructions there."
+msgstr ""
+
+#: clientgui/AlreadyExistsPage.cpp:189
+msgid "Email address already in use"
+msgstr "Epost adressen er alllerede i bruk"
+
+#: clientgui/AlreadyExistsPage.cpp:192
+msgid ""
+"An account with that email address already exists and has a\n"
+"different password than the one you entered.\n"
+"\n"
+"Please visit the project's web site and follow the instructions there."
+msgstr ""
+
+#: clientgui/AsyncRPC.cpp:1207
+msgid "Communicating with BOINC client.  Please wait ..."
+msgstr ""
+
+#: clientgui/AsyncRPC.cpp:1210
+#, fuzzy, c-format
+msgid "&Quit %s"
+msgstr "&Slutt"
+
+#: clientgui/AsyncRPC.cpp:1212
+#, fuzzy, c-format
+msgid "E&xit %s"
+msgstr "&Avslutt"
+
+#: clientgui/AsyncRPC.cpp:1229
+msgid "Cancel"
+msgstr "Avbryt"
+
+#: clientgui/BOINCBaseFrame.cpp:422
+#, fuzzy, c-format
+msgid "%s - Connection Error"
+msgstr "Tilkoblingsfeil: %(msg)s"
+
+#: clientgui/BOINCBaseFrame.cpp:431
+msgid ""
+"You currently are not authorized to manage the client.\n"
+"Please contact your administrator to add you to the 'boinc_users' local user "
+"group."
+msgstr ""
+
+#: clientgui/BOINCBaseFrame.cpp:440
+msgid ""
+"Authorization failed connecting to running client.\n"
+"Make sure you start this program in the same directory as the client."
+msgstr ""
+
+#: clientgui/BOINCBaseFrame.cpp:442
+msgid "Authorization failed connecting to running client."
+msgstr ""
+
+#: clientgui/BOINCBaseFrame.cpp:450
+msgid "The password you have provided is incorrect, please try again."
+msgstr ""
+
+#: clientgui/BOINCBaseFrame.cpp:489
+#, fuzzy, c-format
+msgid "%s - Connection Failed"
+msgstr "Tilkoblingsforsøket feilet"
+
+#: clientgui/BOINCBaseFrame.cpp:498
+#, c-format
+msgid ""
+"%s is not able to connect to a %s client.\n"
+"Would you like to try to connect again?"
+msgstr ""
+
+#: clientgui/BOINCBaseFrame.cpp:534
+#, fuzzy, c-format
+msgid "%s - Daemon Start Failed"
+msgstr "Utførelse av kommandoen «%s» feilet"
+
+#: clientgui/BOINCBaseFrame.cpp:544
+#, c-format
+msgid ""
+"%s is not able to start a %s client.\n"
+"Please launch the Control Panel->Administative Tools->Services applet and "
+"start the BOINC service."
+msgstr ""
+
+#: clientgui/BOINCBaseFrame.cpp:550
+#, c-format
+msgid ""
+"%s is not able to start a %s client.\n"
+"Please start the daemon and try again."
+msgstr ""
+
+#: clientgui/BOINCBaseFrame.cpp:596
+#, fuzzy, c-format
+msgid "%s - Connection Status"
+msgstr "Tilkoblingen lukket"
+
+#: clientgui/BOINCBaseFrame.cpp:607
+#, c-format
+msgid ""
+"%s is not currently connected to a %s client.\n"
+"Please use the 'Advanced\\Select Computer...' menu option to connect up to a "
+"%s client.\n"
+"To connect up to your local computer please use 'localhost' as the host name."
+msgstr ""
+
+#: clientgui/BOINCBaseView.cpp:766
+#, fuzzy
+msgid "Web sites"
+msgstr "Mine FTP-servere"
+
+#: clientgui/BOINCDialupManager.cpp:61
+#, fuzzy, c-format
+msgid "%s - Network Status"
+msgstr "Nettverk utilgjengelig"
+
+#: clientgui/BOINCDialupManager.cpp:255
+#, c-format
+msgid "%s needs to connect to the Internet.  Please click to open %s."
+msgstr ""
+
+#: clientgui/BOINCDialupManager.cpp:263
+#, c-format
+msgid ""
+"%s is unable to communicate with a project and needs an Internet "
+"connection.\n"
+"Please connect to the Internet, then select the 'Do network communications' "
+"item from the Advanced menu."
+msgstr ""
+
+#: clientgui/BOINCDialupManager.cpp:310
+#, c-format
+msgid ""
+"%s needs to connect to the Internet.\n"
+"May it do so now?"
+msgstr ""
+
+#: clientgui/BOINCDialupManager.cpp:323
+#, fuzzy, c-format
+msgid "%s is connecting to the Internet."
+msgstr "Kobler til %s gjennom proxy"
+
+#: clientgui/BOINCDialupManager.cpp:354
+#, c-format
+msgid ""
+"%s couldn't do Internet communication, and no default connection is "
+"selected.\n"
+"Please connect to the Internet, or select a default connection\n"
+"using Advanced/Options/Connections."
+msgstr ""
+
+#: clientgui/BOINCDialupManager.cpp:386
+#, c-format
+msgid "%s has successfully connected to the Internet."
+msgstr ""
+
+#: clientgui/BOINCDialupManager.cpp:414
+#, fuzzy, c-format
+msgid "%s failed to connect to the Internet."
+msgstr "Klarte ikke opprette forbindelse: manglende brukernavn/passord."
+
+#: clientgui/BOINCDialupManager.cpp:455
+#, c-format
+msgid ""
+"%s has detected it is now connected to the Internet.\n"
+"Updating all projects and retrying all transfers."
+msgstr ""
+
+#: clientgui/BOINCDialupManager.cpp:500
+#, c-format
+msgid "%s has successfully disconnected from the Internet."
+msgstr ""
+
+#: clientgui/BOINCDialupManager.cpp:516
+#, fuzzy, c-format
+msgid "%s failed to disconnected from the Internet."
+msgstr "Klarte ikke hente data fra utklippstavlen."
+
+#: clientgui/BOINCGUIApp.cpp:325
+msgid ""
+"You currently are not authorized to manage the client.\n"
+"\n"
+"To run BOINC as this user, please:\n"
+"  - reinstall BOINC answering \"Yes\" to the question about\n"
+"     non-administrative users\n"
+" or\n"
+"  - contact your administrator to add you to the 'boinc_master'\n"
+"     user group."
+msgstr ""
+
+#: clientgui/BOINCGUIApp.cpp:328
+#, c-format
+msgid ""
+"BOINC ownership or permissions are not set properly; please reinstall "
+"BOINC.\n"
+"(Error code %d)"
+msgstr ""
+
+#: clientgui/BOINCGUIApp.cpp:378
+msgid ""
+"A reboot is required in order for BOINC to run properly.\n"
+"Please reboot your computer and try again."
+msgstr ""
+"En restart er nødvendig for at BOINC skal kjøre skikkelig.\n"
+"Vennligst restart din datamaskin og forsøk igjen."
+
+#: clientgui/BOINCGUIApp.cpp:379
+#, fuzzy
+msgid "BOINC Manager"
+msgstr "&Serveradministrasjon..."
+
+#: clientgui/BOINCGUIApp.cpp:526
+msgid "BOINC Manager was started by the operating system automatically"
+msgstr ""
+
+#: clientgui/BOINCGUIApp.cpp:528
+msgid "Startup BOINC so only the system tray icon is visible"
+msgstr ""
+
+#: clientgui/BOINCGUIApp.cpp:530
+msgid "Directory containing the BOINC Client executable"
+msgstr ""
+
+#: clientgui/BOINCGUIApp.cpp:531
+#, fuzzy
+msgid "BOINC data directory"
+msgstr "Opprett ny mappe"
+
+#: clientgui/BOINCGUIApp.cpp:533
+msgid "Startup BOINC with these optional arguments"
+msgstr ""
+
+#: clientgui/BOINCGUIApp.cpp:534
+msgid "disable BOINC security users and permissions"
+msgstr ""
+
+#: clientgui/BOINCGUIApp.cpp:535
+msgid "set skin debugging mode to enable skin manager error messages"
+msgstr ""
+
+#: clientgui/BOINCGUIApp.cpp:725
+#, fuzzy
+msgid "(Automatic Detection)"
+msgstr "Automatisk stavekontroll"
+
+#: clientgui/BOINCGUIApp.cpp:726
+#, fuzzy
+msgid "(Unknown)"
+msgstr "ukjent"
+
+#: clientgui/BOINCGUIApp.cpp:727
+#, fuzzy
+msgid "(User Defined)"
+msgstr "%s - Proxy bruker"
+
+#: clientgui/BOINCTaskBar.cpp:348
+#, fuzzy
+msgid "Computation is suspended."
+msgstr "er lik"
+
+#: clientgui/BOINCTaskBar.cpp:356
+msgid "Network activity is suspended."
+msgstr "Nettverks aktiviteten er suspendert."
+
+#: clientgui/BOINCTaskBar.cpp:390
+#, fuzzy, c-format
+msgid "%s: %.2f%% completed."
+msgstr "Nedlasting ferdig"
+
+#: clientgui/BOINCTaskBar.cpp:403
+#, fuzzy, c-format
+msgid "%d tasks running."
+msgstr "Vis alle oppgaver"
+
+#: clientgui/BOINCTaskBar.cpp:412
+#, fuzzy
+msgid "Reconnecting to client."
+msgstr "Klient til server MAC:"
+
+#: clientgui/BOINCTaskBar.cpp:418
+#, fuzzy
+msgid "Not connected to a client."
+msgstr "Er ikke tilkoblet noen server"
+
+#: clientgui/BOINCTaskBar.cpp:609
+#, fuzzy, c-format
+msgid "Open %s Web..."
+msgstr "Nettside"
+
+#: clientgui/BOINCTaskBar.cpp:616
+#, fuzzy, c-format
+msgid "Open %s..."
+msgstr "&Åpne"
+
+#: clientgui/BOINCTaskBar.cpp:623
+msgid "Snooze"
+msgstr "Snooze"
+
+#: clientgui/BOINCTaskBar.cpp:625
+msgid "Snooze GPU"
+msgstr ""
+
+#: clientgui/CompletionErrorPage.cpp:199
+#, fuzzy
+msgid "Failed to attach to project"
+msgstr "Klarte ikke %s oppringingsforbindelse: %s"
+
+#: clientgui/CompletionErrorPage.cpp:204
+#, fuzzy
+msgid "Failed to update account manager"
+msgstr "Klarte ikke oppdatere bruker konfigurasjonsfil."
+
+#: clientgui/CompletionErrorPage.cpp:208
+#, fuzzy
+msgid "Failed to remove account manager"
+msgstr "Klarte ikke slette låsefil «%s»"
+
+#: clientgui/CompletionErrorPage.cpp:212
+#, fuzzy
+msgid "Failed to attach to account manager"
+msgstr "Klarte ikke oppdatere bruker konfigurasjonsfil."
+
+#: clientgui/CompletionErrorPage.cpp:221
+msgid ""
+"An error has occurred;\n"
+"check Messages for details.\n"
+"\n"
+"Click Finish to close."
+msgstr ""
+
+#: clientgui/CompletionErrorPage.cpp:225 clientgui/CompletionPage.cpp:223
+#: clientgui/CompletionPage.cpp:246 clientgui/CompletionPage.cpp:295
+#, fuzzy
+msgid "Click Finish to close."
+msgstr "Klarte ikke lukke utklippstavlen."
+
+#: clientgui/CompletionErrorPage.cpp:234
+#, fuzzy
+msgid "Messages from server:"
+msgstr "&Koble fra server"
+
+#: clientgui/CompletionPage.cpp:208
+#, fuzzy
+msgid "Attached to project"
+msgstr "Kryss-prosjekt statistikk"
+
+#: clientgui/CompletionPage.cpp:214
+msgid "You are now successfully attached to this project."
+msgstr ""
+
+#: clientgui/CompletionPage.cpp:219
+msgid ""
+"When you click Finish, your web browser will go to a page where\n"
+"you can set your account name and preferences."
+msgstr ""
+
+#: clientgui/CompletionPage.cpp:236
+#, fuzzy, c-format
+msgid "Update from %s completed."
+msgstr "&Oppdater fra kilden"
+
+#: clientgui/CompletionPage.cpp:240
+#, fuzzy
+msgid "Update completed."
+msgstr "Nedlasting ferdig"
+
+#: clientgui/CompletionPage.cpp:257
+#, fuzzy, c-format
+msgid "Attached to %s"
+msgstr "Kobler til %s"
+
+#: clientgui/CompletionPage.cpp:261
+#, fuzzy
+msgid "Attached to account manager"
+msgstr "Koble til den spesifiserte serveren i Serveradministrasjonen"
+
+#: clientgui/CompletionPage.cpp:271
+#, fuzzy, c-format
+msgid "Welcome to %s!"
+msgstr "Kobler til %s"
+
+#: clientgui/CompletionPage.cpp:285
+#, c-format
+msgid "You are now successfully attached to the %s system."
+msgstr ""
+
+#: clientgui/CompletionPage.cpp:289
+msgid "You are now successfully attached to this account manager."
+msgstr ""
+
+#: clientgui/DlgAbout.cpp:98
+#, fuzzy, c-format
+msgid "About %s"
+msgstr "%Om"
+
+#: clientgui/DlgAbout.cpp:155
+#, fuzzy
+msgid "Version:"
+msgstr "&Versjon %s"
+
+#: clientgui/DlgAbout.cpp:163
+#, fuzzy
+msgid "wxWidgets Version:"
+msgstr "Se etter _oppdateringer..."
+
+#: clientgui/DlgAbout.cpp:171
+msgid "Copyright:"
+msgstr "Copyright:"
+
+#: clientgui/DlgAbout.cpp:175
+#, fuzzy
+msgid ""
+"(C) 2003-2010 University of California, Berkeley.\n"
+"All Rights Reserved."
+msgstr ""
+"(C) 2003-2008 University of California, Berkeley.\n"
+"All Rights Reserved."
+
+#: clientgui/DlgAbout.cpp:179 clientgui/DlgAbout.cpp:183
+msgid "Berkeley Open Infrastructure for Network Computing"
+msgstr "Berkeley Open Infrastructure for Network Computing"
+
+#: clientgui/DlgAbout.cpp:195 clientgui/DlgExitMessage.cpp:172
+#: clientgui/DlgGenericMessage.cpp:120 clientgui/DlgOptions.cpp:383
+#: clientgui/DlgSelectComputer.cpp:147
+msgid "&OK"
+msgstr "&OK"
+
+#: clientgui/DlgAdvPreferences.cpp:500
+#, fuzzy
+msgid "invalid float"
+msgstr "«%s» er ugyldig"
+
+#: clientgui/DlgAdvPreferences.cpp:501
+msgid "invalid time, format is HH:MM"
+msgstr "ugyldig tid, formatet er TT:MM"
+
+#: clientgui/DlgAdvPreferences.cpp:502
+msgid "invalid time interval, format is HH:MM-HH:MM"
+msgstr "ugyldig tidsintervall, formatet er TT:MM-TT:MM"
+
+#: clientgui/DlgAdvPreferences.cpp:616
+#, fuzzy
+msgid "invalid input value detected"
+msgstr "ugyldig eof() returverdi."
+
+#: clientgui/DlgAdvPreferences.cpp:618
+#, fuzzy
+msgid "Validation Error"
+msgstr "(feil %ld: %s)"
+
+#: clientgui/DlgAdvPreferences.cpp:762
+msgid "Do you really want to clear all local preferences ?"
+msgstr ""
+
+#: clientgui/DlgAdvPreferences.cpp:763
+msgid "Confirmation"
+msgstr "Bekreftelse"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:31
+#, fuzzy, c-format
+msgid "%s - Preferences"
+msgstr "&Innstillinger"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:49
+msgid ""
+"This dialog controls preferences for this computer only.\n"
+"Click OK to set preferences.\n"
+"Click Clear to restore web-based settings."
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:52
+#, fuzzy
+msgid "Clear"
+msgstr "&Tøm"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:53
+msgid "clear all local preferences and close the dialog"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:76
+#, fuzzy
+msgid "Computing allowed"
+msgstr "Databehandling preferanser"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:80
+msgid " While computer is on batteries"
+msgstr "Mens datamaskinen er på batterier"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:83
+msgid ""
+"check this if you want this computer to do work while it runs on batteries"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:89
+#, fuzzy
+msgid " While computer is in use"
+msgstr "% når datamaskinen er i bruk"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:92
+msgid ""
+"check this if you want this computer to do work even when you're using it"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:98
+msgid " Use GPU while computer is in use"
+msgstr "Bruk GPU mens datamaskinen er i bruk"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:101
+msgid ""
+"check this if you want your GPU to do work even when you're using the "
+"computer"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:113
+msgid "Only after computer has been idle for"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:123
+msgid ""
+"do work only after you haven't used the computer for this number of minutes"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:128
+#: clientgui/DlgAdvPreferencesBase.cpp:286
+#, fuzzy
+msgid "minutes"
+msgstr "Minutter"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:147
+#, fuzzy
+msgid "While processor usage is less than"
+msgstr "prosessor bruk"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:157
+msgid "suspend work if processor usage exceeds this level"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:162
+msgid "percent (0 means no restriction)"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:177
+#: clientgui/DlgAdvPreferencesBase.cpp:427
+msgid "Every day between hours of"
+msgstr "Hver dag mellom"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:181
+msgid "start work at this time"
+msgstr "start arbeid klokken"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:185
+#: clientgui/DlgAdvPreferencesBase.cpp:435
+#, fuzzy
+msgid "and"
+msgstr "%s og %s. Total størrelse: %s"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:189
+msgid "stop work at this time"
+msgstr "stopp arbeid klokken"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:193
+#: clientgui/DlgAdvPreferencesBase.cpp:443
+msgid "(no restriction if equal)"
+msgstr "(ingen begrensninger hvis lik)"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:198
+#: clientgui/DlgAdvPreferencesBase.cpp:448
+#, fuzzy
+msgid "Day-of-week override:"
+msgstr "%(count)d dag siden"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:203
+#: clientgui/DlgAdvPreferencesBase.cpp:453
+msgid "check box to specify hours for this day of week"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:213
+#: clientgui/DlgAdvPreferencesBase.cpp:463
+msgid "Monday"
+msgstr "Mandag"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:220
+#: clientgui/DlgAdvPreferencesBase.cpp:470
+msgid "Tuesday"
+msgstr "Tirsdag"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:227
+#: clientgui/DlgAdvPreferencesBase.cpp:477
+msgid "Wednesday"
+msgstr "Onsdag"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:234
+#: clientgui/DlgAdvPreferencesBase.cpp:484
+msgid "Thursday"
+msgstr "Torsdag"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:241
+#: clientgui/DlgAdvPreferencesBase.cpp:491
+msgid "Friday"
+msgstr "Fredag"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:248
+#: clientgui/DlgAdvPreferencesBase.cpp:498
+msgid "Saturday"
+msgstr "Lørdag"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:255
+#: clientgui/DlgAdvPreferencesBase.cpp:505
+msgid "Sunday"
+msgstr "Søndag"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:272
+#, fuzzy
+msgid "Other options"
+msgstr "Skriveropsjoner"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:280
+msgid "Switch between applications every"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:289
+msgid "On multiprocessor systems, use at most"
+msgstr "På flerprosessor systemer, ikke bruk mer enn"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:296
+#, no-c-format
+msgid "% of the processors"
+msgstr "% av prosessorene"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:299
+#: clientgui/DlgAdvPreferencesBase.cpp:540
+#: clientgui/DlgAdvPreferencesBase.cpp:562
+#: clientgui/DlgAdvPreferencesBase.cpp:583
+#: clientgui/DlgAdvPreferencesBase.cpp:606
+#: clientgui/DlgAdvPreferencesBase.cpp:616
+#, fuzzy
+msgid "Use at most"
+msgstr "(Minst 7 dager)"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:306
+#, fuzzy, no-c-format
+msgid "% CPU time"
+msgstr "Forløpt tid :"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:316
+msgid "processor usage"
+msgstr "prosessor bruk"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:324
+#, fuzzy
+msgid "General options"
+msgstr "Skriveropsjoner"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:333
+#, fuzzy
+msgid "Maximum download rate"
+msgstr "Last ned valgt mappe"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:339
+#: clientgui/DlgAdvPreferencesBase.cpp:348
+msgid "KBytes/sec."
+msgstr "KBytes/sek."
+
+#: clientgui/DlgAdvPreferencesBase.cpp:342
+#, fuzzy
+msgid "Maximum upload rate"
+msgstr "Last opp valgte mappe"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:353
+#, fuzzy
+msgid "Transfer at most"
+msgstr "(Minst 7 dager)"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:359
+#, fuzzy
+msgid "Mbytes"
+msgstr "ja"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:362
+#, fuzzy
+msgid "every"
+msgstr "Server:"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:368
+#: clientgui/DlgAdvPreferencesBase.cpp:382
+#, fuzzy
+msgid "days"
+msgstr "3 dager"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:374
+#, fuzzy
+msgid "Connect about every"
+msgstr "Hvert 30. minutt"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:378
+msgid ""
+"this computer is connected to the Internet about every X days\n"
+"(0 if it's always connected)"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:385
+#, fuzzy
+msgid "Additional work buffer"
+msgstr "«%s» er sannsynligvis en binær buffer."
+
+#: clientgui/DlgAdvPreferencesBase.cpp:391
+#, fuzzy
+msgid "days (max. 10)"
+msgstr "Sett 10 dager siden"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:394
+#, fuzzy
+msgid " Skip image file verification"
+msgstr "ICO: Feil ved skriving av bildefil!"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:396
+msgid "check this if your Internet provider modifies image files"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:405
+#, fuzzy
+msgid "Connect options"
+msgstr "Skriveropsjoner"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:407
+msgid "Confirm before connecting to internet"
+msgstr "Bekreft før internett tilkobling"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:409
+msgid ""
+"if checked, a confirmation dialog will be displayed before trying to connect "
+"to the Internet"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:413
+#, fuzzy
+msgid "Disconnect when done"
+msgstr "&Koble fra server"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:415
+msgid ""
+"if checked, BOINC hangs up when network usage is done\n"
+"(only relevant for dialup-connection)"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:422
+#, fuzzy
+msgid "Network usage allowed"
+msgstr "Total diskbruk"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:431
+msgid "network usage start hour"
+msgstr "nettverksbruk start tidspunkt"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:439
+msgid "network usage stop hour"
+msgstr "nettverksbruk stopp tidspunkt"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:524
+msgid "network usage"
+msgstr "Nettverks bruk"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:532 clientgui/DlgItemProperties.cpp:215
+msgid "Disk usage"
+msgstr "Diskbruk"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:544
+msgid "the maximum disk space used by BOINC (in Gigabytes)"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:548
+#, fuzzy
+msgid "Gigabytes disk space"
+msgstr "Ikke nok lagringsplass"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:551
+#, fuzzy
+msgid "Leave at least"
+msgstr "(Minst 7 dager)"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:555
+msgid "BOINC leaves at least this amount of disk space free (in Gigabytes)"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:559
+#, fuzzy
+msgid "Gigabytes disk space free"
+msgstr "Ledig plass på disken:"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:566
+msgid "BOINC uses at most this percentage of total disk space"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:571
+#, fuzzy, no-c-format
+msgid "% of total disk space"
+msgstr "Total diskbruk"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:574
+msgid "Tasks checkpoint to disk at most every"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:580
+#, fuzzy
+msgid "seconds"
+msgstr "(0-999 sekunder)"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:590
+#, no-c-format
+msgid "% of page file (swap space)"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:598
+#, fuzzy
+msgid "Memory usage"
+msgstr "prosessor bruk"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:613
+#, no-c-format
+msgid "% when computer is in use"
+msgstr "% når datamaskinen er i bruk"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:623
+#, fuzzy, no-c-format
+msgid "% when computer is idle"
+msgstr "% når datamaskinen er i bruk"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:628
+msgid " Leave applications in memory while suspended"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:630
+msgid "if checked, suspended work units are left in memory"
+msgstr ""
+
+#: clientgui/DlgAdvPreferencesBase.cpp:639
+msgid "disk and memory usage"
+msgstr "disk og minne bruk"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:652
+msgid "OK"
+msgstr "OK"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:653
+msgid "save all values and close the dialog"
+msgstr "lagre alle verdier og lukk dialogen"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:658
+msgid "close the dialog without saving"
+msgstr "lukk dialogen uten å lagre"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:662 clientgui/Localization.cpp:35
+#: clientgui/Localization.cpp:121 clientgui/Localization.cpp:139
+msgid "Help"
+msgstr "Hjelp"
+
+#: clientgui/DlgAdvPreferencesBase.cpp:663
+#, fuzzy
+msgid "shows the preferences web page"
+msgstr "URL til Teamets nettside, hvis det er en nettside"
+
+#: clientgui/DlgExitMessage.cpp:82
+#, fuzzy, c-format
+msgid "%s - Exit Confirmation"
+msgstr "Bekreftelse nødvendig"
+
+#: clientgui/DlgExitMessage.cpp:130
+#, c-format
+msgid ""
+"You have requested to exit the %s,\n"
+"which allows you to view and manage\n"
+"the science applications running on your computer.\n"
+"\n"
+"If you also want to stop running the science applications when you\n"
+"exit the Manager, then choose from the following options:"
+msgstr ""
+
+#: clientgui/DlgExitMessage.cpp:135
+#, c-format
+msgid ""
+"This will shut down %s and its tasks entirely until either the\n"
+"%s application or the %s screen saver is run again.\n"
+"\n"
+"In most cases, it is better just to close the %s window\n"
+"rather than to exit the application; that will allow %s to run its\n"
+"tasks at the times you selected in your preferences."
+msgstr ""
+
+#: clientgui/DlgExitMessage.cpp:153
+msgid "Stop running science applications when exiting the Manager"
+msgstr ""
+
+#: clientgui/DlgExitMessage.cpp:164
+msgid "Remember this decision and do not show this dialog."
+msgstr ""
+
+#: clientgui/DlgExitMessage.cpp:177 clientgui/DlgGenericMessage.cpp:125
+#: clientgui/DlgOptions.cpp:388 clientgui/DlgSelectComputer.cpp:152
+msgid "&Cancel"
+msgstr "&Avbryt"
+
+#: clientgui/DlgGenericMessage.cpp:112
+#, fuzzy
+msgid "Don't show this dialog again."
+msgstr "&Ikke vis denne dialogen igjen."
+
+#: clientgui/DlgItemProperties.cpp:66
+msgid "&Close"
+msgstr "&Lukk"
+
+#: clientgui/DlgItemProperties.cpp:197
+#, fuzzy
+msgid "Properties of project "
+msgstr "Slett prosjekt"
+
+#: clientgui/DlgItemProperties.cpp:201 clientgui/DlgOptions.cpp:205
+msgid "General"
+msgstr "Generell"
+
+#: clientgui/DlgItemProperties.cpp:202
+#, fuzzy
+msgid "Master URL"
+msgstr "FTP URL"
+
+#: clientgui/DlgItemProperties.cpp:203
+msgid "User name"
+msgstr "Brukernavn"
+
+#: clientgui/DlgItemProperties.cpp:204
+msgid "Team name"
+msgstr "Team navn"
+
+#: clientgui/DlgItemProperties.cpp:205
+#, fuzzy
+msgid "Resource share"
+msgstr "Resurs deling og grafikk"
+
+#: clientgui/DlgItemProperties.cpp:207
+msgid "Scheduler RPC deferred for"
+msgstr ""
+
+#: clientgui/DlgItemProperties.cpp:210
+#, fuzzy
+msgid "File downloads deferred for"
+msgstr "Grense for samtidige &nedlastinger:"
+
+#: clientgui/DlgItemProperties.cpp:213
+#, fuzzy
+msgid "File uploads deferred for"
+msgstr "Grense for samtidige o&pplastinger:"
+
+#: clientgui/DlgItemProperties.cpp:216
+#, fuzzy
+msgid "Computer ID"
+msgstr "Bruker ID"
+
+#: clientgui/DlgItemProperties.cpp:217
+msgid "Non CPU intensive"
+msgstr "Ikke CPU intensiv"
+
+#: clientgui/DlgItemProperties.cpp:217 clientgui/DlgItemProperties.cpp:218
+#: clientgui/DlgItemProperties.cpp:219 clientgui/DlgItemProperties.cpp:220
+#: clientgui/DlgItemProperties.cpp:221 clientgui/DlgItemProperties.cpp:222
+#: clientgui/DlgItemProperties.cpp:223
+msgid "yes"
+msgstr "ja"
+
+#: clientgui/DlgItemProperties.cpp:217 clientgui/DlgItemProperties.cpp:218
+#: clientgui/DlgItemProperties.cpp:219 clientgui/DlgItemProperties.cpp:220
+#: clientgui/DlgItemProperties.cpp:221 clientgui/DlgItemProperties.cpp:222
+#: clientgui/DlgItemProperties.cpp:223
+msgid "no"
+msgstr "nei"
+
+#: clientgui/DlgItemProperties.cpp:218
+msgid "Suspended via GUI"
+msgstr "Suspendert via GUI"
+
+#: clientgui/DlgItemProperties.cpp:219
+msgid "Don't request more work"
+msgstr "Ikke anmod om mer arbeid"
+
+#: clientgui/DlgItemProperties.cpp:220
+#, fuzzy
+msgid "Scheduler call in progress"
+msgstr "Filoverføring pågår fremdeles."
+
+#: clientgui/DlgItemProperties.cpp:221
+#, fuzzy
+msgid "Attached via account manager"
+msgstr "Koble til den spesifiserte serveren i Serveradministrasjonen"
+
+#: clientgui/DlgItemProperties.cpp:222
+#, fuzzy
+msgid "Detach when done"
+msgstr "Når jeg trykker lukk-knappen:"
+
+#: clientgui/DlgItemProperties.cpp:223
+msgid "Ended"
+msgstr "Ferdig"
+
+#: clientgui/DlgItemProperties.cpp:224
+#, fuzzy
+msgid "Credit"
+msgstr "Total kreditt"
+
+#: clientgui/DlgItemProperties.cpp:225
+msgid "User"
+msgstr "Bruker"
+
+#: clientgui/DlgItemProperties.cpp:232
+#, fuzzy
+msgid "Host"
+msgstr "%h - Vert"
+
+#: clientgui/DlgItemProperties.cpp:241
+msgid "Scheduling"
+msgstr ""
+
+#: clientgui/DlgItemProperties.cpp:243 clientgui/DlgItemProperties.cpp:253
+#: clientgui/DlgItemProperties.cpp:264
+#, fuzzy
+msgid "Project preference"
+msgstr "Databehandling preferanser"
+
+#: clientgui/DlgItemProperties.cpp:243
+#, fuzzy
+msgid "Don't fetch CPU tasks"
+msgstr "Henter ikke nye oppgaver"
+
+#: clientgui/DlgItemProperties.cpp:245
+#, fuzzy
+msgid "CPU scheduling priority"
+msgstr "Klarte ikke sette trådprioritet"
+
+#: clientgui/DlgItemProperties.cpp:246
+msgid "CPU work fetch priority"
+msgstr ""
+
+#: clientgui/DlgItemProperties.cpp:249
+msgid "CPU work fetch deferred for"
+msgstr ""
+
+#: clientgui/DlgItemProperties.cpp:250
+msgid "CPU work fetch deferral interval"
+msgstr ""
+
+#: clientgui/DlgItemProperties.cpp:253
+msgid "Don't fetch NVIDIA GPU tasks"
+msgstr ""
+
+#: clientgui/DlgItemProperties.cpp:255
+#, fuzzy
+msgid "NVIDIA GPU scheduling priority"
+msgstr "Klarte ikke sette trådprioritet"
+
+#: clientgui/DlgItemProperties.cpp:256
+msgid "NVIDIA GPU work fetch priority"
+msgstr ""
+
+#: clientgui/DlgItemProperties.cpp:259
+msgid "NVIDIA GPU work fetch deferred for"
+msgstr ""
+
+#: clientgui/DlgItemProperties.cpp:260
+msgid "NVIDIA GPU work fetch deferral interval"
+msgstr ""
+
+#: clientgui/DlgItemProperties.cpp:264
+#, fuzzy
+msgid "Don't fetch ATI GPU tasks"
+msgstr "Henter ikke nye oppgaver"
+
+#: clientgui/DlgItemProperties.cpp:266
+#, fuzzy
+msgid "ATI GPU scheduling priority"
+msgstr "Klarte ikke sette trådprioritet"
+
+#: clientgui/DlgItemProperties.cpp:267
+msgid "ATI GPU work fetch priority"
+msgstr ""
+
+#: clientgui/DlgItemProperties.cpp:270
+msgid "ATI GPU work fetch deferred for"
+msgstr ""
+
+#: clientgui/DlgItemProperties.cpp:271
+msgid "ATI GPU work fetch deferral interval"
+msgstr ""
+
+#: clientgui/DlgItemProperties.cpp:273
+msgid "Duration correction factor"
+msgstr ""
+
+#: clientgui/DlgItemProperties.cpp:283
+#, fuzzy
+msgid "Properties of task "
+msgstr "Kolonneegenskaper"
+
+#: clientgui/DlgItemProperties.cpp:287
+msgid "Application"
+msgstr "Program"
+
+#: clientgui/DlgItemProperties.cpp:288
+#, fuzzy
+msgid "Workunit name"
+msgstr "Vanlig navn:"
+
+#: clientgui/DlgItemProperties.cpp:289
+msgid "State"
+msgstr "Tilstand"
+
+#: clientgui/DlgItemProperties.cpp:292
+#, fuzzy
+msgid "Received"
+msgstr "Ugyldig data mottatt"
+
+#: clientgui/DlgItemProperties.cpp:295
+#, fuzzy
+msgid "Report deadline"
+msgstr "&Rapporter en feil..."
+
+#: clientgui/DlgItemProperties.cpp:297
+msgid "Resources"
+msgstr "Ressurser"
+
+#: clientgui/DlgItemProperties.cpp:300
+msgid "CPU time at last checkpoint"
+msgstr "CPU tid ved siste sjekkpunkt"
+
+#: clientgui/DlgItemProperties.cpp:301 clientgui/DlgItemProperties.cpp:316
+#, fuzzy
+msgid "CPU time"
+msgstr "Forløpt tid :"
+
+#: clientgui/DlgItemProperties.cpp:303 clientgui/DlgItemProperties.cpp:317
+#, fuzzy
+msgid "Elapsed time"
+msgstr "Forløpt tid :"
+
+#: clientgui/DlgItemProperties.cpp:305
+#, fuzzy
+msgid "Estimated time remaining"
+msgstr "Sammenlign &modifikasjonstidspunkt"
+
+#: clientgui/DlgItemProperties.cpp:306
+msgid "Fraction done"
+msgstr "Brøkdel ferdig"
+
+#: clientgui/DlgItemProperties.cpp:307
+#, fuzzy
+msgid "Virtual memory size"
+msgstr "Skriftpunktstørrelse"
+
+#: clientgui/DlgItemProperties.cpp:308
+#, fuzzy
+msgid "Working set size"
+msgstr "Skriftpunktstørrelse"
+
+#: clientgui/DlgItemProperties.cpp:310
+msgid "Directory"
+msgstr "Mappe"
+
+#: clientgui/DlgItemProperties.cpp:313
+msgid "Process ID"
+msgstr ""
+
+#: clientgui/DlgItemProperties.cpp:411
+#, fuzzy
+msgid "New"
+msgstr "Nye"
+
+#: clientgui/DlgItemProperties.cpp:415
+#, fuzzy
+msgid "Download failed"
+msgstr "Forgrening feilet"
+
+#: clientgui/DlgItemProperties.cpp:417
+msgid "Downloading"
+msgstr "Laster  ned"
+
+#: clientgui/DlgItemProperties.cpp:422
+#, fuzzy
+msgid "Project suspended by user"
+msgstr "Overføringen avbrutt av bruker"
+
+#: clientgui/DlgItemProperties.cpp:424
+#, fuzzy
+msgid "Task suspended by user"
+msgstr "Overføringen avbrutt av bruker"
+
+#: clientgui/DlgItemProperties.cpp:426
+msgid "Suspended"
+msgstr "Suspendert"
+
+#: clientgui/DlgItemProperties.cpp:428
+#, fuzzy
+msgid " - on batteries"
+msgstr "Kompilert på:"
+
+#: clientgui/DlgItemProperties.cpp:431
+#, fuzzy
+msgid " - user active"
+msgstr "Aktiv modus"
+
+#: clientgui/DlgItemProperties.cpp:434
+msgid " - computation suspended"
+msgstr " - databehandling suspendert"
+
+#: clientgui/DlgItemProperties.cpp:437
+#, fuzzy
+msgid " - time of day"
+msgstr "Dagens tips"
+
+#: clientgui/DlgItemProperties.cpp:440
+#, fuzzy
+msgid " - CPU benchmarks"
+msgstr "CPU funksjoner"
+
+#: clientgui/DlgItemProperties.cpp:443
+#, fuzzy
+msgid " - need disk space"
+msgstr "Ikke nok lagringsplass"
+
+#: clientgui/DlgItemProperties.cpp:447
+#, fuzzy
+msgid "Waiting for memory"
+msgstr "Venter på passord"
+
+#: clientgui/DlgItemProperties.cpp:449
+#, fuzzy
+msgid "Waiting for shared memory"
+msgstr "Venter på "
+
+#: clientgui/DlgItemProperties.cpp:452
+#, fuzzy
+msgid "Running, high priority"
+msgstr "Klarte ikke sette trådprioritet"
+
+#: clientgui/DlgItemProperties.cpp:454
+msgid "Running"
+msgstr "Kjører"
+
+#: clientgui/DlgItemProperties.cpp:457
+#, fuzzy
+msgid "Waiting to run"
+msgstr "Venter til neste forsøk..."
+
+#: clientgui/DlgItemProperties.cpp:459 clientgui/DlgItemProperties.cpp:462
+#, fuzzy
+msgid "Ready to start"
+msgstr "Start overføring &umiddelbart"
+
+#: clientgui/DlgItemProperties.cpp:466
+#, fuzzy
+msgid "Computation error"
+msgstr "(feil %ld: %s)"
+
+#: clientgui/DlgItemProperties.cpp:470
+msgid "Upload failed"
+msgstr "Opplasting feilet"
+
+#: clientgui/DlgItemProperties.cpp:472
+msgid "Uploading"
+msgstr "Laster opp"
+
+#: clientgui/DlgItemProperties.cpp:478
+#, fuzzy
+msgid "Aborted by user"
+msgstr "Overføringen avbrutt av bruker"
+
+#: clientgui/DlgItemProperties.cpp:481
+#, fuzzy
+msgid "Aborted by project"
+msgstr "Overføringen avbrutt av bruker"
+
+#: clientgui/DlgItemProperties.cpp:484
+#, fuzzy
+msgid "Aborted"
+msgstr "Program avbrutt."
+
+#: clientgui/DlgItemProperties.cpp:489
+msgid "Acknowledged"
+msgstr "Erkjent"
+
+#: clientgui/DlgItemProperties.cpp:491
+#, fuzzy
+msgid "Ready to report"
+msgstr "Send kræsjrapport"
+
+#: clientgui/DlgItemProperties.cpp:493
+#, fuzzy, c-format
+msgid "Error: invalid state '%d'"
+msgstr "GIF: Ugyldig GIF-indeks"
+
+#: clientgui/DlgOptions.cpp:119
+#, fuzzy, c-format
+msgid "%s - Options"
+msgstr "Opsjoner"
+
+#: clientgui/DlgOptions.cpp:157
+msgid "Language:"
+msgstr "Språk:"
+
+#: clientgui/DlgOptions.cpp:164
+msgid "What language should the manager use?"
+msgstr "Hvilket språk skal manageren bruke?"
+
+#: clientgui/DlgOptions.cpp:168
+msgid ""
+"Network reminder interval:\n"
+"(minutes)"
+msgstr ""
+
+#: clientgui/DlgOptions.cpp:180
+msgid ""
+"How often should the Manager remind you when a network connection is needed?"
+msgstr ""
+
+#: clientgui/DlgOptions.cpp:185
+msgid "Run Manager at login?"
+msgstr "Kjør Manager ved pålogging?"
+
+#: clientgui/DlgOptions.cpp:191
+msgid "Run the BOINC Manager when you log on."
+msgstr ""
+
+#: clientgui/DlgOptions.cpp:196
+msgid "Enable Manager exit dialog?"
+msgstr ""
+
+#: clientgui/DlgOptions.cpp:202
+msgid "Display the exit dialog when shutting down the Manager."
+msgstr ""
+
+#: clientgui/DlgOptions.cpp:213
+msgid "Dial-up and Virtual Private Network settings"
+msgstr ""
+
+#: clientgui/DlgOptions.cpp:227
+#, fuzzy
+msgid "&Set Default"
+msgstr "Standardkoding"
+
+#: clientgui/DlgOptions.cpp:232
+#, fuzzy
+msgid "&Clear Default"
+msgstr "Standardkoding"
+
+#: clientgui/DlgOptions.cpp:239
+#, fuzzy
+msgid "Default Connection:"
+msgstr "Tilkoblingen lukket"
+
+#: clientgui/DlgOptions.cpp:246
+#, fuzzy
+msgid "Connections"
+msgstr "&Maksimalt antall tilkoblinger:"
+
+#: clientgui/DlgOptions.cpp:255
+msgid "Connect via HTTP proxy server"
+msgstr "Koble til via HTTP proxy server"
+
+#: clientgui/DlgOptions.cpp:259
+msgid "HTTP Proxy Server Configuration"
+msgstr "HTTP Proxy server konfigurasjon"
+
+#: clientgui/DlgOptions.cpp:267 clientgui/DlgOptions.cpp:331
+msgid "Address:"
+msgstr "Adresse:"
+
+#: clientgui/DlgOptions.cpp:275 clientgui/DlgOptions.cpp:339
+msgid "Port:"
+msgstr "Port:"
+
+#: clientgui/DlgOptions.cpp:283 clientgui/DlgOptions.cpp:347
+#, fuzzy
+msgid "Don't use proxy for:"
+msgstr "Ikke bruk HTML tags."
+
+#: clientgui/DlgOptions.cpp:290 clientgui/DlgOptions.cpp:354
+msgid "Leave these blank if not needed"
+msgstr ""
+
+#: clientgui/DlgOptions.cpp:296 clientgui/DlgOptions.cpp:360
+#, fuzzy
+msgid "User Name:"
+msgstr "Brukernavn"
+
+#: clientgui/DlgOptions.cpp:304 clientgui/DlgOptions.cpp:368
+#: clientgui/DlgSelectComputer.cpp:136
+msgid "Password:"
+msgstr "Passord:"
+
+#: clientgui/DlgOptions.cpp:311
+#, fuzzy
+msgid "HTTP Proxy"
+msgstr "%s - Proxy bruker"
+
+#: clientgui/DlgOptions.cpp:319
+msgid "Connect via SOCKS proxy server"
+msgstr "Koble til via SOCS proxy server"
+
+#: clientgui/DlgOptions.cpp:323
+#, fuzzy
+msgid "SOCKS Proxy Server Configuration"
+msgstr "Generell SOCKS serverfeil"
+
+#: clientgui/DlgOptions.cpp:375
+#, fuzzy
+msgid "SOCKS Proxy"
+msgstr "%s - Proxy bruker"
+
+#: clientgui/DlgSelectComputer.cpp:90
+#, fuzzy, c-format
+msgid "%s - Select Computer"
+msgstr "Velg datamaskin..."
+
+#: clientgui/DlgSelectComputer.cpp:127
+#, fuzzy
+msgid "Host name:"
+msgstr "Vanlig navn:"
+
+#: clientgui/hyperlink.cpp:181
+#, fuzzy, c-format
+msgid "%s - Can't find web browser"
+msgstr "Klarte ikke finne gjeldende posisjon i filen «%s»"
+
+#: clientgui/hyperlink.cpp:192
+#, c-format
+msgid ""
+"%s tried to display the web page\n"
+"\t%s\n"
+"but couldn't find a web browser.\n"
+"To fix this, set the environment variable\n"
+"BROWSER to the path of your web browser,\n"
+"then restart the %s."
+msgstr ""
+
+#: clientgui/Localization.cpp:31 clientgui/Localization.cpp:69
+msgid "Message boards"
+msgstr "Oppslagstavler"
+
+#: clientgui/Localization.cpp:33
+msgid "Correspond with other users on the SETI@home message boards"
+msgstr ""
+
+#: clientgui/Localization.cpp:37
+msgid "Ask questions and report problems"
+msgstr "Still spårsmål og rapporter problemer"
+
+#: clientgui/Localization.cpp:39 clientgui/Localization.cpp:81
+#: clientgui/Localization.cpp:111 clientgui/Localization.cpp:129
+#, fuzzy
+msgid "Your account"
+msgstr "Identifiser din konto"
+
+#: clientgui/Localization.cpp:41 clientgui/Localization.cpp:87
+#: clientgui/Localization.cpp:113
+msgid "View your account information and credit totals"
+msgstr ""
+
+#: clientgui/Localization.cpp:43
+#, fuzzy
+msgid "Your preferences"
+msgstr "Databehandling preferanser"
+
+#: clientgui/Localization.cpp:45
+msgid "View and modify your SETI@home account profile and preferences"
+msgstr ""
+
+#: clientgui/Localization.cpp:47 clientgui/Localization.cpp:89
+#, fuzzy
+msgid "Your results"
+msgstr "Testresultater"
+
+#: clientgui/Localization.cpp:49 clientgui/Localization.cpp:91
+msgid "View your last week (or more) of computational results and work"
+msgstr ""
+
+#: clientgui/Localization.cpp:51 clientgui/Localization.cpp:93
+#, fuzzy
+msgid "Your computers"
+msgstr "&Navn:"
+
+#: clientgui/Localization.cpp:53
+msgid "View a listing of all the computers on which you are running SETI@Home"
+msgstr ""
+
+#: clientgui/Localization.cpp:55 clientgui/Localization.cpp:97
+#, fuzzy
+msgid "Your team"
+msgstr "Team navn"
+
+#: clientgui/Localization.cpp:57 clientgui/Localization.cpp:99
+msgid "View information about your team"
+msgstr "Se informasjon om teamet ditt"
+
+#: clientgui/Localization.cpp:61
+#, fuzzy
+msgid "Common questions"
+msgstr "Vanlig navn:"
+
+#: clientgui/Localization.cpp:63
+msgid "Read the Einstein@Home Frequently Asked Question list"
+msgstr ""
+
+#: clientgui/Localization.cpp:65
+#, fuzzy
+msgid "Screensaver info"
+msgstr "Prosjektinfo"
+
+#: clientgui/Localization.cpp:67
+msgid "Read a detailed description of the Einstein@Home screensaver"
+msgstr ""
+
+#: clientgui/Localization.cpp:71
+msgid ""
+"Correspond with admins and other users on the Einstein@Home message boards"
+msgstr ""
+
+#: clientgui/Localization.cpp:73
+#, fuzzy
+msgid "Einstein status"
+msgstr "Status&bar til filliste"
+
+#: clientgui/Localization.cpp:75
+msgid "Current status of the Einstein@Home server"
+msgstr ""
+
+#: clientgui/Localization.cpp:77
+#, fuzzy
+msgid "Report problems"
+msgstr "&Rapporter en feil..."
+
+#: clientgui/Localization.cpp:79
+msgid "A link to the Einstein@Home problems and bug reports message board"
+msgstr ""
+
+#: clientgui/Localization.cpp:83
+msgid "View and modify your Einstein@Home account profile and preferences"
+msgstr ""
+
+#: clientgui/Localization.cpp:85
+#, fuzzy
+msgid "Account summary"
+msgstr "Sammendrag"
+
+#: clientgui/Localization.cpp:95
+msgid ""
+"View a listing of all the computers on which you are running Einstein@Home"
+msgstr ""
+
+#: clientgui/Localization.cpp:101
+#, fuzzy
+msgid "LIGO project"
+msgstr "Slett prosjekt"
+
+#: clientgui/Localization.cpp:103
+msgid ""
+"The home page of the Laser Interferometer Gravitational-wave Observatory "
+"(LIGO) project"
+msgstr ""
+
+#: clientgui/Localization.cpp:105
+#, fuzzy
+msgid "GEO-600 project"
+msgstr "Kryss-prosjekt statistikk"
+
+#: clientgui/Localization.cpp:107
+msgid "The home page of the GEO-600 project"
+msgstr "Hjemmesiden til GEO-600 prosjektet"
+
+#: clientgui/Localization.cpp:115 clientgui/Localization.cpp:133
+msgid "Team"
+msgstr "Team"
+
+#: clientgui/Localization.cpp:117
+#, fuzzy
+msgid "Info about your Team"
+msgstr "Klarte ikke finne informasjon om registernøkkel «%s»"
+
+#: clientgui/Localization.cpp:123
+msgid "Get help for climateprediction.net"
+msgstr ""
+
+#: clientgui/Localization.cpp:125
+msgid "News"
+msgstr "Nyheter"
+
+#: clientgui/Localization.cpp:127
+msgid "climateprediction.net News"
+msgstr "climateprediction.net Nyheter"
+
+#: clientgui/Localization.cpp:131
+msgid "View your account information, credits, and trickles"
+msgstr ""
+
+#: clientgui/Localization.cpp:135
+#, fuzzy
+msgid "Info about your team"
+msgstr "Klarte ikke finne informasjon om registernøkkel «%s»"
+
+#: clientgui/Localization.cpp:141
+msgid "Search for help in our help system"
+msgstr "Søk etter hjelp i vårt hjelp system"
+
+#: clientgui/Localization.cpp:143
+#, fuzzy
+msgid "Global Statistics"
+msgstr "Kryss-prosjekt statistikk"
+
+#: clientgui/Localization.cpp:145
+msgid "Summary statistics for World Community Grid"
+msgstr ""
+
+#: clientgui/Localization.cpp:147
+#, fuzzy
+msgid "My Grid"
+msgstr "Min Datamaskin"
+
+#: clientgui/Localization.cpp:149
+msgid "Your statistics and settings"
+msgstr "Dine statestikker og settinger"
+
+#: clientgui/Localization.cpp:151
+#, fuzzy
+msgid "Device Profiles"
+msgstr "DVD-enhet"
+
+#: clientgui/Localization.cpp:153
+msgid "Update your device settings"
+msgstr ""
+
+#: clientgui/Localization.cpp:155
+msgid "Research"
+msgstr "Forskning"
+
+#: clientgui/Localization.cpp:157
+msgid "Learn about the projects hosted at World Community Grid"
+msgstr ""
+
+#: clientgui/MainDocument.cpp:536
+msgid "Starting client services; please wait..."
+msgstr ""
+
+#: clientgui/MainDocument.cpp:1093
+msgid "Retrieving system state; please wait..."
+msgstr ""
+
+#: clientgui/MainDocument.cpp:1102
+msgid "Retrieving host information; please wait..."
+msgstr ""
+
+#: clientgui/NoInternetConnectionPage.cpp:179
+#, fuzzy
+msgid "No Internet connection"
+msgstr "Avbryt nåværende tilkobling?"
+
+#: clientgui/NoInternetConnectionPage.cpp:182
+msgid "Please connect to the Internet and try again."
+msgstr ""
+
+#: clientgui/NotDetectedPage.cpp:181
+#, fuzzy
+msgid "Project not found"
+msgstr "Fil ikke funnet"
+
+#: clientgui/NotDetectedPage.cpp:184
+msgid ""
+"The URL you supplied is not that of a BOINC-based project.\n"
+"\n"
+"Please check the URL and try again."
+msgstr ""
+
+#: clientgui/NotDetectedPage.cpp:188
+#, fuzzy
+msgid "Account manager not found"
+msgstr "Finner ikke tilordnet program"
+
+#: clientgui/NotDetectedPage.cpp:191
+msgid ""
+"The URL you supplied is not that of a BOINC-based account\n"
+"manager.\n"
+"\n"
+"Please check the URL and try again."
+msgstr ""
+
+#: clientgui/NotFoundPage.cpp:181
+#, fuzzy
+msgid "Login Failed."
+msgstr "Forgrening feilet"
+
+#: clientgui/NotFoundPage.cpp:185
+msgid "Check the username and password, and try again."
+msgstr "Sjekk brukernavn og passord, og prøv igjen."
+
+#: clientgui/NotFoundPage.cpp:189
+msgid "Check the email address and password, and try again."
+msgstr "Sjekk epost adresse og passord, og prøv igjen."
+
+#: clientgui/ProjectInfoPage.cpp:259
+#, fuzzy
+msgid "Choose a project"
+msgstr "Slett prosjekt"
+
+#: clientgui/ProjectInfoPage.cpp:262
+msgid "To choose a project, click its name or type its URL below."
+msgstr ""
+
+#: clientgui/ProjectInfoPage.cpp:265
+#, fuzzy
+msgid "Project &URL:"
+msgstr "FTP URL"
+
+#: clientgui/ProjectInfoPage.cpp:393
+msgid ""
+"This project may not have work for your type of computer. Are you sure you "
+"wish to continue?"
+msgstr ""
+
+#: clientgui/ProjectInfoPage.cpp:417
+msgid ""
+"You are already attached to this project. Please choose a different project."
+msgstr ""
+
+#: clientgui/ProjectListCtrl.cpp:276
+msgid "Click"
+msgstr "Klikk"
+
+#: clientgui/ProjectListCtrl.cpp:503
+msgid "Multicore CPU Supported"
+msgstr ""
+
+#: clientgui/ProjectListCtrl.cpp:505
+msgid "Nvidia GPU Supported"
+msgstr ""
+
+#: clientgui/ProjectListCtrl.cpp:507
+msgid "ATI GPU Supported"
+msgstr ""
+
+#: clientgui/ProjectListCtrl.cpp:509
+msgid "Project Website"
+msgstr ""
+
+#: clientgui/ProjectProcessingPage.cpp:322
+#: clientgui/ProjectPropertiesPage.cpp:335
+msgid ""
+"Communicating with project\n"
+"Please wait..."
+msgstr ""
+
+#: clientgui/ProjectProcessingPage.cpp:499
+msgid ""
+"Required wizard file(s) are missing from the target server.\n"
+"(lookup_account.php/create_account.php)\n"
+msgstr ""
+
+#: clientgui/ProxyInfoPage.cpp:195
+#, fuzzy
+msgid "Network communication failure"
+msgstr "Feil ved forhåndsvisning av utskrift"
+
+#: clientgui/ProxyInfoPage.cpp:199
+msgid ""
+"The World Community Grid - BOINC software failed to communicate\n"
+"over the Internet. The most likely reasons are:\n"
+"\n"
+"1) Connectivity problem.  Check your network or modem connection\n"
+"and then click Back to try again.\n"
+"\n"
+"2) Personal firewall software is blocking the World Community\n"
+"Grid - BOINC software.  Configure your personal firewall to let\n"
+"BOINC and BOINC Manager communicate on port 80 and port 443,\n"
+"hen click Back to try again.\n"
+"\n"
+"3) You are using a proxy server.\n"
+"Click Next to configure BOINC's proxy settings."
+msgstr ""
+
+#: clientgui/ProxyInfoPage.cpp:203
+msgid ""
+"BOINC failed to communicate on the Internet.\n"
+"The most likely reasons are:\n"
+"\n"
+"1) Connectivity problem.  Check your network\n"
+"or modem connection and then click Back to try again.\n"
+"\n"
+"2) Personal firewall software is blocking BOINC.\n"
+"Configure your personal firewall to let BOINC and\n"
+"BOINC Manager communicate on port 80,\n"
+"then click Back to try again.\n"
+"\n"
+"3) You are using a proxy server.\n"
+"Click Next to configure BOINC's proxy settings."
+msgstr ""
+
+#: clientgui/ProxyPage.cpp:331
+#, fuzzy
+msgid "Proxy configuration"
+msgstr "Konfigurasjonstest"
+
+#: clientgui/ProxyPage.cpp:334
+#, fuzzy
+msgid "HTTP proxy"
+msgstr "%s - Proxy bruker"
+
+#: clientgui/ProxyPage.cpp:337 clientgui/ProxyPage.cpp:357
+msgid "Server:"
+msgstr "Server:"
+
+#: clientgui/ProxyPage.cpp:350
+#, fuzzy
+msgid "Autodetect"
+msgstr "&Automatisk"
+
+#: clientgui/ProxyPage.cpp:354
+#, fuzzy
+msgid "SOCKS proxy"
+msgstr "%s - Proxy bruker"
+
+#: clientgui/sg_BoincSimpleGUI.cpp:118
+msgid "Advanced View...\tCtrl+Shift+A"
+msgstr ""
+
+#: clientgui/sg_BoincSimpleGUI.cpp:119
+msgid "Display the advanced (accessible) graphical interface."
+msgstr ""
+
+#: clientgui/sg_BoincSimpleGUI.cpp:146
+#, c-format
+msgid "&%s"
+msgstr "&%s"
+
+#: clientgui/sg_ClientStateIndicator.cpp:288
+#, fuzzy
+msgid "Retrieving current status."
+msgstr "Status&bar til filliste"
+
+#: clientgui/sg_ClientStateIndicator.cpp:291
+msgid "You don't have any projects.  Please Add a Project."
+msgstr ""
+
+#: clientgui/sg_ClientStateIndicator.cpp:294
+#, fuzzy
+msgid "Downloading work from the server."
+msgstr "Kobler fra forrige server"
+
+#: clientgui/sg_ClientStateIndicator.cpp:299
+msgid "Processing Suspended:  Running On Batteries."
+msgstr "Prosessering Suspendert: Kjører på batterier."
+
+#: clientgui/sg_ClientStateIndicator.cpp:301
+msgid "Processing Suspended:  User Active."
+msgstr "Prosessering Suspendert: Bruker er aktiv."
+
+#: clientgui/sg_ClientStateIndicator.cpp:303
+msgid "Processing Suspended:  User paused processing."
+msgstr "Prosessering Suspendert: Bruker har pauset prosesseringen."
+
+#: clientgui/sg_ClientStateIndicator.cpp:305
+msgid "Processing Suspended:  Time of Day."
+msgstr "Prosessering Suspendert: Tid på dag."
+
+#: clientgui/sg_ClientStateIndicator.cpp:307
+msgid "Processing Suspended:  Benchmarks Running."
+msgstr "Prosessering Suspendert: Benchmarks kjører."
+
+#: clientgui/sg_ClientStateIndicator.cpp:309
+#, fuzzy
+msgid "Processing Suspended."
+msgstr "Skrur av og på prosessering av overføringskøen"
+
+#: clientgui/sg_ClientStateIndicator.cpp:313
+msgid "Waiting to contact project servers."
+msgstr "Venter for å kontakte prosjekt servere."
+
+#: clientgui/sg_ClientStateIndicator.cpp:317
+#: clientgui/sg_ClientStateIndicator.cpp:325
+#, fuzzy
+msgid "Retrieving current status"
+msgstr "Status&bar til filliste"
+
+#: clientgui/sg_ClientStateIndicator.cpp:320
+msgid "No work available to process"
+msgstr "Ingen arbeid tilgjengelig for prosessering"
+
+#: clientgui/sg_ClientStateIndicator.cpp:322
+msgid "Unable to connect to the core client"
+msgstr ""
+
+#: clientgui/sg_DlgMessages.cpp:107
+msgid "Project"
+msgstr "Prosjekt"
+
+#: clientgui/sg_DlgMessages.cpp:108
+msgid "Time"
+msgstr "Tid"
+
+#: clientgui/sg_DlgMessages.cpp:109
+msgid "Message"
+msgstr "Melding"
+
+#: clientgui/sg_DlgMessages.cpp:177 clientgui/sg_DlgMessages.cpp:181
+#, fuzzy
+msgid "Copy all the messages to the clipboard."
+msgstr "Kopierer alle meldinger til utklippstavlen..."
+
+#: clientgui/sg_DlgMessages.cpp:202 clientgui/sg_DlgMessages.cpp:210
+msgid ""
+"Copy the selected messages to the clipboard. You can select multiple "
+"messages by holding down the shift or command key while clicking on messages."
+msgstr ""
+"Kopier valgte meldinger til utklipstavlen. Du kan velge flere meldinger ved "
+"å holde nede shift eller kommando knappen, mens du klikker på meldingene."
+
+#: clientgui/sg_DlgMessages.cpp:204 clientgui/sg_DlgMessages.cpp:212
+msgid ""
+"Copy the selected messages to the clipboard. You can select multiple "
+"messages by holding down the shift or control key while clicking on messages."
+msgstr ""
+"Kopier valgte meldinger til utklipstavlen. Du kan velge flere meldinger ved "
+"å holde nede shift eller kontrol knappen, mens du klikker på meldingene."
+
+#: clientgui/sg_DlgMessages.cpp:252 clientgui/sg_DlgPreferences.cpp:509
+msgid "Get help with BOINC"
+msgstr "Få hjelp med BOINC"
+
+#: clientgui/sg_DlgMessages.cpp:754
+#, fuzzy, c-format
+msgid "%s - Messages"
+msgstr "Beskjeder"
+
+#: clientgui/sg_DlgPreferences.cpp:95
+msgid "100 MB"
+msgstr "100 MB"
+
+#: clientgui/sg_DlgPreferences.cpp:96
+msgid "200 MB"
+msgstr "200 MB"
+
+#: clientgui/sg_DlgPreferences.cpp:97
+msgid "500 MB"
+msgstr "500 MB"
+
+#: clientgui/sg_DlgPreferences.cpp:98
+msgid "1 GB"
+msgstr "1 GB"
+
+#: clientgui/sg_DlgPreferences.cpp:99
+msgid "2 GB"
+msgstr "2 GB"
+
+#: clientgui/sg_DlgPreferences.cpp:100
+msgid "5 GB"
+msgstr "5 GB"
+
+#: clientgui/sg_DlgPreferences.cpp:101
+msgid "10 GB"
+msgstr "10 GB"
+
+#: clientgui/sg_DlgPreferences.cpp:102
+msgid "20 GB"
+msgstr "20 GB"
+
+#: clientgui/sg_DlgPreferences.cpp:103
+msgid "50 GB"
+msgstr "50 GB"
+
+#: clientgui/sg_DlgPreferences.cpp:104
+msgid "100 GB"
+msgstr "100 GB"
+
+#: clientgui/sg_DlgPreferences.cpp:135
+msgid "10%"
+msgstr "10%"
+
+#: clientgui/sg_DlgPreferences.cpp:136
+msgid "20%"
+msgstr "20%"
+
+#: clientgui/sg_DlgPreferences.cpp:137
+msgid "30%"
+msgstr "30%"
+
+#: clientgui/sg_DlgPreferences.cpp:138
+msgid "40%"
+msgstr "40%"
+
+#: clientgui/sg_DlgPreferences.cpp:139
+msgid "50%"
+msgstr "50%"
+
+#: clientgui/sg_DlgPreferences.cpp:140
+msgid "60%"
+msgstr "60%"
+
+#: clientgui/sg_DlgPreferences.cpp:141
+msgid "70%"
+msgstr "70%"
+
+#: clientgui/sg_DlgPreferences.cpp:142
+msgid "80%"
+msgstr "80%"
+
+#: clientgui/sg_DlgPreferences.cpp:143
+msgid "90%"
+msgstr "90%"
+
+#: clientgui/sg_DlgPreferences.cpp:144
+msgid "100%"
+msgstr "100%"
+
+#: clientgui/sg_DlgPreferences.cpp:169
+msgid "1"
+msgstr "1"
+
+#: clientgui/sg_DlgPreferences.cpp:170
+msgid "3"
+msgstr "3"
+
+#: clientgui/sg_DlgPreferences.cpp:171
+msgid "5"
+msgstr "5"
+
+#: clientgui/sg_DlgPreferences.cpp:172
+msgid "10"
+msgstr "10"
+
+#: clientgui/sg_DlgPreferences.cpp:173
+msgid "15"
+msgstr "15"
+
+#: clientgui/sg_DlgPreferences.cpp:174
+msgid "30"
+msgstr "30"
+
+#: clientgui/sg_DlgPreferences.cpp:175
+msgid "60"
+msgstr "60"
+
+#: clientgui/sg_DlgPreferences.cpp:284
+msgid "Skin"
+msgstr "Skin"
+
+#: clientgui/sg_DlgPreferences.cpp:291
+msgid "Skin:"
+msgstr "Skin:"
+
+#: clientgui/sg_DlgPreferences.cpp:307
+#, fuzzy
+msgid "Preferences"
+msgstr "Innstillinger"
+
+#: clientgui/sg_DlgPreferences.cpp:324
+msgid "I want to customize my preferences for this computer only."
+msgstr ""
+
+#: clientgui/sg_DlgPreferences.cpp:333
+#, fuzzy
+msgid "Customized Preferences"
+msgstr "Databehandling preferanser"
+
+#: clientgui/sg_DlgPreferences.cpp:349
+msgid "Do work only between:"
+msgstr ""
+
+#: clientgui/sg_DlgPreferences.cpp:371
+msgid "Connect to internet only between:"
+msgstr ""
+
+#: clientgui/sg_DlgPreferences.cpp:393 clientgui/sg_DlgPreferences.cpp:410
+#, fuzzy
+msgid "Use no more than:"
+msgstr "Ingen flere filer i køen!"
+
+#: clientgui/sg_DlgPreferences.cpp:406
+#, fuzzy
+msgid "of disk space"
+msgstr "Diskplass"
+
+#: clientgui/sg_DlgPreferences.cpp:423
+#, fuzzy
+msgid "of the processor"
+msgstr "prosessor bruk"
+
+#: clientgui/sg_DlgPreferences.cpp:427
+msgid "Do work while on battery?"
+msgstr ""
+
+#: clientgui/sg_DlgPreferences.cpp:440
+msgid "Do work after idle for:"
+msgstr ""
+
+#: clientgui/sg_DlgPreferences.cpp:678 clientgui/sg_DlgPreferences.cpp:681
+#: clientgui/sg_DlgPreferences.cpp:749 clientgui/sg_DlgPreferences.cpp:753
+#: clientgui/sg_DlgPreferences.cpp:765 clientgui/sg_DlgPreferences.cpp:769
+#: clientgui/sg_DlgPreferences.cpp:927 clientgui/sg_DlgPreferences.cpp:938
+msgid "Anytime"
+msgstr "Alltid"
+
+#: clientgui/sg_DlgPreferences.cpp:785
+#, c-format
+msgid "%d MB"
+msgstr "%d MB"
+
+#: clientgui/sg_DlgPreferences.cpp:787
+#, c-format
+msgid "%4.2f GB"
+msgstr "%4.2f GB"
+
+#: clientgui/sg_DlgPreferences.cpp:828
+#, c-format
+msgid "%d%%"
+msgstr "%d%%"
+
+#: clientgui/sg_DlgPreferences.cpp:864
+#, fuzzy
+msgid "0 (Run Always)"
+msgstr "Kjø&r kommando..."
+
+#: clientgui/sg_DlgPreferences.cpp:867
+#, c-format
+msgid "%d"
+msgstr "%d"
+
+#: clientgui/sg_ImageButton.cpp:90
+msgid "Paused: Other work running"
+msgstr ""
+
+#: clientgui/sg_ImageButton.cpp:92
+msgid "Paused: User initiatied.  Click 'Resume' to continue"
+msgstr ""
+
+#: clientgui/sg_ImageButton.cpp:94
+#, fuzzy
+msgid "Paused: User active"
+msgstr "Aktivmodus IP"
+
+#: clientgui/sg_ImageButton.cpp:96
+msgid "Paused: Computer on battery"
+msgstr ""
+
+#: clientgui/sg_ImageButton.cpp:98
+#, fuzzy
+msgid "Paused: Time of Day"
+msgstr "%(count)d dag siden"
+
+#: clientgui/sg_ImageButton.cpp:100
+#, fuzzy
+msgid "Paused: Benchmarks running"
+msgstr "%(count)d midlertidig stoppet element"
+
+#: clientgui/sg_ImageButton.cpp:102
+#, fuzzy
+msgid "Paused"
+msgstr "midlertidig stoppet"
+
+#: clientgui/sg_ImageButton.cpp:104
+msgid "Paused: Application start delayed"
+msgstr ""
+
+#: clientgui/sg_ImageButton.cpp:132
+msgid "Click to show project graphics"
+msgstr "Klikk for å vise prosjektets grafikk"
+
+#: clientgui/sg_ProjectsComponent.cpp:123
+msgid "Synchronize projects with account manager system"
+msgstr ""
+
+#: clientgui/sg_ProjectsComponent.cpp:194
+#: clientgui/sg_ProjectsComponent.cpp:205
+msgid "Open a window to view messages"
+msgstr ""
+
+#: clientgui/sg_ProjectsComponent.cpp:223
+#, fuzzy
+msgid "Stop all activity"
+msgstr "Stopp og fjern &alle"
+
+#: clientgui/sg_ProjectsComponent.cpp:235
+#, fuzzy
+msgid "Resume activity"
+msgstr "Fortsett med alle"
+
+#: clientgui/sg_ProjectsComponent.cpp:252
+msgid "Open a window to set your preferences"
+msgstr ""
+
+#: clientgui/sg_ProjectsComponent.cpp:269
+msgid "Switch to the BOINC advanced view"
+msgstr ""
+
+#: clientgui/sg_ProjectsComponent.cpp:296
+#, fuzzy
+msgid "My Projects:"
+msgstr "Min Datamaskin"
+
+#: clientgui/sg_StatImageLoader.cpp:101
+#, c-format
+msgid "%s. Work done by %s: %0.2f"
+msgstr "%s. Arbeid gjort av %s: %0.2f"
+
+#: clientgui/sg_StatImageLoader.cpp:154
+#, fuzzy
+msgid "Remove Project"
+msgstr "Slett prosjekt"
+
+#: clientgui/sg_StatImageLoader.cpp:217 clientgui/ViewProjects.cpp:490
+#, fuzzy, c-format
+msgid "Are you sure you want to detach from project '%s'?"
+msgstr "Er du sikker på at du vil fjerne dette elementet?"
+
+#: clientgui/sg_StatImageLoader.cpp:223 clientgui/ViewProjects.cpp:496
+#, fuzzy
+msgid "Detach from Project"
+msgstr "Kryss-prosjekt statistikk"
+
+#: clientgui/sg_ViewTabPage.cpp:138 clientgui/sg_ViewTabPage.cpp:278
+#, c-format
+msgid "%.1lf"
+msgstr ""
+
+#: clientgui/sg_ViewTabPage.cpp:407
+#, fuzzy, c-format
+msgid "%d hr %d min %d sec"
+msgstr "%(num).0f min"
+
+#: clientgui/sg_ViewTabPage.cpp:421
+msgid "Are you sure you want to display graphics on a remote machine?"
+msgstr ""
+
+#: clientgui/sg_ViewTabPage.cpp:422
+#, fuzzy
+msgid "Show graphics"
+msgstr "Vis alle"
+
+#: clientgui/sg_ViewTabPage.cpp:444
+msgid "Application: "
+msgstr "Program:"
+
+#: clientgui/sg_ViewTabPage.cpp:447 clientgui/sg_ViewTabPage.cpp:451
+#, fuzzy
+msgid "Time Remaining: "
+msgstr "Gjenstående tid :"
+
+#: clientgui/sg_ViewTabPage.cpp:450
+#, fuzzy
+msgid "Elapsed Time: "
+msgstr "Forløpt tid :"
+
+#: clientgui/TermsOfUsePage.cpp:219
+#, fuzzy
+msgid "Terms of Use"
+msgstr "Br&uk tusen-separator"
+
+#: clientgui/TermsOfUsePage.cpp:223
+msgid "Please read the following terms of use:"
+msgstr ""
+
+#: clientgui/TermsOfUsePage.cpp:232
+#, fuzzy
+msgid "I agree to the terms of use."
+msgstr "oppgi temaet som skal bruker"
+
+#: clientgui/TermsOfUsePage.cpp:238
+msgid "I do not agree with the terms of use."
+msgstr ""
+
+#: clientgui/UnavailablePage.cpp:183
+#, fuzzy
+msgid "Project temporarily unavailable"
+msgstr "Kryss-prosjekt statistikk"
+
+#: clientgui/UnavailablePage.cpp:186
+#, fuzzy
+msgid ""
+"The project is temporarily unavailable.\n"
+"\n"
+"Please try again later."
+msgstr ""
+"Konto manager midlertidig utilgjegelig.\n"
+"\n"
+"Vennigst prøv igjen senere."
+
+#: clientgui/UnavailablePage.cpp:190
+msgid "Account manager temporarily unavailable"
+msgstr "Konto manager midlertidig utilgjegelig"
+
+#: clientgui/UnavailablePage.cpp:193
+msgid ""
+"The account manager is temporarily unavailable.\n"
+"\n"
+"Please try again later."
+msgstr ""
+"Konto manager midlertidig utilgjegelig.\n"
+"\n"
+"Vennigst prøv igjen senere."
+
+#: clientgui/ValidateAccountKey.cpp:68
+msgid "Please specify an account key to continue."
+msgstr "Vennligst spesifiser en kontonøkkel for å fortsette."
+
+#: clientgui/ValidateAccountKey.cpp:71
+msgid "Invalid Account Key; please enter a valid Account Key"
+msgstr "Ugyldig Kontonøkkel; vennligst tast inn en gyldig Kontonøkkel"
+
+#: clientgui/ValidateAccountKey.cpp:82 clientgui/ValidateEmailAddress.cpp:86
+msgid "Validation conflict"
+msgstr "Valideringskonflikt"
+
+#: clientgui/ValidateEmailAddress.cpp:72
+#, fuzzy
+msgid "Please specify an email address"
+msgstr "Vennligst angi din eksterne IP-adresse"
+
+#: clientgui/ValidateEmailAddress.cpp:75
+msgid "Invalid email address; please enter a valid email address"
+msgstr "Ugyldig epost adresse; vennligst tast inn en gyldig epost adresse"
+
+#: clientgui/ValidateURL.cpp:69
+#, fuzzy
+msgid "Missing URL"
+msgstr "FTP URL"
+
+#: clientgui/ValidateURL.cpp:70
+msgid ""
+"Please specify a URL.\n"
+"For example:\n"
+"http://www.example.com/"
+msgstr ""
+"Vennligst spesifiser en URL.\n"
+"For eksempel:\n"
+"http://www.eksempel.com/"
+
+#: clientgui/ValidateURL.cpp:83 clientgui/ValidateURL.cpp:87
+#: clientgui/ValidateURL.cpp:91 clientgui/ValidateURL.cpp:103
+#: clientgui/ValidateURL.cpp:107 clientgui/ValidateURL.cpp:110
+#, fuzzy
+msgid "Invalid URL"
+msgstr "Ugyldig adresse (URL)"
+
+#: clientgui/ValidateURL.cpp:84 clientgui/ValidateURL.cpp:88
+#: clientgui/ValidateURL.cpp:92
+msgid ""
+"Please specify a valid URL.\n"
+"For example:\n"
+"http://boincproject.example.com"
+msgstr ""
+"Vennligst spesifiser en gyldig URL.\n"
+"For eksempel:\n"
+"http://boincprosjekt.eksempel.com"
+
+#: clientgui/ValidateURL.cpp:104 clientgui/ValidateURL.cpp:108
+#, c-format
+msgid "'%s' does not contain a valid host name."
+msgstr "'%s' inneholder ikke et gyldig verts navn."
+
+#: clientgui/ValidateURL.cpp:111
+#, fuzzy, c-format
+msgid "'%s' does not contain a valid path."
+msgstr "Filen inneholder ikke data vi kan importere"
+
+#: clientgui/ViewMessages.cpp:84 clientgui/ViewMessagesGrid.cpp:97
+#: clientgui/ViewProjects.cpp:169
+msgid "Commands"
+msgstr "Kommandoer"
+
+#: clientgui/ViewMessages.cpp:88 clientgui/ViewMessagesGrid.cpp:101
+#, fuzzy
+msgid "Copy all messages"
+msgstr "Slå &av alle"
+
+#: clientgui/ViewMessages.cpp:95 clientgui/ViewMessagesGrid.cpp:108
+#, fuzzy
+msgid "Copy selected messages"
+msgstr "Slett valgte mappe"
+
+#: clientgui/ViewMessages.cpp:106 clientgui/ViewMessages.cpp:533
+#, fuzzy
+msgid "Show only this project"
+msgstr "vis denne hjelpmeldingen"
+
+#: clientgui/ViewMessages.cpp:107 clientgui/ViewMessages.cpp:534
+msgid "Show only the messages for the selected project."
+msgstr "Vis bare meldinger fra valgte prosjekt."
+
+#: clientgui/ViewMessages.cpp:195 clientgui/ViewMessagesGrid.cpp:157
+#, fuzzy
+msgid "Messages"
+msgstr "Beskjeder"
+
+#: clientgui/ViewMessages.cpp:218 clientgui/ViewMessagesGrid.cpp:179
+msgid "Copying all messages to the clipboard..."
+msgstr "Kopierer alle meldinger til utklippstavlen..."
+
+#: clientgui/ViewMessages.cpp:254
+msgid "Copying selected messages to the clipboard..."
+msgstr "Kopierer valgte meldinger til Utklippstavlen..."
+
+#: clientgui/ViewMessages.cpp:317
+#, fuzzy
+msgid "Filtering messages..."
+msgstr "Private meldinger"
+
+#: clientgui/ViewMessages.cpp:525
+#, fuzzy
+msgid "Show all messages"
+msgstr "Vis alle oppgaver"
+
+#: clientgui/ViewMessages.cpp:526
+msgid "Show messages for all projects."
+msgstr "Vis meldinger for alle prosjekter."
+
+#: clientgui/ViewMessagesGrid.cpp:128
+msgid "ID"
+msgstr "ID"
+
+#: clientgui/ViewMessagesGrid.cpp:128
+msgid "Priority"
+msgstr "Prioritet"
+
+#: clientgui/ViewMessagesGrid.cpp:151
+msgid "MessagesGrid"
+msgstr "MeldingsGrid"
+
+#: clientgui/ViewMessagesGrid.cpp:209
+msgid "Copying selected messages to Clipboard..."
+msgstr "Kopierer valgte meldinger til utklippstavlen..."
+
+#: clientgui/ViewMessagesGrid.cpp:396
+#, fuzzy
+msgid "Info"
+msgstr "2 - Informasjon"
+
+#: clientgui/ViewMessagesGrid.cpp:399
+msgid "Warning"
+msgstr "Advarsel"
+
+#: clientgui/ViewMessagesGrid.cpp:403
+msgid "Error"
+msgstr "Feil"
+
+#: clientgui/ViewNews.cpp:76
+#, fuzzy
+msgid "News Feeds"
+msgstr "LYDKILDER"
+
+#: clientgui/ViewNews.cpp:80
+msgid "BOINC"
+msgstr "BOINC"
+
+#: clientgui/ViewNews.cpp:81
+msgid "Display the latest news about BOINC"
+msgstr "Vis de siste nyhetene om BOINC"
+
+#: clientgui/ViewNews.cpp:87
+msgid "BOINC Website"
+msgstr "BOINC Nettside"
+
+#: clientgui/ViewNews.cpp:88
+msgid "Display the latest news about BOINC from the BOINC website"
+msgstr "Vis de siste nyhetene om BOINC fra BOINC sin nettside"
+
+#: clientgui/ViewProjects.cpp:173
+msgid "Update"
+msgstr "Oppdater"
+
+#: clientgui/ViewProjects.cpp:174
+msgid ""
+"Report all completed tasks, get latest credit, get latest preferences, and "
+"possibly get more tasks."
+msgstr ""
+
+#: clientgui/ViewProjects.cpp:180 clientgui/ViewProjects.cpp:707
+msgid "Suspend"
+msgstr "Suspender"
+
+#: clientgui/ViewProjects.cpp:181 clientgui/ViewProjects.cpp:707
+msgid "Suspend tasks for this project."
+msgstr "Suspender oppgaver for dette prosjektet."
+
+#: clientgui/ViewProjects.cpp:187 clientgui/ViewProjects.cpp:726
+#, fuzzy
+msgid "No new tasks"
+msgstr "&Nei, ny bruker"
+
+#: clientgui/ViewProjects.cpp:188
+msgid "Don't get new tasks for this project."
+msgstr "Ikke hent nye oppgaver for dette prosjektet."
+
+#: clientgui/ViewProjects.cpp:194
+#, fuzzy
+msgid "Reset project"
+msgstr "Slett prosjekt"
+
+#: clientgui/ViewProjects.cpp:195
+msgid ""
+"Delete all files and tasks associated with this project, and get new tasks.  "
+"You can update the project first to report any completed tasks."
+msgstr ""
+
+#: clientgui/ViewProjects.cpp:201
+msgid "Detach"
+msgstr "Koble fra"
+
+#: clientgui/ViewProjects.cpp:202
+msgid ""
+"Detach computer from this project.  Tasks in progress will be lost (use "
+"'Update' first to report any completed tasks)."
+msgstr ""
+"Koble fra datamaskinen fra dette prosjektet. Oppgaver i fremgang vil bli "
+"mistet (bruk 'oppdater' først for å rapportere fullførte oppgaver)."
+
+#: clientgui/ViewProjects.cpp:208
+#, fuzzy
+msgid "Properties"
+msgstr "&Egenskaper"
+
+#: clientgui/ViewProjects.cpp:209
+#, fuzzy
+msgid "Show project details."
+msgstr "Vis oppgave detajer."
+
+#: clientgui/ViewProjects.cpp:219
+msgid "Account"
+msgstr "Konto"
+
+#: clientgui/ViewProjects.cpp:221
+msgid "Work done"
+msgstr "Arbeid gjort"
+
+#: clientgui/ViewProjects.cpp:222
+#, fuzzy
+msgid "Avg. work done"
+msgstr "Klarte ikke konvertere til tegnsett «%s»."
+
+#: clientgui/ViewProjects.cpp:224
+msgid "Status"
+msgstr "Status"
+
+#: clientgui/ViewProjects.cpp:249
+msgid "Projects"
+msgstr "Prosjekter"
+
+#: clientgui/ViewProjects.cpp:296
+#, fuzzy
+msgid "Updating project..."
+msgstr "Slett prosjekt"
+
+#: clientgui/ViewProjects.cpp:338
+#, fuzzy
+msgid "Resuming project..."
+msgstr "Slett prosjekt"
+
+#: clientgui/ViewProjects.cpp:342
+#, fuzzy
+msgid "Suspending project..."
+msgstr "Slett prosjekt"
+
+#: clientgui/ViewProjects.cpp:379
+msgid "Telling project to allow additional task downloads..."
+msgstr ""
+
+#: clientgui/ViewProjects.cpp:383
+msgid "Telling project to not fetch any additional tasks..."
+msgstr ""
+
+#: clientgui/ViewProjects.cpp:419
+#, fuzzy
+msgid "Resetting project..."
+msgstr "Slett prosjekt"
+
+#: clientgui/ViewProjects.cpp:432
+#, fuzzy, c-format
+msgid "Are you sure you want to reset project '%s'?"
+msgstr "Er du sikker på at du vil fjerne dette elementet?"
+
+#: clientgui/ViewProjects.cpp:438
+#, fuzzy
+msgid "Reset Project"
+msgstr "Slett prosjekt"
+
+#: clientgui/ViewProjects.cpp:477
+#, fuzzy
+msgid "Detaching from project..."
+msgstr "Kryss-prosjekt statistikk"
+
+#: clientgui/ViewProjects.cpp:537
+#, fuzzy
+msgid "Launching browser..."
+msgstr "Innstillinger for hjelpleser"
+
+#: clientgui/ViewProjects.cpp:703
+#, fuzzy
+msgid "Resume"
+msgstr "&Fortsett (resume)"
+
+#: clientgui/ViewProjects.cpp:703
+#, fuzzy
+msgid "Resume tasks for this project."
+msgstr "Suspender oppgaver for dette prosjektet."
+
+#: clientgui/ViewProjects.cpp:722
+#, fuzzy
+msgid "Allow new tasks"
+msgstr "Vis alle oppgaver"
+
+#: clientgui/ViewProjects.cpp:722
+#, fuzzy
+msgid "Allow fetching new tasks for this project."
+msgstr "Ikke hent nye oppgaver for dette prosjektet."
+
+#: clientgui/ViewProjects.cpp:726
+#, fuzzy
+msgid "Don't fetch new tasks for this project."
+msgstr "Ikke hent nye oppgaver for dette prosjektet."
+
+#: clientgui/ViewProjects.cpp:1052
+#, fuzzy
+msgid "Suspended by user"
+msgstr "Avbrutt av bruker"
+
+#: clientgui/ViewProjects.cpp:1055
+msgid "Won't get new tasks"
+msgstr "Henter ikke nye oppgaver"
+
+#: clientgui/ViewProjects.cpp:1058
+msgid "Project ended - OK to detach"
+msgstr ""
+
+#: clientgui/ViewProjects.cpp:1061
+msgid "Will detach when tasks done"
+msgstr ""
+
+#: clientgui/ViewProjects.cpp:1064
+#, fuzzy
+msgid "Scheduler request pending"
+msgstr "(anmodning om grunnlegger endring forestående)"
+
+#: clientgui/ViewProjects.cpp:1068
+#, fuzzy
+msgid "Scheduler request in progress"
+msgstr "Filoverføring pågår fremdeles."
+
+#: clientgui/ViewProjects.cpp:1071
+msgid "Trickle up message pending"
+msgstr ""
+
+#: clientgui/ViewProjects.cpp:1077
+msgid "Communication deferred "
+msgstr "Kommunikasjon utsatt"
+
+#: clientgui/ViewProjectsGrid.cpp:193
+msgid "ProjectsGrid"
+msgstr "ProsjektGrid"
+
+#: clientgui/ViewResources.cpp:61
+msgid "Total disk usage"
+msgstr "Total diskbruk"
+
+#: clientgui/ViewResources.cpp:82
+msgid "Disk usage by BOINC projects"
+msgstr "Disk bruk av BOINC prosjekter"
+
+#: clientgui/ViewResources.cpp:117
+msgid "Disk"
+msgstr "Disk"
+
+#: clientgui/ViewResources.cpp:223
+msgid "not attached to any BOINC project: 0 bytes"
+msgstr ""
+
+#: clientgui/ViewResources.cpp:260
+#, fuzzy
+msgid "used by BOINC: "
+msgstr "Avbrutt av bruker"
+
+#: clientgui/ViewResources.cpp:270
+msgid "free, available to BOINC: "
+msgstr "ledig, tilgjengelig for BOINC"
+
+#: clientgui/ViewResources.cpp:280
+msgid "free, not available to BOINC: "
+msgstr "ledig, ikke tilgjengelig for BOINC"
+
+#: clientgui/ViewResources.cpp:290
+msgid "free: "
+msgstr "ledig:"
+
+#: clientgui/ViewResources.cpp:300
+#, fuzzy
+msgid "used by other programs: "
+msgstr "&Begrens de lokale portene FileZilla bruker"
+
+#: clientgui/ViewStatistics.cpp:1142
+#, fuzzy
+msgid "User Total"
+msgstr "Nedlastet totalt"
+
+#: clientgui/ViewStatistics.cpp:1143
+#, fuzzy
+msgid "User Average"
+msgstr "Gjennomsnittlig kreditt"
+
+#: clientgui/ViewStatistics.cpp:1144
+#, fuzzy
+msgid "Host Total"
+msgstr "Nedlastet totalt"
+
+#: clientgui/ViewStatistics.cpp:1145
+#, fuzzy
+msgid "Host Average"
+msgstr "Gjennomsnittlig kreditt"
+
+#: clientgui/ViewStatistics.cpp:1283
+#, c-format
+msgid "Last update: %.0f days ago"
+msgstr ""
+
+#: clientgui/ViewStatistics.cpp:1745
+#, fuzzy
+msgid "Show user total"
+msgstr "%d fil. Total størrelse: %s"
+
+#: clientgui/ViewStatistics.cpp:1746
+#, fuzzy
+msgid "Show total credit for user"
+msgstr "Vis total kreditt for vert"
+
+#: clientgui/ViewStatistics.cpp:1752
+#, fuzzy
+msgid "Show user average"
+msgstr "Nylig gjennomsnitts kreditt"
+
+#: clientgui/ViewStatistics.cpp:1753
+#, fuzzy
+msgid "Show average credit for user"
+msgstr "Vis total kreditt for vert"
+
+#: clientgui/ViewStatistics.cpp:1759
+#, fuzzy
+msgid "Show host total"
+msgstr "%d fil. Total størrelse: %s"
+
+#: clientgui/ViewStatistics.cpp:1760
+msgid "Show total credit for host"
+msgstr "Vis total kreditt for vert"
+
+#: clientgui/ViewStatistics.cpp:1766
+#, fuzzy
+msgid "Show host average"
+msgstr "Nylig gjennomsnitts kreditt"
+
+#: clientgui/ViewStatistics.cpp:1767
+#, fuzzy
+msgid "Show average credit for host"
+msgstr "Vis total kreditt for vert"
+
+#: clientgui/ViewStatistics.cpp:1776
+#, fuzzy
+msgid "< &Previous project"
+msgstr "Slett prosjekt"
+
+#: clientgui/ViewStatistics.cpp:1777
+msgid "Show chart for previous project"
+msgstr ""
+
+#: clientgui/ViewStatistics.cpp:1782
+#, fuzzy
+msgid "&Next project >"
+msgstr "Slett prosjekt"
+
+#: clientgui/ViewStatistics.cpp:1783
+msgid "Show chart for next project"
+msgstr ""
+
+#: clientgui/ViewStatistics.cpp:1788
+#, fuzzy
+msgid "Mode view"
+msgstr "Vis|Alle"
+
+#: clientgui/ViewStatistics.cpp:1791
+#, fuzzy
+msgid "All projects"
+msgstr "Alle filer (%s)|%s"
+
+#: clientgui/ViewStatistics.cpp:1792
+msgid "Show all projects, one chart per project"
+msgstr ""
+
+#: clientgui/ViewStatistics.cpp:1798
+#, fuzzy
+msgid "One project"
+msgstr "Slett prosjekt"
+
+#: clientgui/ViewStatistics.cpp:1799
+msgid "Show one chart with selected project"
+msgstr ""
+
+#: clientgui/ViewStatistics.cpp:1805
+#, fuzzy
+msgid "All projects(sum)"
+msgstr "Slå &av alle"
+
+#: clientgui/ViewStatistics.cpp:1806
+msgid "Show one chart with all projects"
+msgstr ""
+
+#: clientgui/ViewStatistics.cpp:1833
+#, fuzzy
+msgid "Statistics"
+msgstr "Kryss-prosjekt statistikk"
+
+#: clientgui/ViewStatistics.cpp:1853 clientgui/ViewStatistics.cpp:1874
+#: clientgui/ViewStatistics.cpp:1895 clientgui/ViewStatistics.cpp:1917
+#: clientgui/ViewStatistics.cpp:1938 clientgui/ViewStatistics.cpp:1959
+#: clientgui/ViewStatistics.cpp:1980 clientgui/ViewStatistics.cpp:2001
+#: clientgui/ViewStatistics.cpp:2024
+#, fuzzy
+msgid "Updating charts..."
+msgstr "Oppdaterer katalog ..."
+
+#: clientgui/ViewTransfers.cpp:163 clientgui/ViewTransfersGrid.cpp:106
+#, fuzzy
+msgid "Retry Now"
+msgstr "Restart nå"
+
+#: clientgui/ViewTransfers.cpp:164 clientgui/ViewTransfersGrid.cpp:107
+msgid "Click 'Retry now' to transfer the file now"
+msgstr ""
+
+#: clientgui/ViewTransfers.cpp:170 clientgui/ViewTransfersGrid.cpp:113
+#, fuzzy
+msgid "Abort Transfer"
+msgstr "&Manuell overføring..."
+
+#: clientgui/ViewTransfers.cpp:171 clientgui/ViewTransfersGrid.cpp:114
+msgid ""
+"Click 'Abort transfer' to delete the file from the transfer queue. This will "
+"prevent you from being granted credit for this result."
+msgstr ""
+
+#: clientgui/ViewTransfers.cpp:182 clientgui/ViewTransfersGrid.cpp:129
+msgid "File"
+msgstr "Fil"
+
+#: clientgui/ViewTransfers.cpp:183 clientgui/ViewTransfersGrid.cpp:129
+#: clientgui/ViewWork.cpp:226 clientgui/ViewWorkGrid.cpp:147
+msgid "Progress"
+msgstr "Fremdrift"
+
+#: clientgui/ViewTransfers.cpp:184 clientgui/ViewTransfersGrid.cpp:129
+msgid "Size"
+msgstr "Størrelse"
+
+#: clientgui/ViewTransfers.cpp:185 clientgui/ViewTransfersGrid.cpp:130
+#, fuzzy
+msgid "Elapsed Time"
+msgstr "Forløpt tid :"
+
+#: clientgui/ViewTransfers.cpp:186 clientgui/ViewTransfersGrid.cpp:130
+msgid "Speed"
+msgstr "Fart"
+
+#: clientgui/ViewTransfers.cpp:212 clientgui/ViewTransfersGrid.cpp:167
+msgid "Transfers"
+msgstr "Overføringer"
+
+#: clientgui/ViewTransfers.cpp:275
+msgid ""
+"Network activity is suspended.\n"
+"You can enable it using the Activity menu."
+msgstr ""
+
+#: clientgui/ViewTransfers.cpp:283 clientgui/ViewTransfersGrid.cpp:190
+#, fuzzy
+msgid "Retrying transfer now..."
+msgstr "Oppdater kilder nå"
+
+#: clientgui/ViewTransfers.cpp:321
+#, fuzzy
+msgid "Aborting transfer..."
+msgstr "&Manuell overføring..."
+
+#: clientgui/ViewTransfers.cpp:334
+#, c-format
+msgid ""
+"Are you sure you want to abort this file transfer '%s'?\n"
+"NOTE: Aborting a transfer will invalidate a task and you\n"
+"will not receive credit for it."
+msgstr ""
+
+#: clientgui/ViewTransfers.cpp:340
+#, fuzzy
+msgid "Abort File Transfer"
+msgstr "Filoverføring vellykket"
+
+#: clientgui/ViewTransfers.cpp:763 clientgui/ViewTransfersGrid.cpp:419
+msgid "Retry in "
+msgstr "Forsøk igjen om"
+
+#: clientgui/ViewTransfers.cpp:771
+#, fuzzy
+msgid "Suspended upload"
+msgstr "Suspendert"
+
+#: clientgui/ViewTransfers.cpp:772
+#, fuzzy
+msgid "Suspended download"
+msgstr "Suspendert"
+
+#: clientgui/ViewTransfers.cpp:778 clientgui/ViewTransfersGrid.cpp:431
+#, fuzzy
+msgid "Upload pending"
+msgstr "Fjern ventende handlinger"
+
+#: clientgui/ViewTransfers.cpp:778 clientgui/ViewTransfersGrid.cpp:431
+#, fuzzy
+msgid "Download pending"
+msgstr "Fjern ventende handlinger"
+
+#: clientgui/ViewTransfers.cpp:785
+#, fuzzy
+msgid " (project backoff: "
+msgstr "Slett prosjekt"
+
+#: clientgui/ViewTransfers.cpp:785
+msgid ")"
+msgstr ")"
+
+#: clientgui/ViewTransfersGrid.cpp:161
+msgid "TransfersGrid"
+msgstr "OverføringsGrid"
+
+#: clientgui/ViewTransfersGrid.cpp:228
+#, fuzzy
+msgid "Aborting transfer(s)..."
+msgstr "&Manuell overføring..."
+
+#: clientgui/ViewTransfersGrid.cpp:230
+msgid ""
+"Are you sure you want to abort this file(s) transfer ?\n"
+"NOTE: Aborting a transfer will invalidate a task and you\n"
+"will not receive credit for it."
+msgstr ""
+
+#: clientgui/ViewTransfersGrid.cpp:231
+#, fuzzy
+msgid "Abort File Transfer(s)"
+msgstr "Filoverføring vellykket"
+
+#: clientgui/ViewWork.cpp:184 clientgui/ViewWork.cpp:709
+#, fuzzy
+msgid "Show active tasks"
+msgstr "Vis alle oppgaver"
+
+#: clientgui/ViewWork.cpp:185 clientgui/ViewWork.cpp:710
+#, fuzzy
+msgid "Show only active tasks."
+msgstr "Vis bare aktive team"
+
+#: clientgui/ViewWork.cpp:192 clientgui/ViewWorkGrid.cpp:115
+msgid "Show application graphics in a window."
+msgstr ""
+
+#: clientgui/ViewWork.cpp:199 clientgui/ViewWorkGrid.cpp:122
+msgid "Suspend work for this result."
+msgstr "Suspender arbeid for dette resultatet."
+
+#: clientgui/ViewWork.cpp:205 clientgui/ViewWorkGrid.cpp:128
+msgid "Abort"
+msgstr "Avbryt"
+
+#: clientgui/ViewWork.cpp:206 clientgui/ViewWorkGrid.cpp:129
+msgid "Abandon work on the result. You will get no credit for it."
+msgstr ""
+
+#: clientgui/ViewWork.cpp:213
+msgid "Show task details."
+msgstr "Vis oppgave detajer."
+
+#: clientgui/ViewWork.cpp:224 clientgui/ViewWorkGrid.cpp:146
+msgid "Name"
+msgstr "Navn"
+
+#: clientgui/ViewWork.cpp:225
+#, fuzzy
+msgid "Elapsed"
+msgstr "%H:%M:%S forløpt"
+
+#: clientgui/ViewWork.cpp:227 clientgui/ViewWorkGrid.cpp:147
+#, fuzzy
+msgid "To completion"
+msgstr "Kobler til %s"
+
+#: clientgui/ViewWork.cpp:254 clientgui/ViewWorkGrid.cpp:190
+msgid "Tasks"
+msgstr "Oppgaver"
+
+#: clientgui/ViewWork.cpp:342 clientgui/ViewWorkGrid.cpp:220
+#, fuzzy
+msgid "Resuming task..."
+msgstr "Vis oppgave detajer."
+
+#: clientgui/ViewWork.cpp:345 clientgui/ViewWorkGrid.cpp:223
+#, fuzzy
+msgid "Suspending task..."
+msgstr "Vis oppgave detajer."
+
+#: clientgui/ViewWork.cpp:373 clientgui/ViewWorkGrid.cpp:251
+msgid "Showing graphics for task..."
+msgstr ""
+
+#: clientgui/ViewWork.cpp:426
+#, c-format
+msgid ""
+"Are you sure you want to abort this task '%s'?\n"
+"(Progress: %s, Status: %s)"
+msgstr ""
+
+#: clientgui/ViewWork.cpp:432
+#, c-format
+msgid "Are you sure you want to abort these %d tasks?"
+msgstr ""
+
+#: clientgui/ViewWork.cpp:437 clientgui/ViewWorkGrid.cpp:335
+#, fuzzy
+msgid "Abort task"
+msgstr "Vis oppgave detajer."
+
+#: clientgui/ViewWork.cpp:446 clientgui/ViewWorkGrid.cpp:313
+#, fuzzy
+msgid "Aborting result..."
+msgstr "Ingen kommando gitt, avslutter."
+
+#: clientgui/ViewWork.cpp:703
+msgid "Show all tasks"
+msgstr "Vis alle oppgaver"
+
+#: clientgui/ViewWork.cpp:704
+msgid "Show all tasks."
+msgstr "Vis alle oppgaver."
+
+#: clientgui/ViewWork.cpp:728 clientgui/ViewWorkGrid.cpp:445
+#, fuzzy
+msgid "Resume work for this task."
+msgstr "Suspender arbeidet på denne oppgaven"
+
+#: clientgui/ViewWork.cpp:734 clientgui/ViewWorkGrid.cpp:451
+msgid "Suspend work for this task."
+msgstr "Suspender arbeidet på denne oppgaven"
+
+#: clientgui/ViewWork.cpp:1108
+#, fuzzy
+msgid "GPU missing, "
+msgstr "Høyeste antall &manglende ord:"
+
+#: clientgui/ViewWork.cpp:1122 clientgui/ViewWork.cpp:1198
+#, fuzzy
+msgid " (suspended)"
+msgstr "Suspendert"
+
+#: clientgui/ViewWork.cpp:1152
+msgid " - an exclusive app is running"
+msgstr ""
+
+#: clientgui/ViewWork.cpp:1171 clientgui/ViewWorkGrid.cpp:822
+msgid " (non-CPU-intensive)"
+msgstr ""
+
+#: clientgui/ViewWork.cpp:1186
+#, fuzzy
+msgid " (waiting for GPU memory)"
+msgstr "Venter på passord"
+
+#: clientgui/ViewWork.cpp:1211
+msgid "Aborted: not started by deadline"
+msgstr ""
+
+#: clientgui/ViewWorkGrid.cpp:184
+msgid "TasksGrid"
+msgstr "OppgaveGrid"
+
+#: clientgui/ViewWorkGrid.cpp:327
+#, c-format
+msgid ""
+"Are you sure you want to abort this task '%s'?\n"
+"(Progress: %s %%, Status: %s)"
+msgstr ""
+
+#: clientgui/WelcomePage.cpp:256
+#, fuzzy
+msgid "Attach to project or account manager"
+msgstr "Koble til et &prosjekt eller en konto manager..."
+
+#: clientgui/WelcomePage.cpp:264
+#, c-format
+msgid ""
+"If possible, add projects at the\n"
+"%s web site.\n"
+"\n"
+"Projects added via this wizard will not be\n"
+"listed on or managed via %s."
+msgstr ""
+
+#: clientgui/WelcomePage.cpp:277
+msgid ""
+"We'll guide you through the process of attaching\n"
+"to a project or account manager."
+msgstr ""
+
+#: clientgui/WelcomePage.cpp:281
+msgid ""
+"You have selected to attach to a new BOINC project.  Attaching to a new\n"
+"project means that you will be connecting your computer to a new website\n"
+"and organization.  If this is what you wanted to do, then please click on\n"
+"the 'Next' button below.\n"
+"\n"
+"Some projects like World Community Grid run multiple research applications.\n"
+"If you want to change which research applications are sent to your computer\n"
+"to run, then you should visit the project's website and modify your\n"
+"preferences there.\n"
+"\n"
+"To change which research applications are sent to you from\n"
+"World Community Grid then please click on the following button:"
+msgstr ""
+
+#: clientgui/WelcomePage.cpp:284
+msgid "Change Research Applications at World Community Grid"
+msgstr "Skift forsknings program på World Community Grid"
+
+#: clientgui/WelcomePage.cpp:301
+#, fuzzy
+msgid "To continue, click Next."
+msgstr "Ved siden av overføringskøen"
+
+#: clientgui/WizardAttachProject.cpp:614
+#, fuzzy
+msgid "Do you really want to cancel?"
+msgstr "Vil du virkelig lukke FileZilla?"
+
+#: clientgui/WizardAttachProject.cpp:615
+msgid "Question"
+msgstr "Spørsmål"
+
+#: clientgui/wizardex.cpp:377 clientgui/wizardex.cpp:553
+msgid "&Next >"
+msgstr "&Neste >"
+
+#: clientgui/wizardex.cpp:383
+msgid "< &Back"
+msgstr "< &Tilbake"
+
+#: clientgui/wizardex.cpp:553
+msgid "&Finish"
+msgstr "&Ferdig"
+
+#: clientgui/common/wxFlatNotebook.cpp:182
+#, c-format
+msgid "New page inserted. Index = %i"
+msgstr ""
+
+#: clientgui/common/wxFlatNotebook.cpp:187
+#, c-format
+msgid "New page appended. Index = %i"
+msgstr ""
+
+#: clientgui/common/wxFlatNotebook.cpp:2048
+#, fuzzy, c-format
+msgid "Old Page Index = %i"
+msgstr "GIF: Ugyldig GIF-indeks"
+
+#: clientgui/common/wxFlatNotebook.cpp:2053
+#, c-format
+msgid "OnDropTarget: index by HitTest = %i"
+msgstr ""
+
+#: clientgui/common/wxPieCtrl.cpp:66
+msgid "Pie Ctrl"
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:171
+msgid ""
+"for accessibility support, please select advanced from the view menu or type "
+"command shift a"
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:216
+msgid "This panel contains graphs showing user totals for projects"
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:635
+msgid "list headers"
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:639
+#, c-format
+msgid "list of %s"
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:641
+#, c-format
+msgid "list of %s is empty"
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:742
+#, c-format
+msgid "; current sort column %d of %d; descending order; "
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:744
+#, c-format
+msgid "; current sort column %d of %d; ascending order; "
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:747
+#, c-format
+msgid "; column %d of %d; "
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:754
+msgid "list is empty"
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:757 clientgui/mac/MacAccessiblity.cpp:769
+#, c-format
+msgid "; row %d; "
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:761
+#, c-format
+msgid "; selected row %d of %d; "
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:763
+#, c-format
+msgid "; selected row %d ; "
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:767
+#, c-format
+msgid "; row %d of %d; "
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:775
+msgid "blank"
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:1411
+msgid "list of projects or account managers"
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:1448
+#, c-format
+msgid "selected row %d of %d; "
+msgstr ""
+
+#: clientgui/mac/MacAccessiblity.cpp:1450
+#, c-format
+msgid "row %d of %d; "
+msgstr ""
+
+#: clientgui/DlgAdvPreferences.h:29
+msgid "specify work start and stop hours in format HH:MM-HH:MM"
+msgstr ""
+
+#: clientgui/DlgAdvPreferences.h:30
+msgid "specify network usage start and stop hours in format HH:MM-HH:MM"
+msgstr ""
+
+#~ msgid "Attach to a project or account manager to begin processing work"
+#~ msgstr ""
+#~ "Koble til et prosjekt eller en konto manager for å begynne å prosessere "
+#~ "arbeid"
+
+#, fuzzy
+#~ msgid "Attach to an additional project"
+#~ msgstr "Vil du slette prosjektet?"
+
+#, fuzzy
+#~ msgid "&Close Window\tCtrl+W"
+#~ msgstr "Lukk dette vinduet"
+
+#, fuzzy
+#~ msgid "&News\tCtrl+Shift+N"
+#~ msgstr "Sett bokmerke %i\tCtrl-%i"
+
+#, fuzzy
+#~ msgid "Display news"
+#~ msgstr "Vis innhold"

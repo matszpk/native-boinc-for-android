@@ -1,0 +1,32 @@
+The gcwsieve-smallp executables were complied with the commands:
+
+Linux:    make ARCH=x86-64 CC="gcc -V3.4 -DSMALL_P"
+          make ARCH=x86 CC="gcc -V3.4 -DSMALL_P"
+Windows:  make ARCH=x86-64-gcc430 CC="x86_64-pc-mingw32-gcc -DSMALL_P"
+          make ARCH=x86 CC="i586-mingw32msvc-gcc -DSMALL_P"
+
+They have modifications to allow sieving n*b^n+/-1 with primes p in the
+range 2 < p < 2^31, instead of the usual range n < p < 2^51 (or 2^62).
+
+They can also begin a new sieve from scratch using the -B switch together
+with the -n -N -b -C -W switches.
+
+They will be SLOWER than the normal executables, especially for p < n_max/2,
+and have not been well tested. Please don't use them for sieve ranges that
+the normal executables can manage, and please double check a sample range
+with MultiSieve before trusting the results.
+
+Small-p sieving is broken into four separate phases:
+
+1. Remove even terms and those with an algebraic factor.
+2. Sieve 2 < p <= sqrt(n_max) using a slow algorithm to create some gaps
+   between terms.
+3. Sieve sqrt(n_max) < p <= n_max/2 using fast algorithm but slow code.
+4. Sieve n_max/2 < p <= n_max using fast algorithm, fast code but with some
+   additional comparisons and branches needed, and limited to p < 2^31.
+
+Checkpointing and multithreading cannot start until phase 3.
+
+Unless you have a good reason to use these executables I would strongly
+recommend using MultiSieve to begin the sieve instead, then switch to the
+normal gcwsieve executables once sieving has reached p > n_max.

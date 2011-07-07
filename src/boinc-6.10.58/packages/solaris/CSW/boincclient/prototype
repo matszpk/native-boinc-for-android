@@ -1,0 +1,23 @@
+i pkginfo
+i copyright
+i depend
+i preinstall
+i postinstall
+d none /etc 0755 root bin
+d none /etc/init.d 0755 root bin
+f none /etc/init.d/cswboinc-client 0755 root bin
+d none /etc/default 0755 root bin
+f none /etc/default/boinc-client 0755 root bin
+d none /data/local/tmp 0755 root bin
+d none /data/local/tmp/etc 0755 root bin
+d none /data/local/tmp/bin 0755 root bin
+f none /data/local/tmp/bin/boinccmd 0755 root bin
+f none /data/local/tmp/bin/boinc_client 0755 root bin
+l none /data/local/tmp/bin/boinc=boinc_client
+f none /data/local/tmp/bin/switcher 0755 root bin
+d none /data/local/tmp/share 0755 root bin
+d none /data/local/tmp/share/man 0755 root bin
+d none /data/local/tmp/share/man/man1 0755 root bin
+f none /data/local/tmp/share/man/man1/boinc.1 0755 root bin
+f none /data/local/tmp/share/man/man1/boinccmd.1 0755 root bin
+f none /data/local/tmp/share/man/man1/boinc_client.1 0755 root bin

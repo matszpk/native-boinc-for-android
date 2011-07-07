@@ -1,0 +1,9 @@
+The file test1.in contains 1028 terms n*5^n-1. Sieving with:
+
+  gcwsieve -i test1.in -p 1e5 -P 1e7
+
+should find factors for 285 unique terms, including this special
+case of one factor dividing two different terms:
+
+  305329 | 19148*5^19148-1
+  305329 | 18366*5^18366-1

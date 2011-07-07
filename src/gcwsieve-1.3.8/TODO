@@ -1,0 +1,17 @@
+Add dummy terms in a way that minimises the number of new gap sizes.
+
+Add extra dummy terms to bring the total number of terms up to a multiple of
+SWIZZLE. This should allow sieve64() to be simplified a little.
+
+When b=2 and gmul=1, use modular addition instead of modular multiplication
+to build the table of powers.
+
+When using SSE2 (i.e. 64-bit instead of 80-bit doubles) for the floating
+point mulmod operations (x86-64), conditional moves start to become faster
+than branches as p increases beyond 1000e12. Choose which method to use based
+on the size of pmax.
+
+Avoid referencing G[][] and N[][] arrays after initialization, so that they
+can be freed before sieving starts.
+
+Integrate the SMALL_P code into the standard executable.

@@ -1,0 +1,4 @@
+This directory contains source code and some binaries for gcwsieve, a
+sieve for generalised Cullen/Woodall numbers n*b^n+/-1.
+
+The latest version is VERSION.

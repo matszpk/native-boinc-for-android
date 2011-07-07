@@ -1,0 +1,332 @@
+Version 1.3.8: (Posted 30 September 2009, source and BOINC executables only)
+Instead of an empty factors file, create a file containing "no factors" for
+ BOINC.
+
+Version 1.3.7: (Posted 22 August 2009, source and BOINC executables only)
+Create an empty factors file for BOINC if no factors were found.
+
+Version 1.3.6: (Posted 14 December 2008, source only)
+Allocate .bss variables in C instead of ASM, for compatibility with the
+ Apple assembler.
+
+Version 1.3.5: (Posted 7 December 2008)
+Reverted writing `variable c' ABC file headers as $a*2^$a$c, the way they
+ were done pre version 1.3.3. Still accepts $a*2^$a+$c as input.
+
+Version 1.3.4: (Posted 23 October 2008, -src and -smallp only)
+Fixed another bug affecting the executable compiled with SMALL_P option that
+could cause a crash when writing the output file after beginning a new sieve.
+Thanks to John Blazek and Lennart Vogel for the report.
+
+Version 1.3.3: (Posted 21 October 2008)
+Changed the way ABC file headers are written for compatibility with other
+ programs such as Phrot. "$a*2^$a$c" is now written "$a*2^$a+$c" etc.
+ MultiSieve compatible format (-m switch) is still written "$a*$b^$a$c" for
+ compatibility with MultiSieve and LLR. Files written the old way by earlier
+ gcwsieve versions can still be read as before.
+Fixed a multithreading bug affecting the executable compiled with the
+ SMALL_P option. Thanks to John Blazek and Lennart Vogel for reporting this.
+
+Version 1.3.2: (Posted 24 September 2008)
+Fixed a bug in the reading of the gcwsieve-command-line.txt file that could
+ cause DOS format files to be rejected by UNIX executables.
+In events.c, set the next save/report time in check_process() relative to
+ current time rather than the last save/report time. This works better when
+ the program is paused for long periods of time.
+Create all archives with ZIP. Put all executables into one archive.
+
+Version 1.3.1: (Posted 9 September 2008, source only)
+Added code to allow building as a native BOINC application. Uncomment
+ BOINC_* lines in Makefile to enable. See README-boinc.
+When exiting due to reciept of SIGTERM, SIGINT or SIGHUP restore the
+ original signal handlers instead of the default handler. This avoids the
+ possibility of clobbering any handlers installed by boinc_init().
+
+Version 1.3.0: (Posted 9 September 2008)
+New process priority behaviour is incompatible with previous versions:
+ Default is not to change process priority (previous default was idle).
+ -zz sets lowest priority (nice 20)
+ -z  sets low priority (nice 10)
+ -Z  sets high priority (nice -10)
+ -ZZ sets highest priority (nice -20)
+
+Version 1.2.8: (Posted 9 September 2008, source only)
+In priority.c, use PRIO_MAX=10 if not defined in sys/resource.h
+Added Makefile options ARCH=x86-osx and ARCH=x86-64-osx to simplify building
+ on Intel Macs. Thanks to Michael Tughan for these build options.
+
+Version 1.2.7: (Posted 10 June 2008)
+Fixed a buffer overflow that could occur when printing messages with long
+ file names. Thanks Chuck Lasher for reporting this bug.
+
+Version 1.2.6: (Posted 6 April 2008)
+Fixed calculation of accumulated elapsed time, as reported in the checkpoint
+ file and at the end of a range, which could overflow in versions 1.2.0-1.2.5.
+
+Version 1.2.5: (Posted 1 March 2008)
+Set HAVE_SETAFFINITY=0 for OS X.
+Check the return status of localtime() and strftime() before calling
+ printf() with the results. This prevents a Windows access violation when
+ the ETA date is invalid. Thanks Chuck Lasher for reporting this bug and
+ helping to track down the cause.
+
+Version 1.2.4: (Posted 23 February 2008)
+Write cpu_secs field in checkpoint using cpu time as in versions 1.1.x. It
+ will not be accurate when the -t switch is used.
+Added elapsed_secs field to checkpoint file containing accumulated elapsed
+ time in seconds.
+
+Version 1.2.3:
+Use `addc' instead of `adde' instruction in ppc64 mulmod.
+
+Version 1.2.2: (Posted 15 January 2008)
+Improved powmod implementation for x86-64 and x86/sse2: For each bit in the
+ exponent the old implementation used 1 sqrmod + 1/2 mulmod + 1 unpredictable
+ branch; The new implementation uses 1 sqrmod + 1 mulmod + 1 conditional move.
+
+Version 1.2.1:
+Removed reference to mod64_rnd in factors.c for non-x86 builds.
+
+Version 1.2.0: (Posted 5 December 2008)
+Added simple multithreading using fork() and pipe(). The new switch
+ `-t --threads N' will start N child threads. See README-threads.
+When multithreading, let each use of the `-A --affinity N' switch set
+ affinity for successive child threads.
+Use elapsed time for all statistics. Removed `-e --elapsed-time' switch.
+
+Version 1.1.8: (Posted 28 December 2007)
+Added new switches to allow sieving a subset of the terms in an ABC file:
+ -b --base B  Restrict sieve to base B terms.
+ -C --cullen  Restrict sieve to Cullen terms.
+ -W --woodall  Restrict sieve to Woodall terms.
+When p == n*b^n+c just log n*b^n+c as a prime term, don't eliminate n*b^n+c
+ from the sieve or report p as a factor.
+Added new `-q --quiet' switch to prevent found factors being printed.
+Added version number to name used in log entries. Thanks `Cruelty' for this
+ suggestion.
+When SMALL_P is defined the sieving range is 2 < p < 2^31, and the new
+ switch `-B --begin' starts a new sieve from scratch. Thanks to Mark
+ Rodenkirch for providing much of the code to implement these features.
+
+Version 1.1.7: (Posted 11 December 2007)
+Just set thread affinity, not process affinity, for Windows.
+Added a new makefile target ARCH=x86-64-gcc430 with compiler optimisation
+ reduced to -O1 for use when compiling with GCC 4.3.0. This version of GCC
+ generates incorrect code at -O2 and higher, although it probably didn't
+ affect gcwsieve. Thanks Bryan O'Shea for finding this bug and Adam Sutton
+ for helping to find a workaround.
+
+Version 1.1.6: (Posted 7 December 2007)
+Added a comment in sieve.c describing the basic algorithm used by gcwsieve.
+Added a SMALL_P compile option to allow building an executable for sieving
+ n*b^n+/-1 with p in the range n/2 < p < 2^31.
+Added `-A --affinity N' switch to set affinity to CPU N.
+
+Version 1.1.5: (Posted 20 October 2007)
+Fixed a bug that caused Woodall factors read with the -k switch to be
+ incorrectly rejected as non-factors.
+
+Version 1.1.4: (Posted 14 October 2007, source only)
+Use .globl instead of .global to declare global assembler symbols, for
+ compatibility with the Apple assembler.
+
+Version 1.1.3: (Posted 28 September 2007, source and Linux binaries only)
+Don't install handlers for signals whose initial handler is SIG_IGN.
+
+Version 1.1.2: (Posted 27 September 2007, source/windows-x86-64 binary only)
+Changes to allow building with MinGW64:
+ * Define NEED_UNDERSCORE in config.h
+ * Don't use __mingw_aligned_malloc in util.h
+ * Allow for sizeof(uint_fast32_t)==4 in asm-x86-64-gcc.h
+
+Version 1.1.1:
+Don't declare zero-length arrays in swizzle.h (not C99 standard).
+Use malloc/free instead of variable length automatic arrays when compiling
+ sieve.c with MSC.
+
+Version 1.1.0: (Posted 20 September 2007)
+Cullen and Woodall terms can now be sieved together. There is only a slight
+ algorithmic advantage in this, could even be a little slower in practice.
+Allow the input sieve file to be unordered. Use qsort() to create order.
+Removed LOOP_PERFORMANCE_OPT option. The code is messy enough without it.
+
+Version 1.0.23: (Posted 20 September 2007)
+Increased the minimum number of terms in the sieve from 4 to 6 for x86-64.
+ (The minimum must be at least equal to SWIZZLE for correct results).
+Added `-n --nmin N0' and `-N --nmax N1' switches to restrict sieving to
+ those terms n*b^n+/-1 with n in the range N0 <= n <= N1.
+
+Version 1.0.22: (Posted 12 September 2007, source only)
+Set FPU to use double extended precision, in case the default has been
+ changed somehow.
+Don't push/pop 16-bit registers. (Affected 1.0.21 only).
+Added code to align the stack when assembling 32-bit functions for MSC.
+ Updated msc/README.
+
+Version 1.0.21: (Posted 8 September 2007, source only)
+Use stack shadow space instead of red zone on _WIN64.
+Made all x86 and x86-64 inline asm functions into external functions.
+Use VECTOR_LENGTH=4 for all x86/x86-64 builds.
+Added LOOP_PERFORMANCE_OPT option to measure throughput of the main loop in
+ clock cycles per term. Set LOOP_PERFOMANCE_OPT=1 in gcwsieve.h to enable.
+Added asm-i386-msc.h, asm-x86-64-msc.h with declarations of assembly
+ functions for MSC.
+Explicitly allocate assembler variables in the .bss section instead of using
+ GAS's .comm directive, objconv can't convert objects with .comm.
+Added minimal implementations of stdint.h and inttypes.h for MSC, along
+ with getopt.c and getopt.h in the msc subdirectory.
+Added pre-assembled COFF object files in win32 and win64 subdirectories,
+ converted from ELF with Agner Fog's objconv program.
+Added general (incomplete) instructions to build with MSC in msc/README.
+
+Version 1.0.20: (Posted 2 September 2007, source and x86-64 binary only)
+Added Seperate x86-64 code paths optimised for Core 2 (default on Intel CPUs)
+ and Athlon 64 (default on AMD CPUs). This can be overridden with the --amd
+ and --intel switches. About 15% faster on the Athlon 64 (in 64-bit mode)
+ compared to the previous version. Thanks to John Blazek for testing.
+Added ARCH=core2 and ARCH=athlon64 Makefile options, which build x86-64
+ binaries with just one code path.
+Added USE_CMOV option for x86-64. (Not enabled for distributed binaries).
+Make a more precise guess as to whether the data set will fit in L2 cache.
+The maximum number of sieve terms is 2^28-1 for x86, 2^31-1 for others.
+
+Version 1.0.19: (Posted 24 August 2007, source only)
+Changes to loop-generic.c should allow the C compiler to keep loop variables
+ in registers.
+A small change the mulmod64() in asm-ppc64.h should suit the way this
+ function is called in loop-generic.c
+Set SWIZZLE=2 and no prefetching for ppc64.
+
+Version 1.0.18: (Posted 23 August 2007)
+Added `-R --report-primes' switch to report primes/sec. instead of p/sec.
+ (Number of primes tested per second instead of increase in p per second).
+Added `-e --elapsed-time' switch to report p/sec, sec/factors, etc. using
+ elapsed time instead of CPU time.
+Alternate report of cpu usage and percentage of range done.
+Handle SIGHUP.
+Use clock() for benchmarking if gettimeofday() is not available.
+Use time() to measure elapsed time if gettimeofday() is not available.
+Test for 3DNowExt instead of just 3DNow to determine whether the prefetchnta
+ instruction is available on AMD CPUs.
+Choose whether to use prefetch based on best instead of average benchmark.
+
+Version 1.0.17: (Posted 19 August 2007)
+Fixed a bug in the WIN64 prelude in loop-x86-64.S. (didn't affect
+ distributed binaries).
+Assume prefetchnta is available if 3DNow! is detected on AMD CPUs.
+Write a more compact ABC file format by default. The old format will still
+ be written when the --multisieve switch is given. Read either format.
+ See README for a description of both formats.
+
+Version 1.0.16: (Posted 13 August 2007)
+Added a generic version of the main loop that uses the same algorithm as
+ the assembler loops (i.e. with data swizzling), for testing on PPC64.
+Added software prefetching, selected based on results of benchmarks.
+Added `--prefetch' switch to force use of software prefetch.
+Added `--no-prefetch' switch to prevent use of software prefetch.
+
+Version 1.0.15: (Posted 9 August 2007)
+Improved main loop for x86 without SSE2 (loop-x86.S), 30% faster for P3.
+Small improvement to SSE2 main loop.
+
+Version 1.0.14: (Posted 6 August 2007)
+Swizzle data so that the main loop reads from consecutive cache lines.
+Improved assembler for SSE2 and x86-64 main loops, in loop-x86-[sse2|64].S
+The maximum number of terms in the sieve is 2^28-1.
+
+Version 1.0.13: (Posted 3 August 2007)
+Fixed a bug in the xmemalign() and xfreealign() functions used by systems
+ without a native memalign() function. The usual result was an invalid
+ pointer being passed to free() at the end of a sieving range. If the work
+ file was being used and contained multiple sieve ranges, a major memory
+ leak could result. Many thanks to Mark Rodenkirch for finding this bug.
+ Affected Windows versions 1.0.0 - 1.0.10, OS X versions 1.0.0 - 1.0.12.
+
+Version 1.0.12: (Posted 2 August 2007)
+Reduced x86-64 mulmod limit from 2^52 to 2^51 to allow for SSE2 rounding
+ problems as the modulus approaches 2^52.
+Replaced some branches with conditional moves in x86-64 main loop.
+Compile x86-64 binary with GCC 3.4 (10% faster than GCC 4.1 on C2D).
+Use the lesser of 2Mb or half L2 cache for the Sieve of Eratosthenes bitmap.
+Added `-u --uid STR' switch to append -STR to base of per-process file
+ names.
+
+Version 1.0.11: (Posted 23 July 2007)
+Use __mingw_aligned_malloc() to allocate aligned memory with mingw32.
+Added frac_done and cpu_secs fields to the checkpoint file, for use by a
+ BOINC wrapper.
+
+Version 1.0.10: (Posted 16 July 2007)
+Add -mno-3dnow to x86-64 flags. Add missing powmod-i386.o to athlon build.
+Set HAVE_MEMALIGN=0 for OS X in config.h. Don't include <malloc.h> unless
+ needed.
+Removed unnecessary "cld" instruction in x86/x86-64 memset_fast32().
+Improved generic memset_fast32(): store 8 uint_fast32_t per loop iteration.
+Removed x86-64 USE_FPU_MULMOD option. Sieving deeper than 2^52 is unlikely
+ to be useful.
+Made powmod-k8.S usable by WIN64, and a few other changes to allow for
+ compilation by mingw64 when it arrives.
+Update cpu.c (new L2 cache sizes) and ppc64 assembler from sr5sieve 1.5.15.
+New main loop for x86-64. *** Testing needed ***.
+
+Version 1.0.9: (Posted 19 June 2007)
+Update powmod-sse2.S from sr5sieve 1.5.6.
+Replace movdqa with movq/movhps after fistpll and movlps/movhps before
+ fildll in VEC4_MULMOD64_CMPEQ32() macro. This simple change has an amazing
+ effect on P4 performance!
+
+Version 1.0.8: (Posted 11 June 2007)
+Fixed *_clock() functions to return CPU times in Windows. Previous versions
+ used clock() when getrusage() was not available, but clock() returns
+ elapsed time instead of CPU time in Windows. (clock.c).
+Update assembler: use asm-i386-gcc.h, asm-x86-64-gcc.h, powmod-k8.S from
+ sr5sieve 1.5.5.
+Align G[], L[] and T[] arrays on a 64 byte boundary.
+Added VECTOR_LENGTH compile time option in sieve.c. Default VECTOR_LENGTH=8
+ for SSE2 code path, VECTOR_LENGTH=4 for non-SSE2 code path.
+
+Version 1.0.7: (Posted 20 April 2007)
+Added `-w --work FILE' switch to read ranges from FILE as with sr5sieve.
+Added `-c --checkpoint FILE' switch to write checkpoints to FILE (default
+ `checkpoint.txt').
+Added default file names `sieve.txt' and `factors.txt' if -i or -f switches
+ respectively are not supplied.
+Tweaks to VEC4_MULMOD64_CMPEQ32(). About 4% faster on P4.
+
+Version 1.0.6: (Posted 17 April 2007)
+Fixed a bad CPUID parameter in the non-intel cache detection code (cpu.c).
+Fixed a segfault when exactly 1 dummy term was added (terms.c).
+Added a switch `-d --dummy X' to add dummy terms to fill gaps > X.
+
+Version 1.0.5: (Posted 16 April 2007)
+`-k --known FILE' switch removes known factors in FILE from the sieve.
+Attempt to extend the first part of the table of powers to take advantage of
+ the speed of the vec4_* mulmods in the SSE2 code path.
+Use VEC4_* macros instead of vec4_* inline functions.
+SSE2 main loop now processes four terms at a time via VEC4_MULMOD64_CMPEQ32().
+
+Version 1.0.4: (Posted 7 April 2007)
+Some tweaks to the SSE2 main loop to get GCC 3.4 to produce better code.
+ An executable from GCC 3.4 is now only 1-2% slower than one from GCC 4.1.
+Add dummy terms to fill gaps between terms that are greater than 6 times the
+ average gap, or that would prevent the table of powers fitting in L1 cache.
+New vec4_* functions to fill arrays 4 elements at a time in SSE2 code path.
+
+Version 1.0.3: (Posted 2 April 2007)
+Improved SSE2 main loop.
+
+Version 1.0.2: (Posted 1 April 2007)
+Added `-m --multisieve' command line switch to cause the factors and ABC
+ files to be written in the same format used by MultiSieve.
+Some tweaks to the main loop in the non-SSE2 code path. This loop is very
+ sensitive to GCC's register allocation choices, it might be worthwhile to
+ write the whole loop in assembler.
+Added missing sieve.c file to distributed source archive.
+
+Version 1.0.1: (Posted 30 March 2007)
+Fixed a bug that would have prevented factors being found if the largest
+ gap between candidates was less than 16. (Didn't affect PCP project).
+Vectorised the main loop in SSE2 code path. (VEC2_MULMOD64_CMPEQ32() macro).
+
+Version 1.0.0: (Posted 28 March 2007)
+Initial release. Modular arithmetic routines taken from sr1sieve 1.0.19.

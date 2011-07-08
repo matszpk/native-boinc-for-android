@@ -300,7 +300,8 @@ bool CLIENT_STATE::should_run_cpu_benchmarks() {
 
     return ((run_cpu_benchmarks || diff > BENCHMARK_PERIOD));
 #else
-    return false;
+    if (projects.size()==0 && !run_cpu_benchmarks) return false;
+    return run_cpu_benchmarks;
 #endif
 }
 

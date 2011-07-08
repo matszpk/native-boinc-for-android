@@ -1,0 +1,15 @@
+Version 6.10.17.beta3 (2011-02-11)
+- Fix for crash on low memory system event
+- Minor updates of user interface
+
+Version 6.10.17.beta2 (2011-02-06)
+- Fix for crashes reported by Market
+- Added new preferences
+- Updates of user interface
+
+Version 6.10.17.beta (2010-12-01)
+- Fix for Motorola Milestone crash
+- Source code available on project homepage under GPLv3
+
+Version 6.10.17.alpha (2010-11-20)
+- Initial release

@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+/* 
+ * AndroBOINC - BOINC Manager for Android
+ * Copyright (C) 2010, Pavol Michalec
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+-->
+<resources>
+	<!-- Basic application stuff -->
+	<string name="app_name">AndroBOINC</string>
+	<string name="app_desc">Manager for BOINC clients</string>
+	<string name="service_desc">Maintains connection to BOINC core clients</string>
+
+	<!-- Some common, generic strings -->
+	<string name="authorization">Authorization...</string>
+	<string name="cancel">Cancel</string>
+	<string name="changelog">ChangeLog</string>
+	<string name="close">Close</string>
+	<string name="connecting">Connecting...</string>
+	<string name="disabled">Disabled</string>
+	<string name="dismiss">Dismiss</string>
+	<string name="error">Error</string>
+	<string name="homepage">Homepage</string>
+	<string name="license">License</string>
+	<string name="notConnected">Not connected</string>
+	<string name="notice">Notice</string>
+	<string name="ok">OK</string>
+	<string name="projectSuspendedByUser">Project suspended by user</string>
+	<string name="received">Received</string>
+	<string name="retrievingData">Retrieving data...</string>
+	<string name="retrievingInitialData">Retrieving initial data...</string>
+	<string name="sent">Sent</string>
+	<string name="shutdown">Shutdown</string>
+	<string name="sources">Source Code</string>
+	<string name="taskSuspendedByUser">Task suspended by user</string>
+	<string name="unknown">unknown</string>
+	<string name="upgradedTo">Upgraded to</string>
+	<string name="warning">Warning</string>
+
+	<!-- Units -->
+	<string name="unitKiB">KiB</string>
+	<string name="unitMiB">MiB</string>
+	<string name="unitGiB">GiB</string>
+	<string name="unitB">B</string>
+	<string name="unitKB">KB</string>
+	<string name="unitMB">MB</string>
+	<string name="unitGB">GB</string>
+	<string name="unitBps">B/s</string>
+	<string name="unitKBps">KB/s</string>
+	<string name="unitMBps">MB/s</string>
+
+	<!-- Main Activity -->
+	<string name="temp_info">Press Menu button</string>
+	<string name="projects">Projects</string>
+	<string name="tasks">Tasks</string>
+	<string name="transfers">Transfers</string>
+	<string name="messages">Messages</string>
+	<string name="closeWarning">Press Back again (within 5 seconds) to exit</string>
+
+	<!-- Menu items -->
+	<string name="menuAbout">About</string>
+	<string name="menuAddNewHost">Add new host</string>
+	<string name="menuConnect">Connect</string>
+	<string name="menuDisconnect">Disconnect</string>
+	<string name="menuHosts">Manage hosts</string>
+	<string name="menuHostInfo">Host Info</string>
+	<string name="menuManage">Manage client</string>
+	<string name="menuPreferences">Preferences</string>
+	<string name="menuReconnect">Reconnect</string>
+	<string name="menuRefresh">Refresh</string>
+
+	<!-- About -->
+	<string name="aboutTitle">Basic Information</string>
+	<string name="aboutHomepageUrl">http://code.google.com/p/androboinc/</string>
+	<string name="aboutText">
+		%1$s is port of BOINC Manager to Android.\n
+		\nIt is only manager, NOT the client. You must have separate BOINC client accessible
+		from network.\n
+		\nThe security of this manager is the same as the security of the standard BOINC
+		Manager; Protect your hosts by passwords.\n
+		\nThis software is released under terms of GPLv3 and 
+		is provided by author free of charge. 
+		If you still want to make a kind of \"donation\" to author, 
+		who is proud member of team BOINC.SK, just join team BOINC.SK 
+		in your favorite project and crunch some credits for the team. 
+		Any amount of your \"donation\" to team will be appreciated.\n
+		\nAnyway... just keep crunching!\n
+		\n\nCopyright (C) 2010 Palo M.\n
+	</string>
+
+	<!-- Preferences -->
+	<string name="prefCategoryUI">User Interface</string>
+	<string name="prefScreenOrientation">Screen orientation</string>
+	<string name="prefKeepScreenOn">Keep screen active</string>
+	<string name="prefKeepScreenOnEnabled">Prevent screen from turning off</string>
+	<string name="prefKeepScreenOnDisabled">Screen may turn off at user inactivity</string>
+	<string name="prefAutoConnectTitle">Automatic connect</string>
+	<string name="prefAutoConnectDisabled">No automatic connect on startup</string>
+	<string name="prefAutoConnectEnabled">Connect to recently connected client on startup</string>
+	<string name="prefCategoryNetworkBW">Network Bandwidth</string>
+	<string name="prefAutoUpdateIntervalWiFi">WiFi periodic refresh</string>
+	<string name="prefAutoUpdateIntervalMobile">Mobile periodic refresh</string>
+	<string name="prefAutoUpdateIntervalLocalhost">Localhost periodic refresh</string>
+	<string name="prefAutoUpdateIntervalSummary">Automatic refresh every</string>
+	<string name="prefLimitMessagesTitle">Limit number of messages</string>
+	<string name="prefLimitMessagesDisabled">Retrieve all messages on connect (can transfer a lot of data)</string>
+	<string name="prefLimitMessagesEnabled">Retrieve only 50 recent messages on connect (saves bandwidth)</string>
+	<string name="prefNetworkUsageStats">Network usage</string>
+	<string name="prefNetworkUsageDisabled">Statistics are NOT collected</string>
+	<string name="prefNetworkUsageNull">Received: 0B, Sent: 0B</string>
+	<string name="prefNetworkUsageDisclaimer">
+		The numbers displayed in network usage here are not exact.
+		Do not rely on them.
+	</string>
+	<string name="prefOptOutText">Do not show me this notice again.</string>
+	<string name="prefCategoryAbout">About</string>
+	<string name="prefAboutTitle">About this application</string>
+	<string name="prefChangelogSummary">History of changes</string>
+	<string name="prefLicenseSummary">Text of license</string>
+
+	<!-- Network status -->
+	<string name="networkUnavailable">Network connection unavailable.</string>
+
+	<!-- ManageClient Activity -->
+	<string name="currentHostTitle">Current Host</string>
+	<string name="noHostConnected">No host connected</string>
+	<string name="clientConnecting">Client connecting...</string>
+	<string name="selectHostTitle">Current host</string>
+	<string name="selectHostNoneAvailable">No BOINC client configured. Use menu button to add new host(s).</string>
+	<string name="selectHostDialogTitle">Select host</string>
+	<string name="clientNameNone">None</string>
+	<string name="clientIdNone">0</string>
+	<string name="manageCategoryActivity">Activity</string>
+	<string name="clientActivityRunTitle">Run mode</string>
+	<string name="clientActivityRunDialogTitle">Run mode</string>
+	<string name="clientActivityNetworkTitle">Network activity</string>
+	<string name="clientActivityNetworkDialogTitle">Network activity</string>
+	<string name="manageCategoryAdvanced">Advanced</string>
+	<string name="clientRunBenchTitle">Run CPU benchmarks</string>
+	<string name="clientRunBenchSummary">Runs BOINC CPU benchmarks</string>
+	<string name="clientRunBenchNotify">Starting CPU benchmarks</string>
+	<string name="clientDoNetCommTitle">Do network communication</string>
+	<string name="clientDoNetCommSummary">Do all pending network communication</string>
+	<string name="clientDoNetCommNotify">Starting network communication</string>
+	<string name="clientShutdownTitle">Shutdown client</string>
+	<string name="clientShutdownSummary">Shut down the currently connected core client</string>
+	<string name="clientShutdownNotify">Shutting down the currently connected core client</string>
+	<string name="warnShutdownText">The connected core client will be shut down. This manager cannot start the client afterwards.</string>
+	
+	<!-- HostList Activity -->
+	<string name="selectHost">Select host</string>
+	<string name="hostAddNew">Add new host</string>
+	<string name="hostEdit">Edit host</string>
+	<string name="hostDelete">Delete host</string>
+	<string name="hostSetDefault">Set default host</string>
+	<string name="noHostDefined">No host defined</string>
+	<string name="hostNone">No host</string>
+	<string name="hostNoneSummary">Disconnect from current host</string>
+	<string name="hostOperation">Host operations</string>
+	
+	<!-- Host edit dialog -->
+	<string name="editHostNickname">Host nickname</string>
+	<string name="editHostAddress">Address</string>
+	<string name="editHostPort">Port</string>
+	<string name="editHostPassword">Password</string>
+
+	<!-- ProjectsActivity -->
+	<string name="projectCtxMenuTitle">Commands</string>
+	<string name="projectUpdate">Update</string>
+	<string name="projectSuspend">Suspend</string>
+	<string name="projectResume">Resume</string>
+	<string name="projectNNW">No new work</string>
+	<string name="projectANW">Allow new work</string>
+	<string name="projectProperties">Properties</string>
+	<string name="projectStatusActive">Active</string>
+	<string name="projectStatusSuspended">Suspended by user</string>
+	<string name="projectStatusNNW">Won\'t get new tasks</string>
+	<string name="projectCredits">Total:%1$.0f RAC:%2$.0f Host:%3$.0f HostRAC:%4$.0f</string>
+	<string name="projectDetailedInfo">
+		&lt;b>Project:&lt;/b> %1$s&lt;br>\n
+		&lt;b>Account:&lt;/b> %2$s&lt;br>\n
+		&lt;b>Team:&lt;/b> %3$s&lt;br>\n
+		&lt;b>User credit:&lt;/b> %4$.2f&lt;br>\n
+		&lt;b>User RAC:&lt;/b> %5$.2f&lt;br>\n
+		&lt;b>Host credit:&lt;/b> %6$.2f&lt;br>\n
+		&lt;b>Host RAC:&lt;/b> %7$.2f&lt;br>\n
+		&lt;b>Resource share:&lt;/b> %8$s&lt;br>\n
+		&lt;b>Status:&lt;/b> %9$s
+	</string>
+
+	<!-- TasksActivity -->
+	<string name="taskCtxMenuTitle">Commands</string>
+	<string name="taskSuspend">Suspend</string>
+	<string name="taskResume">Resume</string>
+	<string name="taskAbort">Abort</string>
+	<string name="taskProperties">Properties</string>
+	<string name="warnAbortTask">Are you sure you want to abort this task (%1$s)?</string>
+	<string name="taskDetailedInfoCommon">
+		&lt;b>Task:&lt;/b> %1$s&lt;br>\n
+		&lt;b>Project:&lt;/b> %2$s&lt;br>\n
+		&lt;b>Application:&lt;/b> %3$s&lt;br>\n
+		&lt;b>Progress:&lt;/b> %4$s&lt;br>\n
+		&lt;b>Elapsed time:&lt;/b> %5$s&lt;br>\n
+		&lt;b>To completion:&lt;/b> %6$s&lt;br>\n
+		&lt;b>Report deadline:&lt;/b> %7$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoRun">
+		&lt;b>Virtual memory size:&lt;/b> %1$s&lt;br>\n
+		&lt;b>Working set size:&lt;/b> %2$s&lt;br>\n
+		&lt;b>CPU time:&lt;/b> %3$s&lt;br>\n
+		&lt;b>Last checkpoint (CPU time):&lt;/b> %4$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoRes">
+		&lt;b>Resources:&lt;/b> %1$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoEnd">
+		&lt;b>Status:&lt;/b> %1$s
+	</string>
+
+	<!-- TransfersActivity -->
+	<string name="downloadFailed">Download failed</string>
+	<string name="downloading">Downloading</string>
+	<string name="downloadPending">Download pending</string>
+	<string name="projectBackoff">project backoff</string>
+	<string name="retryIn">Retry in</string>
+	<string name="transferAbort">Abort</string>
+	<string name="transferProperties">Properties</string>
+	<string name="transferRetry">Retry</string>
+	<string name="uploadFailed">Upload failed</string>
+	<string name="uploading">Uploading</string>
+	<string name="uploadPending">Upload pending</string>
+	<string name="warnAbortTransfer">Are you sure you want to abort transfer of this file (%1$s)?</string>
+	<string name="transferDetailedInfo">
+		&lt;b>File:&lt;/b> %1$s&lt;br>\n
+		&lt;b>Project:&lt;/b> %2$s&lt;br>\n
+		&lt;b>Size:&lt;/b> %3$s&lt;br>\n
+		&lt;b>Progress:&lt;/b> %4$s&lt;br>\n
+		&lt;b>Elapsed:&lt;/b> %5$s&lt;br>\n
+		&lt;b>Speed:&lt;/b> %6$s&lt;br>\n
+		&lt;b>Status:&lt;/b> %7$s
+	</string>
+
+	<!-- HostInfo display -->
+	<string name="hostInfoPart1">
+		&lt;b>Domain name:&lt;/b> %1$s&lt;br />
+		&lt;b>IP-address:&lt;/b> %2$s&lt;br />
+		&lt;b>Cross-project ID:&lt;/b> %3$s&lt;br />
+		&lt;b>OS name:&lt;/b> %4$s&lt;br />
+		&lt;b>OS version:&lt;/b> %5$s&lt;br />
+		&lt;b>#CPUs:&lt;/b> %6$s&lt;br />
+		&lt;b>Vendor:&lt;/b> %7$s&lt;br />
+		&lt;b>Model:&lt;/b> %8$s&lt;br />
+		&lt;b>Features:&lt;/b> %9$s&lt;br />
+	</string>
+	<string name="hostInfoPart2">
+		&lt;b>MFLOPS:&lt;/b> %1$s&lt;br />
+		&lt;b>MIPS:&lt;/b> %2$s&lt;br />
+		&lt;b>Memory Bandwidth:&lt;/b> %3$s&lt;br />
+		&lt;b>Benchmarks calculated:&lt;/b> %4$s&lt;br />
+		&lt;b>Memory size:&lt;/b> %5$s&lt;br />
+		&lt;b>Cache size:&lt;/b> %6$s&lt;br />
+		&lt;b>Swap size:&lt;/b> %7$s&lt;br />
+		&lt;b>Disk size:&lt;/b> %8$s&lt;br />
+		&lt;b>Disk free:&lt;/b> %9$s&lt;br />
+	</string>
+
+</resources>

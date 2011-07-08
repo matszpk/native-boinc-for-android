@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+/* 
+ * AndroBOINC - BOINC Manager for Android
+ * Copyright (C) 2010, Pavol Michalec
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<Preference
+		android:key="selectedHost"
+		android:title="@string/selectHostTitle"
+		android:summary="@string/noHostConnected"
+		android:dialogTitle="@string/selectHostDialogTitle"
+		android:persistent="false" />
+	<PreferenceCategory android:title="@string/manageCategoryActivity">
+		<ListPreference
+			android:key="actRunMode"
+			android:defaultValue="preferred"
+			android:title="@string/clientActivityRunTitle"
+			android:summary="@string/unknown"
+			android:entries="@array/clientModeRun"
+			android:entryValues="@array/clientModeValues"
+			android:dialogTitle="@string/clientActivityRunDialogTitle"
+			android:dependency="selectedHost"
+			android:shouldDisableView="true"
+			android:persistent="false" />
+		<ListPreference
+			android:key="actNetworkMode"
+			android:defaultValue="preferred"
+			android:title="@string/clientActivityNetworkTitle"
+			android:summary="@string/unknown"
+			android:entries="@array/clientModeNetwork"
+			android:entryValues="@array/clientModeValues"
+			android:dialogTitle="@string/clientActivityNetworkDialogTitle"
+			android:dependency="actRunMode"
+			android:shouldDisableView="true"
+			android:persistent="false" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/manageCategoryAdvanced">
+		<Preference
+			android:key="runBenchmark"
+			android:title="@string/clientRunBenchTitle"
+			android:summary="@string/clientRunBenchSummary"
+			android:dependency="actRunMode"
+			android:shouldDisableView="true"
+			android:persistent="false" />
+		<Preference
+			android:key="doNetworkCommunication"
+			android:title="@string/clientDoNetCommTitle"
+			android:summary="@string/clientDoNetCommSummary"
+			android:dependency="actRunMode"
+			android:shouldDisableView="true"
+			android:persistent="false" />
+		<Preference
+			android:key="shutDownClient"
+			android:title="@string/clientShutdownTitle"
+			android:summary="@string/clientShutdownSummary"
+			android:dependency="actRunMode"
+			android:shouldDisableView="true"
+			android:persistent="false" />
+	</PreferenceCategory>
+</PreferenceScreen>

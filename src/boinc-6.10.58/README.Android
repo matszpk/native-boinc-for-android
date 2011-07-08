@@ -1,0 +1,6 @@
+How to compile:
+
+run following commands:
+
+source ../init.sh
+./configure --host=arm-linux --prefix=/data/local/tmp --disable-shared --disable-server --disable-manager

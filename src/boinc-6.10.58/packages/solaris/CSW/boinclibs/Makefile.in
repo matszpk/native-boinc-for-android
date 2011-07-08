@@ -296,9 +296,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(top_srcdir)/Makefile.incl $(am__
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu packages/solaris/CSW/boinclibs/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign packages/solaris/CSW/boinclibs/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu packages/solaris/CSW/boinclibs/Makefile
+	  $(AUTOMAKE) --foreign packages/solaris/CSW/boinclibs/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

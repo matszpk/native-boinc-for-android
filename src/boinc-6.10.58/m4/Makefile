@@ -71,14 +71,14 @@ CONFIG_CLEAN_VPATH_FILES =
 SOURCES =
 DIST_SOURCES =
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/mat/docs/src/android/boinc-6.10.58/missing --run aclocal-1.11
+ACLOCAL = ${SHELL} /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/missing --run aclocal-1.11
 ALLOCA = 
-AMTAR = ${SHELL} /home/mat/docs/src/android/boinc-6.10.58/missing --run tar
+AMTAR = ${SHELL} /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/missing --run tar
 AR = ar
 AS = as
-AUTOCONF = ${SHELL} /home/mat/docs/src/android/boinc-6.10.58/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/mat/docs/src/android/boinc-6.10.58/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/mat/docs/src/android/boinc-6.10.58/missing --run automake-1.11
+AUTOCONF = ${SHELL} /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/missing --run automake-1.11
 AWK = gawk
 BOINC_EXTRA_LIBS =  -L/data/local/tmp/lib -lcurl -L/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/lib -lssl -lcrypto -ldl -ldl -lz
 BOINC_MAJOR_VERSION = 6
@@ -140,7 +140,7 @@ LN = /bin/ln
 LN_S = ln -s
 LOGNAME = mat
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/mat/docs/src/android/boinc-6.10.58/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/missing --run makeinfo
 MKDIR_P = /bin/mkdir -p
 MYSQL_CFLAGS = 
 MYSQL_CONFIG = 
@@ -164,7 +164,7 @@ PTHREAD_CC = /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-andr
 PTHREAD_CFLAGS = 
 PTHREAD_LIBS = 
 RANLIB = ranlib
-RDATE = 2011.05.21
+RDATE = 2011.07.08
 REV = 
 SET_MAKE = 
 SHELL = /bin/sh
@@ -175,7 +175,7 @@ SSL_CFLAGS =
 SSL_CXXFLAGS =  
 SSL_LIBS = -lssl -lcrypto -ldl
 STRIP = strip
-TOP_BUILD_DIR = /home/mat/docs/src/android/boinc-6.10.58
+TOP_BUILD_DIR = /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58
 VERSION = 6.10.58
 WHOAMI = /usr/bin/whoami
 WX_CFLAGS = 
@@ -192,10 +192,10 @@ X_CFLAGS =
 X_EXTRA_LIBS = 
 X_LIBS =  -L/usr/lib
 X_PRE_LIBS = 
-abs_builddir = /home/mat/docs/src/android/boinc-6.10.58/m4
-abs_srcdir = /home/mat/docs/src/android/boinc-6.10.58/m4
-abs_top_builddir = /home/mat/docs/src/android/boinc-6.10.58
-abs_top_srcdir = /home/mat/docs/src/android/boinc-6.10.58
+abs_builddir = /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/m4
+abs_srcdir = /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/m4
+abs_top_builddir = /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58
+abs_top_srcdir = /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58
 ac_ct_CC = 
 ac_ct_CXX = 
 ac_ct_F77 = gfortran
@@ -227,7 +227,7 @@ host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/mat/docs/src/android/boinc-6.10.58/install-sh
+install_sh = ${SHELL} /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -267,9 +267,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu m4/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign m4/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu m4/Makefile
+	  $(AUTOMAKE) --foreign m4/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

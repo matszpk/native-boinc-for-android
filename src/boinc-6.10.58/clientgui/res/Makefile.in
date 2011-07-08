@@ -320,9 +320,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(top_srcdir)/Makefile.incl $(am__
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu clientgui/res/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign clientgui/res/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu clientgui/res/Makefile
+	  $(AUTOMAKE) --foreign clientgui/res/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

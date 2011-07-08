@@ -88,7 +88,7 @@ with_gcc=yes
 EGREP="/bin/grep -E"
 
 # The linker used to build libraries.
-LD="/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//arm-linux-androideabi-ld"
+LD="/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../arm-linux-androideabi/bin/ld"
 
 # Whether we need hard or soft links.
 LN_S="ln -s"
@@ -7317,7 +7317,7 @@ with_gcc=yes
 EGREP="/bin/grep -E"
 
 # The linker used to build libraries.
-LD="/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//arm-linux-androideabi-ld"
+LD="/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../arm-linux-androideabi/bin/ld"
 
 # Whether we need hard or soft links.
 LN_S="ln -s"
@@ -7613,7 +7613,7 @@ with_gcc=yes
 EGREP="/bin/grep -E"
 
 # The linker used to build libraries.
-LD="/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//arm-linux-androideabi-ld"
+LD="/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../arm-linux-androideabi/bin/ld"
 
 # Whether we need hard or soft links.
 LN_S="ln -s"

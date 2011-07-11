@@ -40,7 +40,7 @@ adb push gcwsieve-distrib/ /data/local/tmp/boinc/projects/www.primegrid.com/
 
 ../bin/boinc_client --allow_remote_gui_rpc&
 
-14. Disconnect mobile phone from USB
+14. Disconnect mobile phone from USB (without exiting from android shell)
 
 Nice computing!!
 

@@ -1,0 +1,45 @@
+INSTRUKCJA INSTALACJI:
+
+Musisz posiadać android-sdk lub program adb.
+
+1. włącz tryb debugowania (Ustawienia->Aplikacje->Tworzenie->Debugowanie USB) i
+   podłącz telefon do USB.
+2. rozpakuj archiwum boinc-distrib-XXX.zip i gcwsieve-distribXXX.zip
+3. skopiuj pliki z boinc-distrib do /data/local/tmp telefonu:
+
+   adb push boinc-distrib/ /data/local/tmp/
+
+4. uruchom android shell:
+
+   adb shell
+
+5. w android shell wykonaj:
+cd /data/local/tmp
+mkdir boinc
+cd boinc
+export LD_LIBRARY_PATH=/data/local/tmp/lib:$LD_LIBRARY_PATH
+
+6. Uruchom klienta:
+
+../bin/boinc --allow_remote_gui_rpc
+
+7. Zamknij klienta za pomocą CTRL-C
+
+8. Uruchom klienta:
+
+../bin/boinc --allow_remote_gui_rpc
+
+9. Połącz się za pomocą BOINC Manager z telefonem.
+10. Zarejestruj telefon w Primegrid.
+11. Zamknij klienta (za pomocą BOINC Manager albo CTRL-C).
+12. Skopiuj pliki z gcwsieve do katalogu projektu
+
+adb push gcwsieve-distrib/ /data/local/tmp/boinc/projects/www.primegrid.com/
+
+13. Uruchom klienta w tle:
+
+../bin/boinc --allow_remote_gui_rpc&
+
+14. Odłącz telefon od USB
+
+Miłego liczenia.

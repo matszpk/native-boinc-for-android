@@ -21,13 +21,13 @@ export LD_LIBRARY_PATH=/data/local/tmp/lib:$LD_LIBRARY_PATH
 
 6. Uruchom klienta:
 
-../bin/boinc --allow_remote_gui_rpc
+../bin/boinc_client --allow_remote_gui_rpc
 
 7. Zamknij klienta za pomocą CTRL-C
 
 8. Uruchom klienta jeszcze raz:
 
-../bin/boinc --allow_remote_gui_rpc
+../bin/boinc_client --allow_remote_gui_rpc
 
 9. Połącz się za pomocą BOINC Manager z telefonem.
 10. Zarejestruj telefon w projekcie Primegrid.
@@ -38,7 +38,7 @@ adb push gcwsieve-distrib/ /data/local/tmp/boinc/projects/www.primegrid.com/
 
 13. Uruchom klienta w tle:
 
-../bin/boinc --allow_remote_gui_rpc&
+../bin/boinc_client --allow_remote_gui_rpc&
 
 14. Odłącz telefon od USB
 

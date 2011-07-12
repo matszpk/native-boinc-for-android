@@ -78,6 +78,9 @@
 #if HAVE_SYS_SYSCTL_H
 #include <sys/sysctl.h>
 #endif
+#ifdef ANDROID
+#include <sys/sysconf.h>
+#endif
 #if HAVE_SYS_SYSTEMINFO_H
 #include <sys/systeminfo.h>
 #endif
@@ -585,6 +588,24 @@ static void parse_cpuinfo_linux(HOST_INFO& host) {
         strlcpy(host.p_features, features, sizeof(host.p_features));
     }
 
+#ifdef ANDROID
+    {
+      FILE* file = fopen("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq","rb");
+      if (file != NULL)
+      {
+        printf ("opened file\n");
+        char buf[32];
+        char* endptr;
+        memset(buf, 0, 32);
+        fgets(buf, 31, file);
+        int khz = strtoul(buf, &endptr, 10);
+        fclose(file);
+        sprintf(buf," @%ldMHz",khz/1000);
+        strcat(model_buf, buf);
+      }
+    }
+#endif
+
     strlcpy(host.p_model, model_buf, sizeof(host.p_model));
     fclose(f);
 }
@@ -851,7 +872,7 @@ int HOST_INFO::get_host_info() {
 #elif defined( __APPLE__)
     int mib[2];
     size_t len;
-
+        
     get_cpu_info_maxosx(*this);
 #elif defined(__EMX__)
     CPU_INFO_t    cpuInfo;
@@ -1041,7 +1062,7 @@ int HOST_INFO::get_host_info() {
     // http://developer.apple.com/documentation/Performance/Conceptual/ManagingMemory/Articles/AboutMemory.html says:
     //    Unlike most UNIX-based operating systems, Mac OS X does not use a 
     //    preallocated swap partition for virtual memory. Instead, it uses all
-    //    of the available space on the machine’s boot partition.
+    //    of the available space on the machine√ïs boot partition.
     struct statfs fs_info;
 
     statfs(".", &fs_info);

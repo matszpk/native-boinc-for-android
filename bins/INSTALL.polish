@@ -14,32 +14,51 @@ Musisz posiadać android-sdk lub program adb.
    adb shell
 
 5. w android shell wykonaj:
-cd /data/local/tmp
-mkdir boinc
+cd /data/local/tmp                      - przejdz do katalogu
+chmod 755 bin/boinc_client              - zmień uprawnienia programu klienta
+mkdir boinc                             - utwórz katalog
 cd boinc
+
+6. Ustaw LD_LIBRARY_PATH (lista katalogów z bibliotekami):
 export LD_LIBRARY_PATH=/data/local/tmp/lib:$LD_LIBRARY_PATH
 
-6. Uruchom klienta:
+7. Uruchom klienta:
 
 ../bin/boinc_client --allow_remote_gui_rpc
 
-7. Zamknij klienta za pomocą CTRL-C
+8. Zamknij klienta za pomocą CTRL-C
 
-8. Uruchom klienta jeszcze raz:
+UWAGA (dla Windowsa):
+CTRL-C zamyka sesję android shell. Dlatego też trzeba powtórzyć po
+uruchomieniu android shell:
+
+cd /data/local/tmp/boinc
+export LD_LIBRARY_PATH=/data/local/tmp/lib:$LD_LIBRARY_PATH
+
+9. Uruchom klienta jeszcze raz (po utworzeniu plików):
 
 ../bin/boinc_client --allow_remote_gui_rpc
 
-9. Połącz się za pomocą BOINC Manager z telefonem.
-10. Zarejestruj telefon w projekcie Primegrid.
-11. Zamknij klienta (za pomocą BOINC Manager albo CTRL-C).
-12. Skopiuj pliki z gcwsieve do katalogu projektu Primegrid:
+10. Połącz się za pomocą BOINC Manager z telefonem (z sieci WIFI).
+
+10.1. Pobierz IP (z WIFI) swojego telefonu (za pomocą Android System Info).
+10.2. Pobierz hasło z pliku boinc/gui_rpc_auth.cfg
+10.3. Uruchom BOINC Manager wybierz adres telefonu i wpisz hasło.
+
+11. Zarejestruj telefon w projekcie Primegrid.
+12. Zamknij klienta (za pomocą BOINC Manager albo CTRL-C).
+13. Skopiuj pliki z gcwsieve do katalogu projektu Primegrid:
 
 adb push gcwsieve-distrib/ /data/local/tmp/boinc/projects/www.primegrid.com/
 
-13. Uruchom klienta w tle:
+i zmień uprawnienia aplikacji gcwsieve:
+
+chmod 755 projects/www.primegrid.com/primegrid_gcwsieve_1.12_arm-unknown-linux-gnu
+
+14. Uruchom klienta w tle:
 
 ../bin/boinc_client --allow_remote_gui_rpc&
 
-14. Odłącz telefon od USB
+15. Odłącz telefon od USB
 
 Miłego liczenia.

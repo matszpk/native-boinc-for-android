@@ -1,0 +1,3 @@
+$CC -Wall -W -fomit-frame-pointer -O3 $CFLAGS $CPPFLAGS
+
+This will be used to compile .c files.

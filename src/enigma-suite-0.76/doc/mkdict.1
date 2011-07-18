@@ -1,0 +1,134 @@
+'\" t
+.ig
+
+This file is part of enigma-suite-0.76.
+
+Copyright (C) 2005 Stefan Krah
+
+troff.1 was used as a template for this man page. troff.1 is part of groff,
+the GNU roff type-setting system.
+
+..
+.
+.
+.\" --------------------------------------------------------------------
+.\" Setup
+.\" --------------------------------------------------------------------
+.
+.mso www.tmac
+.
+.if n \{\
+.  mso tty-char.tmac
+.  ftr CR R
+.  ftr CI I
+.  ftr CB B
+.\}
+.
+.if '\*[.T]'dvi' \
+.  ftr CB CW
+.
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+.
+.\" Like TP, but if specified indent is more than half
+.\" the current line-length - indent, use the default indent.
+.de Tp
+.ie \\n(.$=0:((0\\$1)*2u>(\\n(.lu-\\n(.iu)) .TP
+.el .TP "\\$1"
+..
+.
+.
+.\" --------------------------------------------------------------------
+.\" Title
+.\" --------------------------------------------------------------------
+.
+.TH MKDICT 1 "2006" "enigma-suite-0.76"
+.SH NAME
+mkdict.py  -  create log-ngram dictionary from sampletext
+.
+.
+.\" --------------------------------------------------------------------
+.SH SYNOPSIS
+.\" --------------------------------------------------------------------
+.
+.nr a \n(.j
+.ad l
+.nr i \n(.i
+.in +\w'\fBmkdict.py 'u
+.ti \niu
+.B mkdict.py
+.de OP
+.ie \\n(.$-1 .RI "[\ \fB\\$1\fP" " \\$2" "\ ]"
+.el .RB "[\ " "\\$1" "\ ]"
+..
+.OP \-gstbu
+.RI sampletext
+.br
+.ad \na
+.
+.
+.\" --------------------------------------------------------------------
+.SH DESCRIPTION
+.\" --------------------------------------------------------------------
+.
+.BR mkdict.py
+reads
+.IR sampletext
+and writes a log-ngram dictionary for use with enigma's
+-c or -i options to stdout.
+.
+.\" --------------------------------------------------------------------
+.SH GENERAL OPTIONS
+.\" --------------------------------------------------------------------
+.
+.TP \w'\-wxxxxxx'u+2n
+.B \-t
+create log-trigram dictionary (Default)
+.TP
+.B \-b
+create log-bigram dictionary
+.TP
+.B \-u
+create log-unigram dictionary
+.TP
+.B \-s
+perform substitutions defined by subdict (read the source).
+.RS
+.P
+Default: No
+.P
+Default substitutions: Enigma specific
+.RE
+.TP
+.B \-g
+apply Good-Turing smoothing to the dictionary. The smoothing is done by SGT.
+The variable SGTPATH has to be set.
+.
+.
+.\" --------------------------------------------------------------------
+.SH "SEE ALSO"
+.\" --------------------------------------------------------------------
+.
+.BR enigma(1) ,
+.BR SGT.c
+.
+.
+.\" --------------------------------------------------------------------
+.SH AUTHOR
+.\" --------------------------------------------------------------------
+.
+.P
+Stefan Krah <stefan@bytereef.org>
+.
+.
+.\" --------------------------------------------------------------------
+.SH BUGS
+.\" --------------------------------------------------------------------
+.
+.P
+Please report bugs, suggestions to <enigma-suite@bytereef.org>
+.
+.P

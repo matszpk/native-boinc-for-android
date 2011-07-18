@@ -1,0 +1,137 @@
+'\" t
+.ig
+
+This file is part of enigma-suite-0.76.
+
+Copyright (C) 2005 Stefan Krah
+
+troff.1 was used as a template for this man page. troff.1 is part of groff,
+the GNU roff type-setting system.
+
+..
+.
+.
+.\" --------------------------------------------------------------------
+.\" Setup
+.\" --------------------------------------------------------------------
+.
+.mso www.tmac
+.
+.if n \{\
+.  mso tty-char.tmac
+.  ftr CR R
+.  ftr CI I
+.  ftr CB B
+.\}
+.
+.if '\*[.T]'dvi' \
+.  ftr CB CW
+.
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+.
+.\" Like TP, but if specified indent is more than half
+.\" the current line-length - indent, use the default indent.
+.de Tp
+.ie \\n(.$=0:((0\\$1)*2u>(\\n(.lu-\\n(.iu)) .TP
+.el .TP "\\$1"
+..
+.
+.
+.\" --------------------------------------------------------------------
+.\" Title
+.\" --------------------------------------------------------------------
+.
+.TH ECLIENT_RPC 1 "2006" "enigma-suite-0.76"
+.SH NAME
+eclient-rpc.py  -  XML-RPC client for a distributed attack on a message
+.
+.
+.\" --------------------------------------------------------------------
+.SH SYNOPSIS
+.\" --------------------------------------------------------------------
+.
+.nr a \n(.j
+.ad l
+.nr i \n(.i
+.in +\w'\fBeclient-rpc.py 'u
+.ti \niu
+.B eclient-rpc.py
+.de OP
+.ie \\n(.$-1 .RI "[\ \fB\\$1\fP" " \\$2" "\ ]"
+.el .RB "[\ " "\\$1" "\ ]"
+..
+.OP \-r
+.OP \-p proxyhost:proxyport
+.RI http://rpchost:rpcport
+.ad \na
+.
+.
+.\" --------------------------------------------------------------------
+.SH DESCRIPTION
+.\" --------------------------------------------------------------------
+.
+.BR eclient-rpc.py
+repeatedly connects to an enigma XML-RPC key server to try
+to get a ciphertext and a range of keys. It then launches
+.BR enigma
+to work on the range. Once the job is done, the results are submitted
+to the server.
+.P
+.BR eclient-rpc.py
+should run forever and at the lowest priority.
+.P
+Log output is written to stderr.
+.
+.
+.\" --------------------------------------------------------------------
+.SH OPTIONS
+.\" --------------------------------------------------------------------
+.
+.TP \w'\-wproxyhost:proxyportx'u+2n
+.BI -p " proxyhost:proxyport"
+Specify HTTP proxy.
+.TP
+.B \-r
+Append
+.BR enigma's
+output to the file
+.BR results
+in the run directory.
+.\" --------------------------------------------------------------------
+.SH "IMPORTANT NOTICE"
+.\" --------------------------------------------------------------------
+.
+.
+.BR eclient-rpc.py
+has to use the same log-ngram dictionaries as
+the server. ONLY use the official 00trigr.cur and
+00bigr.cur dictionaries.
+.
+.
+.\" --------------------------------------------------------------------
+.SH "SEE ALSO"
+.\" --------------------------------------------------------------------
+.
+.BR enigma(1)
+.
+.
+.\" --------------------------------------------------------------------
+.SH AUTHOR
+.\" --------------------------------------------------------------------
+.
+.P
+Stefan Krah <stefan@bytereef.org>
+.
+.
+.\" --------------------------------------------------------------------
+.SH BUGS
+.\" --------------------------------------------------------------------
+.
+.P
+Please report bugs, suggestions to <enigma-suite@bytereef.org>
+.
+.P

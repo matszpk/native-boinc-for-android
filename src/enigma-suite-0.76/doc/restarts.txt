@@ -1,0 +1,50 @@
+
+Some notes about the restarting procedure used in hillclimb.c:
+==============================================================
+
+There seem to be many ways of introducing randomness to kick a hill climb
+into successful action. Among these are:
+
+  - Programming errors:  Yes, that's right. Some messages that are
+    otherwise very difficult to break yield in one pass when the
+    program contains a single error (like falsely not accepting a
+    higher score). The cost of deliberately switching errors on/off
+    is high.
+
+  - Systematic reswapping of plugs often works well, but seems to
+    be outperformed by the method I finally chose.
+
+  - padding a short message with a random letter sometimes works.
+    Cost of doing this systematically is high.
+
+  - truncate the beginning of the message by (1,2,3 ...) letters [[1], p203].
+    I have not tried this extensively, it may very well be better than the
+    method I chose.
+
+
+This is what I settled on:
+
+I came up with the idea (read: I have not seen it mentioned
+before) to use random testing orders as a restarting method.
+The basic testing method is the same as in [[1], p198], which
+tests plugs alphabetically in a systematic way. The systematic
+way is kept, but on instead of testing alphabetically a new
+random order is chosen on each restart.
+
+Individually, each random order would not yield a greater success rate
+than the alphabetic one (see also [[1], p205]). However, for each message
+there is a bunch of testing orders that lead to a successful single pass
+decryption. This restarting method attempts to find one of those.
+
+
+There /may/ be one testing order that does yield a greater success rate:
+
+Testing in the order of frequency of letters in the ciphertext seems
+to give a slight edge in the range of 0.5%-1%. This is only a theory
+and I have *not* verified it on enough messages to claim it is true.
+However, it does not hurt, so I chose to use that order for the first pass,
+then switch to random orders.
+
+  
+[1] Sullivan, G. and Weierud, F. 2005. Breaking German Army Ciphers.
+    Cryptologia, 29(3)

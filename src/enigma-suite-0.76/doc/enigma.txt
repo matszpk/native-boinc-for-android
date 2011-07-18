@@ -1,0 +1,275 @@
+ENIGMA(1)                                                              ENIGMA(1)
+
+
+NAME
+        enigma  -  a command line Enigma simulator and message breaking program
+
+
+SYNOPSIS  
+
+        enigma [ -hvicxaR ] [ -M model ] [ -u umkehrwalze ] [ -w wheel-order ]
+        [ -r ring-settings ] [ -s stecker-pairs ] [ -m message-key ]
+        [ -o output-file ] [ -n passes ] [ -z maximum-score ]
+        [ -k single-key ] [ -f lower-bound ] [ -t upper-bound ]
+        [ trigram-dictionary bigram-dictionary ciphertext ]
+
+
+DESCRIPTION
+
+        Enigma is a command line simulator for the models Heer, M3 and M4. It
+        also has the ability to break Enigma messages using ciphertext-only
+        attacks.  The following options fall into five categories:
+
+
+GENERAL OPTIONS
+
+        -M model        Valid settings are H, M3 or M4. Defaults to H (Heer).
+                        This must be the first argument on the command line!
+               
+        -h              Display help screen.
+
+        -v              Display version information
+
+        -o              Output file. Defaults to stdout.
+          
+
+SIMULATOR OPTIONS
+
+        -u ukw            Umkehrwalze: Select A (Heer only), B or C.
+                          Defaults to B.
+
+        -w wheel-order    Valid settings are 123 thru G876. Left letter [B,G]
+                          stands for wheels Beta or Gamma (M4 only). Left digit
+                          stands for left wheel, middle digit stands for middle
+                          wheel, right digit stands for right wheel. Digits must
+                          not be repeated. Defaults to 123.
+
+        -r ring-settings  Valid settings are AAA thru ZZZZ. Defaults to AAA.
+
+        -s stecker-pairs  Valid settings are 1 to 13 pairs of letters. No spaces
+                          in between. Letters must not be repeated. Defaults to
+                          none.
+
+        -m message-key    Valid settings are AAA thru ZZZZ. Defaults to AAA.
+
+
+IC OPTIONS
+
+        -i [COMMON OPTIONS] <trigram-dict> <bigram-dict> <ciphertext>
+
+             Break an enigma message using ic statistics. This option
+             requires three command line arguments, the log-ngram dictionaries
+             <trigram-dict>, <bigram-dict> and the message <ciphertext>.
+             If no range is specified with the -f and/or -t options, the
+             program runs in two stages:
+               
+             First it iterates through all UKW, wheel and message settings. All
+             letters are left unsteckered, and the rings remain set to A. The
+             setting yielding the highest ic count in the decrypted candidate
+             plaintext is retained. Then all fast ring settings are tried, the
+             best one is retained, same for the  middle rings. Subsequently a
+             hill climb is used to determine the stecker settings.
+
+             In the second stage the  procedure is repeated, this time iterating
+             through all UKW, wheel, message AND ring settings.
+
+             If a range is specified, the program immediately starts at the
+             second stage.
+
+             The ic approach does not work well on shorter messages.
+       
+
+HILL CLIMB OPTIONS
+
+        -c  [COMMON AND HILL CLIMB OPTIONS] <trigram-dict> <bigram-dict>
+            <ciphertext>
+          
+             Break an enigma message using hill climbing. This option requires
+             three command line arguments, the log-ngram dictionaries
+             <trigram-dict>, <bigram-dict> and the message <ciphertext>.
+             If no range is specified, the program iterates through all UKW,
+             wheel, fast ring and message settings, attempting a hill climb
+             on each of the settings.
+
+        -n n Number of passes. Defaults to 1.
+
+        -z n Terminate if score n is reached. Useful for testing.
+             Defaults to INT_MAX-1.
+
+        -k keystring
+             Perform hill climb on a single arrangement specified by
+             <keystring>. Useful for testing.
+
+        -R   Standalone option:  Resume a hill climb:  When the program receives
+             SIGTERM, SIGINT or SIGQUIT, the state of the hill climb is saved to
+             the file ``00hc.resume''. With this option the hill climb can be
+             started again from where it left off. Only the -o option can be
+             given in combination with -R.
+
+
+SEARCH SPACE OPTIONS
+
+        Default:
+             Only settings where the slow wheel moves before the first
+             letter is enciphered are tested within the given range.
+
+        -x   All other settings which result in a slow wheel movement are
+             tested. This option complements the default run.
+
+        -a   All settings where the slow wheel moves are tested.
+
+
+COMMON OPTIONS
+
+        -f keystring  Search from (including) <keystring>.
+          
+        -t keystring  Search up to (including) <keystring>.
+                      This keystring has to be greater
+                      or equal to the -f keystring.
+
+
+KEYSTRING
+
+        The keystrings used to specify ranges with -f and -t have the
+        following format:
+
+
+                Lowest:                        Highest:
+                   
+          H :   A:123:AA:AAA                   C:543:ZZ:ZZZ
+          M3:   B:123:AA:AAA                   C:876:MM:ZZZ
+                |  |  ||  |
+                |  |  ||  `left, middle, right message key
+                |  |  ``- middle, right ring
+                |  `left, middle, right wheel
+                `ukw
+
+
+          M4:   B:B123:AA:AAAA                 C:G876:MM:ZZZZ
+                | | |  ||  ||
+                | | |  ||  ``greek, left, middle, right message key
+                | | |  ``-middle, right ring
+                | | `left, middle, right wheel
+                | `greek wheel
+                `ukw
+
+        If the -f option is omitted, the lowest possible keystring is assumed.
+        If the -t option is omitted, the highest possible keystring is assumed.
+
+        The program increments the keystring in the way of an odometer,
+        starting at the right message key. Settings resulting in an illegal
+        wheel order are skipped.
+
+
+        M3, M4 specialty:
+
+        When the middle or right wheel is one of [6-8], only 13 ring settings
+        have to be checked, so rings [N-Z] are skipped. In these cases the
+        program only allows rings [A-M] as the bounds.
+
+        With the -k option all rings are allowed.
+
+
+RESUME FILE
+
+        The resume file ``00hc.resume'' captures the state of the hill climb at
+        interrupt time and stores the information in this order:
+
+        Line 1:
+
+            model, keystring-from, keystring to, keystring-current,
+            slow-wheel-mode, n-passes, firstpass, max_score
+
+        Line 2 (best key found so far):
+
+            model, keystring-best-key, stecker-best-key, score-best-key
+
+        In the actual file the items are separated by '='.
+
+        slow-wheel-mode can have the values 0 (default), 1 (-x option),
+        2 (-a option).
+
+        firstpass can have the values 1 (yes) or 0 (no).
+
+        n-passes and max_score can have the values 0-(INT_MAX-1).
+
+
+
+SIMULATION EXAMPLES
+
+        To en/decipher a text using the default settings, simply enter:
+          
+             enigma
+          
+        Type in the text (white-space allowed), then enter EOF (CTRL-D
+        on unix systems) to start en/decryption. If you have not entered
+        a newline after the last letter, you have to enter EOF twice.
+
+
+        Some examples using various models and various settings:
+
+             enigma -M H -u B -w 531 -r QIX -s MNBVCXZLKJHGFDSAPOIU -m ACE
+             enigma -M M3 -u C -w 781 -r GHL -s QWERTYUIOPAS -m WSK
+             enigma -M M4 -u B -w G273 -r RGSK -s LKJHGFDSAPOIUYTREWQM -m QKLC
+
+             
+MESSAGE BREAKING EXAMPLES
+
+        Attempt to break a message using ic statistics, both stages (see
+        -i option):
+
+             enigma -M H -i trigram_dict bigram_dict ciphertext
+
+
+        Attempt to break a message using ic statistics, only check within
+        the given range:
+
+             enigma -M H -i -f "A:231:AA:BBB" -t "A:231:AA:ZZZ" trigram_dict
+             bigram_dict ciphertext
+
+
+        Attempt to break a message using hill climbing, only check scrambler
+        states that have an equivalent where the slow wheel does not move:
+
+             enigma -M M3 -c -f "B:456:AA:FFF" -t "C:183:AA:BCF" trigram_dict
+             bigram_dict ciphertext
+
+
+        Check scrambler states that can only be expressed in terms of the
+        slow wheel moving:
+
+             enigma -M M3 -cx -f "B:456:BA:FFF" -t "C:183:BA:BCF" trigram_dict
+             bigram_dict ciphertext
+
+
+        Attempt to break an M4 message, check all unique scrambler states,
+        300 passes, output to resultfile:
+
+             enigma -M M4 -ca -n 300 -o resultfile trigram_dict bigram_dict
+             ciphertext
+
+
+        Test a single arrangement, 100 passes, abort if score is higher than
+        3500000:
+
+             enigma -c -n 100 -z 3500000 -k "B:123:SK:JKL" trigram_dict
+             bigram_dict ciphertext
+
+
+RETURN VALUE
+
+        enigma returns 0 on success, EXIT_FAILURE on failure, 111 if it
+        has stopped on SIGTERM, SIGINT or SIGQUIT during a hill climb.
+
+
+SEE ALSO:
+        enigma-client(1), mkdict(1)
+
+
+AUTHOR
+        Stefan Krah <stefan@bytereef.org>
+
+BUGS
+        Please report bugs, suggestions to <enigma-suite@bytereef.org>
+
+enigma-suite-0.76                       2006                           ENIGMA(1)

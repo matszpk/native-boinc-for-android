@@ -1,0 +1,47 @@
+ECLIENT_RPC(1)                                                    ECLIENT_RPC(1)
+
+
+NAME
+        eclient-rpc.py  -  XML-RPC client for a distributed attack on a message
+
+
+SYNOPSIS  
+        eclient-rpc.py [-r] [-p proxyhost:proxyport] http://rpchost:rpcport
+
+
+DESCRIPTION
+        eclient-rpc.py repeatedly connects to an enigma XML-RPC key server
+        to try to get a ciphertext and a range of keys. It then launches
+        enigma to work on the range. Once the job is done, the results
+        are submitted to the server.
+
+        eclient-rpc.py should run forever and at the lowest priority.
+
+        Log output is written to stderr.
+
+
+OPTIONS
+        -p proxyhost:proxyport    Specify HTTP proxy.
+
+        -r                        Append enigma's output to the file
+                                  "results" in the run directory.
+
+
+IMPORTANT NOTE
+        eclient-rpc.py has to use the same log-ngram dictionaries as
+        the server. ONLY use the official 00trigr.cur and 00bigr.cur
+        dictionaries.
+
+
+SEE ALSO
+       enigma(1)
+
+
+AUTHOR
+        Stefan Krah <stefan@bytereef.org>
+
+BUGS
+        Please report bugs, suggestions to <enigma-suite@bytereef.org>
+
+
+enigma-suite-0.76                      2006                       ECLIENT_RPC(1)

@@ -1,0 +1,43 @@
+MKDICT(1)                                                              MKDICT(1)
+
+
+NAME
+        mkdict.py  -  create log-ngram dictionary from sampletext
+
+
+SYNOPSIS  
+        mkdict.py [ -gstbu ] sampletext
+
+
+DESCRIPTION
+        mkdict.py reads sampletext and writes a log-ngram dictionary
+        for use with enigma's -c or -i options to stdout.
+
+
+OPTIONS
+        -t       create log-trigram dictionary (Default)
+
+        -b       create log-bigram dictionary
+
+        -u       create log-unigram dictionary
+
+        -s       perform substitutions defined by subdict (read mkdict.py).
+                 Default: No
+                 Default substitutions: Enigma specific
+
+        -g       apply Good-Turing smoothing to the dictionary.
+                 The smoothing is done by SGT. The variable SGTPATH
+                 has to be set.
+
+
+SEE ALSO
+       enigma(1), SGT.c
+
+
+AUTHOR
+        Stefan Krah <stefan@bytereef.org>
+
+BUGS
+        Please report bugs, suggestions to <enigma-suite@bytereef.org>
+
+enigma-suite-0.76                       2006                           MKDICT(1)

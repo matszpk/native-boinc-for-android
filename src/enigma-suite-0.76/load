@@ -1,0 +1,4 @@
+#!/bin/sh
+# WARNING: This file was auto-generated. Do not edit!
+main="$1"; shift
+exec $CC -Wall -fomit-frame-pointer -s $CFLAGS $LDFLAGS -o "$main" "$main".o ${1+"$@"}

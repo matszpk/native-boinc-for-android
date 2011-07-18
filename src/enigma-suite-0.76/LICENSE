@@ -1,0 +1,12 @@
+
+Source code:
+============
+
+All parts of enigma-suite-0.76 except SGT.c are distributed under the terms
+of the GNU General Public License (version 2 only) as published by the Free
+Software Foundation. A copy of this license should be included in the file
+doc/COPYING.
+
+SGT.c is distributed along with the package with the kind permission of
+Professor Geoffrey Sampson of the University of Sussex. His own license
+can be found in SGT.c.

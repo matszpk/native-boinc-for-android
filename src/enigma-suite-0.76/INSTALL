@@ -1,0 +1,108 @@
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+For installing the client, check out the latest install instructions at:
+http://www.bytereef.org
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+=============================
+General install instructions
+=============================
+
+
+Installation is as straightforward as it can get:
+
+
+Edit conf-cc and conf-ld to fit your compiler.
+
+Compile:
+========
+
+   make
+
+Try gmake if you get errors.
+
+
+Install:
+========
+I have not included an install target in the Makefile; there is a name conflict
+with a game that is also called enigma (e.g. in Debian), so think about where
+to install.
+
+Example:
+
+   cp enigma /usr/local/bin &&
+   cp tools/mkdict.py /usr/local/bin &&
+   cp tools/SGT /usr/local/bin &&
+   cp doc/enigma.1 /usr/local/share/man/man1 &&
+   cp doc/mkdict.1 /usr/local/share/man/man1
+
+
+======================
+Install enigma-client
+======================
+
+Dependencies: Python (tested with version 2.3 or higher)
+
+Choose a directory for enigma-client to run in (default: ~/.enigma-client).
+Change into the enigma-client directory and edit the eclient-install.sh
+script if you want to change the default.
+
+   ./eclient-install.sh
+
+
+==================
+Run enigma-client
+==================
+
+IF YOU HAVE A DIAL-UP INTERNET CONNECTION, MAKE SURE THAT DIAL-ON-DEMAND
+IS DISABLED.
+
+Enough screaming. As probably any distributed-computing client, enigma-client
+will try to connect to the server. If you have DIAL-ON-DEMAND enabled,
+every connection attempt will result in a phone call.
+
+By contrast, if DIAL-ON-DEMAND is disabled, attempts to make a connection will
+silently fail, unless you have dialed in to you ISP anyway.
+
+I think it is a good idea to disable DIAL-ON-DEMAND in general.
+Be warned!
+
+
+Start enigma-client manually:
+=============================
+
+Whenever you want to start ./enigma-client, just execute:
+
+   ~/.enigma-client/ecrun
+
+
+Start enigma-client automatically on bootup:
+============================================
+
+
+SysVinit runlevel concept:
+--------------------------
+The easiest thing would be to create an entry in /etc/inittab. First
+look in the /etc/rc* or /etc/init.d/rc* directories to find out in
+which runlevels the usual network services (mailer daemon, ...) are up.
+
+As far as I can see, for SuSE that would be (3,4,5), for Debian or Ubuntu
+it would be (2,3,4,5). I am not using any of those, so check for yourself.
+
+Create an entry at the end of /etc/inittab, the second field containing
+the runlevels where enigma-client should be running:
+
+EC:345:respawn:/bin/su - <user> -c /home/<user>/.enigma-client/ecboot
+
+
+Tell init about the change in inittab:
+
+telinit Q
+
+
+BSD style init:
+---------------
+
+You'll know how to do it. ;)

@@ -1,0 +1,448 @@
+'\" t
+.ig
+
+This file is part of enigma-suite-0.76.
+
+Copyright (C) 2005 Stefan Krah
+
+troff.1 was used as a template for this man page. troff.1 is part of groff,
+the GNU roff type-setting system.
+
+..
+.
+.
+.\" --------------------------------------------------------------------
+.\" Setup
+.\" --------------------------------------------------------------------
+.
+.mso www.tmac
+.
+.if n \{\
+.  mso tty-char.tmac
+.  ftr CR R
+.  ftr CI I
+.  ftr CB B
+.\}
+.
+.if '\*[.T]'dvi' \
+.  ftr CB CW
+.
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+.
+.\" Like TP, but if specified indent is more than half
+.\" the current line-length - indent, use the default indent.
+.de Tp
+.ie \\n(.$=0:((0\\$1)*2u>(\\n(.lu-\\n(.iu)) .TP
+.el .TP "\\$1"
+..
+.
+.
+.\" --------------------------------------------------------------------
+.\" Title
+.\" --------------------------------------------------------------------
+.
+.TH ENIGMA 1 "2006" "enigma-suite-0.76"
+.SH NAME
+enigma  \-  a command line Enigma simulator and message breaking program
+.
+.
+.\" --------------------------------------------------------------------
+.SH SYNOPSIS
+.\" --------------------------------------------------------------------
+.
+.nr a \n(.j
+.ad l
+.nr i \n(.i
+.in +\w'\fBenigma 'u
+.ti \niu
+.B enigma
+.de OP
+.ie \\n(.$-1 .RI "[\ \fB\\$1\fP" " \\$2" "\ ]"
+.el .RB "[\ " "\\$1" "\ ]"
+..
+.OP \-hvicxaR
+.OP \-M model
+.OP \-u umkehrwalze
+.OP \-w wheel-order
+.OP \-r ring-settings
+.OP \-s stecker-pairs
+.OP \-m message-key
+.OP \-o output-file
+.OP \-n passes
+.OP \-z maximum-score
+.OP \-k single-key
+.OP \-f lower-bound
+.OP \-t upper-bound
+.RI "[\ " trigram-dictionary\ bigram-dictionary\ ciphertext "\ ]"
+.br
+.ad \na
+.
+.
+.\" --------------------------------------------------------------------
+.SH DESCRIPTION
+.\" --------------------------------------------------------------------
+.
+.BR enigma
+is a command line simulator for the models Heer, M3 and M4.
+It also has the ability to break Enigma messages using ciphertext-only attacks.
+The following options fall into five categories:
+.
+.
+.\" --------------------------------------------------------------------
+.SH GENERAL OPTIONS
+.\" --------------------------------------------------------------------
+.
+.TP \w'\-wstecker-pairsx'u+2n
+.BI \-M " model"
+Set the machine type to
+.IR model .
+Valid settings are H, M3 or M4. Defaults to H (Heer).
+This must be the first argument on the command line!
+.TP
+.B \-h
+Display help screen.
+.TP
+.B \-v
+Display version information.
+.TP
+.BI -o " output-file"
+Output is written to
+.IR output-file .
+Defaults to stdout.
+.
+.
+.\" --------------------------------------------------------------------
+.SH SIMULATOR OPTIONS
+.\" --------------------------------------------------------------------
+.
+.TP \w'\-wstecker-pairsx'u+2n
+.BI \-u " ukw"
+Set Umkehrwalze to
+.IR ukw .
+Select A (Heer only), B or C. Defaults to B.
+.TP
+.BI -w " wheel-order"
+Set wheels to
+.IR wheel-order .
+Valid settings are 123 thru G876. Left letter [B,G] stands for wheels Beta
+or Gamma (M4 only). Left digit stands for left wheel, middle digit stands for
+middle wheel, right digit stands for right wheel. Digits must not be repeated.
+Defaults to 123.
+.TP
+.BI -r " ring-settings"
+Set rings to
+.IR ring-settings .
+Valid settings are AAA thru ZZZZ. Defaults to AAA.
+.TP
+.BI -s " stecker-pairs"
+Set plugboard to 
+.IR stecker-pairs .
+Valid settings are 1 to 13 pairs of letters. No spaces in between. Letters
+must not be repeated. Defaults to none.
+.TP
+.BI -m " message-key"
+Set start position of wheels to
+.IR message-key .
+Valid settings are AAA thru ZZZZ. Defaults to AAA.
+.
+.
+.\" --------------------------------------------------------------------
+.SH  IC OPTIONS
+.\" --------------------------------------------------------------------
+.
+.BI -i
+[COMMON OPTIONS]
+.BI "" " trigram-dict bigram-dict ciphertext"
+.RS
+.P
+Break an enigma message using ic statistics. This option requires three
+command line arguments, the log-ngram dictionaries
+.IR trigram-dict ,
+.IR bigram-dict
+and the message
+.IR ciphertext .
+If no range is specified
+with the -f and/or -t options, the program runs in two stages:
+              
+First it iterates through all UKW, wheel and message settings. All
+letters are left unsteckered, and the rings remain set to A. The
+setting yielding the highest ic count in the decrypted candidate
+plaintext is retained. Then all fast ring settings are tried, the
+best one is retained, same for the  middle rings. Subsequently a
+hill climb is used to determine the stecker settings.
+
+In the second stage the  procedure is repeated, this time iterating
+through all UKW, wheel, message AND ring settings.
+
+If a range is specified, the program immediately starts at the second
+stage.
+
+The ic approach does not work well on shorter messages.
+.
+.
+.\" --------------------------------------------------------------------
+.SH  "HILL CLIMB OPTIONS"
+.\" --------------------------------------------------------------------
+.
+.BI -c
+[COMMON AND HILL CLIMB OPTIONS]
+.BI "" " trigram-dict bigram-dict ciphertext"
+.RS
+.P
+Break an enigma message using hill climbing. This option requires three
+command line arguments, the log-ngram dictionaries
+.IR trigram-dict ,
+.IR bigram-dict
+and the message
+.IR ciphertext .
+If no range is specified, the program iterates through all UKW, 
+wheel, fast ring and message settings, attempting a hill climb on 
+each of the settings.
+.RE
+.TP
+.BI -n " n"
+Do
+.IR n
+passes. Defaults to 1.
+.TP
+.BI -z " n"
+Terminate if score
+.IR n
+is reached. Useful for testing. Defaults to INT_MAX-1.
+.TP
+.BI -k " keystring"
+Perform hill climb on a single arrangement specified by
+.IR keystring .
+Useful for testing.
+.TP
+.B \-R
+Standalone option:  Resume a hill climb:  When the program receives
+SIGTERM, SIGINT or SIGQUIT, the state of the hill climb is saved to
+the file ``00hc.resume''. With this option the hill climb can be started
+again from where it left off. Only the -o option can be given in combination
+with -R.
+.
+.
+.\" --------------------------------------------------------------------
+.SH  "SEARCH SPACE OPTIONS"
+.\" --------------------------------------------------------------------
+.
+.TP
+.B Default:
+Only settings where the slow wheel moves before the first
+letter is enciphered are tested within the given range.
+.TP
+.B \-x
+All other settings which result in a slow wheel movement are
+tested. This option complements the default run.
+.TP
+.B \-a
+All settings where the slow wheel moves are tested.
+.
+.
+.\" --------------------------------------------------------------------
+.SH  "COMMON OPTIONS"
+.\" --------------------------------------------------------------------
+.
+.TP \w'\-woutput-filex'u+2n
+.BI -f " keystring"
+Search from (including)
+.IR keystring .
+.TP
+.BI -t " keystring"
+Search up to (including)
+.IR keystring .
+This keystring has to be greater or equal to the -f keystring.
+.
+.
+.\" --------------------------------------------------------------------
+.SH KEYSTRING
+.\" --------------------------------------------------------------------
+.
+The keystrings used to specify ranges with -f and -t have the following format:
+.
+.P
+.TS
+tab(@);
+c c c c
+l lB l l.
+@@@
+@@\fBLowest:@Highest\fP:@
+@@@
+@H :@A:123:AA:AAA@C:543:ZZ:ZZZ
+@M3:@B:123:AA:AAA@C:876:MM:ZZZ
+@@|  |  ||  |@
+@@|  |  ||  `l, m, r message key@
+@@|  |  ``middle, right ring@
+@@|  `left, middle, right wheel@
+@@`ukw@
+@@@
+@M4:@B:B123:AA:AAAA@C:G876:MM:ZZZZ
+@@| | |  ||  ||@
+@@| | |  ||  ``greek, l, m, r message key@
+@@| | |  ``middle, right ring@
+@@| | `left, middle, right wheel@
+@@| `greek wheel@
+@@`ukw@
+.TE
+.
+.P
+If the -f option is omitted, the lowest possible keystring is assumed.
+If the -t option is omitted, the highest possible keystring is assumed.
+
+The program increments the keystring in the way of an odometer,
+starting at the right message key. Settings resulting in an illegal
+wheel order are skipped.
+
+
+.B M3, M4 specialty:
+
+When the middle or right wheel is one of [6-8], only 13 ring settings
+have to be checked, so rings [N-Z] are skipped. In these cases the
+program only allows rings [A-M] as the bounds.
+
+With the -k option all rings are allowed.
+.
+.
+.\" --------------------------------------------------------------------
+.SH "RESUME FILE"
+.\" --------------------------------------------------------------------
+.
+.P
+The resume file ``00hc.resume'' captures the state of the hill climb at
+interrupt time and stores the information in this order:
+.P
+\fBLine 1:\fP
+.RS
+.IR model , " keystring-from" , " keystring-to" , " keystring-current" ,
+.IR " slow-wheel-mode", " n-passes", " firstpass", " max_score"
+.RE
+.P
+\fBLine 2:\fP (best key found so far):
+.RS
+.IR model , " keystring-best-key" , " stecker-best-key" , " score-best-key"
+.RE
+.P
+In the actual file the items are separated by '='.
+.P
+slow-wheel-mode can have the values 0 (default), 1 (-x option),
+2 (-a option).
+.P
+firstpass can have the values 1 (yes) or 0 (no).
+.P
+n-passes and max_score can have the values 0-(INT_MAX-1).
+.
+.
+.\" --------------------------------------------------------------------
+.SH "SIMULATION EXAMPLES"
+.\" --------------------------------------------------------------------
+.
+To en/decipher a text using the default settings, simply enter:
+.P
+.RS  
+enigma
+.RE
+.P
+Type in the text (white-space allowed), then enter EOF (CTRL-D
+on unix systems) to start en/decryption. If you have not entered
+a newline after the last letter, you have to enter EOF twice.
+.P
+Some examples using various models and various settings:
+.P
+.RS
+enigma -M H -u B -w 531 -r QIX -s MNBVCXZLKJHGFDSAPOIU -m ACE
+.P
+enigma -M M3 -u C -w 781 -r GHL -s QWERTYUIOPAS -m WSK
+.P
+enigma -M M4 -u B -w G273 -r RGSK -s LKJHGFDSAPOIUYTREWQM -m QKLC
+.RE
+.
+.
+.\" --------------------------------------------------------------------
+.SH "MESSAGE BREAKING EXAMPLES"
+.\" --------------------------------------------------------------------
+.
+.P
+Attempt to break a message using ic statistics, both stages (see -i option):
+.P
+.RS
+enigma -M H -i trigram_dict bigram_dict ciphertext
+.RE
+.P
+Attempt to break a message using ic statistics, only check within the given
+range.
+.P
+.RS
+enigma -M H -i -f "A:231:AA:BBB" -t "A:231:AA:ZZZ" trigram_dict bigram_dict
+ciphertext
+.RE
+.P
+Attempt to break a message using hill climbing, only check scrambler
+states that have an equivalent where the slow wheel does not move:
+.P
+.RS
+enigma -M M3 -c -f "B:456:AA:FFF" -t "C:183:AA:BCF" trigram_dict bigram_dict
+ciphertext
+.RE
+.P
+Check scrambler states that can only be expressed in terms of the
+slow wheel moving:
+.P
+.RS
+enigma -M M3 -cx -f "B:456:BA:FFF" -t "C:183:BA:BCF" trigram_dict bigram_dict
+ciphertext
+.RE
+.P
+Attempt to break an M4 message, check all unique scrambler states,
+300 passes, output to resultfile:
+.P
+.RS
+enigma -M M4 -ca -n 300 -o resultfile trigram_dict bigram_dict ciphertext
+.RE
+.P
+Test a single arrangement, 100 passes, abort if score is higher than 3500000:
+.P
+.RS
+enigma -c -n 100 -z 3500000 -k "B:123:SK:JKL"  trigram_dict bigram_dict
+ciphertext
+.RE
+.
+.
+.\" --------------------------------------------------------------------
+.SH "RETURN VALUE"
+.\" --------------------------------------------------------------------
+.
+.P
+enigma returns 0 on success, EXIT_FAILURE on failure, 111 if it
+has stopped on SIGTERM, SIGINT or SIGQUIT during a hill climb.
+.
+.
+.\" --------------------------------------------------------------------
+.SH "SEE ALSO"
+.\" --------------------------------------------------------------------
+.
+.
+.BR enigma-client(1) ,
+.BR mkdict(1)
+.
+.
+.\" --------------------------------------------------------------------
+.SH AUTHOR
+.\" --------------------------------------------------------------------
+.
+.P
+Stefan Krah <stefan@bytereef.org>
+.
+.
+.\" --------------------------------------------------------------------
+.SH BUGS
+.\" --------------------------------------------------------------------
+.
+.P
+Please report bugs, suggestions to <enigma-suite@bytereef.org>
+.
+.P

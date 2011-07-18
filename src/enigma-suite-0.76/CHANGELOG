@@ -1,0 +1,97 @@
+Version 0.76
+8 July 2006
+
+  eclient-rpc.py:
+                New XML-RPC client. The client is an alternative for
+                the existing client.
+
+  enigma-client.py:
+                Improved file locking with flock(). Sets default timeout
+                for sockets.
+
+  install.py:   New install script guides through the installation process.
+
+  add-cpus/:
+                scripts for multiple CPUs/cores are now included.
+
+
+Version 0.75
+28 March 2006
+
+  hillclimb.c, cipher.c:
+                From now on only unique scrambler states are tested.
+                The -a, -x options (and the default) have a different
+                meaning now. mr_mode is supplanted by sw_mode.
+
+  enigma.c, key.c:
+                Simulator: Defaults for M4 UKW changed to B-THIN/Beta.
+
+  enigma-client.py:
+                All log output goes to stderr. Added -r switch that
+                causes enigma to write output to the file "results".
+                Added ability to download new dictionaries automatically.
+
+                Suggestions came from (alphabetical order, sorry if I
+                forget anyone):
+
+                Ian Flanigan, Steve Hosgood, A.S., Geoff Sullivan.  
+
+
+Version 0.73.2
+27 February 2006
+
+  conf-cc:      -O3 generally leads to better performance.
+                Reported by Jeff Gilchrist.
+
+
+Version 0.73.1
+10 February 2006
+
+  enigma.1, enigma.txt:
+                Fixed bug in explanation of 00hc.resume format.
+
+
+Version 0.73
+18 January 2006
+
+  enigma-client.py:
+                Switched to popen2.Popen3() instead of os.system().
+                Added signal handling of SIGTERM, SIGINT, SIGQUIT:
+
+                  - Now Ctrl-C stops enigma-client on OpenBSD (always
+                    did on Linux).
+
+                  - enigma-client removes the lock file on signalled
+                    exit.
+
+                  - Both processes exit cleanly when either enigna-client
+                    or enigma is signalled.
+
+                Added status messages.
+
+  enigma.c:     Removed bug so that -o and -R options can actually be used
+                together.
+
+  hillclimb.c:  Status messages are displayed when enigma runs in resume mode.
+
+
+
+Version 0.72
+7 January 2006
+
+  hillclimb.c:  Removed calls of free() and fprintf() from signal handler.
+                New version has longer shutdown time on SIGTERM. Worst case
+                is around 0.1 s on a Pentium 400MHz with a ciphertext length
+                of 250 letters.
+
+  ic.c:         Replaced instances of 250 with CT.
+
+  enigma-client.py:
+                Changed class name to Eclient.
+                Switched to 00trigr.naval/00bigr.naval
+
+  eclient-install.sh:
+                Switched to 00trigr.naval/00bigr.naval
+
+  dict/ :       Added new naval statistics compiled from original
+                M4 messages.

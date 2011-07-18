@@ -1,0 +1,62 @@
+
+This file lists the sources of important ideas/concepts/specs that
+found their way into various source files:
+
+
+ic.c:
+=====
+
+The method of using the Index of Coincidence to detect correct
+wheel/ring positions is based on a paper by J. Gillogly [1].
+
+
+hillclimb.c
+===========
+
+The general idea of using a hill climbing algorithm to recover
+the correct stecker positions can be found in [1].
+
+After experimenting with many steepest ascent algorithms on very
+short messages (70 letters), I found that the order of testing
+stecker presented by G. Sullivan and F. Weierud [2], which results
+in a shallower ascent, is superior for longer messages (100-200
+letters) while giving at least the same performance for short
+messages.
+
+Many of the shortcuts that avoid testing the full key space can
+be found in [2].
+
+
+SGT.c
+=====
+
+SGT.c was written by Professor Geoffrey Sampson of the University of Sussex
+and is distributed with his kind permission. The file itself contains
+detailed documentation. See also: [3]
+
+SGT.c is located at http://www.grsampson.net/Resources.html
+
+
+cipher.c
+========
+
+The internal wiring is based on a document titled "Wiring of Enigma Rotors
+[I-VIII, gamma & beta]" by David H. Hamer.
+
+The double stepping of the middle rotor is described by David H. Hamer in [4].
+Wikipedia has good illustrations.
+
+
+
+[1] Gillogly, J.J. 1995. Ciphertext-Only Cryptanalysis of Enigma.
+    Cryptologia, 19(4): 321-413.
+
+[2] Sullivan, G. and Weierud, F. 2005. Breaking German Army Ciphers.
+    Cryptologia, 29(3): 193-232.
+
+[3] Gale & Sampson, "Good-Turing Frequency Estimation Without Tears"
+    (JOURNAL OF QUANTITATIVE LINGUISTICS, vol. 2, pp. 217-37 -- reprinted
+    in Geoffrey Sampson, EMPIRICAL LINGUISTICS, Continuum, 2001).
+
+[4] David H. Hamer. 1997. Enigma: Actions Involved in the "Double
+    Stepping" of the middle rotor. Cryptologia. 21(1): 47-50

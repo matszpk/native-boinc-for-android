@@ -1,0 +1,45 @@
+ENIGMA_CLIENT(1)                                                ENIGMA_CLIENT(1)
+
+
+NAME
+        enigma-client.py  -  client for a distributed attack on a message
+
+
+SYNOPSIS  
+        enigma-client.py [-r] host port
+
+
+DESCRIPTION
+        enigma-client.py repeatedly connects to an enigma key server to
+        try to get a ciphertext and a range of keys. It then launches
+        enigma to work on the range. Once the job is done, the results
+        are submitted to the server.
+
+        enigma-client.py should run forever and at the lowest priority.
+
+        Log output is written to stderr.
+
+
+OPTIONS
+        -r     Append enigma's output to the file "results"
+               in the run directory.
+
+
+IMPORTANT NOTE
+        enigma-client.py has to use the same log-ngram dictionaries as
+        the server. ONLY use the official 00trigr.cur and 00bigr.cur
+        dictionaries.
+
+
+SEE ALSO
+       enigma(1)
+
+
+AUTHOR
+        Stefan Krah <stefan@bytereef.org>
+
+BUGS
+        Please report bugs, suggestions to <enigma-suite@bytereef.org>
+
+
+enigma-suite-0.76                      2006                     ENIGMA_CLIENT(1)

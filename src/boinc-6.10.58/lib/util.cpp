@@ -111,6 +111,12 @@ void boinc_sleep(double seconds) {
 #ifdef _WIN32
     ::Sleep((int)(1000*seconds));
 #else
+#ifdef ANDROID
+    struct timespec tmspec;
+    tmspec.tv_sec = (long)(seconds);
+    tmspec.tv_nsec = (long)((seconds-tmspec.tv_sec)*1.0e9);
+    nanosleep(&tmspec,NULL);
+#else
     double end_time = dtime() + seconds - 0.01;
     // sleep() and usleep() can be interrupted by SIGALRM,
     // so we may need multiple calls
@@ -124,6 +130,7 @@ void boinc_sleep(double seconds) {
         seconds = end_time - dtime();
         if (seconds <= 0) break;
     }
+#endif
 #endif
 }
 

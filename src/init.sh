@@ -3,7 +3,7 @@ NDKPATH=~/docs/dev/mobile/android-ndk-r5b
 # path to Android SDK
 SDKPATH=~/docs/dev/mobile/android-sdk-linux_x86
 
-export SYSROOT=$NDKPATH/platforms/android-8/arch-arm/
+export SYSROOT=$NDKPATH/platforms/android-4/arch-arm/
 export NDKTOOLPATH=$NDKPATH/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin/
 export PATH="$PATH:$SDKPATH:$SDKPATH/platform-tools:$NDKTOOLPATH"
 export CC=$NDKTOOLPATH/arm-linux-androideabi-gcc
@@ -16,7 +16,7 @@ export LD=$NDKTOOLPATH/arm-linux-androideabi-ld
 # for debugging
 export GDB_CFLAGS="--sysroot=$SYSROOT -Wall -g -I/data/local/tmp/include"
 # uncomment when you compile boinc-distrib and dependency libs
-export CXXFLAGS="--sysroot=$SYSROOT -Wall -funroll-loops -fexceptions -O3 -mthumb"
+export CXXFLAGS="--sysroot=$SYSROOT -Wall -funroll-loops -fexceptions -O3"
 # uncomment when you compile boinc application
 #export CXXFLAGS="--sysroot=$SYSROOT -Wall -funroll-loops -fexceptions"
 export LDFLAGS="-L$SYSROOT/usr/lib -L/data/local/tmp/lib"

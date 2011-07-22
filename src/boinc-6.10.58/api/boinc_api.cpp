@@ -652,6 +652,7 @@ int boinc_wu_cpu_time(double& cpu_t) {
 
 // make static eventually
 int suspend_activities() {
+    fprintf(stderr,"suspend activities\n");
     BOINCINFO("Received Suspend Message");
 #ifdef _WIN32
     if (options.direct_process_action) {
@@ -663,6 +664,7 @@ int suspend_activities() {
 
 // make static eventually
 int resume_activities() {
+    fprintf(stderr,"resume activities\n");
     BOINCINFO("Received Resume Message");
 #ifdef _WIN32
     if (options.direct_process_action) {
@@ -915,6 +917,7 @@ static void graphics_cleanup() {
 // timer handler; runs in the timer thread
 //
 static void timer_handler() {
+    
     if (g_sleep) return;
     interrupt_count++;
     if (!boinc_status.suspended) {
@@ -931,6 +934,8 @@ static void timer_handler() {
 
     // handle messages from the core client
     //
+    
+    fprintf(stderr,"%ld: timer_handler(): normal work\n", time(NULL));
     if (app_client_shm) {
         if (options.check_heartbeat) {
             handle_heartbeat_msg();
@@ -1047,7 +1052,21 @@ static void worker_signal_handler(int) {
     }
     if (options.direct_process_action) {
         while (boinc_status.suspended && in_critical_section==0) {
-            sleep(1);   // don't use boinc_sleep() because it does FP math
+            
+#ifdef ANDROID
+          /* fix bug (hangup) */
+          struct timespec tmspec;
+          tmspec.tv_sec = 1;
+          tmspec.tv_nsec = 0LL;
+          nanosleep(&tmspec,NULL);
+          
+          if (app_client_shm)
+            if (in_critical_section==0 && options.handle_process_control) {
+                handle_process_control_msg();
+            }
+#else
+          sleep(1);   // don't use boinc_sleep() because it does FP math
+#endif
         }
     }
 }

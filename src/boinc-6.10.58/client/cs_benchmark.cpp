@@ -285,7 +285,6 @@ bool CLIENT_STATE::should_run_cpu_benchmarks() {
     // Note: if skip_cpu_benchmarks we still should "run" cpu benchmarks
     // (we'll just use default values in cpu_benchmarks())
     //
-#ifndef ANDROID
     if (tasks_suspended) return false;
 
     // if user has changed p_calculated into the future
@@ -299,12 +298,6 @@ bool CLIENT_STATE::should_run_cpu_benchmarks() {
     if (projects.size()==0 && !run_cpu_benchmarks) return false;
 
     return ((run_cpu_benchmarks || diff > BENCHMARK_PERIOD));
-#else
-    if (tasks_suspended) return false;
-    
-    if (projects.size()==0 && !run_cpu_benchmarks) return false;
-    return run_cpu_benchmarks;
-#endif
 }
 
 // abort a running benchmark thread/process

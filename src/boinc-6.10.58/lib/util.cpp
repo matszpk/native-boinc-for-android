@@ -113,9 +113,16 @@ void boinc_sleep(double seconds) {
 #else
 #ifdef ANDROID
     struct timespec tmspec;
-    tmspec.tv_sec = (long)(seconds);
-    tmspec.tv_nsec = (long)((seconds-tmspec.tv_sec)*1.0e9);
-    nanosleep(&tmspec,NULL);
+    
+    double end_time = dtime() + seconds - 0.01;
+    while (1) {
+        tmspec.tv_sec = (long)(seconds);
+        tmspec.tv_nsec = (long)((seconds-tmspec.tv_sec)*1.0e9);
+        nanosleep(&tmspec,NULL);
+        
+        seconds = end_time - dtime();
+        if (seconds <= 0) break;
+    }
 #else
     double end_time = dtime() + seconds - 0.01;
     // sleep() and usleep() can be interrupted by SIGALRM,

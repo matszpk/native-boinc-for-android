@@ -935,7 +935,7 @@ static void timer_handler() {
     // handle messages from the core client
     //
     
-    fprintf(stderr,"%ld: timer_handler(): normal work\n", time(NULL));
+    //fprintf(stderr,"%ld: timer_handler(): normal work\n", time(NULL));
     if (app_client_shm) {
         if (options.check_heartbeat) {
             handle_heartbeat_msg();

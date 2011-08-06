@@ -53,7 +53,7 @@
 #define JOB_FILENAME "job.xml"
 #define CHECKPOINT_FILENAME "checkpoint.txt"
 
-#define POLL_PERIOD 1.0
+#define POLL_PERIOD 10.0
 
 using std::vector;
 using std::string;
@@ -457,6 +457,7 @@ void send_status_message(
     TASK& task, double frac_done, double checkpoint_cpu_time
 ) {
     double current_cpu_time = task.starting_cpu + task.cpu_time();
+    //printf("CurrentCPUTime:%f,%f\n",current_cpu_time,frac_done);
     boinc_report_app_status(
         current_cpu_time,
         checkpoint_cpu_time,
@@ -576,7 +577,7 @@ int main(int argc, char** argv) {
             if (frac_done >= frac_new-frac_inc*0.5)
               frac_done = frac_old;
         }
-        send_status_message(task, 1.0, checkpoint_cpu_time);
+        //send_status_message(task, 1.0, checkpoint_cpu_time);
         checkpoint_cpu_time = task.starting_cpu + task.final_cpu_time;
         write_checkpoint(i+1, checkpoint_cpu_time);
     }

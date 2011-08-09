@@ -456,11 +456,10 @@ public class NativeBoincService extends Service {
 	 */
 	public void shutdownClient() {
 		if (Logging.DEBUG) Log.d(TAG, "Shutting down native client");
-		if (mRpcClient != null) {
+		if (mNativeBoincThread != null) {
 			mRpcClient.quit();
 			mRpcClient.close();
 			mRpcClient = null;
-			mNativeBoincThread = null;
 		}
 	}
 	
@@ -503,7 +502,8 @@ public class NativeBoincService extends Service {
 		
 		for (Result result: results)
 			/* only if running */
-			if (result.state == 2 && !result.suspended_via_gui && !result.project_suspended_via_gui) {
+			if (result.state == 2 && !result.suspended_via_gui && !result.project_suspended_via_gui &&
+					result.active_task_state == 1) {
 				globalProgress += result.fraction_done*100.0;
 				taskCount++;
 			}
@@ -524,6 +524,8 @@ public class NativeBoincService extends Service {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
+				if (!isRun)	// if stopped
+					mNativeBoincThread = null;
 				mListenerHandler.onClientStateChanged(isRun);
 			}
 		});

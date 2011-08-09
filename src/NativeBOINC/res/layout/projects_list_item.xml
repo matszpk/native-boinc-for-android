@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+/* 
+ * AndroBOINC - BOINC Manager for Android
+ * Copyright (C) 2010, Pavol Michalec
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:paddingTop="2dip"
+	android:paddingBottom="2dip"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:minHeight="?android:attr/listPreferredItemHeight">
+
+	<!-- Project name -->
+	<TextView
+		android:id="@+id/projectName"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="6dip"
+		android:layout_marginTop="6dip"
+		android:lines="1"
+		android:text="ProjectX@Home"
+		android:textAppearance="?android:attr/textAppearanceLarge" />
+
+	<!-- ProgressBar showing the resource share. Workaround to support color switching is used. -->
+	<RelativeLayout	android:id="@+id/projectShare"
+		android:orientation="vertical"
+		android:layout_width="100dip"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/projectName"
+		android:layout_alignParentRight="true"
+		android:layout_marginTop="6dip"
+		android:layout_marginRight="6dip">
+		<ProgressBar
+			android:id="@+id/projectShareActive"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:progressDrawable="@drawable/progress_green"
+			android:visibility="invisible"
+			android:max="100"
+			android:progress="10"
+			android:secondaryProgress="100" />
+		<ProgressBar
+			android:id="@+id/projectShareSuspended"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:progressDrawable="@drawable/progress_red"
+			android:visibility="gone"
+			android:max="100"
+			android:progress="10"
+			android:secondaryProgress="100" />
+		<ProgressBar
+			android:id="@+id/projectShareNNW"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:progressDrawable="@drawable/progress_yellow"
+			android:visibility="gone"
+			android:max="100"
+			android:progress="10"
+			android:secondaryProgress="100" />
+		<TextView
+			android:id="@+id/projectShareText"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:layout_centerInParent="true"
+			android:lines="1"
+			android:text="500 (100.00%)"
+			android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+	</RelativeLayout>
+
+	<!-- Project details -->
+	<TextView
+		android:id="@+id/projectDetails"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toLeftOf="@+id/projectShare"
+		android:layout_below="@+id/projectName"
+		android:layout_alignLeft="@+id/projectName"
+		android:layout_marginTop="3dip"
+		android:gravity="left"
+		android:minLines="2"
+		android:maxLines="3"
+		android:text="Total:10000000.00 RAC:10000.00 Host:5000000.00 hRAC:5000.00"
+		android:textAppearance="?android:attr/textAppearanceSmall" />
+</RelativeLayout>

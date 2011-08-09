@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+/* 
+ * AndroBOINC - BOINC Manager for Android
+ * Copyright (C) 2010, Pavol Michalec
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:paddingTop="2dip"
+	android:paddingBottom="2dip"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:minHeight="?android:attr/listPreferredItemHeight">
+
+	<!-- File name -->
+	<TextView
+		android:id="@+id/transferFileName"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="6dip"
+		android:layout_marginRight="6dip"
+		android:layout_marginTop="6dip"
+		android:lines="1"
+		android:text="File A"
+		android:textAppearance="?android:attr/textAppearanceMedium" />
+
+	<!-- Transfer size -->
+	<TextView
+		android:id="@+id/transferSize"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/transferFileName"
+		android:layout_alignRight="@+id/transferFileName"
+		android:gravity="left"
+		android:lines="1"
+		android:text="56.2 KB / 126.6 KB"
+		android:textAppearance="?android:attr/textAppearanceSmall" />
+
+	<!-- Project name -->
+	<TextView
+		android:id="@+id/transferProjectName"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toLeftOf="@+id/transferSize"
+		android:layout_alignTop="@+id/transferSize"
+		android:layout_alignLeft="@+id/transferFileName"
+		android:gravity="left"
+		android:lines="1"
+		android:text="ProjectX@Home"
+		android:textAppearance="?android:attr/textAppearanceSmall" />
+
+	<!-- Progress indicator -->
+	<RelativeLayout	android:id="@+id/transferProgress"
+		android:layout_width="150dip"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/transferProjectName"
+		android:layout_marginTop="3dip"
+		android:layout_centerHorizontal="true">
+		<ProgressBar
+			android:id="@+id/transferProgressRunning"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:progressDrawable="@drawable/progress_green"
+			android:visibility="invisible"
+			android:max="100"
+			android:progress="10"
+			android:secondaryProgress="100" />
+		<ProgressBar
+			android:id="@+id/transferProgressSuspended"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:progressDrawable="@drawable/progress_red"
+			android:visibility="gone"
+			android:max="100"
+			android:progress="10"
+			android:secondaryProgress="100" />
+		<ProgressBar
+			android:id="@+id/transferProgressWaiting"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:progressDrawable="@drawable/progress_yellow"
+			android:visibility="gone"
+			android:max="100"
+			android:progress="10"
+			android:secondaryProgress="100" />
+		<TextView
+			android:id="@+id/transferProgressText"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:layout_centerInParent="true"
+			android:lines="1"
+			android:text="99.999%"
+			android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+	</RelativeLayout>
+
+	<!-- Elapsed time -->
+	<TextView
+		android:id="@+id/transferElapsed"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toLeftOf="@+id/transferProgress"
+		android:layout_below="@+id/transferProjectName"
+		android:layout_alignLeft="@+id/transferFileName"
+		android:layout_marginTop="3dip"
+		android:layout_marginRight="5dip"
+		android:gravity="right"
+		android:lines="1"
+		android:text="000:00:00"
+		android:textAppearance="?android:attr/textAppearanceSmall" />
+
+	<!-- Speed -->
+	<TextView
+		android:id="@+id/transferSpeed"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toRightOf="@+id/transferProgress"
+		android:layout_alignTop="@+id/transferElapsed"
+		android:layout_alignRight="@+id/transferFileName"
+		android:layout_marginLeft="3dip"
+		android:gravity="right"
+		android:lines="1"
+		android:text="123 KB/s"
+		android:textAppearance="?android:attr/textAppearanceSmall" />
+</RelativeLayout>

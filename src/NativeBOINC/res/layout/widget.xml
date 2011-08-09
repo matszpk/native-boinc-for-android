@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* 
+ * NativeBOINC - Native BOINC Client with Manager
+ * Copyright (C) 2011, Mateusz Szpakowski
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+ -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  	android:orientation="vertical"
+  	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:background="@drawable/widget_bg">
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:paddingBottom="3dip">
+		<Button
+			android:id="@+id/widgetStart" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:width="50dip"
+			android:height="40dip"
+			android:drawableLeft="@android:drawable/ic_media_play" />
+		<Button
+			android:id="@+id/widgetStop" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:width="50dip"
+			android:height="40dip"
+			android:drawableLeft="@android:drawable/ic_media_pause" />
+		<Button
+			android:id="@+id/widgetManager" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:width="50dip"
+			android:height="40dip"
+			android:drawableLeft="@drawable/manager_icon" />
+		<Button
+			android:id="@+id/widgetLock" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:width="50dip"
+			android:height="40dip"
+			android:drawableLeft="@android:drawable/ic_lock_lock" />
+	</LinearLayout>
+	<RelativeLayout	android:id="@+id/widgetProgress"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+		<ProgressBar
+			android:id="@+id/widgetProgressRunning"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:progressDrawable="@drawable/progress_green"
+			android:visibility="visible"
+			android:max="100"
+			android:progress="10"
+			android:secondaryProgress="100" />
+		<TextView
+			android:id="@+id/widgetProgressText"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:layout_centerInParent="true"
+			android:lines="1"
+			android:text="99.999%"
+			android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+	</RelativeLayout>
+</LinearLayout>

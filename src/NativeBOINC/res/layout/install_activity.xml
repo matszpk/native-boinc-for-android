@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* 
+ * NativeBOINC - Native BOINC Client with Manager
+ * Copyright (C) 2011, Mateusz Szpakowski
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+ -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  	android:layout_width="fill_parent"
+  	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:padding="10dip">
+	<LinearLayout
+		android:id="@+id/installStep1"
+		android:visibility="visible"
+		android:layout_width="fill_parent"
+	  	android:layout_height="wrap_content"
+		android:orientation="vertical">
+		<TextView
+			android:layout_width="fill_parent"
+	  		android:layout_height="wrap_content"
+	  		android:textSize="18dip"
+	  		android:textStyle="bold"
+	  		android:paddingBottom="10dip"
+	  		android:text="@string/installWelcome" />
+	  	<TextView
+			android:layout_width="fill_parent"
+	  		android:layout_height="wrap_content"
+	  		android:textSize="14dip"
+	  		android:text="@string/installClientInstall" />
+	  	<TextView
+	  		android:id="@+id/installCPUType"
+			android:layout_width="fill_parent"
+	  		android:layout_height="wrap_content"
+	  		android:textSize="14dip"
+	  		android:paddingTop="10dip"
+	  		android:text="@string/installCPUType" />
+	</LinearLayout>
+	<LinearLayout
+		android:id="@+id/installStep2"
+		android:visibility="gone"
+		android:layout_width="fill_parent"
+	  	android:layout_height="wrap_content"
+		android:orientation="vertical">
+		<TextView
+			android:layout_width="fill_parent"
+	  		android:layout_height="wrap_content"
+	  		android:textSize="14dip"
+	  		android:paddingBottom="10dip"
+	  		android:text="@string/installAccessPasswordStep" />
+	  	<TextView
+	  		android:id="@+id/installCurrentAccessPassword"
+			android:layout_width="fill_parent"
+	  		android:layout_height="wrap_content"
+	  		android:textSize="14dip"
+	  		android:text="@string/installCurrentPassword" />
+	  	<LinearLayout
+	  		android:layout_width="fill_parent"
+	  		android:layout_height="wrap_content"
+	  		android:orientation="horizontal"
+	  		android:paddingTop="10dip">
+	  		<TextView
+	  			android:layout_width="wrap_content"
+	  			android:layout_height="wrap_content" 
+	  			android:paddingRight="5dip"
+	  			android:text="@string/installNewPassword" />
+	  		<EditText
+	  			android:id="@+id/installNewPassword"
+	  			android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:background="@android:drawable/editbox_background"
+				android:inputType="textPassword"/>
+	  	</LinearLayout>
+	</LinearLayout>
+	<LinearLayout
+		android:id="@+id/installStep3"
+		android:visibility="gone"
+		android:layout_width="fill_parent"
+	  	android:layout_height="wrap_content"
+		android:orientation="vertical">
+		<TextView
+			android:layout_width="fill_parent"
+	  		android:layout_height="wrap_content"
+	  		android:textSize="14dip"
+	  		android:text="@string/installSuccessfully" />
+	  	<TextView
+			android:layout_width="fill_parent"
+	  		android:layout_height="wrap_content"
+	  		android:textSize="14dip"
+	  		android:paddingTop="10dip"
+	  		android:text="@string/installAddProject" />
+	</LinearLayout>
+	<LinearLayout
+		android:id="@+id/installFinishStep"
+		android:visibility="gone"
+		android:layout_width="fill_parent"
+	  	android:layout_height="wrap_content"
+		android:orientation="vertical">
+		<TextView
+			android:layout_width="fill_parent"
+	  		android:layout_height="wrap_content"
+	  		android:textSize="14dip"
+	  		android:text="@string/installFinished" />
+	  	<TextView
+			android:layout_width="fill_parent"
+	  		android:layout_height="wrap_content"
+	  		android:textSize="14dip"
+	  		android:paddingTop="10dip"
+	  		android:text="@string/installWidgetFinished" />
+	</LinearLayout>
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right"
+		android:paddingTop="10dip">
+		<Button android:id="@+id/installCancel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/cancel" />
+		<Button android:id="@+id/installNext" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/installNext" />
+		<Button android:id="@+id/installFinish"
+			android:enabled="false"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/installFinish" />
+	</LinearLayout>
+</LinearLayout>

@@ -53,6 +53,7 @@
 	<string name="unknown">unknown</string>
 	<string name="upgradedTo">Upgraded to</string>
 	<string name="warning">Warning</string>
+	<string name="now">Now</string>
 
 	<!-- Units -->
 	<string name="unitKiB">KiB</string>
@@ -234,6 +235,7 @@
 	<string name="installSuccessfully">Native BOINC client has been installed successfully!</string>
 	<string name="installAddProject">Please tap \'Next\' button to add first BOINC project.</string>
 	<string name="installFinished">Installation have been finished. Please tap \'Finish\' button.</string>
+	<string name="installFinishedBut">Installation have been finished without project attachment. Please tap \'Finish\' button.</string>
 	<string name="installWidgetFinished">Notice: We recommends to use NativeBOINC widget to control native client.</string>
 
 	<string name="PGPkeyserver">keyserver.stack.nl</string>
@@ -246,7 +248,7 @@
 	<string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>
 	<string name="installClientNormalName">boinc_client.zip</string>
 	<string name="installClientVFPName">boinc_client_with_vfp.zip</string>
-	<string name="installClientARMv7Name">boinc_client_with_armv7a_neon.zip</string>
+	<string name="installClientARMv7Name">boinc_client_armv7a_neon.zip</string>
 	<string name="installAppsSourceUrl">http://krzyszp.info/matszpk/boinc_apps/</string>
 
 	<!-- ProjectsActivity -->
@@ -384,8 +386,6 @@
 	
 	<string name="appListDownloadError">Unable to download app list</string>
 	<string name="appListParseError">Unable to parse app list</string>
-	
-	<string name="nativeClientDisconnected">Native client disconnected</string>
 	
 	<!-- HostInfo display -->
 	<string name="hostInfoPart1">

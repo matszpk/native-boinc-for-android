@@ -19,13 +19,6 @@
 
 package sk.boinc.nativeboinc.nativeclient;
 
-import it.sauronsoftware.ftp4j.FTPAbortedException;
-import it.sauronsoftware.ftp4j.FTPClient;
-import it.sauronsoftware.ftp4j.FTPDataTransferException;
-import it.sauronsoftware.ftp4j.FTPDataTransferListener;
-import it.sauronsoftware.ftp4j.FTPException;
-import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -327,10 +320,6 @@ public class InstallerHandler extends Handler {
 		}
 	}
 	
-	private FTPClient mFtpClient = null;
-	private boolean mFtpTransferFinished = false;
-	private long currentTime = System.currentTimeMillis();	
-	
 	private void downloadFile(String urlString, String outFilename, final String opDesc,
 			final String messageError, final boolean withProgress) throws InstallationException {
 		if (Logging.DEBUG) Log.d(TAG, "downloading file "+urlString);
@@ -375,113 +364,13 @@ public class InstallerHandler extends Handler {
 				
 				notifyProgress(opDesc, 10000);
 			} else {
-				/* if ftp protocol */
-				mFtpClient = new FTPClient();
-				if (url.getPort() == -1)
-					mFtpClient.connect(url.getHost());
-				else
-					mFtpClient.connect(url.getHost(), url.getPort());
-				
-				// login as anonymous
-				mFtpClient.login("anonymous", "anonymous");
-				
-				File outFile = mContext.getFileStreamPath(outFilename);
-				
-				String remoteFilePath = url.getPath();
-				final long length = mFtpClient.fileSize(remoteFilePath);
-				mFtpTransferFinished = false;
-				
-				Thread cancellingThread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						while(true) {
-							try {	// sleep 0.1 second
-								Thread.sleep(100);
-							} catch(InterruptedException ex) { }
-							if (mOperationCancelled) {
-								try {	
-									mFtpClient.abortCurrentDataTransfer(false);
-								} catch(Exception ex) { }
-								break;
-							}
-							if (mFtpTransferFinished)
-								break; // quit from thread
-						}
-					}
-				});
-				cancellingThread.start();
-				
-				mFtpClient.download(remoteFilePath, outFile, new FTPDataTransferListener() {
-					
-					@Override
-					public void transferred(int readed) {
-						if (withProgress) {
-							long newTime = System.currentTimeMillis();
-							if (newTime-currentTime > NOTIFY_PERIOD) {
-								notifyProgress(opDesc, (int)((double)readed*10000.0/(double)length));
-								currentTime = newTime;
-							}
-						}
-					}
-					
-					@Override
-					public void started() {
-						if (withProgress)
-							notifyProgress(opDesc, 0);
-						else
-							notifyOperation(opDesc);
-					}
-					
-					@Override
-					public void failed() {
-						mFtpTransferFinished = true;
-					}
-					
-					@Override
-					public void completed() {
-						if (withProgress)
-							notifyProgress(opDesc, 10000);
-						mFtpTransferFinished = true;
-					}
-					
-					@Override
-					public void aborted() {
-						mFtpTransferFinished = true;
-					}
-				});
-				
-				mFtpTransferFinished = true;
-				
-				try {
-					cancellingThread.join();
-				} catch(InterruptedException ex) { }
+				throw new UnsupportedOperationException("Unsupported operation");
 			}
 		} catch(IOException ex) {
 			mContext.deleteFile(outFilename);
 			notifyError(messageError);
 			throw new InstallationException();
-		} catch(FTPIllegalReplyException ex) {
-			mContext.deleteFile(outFilename);
-			notifyError(messageError);
-			throw new InstallationException();
-		} catch(FTPException ex) {
-			mContext.deleteFile(outFilename);
-			notifyError(messageError);
-			throw new InstallationException();
-		} catch(FTPAbortedException ex) {
-		} catch(FTPDataTransferException ex) {
-			mContext.deleteFile(outFilename);
-			notifyError(messageError);
-			throw new InstallationException();
 		} finally {
-			try {
-				if (mFtpClient != null) {
-					if (mFtpClient.isConnected())
-						mFtpClient.disconnect(true);
-					mFtpClient = null;
-				}
-			} catch (Exception ex) { }
-			
 			try {
 				if (inStream != null)
 					inStream.close();

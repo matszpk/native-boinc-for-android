@@ -126,16 +126,19 @@ public class TaskInfoCreator {
 		ti.elapsed = Formatter.formatElapsedTime(elapsedTime);
 		ti.progInd = (int)pctDone;
 		ti.progress = String.format("%.3f%%", pctDone);
-		ti.toCompletion = Formatter.formatElapsedTime((long)result.estimated_cpu_time_remaining);
+		if (result.estimated_cpu_time_remaining > 0.0)
+			ti.toCompletion = Formatter.formatElapsedTime((long)result.estimated_cpu_time_remaining);
+		else
+			ti.toCompletion = resources.getString(R.string.now);
 		ti.deadline = formatter.formatDate(result.report_deadline);
 		ti.deadlineNum = result.report_deadline;
-		if (result.fraction_done > 0.0) {
-			// Task is running/preempted, probably using some resources
-			ti.virtMemSize = formatter.formatBinSize((long)result.swap_size);
-			ti.workSetSize = formatter.formatSize((long)result.working_set_size_smoothed);
-			ti.cpuTime = Formatter.formatElapsedTime((long)result.current_cpu_time);
-			ti.chckpntTime = Formatter.formatElapsedTime((long)result.checkpoint_cpu_time);
-		}
+		//if (result.fraction_done > 0.0) {
+		// Task is running/preempted, probably using some resources
+		ti.virtMemSize = formatter.formatBinSize((long)result.swap_size);
+		ti.workSetSize = formatter.formatSize((long)result.working_set_size_smoothed);
+		ti.cpuTime = Formatter.formatElapsedTime((long)result.current_cpu_time);
+		ti.chckpntTime = Formatter.formatElapsedTime((long)result.checkpoint_cpu_time);
+		//}
 		ti.resources = result.resources;
 	}
 

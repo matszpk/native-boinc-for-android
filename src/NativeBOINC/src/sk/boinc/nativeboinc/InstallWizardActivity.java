@@ -88,6 +88,7 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 	private final static int INSTALL_STEP_2 = 2;
 	private final static int INSTALL_STEP_3 = 3;
 	private final static int INSTALL_FINISH_STEP = 4;
+	private final static int INSTALL_FINISH_BUT_STEP = 5;
 	
 	private int mCurrentStep = 0;
 	
@@ -368,7 +369,12 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 			mAccessPassword.setText("");
 		}
 		
-		if (mCurrentStep == INSTALL_FINISH_STEP) {
+		if (mCurrentStep == INSTALL_FINISH_STEP || mCurrentStep == INSTALL_FINISH_BUT_STEP) {
+			TextView installFinished = (TextView)findViewById(R.id.installFinishText);
+			
+			if (mCurrentStep == INSTALL_FINISH_BUT_STEP)	/* without project attachment */
+				installFinished.setText(getString(R.string.installFinishedBut));
+			
 			mInstallFinishStep.setVisibility(View.VISIBLE);
 			mCancel.setEnabled(false);
 			mFinish.setEnabled(true);
@@ -471,6 +477,11 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 			mProgressDialog = null;
 		}
 		setProgressBarIndeterminateVisibility(false);
+		if (mCurrentStep == INSTALL_STEP_3) {
+			mCurrentStep = INSTALL_FINISH_BUT_STEP;
+			prepareView();
+			mRunner.startClient();
+		}
 	}
 
 	@Override
@@ -600,14 +611,16 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 	@Override
 	public void clientDisconnected() {
 		// do nothing
-		Toast.makeText(this, R.string.nativeClientDisconnected, Toast.LENGTH_LONG).show();
 	}
 
 	@Override
 	public boolean clientError(int errorNum, Vector<String> messages) {
 		// do nothing
 		Toast.makeText(this, R.string.clientError, Toast.LENGTH_LONG).show();
-		finish();
+		if (mCurrentStep == INSTALL_STEP_3) {
+			mCurrentStep = INSTALL_FINISH_BUT_STEP;
+			prepareView();
+		}
 		return false;
 	}
 

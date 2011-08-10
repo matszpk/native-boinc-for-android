@@ -53,7 +53,7 @@
 #define JOB_FILENAME "job.xml"
 #define CHECKPOINT_FILENAME "checkpoint.txt"
 
-#define POLL_PERIOD 10.0
+#define POLL_PERIOD 1.0
 
 using std::vector;
 using std::string;
@@ -534,8 +534,6 @@ int main(int argc, char** argv) {
     }
     double frac_old = 0;
     double frac_new = 0;
-    double frac_inc;
-    ;
     for (i=0; i<tasks.size(); i++) {
         TASK& task = tasks[i];
         w += task.weight;
@@ -543,7 +541,7 @@ int main(int argc, char** argv) {
         double frac_done = frac_new;
         frac_new = w/total_weight;
         frac_old = frac_done;
-        frac_inc = 0.001/(frac_new-frac_old);
+        //frac_inc = 0.0001/(frac_new-frac_old);
 
         task.starting_cpu = checkpoint_cpu_time;
         retval = task.run(argc, argv);
@@ -573,9 +571,9 @@ int main(int argc, char** argv) {
                 write_checkpoint(i, checkpoint_cpu_time);
             }
             boinc_sleep(POLL_PERIOD);
-            frac_done += frac_inc;
+            /*frac_done += frac_inc;
             if (frac_done >= frac_new-frac_inc*0.5)
-              frac_done = frac_old;
+              frac_done = frac_old;*/
         }
         //send_status_message(task, 1.0, checkpoint_cpu_time);
         checkpoint_cpu_time = task.starting_cpu + task.final_cpu_time;

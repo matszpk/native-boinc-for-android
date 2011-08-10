@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="sk.boinc.nativeboinc"
+      android:versionCode="2"
+      android:versionName="0.1.2a">
+    <uses-sdk android:minSdkVersion="4" />
+
+    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="8"/>
+
+	<supports-screens
+		android:smallScreens="true"
+		android:normalScreens="true"
+		android:anyDensity="true"
+		android:largeScreens="true" />
+
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.WAKE_LOCK" />
+
+	<application
+		android:name="BoincManagerApplication"
+		android:label="@string/app_name"
+		android:description="@string/app_desc"
+		android:icon="@drawable/nativeboinc" android:debuggable="false">
+
+		<activity android:name=".BoincManagerActivity">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+
+		<service android:name=".service.ConnectionManagerService" 
+				android:description="@string/service_desc"/>
+		<service android:name=".nativeclient.InstallerService"
+				android:description="@string/install_service_desc" />
+		<service android:name=".nativeclient.NativeBoincService"
+				android:description="@string/nboinc_service_desc" />
+		<service android:name=".widget.NativeBoincWidgetService"
+				android:description="@string/widget_service_desc" />
+
+		<receiver android:name=".widget.NativeBoincWidgetProvider">
+			<intent-filter>
+		        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+		    	<action android:name="sk.boinc.nativeboinc.widget.WIDGET_UPDATE" />
+		    	<action android:name="sk.boinc.nativeboinc.widget.CLIENT_START_STOP" />
+		    </intent-filter>
+			<meta-data android:name="android.appwidget.provider"
+				android:resource="@xml/widget_info" />
+		</receiver>
+
+		<activity android:name=".ManageClientActivity"
+			android:screenOrientation="portrait"
+			android:label="@string/menuManage" />
+
+		<activity android:name=".AppPreferencesActivity"
+			android:label="@string/menuPreferences" />
+
+		<activity android:name=".HostListActivity"
+			android:label="@string/selectHost" />
+
+		<activity android:name=".EditHostActivity"
+			android:label="@string/hostEdit" />
+
+		<activity android:name=".ProjectsActivity" />
+
+		<activity android:name=".TasksActivity" />
+
+		<activity android:name=".TransfersActivity" />
+
+		<activity android:name=".MessagesActivity" />
+		
+		<activity android:name=".EditBAMActivity"
+			android:screenOrientation="portrait"
+			android:label="@string/editBAM" />
+		
+		<activity android:name=".ProjectListActivity"
+			android:screenOrientation="portrait"
+			android:label="@string/projectList" />
+
+		<activity android:name=".AddProjectActivity"
+			android:screenOrientation="portrait"
+			android:label="@string/addProject" />
+		
+		<activity android:name=".InstallWizardActivity"
+			android:screenOrientation="portrait"
+			android:label="@string/installWizard" />
+		
+		<activity android:name=".AccessPasswordActivity"
+			android:screenOrientation="portrait"
+			android:label="@string/changeAccessPassword" />
+		
+		<activity android:name=".ScreenLockActivity"
+			android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+			android:screenOrientation="landscape" />
+	</application>
+    
+</manifest>

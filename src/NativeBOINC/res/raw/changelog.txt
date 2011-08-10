@@ -1,0 +1,10 @@
+Version 0.1.1 (alpha) (2011-08-10)
+- Fix installation problems (bad name of installation files)
+- improve task info dialog and task view
+
+Version 0.1.1 (alpha) (2011-08-09)
+- Fix screen lock progress
+- Small fixes
+
+Version 0.1 (alpha) (2011-08-09)
+- Initial release

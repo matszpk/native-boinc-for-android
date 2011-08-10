@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+/* 
+ * AndroBOINC - BOINC Manager for Android
+ * Copyright (C) 2010, Pavol Michalec
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:paddingTop="2dip"
+	android:paddingBottom="2dip"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:minHeight="?android:attr/listPreferredItemHeight">
+
+	<!-- Task application name -->
+	<TextView
+		android:id="@+id/taskAppName"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="6dip"
+		android:layout_marginRight="6dip"
+		android:layout_marginTop="6dip"
+		android:lines="1"
+		android:text="Application A"
+		android:textAppearance="?android:attr/textAppearanceMedium" />
+
+	<!-- Task deadline -->
+	<TextView
+		android:id="@+id/taskDeadline"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/taskAppName"
+		android:layout_alignRight="@+id/taskAppName"
+		android:gravity="left"
+		android:lines="1"
+		android:text="2012/12/12 12:12:12"
+		android:textAppearance="?android:attr/textAppearanceSmall" />
+
+	<!-- Project name -->
+	<TextView
+		android:id="@+id/taskProjectName"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toLeftOf="@+id/taskDeadline"
+		android:layout_alignTop="@+id/taskDeadline"
+		android:layout_alignLeft="@+id/taskAppName"
+		android:gravity="left"
+		android:lines="1"
+		android:text="ProjectX@Home"
+		android:textAppearance="?android:attr/textAppearanceSmall" />
+
+	<!-- Progress indicator -->
+	<RelativeLayout	android:id="@+id/taskProgress"
+		android:layout_width="150dip"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/taskProjectName"
+		android:layout_marginTop="3dip"
+		android:layout_centerHorizontal="true">
+		<ProgressBar
+			android:id="@+id/taskProgressRunning"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:progressDrawable="@drawable/progress_green"
+			android:visibility="invisible"
+			android:max="100"
+			android:progress="10"
+			android:secondaryProgress="100" />
+		<ProgressBar
+			android:id="@+id/taskProgressSuspended"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:progressDrawable="@drawable/progress_red"
+			android:visibility="gone"
+			android:max="100"
+			android:progress="10"
+			android:secondaryProgress="100" />
+		<ProgressBar
+			android:id="@+id/taskProgressWaiting"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:progressDrawable="@drawable/progress_yellow"
+			android:visibility="gone"
+			android:max="100"
+			android:progress="10"
+			android:secondaryProgress="100" />
+		<ProgressBar
+			android:id="@+id/taskProgressFinished"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:progressDrawable="@drawable/progress_blue"
+			android:visibility="gone"
+			android:max="100"
+			android:progress="10"
+			android:secondaryProgress="100" />
+		<TextView
+			android:id="@+id/taskProgressText"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:layout_centerInParent="true"
+			android:lines="1"
+			android:text="99.999%"
+			android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+	</RelativeLayout>
+
+	<!-- Elapsed time -->
+	<TextView
+		android:id="@+id/taskElapsed"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toLeftOf="@+id/taskProgress"
+		android:layout_below="@+id/taskProjectName"
+		android:layout_alignLeft="@+id/taskAppName"
+		android:layout_marginTop="3dip"
+		android:layout_marginRight="5dip"
+		android:gravity="right"
+		android:lines="1"
+		android:text="000:00:00"
+		android:textAppearance="?android:attr/textAppearanceSmall" />
+
+	<!-- Remaining time -->
+	<TextView
+		android:id="@+id/taskRemaining"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toRightOf="@+id/taskProgress"
+		android:layout_alignTop="@+id/taskElapsed"
+		android:layout_alignRight="@+id/taskAppName"
+		android:layout_marginLeft="3dip"
+		android:gravity="right"
+		android:lines="1"
+		android:text="000:00:00"
+		android:textAppearance="?android:attr/textAppearanceSmall" />
+</RelativeLayout>

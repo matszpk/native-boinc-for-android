@@ -19,44 +19,32 @@
  * 
  */
  -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:orientation="vertical"
-	android:padding="10dip">
-	<TextView
-	  		android:id="@+id/currentAccessPassword"
-			android:layout_width="fill_parent"
-	  		android:layout_height="wrap_content"
-	  		android:textSize="14dip"
-	  		android:text="@string/installCurrentPassword" />
-	<LinearLayout android:orientation="horizontal"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:paddingTop="10dip">
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" 
-			android:text="@string/installNewPassword"
-			android:paddingRight="5dip" />
-		<EditText
-			android:id="@+id/accessPassword"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:background="@android:drawable/editbox_background"
-			android:inputType="textPassword" />
-	</LinearLayout>
-	<LinearLayout android:orientation="horizontal"
+<RelativeLayout
+  	xmlns:android="http://schemas.android.com/apk/res/android"
+  	android:orientation="vertical"
+  	android:layout_width="fill_parent"
+  	android:layout_height="wrap_content"
+  	android:padding="10dip">
+    <TextView
+    	android:id="@+id/updateAvailableText"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:text="@string/updateNoNew"
+    	android:textSize="16dip"
+    	android:textStyle="bold" />
+    <LinearLayout android:orientation="horizontal"
+    	android:id="@+id/updateButtons"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="right">
+		android:layout_alignParentRight="true"
+		android:layout_alignParentBottom="true">
 		<Button
-			android:id="@+id/accessPasswordCancel" 
+			android:id="@+id/updateCancel" 
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/cancel" />
 		<Button
-			android:id="@+id/accessPasswordOk" 
+			android:id="@+id/updateOk" 
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginLeft="10dip"
@@ -64,4 +52,12 @@
 			android:paddingRight="20dip"
 			android:text="@string/ok" />
     </LinearLayout>
-</LinearLayout>
+    <ListView
+    	android:id="@+id/updateBinariesList"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+    	android:paddingTop="5dip"
+    	android:paddingBottom="5dip"
+    	android:layout_below="@id/updateAvailableText"
+    	android:layout_above="@id/updateButtons" />
+</RelativeLayout>

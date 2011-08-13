@@ -89,12 +89,16 @@ private static final String TAG = "InstalledDistribParser";
 				mDistrib = null;
 			} else {
 				trimEnd();
-				if (localName.equalsIgnoreCase("url")) {
+				if (localName.equalsIgnoreCase("name")) {
+					mDistrib.projectName = mCurrentElement.toString();
+				} else if (localName.equalsIgnoreCase("url")) {
 					mDistrib.projectUrl = mCurrentElement.toString();
 				} else if (localName.equalsIgnoreCase("version")) {
 					mDistrib.version = mCurrentElement.toString();
 				} else if (localName.equalsIgnoreCase("file")) {
 					mDistrib.files.add(mCurrentElement.toString());
+				} else if (localName.equalsIgnoreCase("cpu")) {
+					mDistrib.cpuType = CpuType.parseCpuType(mCurrentElement.toString());
 				}
 			}
 		}

@@ -119,7 +119,10 @@ public class ClientBridgeWorkerThread extends Thread {
 
 	public void cancelPendingUpdates(final ClientReplyReceiver callback) {
 		// Run immediately NOW (from UI thread)
-		mHandler.cancelPendingUpdates(callback);
+		if (mHandler != null && callback != null)
+			mHandler.cancelPendingUpdates(callback);
+		else
+			if (Logging.WARNING) Log.w(TAG, "warning: NPE");
 	}
 
 	public void updateClientMode(final ClientReplyReceiver callback) {

@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.util.UpdateItem;
 
 import android.app.Service;
 import android.content.Intent;
@@ -103,9 +103,15 @@ public class InstallerService extends Service {
 		}
 		
 		@Override
-		public void currentProjectDistribs(Vector<ProjectDistrib> projectDistribs) {
+		public void currentProjectDistribList(Vector<ProjectDistrib> projectDistribs) {
 			for (InstallerListener listener: mListeners)
-				listener.currentProjectDistribs(projectDistribs);
+				listener.currentProjectDistribList(projectDistribs);
+		}
+		
+		@Override
+		public void currentClientDistrib(ClientDistrib clientDistrib) {
+			for (InstallerListener listener: mListeners)
+				listener.currentClientDistrib(clientDistrib);
 		}
 	}
 	
@@ -150,6 +156,10 @@ public class InstallerService extends Service {
 		mInstallerThread.installClientAutomatically();
 	}
 	
+	public void updateClientDistribList() {
+		mInstallerThread.updateClientDistribList();
+	}
+	
 	/**
 	 * Installs BOINC application automatically (with signature checking)
 	 * @param projectUrl
@@ -160,20 +170,19 @@ public class InstallerService extends Service {
 	}
 	
 	/**
-	 * Uninstalls BOINC application
-	 * @param projectUrl
-	 * @param zipUrl
+	 * Reinstalls update item 
 	 */
-	public void uninstallBoincApplication(String projectUrl) {
-		mInstallerThread.uninstallBoincApplication(projectUrl);
+	public void reinstallUpdateItem(UpdateItem updateItem) {
+		mInstallerThread.reinstallUpdateItem(updateItem);
 	}
 	
-	public void updateProjectDistribs() {
-		mInstallerThread.updateProjectDistribs();
+	public void updateProjectDistribList() {
+		mInstallerThread.updateProjectDistribList();
 	}
 	
-	public void synchronizeInstalledProjects(Vector<ProjectInfo> projects) {
-		mInstallerHandler.synchronizeInstalledProjects(projects);
+	/* remove detached projects from installed projects */
+	public void synchronizeInstalledProjects() {
+		mInstallerHandler.synchronizeInstalledProjects();
 	}
 	
 	public void cancelOperation() {
@@ -184,7 +193,27 @@ public class InstallerService extends Service {
 		return mInstallerHandler.detectCpuType();
 	}
 	
+	/**
+	 * Check whether client is installed
+	 * @return
+	 */
 	public boolean isClientInstalled() {
 		return mInstallerHandler.isClientInstalled();
+	}
+	
+	/**
+	 * 
+	 * @return installed binaries info
+	 */
+	public InstalledBinary[] getInstalledBinaries() {
+		return mInstallerHandler.getInstalledBinaries();
+	}
+	
+	/**
+	 * @param attachProjectUrls attached projects urls list
+	 * @return update items
+	 */
+	public UpdateItem[] getBinariesToUpdateOrInstall(String[] attachedProjectUrls) {
+		return mInstallerHandler.getBinariesToUpdateOrInstall(attachedProjectUrls);
 	}
 }

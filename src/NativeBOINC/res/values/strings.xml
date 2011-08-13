@@ -54,6 +54,9 @@
 	<string name="upgradedTo">Upgraded to</string>
 	<string name="warning">Warning</string>
 	<string name="now">Now</string>
+	
+	<string name="cpuType">CPU type</string>
+	<string name="installedBinaries">Installed binaries</string>
 
 	<!-- Units -->
 	<string name="unitKiB">KiB</string>
@@ -132,6 +135,8 @@
 	<string name="prefAboutTitle">About this application</string>
 	<string name="prefChangelogSummary">History of changes</string>
 	<string name="prefLicenseSummary">Text of license</string>
+	<string name="prefBinariesInfoTitle">Installed binaries</string>
+	<string name="prefBinariesInfoSummary">Show installed binaries list</string>
 
 	<!-- Network status -->
 	<string name="networkUnavailable">Network connection unavailable.</string>
@@ -148,6 +153,8 @@
 	<string name="manageCategoryOptions">Options</string>
 	<string name="clientAddProjectTitle">Add BOINC Project</string>
 	<string name="clientAddProjectSummary">Add BOINC Project</string>
+	<string name="clientUpdateTitle">Update binaries</string>
+	<string name="clientUpdateSummary">Update BOINC client or project applications</string>
 	<string name="clientSyncBAMTitle">Synchronize with BAM</string>
 	<string name="clientSyncBAMSummary">Attempt to synchronize with BAM Manager</string>
 	<string name="clientSyncBAMNotify">Synchronizing with BAM manager</string>
@@ -176,6 +183,8 @@
 	<string name="clientLookingUpAccount">Looking up user account</string>
 	<string name="clientAttachingToProject">Attaching to project</string>
 	<string name="warnShutdownText">The connected core client will be shut down. This manager cannot start the client afterwards.</string>
+	
+	<string name="shutdownAskText">Do you want to shutdown native client?</string>
 	
 	<!-- HostList Activity -->
 	<string name="selectHost">Select host</string>
@@ -228,7 +237,6 @@
 	<string name="installFinish">Finish</string>
 	<string name="installWelcome">Welcome to NativeBOINC!</string>
 	<string name="installClientInstall">Please tap \'Next\' button to download and install native BOINC client.</string>
-	<string name="installCPUType">CPU type</string>
 	<string name="installAccessPasswordStep">Please change access password to BOINC client or skip this step and remember current password.</string>
 	<string name="installCurrentPassword">Current password</string>
 	<string name="installNewPassword">New password</string>
@@ -246,11 +254,8 @@
 
 	<!-- install sources -->
 	<string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>
-	<string name="installClientNormalName">boinc_client.zip</string>
-	<string name="installClientVFPName">boinc_client_with_vfp.zip</string>
-	<string name="installClientARMv7Name">boinc_client_armv7a_neon.zip</string>
 	<string name="installAppsSourceUrl">http://krzyszp.info/matszpk/boinc_apps/</string>
-
+	
 	<!-- ProjectsActivity -->
 	<string name="projectCtxMenuTitle">Commands</string>
 	<string name="projectUpdate">Update</string>
@@ -275,7 +280,14 @@
 		&lt;b>Resource share:&lt;/b> %8$s&lt;br>\n
 		&lt;b>Status:&lt;/b> %9$s
 	</string>
-
+	
+	<!-- Update activity -->
+	<string name="updateBinaries">Update binaries</string>
+	<string name="updateNewAvailable">New binaries are available</string>
+	<string name="updateNoNew">No new binaries</string>
+	<string name="updateBoincClient">BOINC Client</string>
+	<string name="updateUpdating">Updating</string>
+	
 	<!-- TasksActivity -->
 	<string name="taskCtxMenuTitle">Commands</string>
 	<string name="taskSuspend">Suspend</string>
@@ -363,6 +375,7 @@
 	<string name="nativeClientShutdown">Native client stopped</string>
 	
 	<string name="appListDownload">Downloading app list</string>
+	<string name="clientListDownload">Downloading client list</string>
 	
 	<!-- Error strings -->
 	<string name="downloadPGPKeyError">Unable to download PGP key</string>
@@ -386,6 +399,9 @@
 	
 	<string name="appListDownloadError">Unable to download app list</string>
 	<string name="appListParseError">Unable to parse app list</string>
+	<string name="clientListDownloadError">Unable to download client list</string>
+	<string name="clientListParseError">Unable to parse client list</string>
+	<string name="projectAppNotFound">Application for this project not found</string>
 	
 	<!-- HostInfo display -->
 	<string name="hostInfoPart1">

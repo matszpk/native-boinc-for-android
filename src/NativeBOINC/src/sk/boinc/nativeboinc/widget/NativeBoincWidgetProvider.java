@@ -23,14 +23,18 @@ import sk.boinc.nativeboinc.BoincManagerActivity;
 import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.ScreenLockActivity;
+import sk.boinc.nativeboinc.ShutdownDialogActivity;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.app.PendingIntent.CanceledException;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Log;
 import android.view.View;
@@ -104,7 +108,7 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 			views.setOnClickPendingIntent(R.id.widgetStop, pendingIntent);
 			
 			/* update progress bar */
-			NativeBoincService runner = appContext.getRunnerService();
+			final NativeBoincService runner = appContext.getRunnerService();
 			double progress = runner.getGlobalProgress();
 			boolean isRun = runner.isRun();
 			
@@ -132,10 +136,14 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 		} else if (inputIntent.getAction().equals(NATIVE_BOINC_CLIENT_START_STOP)) {
 			if (Logging.DEBUG) Log.d(TAG, "Client start/stop from widget receive");
 			
-			NativeBoincService runner = appContext.getRunnerService();
-			if (runner.isRun())
-				runner.shutdownClient();
-			else
+			final NativeBoincService runner = appContext.getRunnerService();
+			if (runner.isRun()) {
+				Intent intent = new Intent(appContext, ShutdownDialogActivity.class);
+				PendingIntent pendingIntent = PendingIntent.getActivity(appContext, 0, intent, 0);
+				try {
+					pendingIntent.send();
+				} catch(CanceledException ex) { }
+			} else
 				runner.startClient();
 		}
 	}

@@ -38,6 +38,7 @@ import sk.boinc.nativeboinc.clientconnection.TaskInfo;
 import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.nativeclient.ClientDistrib;
 import sk.boinc.nativeboinc.nativeclient.CpuType;
 import sk.boinc.nativeboinc.nativeclient.InstallerListener;
 import sk.boinc.nativeboinc.nativeclient.InstallerService;
@@ -51,6 +52,7 @@ import sk.boinc.nativeboinc.util.HostListDbAdapter;
 import sk.boinc.nativeboinc.util.ProjectConfigOptions;
 import sk.boinc.nativeboinc.util.ProjectItem;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -140,28 +142,8 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 			
 			/* set up cpu type text */
 			TextView cpuType = (TextView)findViewById(R.id.installCPUType);
-			StringBuilder sB = new StringBuilder();
-			sB.append(getString(R.string.installCPUType));
-			sB.append(": ");
-			
-			String cpuTypeString;
-			/* cpu type string */
-			switch(mInstaller.detectCPUType()) {
-			case CpuType.ARMV6:
-				cpuTypeString = getString(R.string.cpuTypeARMv6);
-				break;
-			case CpuType.ARMV6_VFP:
-				cpuTypeString = getString(R.string.cpuTypeARMv6VFP);
-				break;
-			case CpuType.ARMV7_NEON:
-				cpuTypeString = getString(R.string.cpuTypeARMv7NEON);
-				break;
-			default:
-				cpuTypeString = getString(R.string.cpuTypeUnknown);
-			}
-			
-			sB.append(cpuTypeString);
-			cpuType.setText(sB.toString());
+			cpuType.setText(getString(R.string.cpuType) + ": " + CpuType.getCpuDisplayName(getResources(),
+					mInstaller.detectCPUType()));
 		}
 
 		@Override
@@ -391,7 +373,7 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 	private void doInstallStep1() {
 		mNext.setEnabled(false);
 		
-		mInstaller.installClientAutomatically();
+		mInstaller.updateClientDistribList();
 	}
 	
 	private void doInstallStep2() {
@@ -421,7 +403,38 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 	private void doInstallStep3() {
 		mNext.setEnabled(false);
 		/* update applications list */
-		mInstaller.updateProjectDistribs();
+		mInstaller.updateProjectDistribList();
+	}
+	
+	private void cancelOnError() {
+		if (mProgressDialog != null) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+		setProgressBarIndeterminateVisibility(false);
+		if (mCurrentStep == INSTALL_STEP_3) {
+			mCurrentStep = INSTALL_FINISH_BUT_STEP;
+			prepareView();
+			if (!mRunner.isRun())
+				mRunner.startClient();
+		} else
+			InstallWizardActivity.this.finish();
+	}
+	
+	private void showErrorDialog(String message) {
+		new AlertDialog.Builder(this).setTitle(getString(R.string.error))
+			.setMessage(message)
+			.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					cancelOnError();
+				}
+			}).setOnCancelListener(new DialogInterface.OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					cancelOnError();
+				}
+			}).create().show();
 	}
 	
 	@Override
@@ -471,17 +484,7 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 
 	@Override
 	public void onOperationError(String errorMessage) {
-		Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
-		if (mProgressDialog != null) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-		setProgressBarIndeterminateVisibility(false);
-		if (mCurrentStep == INSTALL_STEP_3) {
-			mCurrentStep = INSTALL_FINISH_BUT_STEP;
-			prepareView();
-			mRunner.startClient();
-		}
+		showErrorDialog(errorMessage);
 	}
 
 	@Override
@@ -518,7 +521,7 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 	}
 	
 	@Override
-	public void currentProjectDistribs(Vector<ProjectDistrib> projectDistribs) {
+	public void currentProjectDistribList(Vector<ProjectDistrib> projectDistribs) {
 		/* start select host */
 		if (mCurrentStep == INSTALL_STEP_3) {
 			ProjectItem[] projectItems = new ProjectItem[projectDistribs.size()];
@@ -533,6 +536,11 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 			intent.putExtra(ProjectItem.TAG, projectItems);
 			startActivityForResult(intent, ACTIVITY_SELECT_PROJECT);
 		}
+	}
+	
+	@Override
+	public void currentClientDistrib(ClientDistrib clientDistrib) {
+		mInstaller.installClientAutomatically();
 	}
 	
 	@Override
@@ -593,9 +601,7 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 	
 	@Override
 	public void onClientError(String message) {
-		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-		/* quit from installer */
-		finish();
+		showErrorDialog(message);
 	}
 
 	@Override
@@ -615,12 +621,7 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 
 	@Override
 	public boolean clientError(int errorNum, Vector<String> messages) {
-		// do nothing
-		Toast.makeText(this, R.string.clientError, Toast.LENGTH_LONG).show();
-		if (mCurrentStep == INSTALL_STEP_3) {
-			mCurrentStep = INSTALL_FINISH_BUT_STEP;
-			prepareView();
-		}
+		showErrorDialog(getString(R.string.clientError));
 		return false;
 	}
 

@@ -516,8 +516,19 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			mRunner.startClient();
 			return true;
 		case R.id.menuShutdown:
-			mClientShutdownFromMenu = true;
-			mRunner.shutdownClient();
+			new AlertDialog.Builder(this)
+	    		.setIcon(android.R.drawable.ic_dialog_alert)
+	    		.setTitle(R.string.warning)
+	    		.setMessage(R.string.shutdownAskText)
+	    		.setPositiveButton(R.string.shutdown,
+	    			new DialogInterface.OnClickListener() {
+	    				public void onClick(DialogInterface dialog, int whichButton) {
+	    					mClientShutdownFromMenu = true;
+	    					mRunner.shutdownClient();
+	    				}
+	    			})
+	    		.setNegativeButton(R.string.cancel, null)
+	    		.create().show();
 			return true;
 		case R.id.menuManage:
 			// Launch new activity

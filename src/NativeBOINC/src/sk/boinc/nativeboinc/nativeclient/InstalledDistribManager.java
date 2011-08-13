@@ -19,12 +19,15 @@
 
 package sk.boinc.nativeboinc.nativeclient;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.Vector;
+
+import edu.berkeley.boinc.lite.Md5;
 
 import sk.boinc.nativeboinc.debug.Logging;
 
@@ -46,7 +49,7 @@ public class InstalledDistribManager {
 		mContext = context;
 	}
 	
-	public synchronized void addOrUpdateDistrib(ProjectDistrib distrib, Vector<String> files) {
+	public synchronized void addOrUpdateDistrib(ProjectDistrib distrib, int cpuType, Vector<String> files) {
 		int index = -1;
 		for (int i = 0; i < mInstalledDistribs.size(); i++)
 			if (mInstalledDistribs.get(i).projectUrl.equals(distrib.projectUrl)) {
@@ -56,13 +59,17 @@ public class InstalledDistribManager {
 		
 		if (index != -1) {	// update
 			InstalledDistrib oldDistrib = mInstalledDistribs.get(index);
+			oldDistrib.projectName = distrib.projectName;
 			oldDistrib.projectUrl = distrib.projectUrl;
 			oldDistrib.version = distrib.version;
+			oldDistrib.cpuType = cpuType;
 			oldDistrib.files = files;
 		} else {	// add
 			InstalledDistrib newDistrib = new InstalledDistrib();
+			newDistrib.projectName = distrib.projectName;
 			newDistrib.projectUrl = distrib.projectUrl;
 			newDistrib.version = distrib.version;
+			newDistrib.cpuType = cpuType;
 			newDistrib.files = files;
 			mInstalledDistribs.add(newDistrib);
 		}
@@ -79,13 +86,16 @@ public class InstalledDistribManager {
 			}
 	}
 	
-	public synchronized void synchronizeWithProjectList(String[] projectUrls) {
+	public synchronized void synchronizeWithProjectList(Context context) {
 		Vector<InstalledDistrib> newDistribs = new Vector<InstalledDistrib>();
 		
+		String projectsPath = context.getFilesDir().getAbsolutePath()+"/boinc/projects/";
+		
 		for (InstalledDistrib distrib: mInstalledDistribs) {
-			for (String projectUrl: projectUrls)
-				if (projectUrl.equals(distrib.projectUrl))
-					newDistribs.add(distrib);
+			String escapedUrl = InstallerHandler.escapeProjectUrl(distrib.projectUrl);
+			/* check whether projects's directory exists */
+			if (new File(projectsPath+escapedUrl).isDirectory())
+				newDistribs.add(distrib);
 		}
 		
 		mInstalledDistribs = newDistribs;
@@ -124,11 +134,15 @@ public class InstalledDistribManager {
 			
 			for (InstalledDistrib distrib: mInstalledDistribs) {
 				sB.delete(0, sB.length());
-				sB.append("  <project>\n    <url>");
+				sB.append("  <project>\n    <name>");
+				sB.append(distrib.projectName);
+				sB.append("</name>\n    <url>");
 				sB.append(distrib.projectUrl);
 				sB.append("</url>\n    <version>");
 				sB.append(distrib.version);
-				sB.append("</version>\n");
+				sB.append("</version>\n    <cpu>");
+				sB.append(CpuType.getCpuName(distrib.cpuType));
+				sB.append("</cpu>\n");
 				for (String file: distrib.files) {
 					sB.append("    <file>");
 					sB.append(file);
@@ -148,5 +162,16 @@ public class InstalledDistribManager {
 			} catch ( IOException ex) { }
 		}
 		return true;
+	}
+	
+	public Vector<InstalledDistrib> getInstalledDistribs() {
+		return mInstalledDistribs;
+	}
+	
+	public InstalledDistrib getInstalledDistribByName(String name) {
+		for (InstalledDistrib distrib: mInstalledDistribs)
+			if (distrib.projectName.equals(name))
+				return distrib;
+		return null;
 	}
 }

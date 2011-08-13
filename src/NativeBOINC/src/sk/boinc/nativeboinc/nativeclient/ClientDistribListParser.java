@@ -36,25 +36,22 @@ import edu.berkeley.boinc.lite.BaseParser;
  * @author mat
  *
  */
-public class ProjectDistribListParser extends BaseParser {
+public class ClientDistribListParser extends BaseParser {
 	private static final String TAG = "ProjectDistribParser";
 	
-	private Vector<ProjectDistrib> mProjectDistribs = null;
-	private ProjectDistrib mDistrib = null;
+	private Vector<ClientDistrib> mClientDistribs = null;
 	
-	private boolean mInsidePlatform = false;
+	private ClientDistrib mDistrib = null;
 	
-	private ProjectDistrib.Platform mPlatform = null;
-	
-	public Vector<ProjectDistrib> getProjectDistribs() {
-		return mProjectDistribs;
+	public Vector<ClientDistrib> getClientDistribs() {
+		return mClientDistribs;
 	}
-
-	public static Vector<ProjectDistrib> parse(InputStream result) {
+	
+	public static Vector<ClientDistrib> parse(InputStream result) {
 		try {
-			ProjectDistribListParser parser = new ProjectDistribListParser();
+			ClientDistribListParser parser = new ClientDistribListParser();
 			Xml.parse(result, Xml.Encoding.UTF_8, parser);
-			return parser.getProjectDistribs();
+			return parser.getClientDistribs();
 		} catch (SAXException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + result);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
@@ -68,13 +65,10 @@ public class ProjectDistribListParser extends BaseParser {
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		super.startElement(uri, localName, qName, attributes);
-		if (localName.equalsIgnoreCase("app_list")) {
-			mProjectDistribs = new Vector<ProjectDistrib>();
-		} else if (localName.equalsIgnoreCase("project")) {
-			mDistrib = new ProjectDistrib();
-		} else if (mDistrib != null && localName.equalsIgnoreCase("platform")) {
-			mInsidePlatform = true;
-			mPlatform = new ProjectDistrib.Platform();
+		if (localName.equalsIgnoreCase("clients")) {
+			mClientDistribs = new Vector<ClientDistrib>();
+		} else if (localName.equalsIgnoreCase("client")) {
+			mDistrib = new ClientDistrib();
 		} else {
 			// Another element, hopefully primitive and not constructor
 			// (although unknown constructor does not hurt, because there will be primitive start anyway)
@@ -87,31 +81,21 @@ public class ProjectDistribListParser extends BaseParser {
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		super.endElement(uri, localName, qName);
 		if (mDistrib != null) {
-			if (localName.equalsIgnoreCase("project")) {
-				// Closing tag of <project> - add to vector and be ready for next one
-				if (!mDistrib.projectName.equals("")) {
+			if (localName.equalsIgnoreCase("client")) {
+				// Closing tag of <client> - add to vector and be ready for next one
+				if (!mDistrib.version.equals("")) {
 					// master_url is a must
-					mProjectDistribs.add(mDistrib);
+					mClientDistribs.add(mDistrib);
 				}
 				mDistrib = null;
-			} else if (localName.equalsIgnoreCase("platform")) {
-				mDistrib.platforms.add(mPlatform);
-				mInsidePlatform = false;
-				mPlatform = null;
 			} else {
 				trimEnd();
-				if (localName.equalsIgnoreCase("name")) {
-					mDistrib.projectName = mCurrentElement.toString();
-				} else if (localName.equalsIgnoreCase("url")) {
-					mDistrib.projectUrl = mCurrentElement.toString();
-				} else if (localName.equalsIgnoreCase("version")) {
+				if (localName.equalsIgnoreCase("version")) {
 					mDistrib.version = mCurrentElement.toString();
-				} else if (mInsidePlatform) {
-					if (localName.equalsIgnoreCase("file")) {
-						mPlatform.filename = mCurrentElement.toString();
-					} else if (localName.equalsIgnoreCase("cpu")) {
-						mPlatform.cpuType = CpuType.parseCpuType(mCurrentElement.toString());
-					}
+				} else if (localName.equalsIgnoreCase("filename")) {
+					mDistrib.filename = mCurrentElement.toString();
+				} else if (localName.equalsIgnoreCase("cpu")) {
+					mDistrib.cpuType = CpuType.parseCpuType(mCurrentElement.toString());
 				}
 			}
 		}

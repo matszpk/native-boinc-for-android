@@ -20,18 +20,25 @@
 package sk.boinc.nativeboinc;
 
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.nativeclient.CpuType;
+import sk.boinc.nativeboinc.nativeclient.InstalledBinary;
+import sk.boinc.nativeboinc.nativeclient.InstallerService;
 import sk.boinc.nativeboinc.util.NetStatsStorage;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.ScreenOrientationHandler;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -41,7 +48,10 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class AppPreferencesActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
@@ -51,11 +61,37 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 	private static final int DIALOG_ABOUT               = 2;
 	private static final int DIALOG_LICENSE             = 3;
 	private static final int DIALOG_CHANGELOG           = 4;
+	private static final int DIALOG_INSTALLED_BINS      = 5;
 
 	private BoincManagerApplication mApp;
 	private ScreenOrientationHandler mScreenOrientation;
 	private StringBuilder mAuxString = new StringBuilder();
 
+	private InstallerService mInstaller = null;
+	
+	private ServiceConnection mInstallerServiceConnection = new ServiceConnection() {
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			mInstaller = ((InstallerService.LocalBinder)service).getService();
+		}
+		
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			mInstaller = null;
+			if (Logging.DEBUG) Log.d(TAG, "installer.onServiceDisconnected()");
+		}
+	};
+	
+	private void doBindInstallerService() {
+		bindService(new Intent(AppPreferencesActivity.this, InstallerService.class),
+				mInstallerServiceConnection, Context.BIND_AUTO_CREATE);
+	}
+	
+	private void doUnbindInstallerService() {
+		unbindService(mInstallerServiceConnection);
+		mInstaller = null;
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -68,6 +104,8 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 		// Initializes the preference activity.
 		addPreferencesFromResource(R.xml.preferences);
 
+		doBindInstallerService();
+		
 		ListPreference listPref;
 		CheckBoxPreference cbPref;
 		Preference pref;
@@ -190,6 +228,16 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 				return true;
 			}
 		});
+		
+		// display installed binaries
+		pref = findPreference("installedBinaries");
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				showDialog(DIALOG_INSTALLED_BINS);
+				return true;
+			}
+		});
 
 		// Display Changelog
 		pref = findPreference("changeLog");
@@ -264,6 +312,10 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 		netStats.registerOnSharedPreferenceChangeListener(this);
 		// And update current numbers in display of network statistics
 		updateNetworkStats();
+		
+		//
+		if (mInstaller == null)
+			doBindInstallerService();
 	}
 
 	@Override
@@ -276,6 +328,12 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		
+		if (mInstaller != null) {
+			mInstaller = null;
+		}
+		
+		doUnbindInstallerService();
 		mScreenOrientation = null;
 	}
 
@@ -287,10 +345,53 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 		mScreenOrientation.setOrientation();
 	}
 
+	private class InstalledBinsAdapter extends BaseAdapter {
+
+		private Context mContext;
+		private InstalledBinary[] mInstalledBins = null;
+		
+		public InstalledBinsAdapter(Context context, InstalledBinary[] installedBins) {
+			mContext = context;
+			mInstalledBins = installedBins;
+		}
+		
+		@Override
+		public int getCount() {
+			return mInstalledBins.length;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return mInstalledBins[position];
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View inView, ViewGroup parent) {
+			View view = inView;
+			if (view == null) {
+				LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
+				view = inflater.inflate(android.R.layout.simple_list_item_2, null);
+			}
+			TextView text1 = (TextView)view.findViewById(android.R.id.text1);
+			TextView text2 = (TextView)view.findViewById(android.R.id.text2);
+			InstalledBinary binInfo = mInstalledBins[position];
+			text1.setText(binInfo.name + " " + binInfo.version);
+			text2.setText(getString(R.string.cpuType) + ":" + CpuType.getCpuDisplayName(mContext.getResources(), binInfo.cpuType));
+			return view;
+		}
+		
+	}
+	
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		View v;
 		TextView text;
+		ListView list;
 		switch (id) {
 		case DIALOG_NETSTATS_DISCLAIMER:
 			v = LayoutInflater.from(this).inflate(R.layout.opt_out_dialog, null);
@@ -364,7 +465,22 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 				.setView(v)
 				.setNegativeButton(R.string.dismiss, null)
         		.create();
+		case DIALOG_INSTALLED_BINS:
+			v = LayoutInflater.from(this).inflate(R.layout.list_dialog, null);
+			list = (ListView)v.findViewById(R.id.dialogList);
+			
+			/* remove detached projects from installed projects */
+			mInstaller.synchronizeInstalledProjects();
+			
+			list.setAdapter(new InstalledBinsAdapter(this, mInstaller.getInstalledBinaries()));
+			return new AlertDialog.Builder(this)
+				.setIcon(android.R.drawable.ic_dialog_info)
+				.setTitle(R.string.installedBinaries)
+				.setView(v)
+				.setNegativeButton(R.string.dismiss, null)
+        		.create();
 		}
+		
 		return null;
 	}
 

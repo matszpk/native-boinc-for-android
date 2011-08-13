@@ -47,7 +47,7 @@
 			android:summary="@string/clientAddProjectSummary"
 			android:dependency="actRunMode"
 			android:shouldDisableView="true"
-			android:persistent="false" />
+			android:persistent="false" /> 
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/manageCategoryActivity">
 		<ListPreference
@@ -93,6 +93,13 @@
 			android:title="@string/clientChangePasswordTitle"
 			android:summary="@string/clientChangePasswordSummary"
 			android:shouldDisableView="true"
+			android:persistent="false" />
+		<Preference
+			android:key="updateBinaries"
+			android:title="@string/clientUpdateTitle"
+			android:summary="@string/clientUpdateSummary"
+			android:shouldDisableView="true"
+			android:dependency="changeAccessPassword"
 			android:persistent="false" />
 		<Preference
 			android:key="shutDownClient"

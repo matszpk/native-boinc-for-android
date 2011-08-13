@@ -17,23 +17,28 @@
  * 
  */
 
-package sk.boinc.nativeboinc.nativeclient;
-
-import java.util.Vector;
+package sk.boinc.nativeboinc.util;
 
 /**
  * @author mat
  *
  */
-public interface InstallerListener {
-	public final static int FINISH_PROGRESS = 10000;
+public class UpdateItem {
+	public String name = "";
+	public String version = "";
+	public int cpuType = -1;
+	public String filename = "";
+	public boolean isNew = false;
+	public boolean checked = false;
 	
-	public abstract void onOperation(String opDescription);
-	public abstract void onOperationProgress(String opDescription, int progress);
-	public abstract void onOperationError(String errorMessage);
-	public abstract void onOperationCancel();
-	public abstract void onOperationFinish();
+	public UpdateItem() {
+	}
 	
-	public abstract void currentProjectDistribList(Vector<ProjectDistrib> projectDistribs);
-	public abstract void currentClientDistrib(ClientDistrib clientDistrib);
+	public UpdateItem(String name, String version, int cpuType, String filename, boolean isNew) {
+		this.name = name;
+		this.version = version;
+		this.filename = filename;
+		this.cpuType = cpuType;
+		this.isNew = isNew;
+	}
 }

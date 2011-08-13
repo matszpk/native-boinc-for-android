@@ -48,7 +48,7 @@
 	  		android:layout_height="wrap_content"
 	  		android:textSize="14dip"
 	  		android:paddingTop="10dip"
-	  		android:text="@string/installCPUType" />
+	  		android:text="@string/cpuType" />
 	</LinearLayout>
 	<LinearLayout
 		android:id="@+id/installStep2"

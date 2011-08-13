@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
 /* 
  * NativeBOINC - Native BOINC Client with Manager
  * Copyright (C) 2011, Mateusz Szpakowski
@@ -16,24 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
-
-package sk.boinc.nativeboinc.nativeclient;
-
-import java.util.Vector;
-
-/**
- * @author mat
- *
- */
-public interface InstallerListener {
-	public final static int FINISH_PROGRESS = 10000;
-	
-	public abstract void onOperation(String opDescription);
-	public abstract void onOperationProgress(String opDescription, int progress);
-	public abstract void onOperationError(String errorMessage);
-	public abstract void onOperationCancel();
-	public abstract void onOperationFinish();
-	
-	public abstract void currentProjectDistribList(Vector<ProjectDistrib> projectDistribs);
-	public abstract void currentClientDistrib(ClientDistrib clientDistrib);
-}
+ -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:padding="6dip">
+    <ListView 
+    	android:id="@+id/dialogList"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content" />
+</LinearLayout>

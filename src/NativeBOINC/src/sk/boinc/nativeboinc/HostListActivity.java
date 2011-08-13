@@ -135,6 +135,14 @@ public class HostListActivity extends ListActivity {
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
+		
+		int position = ((AdapterContextMenuInfo)menuInfo).position;
+		Cursor c = mHostCursor;
+		c.moveToPosition(position);
+		ClientId clientId = new ClientId(c);
+		if (clientId.getAddress().equals("localhost") || clientId.getAddress().equals("127.0.0.1"))
+			return; // if nativeboinc
+		
 		menu.setHeaderTitle(R.string.hostOperation);
 		menu.add(0, EDIT_ID, 0, R.string.hostEdit);
 		menu.add(0, DELETE_ID, 0, R.string.hostDelete);

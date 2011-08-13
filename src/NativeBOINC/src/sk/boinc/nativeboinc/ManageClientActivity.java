@@ -40,6 +40,7 @@ import sk.boinc.nativeboinc.clientconnection.TaskInfo;
 import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.nativeclient.ClientDistrib;
 import sk.boinc.nativeboinc.nativeclient.InstallerListener;
 import sk.boinc.nativeboinc.nativeclient.InstallerService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincListener;
@@ -114,6 +115,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	private ClientId mSelectedClient = null;
 	
 	private boolean mShutdownByProjectAttach = false;
+	private boolean mDoUpdateActivity = false;
 	
 	private ProgressDialog mProgressDialog = null;
 	
@@ -277,7 +279,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			public boolean onPreferenceClick(Preference preference) {
 				if (isNativeConnected()) {
-					mInstaller.updateProjectDistribs();
+					mInstaller.updateProjectDistribList();
 				} else
 					boincGetAllProjectsList();
 				return true;
@@ -334,8 +336,21 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			public boolean onPreferenceClick(Preference preference) {
 				if (!isNativeConnected())
 					showDialog(DIALOG_WARN_SHUTDOWN);
-				else
-					boincShutdownClient();
+				else {
+					new AlertDialog.Builder(ManageClientActivity.this)
+		    		.setIcon(android.R.drawable.ic_dialog_alert)
+		    		.setTitle(R.string.warning)
+		    		.setMessage(R.string.shutdownAskText)
+		    		.setPositiveButton(R.string.shutdown,
+		    			new DialogInterface.OnClickListener() {
+		    				public void onClick(DialogInterface dialog, int whichButton) {
+		    					boincShutdownClient();
+		    				}
+		    			})
+		    		.setNegativeButton(R.string.cancel, null)
+		    		.create().show();
+					
+				}
 				return true;
 			}
 		});
@@ -345,6 +360,16 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			public boolean onPreferenceClick(Preference preference) {
 				startActivity(new Intent(ManageClientActivity.this, AccessPasswordActivity.class));
+				return true;
+			}
+		});
+		
+		pref = findPreference("updateBinaries");
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				mDoUpdateActivity = true;	// do update activity
+				mConnectionManager.updateProjects(ManageClientActivity.this);
 				return true;
 			}
 		});
@@ -409,6 +434,13 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 				refreshClientMode();
 			}
 		}
+		
+		if (mRunner == null) {
+			doBindRunnerService();
+		}
+		if (mInstaller == null) {
+			doBindInstallerService();
+		}
 	}
 
 	@Override
@@ -452,7 +484,6 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent keyEvent) {
-		// do nothing
 		if (keyCode == KeyEvent.KEYCODE_BACK && mInstaller != null) {
 			if (Logging.DEBUG) Log.d(TAG, "Cancel installer operation");
 			mInstaller.cancelOperation();
@@ -643,7 +674,34 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			break;
 		}
 	}
+	
+	private void cancelOnError() {
+		if (mProgressDialog != null) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+		setProgressBarIndeterminateVisibility(false);
+		mShutdownByProjectAttach = false;
+		
+		if (!mRunner.isRun())
+			mRunner.startClient();
+	}
 
+	private void showErrorDialog(String message) {
+		new AlertDialog.Builder(this).setTitle(getString(R.string.error))
+			.setMessage(message)
+			.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					cancelOnError();
+				}
+			}).setOnCancelListener(new DialogInterface.OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					cancelOnError();
+				}
+			}).create().show();
+	}
 
 	@Override
 	public void clientConnectionProgress(int progress) {
@@ -707,6 +765,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 				mConnectedClient.getNickname() : "<not connected>" ) + " is disconnected");
 		mConnectedClient = null;
 		refreshClientName();
+		refreshAccessPasswordOption();
 		mClientMode = null;
 		refreshClientMode();
 		setProgressBarIndeterminateVisibility(false);
@@ -803,7 +862,9 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	public boolean onAfterProjectAttach() {
 		if (isNativeConnected()) {
 			mShutdownByProjectAttach = true;
-			mConnectionManager.updateProjects(this);
+			mInstaller.synchronizeInstalledProjects();
+			if (mShutdownByProjectAttach)
+				mRunner.shutdownClient();
 		}
 		return false;
 	}
@@ -816,10 +877,23 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 
 	@Override
 	public boolean updatedProjects(Vector<ProjectInfo> projects) {
-		if (mShutdownByProjectAttach) {
-			if (Logging.DEBUG) Log.d(TAG, "retrieve project list - for synchronizing");
-			mInstaller.synchronizeInstalledProjects(projects);
-			mRunner.shutdownClient();
+		if (mDoUpdateActivity) {
+			// run update activity
+			Intent intent = new Intent(this, UpdateActivity.class);
+			
+			int length = projects.size();
+			/* prepare project urls list */
+			String[] projectUrls = new String[length];
+			for (int i = 0; i < length; i++)
+				projectUrls[i] = projects.get(i).masterUrl;
+			
+			mRunner.removeNativeBoincListener(this);
+			mInstaller.removeInstallerListener(this);
+			doUnbindInstallerService();
+			doUnbindRunnerService();
+			intent.putExtra(UpdateActivity.ATTACHED_PROJECT_URLS_TAG, projectUrls);
+			startActivity(intent);
+			mDoUpdateActivity = false;
 		}
 		return false;
 	}
@@ -873,13 +947,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	
 	@Override
 	public void onOperationError(String errorMessage) {
-		Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
-		if (mProgressDialog != null) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-		setProgressBarIndeterminateVisibility(false);
-		mShutdownByProjectAttach = false;
+		showErrorDialog(errorMessage);
 	}
 	
 	@Override
@@ -906,7 +974,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	}
 
 	@Override
-	public void currentProjectDistribs(Vector<ProjectDistrib> projectDistribs) {
+	public void currentProjectDistribList(Vector<ProjectDistrib> projectDistribs) {
 		ProjectItem[] projectItems = new ProjectItem[projectDistribs.size()];
 		
 		/* prepare list */
@@ -918,6 +986,11 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		Intent intent = new Intent(this, ProjectListActivity.class);
 		intent.putExtra(ProjectItem.TAG, projectItems);
 		startActivityForResult(intent, ACTIVITY_SELECT_PROJECT);
+	}
+	
+	@Override
+	public void currentClientDistrib(ClientDistrib clientDistrib) {
+		// do nothing
 	}
 	
 	/* native boinc listener */
@@ -952,9 +1025,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	}
 	
 	public void onClientError(String message) {
-		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-		mShutdownByProjectAttach = false;
-		finish();
+		showErrorDialog(message);
 	}
 	
 	public void onClientConfigured() {

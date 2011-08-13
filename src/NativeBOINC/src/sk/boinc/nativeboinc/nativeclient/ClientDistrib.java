@@ -19,21 +19,12 @@
 
 package sk.boinc.nativeboinc.nativeclient;
 
-import java.util.Vector;
-
 /**
  * @author mat
  *
  */
-public interface InstallerListener {
-	public final static int FINISH_PROGRESS = 10000;
-	
-	public abstract void onOperation(String opDescription);
-	public abstract void onOperationProgress(String opDescription, int progress);
-	public abstract void onOperationError(String errorMessage);
-	public abstract void onOperationCancel();
-	public abstract void onOperationFinish();
-	
-	public abstract void currentProjectDistribList(Vector<ProjectDistrib> projectDistribs);
-	public abstract void currentClientDistrib(ClientDistrib clientDistrib);
+public class ClientDistrib {
+	public String version = "";
+	public int cpuType = 0;
+	public String filename = "";
 }

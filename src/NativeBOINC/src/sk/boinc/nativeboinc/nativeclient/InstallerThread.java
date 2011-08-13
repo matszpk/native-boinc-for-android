@@ -20,6 +20,7 @@
 package sk.boinc.nativeboinc.nativeclient;
 
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.util.UpdateItem;
 import android.content.Context;
 import android.os.ConditionVariable;
 import android.os.Looper;
@@ -86,6 +87,15 @@ public class InstallerThread extends Thread {
 		});
 	}
 	
+	public void updateClientDistribList() {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.updateClientDistribList();
+			}
+		});
+	}
+	
 	public void installClientAutomatically() {
 		mHandler.post(new Runnable() {
 			@Override
@@ -104,20 +114,20 @@ public class InstallerThread extends Thread {
 		});
 	}
 	
-	public void uninstallBoincApplication(final String projectUrl) {
+	public void reinstallUpdateItem(final UpdateItem updateItem) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.uninstallBoincApplication(projectUrl);
+				mHandler.reinstallUpdateItem(updateItem);
 			}
 		});
 	}
 	
-	public void updateProjectDistribs() {
+	public void updateProjectDistribList() {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateProjectDistribs();
+				mHandler.updateProjectDistribList();
 			}
 		});
 	}

@@ -246,7 +246,6 @@
 	<string name="installFinishedBut">Installation have been finished without project attachment. Please tap \'Finish\' button.</string>
 	<string name="installWidgetFinished">Notice: We recommends to use NativeBOINC widget to control native client.</string>
 
-	<string name="PGPkeyserver">keyserver.stack.nl</string>
 	<string name="PGPKey">CAD10E7D</string>
 
 	<!-- Change password activity -->

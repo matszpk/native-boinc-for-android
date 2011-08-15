@@ -42,9 +42,9 @@
 			android:layout_alignParentTop="true"
 			android:progressDrawable="@drawable/progress_green"
 			android:visibility="invisible"
-			android:max="100"
+			android:max="1000"
 			android:progress="10"
-			android:secondaryProgress="100" />
+			android:secondaryProgress="1000" />
 		<ProgressBar
 			android:id="@+id/projectShareSuspended"
 			style="?android:attr/progressBarStyleHorizontal"
@@ -53,9 +53,9 @@
 			android:layout_alignParentTop="true"
 			android:progressDrawable="@drawable/progress_red"
 			android:visibility="gone"
-			android:max="100"
+			android:max="1000"
 			android:progress="10"
-			android:secondaryProgress="100" />
+			android:secondaryProgress="1000" />
 		<ProgressBar
 			android:id="@+id/projectShareNNW"
 			style="?android:attr/progressBarStyleHorizontal"
@@ -64,9 +64,9 @@
 			android:layout_alignParentTop="true"
 			android:progressDrawable="@drawable/progress_yellow"
 			android:visibility="gone"
-			android:max="100"
+			android:max="1000"
 			android:progress="10"
-			android:secondaryProgress="100" />
+			android:secondaryProgress="1000" />
 		<TextView
 			android:id="@+id/projectShareText"
 			android:layout_width="wrap_content"

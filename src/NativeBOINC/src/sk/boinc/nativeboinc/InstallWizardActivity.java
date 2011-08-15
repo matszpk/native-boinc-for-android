@@ -309,8 +309,10 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 				/* contact with project */
 				mProjectUrl = project.getUrl();
 				boincProjectConfig(project.getUrl());
-			} else
-				finish();
+			} else {
+				mCurrentStep = INSTALL_FINISH_BUT_STEP;
+				prepareView();
+			}
 			break;
 		case ACTIVITY_ADD_PROJECT:
 			if (resultCode == RESULT_OK) {
@@ -321,6 +323,9 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 				} else {	// lookup account
 					boincLookupAccount(result.getEmail(), result.getPassword());
 				}
+			} else {
+				mCurrentStep = INSTALL_FINISH_BUT_STEP;
+				prepareView();
 			}
 		}
 	}
@@ -330,6 +335,7 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 	 */
 	
 	private void prepareView() {
+		setProgressBarIndeterminateVisibility(false);
 		if (mCurrentStep == INSTALL_STEP_1)
 			mInstallStep1.setVisibility(View.VISIBLE);
 		else

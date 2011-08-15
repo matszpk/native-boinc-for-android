@@ -38,7 +38,7 @@ public class ProjectInfoCreator {
 		pi.host_credit = prj.host_total_credit;
 		pi.host_rac = prj.host_expavg_credit;
 		float pctShare = prj.resource_share/totalResources*100;
-		pi.resShare = (int)pctShare;
+		pi.resShare = (int)(pctShare*10.0);
 		pi.share = String.format("%.0f (%.2f%%)", prj.resource_share, pctShare);
 		StringBuilder sb = formatter.getStringBuilder();
 		pi.statusId = 0; // 0 = active

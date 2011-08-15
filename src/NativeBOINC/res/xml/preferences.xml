@@ -50,7 +50,7 @@
 			android:summary="@string/disabled"
 			android:entryValues="@array/prefAutoUpdatesValues"
 			android:entries="@array/prefAutoUpdatesDisplay"
-			android:defaultValue="0"
+			android:defaultValue="60"
 			android:persistent="true" />
 		<ListPreference
 			android:key="autoUpdateIntervalMobile"
@@ -58,7 +58,7 @@
 			android:summary="@string/disabled"
 			android:entryValues="@array/prefAutoUpdatesValues"
 			android:entries="@array/prefAutoUpdatesDisplay"
-			android:defaultValue="0"
+			android:defaultValue="60"
 			android:persistent="true" />
 		<ListPreference
 			android:key="autoUpdateIntervalLocalhost"
@@ -66,7 +66,7 @@
 			android:summary="@string/disabled"
 			android:entryValues="@array/prefAutoUpdatesValues"
 			android:entries="@array/prefAutoUpdatesDisplay"
-			android:defaultValue="0"
+			android:defaultValue="60"
 			android:persistent="true" />
 		<CheckBoxPreference
 			android:key="limitMessages"

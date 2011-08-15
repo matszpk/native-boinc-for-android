@@ -137,55 +137,68 @@ public class InstallerHandler extends Handler {
 		Reader reader = null;
 		FileOutputStream pgpStream = null;
 		
-		if (mOperationCancelled)
-			return;
+		String[] pgpKeyservers = mContext.getResources().getStringArray(R.array.PGPkeyservers); 
 		
-		try {
-			URI uri = URIUtils.createURI("http", mContext.getString(R.string.PGPkeyserver), -1,
-					"/pks/lookup",
-					"op=get&search=0x"+mContext.getString(R.string.PGPKey), null);
-			HttpResponse response = client.execute(new HttpGet(uri));
+		boolean isDownloaded = false;
+		
+		for (String keyserver: pgpKeyservers) {
+			if (Logging.DEBUG) Log.d(TAG, "Use PGP keyserver " + keyserver);
 			
-			StringBuilder keyBlock = new StringBuilder();
+			if (mOperationCancelled)
+				return;
 			
-			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-				HttpEntity entity = response.getEntity();
-				reader = new InputStreamReader(entity.getContent());
+			try {
+				URI uri = URIUtils.createURI("http", keyserver, 11371, "/pks/lookup",
+						"op=get&search=0x"+mContext.getString(R.string.PGPKey), null);
+				HttpResponse response = client.execute(new HttpGet(uri));
 				
-				char[] buffer = new char[BUFFER_SIZE];
-				while (true) {
-					int readed = reader.read(buffer);
-					if (readed == -1)	// if end
-						break;
-					keyBlock.append(buffer, 0, readed);
+				StringBuilder keyBlock = new StringBuilder();
+				
+				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+					HttpEntity entity = response.getEntity();
+					reader = new InputStreamReader(entity.getContent());
+					
+					char[] buffer = new char[BUFFER_SIZE];
+					while (true) {
+						int readed = reader.read(buffer);
+						if (readed == -1)	// if end
+							break;
+						keyBlock.append(buffer, 0, readed);
+					}
 				}
+				
+				int keyStart = keyBlock.indexOf("-----BEGIN PGP PUBLIC KEY BLOCK-----");
+				int keyEnd = keyBlock.indexOf("-----END PGP PUBLIC KEY BLOCK-----");
+				
+				if (keyStart == -1 || keyEnd == -1)
+					throw new Exception("Error");
+	
+				pgpStream = mContext.openFileOutput("pgpkey.pgp", Context.MODE_PRIVATE);
+				
+				pgpKeyContent = keyBlock.substring(keyStart, keyEnd+35).getBytes();
+				pgpStream.write(pgpKeyContent);
+				
+				pgpStream.close();
+				
+				isDownloaded = true;
+				break;
+			} catch(Exception ex) {	/* on error */
+				mContext.deleteFile("pgpkey.pgp");
+			} finally {
+				try {
+					if (reader != null)
+						reader.close();
+				} catch(IOException ex) { }
+				try {
+					if (pgpStream != null)
+						pgpStream.close();
+				} catch(IOException ex) { }
 			}
-			
-			int keyStart = keyBlock.indexOf("-----BEGIN PGP PUBLIC KEY BLOCK-----");
-			int keyEnd = keyBlock.indexOf("-----END PGP PUBLIC KEY BLOCK-----");
-			
-			if (keyStart == -1 || keyEnd == -1)
-				throw new Exception("Error");
-
-			pgpStream = mContext.openFileOutput("pgpkey.pgp", Context.MODE_PRIVATE);
-			
-			pgpKeyContent = keyBlock.substring(keyStart, keyEnd+35).getBytes();
-			pgpStream.write(pgpKeyContent);
-			
-			pgpStream.close();
-		} catch(Exception ex) {	/* on error */
+		}
+		
+		if (!isDownloaded) {
 			notifyError(mContext.getString(R.string.downloadPGPKeyError));
-			mContext.deleteFile("pgpkey.pgp");
 			throw new InstallationException();
-		} finally {
-			try {
-				if (reader != null)
-					reader.close();
-			} catch(IOException ex) { }
-			try {
-				if (pgpStream != null)
-					pgpStream.close();
-			} catch(IOException ex) { }
 		}
 	}
 	

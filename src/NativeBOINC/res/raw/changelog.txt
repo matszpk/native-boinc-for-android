@@ -1,4 +1,8 @@
 Version 0.1.3 (alpha) (2011-08-13)
+- try to downloads pgp keys from two servers
+- improvements
+
+Version 0.1.3 (alpha) (2011-08-13)
 - Add update option
 - fix some bugs
 

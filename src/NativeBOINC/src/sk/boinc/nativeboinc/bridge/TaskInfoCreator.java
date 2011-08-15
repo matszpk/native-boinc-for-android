@@ -124,7 +124,7 @@ public class TaskInfoCreator {
 			}
 		}
 		ti.elapsed = Formatter.formatElapsedTime(elapsedTime);
-		ti.progInd = (int)pctDone;
+		ti.progInd = (int)(10.0*pctDone);
 		ti.progress = String.format("%.3f%%", pctDone);
 		if (result.estimated_cpu_time_remaining > 0.0)
 			ti.toCompletion = Formatter.formatElapsedTime((long)result.estimated_cpu_time_remaining);

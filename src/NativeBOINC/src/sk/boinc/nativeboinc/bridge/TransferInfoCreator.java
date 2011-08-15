@@ -39,7 +39,7 @@ public class TransferInfoCreator {
 		ti.project = projectName;
 		float pctDone = (float)transfer.bytes_xferred / transfer.nbytes * 100;
 		if (pctDone > 100) pctDone = 100.0F;
-		ti.progInd = (int)pctDone;
+		ti.progInd = (int)(10.0*pctDone);
 		ti.progress = String.format("%.3f%%", pctDone);
 		sb.append(formatter.formatSize(transfer.bytes_xferred));
 		sb.append(" / ");

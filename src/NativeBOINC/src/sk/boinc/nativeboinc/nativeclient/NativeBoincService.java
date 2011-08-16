@@ -426,7 +426,7 @@ public class NativeBoincService extends Service {
 		@Override
 		public void run() {
 			try {
-				Thread.sleep(2000);
+				Thread.sleep(2500);
 			} catch(InterruptedException ex) { }
 			
 			if (!mDontKill && mNativeBoincThread != null) {
@@ -478,12 +478,13 @@ public class NativeBoincService extends Service {
 	public void shutdownClient() {
 		if (Logging.DEBUG) Log.d(TAG, "Shutting down native client");
 		if (mNativeBoincThread != null) {
-			mRpcClient.quit();
-			mRpcClient.close();
-			mRpcClient = null;
 			/* start killer */
 			mNativeKillerThread = new NativeKillerThread();
 			mNativeKillerThread.start();
+			
+			mRpcClient.quit();
+			mRpcClient.close();
+			mRpcClient = null;
 		}
 	}
 	
@@ -550,8 +551,10 @@ public class NativeBoincService extends Service {
 			public void run() {
 				if (!isRun) {	// if stopped
 					mNativeBoincThread = null;
-					mNativeKillerThread.disableKiller();
-					mNativeKillerThread = null;
+					if (mNativeKillerThread != null) {
+						mNativeKillerThread.disableKiller();
+						mNativeKillerThread = null;
+					}
 				}
 				mListenerHandler.onClientStateChanged(isRun);
 			}

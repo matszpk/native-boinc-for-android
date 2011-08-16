@@ -228,7 +228,11 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 			@Override
 			public void onClick(View v) {
 				mInstaller.cancelOperation();
-				finish();
+				if (mCurrentStep == INSTALL_STEP_2 || mCurrentStep == INSTALL_STEP_3) {
+					mCurrentStep = INSTALL_FINISH_BUT_STEP;
+					prepareView();
+				} else
+					finish();
 			}
 		});
 		
@@ -256,7 +260,13 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 		mFinish.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				finish();
+				if (mCurrentStep == INSTALL_STEP_2 || mCurrentStep == INSTALL_STEP_3) {
+					mCurrentStep = INSTALL_FINISH_BUT_STEP;
+					prepareView();
+				} else {
+					mInstaller.cancelOperation();
+					finish();
+				}
 			}
 		});
 	}
@@ -446,8 +456,11 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			mInstaller.cancelOperation();
-			finish();
+			if (mCurrentStep == INSTALL_STEP_2 || mCurrentStep == INSTALL_STEP_3) {
+				mCurrentStep = INSTALL_FINISH_BUT_STEP;
+				prepareView();
+			} else
+				finish();
 			return false;
 		} else
 			return super.onKeyDown(keyCode, event);

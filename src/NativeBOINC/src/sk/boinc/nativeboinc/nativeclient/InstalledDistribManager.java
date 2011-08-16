@@ -27,8 +27,6 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.Vector;
 
-import edu.berkeley.boinc.lite.Md5;
-
 import sk.boinc.nativeboinc.debug.Logging;
 
 import android.content.Context;

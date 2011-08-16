@@ -49,6 +49,28 @@
 	  		android:textSize="14dip"
 	  		android:paddingTop="10dip"
 	  		android:text="@string/cpuType" />
+	  	<TextView
+	  		android:layout_width="fill_parent"
+	  		android:layout_height="wrap_content"
+	  		android:textSize="14dip"
+	  		android:textStyle="bold"
+	  		android:paddingTop="10dip"
+	  		android:text="@string/installReadBefore" />
+	  	<TextView
+	  		android:layout_width="fill_parent"
+	  		android:layout_height="wrap_content"
+	  		android:textSize="14dip"
+	  		android:text="@string/installAttention1" />
+	  	<TextView
+	  		android:layout_width="fill_parent"
+	  		android:layout_height="wrap_content"
+	  		android:textSize="14dip"
+	  		android:text="@string/installAttention2" />
+	  	<TextView
+	  		android:layout_width="fill_parent"
+	  		android:layout_height="wrap_content"
+	  		android:textSize="14dip"
+	  		android:text="@string/installAttention3" />
 	</LinearLayout>
 	<LinearLayout
 		android:id="@+id/installStep2"

@@ -246,6 +246,11 @@
 	<string name="installFinishedBut">Installation have been finished without project attachment. Please tap \'Finish\' button.</string>
 	<string name="installWidgetFinished">Notice: We recommends to use NativeBOINC widget to control native client.</string>
 
+	<string name="installReadBefore">READ BEFORE INSTALLATION:</string>
+	<string name="installAttention1">Please DO NOT uninstall this application BEFORE shutting down BOINC client!!!</string>
+	<string name="installAttention2">If application closes unexpectedly, please use \'Force close\' and run again. Application kills all clients at start up.</string>
+	<string name="installAttention3">BOINC client will be working in background. Please use \'Shutdown\' option to shutdown client.</string>
+
 	<string name="PGPKey">CAD10E7D</string>
 
 	<!-- Change password activity -->

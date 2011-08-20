@@ -4,6 +4,14 @@ VPATH = .:tools
 
 default: enigma SGT
 
+ifeq ($(strip $(ARCH)),armv6-android)
+SCORE_OBJ=score-arm.o
+SCORE_C=score-arm.S
+else
+SCORE_OBJ=score.o
+SCORE_C=score.c
+endif
+
 charmap.o: \
 compile charmap.c charmap.h
 	./compile charmap.c
@@ -44,10 +52,10 @@ resume_in.h resume_out.h scan.h
 enigma: \
 load enigma.o charmap.o cipher.o ciphertext.o date.o dict.o \
 display.o error.o hillclimb.o ic.o input.o key.o result.o \
-resume_in.o resume_out.o scan_int.o score.o stecker.o
+resume_in.o resume_out.o scan_int.o $(SCORE_OBJ) stecker.o
 	./load enigma charmap.o cipher.o ciphertext.o date.o dict.o \
 	display.o error.o hillclimb.o ic.o input.o key.o result.o \
-	resume_in.o resume_out.o scan_int.o score.o stecker.o -lm
+	resume_in.o resume_out.o scan_int.o $(SCORE_OBJ) stecker.o -lm
 
 error.o: \
 compile error.c error.h date.h
@@ -96,9 +104,9 @@ scan_int.o: \
 compile scan_int.c scan.h
 	./compile scan_int.c
 
-score.o: \
-compile score.c cipher.h key.h score.h
-	./compile score.c
+$(SCORE_OBJ): \
+compile $(SCORE_C) cipher.h key.h score.h
+	./compile $(SCORE_C)
 
 stecker.o: \
 compile stecker.c key.h stecker.h

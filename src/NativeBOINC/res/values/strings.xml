@@ -298,10 +298,10 @@
 	<string name="changeAccessPassword">Change access password</string>
 
 	<!-- install sources -->
-	<!-- <string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>-->
-	<string name="installClientSourceUrl">http://192.168.1.12:8080/examples/boinc_client/</string>
-	<!-- <string name="installAppsSourceUrl">http://krzyszp.info/matszpk/boinc_apps/</string> -->
-	<string name="installAppsSourceUrl">http://192.168.1.12:8080/examples/boinc_apps/</string>
+	<string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>
+	<!-- <string name="installClientSourceUrl">http://192.168.1.12:8080/examples/boinc_client/</string>-->
+	<string name="installAppsSourceUrl">http://krzyszp.info/matszpk/boinc_apps/</string>
+	<!-- <string name="installAppsSourceUrl">http://192.168.1.12:8080/examples/boinc_apps/</string>-->
 	
 	<!-- ProjectsActivity -->
 	<string name="projectCtxMenuTitle">Commands</string>

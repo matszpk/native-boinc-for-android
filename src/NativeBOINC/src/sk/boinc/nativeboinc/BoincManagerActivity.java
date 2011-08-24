@@ -311,6 +311,12 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 				mSelectedClient = dbHelper.fetchHost(autoConnectHost);
 				dbHelper.close();
 			}
+			if (Logging.INFO) {
+				if (mSelectedClient != null) 
+					Log.i("ClientSelection", "Selecting "+mSelectedClient.getNickname());
+				else
+					Log.i("ClientSelection", "Nothing selected");
+			}
 		}
 	}
 
@@ -830,7 +836,10 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		} else {
 			if (mClientShutdownFromMenu) {
 				mClientShutdownFromMenu = false;
-				boincDisconnect();
+				if (mConnectedClient != null && 
+						(mConnectedClient.getAddress().equals("127.0.0.1") ||
+								mConnectedClient.getAddress().equals("localhost")))
+					boincDisconnect();
 			}
 		}
 	}

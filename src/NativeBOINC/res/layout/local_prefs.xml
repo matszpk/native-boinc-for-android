@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* 
+ * NativeBOINC - Native BOINC Client with Manager
+ * Copyright (C) 2011, Mateusz Szpakowski
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+ -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  	android:orientation="vertical"
+  	android:layout_width="fill_parent"
+  	android:layout_height="fill_parent">
+  	<LinearLayout android:orientation="horizontal"
+  		android:id="@+id/localPrefButtons"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentRight="true"
+		android:layout_alignParentBottom="true"
+		android:paddingTop="10dip"
+		android:paddingLeft="10dip"
+		android:paddingRight="10dip" >
+		<Button
+			android:id="@+id/localPrefCancel" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/cancel" />
+		<Button
+			android:id="@+id/localPrefDefault" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="10dip"
+			android:text="@string/applyDefault" />
+		<Button
+			android:id="@+id/localPrefApply" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="10dip"
+			android:paddingLeft="10dip"
+			android:paddingRight="10dip"
+			android:text="@string/apply" />
+    </LinearLayout>
+  	<ScrollView
+  		android:layout_width="fill_parent"
+  		android:layout_height="fill_parent"
+  		android:layout_above="@id/localPrefButtons">
+  		<LinearLayout
+		  	android:orientation="vertical"
+		  	android:layout_width="fill_parent"
+		  	android:layout_height="fill_parent">
+			<TextView
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:background="@color/localPrefGroup"
+		  		android:textSize="16dip"
+		  		android:text="@string/localPrefComputingAllowed"/>
+		  	<LinearLayout
+		  		android:orientation="vertical" 
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:layout_marginRight="5dip"
+		  		android:layout_marginLeft="5dip"
+		  		android:layout_marginTop="10dip"
+		  		android:layout_marginBottom="10dip" >
+		  		<CheckBox
+		  			android:id="@+id/localPrefComputeOnBatteries"
+		  			android:layout_width="fill_parent"
+		  			android:layout_height="wrap_content"
+		  			android:text="@string/localPrefComputeOnBatteries" />
+		  		<CheckBox
+		  			android:id="@+id/localPrefComputeInUse"
+		  			android:layout_width="fill_parent"
+		  			android:layout_height="wrap_content"
+		  			android:text="@string/localPrefComputeInUse" />
+		  		<CheckBox
+		  			android:id="@+id/localPrefUseGPUInUse"
+		  			android:layout_width="fill_parent"
+		  			android:layout_height="wrap_content"
+		  			android:text="@string/localPrefUseGPUInUse" />
+		  		<LinearLayout
+		  			android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefComputeIdleFor" />
+					<EditText 
+						android:id="@+id/localPrefComputeIdleFor"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="numberDecimal"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/minutes" />
+				</LinearLayout>
+				<LinearLayout
+					android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefComputeUsageLessThan" />
+					<EditText 
+						android:id="@+id/localPrefComputeUsageLessThan"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="numberDecimal"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/percent" />
+				</LinearLayout>
+		  	</LinearLayout>
+		  	<TextView
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:background="@color/localPrefGroup"
+		  		android:textSize="16dip"
+		  		android:text="@string/localPrefComputeOtherOptions"/>
+		  	<LinearLayout
+		  		android:orientation="vertical" 
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:layout_marginRight="5dip"
+		  		android:layout_marginLeft="5dip"
+		  		android:layout_marginTop="10dip"
+		  		android:layout_marginBottom="10dip">
+		  		<LinearLayout
+		  			android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefSwitchBetween" />
+					<EditText 
+						android:id="@+id/localPrefSwitchBetween"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="numberDecimal"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/minutes" />
+				</LinearLayout>
+				<LinearLayout
+		  			android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefUseAtMost" />
+					<EditText 
+						android:id="@+id/localPrefUseAtMostCPUs"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="numberDecimal"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefPercentCPUs" />
+				</LinearLayout>
+				<LinearLayout
+		  			android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefUseAtMost" />
+					<EditText 
+						android:id="@+id/localPrefUseAtMostCPUTime"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="numberDecimal"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefPercentCPUTime" />
+				</LinearLayout>
+		  	</LinearLayout>
+		  	<TextView
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:background="@color/localPrefGroup"
+		  		android:textSize="16dip"
+		  		android:text="@string/localPrefNetworkUsage"/>
+		  	<LinearLayout
+		  		android:orientation="vertical" 
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:layout_marginRight="7dip"
+		  		android:layout_marginLeft="10dip"
+		  		android:layout_marginTop="10dip"
+		  		android:layout_marginBottom="10dip">
+		  		<LinearLayout
+		  			android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefMaxDownloadRate" />
+					<EditText 
+						android:id="@+id/localPrefMaxDownloadRate"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="numberDecimal"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/kBytesSec" />
+				</LinearLayout>
+				<LinearLayout
+		  			android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefMaxUploadRate" />
+					<EditText 
+						android:id="@+id/localPrefMaxUploadRate"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="numberDecimal"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/kBytesSec" />
+				</LinearLayout>
+				<LinearLayout
+		  			android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefTransferAtMost" />
+					<EditText 
+						android:id="@+id/localPrefTransferAtMost"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="numberDecimal"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefmBytesEvery" />
+					<EditText 
+						android:id="@+id/localPrefTransferPeriodDays"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="number"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/days" />
+				</LinearLayout>
+				<LinearLayout
+		  			android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefConnectAboutEvery" />
+					<EditText 
+						android:id="@+id/localPrefConnectAboutEvery"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="number"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/days" />
+				</LinearLayout>
+				<LinearLayout
+		  			android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefAdditWorkBuffer" />
+					<EditText 
+						android:id="@+id/localPrefAdditWorkBuffer"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="number"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/days" />
+				</LinearLayout>
+				<CheckBox
+		  			android:id="@+id/localPrefSkipImageVerify"
+		  			android:layout_width="fill_parent"
+		  			android:layout_height="wrap_content"
+		  			android:text="@string/localPrefSkipImageVerify" />
+			</LinearLayout>
+			<TextView
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:background="@color/localPrefGroup"
+		  		android:textSize="16dip"
+		  		android:text="@string/localPrefDiskUsage"/>
+		  	<LinearLayout
+		  		android:orientation="vertical" 
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:layout_margin="10dip">
+		  		<LinearLayout
+		  			android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefUseAtMost" />
+					<EditText 
+						android:id="@+id/localPrefUseAtMostDiskSpace"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="numberDecimal"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefGBDisk" />
+				</LinearLayout>
+				<LinearLayout
+		  			android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefLeaveAtLeast" />
+					<EditText 
+						android:id="@+id/localPrefLeaveAtLeastDiskFree"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="numberDecimal"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefGBDiskFree" />
+				</LinearLayout>
+				<LinearLayout
+		  			android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefUseAtMost" />
+					<EditText 
+						android:id="@+id/localPrefUseAtMostTotalDisk"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="numberDecimal"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefPercentTotalDisk" />
+				</LinearLayout>
+				<LinearLayout
+		  			android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefCheckpointToDisk" />
+					<EditText 
+						android:id="@+id/localPrefCheckpointToDisk"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="numberDecimal"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/seconds" />
+				</LinearLayout>
+		  	</LinearLayout>
+		  	<TextView
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:background="@color/localPrefGroup"
+		  		android:textSize="16dip"
+		  		android:text="@string/localPrefMemoryUsage"/>
+		  	<LinearLayout
+		  		android:orientation="vertical" 
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:layout_margin="10dip">
+		  		<LinearLayout
+		  			android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefUseAtMost" />
+					<EditText 
+						android:id="@+id/localPrefUseAtMostMemoryInUse"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="numberDecimal"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefMemoryWhenInUse" />
+				</LinearLayout>
+				<LinearLayout
+		  			android:orientation="horizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:paddingTop="3dip">
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefUseAtMost" />
+					<EditText 
+						android:id="@+id/localPrefUseAtMostMemoryInIdle"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:inputType="numberDecimal"
+						android:maxWidth="50dip"
+						android:background="@android:drawable/editbox_background" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/localPrefMemoryWhenInIdle" />
+				</LinearLayout>
+				<CheckBox
+		  			android:id="@+id/localPrefLeaveApplications"
+		  			android:layout_width="fill_parent"
+		  			android:layout_height="wrap_content"
+		  			android:text="@string/localPrefLeaveApplications" />
+		  	</LinearLayout>
+		</LinearLayout>
+	</ScrollView>
+</RelativeLayout>

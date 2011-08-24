@@ -47,7 +47,14 @@
 			android:summary="@string/clientAddProjectSummary"
 			android:dependency="actRunMode"
 			android:shouldDisableView="true"
-			android:persistent="false" /> 
+			android:persistent="false" />
+		<Preference
+			android:key="localPreferences"
+			android:title="@string/clientLocalPrefsTitle"
+			android:summary="@string/clientLocalPrefsSummary"
+			android:dependency="actRunMode"
+			android:shouldDisableView="true"
+			android:persistent="false" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/manageCategoryActivity">
 		<ListPreference

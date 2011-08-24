@@ -26,10 +26,12 @@ import java.util.Vector;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.AccountMgrInfo;
+import edu.berkeley.boinc.lite.GlobalPreferences;
 import edu.berkeley.boinc.lite.ProjectConfig;
 import edu.berkeley.boinc.lite.ProjectListEntry;
 
 import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
@@ -187,11 +189,28 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 		}
 		
+		public void currentGlobalPreferences(final ClientPreferencesReceiver callback,
+				final GlobalPreferences globalPrefs) {
+			// First, check whether callback is still present in observers
+			if (mObservers.contains(callback)) {
+				// Yes, observer is still present, so we can call it back with data
+				callback.currentGlobalPreferences(globalPrefs);
+			}
+		}
+		
 		public void afterProjectAttach(final ClientManageReceiver callback) {
 			// First, check whether callback is still present in observers
 			if (mObservers.contains(callback)) {
 				// Yes, observer is still present, so we can call it back with data
 				callback.onAfterProjectAttach();
+			}
+		}
+		
+		public void onGlobalPreferencesChanged(final ClientPreferencesReceiver callback) {
+			// First, check whether callback is still present in observers
+			if (mObservers.contains(callback)) {
+				// Yes, observer is still present, so we can call it back with data
+				callback.onGlobalPreferencesChanged();
 			}
 		}
 
@@ -459,6 +478,24 @@ public class ClientBridge implements ClientRequestHandler {
 	public void getProjectConfig(ClientManageReceiver callback, String url) {
 		if (mRemoteClient == null) return; // not connected
 		mWorker.getProjectConfig(callback, url);
+	}
+	
+	@Override
+	public void getGlobalPrefsWorking(ClientPreferencesReceiver callback) {
+		if (mRemoteClient == null) return; // not connected
+		mWorker.getGlobalPrefsWorking(callback);
+	}
+	
+	@Override
+	public void setGlobalPrefsOverride(ClientPreferencesReceiver callback, String globalPrefs) {
+		if (mRemoteClient == null) return; // not connected
+		mWorker.setGlobalPrefsOverride(callback, globalPrefs);
+	}
+	
+	@Override
+	public void setGlobalPrefsOverrideStruct(ClientPreferencesReceiver callback, GlobalPreferences globalPrefs) {
+		if (mRemoteClient == null) return; // not connected
+		mWorker.setGlobalPrefsOverrideStruct(callback, globalPrefs);
 	}
 	
 	@Override

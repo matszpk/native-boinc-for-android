@@ -25,6 +25,5 @@ package sk.boinc.nativeboinc.nativeclient;
  */
 public class ClientDistrib {
 	public String version = "";
-	public int cpuType = 0;
 	public String filename = "";
 }

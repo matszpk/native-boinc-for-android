@@ -47,7 +47,7 @@ public class InstalledDistribManager {
 		mContext = context;
 	}
 	
-	public synchronized void addOrUpdateDistrib(ProjectDistrib distrib, int cpuType, Vector<String> files) {
+	public synchronized void addOrUpdateDistrib(ProjectDistrib distrib, Vector<String> files) {
 		int index = -1;
 		for (int i = 0; i < mInstalledDistribs.size(); i++)
 			if (mInstalledDistribs.get(i).projectUrl.equals(distrib.projectUrl)) {
@@ -60,14 +60,12 @@ public class InstalledDistribManager {
 			oldDistrib.projectName = distrib.projectName;
 			oldDistrib.projectUrl = distrib.projectUrl;
 			oldDistrib.version = distrib.version;
-			oldDistrib.cpuType = cpuType;
 			oldDistrib.files = files;
 		} else {	// add
 			InstalledDistrib newDistrib = new InstalledDistrib();
 			newDistrib.projectName = distrib.projectName;
 			newDistrib.projectUrl = distrib.projectUrl;
 			newDistrib.version = distrib.version;
-			newDistrib.cpuType = cpuType;
 			newDistrib.files = files;
 			mInstalledDistribs.add(newDistrib);
 		}
@@ -138,9 +136,7 @@ public class InstalledDistribManager {
 				sB.append(distrib.projectUrl);
 				sB.append("</url>\n    <version>");
 				sB.append(distrib.version);
-				sB.append("</version>\n    <cpu>");
-				sB.append(CpuType.getCpuName(distrib.cpuType));
-				sB.append("</cpu>\n");
+				sB.append("</version>\n");
 				for (String file: distrib.files) {
 					sB.append("    <file>");
 					sB.append(file);

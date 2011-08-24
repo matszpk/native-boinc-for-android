@@ -97,8 +97,6 @@ private static final String TAG = "InstalledDistribParser";
 					mDistrib.version = mCurrentElement.toString();
 				} else if (localName.equalsIgnoreCase("file")) {
 					mDistrib.files.add(mCurrentElement.toString());
-				} else if (localName.equalsIgnoreCase("cpu")) {
-					mDistrib.cpuType = CpuType.parseCpuType(mCurrentElement.toString());
 				}
 			}
 		}

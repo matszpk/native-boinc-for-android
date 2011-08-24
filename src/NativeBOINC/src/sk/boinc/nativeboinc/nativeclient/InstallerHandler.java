@@ -21,7 +21,6 @@ package sk.boinc.nativeboinc.nativeclient;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -73,7 +72,6 @@ public class InstallerHandler extends Handler {
 
 	private Context mContext = null;
 	
-	private String mCpuFeatures = null;
 	private InstallerService.ListenerHandler mListenerHandler;
 	
 	private InstalledDistribManager mDistribManager = null;
@@ -92,41 +90,6 @@ public class InstallerHandler extends Handler {
 		mListenerHandler = listenerHandler;
 		mDistribManager = new InstalledDistribManager(context);
 		mDistribManager.load();
-	}
-	
-	public int detectCpuType() {
-		/* determine CPU type */
-		if (mCpuFeatures == null) {
-			File file = new File("/proc/cpuinfo");
-			
-			DataInputStream is = null;
-			String line;
-			
-			try {
-				is = new DataInputStream(new FileInputStream(file));
-				
-				while ((line = is.readLine()) != null) {
-					if (line.startsWith("Features\t: ")) {
-						mCpuFeatures = line.substring(11);
-					}
-				}
-			} catch(IOException ex) {
-				if (is != null) {
-					try {
-						is.close();
-					} catch(IOException ex2) { }
-				}
-			}
-		}
-		
-		if (mCpuFeatures.indexOf("vfp") != -1) {
-			if (mCpuFeatures.indexOf("neon") != -1) {
-				return CpuType.ARMV7_NEON;
-			} else {
-				return CpuType.ARMV6_VFP;
-			}
-		} else 
-			return CpuType.ARMV6;
 	}
 	
 	private void downloadPGPKey() throws InstallationException {
@@ -408,7 +371,7 @@ public class InstallerHandler extends Handler {
 	public void updateClientDistribList() {
 		mOperationCancelled = false;
 		
-		String clientListUrl = mContext.getString(R.string.installClientSourceUrl)+"client_list.xml";
+		String clientListUrl = mContext.getString(R.string.installClientSourceUrl)+"client.xml";
 		
 		if (mOperationCancelled) {
 			notifyCancel();
@@ -419,46 +382,46 @@ public class InstallerHandler extends Handler {
 		
 		/* download boinc client's list */
 		try {	/* download with ignoring */
-			downloadFile(clientListUrl, "client_list.xml",
+			downloadFile(clientListUrl, "client.xml",
 					mContext.getString(R.string.clientListDownload), 
 					mContext.getString(R.string.clientListDownloadError), false);
 			
 			if (mOperationCancelled) {
-				mContext.deleteFile("client_list.xml");
+				mContext.deleteFile("client.xml");
 				notifyCancel();
 				return;
 			}
 			
 			/* if doesnt downloaded */
-			if (!mContext.getFileStreamPath("client_list.xml").exists()) {
+			if (!mContext.getFileStreamPath("client.xml").exists()) {
 				notifyClientDistrib(null);
 				return;
 			}
 			
-			int status = verifyFile(mContext.getFileStreamPath("client_list.xml"),
+			int status = verifyFile(mContext.getFileStreamPath("client.xml"),
 					clientListUrl, false);
 			
 			if (status == VERIFICATION_CANCELLED) {
-				mContext.deleteFile("client_list.xml");
+				mContext.deleteFile("client.xml");
 				notifyCancel();
 				return;	// cancelled
 			}
 			if (status == VERIFICATION_FAILED)
 				notifyError(mContext.getString(R.string.verifySignatureFailed));
 		} catch(InstallationException ex) {
-			mContext.deleteFile("client_list.xml");
+			mContext.deleteFile("client.xml");
 			return;
 		}
 		
 		/* parse it */
 		InputStream inStream = null;
 		
-		Vector<ClientDistrib> clientDistribs = null;
+		mClientDistrib = null;
 		try {
-			inStream = mContext.openFileInput("client_list.xml");
+			inStream = mContext.openFileInput("client.xml");
 			/* parse and notify */
-			clientDistribs = ClientDistribListParser.parse(inStream);
-			if (clientDistribs == null)
+			mClientDistrib = ClientDistribListParser.parse(inStream);
+			if (mClientDistrib == null)
 				notifyError(mContext.getString(R.string.clientListParseError));
 		} catch(IOException ex) {
 			notifyError(mContext.getString(R.string.clientListParseError));
@@ -469,15 +432,8 @@ public class InstallerHandler extends Handler {
 			} catch(IOException ex) { }
 			
 			/* delete obsolete file */
-			mContext.deleteFile("client_list.xml");
+			mContext.deleteFile("client.xml");
 		}
-		
-		int cpuType = detectCpuType();
-		for (ClientDistrib distrib: clientDistribs)
-			if (cpuType == distrib.cpuType) {
-				mClientDistrib = distrib;
-				break;
-			}
 		
 		notifyClientDistrib(mClientDistrib);
 	}
@@ -832,7 +788,6 @@ public class InstallerHandler extends Handler {
 		
 		mOperationCancelled = false;
 		
-		int cpuType = detectCpuType();
 		ProjectDistrib projectDistrib = null;
 		
 		if (mOperationCancelled) {
@@ -840,21 +795,11 @@ public class InstallerHandler extends Handler {
 			return;
 		}
 		
-		int usedCpuType = -1;
 		String zipFilename = null;
 		/* search project, and retrieve project url */
 		for (ProjectDistrib distrib: mProjectDistribs)
 			if (distrib.projectUrl.equals(projectUrl)) {
-				usedCpuType = -1;
-				zipFilename = null;
-				/* fit to current platform */
-				for (ProjectDistrib.Platform platform: distrib.platforms) {
-					if (cpuType >= platform.cpuType && platform.cpuType > usedCpuType) {
-						usedCpuType = platform.cpuType;
-						zipFilename = platform.filename;
-					}
-				}
-				
+				zipFilename = distrib.filename;
 				projectDistrib = distrib;
 				break;
 			}
@@ -864,15 +809,14 @@ public class InstallerHandler extends Handler {
 			return;
 		}
 		
-		installBoincApplicationAutomatically(zipFilename, projectDistrib, usedCpuType);
+		installBoincApplicationAutomatically(zipFilename, projectDistrib);
 	}
 	
 	/**
 	 * installs boinc application automatically
 	 * @param projectUrl
 	 */
-	public void installBoincApplicationAutomatically(String zipFilename, ProjectDistrib projectDistrib,
-			int usedCpuType) {
+	public void installBoincApplicationAutomatically(String zipFilename, ProjectDistrib projectDistrib) {
 		
 		if (mOperationCancelled) {
 			notifyCancel();
@@ -926,7 +870,7 @@ public class InstallerHandler extends Handler {
 		}
 		
 		/* updaste installed distribs */
-		mDistribManager.addOrUpdateDistrib(projectDistrib, usedCpuType, fileList);
+		mDistribManager.addOrUpdateDistrib(projectDistrib, fileList);
 		
 		notifyFinish();
 	}
@@ -964,15 +908,14 @@ public class InstallerHandler extends Handler {
 					break;
 				}
 			
-			installBoincApplicationAutomatically(updateItem.filename, foundDistrib,
-					updateItem.cpuType);
+			installBoincApplicationAutomatically(updateItem.filename, foundDistrib);
 		}
 	}
 	
 	public void updateProjectDistribList() {
 		mOperationCancelled = false;
 		
-		String appListUrl = mContext.getString(R.string.installAppsSourceUrl)+"app_list.xml";
+		String appListUrl = mContext.getString(R.string.installAppsSourceUrl)+"apps.xml";
 		
 		if (mOperationCancelled) {
 			notifyCancel();
@@ -980,33 +923,33 @@ public class InstallerHandler extends Handler {
 		}
 		
 		try {
-			downloadFile(appListUrl, "app_list.xml",
+			downloadFile(appListUrl, "apps.xml",
 					mContext.getString(R.string.appListDownload),
 					mContext.getString(R.string.appListDownloadError), false);
 			
 			if (mOperationCancelled) {
-				mContext.deleteFile("app_list.xml");
+				mContext.deleteFile("apps.xml");
 				notifyCancel();
 				return;
 			}
 			
-			int status = verifyFile(mContext.getFileStreamPath("app_list.xml"),
+			int status = verifyFile(mContext.getFileStreamPath("apps.xml"),
 					appListUrl, false);
 			
 			if (status == VERIFICATION_CANCELLED) {
-				mContext.deleteFile("app_list.xml");
+				mContext.deleteFile("apps.xml");
 				notifyCancel();
 				return;	// cancelled
 			}
 			if (status == VERIFICATION_FAILED)
 				notifyError(mContext.getString(R.string.verifySignatureFailed));
 		} catch(InstallationException ex) {
-			mContext.deleteFile("app_list.xml");
+			mContext.deleteFile("apps.xml");
 			return;
 		}
 		
 		if (mOperationCancelled) {
-			mContext.deleteFile("app_list.xml");
+			mContext.deleteFile("apps.xml");
 			notifyCancel();
 			return;
 		}
@@ -1014,7 +957,7 @@ public class InstallerHandler extends Handler {
 		/* parse it */
 		InputStream inStream = null;
 		try {
-			inStream = mContext.openFileInput("app_list.xml");
+			inStream = mContext.openFileInput("apps.xml");
 			/* parse and notify */
 			mProjectDistribs = ProjectDistribListParser.parse(inStream);
 			if (mProjectDistribs != null)
@@ -1029,7 +972,7 @@ public class InstallerHandler extends Handler {
 			} catch(IOException ex) { }
 			
 			/* delete obsolete file */
-			mContext.deleteFile("app_list.xml");
+			mContext.deleteFile("apps.xml");
 		}
 	}
 	
@@ -1059,11 +1002,11 @@ public class InstallerHandler extends Handler {
 		
 		InstalledBinary[] result = new InstalledBinary[installedDistribs.size()+1];
 		
-		result[0] = new InstalledBinary("BOINC client", clientVersion, detectCpuType());
+		result[0] = new InstalledBinary("BOINC client", clientVersion);
 		
 		for (int i = 0; i <installedCount; i++) {
 			InstalledDistrib distrib = installedDistribs.get(i);
-			result[i+1] = new InstalledBinary(distrib.projectName, distrib.version, distrib.cpuType); 
+			result[i+1] = new InstalledBinary(distrib.projectName, distrib.version); 
 		}
 		
 		/* sort result list */
@@ -1086,14 +1029,12 @@ public class InstallerHandler extends Handler {
 		
 		Vector<InstalledDistrib> installedDistribs = mDistribManager.getInstalledDistribs();
 		
-		int cpuType = detectCpuType();
-		
 		/* client binary */
 		int firstUpdateBoincAppsIndex = 0;
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 		String clientVersion = prefs.getString(PreferenceName.CLIENT_VERSION, null);
 		if (VersionUtil.compareVersion(mClientDistrib.version, clientVersion) > 0) {
-			updateItems.add(new UpdateItem("BOINC client", mClientDistrib.version, cpuType, null, false));
+			updateItems.add(new UpdateItem("BOINC client", mClientDistrib.version, null, false));
 			firstUpdateBoincAppsIndex = 1;
 		}
 		
@@ -1109,21 +1050,10 @@ public class InstallerHandler extends Handler {
 				}
 			
 			if (selected != null) {	// if update found
-				int usedCpuType = -1;
 				String filename = null;
-				/* fit to current platform */
-				for (ProjectDistrib.Platform platform: selected.platforms) {
-					if (cpuType >= platform.cpuType && platform.cpuType > usedCpuType) {
-						usedCpuType = platform.cpuType;
-						filename = platform.filename;
-					}
-				}
+				filename = selected.filename;
 				
-				if (filename == null)
-					continue;
-				
-				updateItems.add(new UpdateItem(selected.projectName, selected.version,
-						usedCpuType, filename, false));
+				updateItems.add(new UpdateItem(selected.projectName, selected.version, filename, false));
 			}
 		}
 		/* new project binaries */
@@ -1146,21 +1076,7 @@ public class InstallerHandler extends Handler {
 					break;
 				}
 			
-			int usedCpuType = -1;
-			String filename = null;
-			/* fit to current platform */
-			for (ProjectDistrib.Platform platform: selected.platforms) {
-				if (cpuType >= platform.cpuType && platform.cpuType > usedCpuType) {
-					usedCpuType = platform.cpuType;
-					filename = platform.filename;
-				}
-				
-				if (filename == null)
-					continue;
-				
-				updateItems.add(new UpdateItem(selected.projectName, selected.version,
-						usedCpuType, filename, true));
-			}
+			updateItems.add(new UpdateItem(selected.projectName, selected.version, selected.filename, true));
 		}
 		
 		UpdateItem[] array = updateItems.toArray(new UpdateItem[0]);

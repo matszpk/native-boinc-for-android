@@ -29,6 +29,5 @@ public class InstalledDistrib {
 	public String projectName = "";
 	public String projectUrl = "";
 	public String version = "";
-	public int cpuType = -1;
 	public Vector<String> files = new Vector<String>();
 }

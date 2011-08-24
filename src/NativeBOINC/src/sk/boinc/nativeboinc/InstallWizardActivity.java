@@ -39,7 +39,6 @@ import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.ClientDistrib;
-import sk.boinc.nativeboinc.nativeclient.CpuType;
 import sk.boinc.nativeboinc.nativeclient.InstallerListener;
 import sk.boinc.nativeboinc.nativeclient.InstallerService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincListener;
@@ -139,11 +138,6 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 			mInstaller = ((InstallerService.LocalBinder)service).getService();
 			if (Logging.DEBUG) Log.d(TAG, "installer.onServiceConnected()");
 			mInstaller.addInstallerListener(InstallWizardActivity.this);
-			
-			/* set up cpu type text */
-			TextView cpuType = (TextView)findViewById(R.id.installCPUType);
-			cpuType.setText(getString(R.string.cpuType) + ": " + CpuType.getCpuDisplayName(getResources(),
-					mInstaller.detectCPUType()));
 		}
 
 		@Override

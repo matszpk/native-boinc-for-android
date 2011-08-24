@@ -285,6 +285,15 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 				return true;
 			}
 		});
+		
+		// Local preferences
+		pref = findPreference("localPreferences");
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			public boolean onPreferenceClick(Preference preference) {
+				startActivity(new Intent(ManageClientActivity.this, LocalPreferencesActivity.class));
+				return true;
+			}
+		});
 
 		// Run mode
 		listPref = (ListPreference)findPreference("actRunMode");

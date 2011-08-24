@@ -59,7 +59,7 @@ public class NativeBoincService extends Service {
 		}
 	}
 	
-	private static final String INITIAL_BOINC_CONFIG = "<global_preferences>\n" +
+	public static final String INITIAL_BOINC_CONFIG = "<global_preferences>\n" +
 		"<run_on_batteries>1</run_on_batteries>\n" +
 		"<run_if_user_active>1</run_if_user_active>\n" +
 		"<run_gpu_if_user_active>0</run_gpu_if_user_active>\n" +
@@ -416,7 +416,8 @@ public class NativeBoincService extends Service {
 			killAllBoincZombies();	// kill all zombies
 			
 			if (Logging.DEBUG) Log.d(TAG, "Release wake lock");
-			mWakeLock.release();	// screen unlock
+			if (mWakeLock.isHeld())
+				mWakeLock.release();	// screen unlock
 		}
 	};
 	
@@ -440,9 +441,92 @@ public class NativeBoincService extends Service {
 		}
 	};
 	
+	private static final int WAKELOCK_HOLD_PERIOD = 60000;
+	
+	private class WakeLockHolder extends Thread {
+		private static final String TAG = "WakeLockHolder";
+		
+		private boolean mDoQuit = false;
+		
+		@Override
+		public void run() {
+			RpcClient ownRpcClient = null;
+			
+			// first awaiting
+			try {
+				Thread.sleep(1000);
+			} catch(InterruptedException ex) {
+				if (Logging.INFO) Log.i(TAG, "exit");
+				return;	// finish
+			}
+			
+			while (true) {
+				if (ownRpcClient == null) {
+					ownRpcClient = new RpcClient();
+					if (!ownRpcClient.open("127.0.0.1", 31416)) {
+						if (Logging.DEBUG) Log.d(TAG, "Not connected");
+						ownRpcClient = null;
+					}
+				}
+				
+				boolean isRunning = false;
+				
+				if (ownRpcClient != null) {
+					Vector<Result> results = ownRpcClient.getResults();
+					
+					if (results != null) {
+						for (Result result: results)
+							/* only if downloading/active (running) */
+							if (result.state == 1 || (result.state == 2 && result.active_task_state == 1)) {
+								isRunning = true;
+								break;
+							}
+						if (Logging.DEBUG) Log.d(TAG, "Connected and with results");
+					} else {
+						if (Logging.DEBUG) Log.d(TAG, "Connected but null result");
+						ownRpcClient.close();
+						ownRpcClient = null;
+					}
+				}
+				// release wakelock
+				if (isRunning) {
+					if (Logging.INFO) Log.i(TAG, "Wake lock acquiring");
+					if (mWakeLock != null && !mWakeLock.isHeld())
+						mWakeLock.acquire();
+				} else {
+					if (Logging.INFO) Log.i(TAG, "Wake lock releasing");
+					if (mWakeLock != null && mWakeLock.isHeld())
+						mWakeLock.release();
+				}
+				
+				if (mDoQuit) {
+					if (mWakeLock != null && mWakeLock.isHeld())
+						mWakeLock.release();
+					return;	// finish
+				}
+				// sleeping
+				try {
+					Thread.sleep(WAKELOCK_HOLD_PERIOD);
+				} catch(InterruptedException ex) {
+					if (Logging.INFO) Log.i(TAG, "exit");
+					// release wake lock
+					if (mWakeLock != null && mWakeLock.isHeld())
+						mWakeLock.release();
+					return;	// finish
+				}
+			}
+		}
+		
+		public void quitFromHolder() {
+			mDoQuit = true;
+			interrupt();
+		}
+	}
+	
 	private FirstStartThread mFirstStartThread = null;
 	private NativeBoincThread mNativeBoincThread = null;
 	private NativeKillerThread mNativeKillerThread = null;
+	private WakeLockHolder mWakeLockHolder = null;
 	
 	public void addNativeBoincListener(NativeBoincListener listener) {
 		mListeners.add(listener);
@@ -469,6 +553,8 @@ public class NativeBoincService extends Service {
 		if (mNativeBoincThread == null) {
 			mNativeBoincThread = new NativeBoincThread();
 			mNativeBoincThread.start();
+			mWakeLockHolder = new WakeLockHolder();
+			mWakeLockHolder.start();
 		}
 	}
 	
@@ -505,6 +591,12 @@ public class NativeBoincService extends Service {
 			notifyClientError(getString(R.string.nativeClientConfigError));
 			return;
 		}
+		
+		if (!mRpcClient.readGlobalPrefsOverride()) {
+			notifyClientError(getString(R.string.nativeClientConfigError));
+			return;
+		}
+		
 		notifyClientConfigured();
 	}
 	
@@ -554,6 +646,10 @@ public class NativeBoincService extends Service {
 					if (mNativeKillerThread != null) {
 						mNativeKillerThread.disableKiller();
 						mNativeKillerThread = null;
+					}
+					if (mWakeLockHolder != null) {
+						mWakeLockHolder.quitFromHolder();
+						mWakeLockHolder = null;
 					}
 				}
 				mListenerHandler.onClientStateChanged(isRun);

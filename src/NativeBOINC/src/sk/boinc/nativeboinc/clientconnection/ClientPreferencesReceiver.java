@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- 
 /* 
- * AndroBOINC - BOINC Manager for Android
- * Copyright (C) 2010, Pavol Michalec
+ * NativeBOINC - Native BOINC Client with Manager
+ * Copyright (C) 2011, Mateusz Szpakowski
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
--->
-<resources>
-	<color name="active">#ff3fdf3f</color>
-	<color name="suspended">#ffdf3f3f</color>
-	<color name="nnw">#ffdfdf3f</color>
-	<color name="orange">#ffff7f00</color>
-	<color name="lockText">#ffc0c0c0</color>
-	<color name="localPrefGroup">#404040</color>
-	<color name="screenLockBar">#555555</color>
-	<color name="screenLockBarText">#ffffff</color>
-</resources>
+
+package sk.boinc.nativeboinc.clientconnection;
+
+import edu.berkeley.boinc.lite.GlobalPreferences;
+
+/**
+ * @author mat
+ *
+ */
+public interface ClientPreferencesReceiver extends ClientReplyReceiver {
+	public abstract void currentGlobalPreferences(GlobalPreferences globalPrefs);
+	public abstract void onGlobalPreferencesChanged();
+}

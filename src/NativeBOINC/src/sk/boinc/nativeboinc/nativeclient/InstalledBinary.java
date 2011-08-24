@@ -26,11 +26,9 @@ package sk.boinc.nativeboinc.nativeclient;
 public class InstalledBinary {
 	public String name;
 	public String version;
-	public int cpuType;
 	
-	public InstalledBinary(String name, String version, int cpuType) {
+	public InstalledBinary(String name, String version) {
 		this.name = name;
 		this.version = version;
-		this.cpuType = cpuType;
 	}
 }

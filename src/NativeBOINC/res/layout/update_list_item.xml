@@ -11,16 +11,9 @@
     	android:layout_height="wrap_content"
     	android:layout_marginLeft="5dip"
     	android:layout_marginRight="5dip"
-    	android:textSize="16dip"
+    	android:layout_centerVertical="true"
+    	android:textSize="18dip"
     	android:textStyle="bold"
-    	android:text="Binary Name" />
-    <TextView
-    	android:id="@+id/updateItemCpuType"
-    	android:layout_below="@id/updateItemName"
-    	android:layout_width="wrap_content"
-    	android:layout_height="wrap_content"
-    	android:layout_marginLeft="5dip"
-    	android:layout_marginRight="5dip"
     	android:text="Binary Name" />
     <CheckBox
     	android:id="@+id/updateItemCheckbox"

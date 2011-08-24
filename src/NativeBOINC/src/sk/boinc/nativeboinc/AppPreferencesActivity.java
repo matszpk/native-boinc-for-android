@@ -20,7 +20,6 @@
 package sk.boinc.nativeboinc;
 
 import sk.boinc.nativeboinc.debug.Logging;
-import sk.boinc.nativeboinc.nativeclient.CpuType;
 import sk.boinc.nativeboinc.nativeclient.InstalledBinary;
 import sk.boinc.nativeboinc.nativeclient.InstallerService;
 import sk.boinc.nativeboinc.util.NetStatsStorage;
@@ -375,13 +374,11 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 			View view = inView;
 			if (view == null) {
 				LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
-				view = inflater.inflate(android.R.layout.simple_list_item_2, null);
+				view = inflater.inflate(android.R.layout.simple_list_item_1, null);
 			}
 			TextView text1 = (TextView)view.findViewById(android.R.id.text1);
-			TextView text2 = (TextView)view.findViewById(android.R.id.text2);
 			InstalledBinary binInfo = mInstalledBins[position];
 			text1.setText(binInfo.name + " " + binInfo.version);
-			text2.setText(getString(R.string.cpuType) + ":" + CpuType.getCpuDisplayName(mContext.getResources(), binInfo.cpuType));
 			return view;
 		}
 		

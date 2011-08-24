@@ -879,6 +879,19 @@ public class RpcClient {
 		}
 	}
 	
+	public GlobalPreferences getGlobalPrefsWorkingStruct() {
+		try {
+			mRequest.setLength(0);
+			mRequest.append("<get_global_prefs_working/>");
+			
+			sendRequest(mRequest.toString());
+			return GlobalPreferencesParser.parse(receiveReply());
+		} catch (IOException e) {
+			if (Logging.WARNING) Log.w(TAG, "error in globalPrefsWorking()", e);
+			return null;
+		}
+	}
+	
 	public boolean setGlobalPrefsOverride(String globalPrefs) {
 		try {
 			mRequest.setLength(0);
@@ -887,9 +900,81 @@ public class RpcClient {
 			mRequest.append("</set_global_prefs_override>\n");
 			
 			sendRequest(mRequest.toString());
+			receiveReply();
 			return true;
 		} catch (IOException e) {
-			if (Logging.WARNING) Log.w(TAG, "error in accountMgrRPCPoll()", e);
+			if (Logging.WARNING) Log.w(TAG, "error in setGlobalPrefsOverride()", e);
+			return false;
+		}
+	}
+	
+	public boolean setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs) {
+		try {
+			mRequest.setLength(0);
+			mRequest.append("<set_global_prefs_override>\n<global_preferences>\n  <run_on_batteries>");
+			mRequest.append(globalPrefs.run_on_batteries ? 1 : 0);
+			mRequest.append("</run_on_batteries>\n  <run_gpu_if_user_active>");
+			mRequest.append(globalPrefs.run_gpu_if_user_active ? 1 : 0);
+			mRequest.append("</run_gpu_if_user_active>\n  <run_if_user_active>");
+			mRequest.append(globalPrefs.run_if_user_active ? 1 : 0);
+			mRequest.append("</run_if_user_active>\n  <idle_time_to_run>");
+			mRequest.append(globalPrefs.idle_time_to_run);
+			mRequest.append("</idle_time_to_run>\n  <suspend_cpu_usage>");
+			mRequest.append(globalPrefs.suspend_cpu_usage);
+			mRequest.append("</suspend_cpu_usage>\n  <max_ncpus_pct>");
+			mRequest.append(globalPrefs.max_ncpus_pct);
+			mRequest.append("</max_ncpus_pct>\n  <leave_apps_in_memory>");
+			mRequest.append(globalPrefs.leave_apps_in_memory ? 1 : 0);
+			mRequest.append("</leave_apps_in_memory>\n  <dont_verify_images>");
+			mRequest.append(globalPrefs.dont_verify_images ? 1 : 0);
+			mRequest.append("</dont_verify_images>\n  <work_buf_min_days>");
+			mRequest.append(globalPrefs.work_buf_min_days);
+			mRequest.append("</work_buf_min_days>\n  <work_buf_additional_days>");
+			mRequest.append(globalPrefs.work_buf_additional_days);
+			mRequest.append("</work_buf_additional_days>\n  <disk_interval>");
+			mRequest.append(globalPrefs.disk_interval);
+			mRequest.append("</disk_interval>\n  <cpu_scheduling_period_minutes>");
+			mRequest.append(globalPrefs.cpu_scheduling_period_minutes);
+			mRequest.append("</cpu_scheduling_period_minutes>\n  <disk_max_used_gb>");
+			mRequest.append(globalPrefs.disk_max_used_gb);
+			mRequest.append("</disk_max_used_gb>\n  <disk_max_used_pct>");
+			mRequest.append(globalPrefs.disk_max_used_pct);
+			mRequest.append("</disk_max_used_pct>\n  <disk_min_free_gb>");
+			mRequest.append(globalPrefs.disk_min_free_gb);
+			mRequest.append("</disk_min_free_gb>\n  <ram_max_used_busy_pct>");
+			mRequest.append(globalPrefs.ram_max_used_busy_frac);
+			mRequest.append("</ram_max_used_busy_pct>\n  <ram_max_used_idle_pct>");
+			mRequest.append(globalPrefs.ram_max_used_idle_frac);
+			mRequest.append("</ram_max_used_idle_pct>\n  <max_bytes_sec_up>");
+			mRequest.append(globalPrefs.max_bytes_sec_up);
+			mRequest.append("</max_bytes_sec_up>\n  <max_bytes_sec_down>");
+			mRequest.append(globalPrefs.max_bytes_sec_down);
+			mRequest.append("</max_bytes_sec_down>\n  <cpu_usage_limit>");
+			mRequest.append(globalPrefs.cpu_usage_limit);
+			mRequest.append("</cpu_usage_limit>\n  <daily_xfer_limit_mb>");
+			mRequest.append(globalPrefs.daily_xfer_limit_mb);
+			mRequest.append("</daily_xfer_limit_mb>\n  <daily_xfer_period_days>");
+			mRequest.append(globalPrefs.daily_xfer_period_days);
+			mRequest.append("</daily_xfer_period_days>\n</global_preferences>\n</set_global_prefs_override>\n");
+			
+			sendRequest(mRequest.toString());
+			receiveReply();
+			return true;
+		} catch (IOException e) {
+			if (Logging.WARNING) Log.w(TAG, "error in setGlobalPrefsOverrideStruct()", e);
+			return false;
+		}
+	}
+	
+	public boolean readGlobalPrefsOverride() {
+		try {
+			mRequest.setLength(0);
+			mRequest.append("<read_global_prefs_override/>");
+			sendRequest(mRequest.toString());
+			receiveReply();
+			return true;
+		} catch (IOException e) {
+			if (Logging.WARNING) Log.w(TAG, "error in setGlobalPrefsOverrideStruct()", e);
 			return false;
 		}
 	}

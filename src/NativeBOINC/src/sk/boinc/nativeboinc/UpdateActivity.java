@@ -24,7 +24,6 @@ import java.util.Vector;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.ClientDistrib;
-import sk.boinc.nativeboinc.nativeclient.CpuType;
 import sk.boinc.nativeboinc.nativeclient.InstallerListener;
 import sk.boinc.nativeboinc.nativeclient.InstallerService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincListener;
@@ -194,12 +193,10 @@ public class UpdateActivity extends Activity implements NativeBoincListener, Ins
 			}
 			
 			TextView nameText = (TextView)view.findViewById(R.id.updateItemName);
-			TextView cpuTypeText = (TextView)view.findViewById(R.id.updateItemCpuType);
 			final CheckBox checkBox = (CheckBox)view.findViewById(R.id.updateItemCheckbox);
 			
 			final UpdateItem item = mUpdateItems[position];
 			nameText.setText(item.name + " " + item.version);
-			cpuTypeText.setText("(" + CpuType.getCpuDisplayName(getResources(), item.cpuType) + ")");
 			
 			checkBox.setChecked(item.checked);
 			checkBox.setOnClickListener(new View.OnClickListener() {

@@ -19,8 +19,6 @@
 
 package sk.boinc.nativeboinc.nativeclient;
 
-import java.util.Vector;
-
 /**
  * @author mat
  * class of project distribution info
@@ -29,11 +27,5 @@ public class ProjectDistrib {
 	public String projectName = "";
 	public String projectUrl = "";
 	public String version = "";
-	
-	public static class Platform {
-		public int cpuType;
-		public String filename;
-	}
-	
-	public Vector<Platform> platforms = new Vector<Platform>();
+	public String filename = "";
 }

@@ -29,6 +29,7 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;
@@ -55,6 +56,7 @@ import edu.berkeley.boinc.lite.AccountOut;
 import edu.berkeley.boinc.lite.App;
 import edu.berkeley.boinc.lite.CcState;
 import edu.berkeley.boinc.lite.CcStatus;
+import edu.berkeley.boinc.lite.GlobalPreferences;
 import edu.berkeley.boinc.lite.Message;
 import edu.berkeley.boinc.lite.Project;
 import edu.berkeley.boinc.lite.ProjectAttachReply;
@@ -699,6 +701,68 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 	}
 	
+	public void getGlobalPrefsWorking(ClientPreferencesReceiver callback) {
+		if (mDisconnecting) return;  // already in disconnect phase
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
+		
+		GlobalPreferences globalPrefs = mRpcClient.getGlobalPrefsWorkingStruct();
+		if (globalPrefs == null) {
+			if (Logging.INFO) Log.i(TAG, "RPC failed in getGlobalPrefsWorking()");
+			rpcFailed();
+			return;
+		}
+		currentGlobalPreferences(callback, globalPrefs);
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
+	}
+	
+	public void setGlobalPrefsOverride(ClientPreferencesReceiver callback, String globalPrefs) {
+		if (mDisconnecting) return;  // already in disconnect phase
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
+		boolean success = mRpcClient.setGlobalPrefsOverride(globalPrefs);
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
+		
+		if (!success) {
+			if (Logging.INFO) Log.i(TAG, "RPC failed in setGlobalPrefsOverride()");
+			rpcFailed();
+			return;
+		} 
+		
+		success = mRpcClient.readGlobalPrefsOverride();
+		if (!success) {
+			if (Logging.INFO) Log.i(TAG, "RPC failed in setGlobalPrefsOverride()");
+			rpcFailed();
+			return;
+		} 
+		notifyGlobalPrefsChanged(callback);
+		// Regardless of success we run update of client mode
+		// If there is problem with socket, it will be handled there
+		updateClientMode(callback);
+	}
+	
+	public void setGlobalPrefsOverrideStruct(ClientPreferencesReceiver callback, GlobalPreferences globalPrefs) {
+		if (mDisconnecting) return;  // already in disconnect phase
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
+		boolean success = mRpcClient.setGlobalPrefsOverrideStruct(globalPrefs);
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
+		
+		if (!success) {
+			if (Logging.INFO) Log.i(TAG, "RPC failed in setGlobalPrefsOverride()");
+			rpcFailed();
+			return;
+		}
+		
+		success = mRpcClient.readGlobalPrefsOverride();
+		if (!success) {
+			if (Logging.INFO) Log.i(TAG, "RPC failed in setGlobalPrefsOverride()");
+			rpcFailed();
+			return;
+		} 
+		notifyGlobalPrefsChanged(callback);
+		// Regardless of success we run update of client mode
+		// If there is problem with socket, it will be handled there
+		updateClientMode(callback);
+	}
+	
 	public void runBenchmarks() {
 		if (mDisconnecting) return;  // already in disconnect phase
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
@@ -915,6 +979,27 @@ public class ClientBridgeWorkerHandler extends Handler {
 			@Override
 			public void run() {
 				mReplyHandler.currentProjectConfig(callback, projectConfig);
+			}
+		});
+	}
+	
+	private synchronized void currentGlobalPreferences(final ClientPreferencesReceiver callback,
+			final GlobalPreferences globalPrefs) {
+		if (mDisconnecting) return;
+		mReplyHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mReplyHandler.currentGlobalPreferences(callback, globalPrefs);
+			}
+		});
+	}
+	
+	private synchronized void notifyGlobalPrefsChanged(final ClientPreferencesReceiver callback) {
+		if (mDisconnecting) return;
+		mReplyHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mReplyHandler.onGlobalPreferencesChanged(callback);
 			}
 		});
 	}

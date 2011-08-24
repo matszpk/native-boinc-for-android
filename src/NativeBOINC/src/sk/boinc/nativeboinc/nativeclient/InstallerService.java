@@ -189,10 +189,6 @@ public class InstallerService extends Service {
 		mInstallerHandler.cancelOperation();
 	}
 	
-	public int detectCPUType() {
-		return mInstallerHandler.detectCpuType();
-	}
-	
 	/**
 	 * Check whether client is installed
 	 * @return

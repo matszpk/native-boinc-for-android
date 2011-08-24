@@ -42,10 +42,6 @@ public class ProjectDistribListParser extends BaseParser {
 	private Vector<ProjectDistrib> mProjectDistribs = null;
 	private ProjectDistrib mDistrib = null;
 	
-	private boolean mInsidePlatform = false;
-	
-	private ProjectDistrib.Platform mPlatform = null;
-	
 	public Vector<ProjectDistrib> getProjectDistribs() {
 		return mProjectDistribs;
 	}
@@ -72,9 +68,6 @@ public class ProjectDistribListParser extends BaseParser {
 			mProjectDistribs = new Vector<ProjectDistrib>();
 		} else if (localName.equalsIgnoreCase("project")) {
 			mDistrib = new ProjectDistrib();
-		} else if (mDistrib != null && localName.equalsIgnoreCase("platform")) {
-			mInsidePlatform = true;
-			mPlatform = new ProjectDistrib.Platform();
 		} else {
 			// Another element, hopefully primitive and not constructor
 			// (although unknown constructor does not hurt, because there will be primitive start anyway)
@@ -94,11 +87,7 @@ public class ProjectDistribListParser extends BaseParser {
 					mProjectDistribs.add(mDistrib);
 				}
 				mDistrib = null;
-			} else if (localName.equalsIgnoreCase("platform")) {
-				mDistrib.platforms.add(mPlatform);
-				mInsidePlatform = false;
-				mPlatform = null;
-			} else {
+			}  else {
 				trimEnd();
 				if (localName.equalsIgnoreCase("name")) {
 					mDistrib.projectName = mCurrentElement.toString();
@@ -106,12 +95,8 @@ public class ProjectDistribListParser extends BaseParser {
 					mDistrib.projectUrl = mCurrentElement.toString();
 				} else if (localName.equalsIgnoreCase("version")) {
 					mDistrib.version = mCurrentElement.toString();
-				} else if (mInsidePlatform) {
-					if (localName.equalsIgnoreCase("file")) {
-						mPlatform.filename = mCurrentElement.toString();
-					} else if (localName.equalsIgnoreCase("cpu")) {
-						mPlatform.cpuType = CpuType.parseCpuType(mCurrentElement.toString());
-					}
+				} if (localName.equalsIgnoreCase("file")) {
+					mDistrib.filename = mCurrentElement.toString();
 				}
 			}
 		}

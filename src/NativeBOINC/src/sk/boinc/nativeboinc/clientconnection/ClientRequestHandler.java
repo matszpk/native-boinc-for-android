@@ -20,6 +20,7 @@
 package sk.boinc.nativeboinc.clientconnection;
 
 import edu.berkeley.boinc.lite.AccountIn;
+import edu.berkeley.boinc.lite.GlobalPreferences;
 import sk.boinc.nativeboinc.util.ClientId;
 
 
@@ -50,6 +51,10 @@ public interface ClientRequestHandler {
 	public abstract void createAccount(ClientManageReceiver callback, AccountIn accountIn);
 	public abstract void projectAttach(ClientManageReceiver callback, String url, String authCode, String projectName);
 	public abstract void getProjectConfig(ClientManageReceiver callback, String url);
+	
+	public abstract void getGlobalPrefsWorking(ClientPreferencesReceiver callback);
+	public abstract void setGlobalPrefsOverrideStruct(ClientPreferencesReceiver callback, GlobalPreferences globalPrefs);
+	public abstract void setGlobalPrefsOverride(ClientPreferencesReceiver callback, String globalPrefs);
 	
 	public abstract void runBenchmarks();
 	public abstract void setRunMode(ClientReplyReceiver callback, int mode);

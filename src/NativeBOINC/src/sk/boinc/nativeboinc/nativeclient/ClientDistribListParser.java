@@ -21,7 +21,6 @@ package sk.boinc.nativeboinc.nativeclient;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Vector;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -39,15 +38,13 @@ import edu.berkeley.boinc.lite.BaseParser;
 public class ClientDistribListParser extends BaseParser {
 	private static final String TAG = "ProjectDistribParser";
 	
-	private Vector<ClientDistrib> mClientDistribs = null;
+	private ClientDistrib mClientDistrib = null;
 	
-	private ClientDistrib mDistrib = null;
-	
-	public Vector<ClientDistrib> getClientDistribs() {
-		return mClientDistribs;
+	public ClientDistrib getClientDistribs() {
+		return mClientDistrib;
 	}
 	
-	public static Vector<ClientDistrib> parse(InputStream result) {
+	public static ClientDistrib parse(InputStream result) {
 		try {
 			ClientDistribListParser parser = new ClientDistribListParser();
 			Xml.parse(result, Xml.Encoding.UTF_8, parser);
@@ -65,10 +62,8 @@ public class ClientDistribListParser extends BaseParser {
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		super.startElement(uri, localName, qName, attributes);
-		if (localName.equalsIgnoreCase("clients")) {
-			mClientDistribs = new Vector<ClientDistrib>();
-		} else if (localName.equalsIgnoreCase("client")) {
-			mDistrib = new ClientDistrib();
+		if (localName.equalsIgnoreCase("client")) {
+			mClientDistrib = new ClientDistrib();
 		} else {
 			// Another element, hopefully primitive and not constructor
 			// (although unknown constructor does not hurt, because there will be primitive start anyway)
@@ -80,22 +75,15 @@ public class ClientDistribListParser extends BaseParser {
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		super.endElement(uri, localName, qName);
-		if (mDistrib != null) {
+		if (mClientDistrib != null) {
 			if (localName.equalsIgnoreCase("client")) {
 				// Closing tag of <client> - add to vector and be ready for next one
-				if (!mDistrib.version.equals("")) {
-					// master_url is a must
-					mClientDistribs.add(mDistrib);
-				}
-				mDistrib = null;
 			} else {
 				trimEnd();
 				if (localName.equalsIgnoreCase("version")) {
-					mDistrib.version = mCurrentElement.toString();
-				} else if (localName.equalsIgnoreCase("filename")) {
-					mDistrib.filename = mCurrentElement.toString();
-				} else if (localName.equalsIgnoreCase("cpu")) {
-					mDistrib.cpuType = CpuType.parseCpuType(mCurrentElement.toString());
+					mClientDistrib.version = mCurrentElement.toString();
+				} else if (localName.equalsIgnoreCase("file")) {
+					mClientDistrib.filename = mCurrentElement.toString();
 				}
 			}
 		}

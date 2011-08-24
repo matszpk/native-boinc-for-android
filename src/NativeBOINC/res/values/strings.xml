@@ -42,6 +42,7 @@
 	<string name="notConnected">Not connected</string>
 	<string name="notice">Notice</string>
 	<string name="ok">OK</string>
+	<string name="apply">Apply</string>
 	<string name="projectSuspendedByUser">Project suspended by user</string>
 	<string name="received">Received</string>
 	<string name="retrievingData">Retrieving data...</string>
@@ -54,8 +55,8 @@
 	<string name="upgradedTo">Upgraded to</string>
 	<string name="warning">Warning</string>
 	<string name="now">Now</string>
+	<string name="battery">Battery</string>
 	
-	<string name="cpuType">CPU type</string>
 	<string name="installedBinaries">Installed binaries</string>
 
 	<!-- Units -->
@@ -138,6 +139,44 @@
 	<string name="prefBinariesInfoTitle">Installed binaries</string>
 	<string name="prefBinariesInfoSummary">Show installed binaries list</string>
 
+	<!--  Local Preferences -->
+	<string name="localPreferences">Local preferences</string>
+	<string name="localPrefComputingAllowed">Computing allowed</string>
+	<string name="localPrefComputeOnBatteries">While device is on batteries</string>
+	<string name="localPrefComputeInUse">While device is in use</string>
+	<string name="localPrefUseGPUInUse">Use GPU while device is in use</string>
+	<string name="localPrefComputeIdleFor">Only after device has been idle for</string>
+	<string name="minutes">min</string>
+	<string name="localPrefComputeUsageLessThan">While processor usage is less than</string>
+	<string name="percent">%</string>
+	<string name="localPrefComputeOtherOptions">Other options for computing</string>
+	<string name="localPrefSwitchBetween">Switch between applications every</string>
+	<string name="localPrefUseAtMost">Use at most</string>
+	<string name="localPrefPercentCPUTime">% CPU time</string>
+	<string name="localPrefPercentCPUs">% of the processors</string>
+	<string name="localPrefNetworkUsage">Network usage</string>
+	<string name="localPrefMaxDownloadRate">Maximum download rate</string>
+	<string name="localPrefMaxUploadRate">Maximum upload rate</string>
+	<string name="localPrefConnectAboutEvery">Connect about every</string>
+	<string name="localPrefAdditWorkBuffer">Additional work buffer</string>
+	<string name="kBytesSec">KBytes/sec</string>
+	<string name="localPrefTransferAtMost">Transfer at most</string>
+	<string name="localPrefmBytesEvery">MB every</string>
+	<string name="days">days</string>
+	<string name="localPrefSkipImageVerify">Skip image verification</string>
+	<string name="localPrefDiskUsage">Disk usage</string>
+	<string name="localPrefLeaveAtLeast">Leave at least</string>
+	<string name="localPrefGBDisk">GB disk space</string>
+	<string name="localPrefGBDiskFree">GB disk space free</string>
+	<string name="localPrefPercentTotalDisk">% total disk free</string>
+	<string name="localPrefMemoryUsage">Memory usage</string>
+	<string name="localPrefMemoryWhenInUse">% when device is in use</string>
+	<string name="localPrefMemoryWhenInIdle">% when device is in idle</string>
+	<string name="localPrefCheckpointToDisk">Checkpoint to disk at most every</string>
+	<string name="seconds">sec</string>
+	<string name="localPrefLeaveApplications">Leave applications in memory while suspended</string>
+	<string name="applyDefault">Apply default</string>
+
 	<!-- Network status -->
 	<string name="networkUnavailable">Network connection unavailable.</string>
 
@@ -161,6 +200,8 @@
 	<string name="clientStopBAMTitle">Stop using BAM</string>
 	<string name="clientStopBAMSummary">Stop using BAM Manager</string>
 	<string name="clientStopBAMNotify">Stopping using BAM manager</string>
+	<string name="clientLocalPrefsTitle">Local preferences</string>
+	<string name="clientLocalPrefsSummary">Local preferences for client</string>
 	<string name="manageCategoryActivity">Activity</string>
 	<string name="clientActivityRunTitle">Run mode</string>
 	<string name="clientActivityRunDialogTitle">Run mode</string>
@@ -257,8 +298,10 @@
 	<string name="changeAccessPassword">Change access password</string>
 
 	<!-- install sources -->
-	<string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>
-	<string name="installAppsSourceUrl">http://krzyszp.info/matszpk/boinc_apps/</string>
+	<!-- <string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>-->
+	<string name="installClientSourceUrl">http://192.168.1.12:8080/examples/boinc_client/</string>
+	<!-- <string name="installAppsSourceUrl">http://krzyszp.info/matszpk/boinc_apps/</string> -->
+	<string name="installAppsSourceUrl">http://192.168.1.12:8080/examples/boinc_apps/</string>
 	
 	<!-- ProjectsActivity -->
 	<string name="projectCtxMenuTitle">Commands</string>
@@ -352,12 +395,6 @@
 	<!-- Client Error display -->
 	<string name="clientError">Client error</string>
 	<string name="clientErrorNum">Error number:</string>
-	
-	<!-- CPU types -->
-	<string name="cpuTypeUnknown">Unknown</string>
-	<string name="cpuTypeARMv6">ARMv6 without VFP</string>
-	<string name="cpuTypeARMv6VFP">ARMv6 with VFP</string>
-	<string name="cpuTypeARMv7NEON">ARMv7 with NEON</string>
 	
 	<!-- operation strings -->
 	<string name="downloadPGPKey">Downloading PGP key</string>

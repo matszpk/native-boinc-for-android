@@ -19,15 +19,22 @@
 
 package sk.boinc.nativeboinc;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -49,8 +56,24 @@ public class ScreenLockActivity extends Activity {
 	private TextView mProgressText;
 	
 	private TextView mLockText;
+	private TextView mBarText;
+	
+	private SimpleDateFormat mDateFormat;
+	
+	private int mBatteryLevel = -1;
+	private IntentFilter mBatteryFilter = null;
 	
 	private boolean mIsRefreshingOn = true;
+	
+	private BroadcastReceiver mBatteryStateReceiver = new BroadcastReceiver() {
+		
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals(Intent.ACTION_BATTERY_CHANGED)) {
+				mBatteryLevel = intent.getIntExtra("level", 0);
+			}
+		}
+	};
 	
 	private Runnable mRefresher = new Runnable() {
 		
@@ -74,6 +97,14 @@ public class ScreenLockActivity extends Activity {
 				mLockText.setText(getString(R.string.lockStopped));
 				mLockProgress.setVisibility(View.GONE);
 			}
+			
+			// bar text
+			if (mBatteryLevel != -1)
+				mBarText.setText(getString(R.string.battery)+": "+mBatteryLevel+
+						mDateFormat.format(new Date()));
+			else
+				mBarText.setText(getString(R.string.battery)+": ---"+
+						mDateFormat.format(new Date()));
 			
 			// run again
 			mLockProgress.postDelayed(mRefresher, UPDATE_PERIOD);
@@ -113,20 +144,26 @@ public class ScreenLockActivity extends Activity {
 		
 		doBindRunnerService();
 		
+		IntentFilter mBatteryFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+		registerReceiver(mBatteryStateReceiver, mBatteryFilter);
+		
+		mDateFormat = new SimpleDateFormat("%, HH:mm");
+		
 		mLockText = (TextView)findViewById(R.id.lockText);
 		mLockProgress = (RelativeLayout)findViewById(R.id.lockProgress);
 		mProgressRunning = (ProgressBar)findViewById(R.id.lockProgressRunning);
 		mProgressText = (TextView)findViewById(R.id.lockProgressText);
+		mBarText = (TextView)findViewById(R.id.screenLockBarText);
 		
 		// run refresher
-		mLockProgress.post(mRefresher); 
+		mLockProgress.postDelayed(mRefresher, 100); 
 	}
 	
 	@Override
 	protected void onPause() {
 		mIsRefreshingOn = false;
 		super.onPause();
-		finish();	// do finish
+		finish();
 	}
 	
 	@Override
@@ -140,6 +177,8 @@ public class ScreenLockActivity extends Activity {
 	protected void onDestroy() {
 		mIsRefreshingOn = false;
 		super.onDestroy();
+		
+		unregisterReceiver(mBatteryStateReceiver);
 		
 		if (mRunner != null)
 			mRunner = null;

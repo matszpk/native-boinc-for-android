@@ -43,13 +43,6 @@
 	  		android:textSize="14dip"
 	  		android:text="@string/installClientInstall" />
 	  	<TextView
-	  		android:id="@+id/installCPUType"
-			android:layout_width="fill_parent"
-	  		android:layout_height="wrap_content"
-	  		android:textSize="14dip"
-	  		android:paddingTop="10dip"
-	  		android:text="@string/cpuType" />
-	  	<TextView
 	  		android:layout_width="fill_parent"
 	  		android:layout_height="wrap_content"
 	  		android:textSize="14dip"

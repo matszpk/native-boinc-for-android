@@ -20,7 +20,9 @@
 package sk.boinc.nativeboinc.bridge;
 
 import edu.berkeley.boinc.lite.AccountIn;
+import edu.berkeley.boinc.lite.GlobalPreferences;
 import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.debug.NetStats;
@@ -264,6 +266,33 @@ public class ClientBridgeWorkerThread extends Thread {
 			@Override
 			public void run() {
 				mHandler.getProjectConfig(callback, url);
+			}
+		});
+	}
+	
+	public void getGlobalPrefsWorking(final ClientPreferencesReceiver callback) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.getGlobalPrefsWorking(callback);
+			}
+		});
+	}
+	
+	public void setGlobalPrefsOverride(final ClientPreferencesReceiver callback, final String globalPrefs) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.setGlobalPrefsOverride(callback, globalPrefs);
+			}
+		});
+	}
+	
+	public void setGlobalPrefsOverrideStruct(final ClientPreferencesReceiver callback, final GlobalPreferences globalPrefs) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.setGlobalPrefsOverrideStruct(callback, globalPrefs);
 			}
 		});
 	}

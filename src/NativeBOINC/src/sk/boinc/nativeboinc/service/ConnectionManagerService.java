@@ -24,9 +24,11 @@ import java.util.Iterator;
 import java.util.Set;
 
 import edu.berkeley.boinc.lite.AccountIn;
+import edu.berkeley.boinc.lite.GlobalPreferences;
 
 import sk.boinc.nativeboinc.bridge.ClientBridge;
 import sk.boinc.nativeboinc.bridge.ClientBridgeCallback;
+import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
@@ -378,6 +380,24 @@ public class ConnectionManagerService extends Service implements ClientRequestHa
 	public void getProjectConfig(ClientManageReceiver callback, String url) {
 		if (mClientBridge != null) {
 			mClientBridge.getProjectConfig(callback, url);
+		}
+	}
+	
+	public void getGlobalPrefsWorking(ClientPreferencesReceiver callback) {
+		if (mClientBridge != null) {
+			mClientBridge.getGlobalPrefsWorking(callback);
+		}
+	}
+	
+	public void setGlobalPrefsOverride(ClientPreferencesReceiver callback, String globalPrefs) {
+		if (mClientBridge != null) {
+			mClientBridge.setGlobalPrefsOverride(callback, globalPrefs);
+		}
+	}
+	
+	public void setGlobalPrefsOverrideStruct(ClientPreferencesReceiver callback, GlobalPreferences globalPrefs) {
+		if (mClientBridge != null) {
+			mClientBridge.setGlobalPrefsOverrideStruct(callback, globalPrefs);
 		}
 	}
 	

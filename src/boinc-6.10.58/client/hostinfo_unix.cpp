@@ -205,7 +205,7 @@ bool HOST_INFO::host_is_running_on_batteries() {
     CFStringRef psState;
     int i;
     bool retval = false;
-  
+    
     CFTypeRef blob = IOPSCopyPowerSourcesInfo();
     CFArrayRef list = IOPSCopyPowerSourcesList(blob);
 
@@ -230,7 +230,10 @@ bool HOST_INFO::host_is_running_on_batteries() {
       NoBattery
     } method = Detect;
     static char path[64] = "";
-
+#ifdef ANDROID
+    static char path2[64] = "";
+#endif
+    
     if (Detect == method) {
         // try APM in ProcFS
         FILE *fapm = fopen("/proc/apm", "r");
@@ -268,6 +271,11 @@ bool HOST_INFO::host_is_running_on_batteries() {
         }
     }
     if (Detect == method) {
+#ifdef ANDROID
+        strcpy(path,"/sys/class/power_supply/usb/online");
+        strcpy(path2,"/sys/class/power_supply/ac/online");
+        method=SysClass;
+#else
         // try SysFS
         char buf[256];
         std::string ps_name;
@@ -276,6 +284,7 @@ bool HOST_INFO::host_is_running_on_batteries() {
         DirScanner dir("/sys/class/power_supply/");
         while (dir.scan(ps_name)) {
             // check the type of the power supply
+            // AC adapters have type "Mains"
             snprintf(
                 path, sizeof(path), "/sys/class/power_supply/%s/type",
                 ps_name.c_str()
@@ -284,7 +293,6 @@ bool HOST_INFO::host_is_running_on_batteries() {
             if (!fsys) continue;
             (void) fgets(buf, sizeof(buf), fsys);
             fclose(fsys);
-            // AC adapters have type "Mains"
             if ((strstr(buf, "mains") != NULL) || (strstr(buf, "Mains") != NULL)) {
                 method = SysClass;
                 // to check if we're on battery we look at "online",
@@ -293,10 +301,13 @@ bool HOST_INFO::host_is_running_on_batteries() {
                     path, sizeof(path), "/sys/class/power_supply/%s/online",
                     ps_name.c_str()
                 );
+                fprintf(logfile,"BatteryFile:%s\n",path);
                 break;
             }
         }
+#endif
     }
+    
     switch (method) {
     case Detect:
         // if we haven't found a method so far, give up
@@ -324,7 +335,6 @@ bool HOST_INFO::host_is_running_on_batteries() {
             );
 
             fclose(fapm);
-
             return (apm_ac_line_status == 0);
         }
     case ProcACPI:
@@ -353,9 +363,20 @@ bool HOST_INFO::host_is_running_on_batteries() {
             int online;
             (void) fscanf(fsys, "%d", &online);
             fclose(fsys);
+#ifdef ANDROID
+            fsys = fopen(path2, "r");
+            if (!fsys) return false;
 
+            int online2;
+            (void) fscanf(fsys, "%d", &online2);
+            fclose(fsys);
+#endif            
             // online is 1 if on AC power, 0 if on battery
+#ifdef ANDROID
+            return (0 == online && 0 == online2);
+#else
             return (0 == online);
+#endif
         }
     case NoBattery:
     default:
@@ -419,6 +440,7 @@ static void parse_cpuinfo_linux(HOST_INFO& host) {
     }
 
 #ifdef ANDROID
+    strcpy(host.p_vendor, "ARM");
     strcpy(host.p_model, "ARM ");
 #else
 #ifdef __mips__

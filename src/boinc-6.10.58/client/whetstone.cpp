@@ -41,6 +41,21 @@
 
 #define SPDP double
 
+#ifdef CPU_ARMV6_WITH_VFP
+#define pa pa_vfp
+#define po po_vfp
+#define p3 p3_vfp
+#define whetstone whetstone_vfp
+#define extern_array extern_array_vfp
+#endif
+#ifdef CPU_ARMV7_WITH_NEON
+#define pa pa_neon
+#define po po_neon
+#define p3 p3_neon
+#define whetstone whetstone_neon
+#define extern_array extern_array_neon
+#endif
+
 // External array; store results here so that optimizing compilers
 // don't do away with their computation.
 // suggested by Ben Herndon
@@ -49,8 +64,7 @@ double extern_array[12];
 
 // #pragma intrinsic (sin, cos, tan, atan, sqrt, exp, log)
 
-
-void pa(SPDP e[4], SPDP t, SPDP t2)
+static void pa(SPDP e[4], SPDP t, SPDP t2)
       {
 	 long j;
 	 for(j=0;j<6;j++)
@@ -64,7 +78,7 @@ void pa(SPDP e[4], SPDP t, SPDP t2)
 	 return;
 }
 
-void po(SPDP e1[4], long j, long k, long l)
+static void po(SPDP e1[4], long j, long k, long l)
       {
 	 e1[j] = e1[k];
 	 e1[k] = e1[l];
@@ -72,7 +86,7 @@ void po(SPDP e1[4], long j, long k, long l)
 	 return;
 }
 
-void p3(SPDP *x, SPDP *y, SPDP *z, SPDP t, SPDP t1, SPDP t2)
+static void p3(SPDP *x, SPDP *y, SPDP *z, SPDP t, SPDP t1, SPDP t2)
       {
 	 *x = *y;
 	 *y = *z;

@@ -25,6 +25,14 @@
 #define BM_TYPE_INT      1
 
 extern int dhrystone(double& vax_mips, double& loops, double& cpu_time, double min_cpu_time);
+#ifdef ANDROID
+extern int dhrystone_vfp(double& vax_mips, double& loops, double& cpu_time, double min_cpu_time);
+extern int dhrystone_neon(double& vax_mips, double& loops, double& cpu_time, double min_cpu_time);
+#endif
 extern int whetstone(double& flops, double& cpu_time, double min_cpu_time);
+#ifdef ANDROID
+extern int whetstone_vfp(double& flops, double& cpu_time, double min_cpu_time);
+extern int whetstone_neon(double& flops, double& cpu_time, double min_cpu_time);
+#endif
 extern void benchmark_wait_to_start(int which);
 extern bool benchmark_time_to_stop(int which);

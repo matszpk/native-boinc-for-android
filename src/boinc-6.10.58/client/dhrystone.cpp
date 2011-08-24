@@ -66,6 +66,37 @@
  */
 
 
+#ifdef CPU_ARMV6_WITH_VFP
+#define Proc_0 Proc_0_vfp
+#define Proc_1 Proc_1_vfp
+#define Proc_2 Proc_2_vfp
+#define Proc_3 Proc_3_vfp
+#define Proc_4 Proc_4_vfp
+#define Proc_5 Proc_5_vfp
+#define Proc_6 Proc_6_vfp
+#define Proc_7 Proc_7_vfp
+#define Proc_8 Proc_8_vfp
+#define Func_1 Func_1_vfp
+#define Func_2 Func_2_vfp
+#define Func_3 Func_3_vfp
+#define dhrystone dhrystone_vfp
+#endif
+#ifdef CPU_ARMV7_WITH_NEON
+#define Proc_0 Proc_0_neon
+#define Proc_1 Proc_1_neon
+#define Proc_2 Proc_2_neon
+#define Proc_3 Proc_3_neon
+#define Proc_4 Proc_4_neon
+#define Proc_5 Proc_5_neon
+#define Proc_6 Proc_6_neon
+#define Proc_7 Proc_7_neon
+#define Proc_8 Proc_8_neon
+#define Func_1 Func_1_neon
+#define Func_2 Func_2_neon
+#define Func_3 Func_3_neon
+#define dhrystone dhrystone_neon
+#endif
+
 void Proc_0();
 void Proc_1(DS_DATA&, Rec_Pointer PtrParIn);
 void Proc_2(DS_DATA&, One_Fifty *IntParIO);

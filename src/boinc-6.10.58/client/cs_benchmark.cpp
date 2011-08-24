@@ -170,7 +170,16 @@ int cpu_benchmarks(BENCHMARK_DESC* bdp) {
 
     bdp->error_str[0] = '\0';
     host_info.clear_host_info();
+#ifdef ANDROID
+    if (strstr(bdp->host_info.p_features,"neon") != NULL)
+        retval = whetstone_neon(host_info.p_fpops, fp_time, MIN_CPU_TIME);
+    else if (strstr(bdp->host_info.p_features,"vfp") != NULL)
+        retval = whetstone_vfp(host_info.p_fpops, fp_time, MIN_CPU_TIME);
+    else
+        retval = whetstone(host_info.p_fpops, fp_time, MIN_CPU_TIME);
+#else
     retval = whetstone(host_info.p_fpops, fp_time, MIN_CPU_TIME);
+#endif
     if (retval) {
         bdp->error = true;
         sprintf(bdp->error_str, "FP benchmark ran only %f sec; ignoring", fp_time);
@@ -184,7 +193,16 @@ int cpu_benchmarks(BENCHMARK_DESC* bdp) {
 	//
 	if (bdp->ordinal == 0) {
 #endif
+#ifdef ANDROID
+    if (strstr(bdp->host_info.p_features,"neon") != NULL)
+        retval = dhrystone_neon(vax_mips, int_loops, int_time, MIN_CPU_TIME);
+    else if (strstr(bdp->host_info.p_features,"vfp") != NULL)
+        retval = dhrystone_vfp(vax_mips, int_loops, int_time, MIN_CPU_TIME);
+    else
+        retval = dhrystone(vax_mips, int_loops, int_time, MIN_CPU_TIME);
+#else
     retval = dhrystone(vax_mips, int_loops, int_time, MIN_CPU_TIME);
+#endif
     if (retval) {
         bdp->error = true;
         sprintf(bdp->error_str, "Integer benchmark ran only %f sec; ignoring", int_time);
@@ -252,6 +270,9 @@ void CLIENT_STATE::start_cpu_benchmarks() {
         benchmark_descs[i].ordinal = i;
         benchmark_descs[i].done = false;
         benchmark_descs[i].error = false;
+#ifdef ANDROID
+        memcpy(benchmark_descs[i].host_info.p_features, host_info.p_features, 1024);
+#endif
 #ifdef _WIN32
         benchmark_descs[i].handle = CreateThread(
             NULL, 0, win_cpu_benchmarks, benchmark_descs+i, 0,

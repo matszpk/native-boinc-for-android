@@ -103,7 +103,11 @@ am_boinc_client_OBJECTS = boinc_client-acct_mgr.$(OBJEXT) \
 	boinc_client-cs_statefile.$(OBJEXT) \
 	boinc_client-cs_trickle.$(OBJEXT) \
 	boinc_client-dhrystone.$(OBJEXT) \
+	boinc_client-dhrystone-vfp.$(OBJEXT) \
+	boinc_client-dhrystone-neon.$(OBJEXT) \
 	boinc_client-dhrystone2.$(OBJEXT) \
+	boinc_client-dhrystone2-vfp.$(OBJEXT) \
+	boinc_client-dhrystone2-neon.$(OBJEXT) \
 	boinc_client-file_names.$(OBJEXT) \
 	boinc_client-file_xfer.$(OBJEXT) \
 	boinc_client-gui_http.$(OBJEXT) \
@@ -119,6 +123,8 @@ am_boinc_client_OBJECTS = boinc_client-acct_mgr.$(OBJEXT) \
 	boinc_client-scheduler_op.$(OBJEXT) \
 	boinc_client-time_stats.$(OBJEXT) \
 	boinc_client-whetstone.$(OBJEXT) \
+	boinc_client-whetstone-vfp.$(OBJEXT) \
+	boinc_client-whetstone-neon.$(OBJEXT) \
 	boinc_client-work_fetch.$(OBJEXT)
 boinc_client_OBJECTS = $(am_boinc_client_OBJECTS)
 am__DEPENDENCIES_1 =
@@ -156,14 +162,14 @@ DIST_SOURCES = $(boinc_client_SOURCES) $(boinccmd_SOURCES) \
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/missing --run aclocal-1.11
+ACLOCAL = ${SHELL} /home/mat/docs/src/android/boinc-6.10.58/missing --run aclocal-1.11
 ALLOCA = 
-AMTAR = ${SHELL} /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/missing --run tar
+AMTAR = ${SHELL} /home/mat/docs/src/android/boinc-6.10.58/missing --run tar
 AR = ar
 AS = as
-AUTOCONF = ${SHELL} /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/missing --run automake-1.11
+AUTOCONF = ${SHELL} /home/mat/docs/src/android/boinc-6.10.58/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/mat/docs/src/android/boinc-6.10.58/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/mat/docs/src/android/boinc-6.10.58/missing --run automake-1.11
 AWK = gawk
 BOINC_EXTRA_LIBS =  -L/data/local/tmp/lib -lcurl -L/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/lib -lssl -lcrypto -ldl -ldl -lz
 BOINC_MAJOR_VERSION = 6
@@ -172,10 +178,10 @@ BOINC_RELEASE = 58
 BOINC_VERSION_STRING = 6.10.58
 CC = /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//arm-linux-androideabi-gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = --sysroot=/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm/ -Wall -O2 -funroll-loops -I/data/local/tmp/include
+CFLAGS = --sysroot=/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm/ -Wall -I/data/local/tmp/include -O3 -fomit-frame-pointer
 CLIENTGUIFLAGS = 
 CLIENTGUILIBS =   
-CLIENTLIBS = -lm 
+CLIENTLIBS = -lm /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/libstdc++.a
 CLIENT_BIN_FILENAME = boinc
 CLIENT_CMD_BIN_FILENAME = boinccmd
 CLIENT_GUI_BIN_FILENAME = boincmgr
@@ -184,7 +190,7 @@ CPPFLAGS = -I/data/local/tmp/include -DANDROID=1 -I/home/mat/docs/dev/mobile/and
 CXX = /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//arm-linux-androideabi-g++
 CXXCPP = /lib/cpp
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = --sysroot=/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm/ -Wall -O2 -funroll-loops -fexceptions
+CXXFLAGS = --sysroot=/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm/ -Wall -funroll-loops -fexceptions -O3 -fomit-frame-pointer
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -214,7 +220,7 @@ INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
-LDFLAGS = -L/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/lib -L/data/local/tmp/lib -L/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi
+LDFLAGS = -L/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/lib -L/data/local/tmp/lib
 LD_EXPORT_DYNAMIC = 
 LIBBOINC_VERSION = 6:10:58
 LIBEXT = a
@@ -227,7 +233,7 @@ LN = /bin/ln
 LN_S = ln -s
 LOGNAME = mat
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/mat/docs/src/android/boinc-6.10.58/missing --run makeinfo
 MKDIR_P = /bin/mkdir -p
 MYSQL_CFLAGS = 
 MYSQL_CONFIG = 
@@ -251,7 +257,7 @@ PTHREAD_CC = /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-andr
 PTHREAD_CFLAGS = 
 PTHREAD_LIBS = 
 RANLIB = ranlib
-RDATE = 2011.07.08
+RDATE = 2011.08.20
 REV = 
 SET_MAKE = 
 SHELL = /bin/sh
@@ -262,7 +268,7 @@ SSL_CFLAGS =
 SSL_CXXFLAGS =  
 SSL_LIBS = -lssl -lcrypto -ldl
 STRIP = strip
-TOP_BUILD_DIR = /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58
+TOP_BUILD_DIR = /home/mat/docs/src/android/boinc-6.10.58
 VERSION = 6.10.58
 WHOAMI = /usr/bin/whoami
 WX_CFLAGS = 
@@ -279,10 +285,10 @@ X_CFLAGS =
 X_EXTRA_LIBS = 
 X_LIBS =  -L/usr/lib
 X_PRE_LIBS = 
-abs_builddir = /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/client
-abs_srcdir = /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/client
-abs_top_builddir = /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58
-abs_top_srcdir = /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58
+abs_builddir = /home/mat/docs/src/android/boinc-6.10.58/client
+abs_srcdir = /home/mat/docs/src/android/boinc-6.10.58/client
+abs_top_builddir = /home/mat/docs/src/android/boinc-6.10.58
+abs_top_srcdir = /home/mat/docs/src/android/boinc-6.10.58
 ac_ct_CC = 
 ac_ct_CXX = 
 ac_ct_F77 = gfortran
@@ -294,7 +300,7 @@ am__tar = ${AMTAR} chof - "$$tardir"
 am__untar = ${AMTAR} xf -
 bindir = ${exec_prefix}/bin
 boinc_alt_platform = 
-boinc_platform = arm-unknown-linux-gnu
+boinc_platform = arm-android-linux-gnu
 build = x86_64-unknown-linux-gnu
 build_alias = 
 build_cpu = x86_64
@@ -314,7 +320,7 @@ host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/mat/docs/src/android/native-boinc-for-android/src/boinc-6.10.58/install-sh
+install_sh = ${SHELL} /home/mat/docs/src/android/boinc-6.10.58/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -329,7 +335,7 @@ psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 srcdir = .
-sysconfdir = /data/local/tmp/etc
+sysconfdir = ${prefix}/etc
 target = arm-unknown-linux-gnu
 target_alias = 
 target_cpu = arm
@@ -940,6 +946,20 @@ boinc_client-dhrystone.obj: dhrystone.cpp
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-dhrystone.obj `if test -f 'dhrystone.cpp'; then $(CYGPATH_W) 'dhrystone.cpp'; else $(CYGPATH_W) '$(srcdir)/dhrystone.cpp'; fi`
 
+boinc_client-dhrystone-vfp.o: dhrystone.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -DCPU_ARMV6_WITH_VFP=1 -mhard-float -mfpu=vfp -mfloat-abi=softfp -MT boinc_client-dhrystone-vfp.o -MD -MP -MF $(DEPDIR)/boinc_client-dhrystone.Tpo -c -o boinc_client-dhrystone-vfp.o `test -f 'dhrystone.cpp' || echo '$(srcdir)/'`dhrystone.cpp
+	$(am__mv) $(DEPDIR)/boinc_client-dhrystone.Tpo $(DEPDIR)/boinc_client-dhrystone.Po
+#       source='dhrystone.cpp' object='boinc_client-dhrystone-vfp.o' libtool=no \
+#       DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#       $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-dhrystone-vfp.o `test -f 'dhrystone.cpp' || echo '$(srcdir)/'`dhrystone.cpp
+
+boinc_client-dhrystone-neon.o: dhrystone.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -DCPU_ARMV7_WITH_NEON=1 -march=armv7-a -mhard-float -mfpu=neon -mtune=cortex-a9 -mfloat-abi=softfp -MT boinc_client-dhrystone-neon.o -MD -MP -MF $(DEPDIR)/boinc_client-dhrystone.Tpo -c -o boinc_client-dhrystone-neon.o `test -f 'dhrystone.cpp' || echo '$(srcdir)/'`dhrystone.cpp
+	$(am__mv) $(DEPDIR)/boinc_client-dhrystone.Tpo $(DEPDIR)/boinc_client-dhrystone.Po
+#       source='dhrystone.cpp' object='boinc_client-dhrystone-neon.o' libtool=no \
+#       DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#       $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-dhrystone-neon.o `test -f 'dhrystone.cpp' || echo '$(srcdir)/'`dhrystone.cpp
+
 boinc_client-dhrystone2.o: dhrystone2.cpp
 	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT boinc_client-dhrystone2.o -MD -MP -MF $(DEPDIR)/boinc_client-dhrystone2.Tpo -c -o boinc_client-dhrystone2.o `test -f 'dhrystone2.cpp' || echo '$(srcdir)/'`dhrystone2.cpp
 	$(am__mv) $(DEPDIR)/boinc_client-dhrystone2.Tpo $(DEPDIR)/boinc_client-dhrystone2.Po
@@ -953,6 +973,21 @@ boinc_client-dhrystone2.obj: dhrystone2.cpp
 #	source='dhrystone2.cpp' object='boinc_client-dhrystone2.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-dhrystone2.obj `if test -f 'dhrystone2.cpp'; then $(CYGPATH_W) 'dhrystone2.cpp'; else $(CYGPATH_W) '$(srcdir)/dhrystone2.cpp'; fi`
+
+boinc_client-dhrystone2-vfp.o: dhrystone2.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -DCPU_ARMV6_WITH_VFP=1 -mhard-float -mfpu=vfp -mfloat-abi=softfp -MT boinc_client-dhrystone2-vfp.o -MD -MP -MF $(DEPDIR)/boinc_client-dhrystone2.Tpo -c -o boinc_client-dhrystone2-vfp.o `test -f 'dhrystone2.cpp' || echo '$(srcdir)/'`dhrystone2.cpp
+	$(am__mv) $(DEPDIR)/boinc_client-dhrystone2.Tpo $(DEPDIR)/boinc_client-dhrystone2.Po
+#       source='dhrystone2.cpp' object='boinc_client-dhrystone2-vfp.o' libtool=no \
+#       DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#       $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-dhrystone2-vfp.o `test -f 'dhrystone2.cpp' || echo '$(srcdir)/'`dhrystone2.cpp
+
+boinc_client-dhrystone2-neon.o: dhrystone2.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -DCPU_ARMV7_WITH_NEON=1 -march=armv7-a -mhard-float -mfpu=neon -mtune=cortex-a9 -mfloat-abi=softfp -MT boinc_client-dhrystone2-neon.o -MD -MP -MF $(DEPDIR)/boinc_client-dhrystone2.Tpo -c -o boinc_client-dhrystone2-neon.o `test -f 'dhrystone2.cpp' || echo '$(srcdir)/'`dhrystone2.cpp
+	$(am__mv) $(DEPDIR)/boinc_client-dhrystone2.Tpo $(DEPDIR)/boinc_client-dhrystone2.Po
+#       source='dhrystone2.cpp' object='boinc_client-dhrystone2-neon.o' libtool=no \
+#       DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#       $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-dhrystone2-neon.o `test -f 'dhrystone2.cpp' || echo '$(srcdir)/'`dhrystone2.cpp
+
 
 boinc_client-file_names.o: file_names.cpp
 	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT boinc_client-file_names.o -MD -MP -MF $(DEPDIR)/boinc_client-file_names.Tpo -c -o boinc_client-file_names.o `test -f 'file_names.cpp' || echo '$(srcdir)/'`file_names.cpp
@@ -1191,6 +1226,20 @@ boinc_client-whetstone.obj: whetstone.cpp
 #	source='whetstone.cpp' object='boinc_client-whetstone.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-whetstone.obj `if test -f 'whetstone.cpp'; then $(CYGPATH_W) 'whetstone.cpp'; else $(CYGPATH_W) '$(srcdir)/whetstone.cpp'; fi`
+
+boinc_client-whetstone-vfp.o: whetstone.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -DCPU_ARMV6_WITH_VFP=1 -mhard-float -mfpu=vfp -mfloat-abi=softfp -MT boinc_client-whetstone-vfp.o -MD -MP -MF $(DEPDIR)/boinc_client-whetstone.Tpo -c -o boinc_client-whetstone-vfp.o `test -f 'whetstone.cpp' || echo '$(srcdir)/'`whetstone.cpp
+	$(am__mv) $(DEPDIR)/boinc_client-whetstone.Tpo $(DEPDIR)/boinc_client-whetstone.Po
+#       source='whetstone.cpp' object='boinc_client-whetstone-vfp.o' libtool=no \
+#       DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#       $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-whetstone-vfp.o `test -f 'whetstone.cpp' || echo '$(srcdir)/'`whetstone.cpp
+
+boinc_client-whetstone-neon.o: whetstone.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -DCPU_ARMV7_WITH_NEON=1 -march=armv7-a -mhard-float -mfpu=neon -mtune=cortex-a9 -mfloat-abi=softfp -MT boinc_client-whetstone-neon.o -MD -MP -MF $(DEPDIR)/boinc_client-whetstone.Tpo -c -o boinc_client-whetstone-neon.o `test -f 'whetstone.cpp' || echo '$(srcdir)/'`whetstone.cpp
+	$(am__mv) $(DEPDIR)/boinc_client-whetstone.Tpo $(DEPDIR)/boinc_client-whetstone.Po
+#       source='whetstone.cpp' object='boinc_client-whetstone-neon.o' libtool=no \
+#       DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#       $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-whetstone-neon.o `test -f 'whetstone.cpp' || echo '$(srcdir)/'`whetstone.cpp
 
 boinc_client-work_fetch.o: work_fetch.cpp
 	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT boinc_client-work_fetch.o -MD -MP -MF $(DEPDIR)/boinc_client-work_fetch.Tpo -c -o boinc_client-work_fetch.o `test -f 'work_fetch.cpp' || echo '$(srcdir)/'`work_fetch.cpp

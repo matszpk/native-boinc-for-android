@@ -179,7 +179,7 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 				if ((transfer.stateControl & TransferInfo.STARTED) != 0) {
 					// Task already started - set secondary progress to 100
 					// The background of progress-bar will be yellow
-					progressWaiting.setSecondaryProgress(100);
+					progressWaiting.setSecondaryProgress(1000);
 				}
 				else {
 					// Task did not started yet - set secondary progress to 0

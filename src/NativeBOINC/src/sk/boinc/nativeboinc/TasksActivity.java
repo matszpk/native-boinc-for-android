@@ -208,7 +208,7 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 				if (task.stateControl == TaskInfo.PREEMPTED) {
 					// Task already started - set secondary progress to 100
 					// The background of progress-bar will be yellow
-					progressWaiting.setSecondaryProgress(100);
+					progressWaiting.setSecondaryProgress(1000);
 				}
 				else {
 					// Task did not started yet - set secondary progress to 0

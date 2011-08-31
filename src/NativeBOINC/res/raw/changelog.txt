@@ -1,4 +1,8 @@
-Version 0.2 (alpha) (2011-08-21)
+Version 0.2 (alpha) (2011-08-31)
+- small fixes
+- crash fixes on startup
+
+Version 0.2 (alpha) (2011-08-24)
 - installation improvements
 - adds Local preferences activity (to configure client)
 

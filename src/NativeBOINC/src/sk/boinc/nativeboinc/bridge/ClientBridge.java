@@ -423,7 +423,8 @@ public class ClientBridge implements ClientRequestHandler {
 		// Cancel pending updates in worker thread
 		mWorker.cancelPendingUpdates(callback);
 		// Remove scheduled auto-refresh (if any)
-		mAutoRefresh.unscheduleAutomaticRefresh(callback);
+		if (mAutoRefresh!=null && callback != null)
+			mAutoRefresh.unscheduleAutomaticRefresh(callback);
 	}
 
 	@Override

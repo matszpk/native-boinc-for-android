@@ -48,21 +48,23 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 	public static final String NATIVE_BOINC_WIDGET_UPDATE = "sk.boinc.nativeboinc.widget.WIDGET_UPDATE";
 	public static final String NATIVE_BOINC_CLIENT_START_STOP = "sk.boinc.nativeboinc.widget.CLIENT_START_STOP";
 	
-	private static final int UPDATE_PERIOD = 60000;
-	
 	@Override
 	public void onEnabled(Context context) {
 		super.onEnabled(context);
 		
 		if (Logging.DEBUG) Log.d(TAG, "Enabled native periodically");
 		BoincManagerApplication appContext = (BoincManagerApplication)context.getApplicationContext();
+		
+		appContext.updateWidgetUpdatePeriod();
+		int updatePeriod = appContext.getWigetUpdatePeriod();
+		
 		/* updating periodically */
 		AlarmManager alarmManager = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);
 		Intent intent = new Intent(NATIVE_BOINC_WIDGET_UPDATE);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, intent, 
 				PendingIntent.FLAG_UPDATE_CURRENT);
 		alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
-				UPDATE_PERIOD, pendingIntent);
+				updatePeriod, pendingIntent);
 	}
 	
 	@Override
@@ -117,7 +119,6 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 				
 			} else {
 				views.setViewVisibility(R.id.widgetProgress, View.GONE);
-				
 			}
 			
 			if (isRun) {
@@ -131,6 +132,23 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 			ComponentName thisAppWidget = new ComponentName(context.getPackageName(), getClass().getName());
 			int ids[] = appWidgetManager.getAppWidgetIds(thisAppWidget);
 			appWidgetManager.updateAppWidget(ids, views);
+			
+			// check period value
+			
+			if (appContext.updateWidgetUpdatePeriod()) {
+				// change update period
+				int updatePeriod = appContext.getWigetUpdatePeriod();
+				if (Logging.DEBUG) Log.d(TAG, "Reenable update periodically "+updatePeriod);
+				
+				AlarmManager alarmManager = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);
+				intent = new Intent(NATIVE_BOINC_WIDGET_UPDATE);
+				pendingIntent = PendingIntent.getBroadcast(appContext, 0, intent, 
+						PendingIntent.FLAG_UPDATE_CURRENT);
+				
+				alarmManager.cancel(pendingIntent);
+				alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
+						updatePeriod, pendingIntent);
+			}
 		} else if (inputIntent.getAction().equals(NATIVE_BOINC_CLIENT_START_STOP)) {
 			if (Logging.DEBUG) Log.d(TAG, "Client start/stop from widget receive");
 			

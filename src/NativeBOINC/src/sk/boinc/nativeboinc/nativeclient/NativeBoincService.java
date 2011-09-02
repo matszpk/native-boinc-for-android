@@ -33,17 +33,20 @@ import java.util.Vector;
 import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.util.PreferenceName;
 
 import edu.berkeley.boinc.lite.Result;
 import edu.berkeley.boinc.lite.RpcClient;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 /**
@@ -133,23 +136,30 @@ public class NativeBoincService extends Service {
 		return mBinder;
 	}
 	
-	private WakeLock mWakeLock = null;
+	private WakeLock mDimWakeLock = null;
+	private WakeLock mPartialWakeLock = null;
 	
 	@Override
 	public void onCreate() {
 		PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-		mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, BoincManagerApplication.GLOBAL_ID);
+		mDimWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, BoincManagerApplication.GLOBAL_ID);
+		mPartialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, BoincManagerApplication.GLOBAL_ID);
 		mListenerHandler = new ListenerHandler();
 	}
 	
 	@Override
 	public void onDestroy() {
 		mListeners.clear();
-		if (mWakeLock.isHeld()) {
+		if (mDimWakeLock.isHeld()) {
 			if (Logging.DEBUG) Log.d(TAG, "release screen lock");
-			mWakeLock.release();
+			mDimWakeLock.release();
 		}
-		mWakeLock = null;
+		mDimWakeLock = null;
+		if (mPartialWakeLock.isHeld()) {
+			if (Logging.DEBUG) Log.d(TAG, "release screen lock");
+			mPartialWakeLock.release();
+		}
+		mPartialWakeLock = null;
 	}
 	
 	private List<NativeBoincListener> mListeners = new ArrayList<NativeBoincListener>();
@@ -331,6 +341,11 @@ public class NativeBoincService extends Service {
 		
 		@Override
 		public void run() {
+			SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(
+					NativeBoincService.this);
+			
+			boolean usePartial = globalPrefs.getBoolean(PreferenceName.POWER_SAVING, false);
+			
 			String[] envArray = getEnvArray();
 			
 			Process process = null;
@@ -397,7 +412,10 @@ public class NativeBoincService extends Service {
 			}
 			
 			if (Logging.DEBUG) Log.d(TAG, "Acquire wake lock");
-			mWakeLock.acquire();	// screen lock
+			if (!usePartial)
+				mDimWakeLock.acquire();	// screen lock
+			else
+				mPartialWakeLock.acquire();	// partial lock
 			
 			mIsRun = true;
 			notifyClientStateChanged(true);
@@ -416,8 +434,8 @@ public class NativeBoincService extends Service {
 			killAllBoincZombies();	// kill all zombies
 			
 			if (Logging.DEBUG) Log.d(TAG, "Release wake lock");
-			if (mWakeLock.isHeld())
-				mWakeLock.release();	// screen unlock
+			if (mDimWakeLock.isHeld())
+				mDimWakeLock.release();	// screen unlock
 		}
 	};
 	
@@ -441,7 +459,7 @@ public class NativeBoincService extends Service {
 		}
 	};
 	
-	private static final int WAKELOCK_HOLD_PERIOD = 60000;
+	private static final int WAKELOCK_HOLD_PERIOD = 15000;
 	
 	private class WakeLockHolder extends Thread {
 		private static final String TAG = "WakeLockHolder";
@@ -450,6 +468,9 @@ public class NativeBoincService extends Service {
 		
 		@Override
 		public void run() {
+			SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(
+					NativeBoincService.this);
+			
 			RpcClient ownRpcClient = null;
 			
 			// first awaiting
@@ -459,6 +480,8 @@ public class NativeBoincService extends Service {
 				if (Logging.INFO) Log.i(TAG, "exit");
 				return;	// finish
 			}
+			
+			boolean usePartial = globalPrefs.getBoolean(PreferenceName.POWER_SAVING, false);
 			
 			while (true) {
 				if (ownRpcClient == null) {
@@ -488,20 +511,33 @@ public class NativeBoincService extends Service {
 						ownRpcClient = null;
 					}
 				}
-				// release wakelock
+
 				if (isRunning) {
 					if (Logging.INFO) Log.i(TAG, "Wake lock acquiring");
-					if (mWakeLock != null && !mWakeLock.isHeld())
-						mWakeLock.acquire();
+					if (!usePartial) {
+						if (mPartialWakeLock != null && mPartialWakeLock.isHeld())
+							mPartialWakeLock.release();
+						if (mDimWakeLock != null && !mDimWakeLock.isHeld())
+							mDimWakeLock.acquire();
+					} else {
+						if (mDimWakeLock != null && mDimWakeLock.isHeld())
+							mDimWakeLock.release();
+						if (mPartialWakeLock != null && !mPartialWakeLock.isHeld())
+							mPartialWakeLock.acquire();
+					}
 				} else {
 					if (Logging.INFO) Log.i(TAG, "Wake lock releasing");
-					if (mWakeLock != null && mWakeLock.isHeld())
-						mWakeLock.release();
+					if (mDimWakeLock != null && mDimWakeLock.isHeld())
+						mDimWakeLock.release();
+					if (mPartialWakeLock != null && mPartialWakeLock.isHeld())
+						mPartialWakeLock.release();
 				}
 				
 				if (mDoQuit) {
-					if (mWakeLock != null && mWakeLock.isHeld())
-						mWakeLock.release();
+					if (mDimWakeLock != null && mDimWakeLock.isHeld())
+						mDimWakeLock.release();
+					if (mPartialWakeLock != null && mPartialWakeLock.isHeld())
+						mPartialWakeLock.release();
 					return;	// finish
 				}
 				// sleeping
@@ -510,10 +546,30 @@ public class NativeBoincService extends Service {
 				} catch(InterruptedException ex) {
 					if (Logging.INFO) Log.i(TAG, "exit");
 					// release wake lock
-					if (mWakeLock != null && mWakeLock.isHeld())
-						mWakeLock.release();
+					if (mDimWakeLock != null && mDimWakeLock.isHeld())
+						mDimWakeLock.release();
+					if (mPartialWakeLock != null && mPartialWakeLock.isHeld())
+						mPartialWakeLock.release();
 					return;	// finish
 				}
+				// update settings
+				boolean newUsePartial = globalPrefs.getBoolean(PreferenceName.POWER_SAVING, false);
+				if (newUsePartial && !usePartial) { // switch to partial wakelock
+					if (mDimWakeLock != null && mDimWakeLock.isHeld()) {
+						if (Logging.DEBUG) Log.d(TAG, "Switch to partial wake lock");
+						mDimWakeLock.release();
+						if (mPartialWakeLock != null)
+							mPartialWakeLock.acquire();
+					}
+				} else if (!newUsePartial && usePartial) { // switch to dim wakelock
+					if (mPartialWakeLock != null && mPartialWakeLock.isHeld()) {
+						if (Logging.DEBUG) Log.d(TAG, "Switch to dim wake lock");
+						mPartialWakeLock.release();
+						if (mDimWakeLock != null)
+							mDimWakeLock.acquire();
+					}
+				}
+				usePartial = newUsePartial;
 			}
 		}
 		

@@ -123,11 +123,11 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 		mConnectionType = (ni == null) ? NO_CONNECTIVITY : ni.getType();
 		if (mConnectionType == ConnectivityManager.TYPE_WIFI) {
 			// The current connection type is WiFi
-			mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_WIFI, "60"));
+			mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_WIFI, "10"));
 			if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval is set to: " + mAutoRefresh + " seconds (WiFi)");
 		}
 		else if (mConnectionType == ConnectivityManager.TYPE_MOBILE) {
-			mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_MOBILE, "60"));
+			mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_MOBILE, "10"));
 			if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval is set to: " + mAutoRefresh + " seconds (Mobile)");
 		}
 		else if (mConnectionType == NO_CONNECTIVITY) {
@@ -135,12 +135,12 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 			//mAutoRefresh = 0;      // auto-refresh is disabled
 			// mConnectionType = -1 means no further change on preferences update
 			//if (Logging.INFO) Log.i(TAG, "Networking not active, disabled auto-refresh");
-			mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_LOCALHOST, "60"));
+			mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_LOCALHOST, "10"));
 			if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval is set to: " + mAutoRefresh + " seconds (Localhost)");
 		}
 		else {
 			mConnectionType = ConnectivityManager.TYPE_MOBILE;
-			mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_MOBILE, "0"));
+			mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_MOBILE, "10"));
 			if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval is set to: " + mAutoRefresh + " seconds (other connection, default to Mobile)");			
 		}
 	}

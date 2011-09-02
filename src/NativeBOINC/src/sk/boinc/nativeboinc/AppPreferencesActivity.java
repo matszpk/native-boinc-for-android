@@ -121,6 +121,41 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 			}
 		});
 
+		// power saving preference
+		cbPref = (CheckBoxPreference)findPreference(PreferenceName.POWER_SAVING);
+		cbPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+			@Override
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
+				return true;
+			}
+		});
+		
+		// ScreenLock Update period
+		listPref = (ListPreference)findPreference(PreferenceName.SCREEN_LOCK_UPDATE);
+		listPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+			@Override
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
+				ListPreference listPref = (ListPreference)preference;
+				int idx = listPref.findIndexOfValue((String)newValue);
+				CharSequence[] allDesc = listPref.getEntries();
+				listPref.setSummary(getString(R.string.prefScreenLockUpdateIntervalSummary) + " " + allDesc[idx]);
+				return true;
+			}
+		});
+		
+		// Widget Update period
+		listPref = (ListPreference)findPreference(PreferenceName.WIDGET_UPDATE);
+		listPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+			@Override
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
+				ListPreference listPref = (ListPreference)preference;
+				int idx = listPref.findIndexOfValue((String)newValue);
+				CharSequence[] allDesc = listPref.getEntries();
+				listPref.setSummary(getString(R.string.prefWidgetUpdateIntervalSummary) + " " + allDesc[idx]);
+				return true;
+			}
+		});
+		
 		// Keep screen on:
 		// This preference does not need special handling here.
 		// Data in XML file will manage all needed handling.
@@ -273,6 +308,16 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 		listPref = (ListPreference)findPreference(PreferenceName.SCREEN_ORIENTATION);
 		listPref.setSummary(listPref.getEntry());
 
+		// screen lock refresh
+		listPref = (ListPreference)findPreference(PreferenceName.SCREEN_LOCK_UPDATE);
+		auiIdx = listPref.findIndexOfValue(listPref.getValue());
+		listPref.setSummary(getString(R.string.prefScreenLockUpdateIntervalSummary) + " " + listPref.getEntry());
+		
+		// widget refresh
+		listPref = (ListPreference)findPreference(PreferenceName.WIDGET_UPDATE);
+		auiIdx = listPref.findIndexOfValue(listPref.getValue());
+		listPref.setSummary(getString(R.string.prefWidgetUpdateIntervalSummary) + " " + listPref.getEntry());
+		
 		// Automatic refresh interval for WiFi
 		listPref = (ListPreference)findPreference(PreferenceName.AUTO_UPDATE_WIFI);
 		auiIdx = listPref.findIndexOfValue(listPref.getValue());

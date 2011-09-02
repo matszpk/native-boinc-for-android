@@ -75,6 +75,8 @@ public class BoincManagerApplication extends Application implements NativeBoincL
 	
 	private NativeBoincService mRunner = null;
 	
+	private int mWidgetUpdatePeriod = 0;
+	
 	private ServiceConnection mRunnerServiceConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
@@ -105,6 +107,9 @@ public class BoincManagerApplication extends Application implements NativeBoincL
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 		
 		doBindRunnerService();
+		
+		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		mWidgetUpdatePeriod = Integer.parseInt(globalPrefs.getString(PreferenceName.WIDGET_UPDATE, "10"))*1000;
 	}
 
 	@Override
@@ -282,5 +287,23 @@ public class BoincManagerApplication extends Application implements NativeBoincL
 	@Override
 	public void onClientConfigured() {
 		// Do nothing
+	}
+	
+	/**
+	 * 
+	 * @return true if changed, otherwise false
+	 */
+	public boolean updateWidgetUpdatePeriod() {
+		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		int newPeriod = Integer.parseInt(globalPrefs.getString(PreferenceName.WIDGET_UPDATE, "10"))*1000;
+		if (newPeriod != mWidgetUpdatePeriod) {
+			mWidgetUpdatePeriod = newPeriod;
+			return true;
+		}
+		return false;
+	}
+	
+	public int getWigetUpdatePeriod() {
+		return mWidgetUpdatePeriod;
 	}
 }

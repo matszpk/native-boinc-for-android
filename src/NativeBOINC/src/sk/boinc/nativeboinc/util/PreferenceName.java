@@ -26,11 +26,14 @@ package sk.boinc.nativeboinc.util;
 public interface PreferenceName {
 	public static final String SCREEN_ORIENTATION = "screenOrientation";
 	public static final String LOCK_SCREEN_ON = "lockScreenOn";
+	public static final String POWER_SAVING = "powerSaving";
 	public static final String AUTO_CONNECT = "autoConnect";
 	public static final String AUTO_CONNECT_HOST = "autoConnectHost";
 	public static final String AUTO_UPDATE_WIFI = "autoUpdateIntervalWiFi";
 	public static final String AUTO_UPDATE_MOBILE = "autoUpdateIntervalMobile";
 	public static final String AUTO_UPDATE_LOCALHOST = "autoUpdateIntervalLocalhost";
+	public static final String WIDGET_UPDATE = "widgetUpdateInterval";
+	public static final String SCREEN_LOCK_UPDATE = "screenLockUpdateInterval";
 	public static final String COLLECT_STATS = "trackNetworkUsage";
 	public static final String UPGRADE_INFO_SHOWN_VERSION = "upgradeInfoShownVersion";
 	public static final String LAST_ACTIVE_TAB = "lastActiveTab";

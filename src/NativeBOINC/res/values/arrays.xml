@@ -52,6 +52,22 @@
 		<item>60</item>
 	</string-array>
 
+	<!-- screen lock update -->
+	<string-array name="prefScreenLockUpdateValues">
+		<item>1</item>
+		<item>5</item>
+		<item>10</item>
+		<item>60</item>
+	</string-array>
+	
+	<!-- widget update -->
+	<string-array name="prefWidgetUpdateValues">
+		<item>1</item>
+		<item>5</item>
+		<item>10</item>
+		<item>60</item>
+	</string-array>
+
 	<!-- Run modes for client (display) -->
 	<string-array name="clientModeRun">
 		<item>Run always</item>

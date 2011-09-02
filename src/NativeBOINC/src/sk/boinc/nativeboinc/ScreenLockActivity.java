@@ -20,11 +20,11 @@
 package sk.boinc.nativeboinc;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
+import sk.boinc.nativeboinc.util.PreferenceName;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -32,9 +32,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.text.format.DateFormat;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -49,7 +50,7 @@ import android.widget.TextView;
 public class ScreenLockActivity extends Activity {
 	private static final String TAG = "ScreenLockActivity";
 	
-	private static final int UPDATE_PERIOD = 60000;
+	private int mUpdatePeriod;
 	
 	private RelativeLayout mLockProgress;
 	private ProgressBar mProgressRunning;
@@ -61,7 +62,6 @@ public class ScreenLockActivity extends Activity {
 	private SimpleDateFormat mDateFormat;
 	
 	private int mBatteryLevel = -1;
-	private IntentFilter mBatteryFilter = null;
 	
 	private boolean mIsRefreshingOn = true;
 	
@@ -107,7 +107,7 @@ public class ScreenLockActivity extends Activity {
 						mDateFormat.format(new Date()));
 			
 			// run again
-			mLockProgress.postDelayed(mRefresher, UPDATE_PERIOD);
+			mLockProgress.postDelayed(mRefresher, mUpdatePeriod);
 		}
 	};
 	
@@ -141,6 +141,9 @@ public class ScreenLockActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.screen_lock);
+		
+		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		mUpdatePeriod = Integer.parseInt(globalPrefs.getString(PreferenceName.SCREEN_LOCK_UPDATE, "10"))*1000;
 		
 		doBindRunnerService();
 		

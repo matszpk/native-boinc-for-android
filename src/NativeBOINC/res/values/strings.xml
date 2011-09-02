@@ -116,6 +116,14 @@
 	<string name="prefAutoConnectTitle">Automatic connect</string>
 	<string name="prefAutoConnectDisabled">No automatic connect on startup</string>
 	<string name="prefAutoConnectEnabled">Connect to recently connected client on startup</string>
+	<string name="prefCategoryNativeBoinc">Native BOINC client</string>
+	<string name="prefPowerSaving">Power saving</string>
+	<string name="prefPowerSavingOnDisabled">Prevent screen lock and CPU underclocking</string>
+	<string name="prefPowerSavingOnEnabled">Allow screen lock and CPU underclocking</string>
+	<string name="prefScreenLockUpdateInterval">Screen lock periodic refresh</string>
+	<string name="prefScreenLockUpdateIntervalSummary">Screen lock refresh every</string>
+	<string name="prefWidgetUpdateInterval">Widget periodic refresh</string>
+	<string name="prefWidgetUpdateIntervalSummary">Widget refresh every</string>
 	<string name="prefCategoryNetworkBW">Network Bandwidth</string>
 	<string name="prefAutoUpdateIntervalWiFi">WiFi periodic refresh</string>
 	<string name="prefAutoUpdateIntervalMobile">Mobile periodic refresh</string>

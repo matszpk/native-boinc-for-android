@@ -53,6 +53,7 @@ import org.bouncycastle.openpgp.PGPUtil;
 
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.util.Chmod;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.UpdateItem;
 import sk.boinc.nativeboinc.util.VersionUtil;
@@ -557,18 +558,12 @@ public class InstallerHandler extends Handler {
 		}
 		
 		/* change permissions */
-		try {
-		    Process process = Runtime.getRuntime().exec(new String[] {
-		    		"/system/bin/chmod", "700",
-		    		mContext.getFileStreamPath("boinc_client").getAbsolutePath()
-		    });
-		    process.waitFor();
-	    } catch(Exception ex) {
-	    	notifyError(mContext.getString(R.string.changePermissionsError));
+		if (!Chmod.chmod(mContext.getFileStreamPath("boinc_client").getAbsolutePath(), 0700)) {
+			notifyError(mContext.getString(R.string.changePermissionsError));
 	    	mContext.deleteFile("boinc_client");
 	    	return;
-	    }
-	    
+		}
+		
 	    if (mOperationCancelled) {
 			notifyCancel();
 			return;
@@ -757,22 +752,14 @@ public class InstallerHandler extends Handler {
 		}
 		
 		if (execFilenames != null) {
-			String[] chmodArgs = new String[execFilenames.size()+2];
-			chmodArgs[0] = "/system/bin/chmod";
-			chmodArgs[1] = "700";
-			for (int i = 0; i < execFilenames.size(); i++) {
-				projectAppFilePath.append(execFilenames.get(i));
-				chmodArgs[i+2] = projectAppFilePath.toString();
+			for (String filename: execFilenames) {
+				projectAppFilePath.append(filename);
+				if (!Chmod.chmod(projectAppFilePath.toString(), 0700)) {
+					notifyError(mContext.getString(R.string.changePermissionsError));
+			    	return null;
+				}
 				projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
 			}
-			
-			try {
-			    Process process = Runtime.getRuntime().exec(chmodArgs);
-			    process.waitFor();
-		    } catch(Exception ex) {
-		    	notifyError(mContext.getString(R.string.changePermissionsError));
-		    	return null;
-		    }
 		}
 		
 		if (mOperationCancelled) {

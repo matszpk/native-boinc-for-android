@@ -1,3 +1,6 @@
+Version 0.2.3 (alpha) (2011-09-04)
+- remove /system/bin/chmod dependency on installation
+
 Version 0.2.2 (alpha) (2011-09-02)
 - add power saving option
 - add new preferences options

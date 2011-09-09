@@ -615,7 +615,6 @@ static void parse_cpuinfo_linux(HOST_INFO& host) {
       FILE* file = fopen("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq","rb");
       if (file != NULL)
       {
-        printf ("opened file\n");
         char buf[32];
         char* endptr;
         memset(buf, 0, 32);
@@ -964,7 +963,20 @@ int HOST_INFO::get_host_info() {
 ///////////// p_ncpus /////////////////
 
 // sysconf not working on OS2
-#if defined(_SC_NPROCESSORS_ONLN) && !defined(__EMX__) && !defined(__APPLE__)
+#ifdef ANDROID
+    char cpupath[64];
+    p_ncpus = sysconf(_SC_NPROCESSORS_CONF);
+    int maxcpu=0;
+    for (int i=0; i<17;i++) {
+      puts(cpupath);
+      if (access(cpupath,F_OK)<0) {
+        maxcpu=i;
+        break;
+      }
+    }
+    if (p_ncpus<maxcpu)
+      p_ncpus=maxcpu;
+#elif defined(_SC_NPROCESSORS_ONLN) && !defined(__EMX__) && !defined(__APPLE__)
     p_ncpus = sysconf(_SC_NPROCESSORS_ONLN);
 #elif defined(HAVE_SYS_SYSCTL_H) && defined(CTL_HW) && defined(HW_NCPU)
     // Get number of CPUs

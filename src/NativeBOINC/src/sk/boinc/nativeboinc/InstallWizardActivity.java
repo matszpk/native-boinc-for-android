@@ -547,6 +547,7 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 			
 			Intent intent = new Intent(this, ProjectListActivity.class);
 			intent.putExtra(ProjectItem.TAG, projectItems);
+			intent.putExtra(ProjectListActivity.TAG_OTHER_PROJECT_OPTION, false);
 			startActivityForResult(intent, ACTIVITY_SELECT_PROJECT);
 		}
 	}

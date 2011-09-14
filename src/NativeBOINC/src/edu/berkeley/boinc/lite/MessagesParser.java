@@ -19,26 +19,18 @@
 
 package edu.berkeley.boinc.lite;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.Vector;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 import sk.boinc.nativeboinc.debug.Logging;
 
 import android.util.Log;
-import android.util.Xml;
 
 
-public class MessagesParser extends BaseParser {
+public class MessagesParser {
 	private static final String TAG = "MessagesParser";
 
 	private Vector<Message> mMessages = new Vector<Message>();
-	private Message mMessage = null;
+	//private Message mMessage = null;
 
 
 	public final Vector<Message> getMessages() {
@@ -53,95 +45,98 @@ public class MessagesParser extends BaseParser {
 	public static Vector<Message> parse(String rpcResult) {
 		MessagesParser parser = new MessagesParser();
 		try {
-			Xml.parse(rpcResult, parser);
-			return parser.getMessages();
-		}
-		catch (SAXException e) {
-			if (Logging.DEBUG) {
-				SAXParseException details = (SAXParseException)e;
-				Log.d(TAG, "Malformed XML: sytemId=" + details.getSystemId() + 
-						", publicId=" + details.getPublicId() + 
-						", lineNumber=" + details.getLineNumber() + 
-						", columnNumber=" + details.getColumnNumber()
-					);
-				BufferedReader br = new BufferedReader(new StringReader(rpcResult));
-				String line;
-				int lineNum = 0;
-				try {
-					int errLine = details.getLineNumber();
-					while ((line = br.readLine()) != null) {
-						++lineNum;
-						if ( (lineNum >= (errLine - 5)) && (lineNum <= (errLine + 5))) {
-							Log.d("Malformed XML", "line " + lineNum + ": " + line);
-						}
-					}
-				}
-				catch (IOException ioe) {
-				}
-				Log.d(TAG, "Decoded " + parser.getMessages().size() + " messages");
-			}
-			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
+			parser.parseMessages(rpcResult);
+		} catch(Exception ex) {
 			return null;
 		}
+		return parser.getMessages();
 	}
-
-	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
-		if (localName.equalsIgnoreCase("msg")) {
-			mMessage = new Message();
-		}
-		else {
-			// Another element, hopefully primitive and not constructor
-			// (although unknown constructor does not hurt, because there will be primitive start anyway)
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
-		}
-	}
-
-	// Method characters(char[] ch, int start, int length) is implemented by BaseParser,
-	// filling mCurrentElement (including stripping of leading whitespaces)
-	//@Override
-	//public void characters(char[] ch, int start, int length) throws SAXException { }
-
-	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	
+	public void parseMessages(String xml) {
+		int pos = 0;
+		int end = xml.length();
+		boolean inMsgs = false;
+		
+		int newPos;
+		Message message = null;
+		
 		try {
-			if (mMessage != null) {
-				// We are inside <msg>
-				if (localName.equalsIgnoreCase("msg")) {
-					// Closing tag of <msg> - add to vector and be ready for next one
-					if (mMessage.seqno != 0) {
-						// seqno is a must
-						mMessages.add(mMessage);
-					}
-					mMessage = null;
+			while (pos < end) {
+				/* skip spaces */
+				while (pos < end) {
+					if (!Character.isSpace(xml.charAt(pos)))
+						break;
+					pos++;
 				}
-				else {
-					// Not the closing tag - we decode possible inner tags
-					trimEnd();
-					if (localName.equalsIgnoreCase("project")) {
-						mMessage.project = mCurrentElement.toString();
+				if (!inMsgs) {
+					newPos = xml.indexOf("<msgs>");
+					if (newPos == -1)
+						throw new RuntimeException("Cant parse messages");
+					pos = newPos + 6;
+					inMsgs = true;
+				} else if (inMsgs && message == null && xml.startsWith("<msg>", pos)) {
+					pos += 5;
+					message = new Message();
+				} else if (message != null && xml.startsWith("</msg>", pos)) {
+					mMessages.add(message);
+					message = null;
+					pos += 6;
+				} else if (inMsgs && xml.startsWith("</msgs>", pos)) {
+					break; // end
+				} else if (message != null) {
+					if (xml.startsWith("<project>", pos)) {
+						pos += 9;
+						newPos = xml.indexOf("</project>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse messages");
+						message.project = xml.substring(pos, newPos).trim();
+						pos = newPos+10;
+					} else if (xml.startsWith("<seqno>", pos)) {
+						pos += 7;
+						newPos = xml.indexOf("</seqno>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse messages");
+						message.seqno = Integer.parseInt(xml.substring(pos, newPos).trim());
+						pos = newPos+8;
+					} else if (xml.startsWith("<pri>", pos)) {
+						pos += 5;
+						newPos = xml.indexOf("</pri>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse messages");
+						message.priority = Integer.parseInt(xml.substring(pos, newPos).trim());
+						pos = newPos+6;
+					} else if (xml.startsWith("<time>", pos)) {
+						pos += 6;
+						newPos = xml.indexOf("</time>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse messages");
+						message.timestamp = (long)Double.parseDouble(xml.substring(pos, newPos).trim());
+						pos = newPos+7;
+					} else if (xml.startsWith("<body>", pos)) {
+						pos += 6;
+						newPos = xml.indexOf("</body>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse messages");
+						message.body = xml.substring(pos, newPos).trim();
+						pos = newPos+7;
+					} else {
+						// skip unknown tag
+						pos++;
+						int endTagIndex = xml.indexOf(">", pos);
+						if (endTagIndex == -1)
+							throw new RuntimeException("Cant parse messages");
+						String tag = xml.substring(pos, endTagIndex);
+						pos = endTagIndex+1;
+						String endString = "</"+tag+">";
+						newPos = xml.indexOf(endString, pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse messages");
+						pos = newPos + endString.length();
 					}
-					else if (localName.equalsIgnoreCase("seqno")) {
-						mMessage.seqno = Integer.parseInt(mCurrentElement.toString());
-					}
-					else if (localName.equalsIgnoreCase("pri")) {
-						mMessage.priority = Integer.parseInt(mCurrentElement.toString());
-					}
-					else if (localName.equalsIgnoreCase("time")) {
-						mMessage.timestamp = (long)Double.parseDouble(mCurrentElement.toString());
-					}
-					else if (localName.equalsIgnoreCase("body")) {
-						mMessage.body = mCurrentElement.toString();
-					}
-				}
+				} 
 			}
+		} catch (NumberFormatException e) {
+			if (Logging.INFO) Log.i(TAG, "Exception when decoding");
 		}
-		catch (NumberFormatException e) {
-			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
-		}
-		mElementStarted = false;
 	}
 }

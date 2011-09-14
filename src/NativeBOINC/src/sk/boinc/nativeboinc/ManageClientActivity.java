@@ -848,6 +848,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		
 		Intent intent = new Intent(this, ProjectListActivity.class);
 		intent.putExtra(ProjectItem.TAG, projectItems);
+		intent.putExtra(ProjectListActivity.TAG_OTHER_PROJECT_OPTION, true);
 		startActivityForResult(intent, ACTIVITY_SELECT_PROJECT);
 		return false;
 	}
@@ -994,6 +995,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		
 		Intent intent = new Intent(this, ProjectListActivity.class);
 		intent.putExtra(ProjectItem.TAG, projectItems);
+		intent.putExtra(ProjectListActivity.TAG_OTHER_PROJECT_OPTION, false);
 		startActivityForResult(intent, ACTIVITY_SELECT_PROJECT);
 	}
 	

@@ -43,7 +43,10 @@ import android.widget.TextView;
 public class ProjectListActivity extends ListActivity {	
 	private static final int DIALOG_ENTER_URL = 1;
 	
+	public static final String TAG_OTHER_PROJECT_OPTION = "OtherProjectOption"; 
+	
 	private Parcelable[] mProjects;
+	private boolean mOtherProjectOption = true;
 	
 	private class ProjectListAdapter extends BaseAdapter {
 		private Context mContext;
@@ -54,7 +57,7 @@ public class ProjectListActivity extends ListActivity {
 		
 		@Override
 		public int getCount() {
-			return mProjects.length+1;
+			return (mOtherProjectOption) ? mProjects.length+1 : mProjects.length;
 		}
 
 		@Override
@@ -98,6 +101,7 @@ public class ProjectListActivity extends ListActivity {
 		
 		Intent intent = getIntent();
 		mProjects = intent.getParcelableArrayExtra(ProjectItem.TAG);
+		mOtherProjectOption = intent.getBooleanExtra(TAG_OTHER_PROJECT_OPTION, true);
 		
 		if (mProjects == null)
 			mProjects = new ProjectItem[0];

@@ -179,7 +179,6 @@ public class AccessPasswordActivity extends Activity implements NativeBoincListe
 	@Override
 	public void onClientStateChanged(boolean isRun) {
 		if (isRun) {
-			Toast.makeText(this, R.string.nativeClientStart, Toast.LENGTH_SHORT).show();
 			if (mShutdownFromConfirm) {
 				// after start
 				mShutdownFromConfirm = false;
@@ -189,7 +188,6 @@ public class AccessPasswordActivity extends Activity implements NativeBoincListe
 				finish();
 			}
 		} else {
-			Toast.makeText(this, R.string.nativeClientShutdown, Toast.LENGTH_SHORT).show();
 			if (mShutdownFromConfirm) {
 				// after shutdown
 				HostListDbAdapter hostListDbHelper = new HostListDbAdapter(this);

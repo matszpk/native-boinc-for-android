@@ -425,9 +425,10 @@ public class NativeBoincService extends Service {
 				process.waitFor();
 			} catch(InterruptedException ex) { }
 			
-			if (Logging.DEBUG) Log.d(TAG, "boinc_client has been finished");
 			mIsRun = false;
-			notifyClientStateChanged(false);
+			mRpcClient = null;
+			
+			if (Logging.DEBUG) Log.d(TAG, "boinc_client has been finished");
 			process.destroy();
 			
 			killNativeBoinc();
@@ -436,6 +437,10 @@ public class NativeBoincService extends Service {
 			if (Logging.DEBUG) Log.d(TAG, "Release wake lock");
 			if (mDimWakeLock.isHeld())
 				mDimWakeLock.release();	// screen unlock
+			
+			notifyClientStateChanged(false);
+			
+			mNativeBoincThread = null;
 		}
 	};
 	
@@ -449,8 +454,10 @@ public class NativeBoincService extends Service {
 			} catch(InterruptedException ex) { }
 			
 			if (!mDontKill && mNativeBoincThread != null) {
+				if (Logging.DEBUG) Log.d(TAG, "Killer:Killing native boinc");
 				mNativeBoincThread.interrupt();
 			}
+			if (Logging.DEBUG) Log.d(TAG, "Killer:Dont Killing native boinc");
 		}
 		
 		public void disableKiller() {
@@ -623,10 +630,11 @@ public class NativeBoincService extends Service {
 			/* start killer */
 			mNativeKillerThread = new NativeKillerThread();
 			mNativeKillerThread.start();
-			
-			mRpcClient.quit();
-			mRpcClient.close();
-			mRpcClient = null;
+			if (mRpcClient != null) {
+				mRpcClient.quit();
+				mRpcClient.close();
+				mRpcClient = null;
+			}
 		}
 	}
 	

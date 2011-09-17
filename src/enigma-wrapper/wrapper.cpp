@@ -491,6 +491,8 @@ void read_checkpoint(int& ntasks, double& cpu) {
     cpu = c;
 }
 
+#define POLL_TO_CHECKPOINT 5
+
 int main(int argc, char** argv) {
     BOINC_OPTIONS options;
     int retval, ntasks;
@@ -498,7 +500,8 @@ int main(int argc, char** argv) {
     double total_weight=0, w=0;
     double checkpoint_cpu_time;
         // overall CPU time at last checkpoint
-
+    int poll_to_checkpoint=POLL_TO_CHECKPOINT;
+    
     for (i=1; i<(unsigned int)argc; i++) {
         if (!strcmp(argv[i], "--graphics")) {
             graphics = true;
@@ -541,8 +544,7 @@ int main(int argc, char** argv) {
         double frac_done = frac_new;
         frac_new = w/total_weight;
         frac_old = frac_done;
-        //frac_inc = 0.0001/(frac_new-frac_old);
-
+        
         task.starting_cpu = checkpoint_cpu_time;
         retval = task.run(argc, argv);
         if (retval) {
@@ -566,14 +568,13 @@ int main(int argc, char** argv) {
             }
             poll_boinc_messages(task);
             send_status_message(task, frac_done, checkpoint_cpu_time);
-            if (task.has_checkpointed()) {
+            poll_to_checkpoint--;
+            if (poll_to_checkpoint==0) {
                 checkpoint_cpu_time = task.starting_cpu + task.cpu_time();
                 write_checkpoint(i, checkpoint_cpu_time);
+                poll_to_checkpoint=POLL_TO_CHECKPOINT;
             }
             boinc_sleep(POLL_PERIOD);
-            /*frac_done += frac_inc;
-            if (frac_done >= frac_new-frac_inc*0.5)
-              frac_done = frac_old;*/
         }
         //send_status_message(task, 1.0, checkpoint_cpu_time);
         checkpoint_cpu_time = task.starting_cpu + task.final_cpu_time;

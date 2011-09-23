@@ -1,0 +1,26 @@
+boinc_client-dhrystone2-neon.o: dhrystone2.cpp cpp.h ../config.h \
+ ../version.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/string.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/cdefs.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/cdefs_elf.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include/stddef.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/malloc.h \
+ dhrystone.h
+
+cpp.h:
+
+../config.h:
+
+../version.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/string.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/cdefs.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/cdefs_elf.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include/stddef.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/malloc.h:
+
+dhrystone.h:

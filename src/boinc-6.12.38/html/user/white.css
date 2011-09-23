@@ -1,0 +1,193 @@
+a, a:link, a:visited, a:active {
+	color: #0069A1;
+}
+
+body {
+	#background: #fff url("img/gray_gradient.png") repeat-x;
+	color: black;
+}
+
+h1 {
+	color: #203C66;
+}
+
+hr {
+	border-top: 2px solid #e8e8e8;
+}
+
+hr.news_line {
+    border: 0;
+    border-bottom: 1px solid rgb(200, 200, 200);
+}
+
+table.bordered {
+	border-color: #e8e8e8;
+}
+
+th {
+	background-color: #c0c0c0;
+}
+
+td.bordered {
+	border-color: gray;
+}
+
+td.indent {
+	border-color: #fff;
+}
+
+td.heading {
+	background-color: #d8d8d8;
+}
+
+td.fieldname {
+	background-color: #eee;
+	color: #333;
+}
+
+td.fieldname_error,
+td.fieldvalue_error  {
+	background-color: #f88;
+}
+
+td.friend {
+	background-color: #e8e8e8;
+}
+
+.row0 {
+	background-color: #d9d9d9;
+}
+
+.row1 {
+	background-color: #eee;
+}
+
+.highlighted_row0 {
+	background-color: #b9d9f9;
+}
+
+.highlighted_row1 {
+	background-color: #ceeefe;
+}
+
+.row_hd0 {
+	background-color: #cffacf;
+}
+
+.row_hd1 {
+	background-color: #defade;
+}
+
+tr.message {
+	background-color: #e0e0e0;
+}
+
+input[type="button"],
+input[type="submit"],
+.btn,
+a.button {
+	background: #f2f2f2 url(img/white_grad.png) repeat-x scroll left top;
+	color: black;
+	border-color: #ccc;
+}
+
+input[type="button"]:hover,
+input[type="submit"]:hover,
+input.btn:hover,
+.button:hover ,
+.forum_toplinks a:hover {
+	border: 1px solid #555;
+	color: #0069A1;
+}
+
+input[type="text"], select, textarea {
+	border-color: #d8d8d8;
+}
+
+#news {
+	background-color: #dff0ff;
+	border-color: #add8e6;
+}
+
+#news h3 {
+	color: #666;
+}
+
+#uotd {
+	background-color: #d3d3d3;
+	border-color: #eee;
+}
+
+td.category , tr.subtitle{
+	background-color: #ddd;
+}
+
+td.postheader {
+	background-color: #eee;
+}
+
+td.postbody {
+	background: transparent url('img/75pct_white.png');
+}
+
+td.postfooter {
+	background-color: #eee;
+}
+
+tr.postseperator {
+	background-color: #c8c8c8;
+	border-color: #aaa;
+}
+
+div.authorcol {
+	background-color: white;
+	border-color: #c8c8c8;
+}
+
+.authorinfo img {
+	border-color: #a8a8a8;
+}
+
+blockquote.postbody {
+	border-left-color: #0089e1;
+	background-color: #f5fffa;
+}
+
+span.news_date {
+    color: rgb(100,100,100);
+    font-size: 0.9em;
+    float: right;
+}
+
+span.highlight {
+	background-color: #ffc;
+}
+
+.code {
+	border-left-color: #caa;
+}
+
+.error {
+	color: #f00;
+}
+
+.notice {
+	color: #090;
+}
+
+#preview {
+	border-color: #ccc;
+	background-color: #eee;
+}
+
+#preview .header {
+	border-bottom-color:  #ccc;
+}
+
+/*   Server Status Page   */
+
+td.running { background-color: #9aff4f; }
+
+td.notrunning { background-color: #feff6f; }
+
+td.disabled { background-color: #ff4f4f; }

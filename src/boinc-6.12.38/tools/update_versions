@@ -1,0 +1,292 @@
+#!/usr/bin/env python
+
+# $Id: update_versions 18903 2009-08-24 19:08:05Z davea $
+
+"""
+Scans apps dir for application versions
+and updates the database as appropriate.
+
+config.xml must contain an <app_dir> which specifies the directory to search.
+
+apps/APPLICATION_NAME/ contains application versions for each application.
+
+See http://boinc.berkeley.edu/trac/wiki/UpdateVersions
+
+"""
+
+import boinc_path_config
+from Boinc import database, db_mid, configxml, tools, boinc_project_path
+import sys, os, re, time, string
+from optparse import OptionParser
+
+parser = OptionParser(usage="usage: %prog [options]")
+
+parser.add_option("-v", "--verbose", dest="verbose", action="store_true", \
+                  default=False, help="Enable verbose mode")
+
+parser.add_option("-s", "--sign", dest="autosign", action="store_true", \
+                  default=False, help="Silently sign executables when unsigned (not recommended)")
+
+parser.add_option("-f", "--force", dest="force", action="store_true", \
+                  default=False, help="Do not prompt to continue before committing changes")
+
+options,args = parser.parse_args()
+
+if options.verbose:
+    verbose = 1
+    print '(verbose mode)'
+else:
+    verbose = 0
+
+autosign = options.autosign
+interactive = not options.force
+
+config = configxml.default_config().config
+database.connect()
+
+create_time = int(time.time())
+
+assert(config.app_dir and config.download_dir and config.download_url)
+
+objects_to_commit = []
+
+def xlistdir(dir):
+    return map(lambda file: os.path.join(dir, file), os.listdir(dir))
+
+def get_api_version(exec_file):
+    tmpfile = '.uvtemp'
+    cmd = "strings %s | grep API_VERSION > %s"%(exec_file, tmpfile)
+    os.system(cmd)
+    f = open(tmpfile, 'r')
+    if (f):
+        s = string.strip(f.read())
+        f.close()
+        os.unlink(tmpfile)
+        prefix = 'API_VERSION_'
+        n = string.find(s, prefix)
+        if (n == 0):
+            k = len(prefix)
+            return s[k:]
+    return ''
+
+# we've scanned an app version directory or file.
+# Now prepare to add it to the DB, and copy its files to the download dir
+#
+def add_files(
+    app,                # the entry from application DB table
+    match,              # the output of re_match_exec_filename(exec_files[0])
+    exec_files,         # executable files; entry 0 is the main program
+    non_exec_files=[],  # non-executable files
+    signature_files={},
+    file_ref_infos = {},
+    extra_xml = ''
+    ):
+    ''' add files to app.
+    '''
+    assert(match)
+    assert(exec_files[0])
+    version_major, version_minor, platform_name, plan_class = match.groups()
+    if plan_class:
+        plan_class = plan_class[2:]      # drop leading __
+    version_num = int(version_major) * 100 + int(version_minor)
+
+    file_base = os.path.basename(exec_files[0])
+    platforms = database.Platforms.find(name = platform_name)
+    if not platforms:
+        print >>sys.stderr, "  Unknown platform '%s' for file %s" %(platform_name, file_base)
+        return
+    platform = platforms[0]
+
+    api_version = get_api_version(exec_files[0])
+
+    existing_versions = database.AppVersions.find(app=app, platform=platform, version_num=version_num, plan_class=plan_class)
+    if existing_versions:
+        if verbose:
+            print "  Skipping existing %s %3d: %s" %(app.name, version_num, file_base)
+        return
+
+    print "  Found %s version %s for %s: %s" %(app, version_num, platform, file_base),
+    if non_exec_files:
+        print "(+ %d bundled file(s))"%len(non_exec_files)
+    else:
+        print
+
+    xml_doc = tools.process_app_version(
+        app = app,
+        version_num = version_num,
+        exec_files = exec_files,
+        non_exec_files = non_exec_files,
+        signature_files = signature_files,
+        file_ref_infos = file_ref_infos,
+        api_version = api_version,
+        extra_xml = extra_xml,
+        quiet = autosign
+        )
+
+    object = database.AppVersion(
+        create_time = create_time,
+        app = app,
+        platform = platform,
+        version_num = version_num,
+        xml_doc = xml_doc,
+        plan_class = plan_class
+        )
+
+    objects_to_commit.append(object)
+
+# Return a match if the filename is a possible app version
+# i.e. it's of the form NAME_VERSION_PLATFORM[__PLAN-CLASS][.ext]
+
+def re_match_exec_filename(filepath):
+    file = os.path.basename(filepath)
+    return re.match('[^.]+_([0-9]+)[.]([0-9]+)_([^.]+?(?:[0-9][0-9.]*[0-9])?)(__[^.]+)?(?:[.][a-zA-Z0-9\_\-]*)?$', file)
+
+# scan the directory of a given application, process its app versions
+#
+def find_versions(app, dir):
+    """Find application versions in DIR.
+    If directory contains sub-directories,
+    those are scanned (non-recursively) for files.
+    """
+
+    for filepath in xlistdir(dir):
+        # ignore symlinks
+        if os.path.islink(filepath):
+            continue
+
+        # ignore signature files
+        if filepath.endswith('.sig'):
+            continue
+
+        # look for an executable file (proper .ext at end)
+        match = re_match_exec_filename(filepath)
+        if not match:
+            print >>sys.stderr, "  Ignoring unknown file", filepath
+            continue
+        if os.path.isdir(filepath):
+            find_versions__process_bundle(app, match, filepath)
+        else:
+            find_versions__process_single_file(app, match, filepath)
+
+# Process an app that is a single file only,
+# possibly with a signature file included.
+#
+def find_versions__process_single_file(app, match, filepath):
+    '''add a single executable as app version'''
+    # Find signature file, if it exists.
+    signature_files={}
+    exec_files=[]
+    sig_file = filepath + ".sig"
+    if os.path.isfile(sig_file):
+        signature_files[filepath] = sig_file
+    exec_files.insert(0, filepath)
+
+    add_files(
+        app             = app,
+        match           = match,
+        exec_files      = exec_files,
+        signature_files = signature_files,
+        )
+
+
+# touch a file
+
+def touch_file(fname):
+    '''touch a file'''
+    file_ptr = open(fname, 'w')
+    file_ptr.close()
+
+# Process a multi-file app version
+# 
+def find_versions__process_bundle(app, match, dir):
+    '''add executable + bundle as app version'''
+    exec_files = []
+    non_exec_files = []
+    signature_files = {}
+    file_ref_infos = {}
+    extra_xml = ''
+    dirname = os.path.basename(dir)
+    found_main = False
+    for filepath in xlistdir(dir):
+        if os.path.isdir(filepath):
+            continue
+        if os.path.basename(filepath) == dirname:
+            # the filename matches the folder name,
+            # so this is the main program executable.
+            exec_files.insert(0, filepath)
+            found_main = True
+            continue
+        # if filename ends with '.sig', treat it as signature file
+        if filepath.endswith('.sig'):
+            s = filepath[:-4]
+            signature_files[s] = filepath
+            continue
+        if os.path.basename(filepath) == 'extra_xml':
+            extra_xml = open(filepath).read()
+            continue
+        if filepath.endswith('.file_ref_info'):
+            s = filepath[:-len('.file_ref_info')]
+            file_ref_infos[s] = open(filepath).read()
+            continue
+        if os.access(filepath, os.X_OK):
+            exec_files.append(filepath)
+            continue;
+        non_exec_files.append(filepath)
+    if not found_main:
+        print >>sys.stderr, "  Ignoring directory (no main program found - it has to be named the same as the directory)", dir
+        return
+
+    # check signatures, file_path_infos
+    for filepath, signature_file in signature_files.items():
+        if filepath not in exec_files and filepath not in non_exec_files:
+            print >>sys.stderr, "  Warning: signature file '%s' will be ignored because it does not match a file" %signature_file
+    for filepath in file_ref_infos:
+        file_ref_info_filepath = filepath+'.file_ref_info'
+        if filepath not in exec_files and filepath not in non_exec_files:
+            print >>sys.stderr, "  Warning: file_ref info file '%s' will be ignored because it does not match a file" %file_ref_info_filepath
+
+    add_files(
+        app              = app,
+        match            = match,
+        exec_files       = exec_files,
+        non_exec_files   = non_exec_files,
+        signature_files  = signature_files,
+        file_ref_infos   = file_ref_infos,
+        extra_xml        = extra_xml,
+        )
+
+####################
+# BEGIN:
+
+for appdir in xlistdir(config.app_dir):
+    if not os.path.isdir(appdir): continue
+    dirname = os.path.basename(appdir)
+    appname = os.path.basename(appdir)
+    apps = database.Apps.find(name=appname)
+    if apps:
+        if verbose:
+            print "Looking for %s versions in"%apps[0], appdir
+        find_versions(apps[0], appdir)
+        continue
+
+    print "Couldn't find app '%s'" %(appname)
+
+if not objects_to_commit:
+    raise SystemExit("No new versions found!")
+
+print "Ready to commit %d items:" %len(objects_to_commit)
+for object in objects_to_commit:
+    print "   ", object
+
+if interactive:
+    if not tools.query_yesno("Continue"):
+        raise SystemExit
+
+print "Committed:"
+for object in objects_to_commit:
+    object.commit()
+    print "   ", object
+
+touch_file(boinc_project_path.project_path('reread_db'))
+print "Touched trigger file to make feeder re-read app_version table from database"
+print "Done"

@@ -1,0 +1,248 @@
+libboinc_la-mac_address.lo: mac_address.cpp ../config.h ../version.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cstdio \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/c++config.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/os_defines.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/cpu_defines.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cstddef \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include/stddef.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/stdio.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/cdefs.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/cdefs_elf.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/_types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/machine/_types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include/stdarg.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/sys/types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/stdint.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/posix_types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/stddef.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/compiler.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/posix_types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/machine/kernel.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/sysmacros.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/unistd.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/select.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/time.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/time.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/signal.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/limits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/syslimits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/limits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/limits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/limits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/machine/internal_types.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/machine/limits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/syslimits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/string.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/malloc.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/signal.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm-generic/signal.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/siginfo.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm-generic/siginfo.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/sysconf.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/capability.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/pathconf.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/ioctl.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/ioctl.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/ioctl.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm-generic/ioctl.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/ioctls.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/termbits.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/ioctl_compat.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/socket.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/socket.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/socket.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/sockios.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/sockios.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/uio.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/net/if.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/if.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/hdlc/ioctl.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/netinet/in.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/endian.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/endian.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/in.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/byteorder.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/byteorder/little_endian.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/byteorder/swab.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/byteorder/generic.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/in6.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/netinet/in6.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/netinet/if_ether.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/if_ether.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/if_arp.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/netdevice.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/if_packet.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/net/ethertypes.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/netinet/ether.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/net/if_ether.h \
+ unix_util.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/arpa/inet.h \
+ mac_address.h
+
+../config.h:
+
+../version.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cstdio:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/c++config.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/os_defines.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/libs/armeabi/include/bits/cpu_defines.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cstddef:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include/stddef.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/stdio.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/cdefs.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/cdefs_elf.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/_types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/machine/_types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include/stdarg.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/sys/types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/stdint.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/posix_types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/stddef.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/compiler.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/posix_types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/machine/kernel.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/sysmacros.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/unistd.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/select.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/time.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/time.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/signal.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/limits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/linux-x86/bin//../lib/gcc/arm-linux-androideabi/4.4.3/include-fixed/syslimits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/limits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/limits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/limits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/machine/internal_types.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/machine/limits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/syslimits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/string.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/malloc.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/signal.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm-generic/signal.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/siginfo.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm-generic/siginfo.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/sysconf.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/capability.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/pathconf.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/ioctl.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/ioctl.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/ioctl.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm-generic/ioctl.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/ioctls.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/termbits.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/ioctl_compat.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/socket.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/socket.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/socket.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/sockios.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/sockios.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/uio.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/net/if.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/if.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/hdlc/ioctl.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/netinet/in.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/endian.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/sys/endian.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/in.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/asm/byteorder.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/byteorder/little_endian.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/byteorder/swab.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/byteorder/generic.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/in6.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/netinet/in6.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/netinet/if_ether.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/if_ether.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/if_arp.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/netdevice.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/linux/if_packet.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/net/ethertypes.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/netinet/ether.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/net/if_ether.h:
+
+unix_util.h:
+
+/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/arpa/inet.h:
+
+mac_address.h:

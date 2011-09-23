@@ -968,7 +968,7 @@ int HOST_INFO::get_host_info() {
     p_ncpus = sysconf(_SC_NPROCESSORS_CONF);
     int maxcpu=0;
     for (int i=0; i<17;i++) {
-      puts(cpupath);
+      snprintf(cpupath,64,"/sys/devices/system/cpu/cpu%d",i);
       if (access(cpupath,F_OK)<0) {
         maxcpu=i;
         break;

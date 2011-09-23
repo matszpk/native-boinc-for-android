@@ -438,7 +438,7 @@
 
 /* Platform identification used to identify applications for this BOINC core
    client */
-#define HOSTTYPE "arm-unknown-linux-gnu"
+#define HOSTTYPE "arm-android-linux-gnu"
 
 /* Alternate identification used to identify applications for this BOINC core
    client */

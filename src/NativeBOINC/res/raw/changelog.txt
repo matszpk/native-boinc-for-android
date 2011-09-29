@@ -1,3 +1,8 @@
+Version 0.2.5.1 (alpha) (2011-09-29)
+- fixed shutting down
+- improved widget design
+- improved error handling
+
 Version 0.2.5 (alpha) (2011-09-15)
 - fix bugs on startup/shutdown client
 

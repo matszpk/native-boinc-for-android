@@ -96,7 +96,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 	private boolean mInitialStateRetrieved = false;
 
 
-	public ClientBridgeWorkerHandler(ClientBridge.ReplyHandler replyHandler, final Context context, final NetStats netStats) {
+	public ClientBridgeWorkerHandler(ClientBridge.ReplyHandler replyHandler,
+			final Context context, final NetStats netStats) {
 		mReplyHandler = replyHandler;
 		mContext = context;
 		mNetStats = netStats;
@@ -128,9 +129,40 @@ public class ClientBridgeWorkerHandler extends Handler {
 		}
 	}
 
+	private class ConnectionAliveChecker extends Thread {
+		private boolean mIsConnectionAlive = false;
+		
+		@Override
+		public void run() {
+			mIsConnectionAlive = mRpcClient.connectionAlive();
+		}
+		
+		public boolean isConnectionAlive() {
+			return mIsConnectionAlive;
+		}
+	}
+	
 	private void rpcFailed() {
-		notifyDisconnected();
-		closeConnection();
+		// check whether connection alive
+		ConnectionAliveChecker aliveChecker = new ConnectionAliveChecker();
+		aliveChecker.start();
+		if (Logging.DEBUG) Log.d(TAG, "Checking connection alive");
+		try {
+			aliveChecker.join(3000);
+		} catch (InterruptedException e) { }
+		
+		if (Logging.DEBUG) Log.d(TAG, "Checking connection alive interrupt");
+		aliveChecker.interrupt();
+		
+		try {
+			aliveChecker.join();
+		} catch (InterruptedException e) { }
+		
+		if (!aliveChecker.isConnectionAlive()) {
+			// if not
+			notifyDisconnected();
+			closeConnection();
+		}
 	}
 
 
@@ -809,7 +841,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 				connectionAlive = mRpcClient.connectionAlive();
 				if (!connectionAlive) {
 					// The socket is already closed on the other side
-					if (Logging.DEBUG) Log.d(TAG, "shutdownCore(), socket closed after " + i + " retries since trigger");
+					if (Logging.DEBUG) Log.d(TAG,
+							"shutdownCore(), socket closed after " + i + " retries since trigger");
 					break;
 				}
 				Thread.sleep(1000);
@@ -855,7 +888,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 		updateProjects(callback);
 	}
 
-	public void taskOperation(final ClientReplyReceiver callback, int operation, String projectUrl, String taskName) {
+	public void taskOperation(final ClientReplyReceiver callback, int operation, String projectUrl,
+			String taskName) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		mRpcClient.resultOp(operation, projectUrl, taskName);
@@ -865,7 +899,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 		updateTasks(callback);
 	}
 
-	public void transferOperation(final ClientReplyReceiver callback, int operation, String projectUrl, String fileName) {
+	public void transferOperation(final ClientReplyReceiver callback, int operation,
+			String projectUrl, String fileName) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		mRpcClient.transferOp(operation, projectUrl, fileName);
@@ -1014,7 +1049,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 
-	private synchronized void updatedProjects(final ClientReplyReceiver callback, final Vector<ProjectInfo> projects) {
+	private synchronized void updatedProjects(final ClientReplyReceiver callback,
+			final Vector<ProjectInfo> projects) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
@@ -1034,7 +1070,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 
-	private synchronized void updatedTransfers(final ClientReplyReceiver callback, final Vector<TransferInfo> transfers) {
+	private synchronized void updatedTransfers(final ClientReplyReceiver callback,
+			final Vector<TransferInfo> transfers) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
@@ -1044,7 +1081,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 
-	private synchronized void updatedMessages(final ClientReplyReceiver callback, final Vector<MessageInfo> messages) {
+	private synchronized void updatedMessages(final ClientReplyReceiver callback,
+			final Vector<MessageInfo> messages) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
@@ -1143,17 +1181,20 @@ public class ClientBridgeWorkerHandler extends Handler {
 			Result result = ri.next();
 			ProjectInfo pi = mProjects.get(result.project_url);
 			if (pi == null) {
-				if (Logging.WARNING) Log.w(TAG, "No project info for WU=" + result.name + " (project_url: " + result.project_url + "), skipping WU");
+				if (Logging.WARNING) Log.w(TAG, "No project info for WU=" + result.name +
+						" (project_url: " + result.project_url + "), skipping WU");
 				continue;
 			}
 			Workunit workunit = mWorkunits.get(result.wu_name);
 			if (workunit == null) {
-				if (Logging.WARNING) Log.w(TAG, "No workunit info for WU=" + result.name + " (wu_name: " + result.wu_name + "), skipping WU");
+				if (Logging.WARNING) Log.w(TAG, "No workunit info for WU=" + result.name +
+						" (wu_name: " + result.wu_name + "), skipping WU");
 				continue;
 			}
 			App app = mApps.get(workunit.app_name);
 			if (app == null) {
-				if (Logging.WARNING) Log.w(TAG, "No application info for WU=" + result.name + " (app_name: " + workunit.app_name + "), skipping WU");
+				if (Logging.WARNING) Log.w(TAG, "No application info for WU=" + result.name +
+						" (app_name: " + workunit.app_name + "), skipping WU");
 				continue;
 			}
 			TaskInfo task = TaskInfoCreator.create(result, workunit, pi, app, mFormatter);
@@ -1174,7 +1215,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 			Transfer transfer = ti.next();
 			ProjectInfo proj = mProjects.get(transfer.project_url);
 			if (proj == null) {
-				if (Logging.WARNING) Log.w(TAG, "No project for WU=" + transfer.name + " (project_url: " + transfer.project_url + "), setting dummy");
+				if (Logging.WARNING) Log.w(TAG, "No project for WU=" +
+						transfer.name + " (project_url: " + transfer.project_url + "), setting dummy");
 				proj = new ProjectInfo();
 				proj.project = "???";
 			}
@@ -1197,7 +1239,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 			if (task == null) {
 				// Maybe new workunit wad downloaded meanwhile, so we have
 				// its result part, but not workunit part
-				if (Logging.DEBUG) Log.d(TAG, "Task not found while trying dataUpdateTasks() - needs full updateCcState() update");
+				if (Logging.DEBUG) Log.d(TAG,
+						"Task not found while trying dataUpdateTasks() - needs full updateCcState() update");
 				return false;
 			}
 			TaskInfoCreator.update(task, result, mFormatter);
@@ -1213,7 +1256,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 		// e.g. those uploaded and reported successfully
 		// We should remove them now
 		if (oldTaskNames.size() > 0) {
-			if (Logging.DEBUG) Log.d(TAG, "dataUpdateTasks(): " + oldTaskNames.size() + " obsolete tasks detected");
+			if (Logging.DEBUG) Log.d(TAG, "dataUpdateTasks(): " + oldTaskNames.size() +
+					" obsolete tasks detected");
 			Iterator<String> it = oldTaskNames.iterator();
 			while (it.hasNext()) {
 				String obsoleteName = it.next();

@@ -324,6 +324,8 @@ public class RpcClient {
 	private void sendRequest(String request) throws IOException {
 		if (Debugging.PERFORMANCE) Log.d(TAG, "mRequest.capacity() = " + mRequest.capacity());
 		if (Debugging.DATA) Log.d(TAG, "Sending request: \n" + request.toString());
+		if (mOutput == null)
+			return;
 		mOutput.write("<boinc_gui_rpc_request>\n");
 		mOutput.write(request);
 		mOutput.write("</boinc_gui_rpc_request>\n\003");
@@ -350,6 +352,8 @@ public class RpcClient {
 		//                             ~ 95 KB/s for buffer size 4096
 		// The chosen buffer size is 2048
 		int bytesRead;
+		if (mInput == null)
+			return mResult.toString();	// empty string
 		do {
 			bytesRead = mInput.read(mReadBuffer);
 			if (bytesRead == -1) break;

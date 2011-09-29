@@ -182,7 +182,7 @@ public class NativeBoincService extends Service {
 		for (String pid: pidStrings) {
 			android.os.Process.sendSignal(Integer.parseInt(pid), 2);
 			try {
-				Thread.sleep(100);	// 0.1 second
+				Thread.sleep(400);	// 0.4 second
 			} catch (InterruptedException e) { }
 			/* fallback killing (by using SIGKILL signal) */
 			android.os.Process.sendSignal(Integer.parseInt(pid), 9);
@@ -420,10 +420,13 @@ public class NativeBoincService extends Service {
 			mIsRun = true;
 			notifyClientStateChanged(true);
 			
+			boolean afterInterrupt = false;
 			try { /* waiting to quit */
 				if (Logging.DEBUG) Log.d(TAG, "Waiting for boinc_client");
 				process.waitFor();
-			} catch(InterruptedException ex) { }
+			} catch(InterruptedException ex) {
+				afterInterrupt = true;
+			}
 			
 			mIsRun = false;
 			mRpcClient = null;
@@ -437,6 +440,8 @@ public class NativeBoincService extends Service {
 			if (Logging.DEBUG) Log.d(TAG, "Release wake lock");
 			if (mDimWakeLock.isHeld())
 				mDimWakeLock.release();	// screen unlock
+			if (mPartialWakeLock.isHeld())
+				mPartialWakeLock.release();	// screen unlock
 			
 			notifyClientStateChanged(false);
 			
@@ -450,14 +455,16 @@ public class NativeBoincService extends Service {
 		@Override
 		public void run() {
 			try {
-				Thread.sleep(2500);
+				Thread.sleep(6000);
 			} catch(InterruptedException ex) { }
 			
 			if (!mDontKill && mNativeBoincThread != null) {
 				if (Logging.DEBUG) Log.d(TAG, "Killer:Killing native boinc");
 				mNativeBoincThread.interrupt();
 			}
-			if (Logging.DEBUG) Log.d(TAG, "Killer:Dont Killing native boinc");
+			else {
+				if (Logging.DEBUG) Log.d(TAG, "Killer:Dont Killing native boinc");
+			}
 		}
 		
 		public void disableKiller() {
@@ -466,7 +473,7 @@ public class NativeBoincService extends Service {
 		}
 	};
 	
-	private static final int WAKELOCK_HOLD_PERIOD = 15000;
+	private static final int WAKELOCK_HOLD_PERIOD = 25000;
 	
 	private class WakeLockHolder extends Thread {
 		private static final String TAG = "WakeLockHolder";
@@ -670,7 +677,7 @@ public class NativeBoincService extends Service {
 	 */
 	public double getGlobalProgress() {
 		if (Logging.DEBUG) Log.d(TAG, "Get global progress");
-		if (mRpcClient == null)
+		if (mRpcClient == null || !mRpcClient.isConnected())
 			return -1.0;	// do nothing
 		
 		Vector<Result> results = mRpcClient.getResults();

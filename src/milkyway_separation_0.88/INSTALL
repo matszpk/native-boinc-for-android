@@ -1,0 +1,136 @@
+
+--------------------------------------------------------------------------------
+Dependencies:
+  Everything can be built independently of BOINC for separate use
+
+  separation: Only BOINC if necessary
+       For CAL: CAL++, CAL, Boost
+       For OpenCL: OpenCL from AMD APP SDK or Nvidia CUDA SDK
+
+  nbody:
+    OpenSSL: Optional, only used for tests
+    GLUT, OpenGL: Optional, for building graphics
+
+--------------------------------------------------------------------------------
+Dependency Installation Notes:
+
+    Linux:
+        Ubuntu / Debian:
+              - Make sure the necessary build tools are installed
+
+              $ apt-get build-essential
+              $ apt-get install cmake git-core diffutils patch libssl-dev freeglut3-dev
+
+          Other Distributions: Install equivalent packages.
+
+    OS X:
+                - Install Xcode and the Apple developer tools. This may involve joining some sort of cult.
+                - Install macports
+
+                $ port install cmake git-core
+
+                To build as 32 bit, there are 2 options.
+
+                If using Apple GCC,
+               - To build as 32 bit, or as a universal binary (no PPC), build with
+                  -DBUILD_OSX_32=ON or -DBUILD_OSX_UNIVERSAL=ON
+                 - 32 bit OS X  build may require Apple GCC 4.0 and  the 10.4u SDK
+
+               -If using Macports GCC, make sure you've installed the
+                +universal variant. Then build normally with the addition of -DCMAKE_C_FLAG="-m32" -DCMAKE_CXX_FLAGS="-m32" This however won't work on 10.4
+
+
+    Windows:
+        - Visual Studio 2010 should work for Separation, but not N-body
+        - MinGW: Try using TDM-GCC http://tdm-gcc.tdragon.net/
+      - build with -DCMAKE_INSTALL_PREFIX=/usr/local for some reason
+          helps find things with MinGW
+
+
+        Install OpenSSL for Win64:
+          - Install MSVC++ redistributables:
+               http://www.microsoft.com/downloads/details.aspx?familyid=bd2a6171-e2d6-4230-b809-9a8d7548c1b6
+          - Install OpenSSL itself:
+               http://www.slproweb.com/download/Win64OpenSSL-1_0_0d.exe
+
+          - Copy these: DLLs from their default install location
+               C:\OpenSSL-Win64\libeay32.dll
+               C:\OpenSSL-Win64\ssleay32.dll
+               to milkywayathome_client\lib directory to avoid finding
+               the 32 bit libraries.
+
+          - For MSVC 32 bit, either use VS 2008 or at least install
+            it, and set the platform toolset to v90 for all targets
+            (for now at least it can't be set from cmake) or else it
+            won't run on Windows 2000 (anything before XP SP2)
+
+BOINC:
+    If building from git, you can build BOINC along with everything else
+    using a submodule:
+
+    $ git checkout <tag of desired version>
+       e.g. $ git checkout separation_0.80
+     $ git submodule init
+     $ git submodule update
+
+     - Without a submodule, dropping a copy of the BOINC source at
+     milkywayathome_client/boinc/boinc should also include BOINC in the
+     build.
+
+     - If BOINC isn't found there, it will try to find the BOINC libraries
+     installed on the system or dumped in include and lib in the binary directory
+
+--------------------------------------------------------------------------------
+Using Build Options:
+  Build options are passed to cmake with -D on the command line, or
+  are check boxes if using the GUI
+
+   Example options:
+    $ cmake . -DBOINC_APPLICATION=OFF -DCMAKE_C_COMPILER=clang
+
+ Using -i argument with cmake will walk you through various build options
+
+--------------------------------------------------------------------------------
+Build Options:
+
+Common ON/OFF options:
+    BOINC_APPLICATION: Build with BOINC or not. More convenient to not
+                                        use BOINC for general use, testing. Not useful for most people
+    BOINC_RELEASE_NAMES: Use the long names BOINC uses which include version and system information
+
+Build Options:
+  CMAKE_BUILD_TYPE = one of Release, RelWithDebInfo, MinSizeRel, or Profile
+                                      defaults to Release
+             Some of the libraries the build handles (popt, lua, and BOINC) default to MinSizeRel unless debugging
+
+Common system options:
+  CMAKE_C_FLAGS, CMAKE_CXX_FLAGS - compiler flags
+  CMAKE_C_COMPILER, CMAKE_CXX_COMPILER - specify compiler
+    - note that if you want to change the compiler, you must delete CMakeCache.txt
+
+--------------------------------------------------------------------------------
+
+Building:
+  Linux:
+    $ cmake /path/to/source
+    $ make
+
+  OS X:
+    Same as Linux. Alternatively, Xcode projects could be built, but I have never tried or tested it
+
+  Windows/MinGW (TDM-GCC)
+     $ cmake /path/to/source -G "MinGW Makefiles"
+     $ mingw32-make
+
+  Windows/MinGW (MSYS, most likely with MinGW home installer"
+     $ cmake /path/to/source -G "MSYS Makefiles"
+     $ make
+
+     To build 32 bit version, add -m32 to the CFLAGS when
+     building. Add -DCMAKE_C_FLAGS="-m32" -DCMAKE_CXX_FLAGS="-m32" to the cmake build line.
+
+  Windows/Visual Studio
+     1. Use the cmake gui to generate VS projects
+     2. Open the generated sln and build the project
+
+

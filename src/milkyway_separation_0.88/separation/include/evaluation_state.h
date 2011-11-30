@@ -29,6 +29,10 @@ along with Milkyway@Home.  If not, see <http://www.gnu.org/licenses/>.
 extern "C" {
 #endif
 
+#ifdef ANDROID
+#include "arm_math/fp2intfp.h"
+#endif
+
 
 /* Completed integral state */
 typedef struct
@@ -48,6 +52,9 @@ typedef struct
 
     real bgTmp;
     real* streamTmps;
+#ifdef ANDROID
+    IntFp* streamTmpsIntFp;
+#endif
 
     unsigned int lastCheckpointNuStep; /* Nu step of last checkpointed (only used by GPU) */
     unsigned int current_calc_probs; /* progress of completed cuts */

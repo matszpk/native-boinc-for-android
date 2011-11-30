@@ -19,6 +19,9 @@ You should have received a copy of the GNU General Public License
 along with Milkyway@Home.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef ANDROID
+#include "arm_math/fp2intfp.h"
+#endif
 #include "separation.h"
 #include "separation_lua.h"
 #include "milkyway_util.h"
@@ -378,6 +381,9 @@ static int worker(const SeparationFlags* sf)
     SeparationResults* results = NULL;
     int rc;
     CLRequest clr;
+#ifdef ANDROID
+    int armExt = mwDetectARMExt();
+#endif
 
     memset(&ap, 0, sizeof(ap));
 
@@ -388,6 +394,17 @@ static int worker(const SeparationFlags* sf)
         return 1;
 
     rc = setAstronomyParameters(&ap, &bgp);
+#ifdef ANDROID
+    if (armExt==ARM_CPU_NOVFP)
+    {
+        fp_to_intfp(ap.r0,&(ap.r0_intfp));
+        fp_to_intfp(ap.m_sun_r0,&(ap.m_sun_r0_intfp));
+        fp_to_intfp(ap.q_inv_sqr,&(ap.q_inv_sqr_intfp));
+        fp_to_intfp(ap.bg_a,&(ap.bg_a_intfp));
+        fp_to_intfp(ap.bg_b,&(ap.bg_b_intfp));
+        fp_to_intfp(ap.bg_c,&(ap.bg_c_intfp));
+    }
+#endif
     if (rc)
     {
         mwFreeA(ias);

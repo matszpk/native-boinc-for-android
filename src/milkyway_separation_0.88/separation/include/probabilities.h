@@ -43,7 +43,7 @@ extern "C" {
 #endif /* MW_IS_X86 */
 
 
-#define DEFINE_INIT_PROBABILITIES(level) ProbabilityFunc initProbabilities##level(const AstronomyParameters* ap, int useIntrinsics)
+#define DEFINE_INIT_PROBABILITIES(level) void* initProbabilities##level(const AstronomyParameters* ap, int useIntrinsics)
 
 DEFINE_INIT_PROBABILITIES();
 

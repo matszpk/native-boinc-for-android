@@ -36,6 +36,17 @@ int likelihood(SeparationResults* results,
                const int do_separation,
                const char* separation_outfile);
 
+#ifdef ANDROID
+int likelihood_intfp(SeparationResults* results,
+                    const AstronomyParameters* ap,
+                    const StarPoints* sp,
+                    const StreamConstantsIntFp* sc,
+                    const Streams* streams,
+                    const StreamGauss sg,
+                    const int do_separation,
+                    const char* separation_outfile);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

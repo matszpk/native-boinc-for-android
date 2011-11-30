@@ -1,7 +1,7 @@
 /*
  * prob_arm_novfp.S
  * Author: Mateusz Szpakowski
- * License: LGPLv2
+ * License: GPLv2
  */
                 .arch armv6
                 .eabi_attribute 20, 1

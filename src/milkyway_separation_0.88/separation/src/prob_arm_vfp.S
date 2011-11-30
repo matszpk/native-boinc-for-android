@@ -1,6 +1,7 @@
 /*
  * prob_arm_vfp.S
  * Mateusz Szpakowski
+ * License: GPLv3
  */
                 .arch armv6
                 .fpu vfp
@@ -344,21 +345,22 @@
                 b .Lexpend1
 .Lnoexpexception1:
                 fldd d4,.Llog2_4
+                fldd d5,.Llog2_4+8
                 fsitod d10,s16
                 fsitod d11,s17
                 fsitod d12,s18
                 fsitod d13,s19
                 
-                fmuld d10,d10,d4
-                fmuld d11,d11,d4
-                fmuld d12,d12,d4
-                fmuld d13,d13,d4
-                
                 // 15
-                fsubd d0,d0,d10           // fractional
-                fsubd d1,d1,d11           // fractional
-                fsubd d2,d2,d12           // fractional
-                fsubd d3,d3,d13           // fractional
+                fnmacd d0,d4,d10           // fractional
+                fnmacd d1,d4,d11           // fractional
+                fnmacd d2,d4,d12           // fractional
+                fnmacd d3,d4,d13           // fractional
+                
+                fnmacd d0,d5,d10           // fractional
+                fnmacd d1,d5,d11           // fractional
+                fnmacd d2,d5,d12           // fractional
+                fnmacd d3,d5,d13           // fractional
                 
                 // 14
                 fldd d4,.Lpolyexp4
@@ -498,10 +500,10 @@
                 
                 fldd d8,[r0]
                 fmacd d8,d4,d12
-                fmuld d9,d5,d13
+                fmacd d8,d5,d13
                 fmacd d8,d6,d14
-                fmacd d9,d7,d15
-                faddd d8,d9,d8
+                fmacd d8,d7,d15
+                
                 fstd d8,[r0]
                 add r0,r0,#8
                 
@@ -548,8 +550,9 @@
                 bx lr
                 
                 .align 3
-.Llog2_4:
-                .double 6.931471805599452862e-01
+.Llog2_4:       /* two parts of log2 */
+                .double 6.931457519531250000e-01
+                .double 1.428606820309417256e-06
 .Linvlog2_4:
                 .double 1.44269504088896340737
 .Lpolyexp4:
@@ -671,10 +674,11 @@
                 b .Lrestendexp1
 .Lrestcomputeexp1:
                 fldd d4,.Llog2_4
+                fldd d5,.Llog2_4+8
                 fsitod d12,s16
                 
-                fmuld d12,d12,d4
-                fsubd d0,d0,d12           // fractional
+                fnmacd d0,d4,d12           // fractional
+                fnmacd d0,d5,d12           // fractional
                 fldd d4,.Lpolyexp4
                 
                 fldd d8,.Lpolyexp4+8
@@ -747,6 +751,7 @@ prob_arm_vfp:
                 sub sp,sp,#128
                 
                 ldr r4,[r0,#32]        // convolve
+                //sub r4,r4,#1
                 ldr r5,[r0,#36]        // nstreams
                 ldr r9,[sp,#128+40+56]      // streamTmps
                 
@@ -1057,21 +1062,23 @@ prob_arm_vfp:
                 b .Lexpend2
 .Lnoexpexception2:
                 fldd d4,.Llog2
+                fldd d5,.Llog2+8
+                
                 fsitod d10,s16
                 fsitod d11,s17
                 fsitod d12,s18
                 fsitod d13,s19
                 
-                fmuld d10,d10,d4
-                fmuld d11,d11,d4
-                fmuld d12,d12,d4
-                fmuld d13,d13,d4
-                
                 // 15
-                fsubd d0,d0,d10           // fractional
-                fsubd d1,d1,d11           // fractional
-                fsubd d2,d2,d12           // fractional
-                fsubd d3,d3,d13           // fractional
+                fnmacd d0,d4,d10           // fractional
+                fnmacd d1,d4,d11           // fractional
+                fnmacd d2,d4,d12           // fractional
+                fnmacd d3,d4,d13           // fractional
+                
+                fnmacd d0,d5,d10           // fractional
+                fnmacd d1,d5,d11           // fractional
+                fnmacd d2,d5,d12           // fractional
+                fnmacd d3,d5,d13           // fractional
                 
                 // 14
                 fldd d4,.Lpolyexp2
@@ -1211,10 +1218,10 @@ prob_arm_vfp:
                 
                 fldd d8,[r0]
                 fmacd d8,d4,d12
-                fmuld d9,d5,d13
+                fmacd d8,d5,d13
                 fmacd d8,d6,d14
-                fmacd d9,d7,d15
-                faddd d8,d9,d8
+                fmacd d8,d7,d15
+                
                 fstd d8,[r0]
                 add r0,r0,#8
                 
@@ -1260,8 +1267,9 @@ prob_arm_vfp:
                 bx lr
 
                 .align 3
-.Llog2:
-                .double 6.931471805599452862e-01
+.Llog2:          /* two parts of log2 */
+                .double 6.931457519531250000e-01
+                .double 1.428606820309417256e-06
 .Linvlog2:
                 .double 1.44269504088896340737
 .Lpolyexp2:
@@ -1365,10 +1373,11 @@ prob_arm_vfp:
                 b .Lrestendexp2
 .Lrestcomputeexp2:
                 fldd d4,.Llog2
+                fldd d5,.Llog2+8
                 fsitod d12,s16
                 
-                fmuld d12,d12,d4
-                fsubd d0,d0,d12           // fractional
+                fnmacd d0,d4,d12           // fractional
+                fnmacd d0,d5,d12           // fractional
                 fldd d4,.Lpolyexp
                 
                 fldd d8,.Lpolyexp+8
@@ -1418,8 +1427,9 @@ prob_arm_vfp:
                 b .Lafterrestloop2
                 
                 .align 3
-.Llog2_2:
-                .double 6.931471805599452862e-01
+.Llog2_2:       /* two parts of log2 */
+                .double 6.931457519531250000e-01
+                .double 1.428606820309417256e-06
 .Lzero2:
                 .double 0.0
 .Linf:
@@ -1455,9 +1465,10 @@ prob_arm_vfp:
                 b .Ltoexp2
 .Lcomputeexp1:
                 fldd d4,.Llog2_2
+                fldd d5,.Llog2_2+8
                 fsitod d10,s16
-                fmuld d10,d10,d4
-                fsubd d0,d0,d10           // fractional
+                fnmacd d0,d4,d10           // fractional
+                fnmacd d0,d5,d10           // fractional
                 
                 fldd d4,.Lpolyexp
                 fsts s17,[sp,#4]
@@ -1502,9 +1513,10 @@ prob_arm_vfp:
                 b .Ltoexp3
 .Lcomputeexp2:
                 fldd d4,.Llog2_2
+                fldd d5,.Llog2_2+8
                 fsitod d10,s17
-                fmuld d10,d10,d4
-                fsubd d1,d1,d10           // fractional
+                fnmacd d1,d4,d10           // fractional
+                fnmacd d1,d5,d10           // fractional
                 fldd d5,.Lpolyexp
                 
                 fsts s18,[sp]
@@ -1551,9 +1563,10 @@ prob_arm_vfp:
                 b .Ltoexp4
 .Lcomputeexp3:
                 fldd d4,.Llog2_2
+                fldd d5,.Llog2_2+8
                 fsitod d10,s18
-                fmuld d10,d10,d4
-                fsubd d2,d2,d10           // fractional
+                fnmacd d2,d4,d10           // fractional
+                fnmacd d2,d5,d10           // fractional
                 fldd d6,.Lpolyexp
                 
                 fldd d10,.Lpolyexp+8
@@ -1594,9 +1607,10 @@ prob_arm_vfp:
                 b .Ltoexceptend
 .Lcomputeexp4:
                 fldd d4,.Llog2_2
+                fldd d5,.Llog2_2+8
                 fsitod d10,s19
-                fmuld d10,d10,d4
-                fsubd d3,d3,d10           // fractional
+                fnmacd d3,d4,d10           // fractional
+                fnmacd d3,d5,d10           // fractional
                 fldd d7,.Lpolyexp
                 
                 fldd d11,.Lpolyexp+8

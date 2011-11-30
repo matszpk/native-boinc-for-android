@@ -73,8 +73,10 @@ typedef struct
 {
     real* dx;
     real* qgaus_W;
+#ifdef ANDROID
+    IntFp* dx_intfp;
+#endif
 } StreamGauss;
-
 
 /* Parameter related types */
 

@@ -23,12 +23,15 @@ along with Milkyway@Home.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Should only be directly included by CL kernel */
 
+#ifdef ANDROID
+#include "arm_math/fp2intfp.h"
+#endif
+
 #ifndef _MSC_VER
   #define SEPARATION_ALIGN(x) __attribute__ ((aligned(x)))
 #else
   #define SEPARATION_ALIGN(x) __declspec(align(x))
 #endif /* _MSC_VER */
-
 
 #ifdef __OPENCL_VERSION__
 
@@ -37,7 +40,6 @@ along with Milkyway@Home.  If not, see <http://www.gnu.org/licenses/>.
 #else
   #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 #endif /* cl_amd_fp64 */
-
 
 #if DOUBLEPREC
 typedef double real;
@@ -89,6 +91,16 @@ typedef struct SEPARATION_ALIGN(128)
     int large_sigma;          /* abs(stream_sigma) > SIGMA_LIMIT */
 } StreamConstants;
 
+#ifdef ANDROID
+typedef struct SEPARATION_ALIGN(128)
+{
+    IntFp a[4];
+    IntFp c[4];
+    IntFp sigma_sq2_inv;
+    int large_sigma;         
+} StreamConstantsIntFp;
+#endif
+
 #ifndef __OPENCL_VERSION__
 typedef struct
 {
@@ -106,6 +118,16 @@ typedef struct
     real bSin;
     real _pad;
 } LBTrig;
+
+#ifdef ANDROID
+typedef struct
+{
+    IntFp lCosBCos;
+    IntFp lSinBCos;
+    IntFp bSin;
+    uint32_t _pad;
+} LBTrigIntFp;
+#endif
 
 #define LCOS_BCOS(x) ((x).lCosBCos)
 #define LSIN_BCOS(x) ((x).lSinBCos)
@@ -168,6 +190,12 @@ typedef struct SEPARATION_ALIGN(128)
     unsigned int number_integrals;
 
     real exp_background_weight;
+#ifdef ANDROID
+    IntFp m_sun_r0_intfp;
+    IntFp q_inv_sqr_intfp;  /* 1 / q^2 */
+    IntFp r0_intfp;
+    IntFp bg_a_intfp, bg_b_intfp, bg_c_intfp;
+#endif
 } AstronomyParameters;
 
 typedef struct SEPARATION_ALIGN(16)

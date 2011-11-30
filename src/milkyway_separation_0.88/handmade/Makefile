@@ -63,6 +63,12 @@ MWSRCS = ../milkyway/src/milkyway_cpp_util.cc \
 	../milkyway/src/mw_asprintf.c \
 	../milkyway/src/mw_boinc_util.c
 
+MWARMSRCS = ../milkyway/src/arm_math/arm_exp.c \
+	../milkyway/src/arm_math/arm_log.c \
+	../milkyway/src/arm_math/fp2intfp-arm.S \
+	../milkyway/src/arm_math/ifpexp.S \
+	../milkyway/src/arm_math/ifplog.S
+	
 SEPSRCS = ../separation/src/calculated_constants.c \
 	../separation/src/coordinates.c \
 	../separation/src/evaluation.c \
@@ -84,7 +90,7 @@ SEPSRCS = ../separation/src/calculated_constants.c \
 
 DSFMTSRCS = ../dSFMT/dSFMT.c
 
-SRCS = $(SEPSRCS) $(MWSRCS) $(LUASRCS) $(POPTSRCS) $(DSFMTSRCS)
+SRCS = $(SEPSRCS) $(MWSRCS) $(MWARMSRCS) $(LUASRCS) $(POPTSRCS) $(DSFMTSRCS)
 
 LUAHDRS = ../lua/include/lapi.h \
 	../lua/include/lauxlib.h \
@@ -140,6 +146,10 @@ MWHDRS = ../milkyway/include/milkyway_cl.h \
 	../milkyway/include/mw_cl_util.h \
 	../milkyway/include/real.h
 
+MWARMHDRS = ../milkyway/include/arm_math/arm_exp.h \
+	../milkyway/include/arm_math/arm_log.h \
+	../milkyway/include/arm_math/fp2intfp.h
+
 SEPHDRS = ../separation/include/calculated_constants.h \
 	../separation/include/coordinates.h \
 	../separation/include/evaluation.h \
@@ -177,7 +187,7 @@ CONFHDRS = config/luaconf.h config/milkyway_config.h \
 
 DSFMTHDRS = ../dSFMT/dSFMT.h
 
-HDRS = $(SEPHDRS) $(MWHDRS) $(LUAHDRS) $(POPTHDRS) $(DSFMTHDRS) $(CONFHDRS)
+HDRS = $(SEPHDRS) $(MWHDRS) $(MWARMHDRS) $(LUAHDRS) $(POPTHDRS) $(DSFMTHDRS) $(CONFHDRS)
 
 LUAOBJS = lapi.o lauxlib.o lbaselib.o lcode.o \
 	ldblib.o ldebug.o ldo.o ldump.o \
@@ -199,6 +209,8 @@ MWOBJS = milkyway_cpp_util.o milkyway_lua_marshal.o \
 	milkyway_util.o milkyway_util_arm.o mw_asprintf.o \
 	mw_boinc_util.o
 
+MWARMOBJS = arm_exp.o arm_log.o fp2intfp-arm.o ifpexp.o ifplog.o
+
 SEPOBJS = calculated_constants.o coordinates.o \
 	evaluation.o evaluation_state.o \
 	gauss_legendre.o integrals.o \
@@ -208,7 +220,7 @@ SEPOBJS = calculated_constants.o coordinates.o \
 	r_points.o separation_lua.o separation_main.o \
 	separation_utils.o star_points.o
 
-OBJS = $(SEPOBJS) $(MWOBJS) $(LUAOBJS) $(POPTOBJS) $(DSFMTOBJS)
+OBJS = $(SEPOBJS) $(MWOBJS) $(MWARMOBJS) $(LUAOBJS) $(POPTOBJS) $(DSFMTOBJS)
 
 LUAINCDIR = -I../lua/include
 MWINCDIR = -I../milkyway/include
@@ -242,7 +254,13 @@ DYNLIBS = -lm
 %.o: ../milkyway/src/%.c
 	$(CC) $(CFLAGS) -std=gnu99 $(CPPFLAGS) $(INCDIRS) $(DEFS) -c -o $@ $<
 
+%.o: ../milkyway/src/arm_math/%.c
+	$(CC) $(CFLAGS) -std=gnu99 $(CPPFLAGS) $(INCDIRS) $(DEFS) -c -o $@ $<
+
 %.o: ../milkyway/src/%.S
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+%.o: ../milkyway/src/arm_math/%.S
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 %.o: ../separation/src/%.c

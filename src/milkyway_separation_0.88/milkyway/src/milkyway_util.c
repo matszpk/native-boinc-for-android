@@ -633,9 +633,14 @@ unsigned long long mwFixFPUPrecision()
 
 
 #ifdef ANDROID
+static int detectedARMExt = -1;
+
 int mwDetectARMExt()
 {
     FILE* file = NULL;
+    if (detectedARMExt != -1)
+        return detectedARMExt;
+    
     file = fopen("/proc/cpuinfo","rb");
     
     int ext = ARM_CPU_NOVFP;
@@ -651,6 +656,7 @@ int mwDetectARMExt()
             ext = ARM_CPU_VFP;
     }
     fclose(file);
+    detectedARMExt = ext;
     return ext;
 }
 #endif

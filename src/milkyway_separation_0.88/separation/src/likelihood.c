@@ -22,6 +22,9 @@ along with Milkyway@Home.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <time.h>
 
+#ifdef ANDROID
+#include "arm_math/fp2intfp.h"
+#endif
 #include "separation_types.h"
 #include "likelihood.h"
 #include "probabilities.h"
@@ -164,7 +167,7 @@ static real likelihood_probability(const AstronomyParameters* ap,
     }
     else
     {
-        es->bgTmp = probabilityFunc(ap, sc, sg_dx, r_points, qw_r3_N, lbt, gPrime, reff_xr_rp3, es->streamTmps);
+        es->bgTmp = ((ProbabilityFunc)probabilityFunc)(ap, sc, sg_dx, r_points, qw_r3_N, lbt, gPrime, reff_xr_rp3, es->streamTmps);
     }
 
     if (bgProb)
@@ -187,6 +190,59 @@ static real likelihood_probability(const AstronomyParameters* ap,
 
     return starProb;
 }
+
+#ifdef ANDROID
+static real likelihood_probability_intfp(const AstronomyParameters* ap,
+                                   const StreamConstantsIntFp* sc,
+                                   const Streams* streams,
+
+                                   const IntFp* RESTRICT sg_dx,
+                                   const IntFp* RESTRICT r_points,
+                                   const IntFp* RESTRICT qw_r3_N,
+
+                                   const LBTrigIntFp* lbt,
+                                   real gPrime,
+                                   real reff_xr_rp3,
+                                   const SeparationResults* results,
+                                   EvaluationState* es,
+
+                                   real* RESTRICT bgProb) /* Out argument for thing needed by separation */
+{
+    unsigned int i;
+    real starProb, streamOnly;
+
+    /* if q is 0, there is no probability */
+    if (ap->q == 0.0)
+    {
+        es->bgTmp = -1.0;
+    }
+    else
+    {
+        es->bgTmp = ((ProbabilityFuncIntFp)probabilityFunc)(ap, sc, sg_dx, r_points,
+              qw_r3_N, lbt, gPrime, reff_xr_rp3, es->streamTmps, es->streamTmpsIntFp);
+    }
+
+    if (bgProb)
+        *bgProb = es->bgTmp;
+
+    es->bgTmp = (es->bgTmp / results->backgroundIntegral) * ap->exp_background_weight;
+
+    starProb = es->bgTmp; /* bg only */
+    for (i = 0; i < ap->number_streams; ++i)
+    {
+        streamOnly = es->streamTmps[i] / results->streamIntegrals[i] * streams->parameters[i].epsilonExp;
+        starProb += streamOnly;
+        streamOnly = probability_log(streamOnly, streams->sumExpWeights);
+        KAHAN_ADD(es->streamSums[i], streamOnly);
+    }
+    starProb /= streams->sumExpWeights;
+
+    es->bgTmp = probability_log(es->bgTmp, streams->sumExpWeights);
+    KAHAN_ADD(es->bgSum, es->bgTmp);
+
+    return starProb;
+}
+#endif
 
 static real calculateLikelihood(const Kahan* ksum, unsigned int nStars, unsigned int badJacobians)
 {
@@ -343,6 +399,97 @@ static int likelihood_sum(SeparationResults* results,
     return 0;
 }
 
+#ifdef ANDROID
+static int likelihood_sum_intfp(SeparationResults* results,
+                          const AstronomyParameters* ap,
+                          const StarPoints* sp,
+                          const StreamConstantsIntFp* sc,
+                          const Streams* streams,
+                          const StreamGauss sg,
+
+                          EvaluationState* es,
+
+                          real* RESTRICT r_points,
+                          real* RESTRICT qw_r3_N,
+
+                          IntFp* RESTRICT r_points_intfp,
+                          IntFp* RESTRICT qw_r3_N_intfp,
+
+                          const int do_separation,
+                          StreamStats* ss,
+                          FILE* f)
+{
+    Kahan prob = ZERO_KAHAN;
+
+    unsigned int current_star_point;
+    mwvector point;
+    real star_prob;
+    LB lb;
+    LBTrigIntFp lbt;
+    real reff_xr_rp3;
+    RConsts rc = { 0.0, 0.0 };
+
+    real bgProb = 0.0;
+    real epsilon_b = 0.0;
+    mwmatrix cmatrix;
+    unsigned int num_zero = 0;
+    unsigned int badJacobians = 0;  /* CHECKME: Seems like this never changes */
+    unsigned int convolve = ap->convolve;
+    unsigned int i;
+
+    if (do_separation)
+    {
+        setSeparationConstants(ap, results, cmatrix);
+        epsilon_b = get_stream_bg_weight_consts(ss, streams);
+    }
+    
+    for (current_star_point = 0; current_star_point < sp->number_stars; ++current_star_point)
+    {
+        point = sp->stars[current_star_point];
+        rc.gPrime = calcG(Z(point));
+        setSplitRPoints(ap, sg, ap->convolve, rc.gPrime, r_points, qw_r3_N);
+        reff_xr_rp3 = calcReffXrRp3(Z(point), rc.gPrime);
+
+        for (i = 0; i < convolve; i++)
+        {
+            fp_to_intfp(r_points[i],&r_points_intfp[i]);
+            fp_to_intfp(qw_r3_N[i],&qw_r3_N_intfp[i]);
+        }
+        
+        LB_L(lb) = L(point);
+        LB_B(lb) = B(point);
+
+        lbt = lb_trig_intfp(lb);
+
+        star_prob = likelihood_probability_intfp(ap, sc, streams, sg.dx_intfp, r_points_intfp, qw_r3_N_intfp, &lbt, rc.gPrime,
+                                           reff_xr_rp3, results, es, &bgProb);
+
+        if (mw_cmpnzero_muleps(star_prob, SEPARATION_EPS))
+        {
+            star_prob = mw_log10(star_prob);
+            KAHAN_ADD(prob, star_prob);
+        }
+        else
+        {
+            ++num_zero;
+            prob.sum -= 238.0;
+        }
+
+        if (do_separation)
+            separation(f, ap, results, cmatrix, ss, es->streamTmps, bgProb, epsilon_b, point);
+    }
+
+    calculateLikelihoods(results, &prob, &es->bgSum, es->streamSums,
+                         sp->number_stars, streams->number_streams, badJacobians);
+
+
+    if (do_separation)
+        printSeparationStats(ss, sp->number_stars, ap->number_streams);
+
+    return 0;
+}
+#endif
+
 StreamStats* newStreamStats(const unsigned int number_streams)
 {
     return (StreamStats*) mwCallocA(number_streams, sizeof(StreamStats));
@@ -385,6 +532,7 @@ int likelihood(SeparationResults* results,
     qw_r3_N = (real*) mwMallocA(sizeof(real) * ap->convolve);
 
     t1 = mwGetTime();
+    
     rc = likelihood_sum(results,
                         ap, sp, sc, streams,
                         sg,
@@ -408,3 +556,75 @@ int likelihood(SeparationResults* results,
     return rc;
 }
 
+
+#ifdef ANDROID
+int likelihood_intfp(SeparationResults* results,
+               const AstronomyParameters* ap,
+               const StarPoints* sp,
+               const StreamConstantsIntFp* sc,
+               const Streams* streams,
+               const StreamGauss sg,
+               const int do_separation,
+               const char* separation_outfile)
+{
+    real* r_points;
+    real* qw_r3_N;
+    EvaluationState* es;
+    StreamStats* ss = NULL;
+    FILE* f = NULL;
+    
+    IntFp* r_points_intfp;
+    IntFp* qw_r3_N_intfp;
+    
+    int rc = 0;
+    double t1, t2;
+
+    if (do_separation)
+    {
+        f = mw_fopen(separation_outfile, "w");
+        if (!f)
+        {
+            perror("Opening separation output file");
+            return 1;
+        }
+
+        ss = newStreamStats(streams->number_streams);
+    }
+
+    /* New state for this sum */
+    es = newEvaluationState(ap);
+
+    r_points = (real*) mwMallocA(sizeof(real) * ap->convolve);
+    qw_r3_N = (real*) mwMallocA(sizeof(real) * ap->convolve);
+    r_points_intfp = (IntFp*)mwMallocA(sizeof(IntFp)*ap->convolve);
+    qw_r3_N_intfp = (IntFp*)mwMallocA(sizeof(IntFp)*ap->convolve);
+    
+    t1 = mwGetTime();
+    
+    rc = likelihood_sum_intfp(results,
+                                ap, sp, sc, streams,
+                                sg,
+                                es,
+                                r_points,
+                                qw_r3_N,
+                                r_points_intfp,
+                                qw_r3_N_intfp,
+                                do_separation,
+                                ss,
+                                f);
+    t2 = mwGetTime();
+    warn("Likelihood time = %f s\n", t2 - t1);
+
+    mwFreeA(r_points);
+    mwFreeA(qw_r3_N);
+    mwFreeA(r_points_intfp);
+    mwFreeA(qw_r3_N_intfp);
+    mwFreeA(ss);
+    freeEvaluationState(es);
+
+    if (f && fclose(f))
+        perror("Closing separation output file");
+
+    return rc;
+}
+#endif

@@ -39,6 +39,17 @@ int integrate(const AstronomyParameters* ap,
               EvaluationState* es,
               const CLRequest* clr);
 
+#ifdef ANDROID
+LBTrigIntFp lb_trig_intfp(LB lb);
+
+int integrateIntFp(const AstronomyParameters* ap,
+              const IntegralArea* ia,
+              const StreamConstantsIntFp* sc,
+              const StreamGauss sg,
+              EvaluationState* es,
+              const CLRequest* clr);
+#endif
+
 void separationIntegralApplyCorrection(EvaluationState* es);
 
 #ifdef __cplusplus

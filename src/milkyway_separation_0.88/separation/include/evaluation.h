@@ -39,8 +39,18 @@ typedef real (*ProbabilityFunc)(const AstronomyParameters* ap,
                                 real reff_xr_rp3,
                                 real* RESTRICT streamTmps);
 
+typedef real (*ProbabilityFuncIntFp)(const AstronomyParameters* ap,
+                                const StreamConstantsIntFp* sc,
+                                const IntFp* RESTRICT sg_dx,
+                                const IntFp* RESTRICT r_point,
+                                const IntFp* RESTRICT qw_r3_N,
+                                const LBTrigIntFp* lbt,
+                                real gPrime,
+                                real reff_xr_rp3,
+                                real* RESTRICT streamTmps,
+                                IntFp* RESTRICT streamTmpsIntFp);
 
-extern ProbabilityFunc probabilityFunc;
+extern void* probabilityFunc;
 
 
 int evaluate(SeparationResults* results,

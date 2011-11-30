@@ -1,6 +1,7 @@
 /*
  * prob_arm_vfpv3.S
  * Mateusz Szpakowski
+ * License: GPLv3
  */
                 .arch armv7-a
                 .fpu vfpv3
@@ -15,7 +16,8 @@
                 .text
                 .align 3
 .Llog2_3:
-                .double 6.931471805599452862e-01
+                .double 6.931457519531250000e-01
+                .double 1.428606820309417256e-06
                 .double 1.44269504088896340737
                 
                 
@@ -469,7 +471,7 @@
                 fnmuld d6,d6,d8
                 fnmuld d7,d7,d8
                 
-                fldd d31,[r12,#8]       // invlog2
+                fldd d31,[r12,#16]       // invlog2
                 
                 /*
                  * computing exp
@@ -505,6 +507,7 @@
                 fmrs r9,s23
                 
                 fldd d20,[r12] // .Llog2
+                fldd d21,[r12,#8] // .Llog2 second part
                 mov r12,#0
                 cmp r0,r10
                 movle r12,#1
@@ -557,32 +560,24 @@
                 fsitod d18,s22
                 fsitod d19,s23
                 
-                fmuld d12,d12,d20
-                fmuld d13,d13,d20
-                fmuld d14,d14,d20
-                fmuld d15,d15,d20
-                fmuld d16,d16,d20
-                fmuld d17,d17,d20
-                fmuld d18,d18,d20
-                fmuld d19,d19,d20
-                
-                fsubd d0,d0,d12           // fractional
-                fsubd d1,d1,d13           // fractional
-                fsubd d2,d2,d14           // fractional
-                fsubd d3,d3,d15           // fractional
-                fsubd d4,d4,d16           // fractional
-                fsubd d5,d5,d17           // fractional
-                fsubd d6,d6,d18           // fractional
-                fsubd d7,d7,d19           // fractional
+                fnmacd d0,d20,d12           // fractional
+                fnmacd d1,d20,d13           // fractional
+                fnmacd d2,d20,d14           // fractional
+                fnmacd d3,d20,d15           // fractional
+                fnmacd d4,d20,d16           // fractional
+                fnmacd d5,d20,d17           // fractional
+                fnmacd d6,d20,d18           // fractional
+                fnmacd d7,d20,d19           // fractional
+                fnmacd d0,d21,d12           // fractional
+                fnmacd d1,d21,d13           // fractional
+                fnmacd d2,d21,d14           // fractional
+                fnmacd d3,d21,d15           // fractional
+                fnmacd d4,d21,d16           // fractional
+                fnmacd d5,d21,d17           // fractional
+                fnmacd d6,d21,d18           // fractional
+                fnmacd d7,d21,d19           // fractional
                 
                 fldd d20,.Lpolyexp4
-                fldd d21,.Lpolyexp4
-                fldd d22,.Lpolyexp4
-                fldd d23,.Lpolyexp4
-                fldd d24,.Lpolyexp4
-                fldd d25,.Lpolyexp4
-                fldd d26,.Lpolyexp4
-                fldd d27,.Lpolyexp4
                 
                 // evaluate polynomial
                 
@@ -595,13 +590,13 @@
                 fldd d14,.Lpolyexp4+8
                 fldd d15,.Lpolyexp4+8
                 fmacd d8,d20,d0
-                fmacd d9,d21,d1
-                fmacd d10,d22,d2
-                fmacd d11,d23,d3
-                fmacd d12,d24,d4
-                fmacd d13,d25,d5
-                fmacd d14,d26,d6
-                fmacd d15,d27,d7
+                fmacd d9,d20,d1
+                fmacd d10,d20,d2
+                fmacd d11,d20,d3
+                fmacd d12,d20,d4
+                fmacd d13,d20,d5
+                fmacd d14,d20,d6
+                fmacd d15,d20,d7
                 fldd d20,.Lpolyexp4+8*2
                 fldd d21,.Lpolyexp4+8*2
                 fldd d22,.Lpolyexp4+8*2
@@ -809,13 +804,22 @@
                 ldr r14,[sp,#228]
                 fldd d16,[r14]
                 fmacd d16,d0,d8
-                fmacd d16,d1,d9
-                fmacd d16,d2,d10
-                fmacd d16,d3,d11
-                fmacd d16,d4,d12
-                fmacd d16,d5,d13
-                fmacd d16,d6,d14
-                fmacd d16,d7,d15
+                fmuld d17,d1,d9
+                fmuld d18,d2,d10
+                fmuld d19,d3,d11
+                fmuld d20,d4,d12
+                fmuld d21,d5,d13
+                fmuld d22,d6,d14
+                fmuld d23,d7,d15
+                
+                faddd d16,d16,d17
+                faddd d16,d16,d18
+                faddd d16,d16,d19
+                faddd d16,d16,d20
+                faddd d16,d16,d21
+                faddd d16,d16,d22
+                faddd d16,d16,d23
+                
                 fstd d16,[r14]
                 add r14,r14,#8
                 str r14,[sp,#228]
@@ -972,10 +976,11 @@
                 b .Lrestendexp1
 .Lrestcomputeexp1:
                 fldd d4,.Llog2_2
+                fldd d5,.Llog2_2+8
                 fsitod d12,s16
                 
-                fmuld d12,d12,d4
-                fsubd d0,d0,d12           // fractional
+                fnmacd d0,d4,d12           // fractional
+                fnmacd d0,d5,d12           // fractional
                 fldd d4,.Lpolyexp4
                 
                 fldd d8,.Lpolyexp4+8
@@ -1048,7 +1053,8 @@
 .Lzero3:
                 .double 0.0
 .Llog2_2:
-                .double 6.931471805599452862e-01
+                .double 6.931457519531250000e-01
+                .double 1.428606820309417256e-06
 //.Linvlog2:
                 .double 1.44269504088896340737
 
@@ -1061,6 +1067,7 @@ prob_arm_vfpv3:
                 sub sp,sp,#232
                 
                 ldr r4,[r0,#32]        // convolve
+                //sub r4,r4,#1
                 ldr r5,[r0,#36]        // nstreams
                 ldr r9,[sp,#232+40+56]      // streamTmps
                 
@@ -1459,7 +1466,7 @@ prob_arm_vfpv3:
                 fnmuld d6,d6,d8
                 fnmuld d7,d7,d8
                 
-                fldd d31,[r12,#8]       // invlog2
+                fldd d31,[r12,#16]       // invlog2
                 
                 /*
                  * computing exp
@@ -1495,6 +1502,7 @@ prob_arm_vfpv3:
                 fmrs r9,s23
                 
                 fldd d20,[r12] // .Llog2
+                fldd d21,[r12,#8] // .Llog2
                 mov r12,#0
                 cmp r0,r10
                 movle r12,#1
@@ -1547,32 +1555,24 @@ prob_arm_vfpv3:
                 fsitod d18,s22
                 fsitod d19,s23
                 
-                fmuld d12,d12,d20
-                fmuld d13,d13,d20
-                fmuld d14,d14,d20
-                fmuld d15,d15,d20
-                fmuld d16,d16,d20
-                fmuld d17,d17,d20
-                fmuld d18,d18,d20
-                fmuld d19,d19,d20
-                
-                fsubd d0,d0,d12           // fractional
-                fsubd d1,d1,d13           // fractional
-                fsubd d2,d2,d14           // fractional
-                fsubd d3,d3,d15           // fractional
-                fsubd d4,d4,d16           // fractional
-                fsubd d5,d5,d17           // fractional
-                fsubd d6,d6,d18           // fractional
-                fsubd d7,d7,d19           // fractional
+                fnmacd d0,d20,d12           // fractional
+                fnmacd d1,d20,d13           // fractional
+                fnmacd d2,d20,d14           // fractional
+                fnmacd d3,d20,d15           // fractional
+                fnmacd d4,d20,d16           // fractional
+                fnmacd d5,d20,d17           // fractional
+                fnmacd d6,d20,d18           // fractional
+                fnmacd d7,d20,d19           // fractional
+                fnmacd d0,d21,d12           // fractional
+                fnmacd d1,d21,d13           // fractional
+                fnmacd d2,d21,d14           // fractional
+                fnmacd d3,d21,d15           // fractional
+                fnmacd d4,d21,d16           // fractional
+                fnmacd d5,d21,d17           // fractional
+                fnmacd d6,d21,d18           // fractional
+                fnmacd d7,d21,d19           // fractional
                 
                 fldd d20,.Lpolyexp2
-                fldd d21,.Lpolyexp2
-                fldd d22,.Lpolyexp2
-                fldd d23,.Lpolyexp2
-                fldd d24,.Lpolyexp2
-                fldd d25,.Lpolyexp2
-                fldd d26,.Lpolyexp2
-                fldd d27,.Lpolyexp2
                 
                 // evaluate polynomial
                 
@@ -1585,13 +1585,13 @@ prob_arm_vfpv3:
                 fldd d14,.Lpolyexp2+8
                 fldd d15,.Lpolyexp2+8
                 fmacd d8,d20,d0
-                fmacd d9,d21,d1
-                fmacd d10,d22,d2
-                fmacd d11,d23,d3
-                fmacd d12,d24,d4
-                fmacd d13,d25,d5
-                fmacd d14,d26,d6
-                fmacd d15,d27,d7
+                fmacd d9,d20,d1
+                fmacd d10,d20,d2
+                fmacd d11,d20,d3
+                fmacd d12,d20,d4
+                fmacd d13,d20,d5
+                fmacd d14,d20,d6
+                fmacd d15,d20,d7
                 fldd d20,.Lpolyexp2+8*2
                 fldd d21,.Lpolyexp2+8*2
                 fldd d22,.Lpolyexp2+8*2
@@ -1802,14 +1802,19 @@ prob_arm_vfpv3:
                 fmuld d17,d1,d9
                 fmuld d18,d2,d10
                 fmuld d19,d3,d11
-                fmacd d16,d4,d12
-                fmacd d17,d5,d13
-                fmacd d18,d6,d14
-                fmacd d19,d7,d15
+                fmuld d20,d4,d12
+                fmuld d21,d5,d13
+                fmuld d22,d6,d14
+                fmuld d23,d7,d15
                 
                 faddd d16,d16,d17
                 faddd d16,d16,d18
                 faddd d16,d16,d19
+                faddd d16,d16,d20
+                faddd d16,d16,d21
+                faddd d16,d16,d22
+                faddd d16,d16,d23
+                
                 fstd d16,[r14]
                 add r14,r14,#8
                 str r14,[sp,#228]
@@ -1841,7 +1846,8 @@ prob_arm_vfpv3:
 .Linf:
                 .quad 0x7ff0000000000000
 .Llog2:
-                .double 6.931471805599452862e-01
+                .double 6.931457519531250000e-01
+                .double 1.428606820309417256e-06
 .Linvlog2:
                 .double 1.44269504088896340737
 .Lpolyexp2:
@@ -1956,10 +1962,11 @@ prob_arm_vfpv3:
                 b .Lrestendexp2
 .Lrestcomputeexp2:
                 fldd d4,.Llog2
+                fldd d5,.Llog2+8
                 fsitod d12,s16
                 
-                fmuld d12,d12,d4
-                fsubd d0,d0,d12           // fractional
+                fnmacd d0,d4,d12           // fractional
+                fnmacd d0,d5,d12           // fractional
                 fldd d4,.Lpolyexp2
                 
                 fldd d8,.Lpolyexp2+8
@@ -2042,34 +2049,35 @@ prob_arm_vfpv3:
                 b .Ltoexp2
 .Lcomputeexp1:
                 fldd d20,[r8,#16]      // log2
+                fldd d21,[r8,#24]      // log2
                 fsitod d12,s16
-                fmuld d12,d12,d20
-                fsubd d0,d0,d12           // fractional
+                fnmacd d0,d20,d12           // fractional
+                fnmacd d0,d21,d12           // fractional
                 
-                fldd d20,[r8,#32]      // polyexp
+                fldd d20,[r8,#40]      // polyexp
                 // evaluate polynomial
                 
-                fldd d12,[r8,#32+8]      // polyexp
+                fldd d12,[r8,#40+8]      // polyexp
                 fmacd d12,d20,d0
-                fldd d20,[r8,#32+8*2]      // polyexp
+                fldd d20,[r8,#40+8*2]      // polyexp
                 fmacd d20,d12,d0
-                fldd d12,[r8,#32+8*3]      // polyexp
+                fldd d12,[r8,#40+8*3]      // polyexp
                 fmacd d12,d20,d0
-                fldd d20,[r8,#32+8*4]      // polyexp
+                fldd d20,[r8,#40+8*4]      // polyexp
                 fmacd d20,d12,d0
-                fldd d12,[r8,#32+8*5]      // polyexp
+                fldd d12,[r8,#40+8*5]      // polyexp
                 fmacd d12,d20,d0
-                fldd d20,[r8,#32+8*6]      // polyexp
+                fldd d20,[r8,#40+8*6]      // polyexp
                 fmacd d20,d12,d0
-                fldd d12,[r8,#32+8*7]      // polyexp
+                fldd d12,[r8,#40+8*7]      // polyexp
                 fmacd d12,d20,d0
-                fldd d20,[r8,#32+8*8]      // polyexp
+                fldd d20,[r8,#40+8*8]      // polyexp
                 fmacd d20,d12,d0
-                fldd d12,[r8,#32+8*9]      // polyexp
+                fldd d12,[r8,#40+8*9]      // polyexp
                 fmacd d12,d20,d0
-                fldd d20,[r8,#32+8*10]      // polyexp
+                fldd d20,[r8,#40+8*10]      // polyexp
                 fmacd d20,d12,d0
-                fldd d12,[r8,#32+8*11]      // polyexp
+                fldd d12,[r8,#40+8*11]      // polyexp
                 fmacd d12,d20,d0
                 
                 // apply exponent
@@ -2088,34 +2096,35 @@ prob_arm_vfpv3:
                 b .Ltoexp3
 .Lcomputeexp2:
                 fldd d20,[r8,#16]      // log2
+                fldd d21,[r8,#24]      // log2
                 fsitod d13,s17
-                fmuld d13,d13,d20
-                fsubd d1,d1,d13           // fractional
+                fnmacd d1,d20,d13           // fractional
+                fnmacd d1,d21,d13           // fractional
                 
-                fldd d20,[r8,#32]      // polyexp
+                fldd d20,[r8,#40]      // polyexp
                 // evaluate polynomial
                 
-                fldd d13,[r8,#32+8]      // polyexp
+                fldd d13,[r8,#40+8]      // polyexp
                 fmacd d13,d20,d1
-                fldd d20,[r8,#32+8*2]      // polyexp
+                fldd d20,[r8,#40+8*2]      // polyexp
                 fmacd d20,d13,d1
-                fldd d13,[r8,#32+8*3]      // polyexp
+                fldd d13,[r8,#40+8*3]      // polyexp
                 fmacd d13,d20,d1
-                fldd d20,[r8,#32+8*4]      // polyexp
+                fldd d20,[r8,#40+8*4]      // polyexp
                 fmacd d20,d13,d1
-                fldd d13,[r8,#32+8*5]      // polyexp
+                fldd d13,[r8,#40+8*5]      // polyexp
                 fmacd d13,d20,d1
-                fldd d20,[r8,#32+8*6]      // polyexp
+                fldd d20,[r8,#40+8*6]      // polyexp
                 fmacd d20,d13,d1
-                fldd d13,[r8,#32+8*7]      // polyexp
+                fldd d13,[r8,#40+8*7]      // polyexp
                 fmacd d13,d20,d1
-                fldd d20,[r8,#32+8*8]      // polyexp
+                fldd d20,[r8,#40+8*8]      // polyexp
                 fmacd d20,d13,d1
-                fldd d13,[r8,#32+8*9]      // polyexp
+                fldd d13,[r8,#40+8*9]      // polyexp
                 fmacd d13,d20,d1
-                fldd d20,[r8,#32+8*10]      // polyexp
+                fldd d20,[r8,#40+8*10]      // polyexp
                 fmacd d20,d13,d1
-                fldd d13,[r8,#32+8*11]      // polyexp
+                fldd d13,[r8,#40+8*11]      // polyexp
                 fmacd d13,d20,d1
                 
                 // apply exponent
@@ -2134,34 +2143,35 @@ prob_arm_vfpv3:
                 b .Ltoexp4
 .Lcomputeexp3:
                 fldd d20,[r8,#16]      // log2
+                fldd d21,[r8,#24]      // log2
                 fsitod d14,s18
-                fmuld d14,d14,d20
-                fsubd d2,d2,d14           // fractional
+                fnmacd d2,d20,d14           // fractional
+                fnmacd d2,d21,d14           // fractional
                 
-                fldd d20,[r8,#32]      // polyexp
+                fldd d20,[r8,#40]      // polyexp
                 // evaluate polynomial
                 
-                fldd d14,[r8,#32+8]      // polyexp
+                fldd d14,[r8,#40+8]      // polyexp
                 fmacd d14,d20,d2
-                fldd d20,[r8,#32+8*2]      // polyexp
+                fldd d20,[r8,#40+8*2]      // polyexp
                 fmacd d20,d14,d2
-                fldd d14,[r8,#32+8*3]      // polyexp
+                fldd d14,[r8,#40+8*3]      // polyexp
                 fmacd d14,d20,d2
-                fldd d20,[r8,#32+8*4]      // polyexp
+                fldd d20,[r8,#40+8*4]      // polyexp
                 fmacd d20,d14,d2
-                fldd d14,[r8,#32+8*5]      // polyexp
+                fldd d14,[r8,#40+8*5]      // polyexp
                 fmacd d14,d20,d2
-                fldd d20,[r8,#32+8*6]      // polyexp
+                fldd d20,[r8,#40+8*6]      // polyexp
                 fmacd d20,d14,d2
-                fldd d14,[r8,#32+8*7]      // polyexp
+                fldd d14,[r8,#40+8*7]      // polyexp
                 fmacd d14,d20,d2
-                fldd d20,[r8,#32+8*8]      // polyexp
+                fldd d20,[r8,#40+8*8]      // polyexp
                 fmacd d20,d14,d2
-                fldd d14,[r8,#32+8*9]      // polyexp
+                fldd d14,[r8,#40+8*9]      // polyexp
                 fmacd d14,d20,d2
-                fldd d20,[r8,#32+8*10]      // polyexp
+                fldd d20,[r8,#40+8*10]      // polyexp
                 fmacd d20,d14,d2
-                fldd d14,[r8,#32+8*11]      // polyexp
+                fldd d14,[r8,#40+8*11]      // polyexp
                 fmacd d14,d20,d2
                 
                 // apply exponent
@@ -2180,34 +2190,35 @@ prob_arm_vfpv3:
                 b .Ltoexp5
 .Lcomputeexp4:
                 fldd d20,[r8,#16]      // log2
+                fldd d21,[r8,#24]      // log2
                 fsitod d15,s19
-                fmuld d15,d15,d20
-                fsubd d3,d3,d15           // fractional
+                fnmacd d3,d20,d15           // fractional
+                fnmacd d3,d21,d15           // fractional
                 
-                fldd d20,[r8,#32]      // polyexp
+                fldd d20,[r8,#40]      // polyexp
                 // evaluate polynomial
                 
-                fldd d15,[r8,#32+8]      // polyexp
+                fldd d15,[r8,#40+8]      // polyexp
                 fmacd d15,d20,d3
-                fldd d20,[r8,#32+8*2]      // polyexp
+                fldd d20,[r8,#40+8*2]      // polyexp
                 fmacd d20,d15,d3
-                fldd d15,[r8,#32+8*3]      // polyexp
+                fldd d15,[r8,#40+8*3]      // polyexp
                 fmacd d15,d20,d3
-                fldd d20,[r8,#32+8*4]      // polyexp
+                fldd d20,[r8,#40+8*4]      // polyexp
                 fmacd d20,d15,d3
-                fldd d15,[r8,#32+8*5]      // polyexp
+                fldd d15,[r8,#40+8*5]      // polyexp
                 fmacd d15,d20,d3
-                fldd d20,[r8,#32+8*6]      // polyexp
+                fldd d20,[r8,#40+8*6]      // polyexp
                 fmacd d20,d15,d3
-                fldd d15,[r8,#32+8*7]      // polyexp
+                fldd d15,[r8,#40+8*7]      // polyexp
                 fmacd d15,d20,d3
-                fldd d20,[r8,#32+8*8]      // polyexp
+                fldd d20,[r8,#40+8*8]      // polyexp
                 fmacd d20,d15,d3
-                fldd d15,[r8,#32+8*9]      // polyexp
+                fldd d15,[r8,#40+8*9]      // polyexp
                 fmacd d15,d20,d3
-                fldd d20,[r8,#32+8*10]      // polyexp
+                fldd d20,[r8,#40+8*10]      // polyexp
                 fmacd d20,d15,d3
-                fldd d15,[r8,#32+8*11]      // polyexp
+                fldd d15,[r8,#40+8*11]      // polyexp
                 fmacd d15,d20,d3
                 
                 // apply exponent
@@ -2226,34 +2237,35 @@ prob_arm_vfpv3:
                 b .Ltoexp6
 .Lcomputeexp5:
                 fldd d20,[r8,#16]      // log2
+                fldd d21,[r8,#24]      // log2
                 fsitod d16,s20
-                fmuld d16,d16,d20
-                fsubd d4,d4,d16           // fractional
+                fnmacd d4,d20,d16           // fractional
+                fnmacd d4,d21,d16           // fractional
                 
-                fldd d20,[r8,#32]      // polyexp
+                fldd d20,[r8,#40]      // polyexp
                 // evaluate polynomial
                 
-                fldd d16,[r8,#32+8]      // polyexp
+                fldd d16,[r8,#40+8]      // polyexp
                 fmacd d16,d20,d4
-                fldd d20,[r8,#32+8*2]      // polyexp
+                fldd d20,[r8,#40+8*2]      // polyexp
                 fmacd d20,d16,d4
-                fldd d16,[r8,#32+8*3]      // polyexp
+                fldd d16,[r8,#40+8*3]      // polyexp
                 fmacd d16,d20,d4
-                fldd d20,[r8,#32+8*4]      // polyexp
+                fldd d20,[r8,#40+8*4]      // polyexp
                 fmacd d20,d16,d4
-                fldd d16,[r8,#32+8*5]      // polyexp
+                fldd d16,[r8,#40+8*5]      // polyexp
                 fmacd d16,d20,d4
-                fldd d20,[r8,#32+8*6]      // polyexp
+                fldd d20,[r8,#40+8*6]      // polyexp
                 fmacd d20,d16,d4
-                fldd d16,[r8,#32+8*7]      // polyexp
+                fldd d16,[r8,#40+8*7]      // polyexp
                 fmacd d16,d20,d4
-                fldd d20,[r8,#32+8*8]      // polyexp
+                fldd d20,[r8,#40+8*8]      // polyexp
                 fmacd d20,d16,d4
-                fldd d16,[r8,#32+8*9]      // polyexp
+                fldd d16,[r8,#40+8*9]      // polyexp
                 fmacd d16,d20,d4
-                fldd d20,[r8,#32+8*10]      // polyexp
+                fldd d20,[r8,#40+8*10]      // polyexp
                 fmacd d20,d16,d4
-                fldd d16,[r8,#32+8*11]      // polyexp
+                fldd d16,[r8,#40+8*11]      // polyexp
                 fmacd d16,d20,d4
                 
                 // apply exponent
@@ -2272,34 +2284,35 @@ prob_arm_vfpv3:
                 b .Ltoexp7
 .Lcomputeexp6:
                 fldd d20,[r8,#16]      // log2
+                fldd d21,[r8,#24]      // log2
                 fsitod d17,s21
-                fmuld d17,d17,d20
-                fsubd d5,d5,d17           // fractional
+                fnmacd d5,d20,d17           // fractional
+                fnmacd d5,d21,d17           // fractional
                 
-                fldd d20,[r8,#32]      // polyexp
+                fldd d20,[r8,#40]      // polyexp
                 // evaluate polynomial
                 
-                fldd d17,[r8,#32+8]      // polyexp
+                fldd d17,[r8,#40+8]      // polyexp
                 fmacd d17,d20,d5
-                fldd d20,[r8,#32+8*2]      // polyexp
+                fldd d20,[r8,#40+8*2]      // polyexp
                 fmacd d20,d17,d5
-                fldd d17,[r8,#32+8*3]      // polyexp
+                fldd d17,[r8,#40+8*3]      // polyexp
                 fmacd d17,d20,d5
-                fldd d20,[r8,#32+8*4]      // polyexp
+                fldd d20,[r8,#40+8*4]      // polyexp
                 fmacd d20,d17,d5
-                fldd d17,[r8,#32+8*5]      // polyexp
+                fldd d17,[r8,#40+8*5]      // polyexp
                 fmacd d17,d20,d5
-                fldd d20,[r8,#32+8*6]      // polyexp
+                fldd d20,[r8,#40+8*6]      // polyexp
                 fmacd d20,d17,d5
-                fldd d17,[r8,#32+8*7]      // polyexp
+                fldd d17,[r8,#40+8*7]      // polyexp
                 fmacd d17,d20,d5
-                fldd d20,[r8,#32+8*8]      // polyexp
+                fldd d20,[r8,#40+8*8]      // polyexp
                 fmacd d20,d17,d5
-                fldd d17,[r8,#32+8*9]      // polyexp
+                fldd d17,[r8,#40+8*9]      // polyexp
                 fmacd d17,d20,d5
-                fldd d20,[r8,#32+8*10]      // polyexp
+                fldd d20,[r8,#40+8*10]      // polyexp
                 fmacd d20,d17,d5
-                fldd d17,[r8,#32+8*11]      // polyexp
+                fldd d17,[r8,#40+8*11]      // polyexp
                 fmacd d17,d20,d5
                 
                 // apply exponent
@@ -2318,34 +2331,35 @@ prob_arm_vfpv3:
                 b .Ltoexp8
 .Lcomputeexp7:
                 fldd d20,[r8,#16]      // log2
+                fldd d21,[r8,#24]      // log2
                 fsitod d18,s22
-                fmuld d18,d18,d20
-                fsubd d6,d6,d18           // fractional
+                fnmacd d6,d20,d18           // fractional
+                fnmacd d6,d21,d18           // fractional
                 
-                fldd d20,[r8,#32]      // polyexp
+                fldd d20,[r8,#40]      // polyexp
                 // evaluate polynomial
                 
-                fldd d18,[r8,#32+8]      // polyexp
+                fldd d18,[r8,#40+8]      // polyexp
                 fmacd d18,d20,d6
-                fldd d20,[r8,#32+8*2]      // polyexp
+                fldd d20,[r8,#40+8*2]      // polyexp
                 fmacd d20,d18,d6
-                fldd d18,[r8,#32+8*3]      // polyexp
+                fldd d18,[r8,#40+8*3]      // polyexp
                 fmacd d18,d20,d6
-                fldd d20,[r8,#32+8*4]      // polyexp
+                fldd d20,[r8,#40+8*4]      // polyexp
                 fmacd d20,d18,d6
-                fldd d18,[r8,#32+8*5]      // polyexp
+                fldd d18,[r8,#40+8*5]      // polyexp
                 fmacd d18,d20,d6
-                fldd d20,[r8,#32+8*6]      // polyexp
+                fldd d20,[r8,#40+8*6]      // polyexp
                 fmacd d20,d18,d6
-                fldd d18,[r8,#32+8*7]      // polyexp
+                fldd d18,[r8,#40+8*7]      // polyexp
                 fmacd d18,d20,d6
-                fldd d20,[r8,#32+8*8]      // polyexp
+                fldd d20,[r8,#40+8*8]      // polyexp
                 fmacd d20,d18,d6
-                fldd d18,[r8,#32+8*9]      // polyexp
+                fldd d18,[r8,#40+8*9]      // polyexp
                 fmacd d18,d20,d6
-                fldd d20,[r8,#32+8*10]      // polyexp
+                fldd d20,[r8,#40+8*10]      // polyexp
                 fmacd d20,d18,d6
-                fldd d18,[r8,#32+8*11]      // polyexp
+                fldd d18,[r8,#40+8*11]      // polyexp
                 fmacd d18,d20,d6
                 
                 // apply exponent
@@ -2364,34 +2378,35 @@ prob_arm_vfpv3:
                 b .Lexpexceptend
 .Lcomputeexp8:
                 fldd d20,[r8,#16]      // log2
+                fldd d21,[r8,#16]      // log2
                 fsitod d19,s23
-                fmuld d19,d19,d20
-                fsubd d7,d7,d19           // fractional
+                fnmacd d7,d20,d19           // fractional
+                fnmacd d7,d21,d19           // fractional
                 
-                fldd d20,[r8,#32]      // polyexp
+                fldd d20,[r8,#40]      // polyexp
                 // evaluate polynomial
                 
-                fldd d19,[r8,#32+8]      // polyexp
+                fldd d19,[r8,#40+8]      // polyexp
                 fmacd d19,d20,d7
-                fldd d20,[r8,#32+8*2]      // polyexp
+                fldd d20,[r8,#40+8*2]      // polyexp
                 fmacd d20,d19,d7
-                fldd d19,[r8,#32+8*3]      // polyexp
+                fldd d19,[r8,#40+8*3]      // polyexp
                 fmacd d19,d20,d7
-                fldd d20,[r8,#32+8*4]      // polyexp
+                fldd d20,[r8,#40+8*4]      // polyexp
                 fmacd d20,d19,d7
-                fldd d19,[r8,#32+8*5]      // polyexp
+                fldd d19,[r8,#40+8*5]      // polyexp
                 fmacd d19,d20,d7
-                fldd d20,[r8,#32+8*6]      // polyexp
+                fldd d20,[r8,#40+8*6]      // polyexp
                 fmacd d20,d19,d7
-                fldd d19,[r8,#32+8*7]      // polyexp
+                fldd d19,[r8,#40+8*7]      // polyexp
                 fmacd d19,d20,d7
-                fldd d20,[r8,#32+8*8]      // polyexp
+                fldd d20,[r8,#40+8*8]      // polyexp
                 fmacd d20,d19,d7
-                fldd d19,[r8,#32+8*9]      // polyexp
+                fldd d19,[r8,#40+8*9]      // polyexp
                 fmacd d19,d20,d7
-                fldd d20,[r8,#32+8*10]      // polyexp
+                fldd d20,[r8,#40+8*10]      // polyexp
                 fmacd d20,d19,d7
-                fldd d19,[r8,#32+8*11]      // polyexp
+                fldd d19,[r8,#40+8*11]      // polyexp
                 fmacd d19,d20,d7
                 
                 // apply exponent

@@ -618,7 +618,7 @@ static real bg_probability_slow_hprob(const AstronomyParameters* ap,
 
 /* We have some more deciding on which function to use for whatever SSE level */
 
-ProbabilityFunc INIT_PROBABILITIES(const AstronomyParameters* ap, int forceNoIntrinsics)
+void* INIT_PROBABILITIES(const AstronomyParameters* ap, int forceNoIntrinsics)
 {
 #ifdef ANDROID
 //#if 0

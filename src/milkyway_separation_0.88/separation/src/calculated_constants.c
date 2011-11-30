@@ -19,6 +19,9 @@ You should have received a copy of the GNU General Public License
 along with Milkyway@Home.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef ANDROID
+#include "arm_math/fp2intfp.h"
+#endif
 #include "separation_constants.h"
 #include "calculated_constants.h"
 #include "milkyway_util.h"
@@ -149,6 +152,9 @@ void freeStreamGauss(StreamGauss sg)
 {
     mwFreeA(sg.dx);
     mwFreeA(sg.qgaus_W);
+#ifdef ANDROID
+    mwFreeA(sg.dx_intfp);
+#endif
 }
 
 StreamGauss getStreamGauss(const unsigned int convolve)
@@ -168,6 +174,12 @@ StreamGauss getStreamGauss(const unsigned int convolve)
         sg.dx[i] = 3.0 * stdev * qgaus_X[i];
 
     mwFreeA(qgaus_X);
+    
+#ifdef ANDROID
+    sg.dx_intfp = (IntFp*) mwMallocA(sizeof(IntFp) * convolve);
+    for (int i=0; i < convolve; i++)
+        fp_to_intfp(sg.dx[i],&sg.dx_intfp[i]);
+#endif
 
     return sg;
 }

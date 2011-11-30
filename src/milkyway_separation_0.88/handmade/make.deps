@@ -1,0 +1,707 @@
+calculated_constants.o: ../separation/src/calculated_constants.c \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../separation/include/separation_constants.h \
+ ../separation/include/calculated_constants.h \
+ ../separation/include/separation_types.h config/separation_config.h \
+ config/milkyway_config.h ../milkyway/include/milkyway_math.h \
+ config/milkyway_config.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../separation/include/separation_kernel_types.h \
+ ../milkyway/include/milkyway_util.h /data/local/tmp/include/popt.h \
+ ../milkyway/include/milkyway_extra.h ../milkyway/include/milkyway_math.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h \
+ ../separation/include/coordinates.h \
+ ../separation/include/separation_constants.h \
+ ../separation/include/gauss_legendre.h ../separation/include/integrals.h \
+ ../separation/include/evaluation_state.h
+coordinates.o: ../separation/src/coordinates.c \
+ ../separation/include/coordinates.h \
+ ../separation/include/separation_types.h config/separation_config.h \
+ config/milkyway_config.h ../milkyway/include/milkyway_math.h \
+ config/milkyway_config.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../separation/include/separation_kernel_types.h \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../separation/include/separation_constants.h \
+ ../separation/include/separation_constants.h \
+ ../separation/include/r_points.h ../separation/include/coordinates.h \
+ ../milkyway/include/milkyway_extra.h
+evaluation.o: ../separation/src/evaluation.c \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../separation/include/separation.h config/separation_config.h \
+ config/milkyway_config.h ../separation/include/separation_types.h \
+ ../milkyway/include/milkyway_math.h config/milkyway_config.h \
+ ../milkyway/include/real.h ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../separation/include/separation_kernel_types.h \
+ ../milkyway/include/milkyway_util.h /data/local/tmp/include/popt.h \
+ ../milkyway/include/milkyway_extra.h ../milkyway/include/milkyway_math.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h \
+ ../separation/include/evaluation.h \
+ ../separation/include/evaluation_state.h \
+ ../separation/include/parameters.h ../separation/include/star_points.h \
+ ../separation/include/calculated_constants.h \
+ ../separation/include/separation_constants.h \
+ ../separation/include/r_points.h ../separation/include/coordinates.h \
+ ../milkyway/include/milkyway_extra.h \
+ ../separation/include/gauss_legendre.h ../separation/include/io_util.h \
+ ../separation/include/integrals.h ../separation/include/likelihood.h \
+ ../separation/include/separation_utils.h \
+ ../separation/include/separation_utils.h \
+ ../separation/include/probabilities.h
+evaluation_state.o: ../separation/src/evaluation_state.c \
+ ../milkyway/include/milkyway_util.h config/milkyway_config.h \
+ /data/local/tmp/include/popt.h ../milkyway/include/milkyway_extra.h \
+ ../milkyway/include/milkyway_math.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h \
+ ../separation/include/separation.h config/separation_config.h \
+ config/milkyway_config.h ../separation/include/separation_types.h \
+ ../milkyway/include/milkyway_math.h \
+ ../separation/include/separation_kernel_types.h \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../separation/include/evaluation.h \
+ ../separation/include/evaluation_state.h \
+ ../separation/include/parameters.h ../separation/include/star_points.h \
+ ../separation/include/calculated_constants.h \
+ ../separation/include/separation_constants.h \
+ ../separation/include/r_points.h ../separation/include/coordinates.h \
+ ../milkyway/include/milkyway_extra.h \
+ ../separation/include/gauss_legendre.h ../separation/include/io_util.h \
+ ../separation/include/integrals.h ../separation/include/likelihood.h \
+ ../separation/include/separation_utils.h \
+ ../separation/include/evaluation_state.h
+gauss_legendre.o: ../separation/src/gauss_legendre.c \
+ ../separation/include/separation_constants.h config/separation_config.h \
+ config/milkyway_config.h ../separation/include/gauss_legendre.h \
+ ../milkyway/include/milkyway_math.h config/milkyway_config.h \
+ ../milkyway/include/real.h ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h
+integrals.o: ../separation/src/integrals.c \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../separation/include/evaluation_state.h \
+ ../separation/include/separation_types.h config/separation_config.h \
+ config/milkyway_config.h ../milkyway/include/milkyway_math.h \
+ config/milkyway_config.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../separation/include/separation_kernel_types.h \
+ ../separation/include/integrals.h \
+ ../separation/include/evaluation_state.h \
+ ../milkyway/include/milkyway_util.h /data/local/tmp/include/popt.h \
+ ../milkyway/include/milkyway_extra.h ../milkyway/include/milkyway_math.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h \
+ ../separation/include/coordinates.h \
+ ../separation/include/separation_constants.h \
+ ../separation/include/r_points.h ../separation/include/coordinates.h \
+ ../milkyway/include/milkyway_extra.h \
+ ../separation/include/calculated_constants.h \
+ ../separation/include/evaluation.h
+io_util.o: ../separation/src/io_util.c ../separation/include/io_util.h \
+ ../milkyway/include/milkyway_util.h config/milkyway_config.h \
+ /data/local/tmp/include/popt.h ../milkyway/include/milkyway_extra.h \
+ ../milkyway/include/milkyway_math.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h \
+ ../separation/include/separation_types.h config/separation_config.h \
+ config/milkyway_config.h ../milkyway/include/milkyway_math.h \
+ ../separation/include/separation_kernel_types.h \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../separation/include/separation_types.h \
+ ../separation/include/separation_utils.h
+likelihood.o: ../separation/src/likelihood.c \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../separation/include/separation_types.h config/separation_config.h \
+ config/milkyway_config.h ../milkyway/include/milkyway_math.h \
+ config/milkyway_config.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../separation/include/separation_kernel_types.h \
+ ../separation/include/likelihood.h \
+ ../separation/include/separation_types.h \
+ ../separation/include/probabilities.h \
+ ../separation/include/evaluation_state.h \
+ ../separation/include/evaluation.h ../milkyway/include/milkyway_util.h \
+ /data/local/tmp/include/popt.h ../milkyway/include/milkyway_extra.h \
+ ../milkyway/include/milkyway_math.h ../milkyway/include/milkyway_show.h \
+ ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h \
+ ../separation/include/integrals.h ../separation/include/r_points.h \
+ ../separation/include/separation_constants.h \
+ ../separation/include/coordinates.h ../milkyway/include/milkyway_extra.h \
+ ../separation/include/calculated_constants.h \
+ ../separation/include/separation_utils.h \
+ ../separation/include/evaluation_state.h
+parameters.o: ../separation/src/parameters.c \
+ ../separation/include/separation_types.h config/separation_config.h \
+ config/milkyway_config.h ../milkyway/include/milkyway_math.h \
+ config/milkyway_config.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../separation/include/separation_kernel_types.h \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../separation/include/parameters.h \
+ ../separation/include/separation_types.h ../separation/include/io_util.h \
+ ../milkyway/include/milkyway_util.h /data/local/tmp/include/popt.h \
+ ../milkyway/include/milkyway_extra.h ../milkyway/include/milkyway_math.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h
+probabilities.o: ../separation/src/probabilities.c \
+ ../separation/include/evaluation_state.h \
+ ../separation/include/separation_types.h config/separation_config.h \
+ config/milkyway_config.h ../milkyway/include/milkyway_math.h \
+ config/milkyway_config.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../separation/include/separation_kernel_types.h \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../separation/include/evaluation.h ../milkyway/include/milkyway_util.h \
+ /data/local/tmp/include/popt.h ../milkyway/include/milkyway_extra.h \
+ ../milkyway/include/milkyway_math.h ../milkyway/include/milkyway_show.h \
+ ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h \
+ ../separation/include/coordinates.h \
+ ../separation/include/separation_constants.h \
+ ../separation/include/r_points.h ../separation/include/coordinates.h \
+ ../milkyway/include/milkyway_extra.h \
+ ../separation/include/calculated_constants.h \
+ ../separation/include/probabilities.h \
+ ../separation/include/evaluation_state.h \
+ ../separation/include/evaluation.h
+prob_arm_novfp.o: ../separation/src/prob_arm_novfp.S
+prob_arm_vfp.o: ../separation/src/prob_arm_vfp.S
+prob_arm_vfpv3.o: ../separation/src/prob_arm_vfpv3.S
+r_points.o: ../separation/src/r_points.c \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../separation/include/separation_types.h config/separation_config.h \
+ config/milkyway_config.h ../milkyway/include/milkyway_math.h \
+ config/milkyway_config.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../separation/include/separation_kernel_types.h \
+ ../milkyway/include/milkyway_extra.h ../separation/include/r_points.h \
+ ../separation/include/separation_types.h \
+ ../separation/include/separation_constants.h \
+ ../separation/include/coordinates.h ../milkyway/include/milkyway_util.h \
+ /data/local/tmp/include/popt.h ../milkyway/include/milkyway_extra.h \
+ ../milkyway/include/milkyway_math.h ../milkyway/include/milkyway_show.h \
+ ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h
+separation_lua.o: ../separation/src/separation_lua.c \
+ ../milkyway/include/milkyway_lua.h \
+ ../milkyway/include/milkyway_lua_util.h ../lua/include/lua.h \
+ config/luaconf.h ../milkyway/include/milkyway_util.h \
+ config/milkyway_config.h /data/local/tmp/include/popt.h \
+ ../milkyway/include/milkyway_extra.h ../milkyway/include/milkyway_math.h \
+ ../milkyway/include/real.h ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h \
+ ../milkyway/include/milkyway_lua_math.h \
+ ../milkyway/include/milkyway_lua_vector.h \
+ ../milkyway/include/milkyway_lua_dsfmt.h \
+ ../milkyway/include/milkyway_lua_marshal.h ../lua/include/lauxlib.h \
+ ../lua/include/lua.h ../milkyway/include/milkyway_lua_types.h \
+ ../milkyway/include/milkyway_util.h \
+ ../separation/include/separation_lua.h \
+ ../separation/include/separation.h config/separation_config.h \
+ config/milkyway_config.h ../separation/include/separation_types.h \
+ ../milkyway/include/milkyway_math.h \
+ ../separation/include/separation_kernel_types.h \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../separation/include/evaluation.h \
+ ../separation/include/evaluation_state.h \
+ ../separation/include/parameters.h ../separation/include/star_points.h \
+ ../separation/include/calculated_constants.h \
+ ../separation/include/separation_constants.h \
+ ../separation/include/r_points.h ../separation/include/coordinates.h \
+ ../milkyway/include/milkyway_extra.h \
+ ../separation/include/gauss_legendre.h ../separation/include/io_util.h \
+ ../separation/include/integrals.h ../separation/include/likelihood.h \
+ ../separation/include/separation_utils.h
+separation_main.o: ../separation/src/separation_main.c \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../separation/include/separation.h config/separation_config.h \
+ config/milkyway_config.h ../separation/include/separation_types.h \
+ ../milkyway/include/milkyway_math.h config/milkyway_config.h \
+ ../milkyway/include/real.h ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../separation/include/separation_kernel_types.h \
+ ../milkyway/include/milkyway_util.h /data/local/tmp/include/popt.h \
+ ../milkyway/include/milkyway_extra.h ../milkyway/include/milkyway_math.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h \
+ ../separation/include/evaluation.h \
+ ../separation/include/evaluation_state.h \
+ ../separation/include/parameters.h ../separation/include/star_points.h \
+ ../separation/include/calculated_constants.h \
+ ../separation/include/separation_constants.h \
+ ../separation/include/r_points.h ../separation/include/coordinates.h \
+ ../milkyway/include/milkyway_extra.h \
+ ../separation/include/gauss_legendre.h ../separation/include/io_util.h \
+ ../separation/include/integrals.h ../separation/include/likelihood.h \
+ ../separation/include/separation_utils.h \
+ ../separation/include/separation_lua.h \
+ ../separation/include/separation.h ../lua/include/lua.h config/luaconf.h \
+ ../milkyway/include/milkyway_cpp_util.h ../separation/include/io_util.h
+separation_utils.o: ../separation/src/separation_utils.c \
+ ../separation/include/separation.h config/separation_config.h \
+ config/milkyway_config.h ../separation/include/separation_types.h \
+ ../milkyway/include/milkyway_math.h config/milkyway_config.h \
+ ../milkyway/include/real.h ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../separation/include/separation_kernel_types.h \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../milkyway/include/milkyway_util.h /data/local/tmp/include/popt.h \
+ ../milkyway/include/milkyway_extra.h ../milkyway/include/milkyway_math.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h \
+ ../separation/include/evaluation.h \
+ ../separation/include/evaluation_state.h \
+ ../separation/include/parameters.h ../separation/include/star_points.h \
+ ../separation/include/calculated_constants.h \
+ ../separation/include/separation_constants.h \
+ ../separation/include/r_points.h ../separation/include/coordinates.h \
+ ../milkyway/include/milkyway_extra.h \
+ ../separation/include/gauss_legendre.h ../separation/include/io_util.h \
+ ../separation/include/integrals.h ../separation/include/likelihood.h \
+ ../separation/include/separation_utils.h \
+ ../separation/include/separation_utils.h
+star_points.o: ../separation/src/star_points.c \
+ ../separation/include/star_points.h \
+ ../separation/include/separation_types.h config/separation_config.h \
+ config/milkyway_config.h ../milkyway/include/milkyway_math.h \
+ config/milkyway_config.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../separation/include/separation_kernel_types.h \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../milkyway/include/milkyway_util.h /data/local/tmp/include/popt.h \
+ ../milkyway/include/milkyway_extra.h ../milkyway/include/milkyway_math.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h
+milkyway_cpp_util.o: ../milkyway/src/milkyway_cpp_util.cc \
+ config/milkyway_config.h ../milkyway/include/milkyway_extra.h \
+ ../milkyway/include/milkyway_cpp_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/string \
+ /data/local/tmp/include/boinc/app_ipc.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/vector \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cstdio \
+ /data/local/tmp/include/boinc/hostinfo.h \
+ /data/local/tmp/include/boinc/miofile.h \
+ /data/local/tmp/include/boinc/mfile.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cstdarg \
+ /data/local/tmp/include/boinc/coproc.h \
+ /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/cstring \
+ /data/local/tmp/include/boinc/cal.h \
+ /data/local/tmp/include/boinc/proxy_info.h \
+ /data/local/tmp/include/boinc/prefs.h \
+ /data/local/tmp/include/boinc/parse.h \
+ /data/local/tmp/include/boinc/common_defs.h \
+ /data/local/tmp/include/boinc/graphics2.h
+milkyway_lua_dsfmt.o: ../milkyway/src/milkyway_lua_dsfmt.c \
+ ../lua/include/lua.h config/luaconf.h \
+ ../milkyway/include/milkyway_lua_marshal.h ../lua/include/lauxlib.h \
+ ../lua/include/lua.h ../milkyway/include/milkyway_extra.h \
+ ../milkyway/include/milkyway_math.h config/milkyway_config.h \
+ ../milkyway/include/real.h ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../milkyway/include/milkyway_lua_dsfmt.h ../dSFMT/dSFMT.h \
+ ../milkyway/include/milkyway_lua_vector.h \
+ ../milkyway/include/milkyway_util.h /data/local/tmp/include/popt.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h
+milkyway_lua_marshal.o: ../milkyway/src/milkyway_lua_marshal.c \
+ ../lua/include/lua.h config/luaconf.h ../lua/include/lauxlib.h \
+ ../lua/include/lua.h ../milkyway/include/milkyway_lua_marshal.h \
+ ../milkyway/include/milkyway_extra.h ../milkyway/include/milkyway_math.h \
+ config/milkyway_config.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../milkyway/include/milkyway_util.h /data/local/tmp/include/popt.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h
+milkyway_lua_math.o: ../milkyway/src/milkyway_lua_math.c \
+ ../milkyway/include/milkyway_lua_marshal.h ../lua/include/lua.h \
+ config/luaconf.h ../lua/include/lauxlib.h ../lua/include/lua.h \
+ ../milkyway/include/milkyway_extra.h ../milkyway/include/milkyway_math.h \
+ config/milkyway_config.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../milkyway/include/milkyway_math.h \
+ ../milkyway/include/milkyway_lua_math.h
+milkyway_lua_types.o: ../milkyway/src/milkyway_lua_types.c \
+ ../lua/include/lua.h config/luaconf.h ../lua/include/lualib.h \
+ ../lua/include/lua.h ../lua/include/lauxlib.h \
+ ../milkyway/include/milkyway_lua_types.h \
+ ../milkyway/include/milkyway_lua.h \
+ ../milkyway/include/milkyway_lua_util.h \
+ ../milkyway/include/milkyway_util.h config/milkyway_config.h \
+ /data/local/tmp/include/popt.h ../milkyway/include/milkyway_extra.h \
+ ../milkyway/include/milkyway_math.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h \
+ ../milkyway/include/milkyway_lua_math.h \
+ ../milkyway/include/milkyway_lua_vector.h \
+ ../milkyway/include/milkyway_lua_dsfmt.h \
+ ../milkyway/include/milkyway_lua_marshal.h \
+ ../milkyway/include/milkyway_lua_types.h
+milkyway_lua_util.o: ../milkyway/src/milkyway_lua_util.c \
+ ../lua/include/lua.h config/luaconf.h ../lua/include/lualib.h \
+ ../lua/include/lua.h ../milkyway/include/milkyway_lua_marshal.h \
+ ../lua/include/lauxlib.h ../milkyway/include/milkyway_extra.h \
+ ../milkyway/include/milkyway_math.h config/milkyway_config.h \
+ ../milkyway/include/real.h ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../milkyway/include/milkyway_util.h /data/local/tmp/include/popt.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h \
+ ../milkyway/include/milkyway_lua_util.h \
+ ../milkyway/include/milkyway_util.h
+milkyway_lua_vector.o: ../milkyway/src/milkyway_lua_vector.c \
+ ../lua/include/lua.h config/luaconf.h ../lua/include/lauxlib.h \
+ ../lua/include/lua.h ../milkyway/include/milkyway_lua_marshal.h \
+ ../milkyway/include/milkyway_extra.h ../milkyway/include/milkyway_math.h \
+ config/milkyway_config.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../milkyway/include/milkyway_lua_vector.h \
+ ../milkyway/include/milkyway_util.h /data/local/tmp/include/popt.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h
+milkyway_show.o: ../milkyway/src/milkyway_show.c \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/milkyway_math.h \
+ config/milkyway_config.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../milkyway/include/milkyway_util.h /data/local/tmp/include/popt.h \
+ ../milkyway/include/milkyway_extra.h ../milkyway/include/milkyway_show.h \
+ ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h
+milkyway_util.o: ../milkyway/src/milkyway_util.c \
+ ../milkyway/include/milkyway_util.h config/milkyway_config.h \
+ /data/local/tmp/include/popt.h ../milkyway/include/milkyway_extra.h \
+ ../milkyway/include/milkyway_math.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h \
+ ../milkyway/include/mw_boinc_util.h
+milkyway_util_arm.o: ../milkyway/src/milkyway_util_arm.S
+mw_asprintf.o: ../milkyway/src/mw_asprintf.c \
+ ../milkyway/include/mw_asprintf.h config/milkyway_config.h
+mw_boinc_util.o: ../milkyway/src/mw_boinc_util.c \
+ ../milkyway/include/milkyway_util.h config/milkyway_config.h \
+ /data/local/tmp/include/popt.h ../milkyway/include/milkyway_extra.h \
+ ../milkyway/include/milkyway_math.h ../milkyway/include/real.h \
+ ../milkyway/include/milkyway_vectors.h \
+ ../milkyway/include/milkyway_vector_types.h \
+ ../milkyway/include/milkyway_math_functions.h \
+ ../milkyway/include/arm_math/arm_exp.h \
+ ../milkyway/include/arm_math/arm_log.h \
+ ../milkyway/include/milkyway_show.h ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/boinc_api.h \
+ /data/local/tmp/include/boinc/filesys.h \
+ ../milkyway/include/mw_asprintf.h ../dSFMT/dSFMT.h \
+ ../milkyway/include/milkyway_cpp_util.h \
+ ../milkyway/include/mw_boinc_util.h \
+ /data/local/tmp/include/boinc/diagnostics.h
+arm_exp.o: ../milkyway/src/arm_math/arm_exp.c \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../milkyway/include/arm_math/arm_exp.h
+arm_log.o: ../milkyway/src/arm_math/arm_log.c \
+ ../milkyway/include/arm_math/fp2intfp.h \
+ ../milkyway/include/arm_math/arm_log.h
+fp2intfp-arm.o: ../milkyway/src/arm_math/fp2intfp-arm.S
+ifpexp.o: ../milkyway/src/arm_math/ifpexp.S
+ifplog.o: ../milkyway/src/arm_math/ifplog.S
+lapi.o: ../lua/src/lapi.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lapi.h ../lua/include/lobject.h ../lua/include/llimits.h \
+ ../lua/include/lua.h ../lua/include/ldebug.h ../lua/include/lstate.h \
+ ../lua/include/ltm.h ../lua/include/lzio.h ../lua/include/lmem.h \
+ ../lua/include/ldo.h ../lua/include/lfunc.h ../lua/include/lgc.h \
+ ../lua/include/lmem.h ../lua/include/lobject.h ../lua/include/lstate.h \
+ ../lua/include/lstring.h ../lua/include/lgc.h ../lua/include/ltable.h \
+ ../lua/include/ltm.h ../lua/include/lundump.h ../lua/include/lvm.h \
+ ../lua/include/ldo.h
+lauxlib.o: ../lua/src/lauxlib.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lauxlib.h ../lua/include/lua.h
+lbaselib.o: ../lua/src/lbaselib.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lauxlib.h ../lua/include/lua.h ../lua/include/lualib.h
+lcode.o: ../lua/src/lcode.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lcode.h ../lua/include/llex.h ../lua/include/lobject.h \
+ ../lua/include/llimits.h ../lua/include/lua.h ../lua/include/lzio.h \
+ ../lua/include/lmem.h ../lua/include/lopcodes.h ../lua/include/lparser.h \
+ ../lua/include/ldebug.h ../lua/include/lstate.h ../lua/include/ltm.h \
+ ../lua/include/ldo.h ../lua/include/lgc.h ../lua/include/llex.h \
+ ../lua/include/lmem.h ../lua/include/lobject.h ../lua/include/lopcodes.h \
+ ../lua/include/lparser.h ../lua/include/ltable.h
+ldblib.o: ../lua/src/ldblib.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lauxlib.h ../lua/include/lua.h ../lua/include/lualib.h
+ldebug.o: ../lua/src/ldebug.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lapi.h ../lua/include/lobject.h ../lua/include/llimits.h \
+ ../lua/include/lua.h ../lua/include/lcode.h ../lua/include/llex.h \
+ ../lua/include/lzio.h ../lua/include/lmem.h ../lua/include/lopcodes.h \
+ ../lua/include/lparser.h ../lua/include/ldebug.h ../lua/include/lstate.h \
+ ../lua/include/ltm.h ../lua/include/ldo.h ../lua/include/lfunc.h \
+ ../lua/include/lobject.h ../lua/include/lopcodes.h \
+ ../lua/include/lstate.h ../lua/include/lstring.h ../lua/include/lgc.h \
+ ../lua/include/ltable.h ../lua/include/ltm.h ../lua/include/lvm.h \
+ ../lua/include/ldo.h
+ldo.o: ../lua/src/ldo.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/ldebug.h ../lua/include/lstate.h ../lua/include/lua.h \
+ ../lua/include/lobject.h ../lua/include/llimits.h ../lua/include/ltm.h \
+ ../lua/include/lzio.h ../lua/include/lmem.h ../lua/include/ldo.h \
+ ../lua/include/lfunc.h ../lua/include/lgc.h ../lua/include/lmem.h \
+ ../lua/include/lobject.h ../lua/include/lopcodes.h \
+ ../lua/include/lparser.h ../lua/include/lstate.h \
+ ../lua/include/lstring.h ../lua/include/lgc.h ../lua/include/ltable.h \
+ ../lua/include/ltm.h ../lua/include/lundump.h ../lua/include/lvm.h \
+ ../lua/include/ldo.h ../lua/include/lzio.h
+ldump.o: ../lua/src/ldump.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lobject.h ../lua/include/llimits.h ../lua/include/lua.h \
+ ../lua/include/lstate.h ../lua/include/lobject.h ../lua/include/ltm.h \
+ ../lua/include/lzio.h ../lua/include/lmem.h ../lua/include/lundump.h
+lfunc.o: ../lua/src/lfunc.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lfunc.h ../lua/include/lobject.h ../lua/include/llimits.h \
+ ../lua/include/lua.h ../lua/include/lgc.h ../lua/include/lmem.h \
+ ../lua/include/lobject.h ../lua/include/lstate.h ../lua/include/ltm.h \
+ ../lua/include/lzio.h ../lua/include/lmem.h
+lgc.o: ../lua/src/lgc.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/ldebug.h ../lua/include/lstate.h ../lua/include/lua.h \
+ ../lua/include/lobject.h ../lua/include/llimits.h ../lua/include/ltm.h \
+ ../lua/include/lzio.h ../lua/include/lmem.h ../lua/include/ldo.h \
+ ../lua/include/lfunc.h ../lua/include/lgc.h ../lua/include/lmem.h \
+ ../lua/include/lobject.h ../lua/include/lstate.h \
+ ../lua/include/lstring.h ../lua/include/lgc.h ../lua/include/ltable.h \
+ ../lua/include/ltm.h
+linit.o: ../lua/src/linit.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lualib.h ../lua/include/lua.h ../lua/include/lauxlib.h
+liolib.o: ../lua/src/liolib.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lauxlib.h ../lua/include/lua.h ../lua/include/lualib.h
+llex.o: ../lua/src/llex.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/ldo.h ../lua/include/lobject.h ../lua/include/llimits.h \
+ ../lua/include/lua.h ../lua/include/lstate.h ../lua/include/ltm.h \
+ ../lua/include/lzio.h ../lua/include/lmem.h ../lua/include/llex.h \
+ ../lua/include/lobject.h ../lua/include/lparser.h \
+ ../lua/include/lstate.h ../lua/include/lstring.h ../lua/include/lgc.h \
+ ../lua/include/ltable.h ../lua/include/lzio.h
+lmathlib.o: ../lua/src/lmathlib.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lauxlib.h ../lua/include/lua.h ../lua/include/lualib.h
+lmem.o: ../lua/src/lmem.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/ldebug.h ../lua/include/lstate.h ../lua/include/lua.h \
+ ../lua/include/lobject.h ../lua/include/llimits.h ../lua/include/ltm.h \
+ ../lua/include/lzio.h ../lua/include/lmem.h ../lua/include/ldo.h \
+ ../lua/include/lmem.h ../lua/include/lobject.h ../lua/include/lstate.h
+loadlib_rel.o: ../lua/src/loadlib_rel.c ../lua/include/lua.h \
+ config/luaconf.h ../lua/include/lauxlib.h ../lua/include/lua.h \
+ ../lua/include/lualib.h
+lobject.o: ../lua/src/lobject.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/ldo.h ../lua/include/lobject.h ../lua/include/llimits.h \
+ ../lua/include/lua.h ../lua/include/lstate.h ../lua/include/ltm.h \
+ ../lua/include/lzio.h ../lua/include/lmem.h ../lua/include/lmem.h \
+ ../lua/include/lobject.h ../lua/include/lstate.h \
+ ../lua/include/lstring.h ../lua/include/lgc.h ../lua/include/lvm.h \
+ ../lua/include/ldo.h
+lopcodes.o: ../lua/src/lopcodes.c ../lua/include/lopcodes.h \
+ ../lua/include/llimits.h ../lua/include/lua.h config/luaconf.h
+loslib.o: ../lua/src/loslib.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lauxlib.h ../lua/include/lua.h ../lua/include/lualib.h
+lparser.o: ../lua/src/lparser.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lcode.h ../lua/include/llex.h ../lua/include/lobject.h \
+ ../lua/include/llimits.h ../lua/include/lua.h ../lua/include/lzio.h \
+ ../lua/include/lmem.h ../lua/include/lopcodes.h ../lua/include/lparser.h \
+ ../lua/include/ldebug.h ../lua/include/lstate.h ../lua/include/ltm.h \
+ ../lua/include/ldo.h ../lua/include/lfunc.h ../lua/include/llex.h \
+ ../lua/include/lmem.h ../lua/include/lobject.h ../lua/include/lopcodes.h \
+ ../lua/include/lparser.h ../lua/include/lstate.h \
+ ../lua/include/lstring.h ../lua/include/lgc.h ../lua/include/ltable.h
+lstate.o: ../lua/src/lstate.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/ldebug.h ../lua/include/lstate.h ../lua/include/lua.h \
+ ../lua/include/lobject.h ../lua/include/llimits.h ../lua/include/ltm.h \
+ ../lua/include/lzio.h ../lua/include/lmem.h ../lua/include/ldo.h \
+ ../lua/include/lfunc.h ../lua/include/lgc.h ../lua/include/llex.h \
+ ../lua/include/lmem.h ../lua/include/lstate.h ../lua/include/lstring.h \
+ ../lua/include/lgc.h ../lua/include/ltable.h ../lua/include/ltm.h
+lstring.o: ../lua/src/lstring.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lmem.h ../lua/include/llimits.h ../lua/include/lua.h \
+ ../lua/include/lobject.h ../lua/include/lstate.h \
+ ../lua/include/lobject.h ../lua/include/ltm.h ../lua/include/lzio.h \
+ ../lua/include/lmem.h ../lua/include/lstring.h ../lua/include/lgc.h \
+ ../lua/include/lstate.h
+lstrlib.o: ../lua/src/lstrlib.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lauxlib.h ../lua/include/lua.h ../lua/include/lualib.h
+ltable.o: ../lua/src/ltable.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/ldebug.h ../lua/include/lstate.h ../lua/include/lua.h \
+ ../lua/include/lobject.h ../lua/include/llimits.h ../lua/include/ltm.h \
+ ../lua/include/lzio.h ../lua/include/lmem.h ../lua/include/ldo.h \
+ ../lua/include/lgc.h ../lua/include/lmem.h ../lua/include/lobject.h \
+ ../lua/include/lstate.h ../lua/include/ltable.h
+ltablib.o: ../lua/src/ltablib.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lauxlib.h ../lua/include/lua.h ../lua/include/lualib.h
+ltm.o: ../lua/src/ltm.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lobject.h ../lua/include/llimits.h ../lua/include/lua.h \
+ ../lua/include/lstate.h ../lua/include/lobject.h ../lua/include/ltm.h \
+ ../lua/include/lzio.h ../lua/include/lmem.h ../lua/include/lstring.h \
+ ../lua/include/lgc.h ../lua/include/lstate.h ../lua/include/ltable.h \
+ ../lua/include/ltm.h
+lundump.o: ../lua/src/lundump.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/ldebug.h ../lua/include/lstate.h ../lua/include/lua.h \
+ ../lua/include/lobject.h ../lua/include/llimits.h ../lua/include/ltm.h \
+ ../lua/include/lzio.h ../lua/include/lmem.h ../lua/include/ldo.h \
+ ../lua/include/lfunc.h ../lua/include/lmem.h ../lua/include/lobject.h \
+ ../lua/include/lstring.h ../lua/include/lgc.h ../lua/include/lundump.h \
+ ../lua/include/lzio.h
+lvm.o: ../lua/src/lvm.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/ldebug.h ../lua/include/lstate.h ../lua/include/lua.h \
+ ../lua/include/lobject.h ../lua/include/llimits.h ../lua/include/ltm.h \
+ ../lua/include/lzio.h ../lua/include/lmem.h ../lua/include/ldo.h \
+ ../lua/include/lfunc.h ../lua/include/lgc.h ../lua/include/lobject.h \
+ ../lua/include/lopcodes.h ../lua/include/lstate.h \
+ ../lua/include/lstring.h ../lua/include/lgc.h ../lua/include/ltable.h \
+ ../lua/include/ltm.h ../lua/include/lvm.h ../lua/include/ldo.h
+lzio.o: ../lua/src/lzio.c ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/llimits.h ../lua/include/lua.h ../lua/include/lmem.h \
+ ../lua/include/llimits.h ../lua/include/lstate.h \
+ ../lua/include/lobject.h ../lua/include/ltm.h ../lua/include/lzio.h \
+ ../lua/include/lmem.h ../lua/include/lzio.h
+print.o: ../lua/src/print.c ../lua/include/ldebug.h \
+ ../lua/include/lstate.h ../lua/include/lua.h config/luaconf.h \
+ ../lua/include/lobject.h ../lua/include/llimits.h ../lua/include/ltm.h \
+ ../lua/include/lzio.h ../lua/include/lmem.h ../lua/include/lobject.h \
+ ../lua/include/lopcodes.h ../lua/include/lundump.h
+lookup3.o: ../popt/src/lookup3.c
+popt.o: ../popt/src/popt.c ../popt/include/system.h config/popt_config.h \
+ ../popt/include/popt.h ../popt/include/poptint.h
+poptconfig.o: ../popt/src/poptconfig.c ../popt/include/system.h \
+ config/popt_config.h ../popt/include/popt.h ../popt/include/poptint.h
+popthelp.o: ../popt/src/popthelp.c ../popt/include/system.h \
+ config/popt_config.h ../popt/include/popt.h ../popt/include/poptint.h
+poptint.o: ../popt/src/poptint.c ../popt/include/system.h \
+ config/popt_config.h ../popt/include/popt.h ../popt/include/poptint.h \
+ ../popt/src/lookup3.c
+poptparse.o: ../popt/src/poptparse.c ../popt/include/system.h \
+ config/popt_config.h ../popt/include/popt.h ../popt/include/poptint.h
+dSFMT.o: ../dSFMT/dSFMT.c ../dSFMT/dSFMT-params.h ../dSFMT/dSFMT.h \
+ ../dSFMT/dSFMT-params19937.h

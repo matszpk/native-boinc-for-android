@@ -19,6 +19,9 @@ You should have received a copy of the GNU General Public License
 along with Milkyway@Home.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef ANDROID
+#include "arm_math/fp2intfp.h"
+#endif
 #include "separation.h"
 #include "separation_utils.h"
 #include "probabilities.h"
@@ -49,7 +52,7 @@ typedef int GPUInfo;
 #endif
 
 
-ProbabilityFunc probabilityFunc = NULL;
+void* probabilityFunc = NULL;
 
 
 #if MW_IS_X86
@@ -269,6 +272,23 @@ static void cleanStreamIntegrals(real* stream_integrals,
     }
 }
 
+#ifdef ANDROID
+static void cleanStreamIntegralsIntFp(real* stream_integrals,
+                                 const StreamConstantsIntFp* sc,
+                                 const unsigned int number_streams)
+{
+    unsigned int i;
+
+    for (i = 0; i < number_streams; ++i)
+    {
+        /* Rather than not adding up these streams, let them add and then
+         * ignore them. They would have ended up being zero anyway */
+        if (!sc[i].large_sigma)
+            stream_integrals[i] = 0.0;
+    }
+}
+#endif
+
 static void finalCheckpoint(EvaluationState* es)
 {
   #if BOINC_APPLICATION
@@ -295,12 +315,12 @@ static void calculateIntegrals(const AstronomyParameters* ap,
     const IntegralArea* ia;
     double t1, t2;
     int rc;
-
+    
   #if SEPARATION_CAL
     if (separationLoadKernel(ci, ap, sc) != CAL_RESULT_OK)
         fail("Failed to load integral kernel");
   #endif /* SEPARATION_OPENCL */
-
+        
     for (; es->currentCut < es->numberCuts; es->currentCut++)
     {
         es->cut = &es->cuts[es->currentCut];
@@ -331,9 +351,55 @@ static void calculateIntegrals(const AstronomyParameters* ap,
   #endif /* SEPARATION_CAL */
 }
 
-#define SKIP_CHECKPOINT_NUM 10
+#ifdef ANDROID
+static void calculateIntegralsIntFp(const AstronomyParameters* ap,
+                               const IntegralArea* ias,
+                               const StreamConstantsIntFp* sc,
+                               const StreamGauss sg,
+                               EvaluationState* es,
+                               const CLRequest* clr,
+                               GPUInfo* ci,
+                               int useImages)
+{
+    const IntegralArea* ia;
+    double t1, t2;
+    int rc;
+    
+  #if SEPARATION_CAL
+    if (separationLoadKernel(ci, ap, sc) != CAL_RESULT_OK)
+        fail("Failed to load integral kernel");
+  #endif /* SEPARATION_OPENCL */
+        
+    for (; es->currentCut < es->numberCuts; es->currentCut++)
+    {
+        es->cut = &es->cuts[es->currentCut];
+        ia = &ias[es->currentCut];
+        es->current_calc_probs = completedIntegralProgress(ias, es);
 
-static unsigned int skipCheckointCount = 0;
+        t1 = mwGetTime();
+      #if SEPARATION_OPENCL
+        rc = integrateCL(ap, ia, sc, sg, es, clr, ci, (cl_bool) useImages);
+      #elif SEPARATION_CAL
+        rc = integrateCAL(ap, ia, sg, es, clr, ci);
+      #else
+        rc = integrateIntFp(ap, ia, sc, sg, es, clr);
+      #endif /* SEPARATION_OPENCL */
+
+        t2 = mwGetTime();
+        warn("Integral %u time = %f s\n", es->currentCut, t2 - t1);
+
+        if (rc || isnan(es->cut->bgIntegral))
+            fail("Failed to calculate integral %u\n", es->currentCut);
+
+        cleanStreamIntegralsIntFp(es->cut->streamIntegrals, sc, ap->number_streams);
+        clearEvaluationStateTmpSums(es);
+    }
+
+  #if SEPARATION_CAL
+    mwUnloadKernel(ci);
+  #endif /* SEPARATION_CAL */
+}
+#endif
 
 int evaluate(SeparationResults* results,
              const AstronomyParameters* ap,
@@ -352,7 +418,11 @@ int evaluate(SeparationResults* results,
     GPUInfo ci;
     StarPoints sp = EMPTY_STAR_POINTS;
     int useImages = FALSE; /* Only applies to CL version */
-
+#ifdef ANDROID
+    StreamConstantsIntFp* sci;
+    int armExt = mwDetectARMExt();
+#endif
+    
     memset(&ci, 0, sizeof(ci));
 
     probabilityFunctionDispatch(ap, clr);
@@ -382,16 +452,40 @@ int evaluate(SeparationResults* results,
         fail("Failed to setup CAL\n");
   #endif
 
+#ifdef ANDROID
+    if (armExt==ARM_CPU_NOVFP && ap->fast_h_prob)
+    {
+        int i=0;
+        unsigned int nstreams = ap->number_streams;
+        unsigned int convolve = ap->convolve;
+        sci = (StreamConstantsIntFp*) mwMallocA(sizeof(StreamConstantsIntFp) * ap->number_streams);
+        for (i=0; i < nstreams; i++)
+        {
+            fp_to_intfp(sc[i].a.x,&(sci[i].a[0]));
+            fp_to_intfp(sc[i].a.y,&sci[i].a[1]);
+            fp_to_intfp(sc[i].a.z,&sci[i].a[2]);
+            fp_to_intfp(sc[i].a.w,&sci[i].a[3]);
+            fp_to_intfp(sc[i].c.x,&sci[i].c[0]);
+            fp_to_intfp(sc[i].c.y,&sci[i].c[1]);
+            fp_to_intfp(sc[i].c.z,&sci[i].c[2]);
+            fp_to_intfp(sc[i].c.w,&sci[i].c[3]);
+            fp_to_intfp(sc[i].sigma_sq2_inv,&sci[i].sigma_sq2_inv);
+        }
+    }
+#endif
+       
+#ifdef ANDROID
+    if (armExt == ARM_CPU_NOVFP && ap->fast_h_prob)
+        calculateIntegralsIntFp(ap, ias, sci, sg, es, clr, &ci, useImages);
+    else
+        calculateIntegrals(ap, ias, sc, sg, es, clr, &ci, useImages);
+#else
     calculateIntegrals(ap, ias, sc, sg, es, clr, &ci, useImages);
+#endif
 
     if (!ignoreCheckpoint)
     {
-		skipCheckointCount++;
-		if (skipCheckointCount==SKIP_CHECKPOINT_NUM)
-		{
-			finalCheckpoint(es);
-			skipCheckointCount = 0;
-		}
+        finalCheckpoint(es);
     }
 
     getFinalIntegrals(results, es, ap->number_streams, ap->number_integrals);
@@ -420,7 +514,14 @@ int evaluate(SeparationResults* results,
             rc = likelihood(results, ap, &sp, sc, streams, sg, do_separation, separation_outfile);
         }
       #else
+#ifdef ANDROID
+        if (armExt == ARM_CPU_NOVFP && ap->fast_h_prob)
+            rc = likelihood_intfp(results, ap, &sp, sci, streams, sg, do_separation, separation_outfile);
+        else
+            rc = likelihood(results, ap, &sp, sc, streams, sg, do_separation, separation_outfile);
+#else
         rc = likelihood(results, ap, &sp, sc, streams, sg, do_separation, separation_outfile);
+#endif
       #endif /* SEPARATION_CAL */
 
         rc |= checkSeparationResults(results, ap->number_streams);
@@ -435,6 +536,11 @@ int evaluate(SeparationResults* results,
     mwCALShutdown(&ci);
   #endif
 
+#ifdef ANDROID
+    if (armExt == ARM_CPU_NOVFP && ap->fast_h_prob)
+        mwFreeA(sci);
+#endif
+    
     return rc;
 }
 

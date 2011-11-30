@@ -19,6 +19,9 @@ You should have received a copy of the GNU General Public License
 along with Milkyway@Home.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef ANDROID
+#include "arm_math/fp2intfp.h"
+#endif
 #include "separation_types.h"
 #include "milkyway_extra.h"
 #include "r_points.h"

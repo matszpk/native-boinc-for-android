@@ -25,6 +25,11 @@ along with Milkyway@Home.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef _MILKYWAY_MATH_FUNCTIONS_H_
 #define _MILKYWAY_MATH_FUNCTIONS_H_
 
+#ifdef ANDROID
+#include "arm_math/arm_exp.h"
+#include "arm_math/arm_log.h"
+#endif
+
 /* simple math macros */
 #define cube(x) ((x) * (x) * (x))
 #define sqr(x)  ((x) * (x))
@@ -54,11 +59,26 @@ along with Milkyway@Home.  If not, see <http://www.gnu.org/licenses/>.
   #define mw_asin  asin
   #define mw_acos  acos
   #define mw_atan  atan
+#ifdef ANDROID
+//#if 0
+  #define mw_log   arm_log
+#else
   #define mw_log   log
+#endif
   #define mw_log1p log1p
+#ifdef ANDROID
+//#if 0
+  #define mw_exp   arm_exp
+#else
   #define mw_exp   exp
+#endif
   #define mw_expm1 expm1
+#ifdef ANDROID
+//#if 0
+  #define mw_log10 arm_log10
+#else
   #define mw_log10 log10
+#endif
   #define mw_sinh  sinh
   #define mw_cosh  cosh
   #define mw_tanh  tanh
@@ -95,7 +115,12 @@ along with Milkyway@Home.  If not, see <http://www.gnu.org/licenses/>.
 #if HAVE_EXP10
   #define mw_exp10 exp10
 #else
+#ifdef ANDROID
+//#if 0
+  #define mw_exp10(x) arm_pow10(x)
+#else
   #define mw_exp10(x) mw_powr((real) 10.0, x)
+#endif
 #endif /* HAVE_EXP10 */
 
 #define mw_fabs fabs

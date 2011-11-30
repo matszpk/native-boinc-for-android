@@ -21,6 +21,9 @@
  *
  */
 
+#ifdef ANDROID
+#include "arm_math/fp2intfp.h"
+#endif
 #include "evaluation_state.h"
 #include "integrals.h"
 #include "coordinates.h"
@@ -57,6 +60,34 @@ static RConsts* initRPoints(const AstronomyParameters* ap,
     mwFreeA(rPts);
     return rc;
 }
+
+#ifdef ANDROID
+static RConsts* initRPointsIntFp(const AstronomyParameters* ap,
+                            const IntegralArea* ia,
+                            const StreamGauss sg,
+                            IntFp* RESTRICT rPoints,
+                            IntFp* RESTRICT qw_r3_N)
+{
+    unsigned int i, j, idx;
+    RPoints* rPts;
+    RConsts* rc;
+
+    rPts = precalculateRPts(ap, ia, sg, &rc, FALSE);
+
+    for (i = 0; i < ia->r_steps; ++i)
+    {
+        for (j = 0; j < ap->convolve; ++j)
+        {
+            idx = i * ap->convolve + j;
+            fp_to_intfp(rPts[idx].r_point,&(rPoints[idx]));
+            fp_to_intfp(rPts[idx].qw_r3_N,&(qw_r3_N[idx]));
+        }
+    }
+
+    mwFreeA(rPts);
+    return rc;
+}
+#endif
 
 
 #ifdef MILKYWAY_IPHONE_APP
@@ -174,11 +205,8 @@ static inline void r_sum(const AstronomyParameters* ap,
 
     for (r_step = 0; r_step < r_steps; ++r_step)
     {
-#ifdef RDEBUG
-        printf("probexec:%d\n",xcount);
-#endif
         reff_xr_rp3 = id * rc[r_step].irv_reff_xr_rp3;
-        es->bgTmp = probabilityFunc(ap,
+        es->bgTmp = ((ProbabilityFunc)probabilityFunc)(ap,
                                     sc,
                                     sg_dx,
                                     &rPoints[r_step * ap->convolve],
@@ -189,7 +217,7 @@ static inline void r_sum(const AstronomyParameters* ap,
                                     es->streamTmps);
 #ifdef RDEBUG
         xcount++;
-        if((xcount%20000)==0)
+        if((xcount%10000)==0)
         {
             printf("xcount=%d\n",xcount);
             print_outprob(es->bgTmp,es->streamTmps);
@@ -270,6 +298,124 @@ static void nuSum(const AstronomyParameters* ap,
     es->nu_step = 0;
 }
 
+#ifdef ANDROID
+HOT
+static inline void r_sum_intfp(const AstronomyParameters* ap,
+                                const StreamConstantsIntFp* sc,
+                                const IntFp* RESTRICT sg_dx,
+                                const IntFp* RESTRICT rPoints,
+                                const IntFp* RESTRICT qw_r3_N,
+                                LBTrigIntFp* lbt,
+                                real id,
+                                EvaluationState* es,
+                                const RConsts* rc,
+                                unsigned int r_steps)
+{
+    unsigned int r_step;
+    real reff_xr_rp3;
+
+    for (r_step = 0; r_step < r_steps; ++r_step)
+    {
+        reff_xr_rp3 = id * rc[r_step].irv_reff_xr_rp3;
+        es->bgTmp = ((ProbabilityFuncIntFp)probabilityFunc)(ap,
+                                    sc,
+                                    sg_dx,
+                                    &rPoints[r_step * ap->convolve],
+                                    &qw_r3_N[r_step * ap->convolve],
+                                    lbt,
+                                    rc[r_step].gPrime,
+                                    reff_xr_rp3,
+                                    es->streamTmps,
+                                    es->streamTmpsIntFp);
+#ifdef RDEBUG
+        xcount++;
+        if((xcount%10000)==0)
+        {
+            printf("xcount=%d\n",xcount);
+            print_outprob(es->bgTmp,es->streamTmps);
+            if (xcount==10000000)
+                mw_finish(0);
+        }
+#endif
+        sumProbs(es);
+    }
+}
+
+HOT
+inline LBTrigIntFp lb_trig_intfp(LB lb)
+{
+    LBTrig lbt;
+    LBTrigIntFp lbti;
+    real bCos;
+
+    mw_sincos(d2r(LB_L(lb)), &lbt.lSinBCos, &lbt.lCosBCos);
+    mw_sincos(d2r(LB_B(lb)), &lbt.bSin, &bCos);
+
+    lbt.lCosBCos *= bCos;
+    lbt.lSinBCos *= bCos;
+
+    fp_to_intfp(lbt.lCosBCos,&lbti.lCosBCos);
+    fp_to_intfp(lbt.lSinBCos,&lbti.lSinBCos);
+    fp_to_intfp(lbt.bSin,&lbti.bSin);
+    
+    return lbti;
+}
+
+HOT
+static inline void mu_sum_intfp(const AstronomyParameters* ap,
+                                const IntegralArea* ia,
+                                const StreamConstantsIntFp* sc,
+                                const RConsts* rc,
+                                const IntFp* RESTRICT sg_dx,
+                                const IntFp* RESTRICT rPoints,
+                                const IntFp* RESTRICT qw_r3_N,
+                                const NuId nuid,
+                                EvaluationState* es)
+{
+    real mu;
+    LB lb;
+    LBTrigIntFp lbti;
+
+    const real mu_step_size = ia->mu_step_size;
+    const real mu_min = ia->mu_min;
+
+    for (; es->mu_step < ia->mu_steps; es->mu_step++)
+    {
+        doBoincCheckpoint(es, ia, ap->total_calc_probs);
+
+        mu = mu_min + (((real) es->mu_step + 0.5) * mu_step_size);
+
+        lb = gc2lb(ap->wedge, mu, nuid.nu); /* integral point */
+        lbti = lb_trig_intfp(lb);
+
+        r_sum_intfp(ap, sc, sg_dx, rPoints, qw_r3_N, &lbti, nuid.id, es, rc, ia->r_steps);
+    }
+
+    es->mu_step = 0;
+}
+
+static void nuSumIntFp(const AstronomyParameters* ap,
+                        const IntegralArea* ia,
+                        const StreamConstantsIntFp* sc,
+                        const RConsts* rc,
+                        const IntFp* RESTRICT sg_dx,
+                        const IntFp* RESTRICT rPoints,
+                        const IntFp* RESTRICT qw_r3_N,
+                        EvaluationState* es)
+{
+    NuId nuid;
+
+    for ( ; es->nu_step < ia->nu_steps; es->nu_step++)
+    {
+        nuid = calcNuStep(ia, es->nu_step);
+
+        mu_sum_intfp(ap, ia, sc, rc, sg_dx, rPoints, qw_r3_N, nuid, es);
+    }
+
+    es->nu_step = 0;
+}
+#endif
+
 void separationIntegralApplyCorrection(EvaluationState* es)
 {
     unsigned int i;
@@ -319,3 +465,43 @@ int integrate(const AstronomyParameters* ap,
     return 0;
 }
 
+#ifdef ANDROID
+int integrateIntFp(const AstronomyParameters* ap,
+              const IntegralArea* ia,
+              const StreamConstantsIntFp* sc,
+              const StreamGauss sg,
+              EvaluationState* es,
+              const CLRequest* clr)
+{
+    RConsts* rc;
+    IntFp* RESTRICT rPoints;
+    IntFp* RESTRICT qw_r3_N;
+    IntFp* streamTmps;
+
+    if (ap->q == 0.0)
+    {
+        /* if q is 0, there is no probability */
+        /* Short circuit the entire integral rather than add up -1 many times. */
+        warn("q is 0.0\n");
+        es->cut->bgIntegral = -1.0 * ia->nu_steps * ia->mu_steps * ia->r_steps;
+        return 1;
+    }
+
+    rPoints = mwMallocA(sizeof(IntFp) * ia->r_steps * ap->convolve);
+    qw_r3_N = mwMallocA(sizeof(IntFp) * ia->r_steps * ap->convolve);
+    rc = initRPointsIntFp(ap, ia, sg, rPoints, qw_r3_N);
+
+    nuSumIntFp(ap, ia, sc, rc, sg.dx_intfp, rPoints, qw_r3_N, es);
+    separationIntegralApplyCorrection(es);
+
+    mwFreeA(rc);
+    mwFreeA(rPoints);
+    mwFreeA(qw_r3_N);
+
+  #ifdef MILKYWAY_IPHONE_APP
+    _milkywaySeparationGlobalProgress = 1.0;
+  #endif
+
+    return 0;
+}
+#endif

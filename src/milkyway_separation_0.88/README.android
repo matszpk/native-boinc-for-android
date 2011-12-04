@@ -2,3 +2,7 @@ HOW TO COMPILE:
 
 Please enter to 'handmade; directory and run 'make'.
 Please use 'init.sh' and Android boinc-api to compile this application.
+
+ATTENTION!!!
+Please always compile source without using VFP i NEON extensions flags.
+Main functions (prob_arm_vfp,prob_arm_vfpv3) doesnt save and restore VFP registers!

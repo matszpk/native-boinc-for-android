@@ -227,6 +227,12 @@ static void getFinalIntegrals(SeparationResults* results,
         for (j = 0; j < number_streams; j++)
             results->streamIntegrals[j] -= es->cuts[i].streamIntegrals[j];
     }
+#ifdef RDEBUG
+    warn("totbgIntegral:%1.18e\n",results->backgroundIntegral);
+    for (i  = 0; i < es->numberStreams; ++i)
+        warn("%u:totstreamIntegral:%1.18e\n",i,results->streamIntegrals[i]);
+#endif
+
 }
 
 #if 0
@@ -458,6 +464,7 @@ int evaluate(SeparationResults* results,
         int i=0;
         unsigned int nstreams = ap->number_streams;
         unsigned int convolve = ap->convolve;
+        warn("Use IntFp Engine\n");
         sci = (StreamConstantsIntFp*) mwMallocA(sizeof(StreamConstantsIntFp) * ap->number_streams);
         for (i=0; i < nstreams; i++)
         {
@@ -465,10 +472,10 @@ int evaluate(SeparationResults* results,
             fp_to_intfp(sc[i].a.y,&sci[i].a[1]);
             fp_to_intfp(sc[i].a.z,&sci[i].a[2]);
             fp_to_intfp(sc[i].a.w,&sci[i].a[3]);
-            fp_to_intfp(sc[i].c.x,&sci[i].c[0]);
-            fp_to_intfp(sc[i].c.y,&sci[i].c[1]);
-            fp_to_intfp(sc[i].c.z,&sci[i].c[2]);
-            fp_to_intfp(sc[i].c.w,&sci[i].c[3]);
+            fp_to_intfp(-sc[i].c.x,&sci[i].c[0]);
+            fp_to_intfp(-sc[i].c.y,&sci[i].c[1]);
+            fp_to_intfp(-sc[i].c.z,&sci[i].c[2]);
+            fp_to_intfp(-sc[i].c.w,&sci[i].c[3]);
             fp_to_intfp(sc[i].sigma_sq2_inv,&sci[i].sigma_sq2_inv);
         }
     }

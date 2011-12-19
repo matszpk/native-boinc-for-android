@@ -141,6 +141,86 @@ static void separation(FILE* f,
     }
 }
 
+#ifdef RDEBUG
+static void print_probdata(const AstronomyParameters* ap,
+    const StreamConstants* sc, const real* RESTRICT sg_dx, const real* RESTRICT r_point,
+    const real* RESTRICT qw_r3_N, LBTrig lbt, real gPrime, real reff_xr_rp3,
+    real* RESTRICT streamTmps)
+{
+  unsigned int i;
+  fprintf(stderr,"AstronomyParams:\n  aux_bg_profile=%d\n  number_streams=%u\n  convolve=%u\n"
+         "  bg_a_b_c=%1.18e,%1.18e,%1.18e\n  m_sun_r0=%1.18e\n"
+         "  sun_r0=%1.18e\n  q_inv=%1.18e\n  q_inv_sqr=%1.18e\n"
+         "  r0=%1.18e\n  alpha=%1.18e\n  alpha_delta3=%1.18e\n  wedge=%d\n"
+         "  sun_r0=%1.18e\n  q=%1.18e\n  coeff=%1.18e\n"
+         "  tcp=%1.18e\n  num_integrals=%u\n  exp_bg_w=%1.18e\n",
+         ap->aux_bg_profile, ap->number_streams, ap->convolve,
+         ap->bg_a, ap->bg_b, ap->bg_c,ap->m_sun_r0,
+         ap->sun_r0,ap->q_inv,ap->q_inv_sqr,
+         ap->r0, ap->alpha, ap->alpha_delta3, ap->wedge, ap->sun_r0, ap->q, ap->coeff,
+         ap->total_calc_probs, ap->number_integrals, ap->exp_background_weight);
+  //
+  fputs("StreamConstants:", stderr);
+  for (i=0; i<ap->number_streams; i++)
+    fprintf(stderr,"  %d:a=[%1.18e,%1.18e,%1.18e,%1.18e]\n    c=[%1.18e,%1.18e,%1.18e,%1.18e]\n"
+        "    sigma_sq2_inv=%1.18e,large_sigma=%d\n",
+        i,sc[i].a.x,sc[i].a.y,sc[i].a.z,sc[i].a.w,
+        sc[i].c.x,sc[i].c.y,sc[i].c.z,sc[i].c.w,
+        sc[i].sigma_sq2_inv,sc[i].large_sigma);
+  fputs("r_point",stderr);
+  for (i=0; i<ap->convolve; i++)
+    fprintf(stderr,"  %d:%1.18e\n",i,r_point[i]);
+  fputs("qw_r3_N",stderr);
+  for (i=0; i<ap->convolve; i++)
+    fprintf(stderr,"  %d:%1.18e\n",i,qw_r3_N[i]);
+  fprintf(stderr,"lbt: lCosBCos=%1.18e,real lSinBCos=%1.18e,bSin=%1.18e\n",
+         lbt.lCosBCos,lbt.lSinBCos,lbt.bSin);
+  fprintf(stderr,"gPrime=%1.18e\n",gPrime);
+  fprintf(stderr,"reff_xr_rp3=%1.18e\n",reff_xr_rp3);
+  fputs("sg_dx",stderr);
+  for(i=0;i<ap->convolve;i++)
+    fprintf(stderr,"  %d:%1.18e\n",i,sg_dx[i]);
+  fputs("streamTmps",stderr);
+  for(i=0;i<ap->number_streams;i++)
+    fprintf(stderr,"  %d:%1.18e\n",i,streamTmps[i]);
+}
+
+
+static void print_outprob(real out, real* RESTRICT streamTmps)
+{
+  int i;
+  printf("out=%1.18e\n",out);
+  for(i=0;i<2;i++)
+    printf("  %d:%1.18e\n",i,streamTmps[i]);
+  fflush(stdout);
+}
+static int xcount=0;
+#endif
+
+#ifdef TEST_PROB_VFP
+static double tmpStreamVals[5];
+
+static int compare_doubles_2(const char* funcname, double a1, double a2)
+{
+    int mantisa;
+    double diff = fabs(a1-a2);
+    double frac = frexp(fmin(fabs(a1),fabs(a2)),&mantisa);
+    if (!finite(a1) || !finite(a2))
+    {
+        fprintf(stderr,"%s error:%1.18e,%1.18e,%1.18e\n",
+                funcname,a1,a2,diff);
+        return 1;
+    }
+    if (diff*ldexp(1.0,-mantisa+1)>=6.220446049250313e-16)
+    {
+        fprintf(stderr,"%s error:%1.18e,%1.18e,%1.18e\n",
+                funcname,a1,a2,diff);
+        return 1;
+    }
+    return 0;
+}
+#endif
+
 static real likelihood_probability(const AstronomyParameters* ap,
                                    const StreamConstants* sc,
                                    const Streams* streams,
@@ -167,7 +247,24 @@ static real likelihood_probability(const AstronomyParameters* ap,
     }
     else
     {
+#ifdef TEST_PROB_VFP
+        double out;
+        int i=0;
+        int isbad = 0;
+        es->bgTmp = prob_arm_vfpv3(ap, sc, sg_dx, r_points, qw_r3_N, lbt, gPrime, reff_xr_rp3, es->streamTmps);
+        out = prob_arm_vfp(ap, sc, sg_dx, r_points, qw_r3_N, lbt, gPrime, reff_xr_rp3, tmpStreamVals);
+        
+        for (i=0; i<ap->number_streams;i++)
+            isbad = compare_doubles_2("bgTmp",es->streamTmps[i],tmpStreamVals[i]);
+        
+        if (compare_doubles_2("bgTmp",es->bgTmp,out) || isbad)
+        {
+            print_probdata(ap, sc, sg_dx, r_points, qw_r3_N, lbt, gPrime, reff_xr_rp3, es->streamTmps);
+            mw_finish(1);
+        }
+#else
         es->bgTmp = ((ProbabilityFunc)probabilityFunc)(ap, sc, sg_dx, r_points, qw_r3_N, lbt, gPrime, reff_xr_rp3, es->streamTmps);
+#endif
     }
 
     if (bgProb)
@@ -239,7 +336,7 @@ static real likelihood_probability_intfp(const AstronomyParameters* ap,
 
     es->bgTmp = probability_log(es->bgTmp, streams->sumExpWeights);
     KAHAN_ADD(es->bgSum, es->bgTmp);
-
+    
     return starProb;
 }
 #endif
@@ -274,6 +371,12 @@ static void calculateLikelihoods(SeparationResults* results,
     }
 
     results->likelihood = calculateLikelihood(prob, nStars, badJacobians);
+    
+#ifdef RDEBUG
+    warn("totLLIntegral:%1.18e\n",results->backgroundLikelihood);
+    for (i  = 0; i < nStreams; ++i)
+        warn("%u:totllstreamIntegral:%1.18e\n",i,results->streamLikelihoods[i]);
+#endif
 }
 
 /* separation init stuffs */

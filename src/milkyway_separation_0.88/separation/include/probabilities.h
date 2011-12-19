@@ -59,6 +59,11 @@ real prob_arm_novfp(const AstronomyParameters* ap, const StreamConstants* sc,
         const real* RESTRICT qw_r3_N, LBTrig lbt, real gPrime, real reff_xr_rp3,
         real* RESTRICT streamTmps);
 
+real prob_arm_novfp_debug(const AstronomyParameters* ap, const StreamConstants* sc,
+        const real* RESTRICT sg_dx, const real* RESTRICT r_point,
+        const real* RESTRICT qw_r3_N, LBTrig lbt, real gPrime, real reff_xr_rp3,
+        real* RESTRICT streamTmps);
+
 real prob_arm_vfp(const AstronomyParameters* ap, const StreamConstants* sc,
         const real* RESTRICT sg_dx, const real* RESTRICT r_point,
         const real* RESTRICT qw_r3_N, LBTrig lbt, real gPrime, real reff_xr_rp3,

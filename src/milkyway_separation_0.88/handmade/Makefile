@@ -80,6 +80,7 @@ SEPSRCS = ../separation/src/calculated_constants.c \
 	../separation/src/parameters.c \
 	../separation/src/probabilities.c \
 	../separation/src/prob_arm_novfp.S \
+	../separation/src/prob_arm_novfp_debug.S \
 	../separation/src/prob_arm_vfp.S \
 	../separation/src/prob_arm_vfpv3.S \
 	../separation/src/r_points.c \
@@ -231,8 +232,13 @@ DSFMTINCDIR = -I../dSFMT
 INCDIRS = -Iconfig $(SEPINCDIR) $(LUAINCDIR) $(MWINCDIR) $(POPTINCDIR) \
 	$(DSFMTINCDIR) $(BOINC_INCDIR)
 
-DEFS = -DMILKYWAY_LUA_COMPILATION=1 \
+#DEFS = -DWRITE_PROGRESS=1 -DRDEBUG=1 -DTEST_ARMFUNC=1 -DTEST_VFP=1 -DMILKYWAY_LUA_COMPILATION=1 \
+#	-DDOUBLEPREC=1 -DDSFMT_MEXP=19937
+
+# If you want to compile with VFP and NEON extensions please remove SKIP_VFP_SAVE macro
+DEFS = -DSKIP_VFP_SAVE=1 -DMILKYWAY_LUA_COMPILATION=1 \
 	-DDOUBLEPREC=1 -DDSFMT_MEXP=19937
+
 
 DYNLIBS = -lm
 
@@ -258,16 +264,16 @@ DYNLIBS = -lm
 	$(CC) $(CFLAGS) -std=gnu99 $(CPPFLAGS) $(INCDIRS) $(DEFS) -c -o $@ $<
 
 %.o: ../milkyway/src/%.S
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(DEFS) -c -o $@ $<
 
 %.o: ../milkyway/src/arm_math/%.S
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(DEFS) -c -o $@ $<
 
 %.o: ../separation/src/%.c
 	$(CC) $(CFLAGS) -std=gnu99 $(CPPFLAGS) $(INCDIRS) $(DEFS) -c -o $@ $<
 
 %.o: ../separation/src/%.S
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(DEFS) -c -o $@ $<
 
 milkyway_separation: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(DYNLIBS) -o milkyway_separation $^ $(BOINC_LIBS) $(STDCPP)

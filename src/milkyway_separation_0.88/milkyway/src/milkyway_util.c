@@ -637,6 +637,12 @@ static int detectedARMExt = -1;
 
 int mwDetectARMExt()
 {
+#ifdef TEST_NOVFP
+    return ARM_CPU_NOVFP;
+#else
+#ifdef TEST_VFP
+    return ARM_CPU_VFP;
+#else
     FILE* file = NULL;
     if (detectedARMExt != -1)
         return detectedARMExt;
@@ -658,5 +664,7 @@ int mwDetectARMExt()
     fclose(file);
     detectedARMExt = ext;
     return ext;
+#endif
+#endif
 }
 #endif

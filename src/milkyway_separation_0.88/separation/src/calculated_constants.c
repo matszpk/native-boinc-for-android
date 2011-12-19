@@ -75,6 +75,10 @@ static inline mwvector streamC(const AstronomyParameters* ap, int wedge, real mu
 
 int setAstronomyParameters(AstronomyParameters* ap, const BackgroundParameters* bgp)
 {
+#ifdef ANDROID
+    int armExt = mwDetectARMExt();
+#endif
+
     ap->alpha = bgp->alpha;
     ap->q     = bgp->q;
 
@@ -88,7 +92,7 @@ int setAstronomyParameters(AstronomyParameters* ap, const BackgroundParameters* 
     ap->bg_a = bgp->a;
     ap->bg_b = bgp->b;
     ap->bg_c = bgp->c;
-
+    
     if (ap->convolve == 0 || ap->convolve > 256 || !mwEven(ap->convolve))
     {
         warn("convolve (%u) must be > 0, <= 256 and even\n", ap->convolve);
@@ -104,6 +108,13 @@ int setAstronomyParameters(AstronomyParameters* ap, const BackgroundParameters* 
     ap->sun_r0 = const_sun_r0;
     ap->m_sun_r0 = -ap->sun_r0;
 
+#ifdef ANDROID
+    if (armExt==ARM_CPU_NOVFP && ap->fast_h_prob && ap->r0 < 0.0)
+    {
+        warn("IntFp Engine cant handle r0<0.0\n");
+        return 1;
+    }
+#endif
     return 0;
 }
 

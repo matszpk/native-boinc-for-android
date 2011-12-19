@@ -15,6 +15,11 @@
                 .eabi_attribute 18, 4
                 .text
                 .align 3
+#ifndef SKIP_VFP_SAVE
+#define st_vfp_size 64
+#else
+#define st_vfp_size 0
+#endif
                 
                 /* with aux_bg_profile */
 .Lprob_aux_arm_vfp:
@@ -34,9 +39,9 @@
                 fldd d0,[r3]            // rpoint
                 fldd d1,[r3,#8]
                 
-                fldd d2,[sp,#128+48]        // lbt
-                fldd d3,[sp,#128+56]
-                fldd d4,[sp,#128+64]
+                fldd d2,[sp,#128+48+st_vfp_size]        // lbt
+                fldd d3,[sp,#128+56+st_vfp_size]
+                fldd d4,[sp,#128+64+st_vfp_size]
                 fldd d5,[r0]    // m_sun_r0
                 fldd d6,[r0]
                 
@@ -86,7 +91,7 @@
                 fdivd d13,d2,d13
                 
                 /* aux_bg_profile */
-                fldd d12,[sp,#128+40+40]         // gprime
+                fldd d12,[sp,#128+40+40+st_vfp_size]         // gprime
                 fldd d0,[r2]            // sg_dx
                 fldd d1,[r2,#8]
                 
@@ -113,9 +118,9 @@
                 fldd d0,[r3,#16]            // rpoint
                 fldd d1,[r3,#24]
                 
-                fldd d2,[sp,#128+48]        // lbt
-                fldd d3,[sp,#128+56]
-                fldd d12,[sp,#128+64]
+                fldd d2,[sp,#128+48+st_vfp_size]        // lbt
+                fldd d3,[sp,#128+56+st_vfp_size]
+                fldd d12,[sp,#128+64+st_vfp_size]
                 fldd d5,[r0]    // m_sun_r0
                 fldd d6,[r0]
                 
@@ -169,7 +174,7 @@
                 fdivd d13,d2,d13
                 
                 /* aux_bg_profile */
-                fldd d12,[sp,#128+40+40]         // gprime
+                fldd d12,[sp,#128+40+40+st_vfp_size]         // gprime
                 fldd d0,[r2,#16]            // sg_dx
                 fldd d1,[r2,#24]
                 
@@ -206,7 +211,7 @@
                 fstd d15,[sp,#96]
                 
                 str r0,[sp,#120]
-                ldr r0,[sp,#128+40+56]      // streamTmps
+                ldr r0,[sp,#128+40+56+st_vfp_size]      // streamTmps
 .Lstreamloop1:
                 /* first quad half */
                 fldd d4,[sp]
@@ -503,7 +508,6 @@
                 fmacd d8,d5,d13
                 fmacd d8,d6,d14
                 fmacd d8,d7,d15
-                
                 fstd d8,[r0]
                 add r0,r0,#8
                 
@@ -530,10 +534,10 @@
                 bne .Lrestloop1
 .Lafterrestloop1:
                 /* multiply by reff_xr_rp3 */
-                fldd d0,[sp,#128+40+48]
+                fldd d0,[sp,#128+40+48+st_vfp_size]
                 fmuld d15,d15,d0
                 
-                ldr r8,[sp,#128+40+56]      // streamTmps
+                ldr r8,[sp,#128+40+56+st_vfp_size]      // streamTmps
                 ldr r9,[r0,#36]        // nstreams
                 add r9,r8,r9, lsl #3
 .Lfinishloop1:
@@ -546,6 +550,9 @@
                 
                 fmrrd r0,r1,d15
                 add sp,sp,#128
+#ifndef SKIP_VFP_SAVE
+                vpop {d8,d9,d10,d11,d12,d13,d14,d15}
+#endif
                 pop {r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}
                 bx lr
                 
@@ -576,9 +583,9 @@
                 mov r8,r1
                 fldd d0,[r3]            // rpoint
                 
-                fldd d2,[sp,#128+48]        // lbt
-                fldd d3,[sp,#128+56]
-                fldd d4,[sp,#128+64]
+                fldd d2,[sp,#128+48+st_vfp_size]        // lbt
+                fldd d3,[sp,#128+56+st_vfp_size]
+                fldd d4,[sp,#128+64+st_vfp_size]
                 fldd d5,[r0]    // m_sun_r0
                 
                 fmacd d5,d0,d2          // d5 xyz.x
@@ -606,7 +613,7 @@
                 fdivd d12,d2,d12
                 
                 /* bg_aux_profile */
-                fldd d11,[sp,#128+40+40]         // gprime
+                fldd d11,[sp,#128+40+40+st_vfp_size]         // gprime
                 fldd d0,[r2]            // sg_dx
                 
                 faddd d0,d0,d11
@@ -624,7 +631,7 @@
                 
                 str r3,[sp,#104]
                 str r2,[sp,#108]
-                ldr r12,[sp,#128+40+56]      // streamTmps
+                ldr r12,[sp,#128+40+56+st_vfp_size]      // streamTmps
                 
                 ldr r10,.Lminexp
                 ldr r11,.Lmaxexp
@@ -738,6 +745,9 @@
                 /* bg_probability_fast_hprob for ARM architecture */
 prob_arm_vfp:
                 push {r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}
+#ifndef SKIP_VFP_SAVE
+                vpush {d8,d9,d10,d11,d12,d13,d14,d15}
+#endif
                 
                 /* r0 - ap,
                    r1 - sc,
@@ -753,7 +763,7 @@ prob_arm_vfp:
                 ldr r4,[r0,#32]        // convolve
                 //sub r4,r4,#1
                 ldr r5,[r0,#36]        // nstreams
-                ldr r9,[sp,#128+40+56]      // streamTmps
+                ldr r9,[sp,#128+40+56+st_vfp_size]      // streamTmps
                 
                 lsl r8,r5,#3
                 sub r8,r8,#8
@@ -764,7 +774,7 @@ prob_arm_vfp:
                 subs r8,r8,#8
                 bhs .Lzeroloop1
                 
-                ldr r6,[sp,#128+40]         // qw_r3_N
+                ldr r6,[sp,#128+40+st_vfp_size]         // qw_r3_N
                 sub r4,r4,#3
                 add r4,r6,r4,lsl #3     // qw_r3_N+convolve
                 add r5,r1,r5,lsl #7     // sc+nstreams
@@ -796,9 +806,9 @@ prob_arm_vfp:
                 fldd d0,[r3]            // rpoint
                 fldd d1,[r3,#8]
                 
-                fldd d2,[sp,#128+48]        // lbt
-                fldd d3,[sp,#128+56]
-                fldd d4,[sp,#128+64]
+                fldd d2,[sp,#128+48+st_vfp_size]        // lbt
+                fldd d3,[sp,#128+56+st_vfp_size]
+                fldd d4,[sp,#128+64+st_vfp_size]
                 fldd d5,[r0]    // m_sun_r0
                 fldd d6,[r0]
                 
@@ -851,9 +861,9 @@ prob_arm_vfp:
                 fldd d0,[r3,#16]            // rpoint
                 fldd d1,[r3,#24]
                 
-                fldd d11,[sp,#128+48]        // lbt
-                fldd d3,[sp,#128+56]
-                fldd d12,[sp,#128+64]
+                fldd d11,[sp,#128+48+st_vfp_size]        // lbt
+                fldd d3,[sp,#128+56+st_vfp_size]
+                fldd d12,[sp,#128+64+st_vfp_size]
                 fldd d5,[r0]    // m_sun_r0
                 fldd d6,[r0]
                 
@@ -923,7 +933,7 @@ prob_arm_vfp:
                 fstd d15,[sp,#96]
                 
                 str r0,[sp,#120]
-                ldr r0,[sp,#128+40+56]      // streamTmps
+                ldr r0,[sp,#128+40+56+st_vfp_size]      // streamTmps
 .Lstreamloop2:
                 /* first quad half */
                 fldd d4,[sp]
@@ -1221,7 +1231,6 @@ prob_arm_vfp:
                 fmacd d8,d5,d13
                 fmacd d8,d6,d14
                 fmacd d8,d7,d15
-                
                 fstd d8,[r0]
                 add r0,r0,#8
                 
@@ -1247,10 +1256,10 @@ prob_arm_vfp:
                 bne .Lrestloop2
 .Lafterrestloop2:
                 /* multiply by reff_xr_rp3 */
-                fldd d0,[sp,#128+40+48]
+                fldd d0,[sp,#128+40+48+st_vfp_size]
                 fmuld d15,d15,d0
                 
-                ldr r8,[sp,#128+40+56]      // streamTmps
+                ldr r8,[sp,#128+40+56+st_vfp_size]      // streamTmps
                 ldr r9,[r0,#36]        // nstreams
                 add r9,r8,r9, lsl #3
 .Lfinishloop2:
@@ -1263,6 +1272,9 @@ prob_arm_vfp:
                 
                 fmrrd r0,r1,d15
                 add sp,sp,#128
+#ifndef SKIP_VFP_SAVE
+                vpop {d8,d9,d10,d11,d12,d13,d14,d15}
+#endif
                 pop {r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}
                 bx lr
 
@@ -1290,9 +1302,9 @@ prob_arm_vfp:
                 mov r8,r1
                 fldd d0,[r3]            // rpoint
                 
-                fldd d2,[sp,#128+48]        // lbt
-                fldd d3,[sp,#128+56]
-                fldd d4,[sp,#128+64]
+                fldd d2,[sp,#128+48+st_vfp_size]        // lbt
+                fldd d3,[sp,#128+56+st_vfp_size]
+                fldd d4,[sp,#128+64+st_vfp_size]
                 fldd d5,[r0]    // m_sun_r0
                 
                 fmacd d5,d0,d2          // d5 xyz.x
@@ -1323,7 +1335,7 @@ prob_arm_vfp:
                 
                 str r3,[sp,#104]
                 str r2,[sp,#108]
-                ldr r12,[sp,#128+40+56]      // streamTmps
+                ldr r12,[sp,#128+40+56+st_vfp_size]      // streamTmps
                 
                 ldr r10,.Lminexp
                 ldr r11,.Lmaxexp

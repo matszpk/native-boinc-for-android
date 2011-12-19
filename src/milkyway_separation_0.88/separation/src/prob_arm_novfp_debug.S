@@ -15,7 +15,7 @@
                 .text
                 .align 3
 //// PROBNOVFP_DEBUG
-#ifdef PROBNOVFP_DEBUG2
+#ifdef PROB_DEBUG
 .Lprint_ifp_dbl:
                 push {r0,r1,r2,r3,r12,lr}
                 sub sp,sp,#20
@@ -61,14 +61,14 @@
                 .string "%1.18e\n"
                 .align 3
 .Lputs_sep:
-                push {r0,r1,r12,lr}
+                push {r0,r1,r2,r3,r12,lr}
                 
                 tst r11,r11
                 adreq r0,.Lconvolve_str
                 adrne r0,.Lstream_str
                 bl puts(PLT)
                 
-                pop {r0,r1,r12,lr}
+                pop {r0,r1,r2,r3,r12,lr}
                 bx lr
 .Lconvolve_str:
                 .string "############# convolve"
@@ -137,9 +137,9 @@
                 tst r3,r3
                 beq .Lshiftover32
                 clz r9,r3
-                rsbs r7,r9,#32
+                rsbs r10,r9,#32
                 lsl r3,r3,r9
-                orr r3,r3,r2,lsr r7
+                orr r3,r3,r2,lsr r10
                 lsl r2,r2,r9
                 sub r0,r0,r9    // subtract from mantisa
                 b .Laddend
@@ -152,7 +152,7 @@
 .Laddend:
                 pkhbt r0,r0,r1
 .Lsavefirst:
-                /* result: {r2,r3,r0} */
+                /* result: { r2,r3,r0} */
                 bx lr
 
 .Lmantisale:
@@ -198,9 +198,9 @@
                 tst r5,r5
                 beq .Lshiftover32_2
                 clz r9,r5
-                rsbs r7,r9,#32
+                rsbs r10,r9,#32
                 lsl r3,r5,r9
-                orr r3,r3,r4,lsr r7
+                orr r3,r3,r4,lsr r10
                 lsl r2,r4,r9
                 sub r1,r1,r9    // subtract from mantisa
                 b .Laddend2
@@ -246,7 +246,6 @@
 #define S_xyz_z_E 128
 #define S_r10_loop 132
 #define S_tmpreg   136
-#define S_tmpr6   136
 #define S_xyzs_x_F 136+8
 #define S_xyzs_x_E 144+8
 #define S_xyzs_y_F 152+8
@@ -291,17 +290,14 @@
 #define sc_c_y 60
 #define sc_c_z 72
 #define sc_sigma2_sq_inv 96
-                .align 3
-.Lsqrtranges:
-                .int 406319185, 889516851, 1464138954
 
                 .align 3
 .Linvlog2:
                 .quad 13306513097844322491
                 
-                .global prob_arm_novfp
-                .type   prob_arm_novfp,%function
-prob_arm_novfp:
+                .global prob_arm_novfp_debug
+                .type   prob_arm_novfp_debug,%function
+prob_arm_novfp_debug:
                 push {r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}
                 
                 /* r0 - ap,
@@ -428,11 +424,12 @@ prob_arm_novfp:
                 str r10,[sp,#S_r0_E]    // r0
                 
 .Lmainloop:
-#ifdef PROBNOVFP_DEBUG
+#ifdef PROB_DEBUG
+                // convolve
+                push {r10,r11}
                 mov r11,#0
                 bl .Lputs_sep
-                nop
-                nop
+                pop {r10,r11}
 #endif
                 ///////////////////////
                 //// START TO PROBNOVFP_DEBUG!!!
@@ -803,16 +800,16 @@ prob_arm_novfp:
                 bl .Lprint_ifp_dbl
                 pop {r0,r1,r2,r3,r12,r14}
 #endif
+
                 ////////////////////////////////
                 //// square root: input {r2,r3,r0}
                 ////////////////////////////////
                 sxth r0,r0
-                
-                adr r12,.Lsqrtpdata1
                 asrs r0,r0,#1
                 
                 and r3,r3,#0x7fffffff
                 
+                adr r12,.Lsqrtpdata1
                 addcs r12,r12,#88*4
                 
                 ldr r7,.Lsqrtranges
@@ -829,8 +826,8 @@ prob_arm_novfp:
                 // [-1, 1, -1, 1, -1, 1, -1, 1, -1, 1, 1]
                 /* evaluate polynomial */
                 ldrd r4,[r12]           // yi<0
-                //add r12,r12,#8
-//.Lsqrtloop:
+                add r12,r12,#8
+.Lsqrtloop:
                 // polydata[1]
                 mov r11,#0
                 umull r1,r7,r2,r5       // yi*xi
@@ -841,117 +838,13 @@ prob_arm_novfp:
                 umlal r10,r11,r3,r5
                 adds r10,r10,r10        // tmp<<1
                 adc r11,r11,r11
-                ldrd r4,[r12,#8]           // polydata[1]
+                ldrd r4,[r12]           // polydata[i]
                 subs r4,r4,r10
                 sbc r5,r5,r11           // yi>0
                 
-                mov r11,#0
-                umull r1,r7,r2,r5       // yi*xi
-                umull r8,r9,r3,r4
-                adds r1,r1,r8
-                adcs r10,r7,r9
-                adc r11,r11,#0
-                umlal r10,r11,r3,r5
-                adds r10,r10,r10        // tmp<<1
-                adc r11,r11,r11
-                ldrd r4,[r12,#16]           // polydata[2]
-                subs r4,r4,r10
-                sbc r5,r5,r11           // yi>0
-                
-                mov r11,#0
-                umull r1,r7,r2,r5       // yi*xi
-                umull r8,r9,r3,r4
-                adds r1,r1,r8
-                adcs r10,r7,r9
-                adc r11,r11,#0
-                umlal r10,r11,r3,r5
-                adds r10,r10,r10        // tmp<<1
-                adc r11,r11,r11
-                ldrd r4,[r12,#24]           // polydata[3]
-                subs r4,r4,r10
-                sbc r5,r5,r11           // yi>0
-                
-                mov r11,#0
-                umull r1,r7,r2,r5       // yi*xi
-                umull r8,r9,r3,r4
-                adds r1,r1,r8
-                adcs r10,r7,r9
-                adc r11,r11,#0
-                umlal r10,r11,r3,r5
-                adds r10,r10,r10        // tmp<<1
-                adc r11,r11,r11
-                ldrd r4,[r12,#32]           // polydata[4]
-                subs r4,r4,r10
-                sbc r5,r5,r11           // yi>0
-                
-                mov r11,#0
-                umull r1,r7,r2,r5       // yi*xi
-                umull r8,r9,r3,r4
-                adds r1,r1,r8
-                adcs r10,r7,r9
-                adc r11,r11,#0
-                umlal r10,r11,r3,r5
-                adds r10,r10,r10        // tmp<<1
-                adc r11,r11,r11
-                ldrd r4,[r12,#40]           // polydata[5]
-                subs r4,r4,r10
-                sbc r5,r5,r11           // yi>0
-                
-                mov r11,#0
-                umull r1,r7,r2,r5       // yi*xi
-                umull r8,r9,r3,r4
-                adds r1,r1,r8
-                adcs r10,r7,r9
-                adc r11,r11,#0
-                umlal r10,r11,r3,r5
-                adds r10,r10,r10        // tmp<<1
-                adc r11,r11,r11
-                ldrd r4,[r12,#48]           // polydata[6]
-                subs r4,r4,r10
-                sbc r5,r5,r11           // yi>0
-                
-                mov r11,#0
-                umull r1,r7,r2,r5       // yi*xi
-                umull r8,r9,r3,r4
-                adds r1,r1,r8
-                adcs r10,r7,r9
-                adc r11,r11,#0
-                umlal r10,r11,r3,r5
-                adds r10,r10,r10        // tmp<<1
-                adc r11,r11,r11
-                ldrd r4,[r12,#56]           // polydata[7]
-                subs r4,r4,r10
-                sbc r5,r5,r11           // yi>0
-                
-                mov r11,#0
-                umull r1,r7,r2,r5       // yi*xi
-                umull r8,r9,r3,r4
-                adds r1,r1,r8
-                adcs r10,r7,r9
-                adc r11,r11,#0
-                umlal r10,r11,r3,r5
-                adds r10,r10,r10        // tmp<<1
-                adc r11,r11,r11
-                ldrd r4,[r12,#64]           // polydata[8]
-                subs r4,r4,r10
-                sbc r5,r5,r11           // yi>0
-                
-                mov r11,#0
-                umull r1,r7,r2,r5       // yi*xi
-                umull r8,r9,r3,r4
-                adds r1,r1,r8
-                adcs r10,r7,r9
-                adc r11,r11,#0
-                umlal r10,r11,r3,r5
-                adds r10,r10,r10        // tmp<<1
-                adc r11,r11,r11
-                ldrd r4,[r12,#72]           // polydata[9]
-                subs r4,r4,r10
-                sbc r5,r5,r11           // yi>0
-                
-                /*add r12,r12,#8
+                add r12,r12,#8
                 cmp r12,r14
-                bne .Lsqrtloop*/
+                bne .Lsqrtloop
                 
                 // polydata[10]
                 mov r11,#0
@@ -963,7 +856,7 @@ prob_arm_novfp:
                 umlal r10,r11,r3,r5
                 adds r10,r10,r10        // tmp<<1
                 adc r11,r11,r11
-                ldrd r4,[r12,#80]           // polydata[i]
+                ldrd r4,[r12]           // polydata[i]
                 adds r4,r4,r10
                 adc r5,r5,r11           // yi>0
                 
@@ -987,59 +880,7 @@ prob_arm_novfp:
                 ldrd r2,[sp,#S_r0_F]
                 ldr r0,[sp,#S_r0_E]
                 
-                //////////////////////
-                // add r0 to rg
-                ////////////////////
-                sxth r7,r0
-                sxth r8,r1
-                
-                subs r7,r7,r8
-                blt .Lmantisale_p21
-                # do right shift b
-                cmp r7,#64
-                orrhs r7,r7,#64
-                
-                rsbs r9,r7,#32
-                submi r9,r7,#32
-                lsrmi r4,r5,r9
-                lsrpl r4,r4,r7
-                orrpl r4,r4,r5,lsl r9
-                lsr r5,r5,r7
-                
-                // main addition
-                adds r2,r2,r4
-                adcs r3,r3,r5
-                bcc .Laddend_p21
-                movs r3,r3, rrx
-                mov r2,r2, rrx
-                add r0,r0,#1    // add to mantisa
-.Laddend_p21:
-                pkhbt r0,r0,r1
-                b .Lsavefirst_p21
-.Lmantisale_p21:
-                rsb r7,r7,#0    // negate
-                cmp r7,#64
-                orrhs r7,r7,#64
-                
-                # do right shift b
-                rsbs r9,r7,#32
-                submi r9,r7,#32
-                lsrmi r2,r3,r9
-                lsrpl r2,r2,r7
-                orrpl r2,r2,r3,lsl r9
-                lsr r3,r3,r7
-
-                // main addition
-                adds r2,r4,r2
-                adcs r3,r5,r3
-                bcc .Laddend2_p21
-                movs r3,r3, rrx
-                mov r2,r2, rrx
-                add r1,r1,#1    // add to mantisa
-.Laddend2_p21:
-                pkhbt r0,r1,r0
-.Lsavefirst_p21:
-                //bl .Lifpadd_int
+                bl .Lifpadd_int
                 
                 /* do cube: (rg+r0)^3
                    input: {r2,r3,r0} */
@@ -1099,8 +940,8 @@ prob_arm_novfp:
                 adcs r3,r3,r3
 .Lnooneshift9_5:
                 movpl r12,#0x8000
-                //eor r8,r0,r1
-                pkhbt r0,r12,r0
+                eor r8,r0,r1
+                pkhbt r0,r12,r8
                 /* output: {r2,r3,r0} */
                 
 #ifdef PROBNOVFP_DEBUG
@@ -1127,82 +968,10 @@ prob_arm_novfp:
                 adds r2,r2,r2
                 adc r3,r3,r3
                 
-                //mov r14,#3
+                mov r14,#3
                 /* newton raphson method */
                 /* iteration 1 */
-//.Ldivloop:
-                mov r11,#0
-                umull r12,r7,r2,r5       // mulh(xi,ai)
-                umull r8,r9,r3,r4
-                adds r12,r12,r8
-                adcs r10,r7,r9
-                adc r11,r11,#0
-                umlal r10,r11,r3,r5
-                adds r10,r10,r4         // -mulh(xi,ai)-xi
-                adc r11,r11,r5
-                rsbs r10,r10,#0         //
-                rscs r11,r11,#0
-                movmi r10,#0            // fix if negative
-                movmi r11,#0
-                umull r12,r7,r4,r11      // mulh(xi,tmp)
-                umull r8,r9,r5,r10
-                umull r10,r11,r5,r11
-                adds r12,r12,r8
-                adcs r7,r7,r9
-                adc r11,r11,#0
-                adds r10,r10,r7
-                adc r11,r11,#0
-                adds r4,r4,r10          // xi+mulh(xi,tmp)
-                adc r5,r5,r11
-                /* iteration 2 */
-                mov r11,#0
-                umull r12,r7,r2,r5       // mulh(xi,ai)
-                umull r8,r9,r3,r4
-                adds r12,r12,r8
-                adcs r10,r7,r9
-                adc r11,r11,#0
-                umlal r10,r11,r3,r5
-                adds r10,r10,r4         // -mulh(xi,ai)-xi
-                adc r11,r11,r5
-                rsbs r10,r10,#0         //
-                rscs r11,r11,#0
-                movmi r10,#0            // fix if negative
-                movmi r11,#0
-                umull r12,r7,r4,r11      // mulh(xi,tmp)
-                umull r8,r9,r5,r10
-                umull r10,r11,r5,r11
-                adds r12,r12,r8
-                adcs r7,r7,r9
-                adc r11,r11,#0
-                adds r10,r10,r7
-                adc r11,r11,#0
-                adds r4,r4,r10          // xi+mulh(xi,tmp)
-                adc r5,r5,r11
-                /* iteration 3 */
-                mov r11,#0
-                umull r12,r7,r2,r5       // mulh(xi,ai)
-                umull r8,r9,r3,r4
-                adds r12,r12,r8
-                adcs r10,r7,r9
-                adc r11,r11,#0
-                umlal r10,r11,r3,r5
-                adds r10,r10,r4         // -mulh(xi,ai)-xi
-                adc r11,r11,r5
-                rsbs r10,r10,#0         //
-                rscs r11,r11,#0
-                movmi r10,#0            // fix if negative
-                movmi r11,#0
-                umull r12,r7,r4,r11      // mulh(xi,tmp)
-                umull r8,r9,r5,r10
-                umull r10,r11,r5,r11
-                adds r12,r12,r8
-                adcs r7,r7,r9
-                adc r11,r11,#0
-                adds r10,r10,r7
-                adc r11,r11,#0
-                adds r4,r4,r10          // xi+mulh(xi,tmp)
-                adc r5,r5,r11
-                /* iteration 4 */
+.Ldivloop:
                 mov r11,#0
                 umull r12,r7,r2,r5       // mulh(xi,ai)
                 umull r8,r9,r3,r4
@@ -1227,8 +996,8 @@ prob_arm_novfp:
                 adds r4,r4,r10          // xi+mulh(xi,tmp)
                 adc r5,r5,r11
                 
-                //subs r14,r14,#1
-                //bpl .Ldivloop
+                subs r14,r14,#1
+                bpl .Ldivloop
                 
                 sxth r8,r0
                 mvn r7,r8               // negate mantisa
@@ -1250,8 +1019,8 @@ prob_arm_novfp:
                 adds r4,r4,r4    // shift 1
                 adc r5,r5,r5
 .Lnooneshift10:
-                //eor r8,r0,r1
-                pkhbt r1,r7,r0  /// {r4,r5,r1}
+                eor r8,r0,r1
+                pkhbt r1,r7,r8  /// {r4,r5,r1}
                 /* output: {r4,r5,r1} */
 #ifdef PROBNOVFP_DEBUG
                 push {r0,r1,r2,r3,r12,r14}
@@ -1441,497 +1210,517 @@ prob_arm_novfp:
                  * StreamLoop
                  **************************/
 .Lstreamloop:
+#ifdef PROBNOVFP_DEBUG
+                mov r11,#1
+                bl .Lputs_sep
+                nop
+                nop
+#endif
                 ldr r11,[sp,#S_sci]
-                // r6
-                str r6,[sp,#S_tmpr6]
+                ldr r12,.Lsignmask
                 
-.macro IFPADD r0,r1,r2,r3,r4,r5,r7,r8,r9,d0,d2,d3,l
-                sxth \r7,\r0
-                sxth \r8,\r1
-                
-                subs \r7,\r7,\r8
-                blt .Lmantisale_\()\l
-                cmp \r7,#64
-                orrhs \r7,\r7,#64
-                # do right shift b
-                rsbs \r9,\r7,#32
-                submi \r9,\r7,#32
-                lsrmi \r4,\r5,\r9
-                lsrpl \r4,\r4,\r7
-                orrpl \r4,\r4,\r5,lsl \r9
-                lsr \r5,\r5,\r7
-                
-                // main addition
-                teq \r0,\r1       // test sign equality
-                bmi .Ldiffsigns_\()\l
-                // all positive
-                adds \d2,\r2,\r4
-                adcs \d3,\r3,\r5
-                bcc .Laddend_\()\l
-                movs \d3,\d3, rrx
-                mov \d2,\d2, rrx
-                add \r0,\r0,#1    // add to mantisa
-                b .Laddend_\()\l
-.Ldiffsigns_\()\l:
-                subs \d2,\r2,\r4
-                sbcs \d3,\r3,\r5
-                movcs \r1,\r0     // dont change sign
-                bcs .Lnoborrow_\()\l
-                rsbs \d2,\d2,#0    // negate
-                rsc \d3,\d3,#0
-.Lnoborrow_\()\l:
-                orrs \r9,\d2,\d3
-                bne .Lnozero_\()\l
-                mov \d0,#0x8000    // positive,smallest mantisa
-                b .Lsavefirst_\()\l
-.Lnozero_\()\l:
-                // do shift out
-                tst \d3,\d3
-                beq .Lshiftover32_\()\l
-                clz \r9,\d3
-                rsbs \r7,\r9,#32
-                lsl \d3,\d3,\r9
-                orr \d3,\d3,\d2,lsr \r7
-                lsl \d2,\d2,\r9
-                sub \r0,\r0,\r9    // subtract from mantisa
-                b .Laddend_\()\l
-.Lshiftover32_\()\l:
-                clz \r9,\d2
-                lsl \d3,\d2,\r9
-                mov \d2,#0
-                sub \r0,\r0,\r9    // subtract from mantisa
-                sub \r0,\r0,#32
-.Laddend_\()\l:
-                pkhbt \d0,\r0,\r1
-                b .Lsavefirst_\()\l
-
-.Lmantisale_\()\l:
-                rsb \r7,\r7,#0    // negate
-                
-                cmp \r7,#64
-                orrhs \r7,\r7,#64
-                # do right shift b
-                rsbs \r9,\r7,#32
-                submi \r9,\r7,#32
-                lsrmi \r2,\r3,\r9
-                lsrpl \r2,\r2,\r7
-                orrpl \r2,\r2,\r3,lsl \r9
-                lsr \r3,\r3,\r7
-
-                // main addition
-                teq \r1,\r0       // test sign equality
-                bmi .Ldiffsigns2_\()\l
-                // all positive
-                adds \d2,\r4,\r2
-                adcs \d3,\r5,\r3
-                bcc .Laddend2_\()\l
-                movs \d3,\d3, rrx
-                mov \d2,\d2, rrx
-                add \r1,\r1,#1    // add to mantisa
-                b .Laddend2_\()\l
-.Ldiffsigns2_\()\l:
-                subs \r4,\r4,\r2
-                sbcs \r5,\r5,\r3
-                movcs \r0,\r1     // dont change sign
-                bcs .Lnoborrow2_\()\l
-                rsbs \r4,\r4,#0    // negate
-                rsc \r5,\r5,#0
-.Lnoborrow2_\()\l:
-                orrs \r9,\r4,\r5
-                bne .Lnozero2_\()\l
-                mov \r1,#0x8000    // positive,smallest mantisa
-                mov \d2,\r4
-                mov \d3,\r5
-                b .Lsavefirst_\()\l
-.Lnozero2_\()\l:
-                // do shift out
-                tst \r5,\r5
-                beq .Lshiftover32_2_\()\l
-                clz \r9,\r5
-                rsbs \r7,\r9,#32
-                lsl \r3,\r5,\r9
-                orr \d3,\r3,\r4,lsr \r7
-                lsl \d2,\r4,\r9
-                sub \r1,\r1,\r9    // subtract from mantisa
-                b .Laddend2_\()\l
-.Lshiftover32_2_\()\l:
-                clz \r9,\r4
-                lsl \d3,\r4,\r9
-                mov \d2,#0
-                sub \r1,\r1,\r9    // subtract from mantisa
-                sub \r1,\r1,#32
-.Laddend2_\()\l:
-                pkhbt \d0,\r1,\r0
-.Lsavefirst_\()\l:
-.endm
-
-.macro IFPADDP2 r0,r1,r2,r3,r4,r5,r7,r8,r9,l
-                sxth \r7,\r0
-                sxth \r8,\r1
-                
-                subs \r7,\r7,\r8
-                blt .Lmantisale_\()\l
-                # do right shift b
-                cmp \r7,#64
-                orrhs \r7,\r7,#64
-                
-                rsbs \r9,\r7,#32
-                submi \r9,\r7,#32
-                lsrmi \r4,\r5,\r9
-                lsrpl \r4,\r4,\r7
-                orrpl \r4,\r4,\r5,lsl \r9
-                lsr \r5,\r5,\r7
-                
-                // main addition
-                adds \r2,\r2,\r4
-                adcs \r3,\r3,\r5
-                bcc .Laddend_\()\l
-                movs \r3,\r3, rrx
-                mov \r2,\r2, rrx
-                add \r0,\r0,#1    // add to mantisa
-.Laddend_\()\l:
-                pkhbt \r0,\r0,\r1
-                b .Lsavefirst_\()\l
-.Lmantisale_\()\l:
-                rsb \r7,\r7,#0    // negate
-                cmp \r7,#64
-                orrhs \r7,\r7,#64
-                
-                # do right shift b
-                rsbs \r9,\r7,#32
-                submi \r9,\r7,#32
-                lsrmi \r2,\r3,\r9
-                lsrpl \r2,\r2,\r7
-                orrpl \r2,\r2,\r3,lsl \r9
-                lsr \r3,\r3,\r7
-
-                // main addition
-                adds \r2,\r4,\r2
-                adcs \r3,\r5,\r3
-                bcc .Laddend2_\()\l
-                movs \r3,\r3, rrx
-                mov \r2,\r2, rrx
-                add \r1,\r1,#1    // add to mantisa
-.Laddend2_\()\l:
-                pkhbt \r0,\r1,\r0
-.Lsavefirst_\()\l:
-.endm
-
-                ldrd r2,[sp,#S_xyz_x_F]
-                ldr r0,[sp,#S_xyz_x_E]
                 ldrd r4,[r11,#sc_c_x]
                 ldr r1,[r11,#sc_c_x+8]
+                eor r1,r1,r12
+                ldrd r2,[sp,#S_xyz_x_F]
+                ldr r0,[sp,#S_xyz_x_E]
                 
-                /* xyzs.x=xyz.x-sc[j].c.x;
-                   xyz.x={r0,r2,r3}, sc[j].c.x={r1,r4,r5} */
-                IFPADD r0,r1,r2,r3,r4,r5,r7,r8,r9,r0,r2,r3,s1
-                /* result: {r2,r3,r0} */
+                /* xyzs.x=xyz.x-sc[j].c.x; */
+                bl .Lifpadd_int
+#ifdef PROBNOVFP_DEBUG
+                push {r0,r1,r2,r3,r12,r14}
+                bl .Lprint_ifp_dbl
+                pop {r0,r1,r2,r3,r12,r14}
+#endif
+                
                 strd r2,[sp,#S_xyzs_x_F]
                 str r0,[sp,#S_xyzs_x_E]
                 
-                ldrd r2,[sp,#S_xyz_y_F]
-                ldr r0,[sp,#S_xyz_y_E]
                 ldrd r4,[r11,#sc_c_y]
                 ldr r1,[r11,#sc_c_y+8]
+                eor r1,r1,r12
+                ldrd r2,[sp,#S_xyz_y_F]
+                ldr r0,[sp,#S_xyz_y_E]
                 
-                /* xyzs.y=xyz.y-sc[j].c.y;
-                   xyz.y={r0,r2,r3}, sc[j].c.y={r1,r4,r5} */
-                IFPADD r0,r1,r2,r3,r4,r5,r7,r8,r9,r0,r2,r3,s2
-                /* result: {r2,r3,r0} */
+                /* xyzs.y=xyz.y-sc[j].c.y; */
+                bl .Lifpadd_int
+#ifdef PROBNOVFP_DEBUG
+                push {r0,r1,r2,r3,r12,r14}
+                bl .Lprint_ifp_dbl
+                pop {r0,r1,r2,r3,r12,r14}
+#endif
+                
                 strd r2,[sp,#S_xyzs_y_F]
                 str r0,[sp,#S_xyzs_y_E]
                 
-                ldrd r8,[r11,#sc_c_z]
-                ldr r7,[r11,#sc_c_z+8]
-                ldrd r4,[sp,#S_xyz_z_F]
-                ldr r1,[sp,#S_xyz_z_E]
-                /* xyzs.z=xyz.z-sc[j].c.z;
-                   xyz.z={r1,r4,r5}, sc[j].c.z={r7,r8,r9},
-                   output: {r1,r4,r5} */
-                IFPADD r1,r7,r4,r5,r8,r9,r10,r12,r14,r1,r4,r5,s3
-                strd r4,[sp,#S_xyzs_z_F]
-                str r1,[sp,#S_xyzs_z_E]
+                ldrd r4,[r11,#sc_c_z]
+                ldr r1,[r11,#sc_c_z+8]
+                eor r1,r1,r12
+                ldrd r2,[sp,#S_xyz_z_F]
+                ldr r0,[sp,#S_xyz_z_E]
                 
-                /* tmp1 = xyzs.y*sc[j].a.y;
-                  xyzs.y={r0,r2,r3}, sc[j].a.y={r7,r8,r9} load */
-                ldrd r8,[r11,#sc_a_y]
-                ldr r7,[r11,#sc_a_y+8]
-                /* multiply */
-                umull r6,r10,r2,r9
-                umull r12,r14,r3,r8
-                adds r6,r6,r12
-                adcs r10,r10,r14
+                /* xyzs.z=xyz.z-sc[j].c.z; */
+                bl .Lifpadd_int
+#ifdef PROBNOVFP_DEBUG
+                push {r0,r1,r2,r3,r12,r14}
+                bl .Lprint_ifp_dbl
+                pop {r0,r1,r2,r3,r12,r14}
+#endif
                 
-                mov r12,#0
-                adc r12,r12,#0
-                umlals r10,r12,r3,r9
+                strd r2,[sp,#S_xyzs_z_F]
+                str r0,[sp,#S_xyzs_z_E]
                 
-                sxth r6,r0
-                sxtah r6,r6,r7
-                addmi r6,r6,#1
-                bmi .Lnooneshift_s1
-                adds r10,r10,r10
-                adcs r12,r12,r12
-.Lnooneshift_s1:
-                movpl r6,#0x8000
-                eor r7,r0,r7
-                pkhbt r7,r6,r7
-                /* output: {r7,r10,r12} */
+                ldrd r4,[r11,#sc_a_z]
+                ldr r1,[r11,#sc_a_z+8]
                 
-                ldrd r2,[r11,#sc_a_z]
-                ldr r0,[r11,#sc_a_z+8]
+                /// compute dot product: xyzs dot sc.a
                 
-                /* dotted = xyzs.z*sc[j].a.z;
-                  xyzs.z={r1,r4,r5}, sc[j].a.z={r0,r2,r3} load */
-                umull r6,r8,r2,r5
-                umull r9,r14,r3,r4
-                adds r6,r6,r9
-                adcs r8,r8,r14
-                
-                mov r9,#0
-                adc r9,r9,#0
-                umlals r8,r9,r3,r5
-                
-                sxth r6,r0
-                sxtah r6,r6,r1
-                addmi r6,r6,#1
-                bmi .Lnooneshift_s2
-                adds r8,r8,r8
-                adcs r9,r9,r9
-.Lnooneshift_s2:
-                movpl r6,#0x8000
-                eor r1,r0,r1
-                pkhbt r0,r6,r1
-                /* output: {r0,r8,r9} */
-                
-                /* dotted+=tmp1;
-                   dotted={r0,r8,r9},tmp1={r7,r10,r12} */
-                IFPADD r0,r7,r8,r9,r10,r12,r4,r5,r6,r0,r2,r3,s4
-                /* output: {r0,r2,r3} */
-                
-                /* tmp1 = xyzs.x*sc[j].a.x;
-                  xyzs.x={r1,r4,r5}, sc[j].a.x={r7,r8,r9} load */
-                ldrd r8,[r11,#sc_a_x]
-                ldr r7,[r11,#sc_a_x+8]
-                ldrd r4,[sp,#S_xyzs_x_F]
-                ldr r1,[sp,#S_xyzs_x_E]
-                /* multiply */
-                umull r6,r10,r4,r9
-                umull r12,r14,r5,r8
-                adds r6,r6,r12
-                adcs r10,r10,r14
-                
-                mov r12,#0
-                adc r12,r12,#0
-                umlals r10,r12,r5,r9
-                
-                sxth r6,r1
-                sxtah r6,r6,r7
-                addmi r6,r6,#1
-                bmi .Lnooneshift_s3
-                adds r10,r10,r10
-                adcs r12,r12,r12
-.Lnooneshift_s3:
-                movpl r6,#0x8000
-                eor r7,r1,r7
-                pkhbt r1,r6,r7
-                /* output: {r1,r10,r12} */
-                /* dotted+=tmp1
-                  dotted={r0,r2,r3},tmp1={r1,r10,r12}, temp: {r4,r5,r6} */
-                IFPADD r0,r1,r2,r3,r10,r12,r4,r5,r6,r0,r2,r3,s5
-                /* output: {r0,r2,r3} */
-                eor r0,r0,#0xff000000
-                eor r0,r0,#0x00ff0000
-                
-                /*******
-                 * next phase *
-                 ********/
-                ldrd r4,[r11,#sc_a_x]
-                ldr r1,[r11,#sc_a_x+8]
-                
-                /* tmp1=sc[j].a.x*dotted;
-                   sc[j].a.x={r1,r4,r5} load,dotted={r0,r2,r3}, */
-                /* multiply */
+                /* multiply: xyzs.z*sc[j].a.z
+                   input: xyzs.z:{r2,r3,r0}, sc.a.z:{r4,r5,r1} */
                 umull r7,r8,r2,r5
                 umull r9,r10,r3,r4
                 adds r7,r7,r9
                 adcs r8,r8,r10
                 
                 mov r9,#0
+                sxth r7,r0
+                sxtah r7,r7,r1
+                
                 adc r9,r9,#0
                 umlals r8,r9,r3,r5
                 
-                sxth r7,r0
-                sxtah r7,r7,r1
                 addmi r7,r7,#1
-                bmi .Lnooneshift_s4
+                bmi .Lnooneshift11
                 adds r8,r8,r8
                 adcs r9,r9,r9
-.Lnooneshift_s4:
+.Lnooneshift11:
                 movpl r7,#0x8000
                 eor r1,r0,r1
-                pkhbt r7,r7,r1
-                /* output: {r8,r9,r7} */
+                pkhbt r1,r7,r1
+                /* output: {r8,r9,r1}, save to */
                 
-                ldrd r4,[sp,#S_xyzs_x_F]
-                ldr r1,[sp,#S_xyzs_x_E]
-                /* xyzs.x-=tmp1
-                   xyzs.x={r1,r4,r5} load,tmp1={r7,r8,r9}, temp:{r6,r10,r12} */
-                IFPADD r1,r7,r4,r5,r8,r9,r6,r10,r12,r1,r4,r5,s6
-                /* output: {r1,r4,r5} */
-                /* square */
-                umull r7,r8,r4,r5
-                umull r9,r10,r5,r5
-                adds r7,r7,r7
-                adcs r8,r8,r8
-                adc r10,r10,#0
-                adds r4,r9,r8
-                adcs r5,r10,#0
+                strd r8,[sp,#S_tmpx_F]
+                str r1,[sp,#S_tmpx_E]
                 
-                add r1,r1,r1
-                addmi r1,r1,#1
-                bmi .Lnooneshift_s5
-                adds r4,r4,r4
-                adcs r5,r5,r5
-.Lnooneshift_s5:
-                movpl r1,#0x8000
+                /// next elem of dot product
+                ldrd r4,[r11,#sc_a_y]
+                ldr r1,[r11,#sc_a_y+8]
+                ldrd r2,[sp,#S_xyzs_y_F]
+                ldr r0,[sp,#S_xyzs_y_E]
+                
+                /* multiply: xyzs.y*sc[j].a.y
+                   input: xyzs.y:{r2,r3,r0}, sc.a.y:{r4,r5,r1} */
+                umull r7,r8,r2,r5
+                umull r9,r10,r3,r4
+                adds r7,r7,r9
+                adcs r8,r8,r10
                 
                 mov r9,#0
-                pkhbt r1,r1,r9
-                /* output: {r4,r5,r1} */
-                strd r4,[sp,#S_xyzs_x_F]
-                str r1,[sp,#S_xyzs_x_E]
+                sxth r7,r0
+                sxtah r7,r7,r1
                 
+                adc r9,r9,#0
+                umlals r8,r9,r3,r5
+                
+                addmi r7,r7,#1
+                bmi .Lnooneshift12
+                adds r8,r8,r8
+                adcs r9,r9,r9
+.Lnooneshift12:
+                movpl r7,#0x8000
+                eor r1,r0,r1
+                pkhbt r1,r7,r1
+                /* output: {r8,r9,r1} */
+                
+                strd r8,[sp,#S_tmpy_F]
+                str r1,[sp,#S_tmpy_E]
+                
+                /// last elem of dot product
+                ldrd r4,[r11,#sc_a_x]
+                ldr r1,[r11,#sc_a_x+8]
+                ldrd r2,[sp,#S_xyzs_x_F]
+                ldr r0,[sp,#S_xyzs_x_E]
+                
+                /* multiply: xyzs.x*sc[j].a.x
+                   input: xyzs.x:{r2,r3,r0}, sc.a.x:{r4,r5,r1} */
+                /// ifpmul-xyzsx-scax.S
+                mov r12,#0
+                umull r7,r8,r2,r5
+                umull r9,r10,r3,r4
+                adds r7,r7,r9
+                adcs r4,r8,r10
+                
+                sxth r7,r0
+                sxtah r7,r7,r1
+                
+                adc r12,r12,#0
+                umlals r4,r12,r3,r5
+                
+                addmi r7,r7,#1
+                bmi .Lnooneshift22
+                adds r4,r4,r4
+                adcs r12,r12,r12
+.Lnooneshift22:
+                movpl r7,#0x8000
+                eor r1,r0,r1
+                pkhbt r1,r7,r1
+                /* output: {r4,r12,r1} */
+                
+                /// sumating
+                mov r5,r12
+                
+                ldrd r2,[sp,#S_tmpy_F]
+                ldr r0,[sp,#S_tmpy_E]
+                
+                /* xyzs.y*sc[j].a.y+xyzs.z*sc[j].a.z */
+                bl .Lifpadd_int
+                
+                ldrd r4,[sp,#S_tmpx_F]
+                ldr r1,[sp,#S_tmpx_E]
+                
+                /* xyzs.x*sc[j].a.x+xyzs.y*sc[j].a.y+xyzs.z*sc[j].a.z */
+                bl .Lifpadd_int
+                /* dotted: {r2,r3,r0} */
+                
+#ifdef PROBNOVFP_DEBUG
+                push {r0,r1,r2,r3,r12,r14}
+                bl .Lprint_ifp_dbl
+                pop {r0,r1,r2,r3,r12,r14}
+#endif
+                
+                //////////////////////
+                /// multiply by sc.a
+                ldrd r4,[r11,#sc_a_x]
+                ldr r1,[r11,#sc_a_x+8]
+                
+                /* dotted*sc.a.x:
+                   input: dotted:{r2,r3,r0}, sc.a.x:{r4,r5,r1} */
+                umull r7,r8,r2,r5
+                umull r9,r10,r3,r4
+                adds r7,r7,r9
+                adcs r8,r8,r10
+                
+                mov r9,#0
+                sxth r7,r0
+                sxtah r7,r7,r1
+                
+                adc r9,r9,#0
+                umlals r8,r9,r3,r5
+                
+                addmi r7,r7,#1
+                bmi .Lnooneshift23
+                adds r8,r8,r8
+                adcs r9,r9,r9
+.Lnooneshift23:
+                movpl r7,#0x8000
+                eor r1,r0,r1
+                pkhbt r1,r7,r1
+                /* output: {r8,r9.r1} */
+#ifdef PROBNOVFP_DEBUG
+                push {r0,r1,r2,r3,r12,r14}
+                mov r0,r1
+                mov r2,r8
+                mov r3,r9
+                bl .Lprint_ifp_dbl
+                pop {r0,r1,r2,r3,r12,r14}
+#endif
+                
+                strd r8,[sp,#S_tmpx_F]
+                str r1,[sp,#S_tmpx_E]
                 
                 ldrd r4,[r11,#sc_a_y]
                 ldr r1,[r11,#sc_a_y+8]
                 
-                /* tmp1=sc[j].a.y*dotted;
-                   sc[j].a.y={r1,r4,r5} load,dotted={r0,r2,r3}, */
-                /* multiply */
+                /* dotted*sc.a.y:
+                   input: dotted:{r2,r3,r0}, sc.a.y:{r4,r5,r1} */
                 umull r7,r8,r2,r5
                 umull r9,r10,r3,r4
                 adds r7,r7,r9
                 adcs r8,r8,r10
                 
                 mov r9,#0
+                sxth r7,r0
+                sxtah r7,r7,r1
+                
                 adc r9,r9,#0
                 umlals r8,r9,r3,r5
                 
-                sxth r7,r0
-                sxtah r7,r7,r1
                 addmi r7,r7,#1
-                bmi .Lnooneshift_s6
+                bmi .Lnooneshift24
                 adds r8,r8,r8
                 adcs r9,r9,r9
-.Lnooneshift_s6:
+.Lnooneshift24:
                 movpl r7,#0x8000
                 eor r1,r0,r1
-                pkhbt r7,r7,r1
-                /* output: {r8,r9,r7} */
+                pkhbt r1,r7,r1
+                /* output: {r8,r9,r1} */
+#ifdef PROBNOVFP_DEBUG
+                push {r0,r1,r2,r3,r12,r14}
+                mov r0,r1
+                mov r2,r8
+                mov r3,r9
+                bl .Lprint_ifp_dbl
+                pop {r0,r1,r2,r3,r12,r14}
+#endif
                 
-                ldrd r4,[sp,#S_xyzs_y_F]
-                ldr r1,[sp,#S_xyzs_y_E]
-                /* xyzs.y-=tmp1
-                   xyzs.y={r1,r4,r5} load,tmp1={r7,r8,r9}, temp:{r6,r10,r12} */
-                IFPADD r1,r7,r4,r5,r8,r9,r6,r10,r12,r1,r4,r5,s7
-                /* output: {r1,r4,r5} */
-                /* square */
-                umull r7,r8,r4,r5
-                umull r9,r10,r5,r5
-                adds r7,r7,r7
-                adcs r8,r8,r8
-                adc r10,r10,#0
-                adds r4,r9,r8
-                adcs r5,r10,#0
+                strd r8,[sp,#S_tmpy_F]
+                str r1,[sp,#S_tmpy_E]
                 
-                add r1,r1,r1
-                addmi r1,r1,#1
-                bmi .Lnooneshift_s7
-                adds r4,r4,r4
-                adcs r5,r5,r5
-.Lnooneshift_s7:
-                movpl r1,#0x8000
+                ldrd r4,[r11,#sc_a_z]
+                ldr r1,[r11,#sc_a_z+8]
                 
-                mov r9,#0
-                pkhbt r1,r1,r9
-                /* output: {r4,r5,r1} */
-                strd r4,[sp,#S_xyzs_y_F]
-                
-                ldrd r8,[r11,#sc_a_z]
-                ldr r7,[r11,#sc_a_z+8]
-                /* tmp1=sc[j].a.y*dotted;
-                   sc[j].a.y={r7,r8,r9} load,dotted={r0,r2,r3}, temp:{r10,r12,r14,r6} */
-                /* multiply */
-                umull r6,r10,r2,r9
-                umull r12,r14,r3,r8
-                adds r6,r6,r12
-                adcs r10,r10,r14
-                
+                /* dotted*sc.a.z:
+                   input: dotted:{r2,r3,r0}, sc.a.z:{r4,r5,r1} */
                 mov r12,#0
+                umull r7,r8,r2,r5
+                umull r9,r10,r3,r4
+                adds r7,r7,r9
+                adcs r4,r8,r10
+                
+                sxth r7,r0
+                sxtah r7,r7,r1
+                
                 adc r12,r12,#0
-                umlals r10,r12,r3,r9
+                umlals r4,r12,r3,r5
                 
-                sxth r6,r0
-                sxtah r6,r6,r7
-                addmi r6,r6,#1
-                bmi .Lnooneshift_s8
-                adds r10,r10,r10
-                adcs r12,r12,r12
-.Lnooneshift_s8:
-                movpl r6,#0x8000
-                eor r7,r0,r7
-                pkhbt r7,r6,r7
-                /* output: {r10,r12,r7} */
-                
-                /* xyzs.z-=tmp1
-                   xyzs.z={r6,r8,r9} load,tmp1={r7,r10,r12}, temp:{r14,r4,r5} */
-                ldrd r8,[sp,#S_xyzs_z_F]
-                ldr r6,[sp,#S_xyzs_z_E]
-                IFPADD r6,r7,r8,r9,r10,r12,r14,r4,r5,r6,r8,r9,s8
-                /* output {r6,r8,r9} */
-                /* square */
-                umull r4,r5,r8,r9
-                umull r10,r12,r9,r9
+                addmi r7,r7,#1
+                bmi .Lnooneshift25
                 adds r4,r4,r4
-                adcs r5,r5,r5
-                adc r12,r12,#0
-                adds r8,r10,r5
-                adcs r9,r12,#0
+                adcs r12,r12,r12
+.Lnooneshift25:
+                movpl r7,#0x8000
+                eor r1,r0,r1
+                pkhbt r1,r7,r1
                 
-                add r6,r6,r6
-                addmi r6,r6,#1
-                bmi .Lnooneshift_s9
-                adds r8,r8,r8
-                adcs r9,r9,r9
-.Lnooneshift_s9:
-                movpl r6,#0x8000
+                mov r5,r12
+                /* output: {r4,r5,r1} */
+#ifdef PROBNOVFP_DEBUG
+                push {r0,r1,r2,r3,r12,r14}
+                mov r0,r1
+                mov r2,r4
+                mov r3,r5
+                bl .Lprint_ifp_dbl
+                pop {r0,r1,r2,r3,r12,r14}
+#endif
                 
-                mov r10,#0
-                pkhbt r6,r6,r10
-                /* output: {r8,r9,r6} */
+                /* subtracting  */
+                ldr r12,.Lsignmask
+                ldrd r2,[sp,#S_xyzs_z_F] 
+                ldr r0,[sp,#S_xyzs_z_E]
+                eor r1,r12,r1
                 
-                ldrd r4,[sp,#S_xyzs_y_F]
-                /* xyz_norm=xyzs.z+xyzs.y
-                   xyzs.y={r1,r4,r5},xyzs.z={r6,r8,r9},temp:{r0,r2,r3} */
-                IFPADDP2 r1,r6,r4,r5,r8,r9,r0,r2,r3,s9
-                /* output: {r1,r4,r5} */
+                /* xyzs.z-=sc[j].a.z*dotted; */
+                bl .Lifpadd_int
+                
+                /* xyzs.z^2:
+                   input: {r2,r3,r0} */
+                umull r1,r4,r2,r3
+                umull r5,r7,r3,r3
+                adds r1,r1,r1
+                adcs r4,r4,r4
+                adc r7,r7,#0
+                adds r2,r5,r4
+                adcs r3,r7,#0
+                
+                add r0,r0,r0
+                addmi r0,r0,#1
+                bmi .Lnooneshift26
+                adds r2,r2,r2
+                adcs r3,r3,r3
+.Lnooneshift26:
+                movpl r0,#0x8000
+                
+                mov r5,#0
+                pkhbt r0,r0,r5
+                /* output: {r2,r3,r0} */
+                
+                ldrd r4,[sp,#S_tmpy_F]
+                ldr r1,[sp,#S_tmpy_E]
+                
+                strd r2,[sp,#S_tmpy_F]
+                str r0,[sp,#S_tmpy_E]
+                
+                ldrd r2,[sp,#S_xyzs_y_F] 
+                ldr r0,[sp,#S_xyzs_y_E]
+                eor r1,r12,r1
+                
+                /* xyzs.y-=sc[j].a.y*dotted; */
+                bl .Lifpadd_int
+                
+                /* xyzs.y^2:
+                   input: {r2,r3,r0} */
+                umull r1,r4,r2,r3
+                umull r5,r7,r3,r3
+                adds r1,r1,r1
+                adcs r4,r4,r4
+                adc r7,r7,#0
+                adds r2,r5,r4
+                adcs r3,r7,#0
+                
+                add r0,r0,r0
+                addmi r0,r0,#1
+                bmi .Lnooneshift27
+                adds r2,r2,r2
+                adcs r3,r3,r3
+.Lnooneshift27:
+                movpl r0,#0x8000
+                
+                mov r5,#0
+                pkhbt r0,r0,r5
+                /* output: {r2,r3,r0} */
+                
+                ldrd r4,[sp,#S_tmpx_F]
+                ldr r1,[sp,#S_tmpx_E]
+                
+                strd r2,[sp,#S_tmpx_F]
+                str r0,[sp,#S_tmpx_E]
+                
                 ldrd r2,[sp,#S_xyzs_x_F]
                 ldr r0,[sp,#S_xyzs_x_E]
-                /* xyz_norm+=xyzs.x
-                   xyzs.x={r0,r2,r3},xyz_norm={r1,r4,r5},temp:{r7,r8,r9} */
-                IFPADDP2 r0,r1,r2,r3,r4,r5,r7,r8,r9,s10
-                /* output: {r0,r2,r3} */
-#ifdef PROBNOVFP_DEBUG2
+                eor r1,r12,r1
+                
+                /* xyzs.x-=sc[j].a.x*dotted; */
+                bl .Lifpadd_int
+                
+                /* xyzs.x^2:
+                   input: {r2,r3,r0} */
+                umull r1,r4,r2,r3
+                umull r5,r7,r3,r3
+                adds r1,r1,r1
+                adcs r4,r4,r4
+                adc r7,r7,#0
+                adds r2,r5,r4
+                adcs r3,r7,#0
+                
+                add r0,r0,r0
+                addmi r0,r0,#1
+                bmi .Lnooneshift28
+                adds r2,r2,r2
+                adcs r3,r3,r3
+.Lnooneshift28:
+                movpl r0,#0x8000
+                
+                mov r5,#0
+                pkhbt r0,r0,r5
+                /* output: {r2,r3,r0} */
+                
+                /* summate norm */
+                ldrd r4,[sp,#S_tmpx_F]
+                ldr r1,[sp,#S_tmpx_E]
+                
+                /* xyzs.x^2+xyzs.y^2:
+                   input: xyzs.x^2: {r2,r3,r0}, xyzs.y^2: {r4,r5,r1} */
+                sxth r7,r0
+                sxth r8,r1
+                
+                subs r7,r7,r8
+                blt .Lmantisale_p3
+                # do right shift b
+                cmp r7,#64
+                orrhs r7,r7,#64
+                
+                rsbs r9,r7,#32
+                submi r9,r7,#32
+                lsrmi r4,r5,r9
+                lsrpl r4,r4,r7
+                orrpl r4,r4,r5,lsl r9
+                lsr r5,r5,r7
+                
+                // main addition
+                adds r2,r2,r4
+                adcs r3,r3,r5
+                bcc .Laddend_p3
+                movs r3,r3, rrx
+                mov r2,r2, rrx
+                add r0,r0,#1    // add to mantisa
+.Laddend_p3:
+                pkhbt r0,r0,r1
+                b .Lsavefirst_p3
+.Lmantisale_p3:
+                rsb r7,r7,#0    // negate
+                cmp r7,#64
+                orrhs r7,r7,#64
+                
+                # do right shift b
+                rsbs r9,r7,#32
+                submi r9,r7,#32
+                lsrmi r2,r3,r9
+                lsrpl r2,r2,r7
+                orrpl r2,r2,r3,lsl r9
+                lsr r3,r3,r7
+
+                // main addition
+                adds r2,r4,r2
+                adcs r3,r5,r3
+                bcc .Laddend2_p3
+                movs r3,r3, rrx
+                mov r2,r2, rrx
+                add r1,r1,#1    // add to mantisa
+.Laddend2_p3:
+                pkhbt r0,r1,r0
+.Lsavefirst_p3:
+                /* output: {r2,r3,r0} */
+                
+                /* rest+xyzs.z^2:
+                   input: rest: {r2,r3,r0}, xyzs.z^2: {r4,r5,r1} */
+                ldrd r4,[sp,#S_tmpy_F]
+                ldr r1,[sp,#S_tmpy_E]
+                
+                // main routine
+                sxth r7,r0
+                sxth r8,r1
+                
+                subs r7,r7,r8
+                blt .Lmantisale_p4
+                # do right shift b
+                cmp r7,#64
+                orrhs r7,r7,#64
+                
+                rsbs r9,r7,#32
+                submi r9,r7,#32
+                lsrmi r4,r5,r9
+                lsrpl r4,r4,r7
+                orrpl r4,r4,r5,lsl r9
+                lsr r5,r5,r7
+                
+                // main addition
+                adds r2,r2,r4
+                adcs r3,r3,r5
+                bcc .Laddend_p4
+                movs r3,r3, rrx
+                mov r2,r2, rrx
+                add r0,r0,#1    // add to mantisa
+.Laddend_p4:
+                pkhbt r0,r0,r1
+                b .Lsavefirst_p4
+.Lmantisale_p4:
+                rsb r7,r7,#0    // negate
+                cmp r7,#64
+                orrhs r7,r7,#64
+                
+                # do right shift b
+                rsbs r9,r7,#32
+                submi r9,r7,#32
+                lsrmi r2,r3,r9
+                lsrpl r2,r2,r7
+                orrpl r2,r2,r3,lsl r9
+                lsr r3,r3,r7
+
+                // main addition
+                adds r2,r4,r2
+                adcs r3,r5,r3
+                bcc .Laddend2_p4
+                movs r3,r3, rrx
+                mov r2,r2, rrx
+                add r1,r1,#1    // add to mantisa
+.Laddend2_p4:
+                pkhbt r0,r1,r0
+.Lsavefirst_p4:
+                /* xyz_norm: {r2,r3,r0} */
+#ifdef PROBNOVFP_DEBUG
                 push {r0,r1,r2,r3,r12,r14}
                 bl .Lprint_ifp_dbl
                 pop {r0,r1,r2,r3,r12,r14}
-                
-                add sp,sp,#S_size
-                pop {r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}
-                bx lr
-                nop
-                //nop
 #endif
                 
                 ///////////////////////
@@ -1972,9 +1761,13 @@ prob_arm_novfp:
                 nop
                 nop
 #endif
-                // r6
-                ldr r6,[sp,#S_tmpr6]
-                
+#ifdef PROB_DEBUG
+                // test
+                push {r10,r11}
+                mov r11,#1
+                bl .Lputs_sep
+                pop {r10,r11}
+#endif
                 //////////////////////////////
                 /// exponent
                 //ldrd r2,[r0]    // 1.fraction
@@ -1998,7 +1791,6 @@ prob_arm_novfp:
                 // integer part
                 cmp r4,#10      // 1024
                 bge .Loutofrange
-                
                 //ldr r8,[r0,#8]  // 
                 rsbs r2,r2,#0   // must be negative
                 rsc r3,r3,#0
@@ -2039,13 +1831,12 @@ prob_arm_novfp:
 .Lafterextract:
                 //mov r1,r7
                 
-                lsr r7,r3,#26
                 adr r12,.Lexppdata1
+                lsr r7,r3,#26
                 and r3,r3,#0x1fffffff
                 and r7,r7,#0x18
                 add r7,r7,r7,lsl #3
                 add r12,r12,r7
-                
                 ldrd r4,[r12]
                 /* evaluate polynomial */
                 // polydata[1]
@@ -2056,9 +1847,9 @@ prob_arm_novfp:
                 adcs r8,r8,r10
                 adc r11,r11,#0
                 umlal r8,r11,r3,r5
-                ldrd r4,[r12,#8]           // polydata[i]
                 adds r8,r8,r8        // tmp<<1
                 adc r11,r11,r11
+                ldrd r4,[r12,#8]           // polydata[i]
                 adds r4,r8,r4
                 adc r5,r11,r5
                 // polydata[2]
@@ -2069,9 +1860,9 @@ prob_arm_novfp:
                 adcs r8,r8,r10
                 adc r11,r11,#0
                 umlal r8,r11,r3,r5
-                ldrd r4,[r12,#16]           // polydata[i]
                 adds r8,r8,r8        // tmp<<1
                 adc r11,r11,r11
+                ldrd r4,[r12,#16]           // polydata[i]
                 adds r4,r8,r4
                 adc r5,r11,r5
                 // polydata[3]
@@ -2082,9 +1873,9 @@ prob_arm_novfp:
                 adcs r8,r8,r10
                 adc r11,r11,#0
                 umlal r8,r11,r3,r5
-                ldrd r4,[r12,#24]           // polydata[i]
                 adds r8,r8,r8        // tmp<<1
                 adc r11,r11,r11
+                ldrd r4,[r12,#24]           // polydata[i]
                 adds r4,r8,r4
                 adc r5,r11,r5
                 // polydata[4]
@@ -2095,9 +1886,9 @@ prob_arm_novfp:
                 adcs r8,r8,r10
                 adc r11,r11,#0
                 umlal r8,r11,r3,r5
-                ldrd r4,[r12,#32]           // polydata[i]
                 adds r8,r8,r8        // tmp<<1
                 adc r11,r11,r11
+                ldrd r4,[r12,#32]           // polydata[i]
                 adds r4,r8,r4
                 adc r5,r11,r5
                 // polydata[5]
@@ -2108,9 +1899,9 @@ prob_arm_novfp:
                 adcs r8,r8,r10
                 adc r11,r11,#0
                 umlal r8,r11,r3,r5
-                ldrd r4,[r12,#40]           // polydata[i]
                 adds r8,r8,r8        // tmp<<1
                 adc r11,r11,r11
+                ldrd r4,[r12,#40]           // polydata[i]
                 adds r4,r8,r4
                 adc r5,r11,r5
                 // polydata[6]
@@ -2121,9 +1912,9 @@ prob_arm_novfp:
                 adcs r8,r8,r10
                 adc r11,r11,#0
                 umlal r8,r11,r3,r5
-                ldrd r4,[r12,#48]           // polydata[i]
                 adds r8,r8,r8        // tmp<<1
                 adc r11,r11,r11
+                ldrd r4,[r12,#48]           // polydata[i]
                 adds r4,r8,r4
                 adc r5,r11,r5
                 // polydata[7]
@@ -2134,9 +1925,9 @@ prob_arm_novfp:
                 adcs r8,r8,r10
                 adc r11,r11,#0
                 umlal r8,r11,r3,r5
-                ldrd r4,[r12,#56]           // polydata[i]
                 adds r8,r8,r8        // tmp<<1
                 adc r11,r11,r11
+                ldrd r4,[r12,#56]           // polydata[i]
                 adds r4,r8,r4
                 adc r5,r11,r5
                 // polydata[8]
@@ -2147,9 +1938,9 @@ prob_arm_novfp:
                 adcs r8,r8,r10
                 adc r11,r11,#0
                 umlal r8,r11,r3,r5
-                ldrd r4,[r12,#64]           // polydata[i]
                 adds r8,r8,r8        // tmp<<1
                 adc r11,r11,r11
+                ldrd r4,[r12,#64]           // polydata[i]
                 adds r4,r8,r4
                 adc r5,r11,r5
                 
@@ -2196,7 +1987,7 @@ prob_arm_novfp:
                 eor r7,r0,r1
                 pkhbt r0,r12,r7
                 /* output: {r2,r3,r0} */
-                
+
                 /// final adding
                 ldr r12,[sp,#S_sti]
                 ldrd r4,[r12]
@@ -2255,6 +2046,14 @@ prob_arm_novfp:
 .Lsavefirst_p5:
                 /// end of final adding
                 /* save to streamTmpsIntFp[j] */
+#ifdef PROB_DEBUG
+                // test
+                push {r10,r11}
+                mov r11,#1
+                bl .Lputs_sep
+                pop {r10,r11}
+#endif
+
                 strd r2,[r12]
                 str r0,[r12,#8]
 #ifdef PROBNOVFP_DEBUG
@@ -2273,6 +2072,13 @@ prob_arm_novfp:
                 ldr r8,[sp,#S_stend]
                 add r12,r12,#12
                 str r12,[sp,#S_sti]
+#ifdef PROB_DEBUG
+                // test
+                push {r10,r11}
+                mov r11,#1
+                bl .Lputs_sep
+                pop {r10,r11}
+#endif
                 cmp r12,r8
                 bne .Lstreamloop
                 
@@ -2378,8 +2184,10 @@ prob_arm_novfp:
 .Lmaxmantisa:
                 .word 0x3ff
                 
-                .align 6
-                .word 0,0,0,0
+.Lsqrtranges:
+                .int 406319185, 889516851, 1464138954
+                .align 4
+                .word 0,0
 .Lsqrtpdata1:
                 .quad 36808955663348648
                 .quad 82202948024323612
@@ -2477,10 +2285,7 @@ prob_arm_novfp:
                 .quad 6521351980156125360
                 .quad 13043857235736788606
                 
-                .align 6
-                //.word 0,0,0,0
-                //.word 0,0,0,0
-                .word 0,0,0,0
+                //.word 0
 .Lnrdiv_points: /* start point table for Newton-Raphson method */
                 .quad 17361641481138401520
                 .quad 16397105843297379214

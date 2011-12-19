@@ -13,6 +13,12 @@
                 .eabi_attribute 26, 2
                 .eabi_attribute 30, 2
                 .eabi_attribute 18, 4
+                
+#ifndef SKIP_VFP_SAVE
+#define st_vfp_size 64
+#else
+#define st_vfp_size 0
+#endif
                 .text
                 .align 3
 .Llog2_3:
@@ -41,9 +47,9 @@
                 fldd d2,[r3,#16]
                 fldd d3,[r3,#24]
                 
-                fldd d4,[sp,#232+48]        // lbt
-                fldd d5,[sp,#232+56]
-                fldd d6,[sp,#232+64]
+                fldd d4,[sp,#232+48+st_vfp_size]        // lbt
+                fldd d5,[sp,#232+56+st_vfp_size]
+                fldd d6,[sp,#232+64+st_vfp_size]
                 fldd d7,[r0]    // m_sun_r0
                 fldd d8,[r0]
                 fldd d9,[r0]
@@ -126,7 +132,7 @@
                 fdivd d29,d20,d29
                 
                 /* aux_bg_profile */
-                fldd d24,[sp,#232+40+40]         // gprime
+                fldd d24,[sp,#232+40+40+st_vfp_size]         // gprime
                 fldd d0,[r2]            // sg_dx
                 fldd d1,[r2,#8]
                 fldd d2,[r2,#16]
@@ -175,9 +181,9 @@
                 fldd d2,[r3,#48]
                 fldd d3,[r3,#56]
                 
-                fldd d4,[sp,#232+48]        // lbt
-                fldd d5,[sp,#232+56]
-                fldd d6,[sp,#232+64]
+                fldd d4,[sp,#232+48+st_vfp_size]        // lbt
+                fldd d5,[sp,#232+56+st_vfp_size]
+                fldd d6,[sp,#232+64+st_vfp_size]
                 fldd d7,[r0]    // m_sun_r0
                 fldd d8,[r0]
                 fldd d9,[r0]
@@ -260,7 +266,7 @@
                 fdivd d29,d20,d29
                 
                 /* aux_bg_profile */
-                fldd d24,[sp,#232+40+40]         // gprime
+                fldd d24,[sp,#232+40+40+st_vfp_size]         // gprime
                 fldd d0,[r2,#32]            // sg_dx
                 fldd d1,[r2,#40]
                 fldd d2,[r2,#48]
@@ -312,7 +318,7 @@
                 strd r2,[sp,#208]
                 strd r4,[sp,#216]
                 str r7,[sp,#224]
-                ldr r14,[sp,#232+40+56]      // streamTmps
+                ldr r14,[sp,#232+40+56+st_vfp_size]      // streamTmps
                 str r14,[sp,#228]
 .Lstreamloop1:
                 /* first quad half */
@@ -878,9 +884,9 @@
                 mov r8,r1
                 fldd d0,[r3]            // rpoint
                 
-                fldd d2,[sp,#232+48]        // lbt
-                fldd d3,[sp,#232+56]
-                fldd d4,[sp,#232+64]
+                fldd d2,[sp,#232+48+st_vfp_size]        // lbt
+                fldd d3,[sp,#232+56+st_vfp_size]
+                fldd d4,[sp,#232+64+st_vfp_size]
                 fldd d5,[r0]    // m_sun_r0
                 
                 fmacd d5,d0,d2          // d5 xyz.x
@@ -908,7 +914,7 @@
                 fdivd d12,d2,d12
                 
                 /* bg_aux_profile */
-                fldd d11,[sp,#232+40+40]         // gprime
+                fldd d11,[sp,#232+40+40+st_vfp_size]         // gprime
                 fldd d0,[r2]            // sg_dx
                 
                 faddd d0,d0,d11
@@ -926,7 +932,7 @@
                 
                 str r3,[sp,#104]
                 str r2,[sp,#108]
-                ldr r12,[sp,#232+40+56]      // streamTmps
+                ldr r12,[sp,#232+40+56+st_vfp_size]      // streamTmps
                 
                 ldr r10,.Lminexp
                 ldr r11,.Lmaxexp
@@ -1030,10 +1036,10 @@
                 blo .Lrestloop1
 .Lafterrestloop1:
                 /* multiply by reff_xr_rp3 */
-                fldd d0,[sp,#232+40+48]
+                fldd d0,[sp,#232+40+48+st_vfp_size]
                 fmuld d30,d30,d0
                 
-                ldr r8,[sp,#232+40+56]      // streamTmps
+                ldr r8,[sp,#232+40+56+st_vfp_size]      // streamTmps
                 ldr r9,[r0,#36]        // nstreams
                 add r9,r8,r9, lsl #3
 .Lfinishloop1:
@@ -1046,6 +1052,9 @@
                 
                 fmrrd r0,r1,d30
                 add sp,sp,#232
+#ifndef SKIP_VFP_SAVE
+                vpop {d8,d9,d10,d11,d12,d13,d14,d15}
+#endif                
                 pop {r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}
                 bx lr
                 
@@ -1063,13 +1072,15 @@
                 /* bg_probability_fast_hprob for ARM architecture */
 prob_arm_vfpv3:
                 push {r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}
-                
+#ifndef SKIP_VFP_SAVE
+                vpush {d8,d9,d10,d11,d12,d13,d14,d15}
+#endif
                 sub sp,sp,#232
                 
                 ldr r4,[r0,#32]        // convolve
                 //sub r4,r4,#1
                 ldr r5,[r0,#36]        // nstreams
-                ldr r9,[sp,#232+40+56]      // streamTmps
+                ldr r9,[sp,#232+40+56+st_vfp_size]      // streamTmps
                 
                 lsl r8,r5,#3
                 sub r8,r8,#8
@@ -1080,7 +1091,7 @@ prob_arm_vfpv3:
                 subs r8,r8,#8
                 bhs .Lzeroloop1
                 
-                ldr r6,[sp,#232+40]         // qw_r3_N
+                ldr r6,[sp,#232+40+st_vfp_size]         // qw_r3_N
                 sub r4,r4,#7
                 add r4,r6,r4,lsl #3     // qw_r3_N+convolve
                 add r5,r1,r5,lsl #7     // sc+nstreams
@@ -1110,9 +1121,9 @@ prob_arm_vfpv3:
                 fldd d2,[r3,#16]
                 fldd d3,[r3,#24]
                 
-                fldd d4,[sp,#232+48]        // lbt
-                fldd d5,[sp,#232+56]
-                fldd d6,[sp,#232+64]
+                fldd d4,[sp,#232+48+st_vfp_size]        // lbt
+                fldd d5,[sp,#232+56+st_vfp_size]
+                fldd d6,[sp,#232+64+st_vfp_size]
                 fldd d7,[r0]    // m_sun_r0
                 fldd d8,[r0]
                 fldd d9,[r0]
@@ -1207,9 +1218,9 @@ prob_arm_vfpv3:
                 fldd d2,[r3,#48]
                 fldd d3,[r3,#56]
                 
-                fldd d4,[sp,#232+48]        // lbt
-                fldd d5,[sp,#232+56]
-                fldd d6,[sp,#232+64]
+                fldd d4,[sp,#232+48+st_vfp_size]        // lbt
+                fldd d5,[sp,#232+56+st_vfp_size]
+                fldd d6,[sp,#232+64+st_vfp_size]
                 fldd d7,[r0]    // m_sun_r0
                 fldd d8,[r0]
                 fldd d9,[r0]
@@ -1307,7 +1318,7 @@ prob_arm_vfpv3:
                 strd r2,[sp,#208]
                 strd r4,[sp,#216]
                 str r7,[sp,#224]
-                ldr r14,[sp,#232+40+56]      // streamTmps
+                ldr r14,[sp,#232+40+56+st_vfp_size]      // streamTmps
                 str r14,[sp,#228]
 .Lstreamloop2:
                 /* first quad half */
@@ -1879,9 +1890,9 @@ prob_arm_vfpv3:
                 mov r8,r1
                 fldd d0,[r3]            // rpoint
                 
-                fldd d2,[sp,#232+48]        // lbt
-                fldd d3,[sp,#232+56]
-                fldd d4,[sp,#232+64]
+                fldd d2,[sp,#232+48+st_vfp_size]        // lbt
+                fldd d3,[sp,#232+56+st_vfp_size]
+                fldd d4,[sp,#232+64+st_vfp_size]
                 fldd d5,[r0]    // m_sun_r0
                 
                 fmacd d5,d0,d2          // d5 xyz.x
@@ -1912,7 +1923,7 @@ prob_arm_vfpv3:
                 
                 str r3,[sp,#104]
                 str r2,[sp,#108]
-                ldr r12,[sp,#232+40+56]      // streamTmps
+                ldr r12,[sp,#232+40+56+st_vfp_size]      // streamTmps
                 
                 ldr r10,.Lminexp
                 ldr r11,.Lmaxexp
@@ -2015,10 +2026,10 @@ prob_arm_vfpv3:
                 blo .Lrestloop2
 .Lafterrestloop2:
                 /* multiply by reff_xr_rp3 */
-                fldd d0,[sp,#232+40+48]
+                fldd d0,[sp,#232+40+48+st_vfp_size]
                 fmuld d30,d30,d0
                 
-                ldr r8,[sp,#232+40+56]      // streamTmps
+                ldr r8,[sp,#232+40+56+st_vfp_size]      // streamTmps
                 ldr r9,[r0,#36]        // nstreams
                 add r9,r8,r9, lsl #3
 .Lfinishloop2:
@@ -2031,6 +2042,9 @@ prob_arm_vfpv3:
                 
                 fmrrd r0,r1,d30
                 add sp,sp,#232
+#ifndef SKIP_VFP_SAVE
+                vpop {d8,d9,d10,d11,d12,d13,d14,d15}
+#endif
                 pop {r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}
                 bx lr
                 

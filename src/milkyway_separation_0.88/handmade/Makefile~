@@ -80,6 +80,7 @@ SEPSRCS = ../separation/src/calculated_constants.c \
 	../separation/src/parameters.c \
 	../separation/src/probabilities.c \
 	../separation/src/prob_arm_novfp.S \
+	../separation/src/prob_arm_novfp_debug.S \
 	../separation/src/prob_arm_vfp.S \
 	../separation/src/prob_arm_vfpv3.S \
 	../separation/src/r_points.c \

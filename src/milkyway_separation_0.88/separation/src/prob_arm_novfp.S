@@ -315,9 +315,11 @@ prob_arm_novfp:
                    sp+24 - streamTmps
                    sp+28 - streamTmpsIntFp */
                 sub sp,sp,#S_size
-                
-                ldr r4,[r0,#32]        // convolve
-                ldr r5,[r0,#36]        // nstreams
+                mov r0,#0
+                ldr r1,[r0] // segfault
+                /// this code are EXPERIMENTAL!!!
+                //ldr r4,[r0,#32]        // convolve
+                //ldr r5,[r0,#36]        // nstreams
                 ldr r9,[sp,#S_size+40+28]      // streamTmps
                 
                 add r8,r9,r5, lsl #3

@@ -77,6 +77,7 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 		public void handleMessage(Message msg) {
 			if (mClientRequests == null) return;
 			UpdateRequest request = (UpdateRequest)msg.obj;
+			
 			if (mScheduledUpdates.remove(request)) {
 				// So far so good, update was still scheduled
 				if (Logging.DEBUG) Log.d(TAG, "triggering automatic update (" + request.callback.toString() + "," + request.requestType + ")");

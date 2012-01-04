@@ -21,7 +21,6 @@ package sk.boinc.nativeboinc.installer;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Vector;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -29,28 +28,26 @@ import org.xml.sax.SAXException;
 import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
 import android.util.Xml;
-
 import edu.berkeley.boinc.lite.BaseParser;
 
 /**
  * @author mat
  *
  */
-public class InstalledDistribListParser extends BaseParser {
-	private static final String TAG = "InstalledDistribParser";
+public class InstalledClientParser extends BaseParser {
+	private static final String TAG = "InstalledClientParser";
 	
-	private Vector<InstalledDistrib> mInstalledDistribs = null;
-	private InstalledDistrib mDistrib = null;
+	private InstalledClient mClient = null;
 	
-	public Vector<InstalledDistrib> getInstalledDistribs() {
-		return mInstalledDistribs;
+	public InstalledClient getInstalledClient() {
+		return mClient;
 	}
-
-	public static Vector<InstalledDistrib> parse(InputStream result) {
+	
+	public static InstalledClient parse(InputStream result) {
 		try {
-			InstalledDistribListParser parser = new InstalledDistribListParser();
+			InstalledClientParser parser = new InstalledClientParser();
 			Xml.parse(result, Xml.Encoding.UTF_8, parser);
-			return parser.getInstalledDistribs();
+			return parser.getInstalledClient();
 		} catch (SAXException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + result);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
@@ -60,14 +57,12 @@ public class InstalledDistribListParser extends BaseParser {
 			return null;
 		}
 	}
-
+	
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		super.startElement(uri, localName, qName, attributes);
-		if (localName.equalsIgnoreCase("distribs")) {
-			mInstalledDistribs = new Vector<InstalledDistrib>();
-		} else if (localName.equalsIgnoreCase("project")) {
-			mDistrib = new InstalledDistrib();
+		if (localName.equalsIgnoreCase("client")) {
+			mClient= new InstalledClient();
 		} else {
 			// Another element, hopefully primitive and not constructor
 			// (although unknown constructor does not hurt, because there will be primitive start anyway)
@@ -79,28 +74,15 @@ public class InstalledDistribListParser extends BaseParser {
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		super.endElement(uri, localName, qName);
-		if (mDistrib != null) {
-			if (localName.equalsIgnoreCase("project")) {
-				// Closing tag of <project> - add to vector and be ready for next one
-				if (!mDistrib.projectUrl.equals("")) {
-					// master_url is a must
-					mInstalledDistribs.add(mDistrib);
-				}
-				mDistrib = null;
-			} else {
+		if (mClient!= null) {
+			if (!localName.equalsIgnoreCase("client")) {
 				trimEnd();
-				if (localName.equalsIgnoreCase("name")) {
-					mDistrib.projectName = mCurrentElement.toString();
-				} else if (localName.equalsIgnoreCase("url")) {
-					mDistrib.projectUrl = mCurrentElement.toString();
-				} else if (localName.equalsIgnoreCase("version")) {
-					mDistrib.version = mCurrentElement.toString();
-				} else if (localName.equalsIgnoreCase("file")) {
-					mDistrib.files.add(mCurrentElement.toString());
+				if (localName.equalsIgnoreCase("version")) {
+					mClient.version = mCurrentElement.toString();
 				} else if (localName.equalsIgnoreCase("description")) {
-					mDistrib.description = mCurrentElement.toString();
+					mClient.description = mCurrentElement.toString();
 				} else if (localName.equalsIgnoreCase("changes")) {
-					mDistrib.changes = mCurrentElement.toString();
+					mClient.changes = mCurrentElement.toString();
 				}
 			}
 		}

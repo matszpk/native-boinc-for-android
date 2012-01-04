@@ -119,9 +119,9 @@ public class ResultsParser extends BaseParser {
 						else if (localName.equalsIgnoreCase("app_version_num")) {
 							mResult.app_version_num = Integer.parseInt(mCurrentElement.toString());
 						}
-//						else if (localName.equalsIgnoreCase("scheduler_state")) {
-//							mResult.scheduler_state = Integer.parseInt(mCurrentElement.toString());
-//						}
+						else if (localName.equalsIgnoreCase("scheduler_state")) {
+							mResult.scheduler_state = Integer.parseInt(mCurrentElement.toString());
+						}
 						else if (localName.equalsIgnoreCase("checkpoint_cpu_time")) {
 							mResult.checkpoint_cpu_time = Double.parseDouble(mCurrentElement.toString());
 						}
@@ -155,12 +155,12 @@ public class ResultsParser extends BaseParser {
 						else if (localName.equalsIgnoreCase("version_num")) {
 							mResult.version_num = Integer.parseInt(mCurrentElement.toString());
 						}
-//						else if (localName.equalsIgnoreCase("ready_to_report")) {
-//							mResult.ready_to_report = !mCurrentElement.toString().equals("0");
-//						}
-//						else if (localName.equalsIgnoreCase("got_server_ack")) {
-//							mResult.got_server_ack = !mCurrentElement.toString().equals("0");
-//						}
+						else if (localName.equalsIgnoreCase("ready_to_report")) {
+							mResult.ready_to_report = !mCurrentElement.toString().equals("0");
+						}
+						else if (localName.equalsIgnoreCase("got_server_ack")) {
+							mResult.got_server_ack = !mCurrentElement.toString().equals("0");
+						}
 						else if (localName.equalsIgnoreCase("final_cpu_time")) {
 							mResult.final_cpu_time = Double.parseDouble(mCurrentElement.toString());
 						}
@@ -179,9 +179,9 @@ public class ResultsParser extends BaseParser {
 						else if (localName.equalsIgnoreCase("estimated_cpu_time_remaining")) {
 							mResult.estimated_cpu_time_remaining = Double.parseDouble(mCurrentElement.toString());
 						}
-//						else if (localName.equalsIgnoreCase("exit_status")) {
-//							mResult.exit_status = Integer.parseInt(mCurrentElement.toString());
-//						}
+						else if (localName.equalsIgnoreCase("exit_status")) {
+							mResult.exit_status = Integer.parseInt(mCurrentElement.toString());
+						}
 						else if (localName.equalsIgnoreCase("suspended_via_gui")) {
 							mResult.suspended_via_gui = !mCurrentElement.toString().equals("0");
 						}

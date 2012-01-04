@@ -17,7 +17,7 @@
  * 
  */
 
-package sk.boinc.nativeboinc.nativeclient;
+package sk.boinc.nativeboinc.installer;
 
 import java.io.IOException;
 import java.io.InputStream;

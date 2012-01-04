@@ -33,8 +33,8 @@ import sk.boinc.nativeboinc.clientconnection.TaskInfo;
 import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
-import sk.boinc.nativeboinc.nativeclient.InstallerService;
-import sk.boinc.nativeboinc.nativeclient.NativeBoincListener;
+import sk.boinc.nativeboinc.installer.InstallerService;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.service.ConnectionManagerService;
 import sk.boinc.nativeboinc.util.ClientId;
@@ -74,7 +74,7 @@ import android.widget.Toast;
 
 
 public class BoincManagerActivity extends TabActivity implements ClientReplyReceiver,
-		NativeBoincListener {
+		NativeBoincStateListener {
 	private static final String TAG = "BoincManagerActivity";
 
 	private static final int DIALOG_CONNECT_PROGRESS = 1;
@@ -852,7 +852,7 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		// do nothing
 	}
 	
-	public void onClientError(String message) {
+	public void onNativeBoincError(String message) {
 		mClientStartFromMenu = false;
 		mClientShutdownFromMenu = false;
 	}

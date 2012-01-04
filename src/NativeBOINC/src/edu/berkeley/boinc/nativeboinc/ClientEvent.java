@@ -1,6 +1,6 @@
 /* 
- * NativeBOINC - Native BOINC Client with Manager
- * Copyright (C) 2011, Mateusz Szpakowski
+ * AndroBOINC - BOINC Manager for Android
+ * Copyright (C) 2010, Pavol Michalec
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,22 +17,29 @@
  * 
  */
 
-package sk.boinc.nativeboinc.installer;
+package edu.berkeley.boinc.nativeboinc;
 
 /**
  * @author mat
  *
  */
-public class InstalledBinary {
-	public String name;
-	public String version;
-	public String description;
-	public String changes;
+public class ClientEvent {
+	public final static int EVENT_ATTACHED_PROJECT = 1;
+	public final static int EVENT_DETACHED_PROJECT = 2;
+	public final static int EVENT_SUSPEND_ALL_TASKS = 3;
+	public final static int EVENT_RUN_TASKS = 4;
+	public final static int EVENT_RUN_BENCHMARK = 5;
+	public final static int EVENT_FINISH_BENCHMARK = 6;
 	
-	public InstalledBinary(String name, String version, String description, String changes) {
-		this.name = name;
-		this.version = version;
-		this.description = description;
-		this.changes = changes;
+	public int type;
+	public String projectUrl = null;
+	
+	public ClientEvent(int type) {
+		this.type = type;
+	}
+	
+	public ClientEvent(int type, String projectUrl) {
+		this.type = type;
+		this.projectUrl = projectUrl;
 	}
 }

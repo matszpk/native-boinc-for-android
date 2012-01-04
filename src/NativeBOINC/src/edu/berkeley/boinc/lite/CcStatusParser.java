@@ -96,9 +96,9 @@ public class CcStatusParser extends BaseParser {
 					else if (localName.equalsIgnoreCase("task_mode_delay")) {
 						mCcStatus.task_mode_delay = Double.parseDouble(mCurrentElement.toString());
 					}
-//					else if (localName.equalsIgnoreCase("task_suspend_reason")) {
-//						mCcStatus.task_suspend_reason = Integer.parseInt(mCurrentElement.toString());
-//					}
+					else if (localName.equalsIgnoreCase("task_suspend_reason")) {
+						mCcStatus.task_suspend_reason = Integer.parseInt(mCurrentElement.toString());
+					}
 					if (localName.equalsIgnoreCase("network_mode")) {
 						mCcStatus.network_mode = Integer.parseInt(mCurrentElement.toString());
 					}
@@ -108,44 +108,44 @@ public class CcStatusParser extends BaseParser {
 					else if (localName.equalsIgnoreCase("network_mode_delay")) {
 						mCcStatus.network_mode_delay = Double.parseDouble(mCurrentElement.toString());
 					}
-//					else if (localName.equalsIgnoreCase("network_suspend_reason")) {
-//						mCcStatus.network_suspend_reason = Integer.parseInt(mCurrentElement.toString());
-//					}
+					else if (localName.equalsIgnoreCase("network_suspend_reason")) {
+						mCcStatus.network_suspend_reason = Integer.parseInt(mCurrentElement.toString());
+					}
 					else if (localName.equalsIgnoreCase("network_status")) {
 						mCcStatus.network_status = Integer.parseInt(mCurrentElement.toString());
 					}
-//					else if (localName.equalsIgnoreCase("ams_password_error")) {
-//						if (mCurrentElement.length() > 1) {
-//							mCcStatus.ams_password_error = (0 != Integer.parseInt(mCurrentElement.toString()));
-//						}
-//						else {
-//							mCcStatus.ams_password_error = true;
-//						}
-//					}
-//					else if (localName.equalsIgnoreCase("manager_must_quit")) {
-//						if (mCurrentElement.length() > 1) {
-//							mCcStatus.manager_must_quit = (0 != Integer.parseInt(mCurrentElement.toString()));
-//						}
-//						else {
-//							mCcStatus.manager_must_quit = true;
-//						}
-//					}
-//					else if (localName.equalsIgnoreCase("disallow_attach")) {
-//						if (mCurrentElement.length() > 1) {
-//							mCcStatus.disallow_attach = (0 != Integer.parseInt(mCurrentElement.toString()));
-//						}
-//						else {
-//							mCcStatus.disallow_attach = true;
-//						}
-//					}
-//					else if (localName.equalsIgnoreCase("simple_gui_only")) {
-//						if (mCurrentElement.length() > 1) {
-//							mCcStatus.simple_gui_only = (0 != Integer.parseInt(mCurrentElement.toString()));
-//						}
-//						else {
-//							mCcStatus.simple_gui_only = true;
-//						}
-//					}
+					else if (localName.equalsIgnoreCase("ams_password_error")) {
+						if (mCurrentElement.length() > 1) {
+							mCcStatus.ams_password_error = (0 != Integer.parseInt(mCurrentElement.toString()));
+						}
+						else {
+							mCcStatus.ams_password_error = true;
+						}
+					}
+					else if (localName.equalsIgnoreCase("manager_must_quit")) {
+						if (mCurrentElement.length() > 1) {
+							mCcStatus.manager_must_quit = (0 != Integer.parseInt(mCurrentElement.toString()));
+						}
+						else {
+							mCcStatus.manager_must_quit = true;
+						}
+					}
+					else if (localName.equalsIgnoreCase("disallow_attach")) {
+						if (mCurrentElement.length() > 1) {
+							mCcStatus.disallow_attach = (0 != Integer.parseInt(mCurrentElement.toString()));
+						}
+						else {
+							mCcStatus.disallow_attach = true;
+						}
+					}
+					else if (localName.equalsIgnoreCase("simple_gui_only")) {
+						if (mCurrentElement.length() > 1) {
+							mCcStatus.simple_gui_only = (0 != Integer.parseInt(mCurrentElement.toString()));
+						}
+						else {
+							mCcStatus.simple_gui_only = true;
+						}
+					}
 				}
 			}
 		}

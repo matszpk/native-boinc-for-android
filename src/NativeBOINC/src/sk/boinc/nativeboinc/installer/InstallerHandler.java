@@ -17,7 +17,7 @@
  * 
  */
 
-package sk.boinc.nativeboinc.nativeclient;
+package sk.boinc.nativeboinc.installer;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -573,14 +573,18 @@ public class InstallerHandler extends Handler {
 	    new File(mContext.getFilesDir()+"/boinc").mkdir();
 	    
 	    /* save version number */
-	    SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+	    /*SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 	    SharedPreferences.Editor editor = globalPrefs.edit();
 	    
 	    if (mClientDistrib != null) {
-	    	editor.putString(PreferenceName.CLIENT_VERSION, mClientDistrib.version);
-	    	if (Logging.DEBUG) Log.d(TAG, "Save client version:" + mClientDistrib.version);
+	    	//editor.putString(PreferenceName.CLIENT_VERSION, mClientDistrib.version);
+	    	//if (Logging.DEBUG) Log.d(TAG, "Save client version:" + mClientDistrib.version);
 	    }
-	    editor.commit();
+	    editor.commit();*/
+	    if (mClientDistrib != null) {
+	    	mDistribManager.setClient(mClientDistrib);
+	    	mDistribManager.save();
+	    }
 	    
 	    notifyFinish();
 	}
@@ -981,19 +985,30 @@ public class InstallerHandler extends Handler {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 		String clientVersion = prefs.getString(PreferenceName.CLIENT_VERSION, null);
 		
-		if (clientVersion == null)	// if empty
-			return new InstalledBinary[0];
+		InstalledClient installedClient = mDistribManager.getInstalledClient();
+		if (clientVersion == null) {
+			if (installedClient.version.length() == 0)	// if empty
+				return new InstalledBinary[0];
+		}
+		if (installedClient.version.length() == 0) { // if not initialized
+			// update client version from prefs
+			installedClient.version = clientVersion;
+			// update distribs
+			mDistribManager.save();
+		}
 		
 		Vector<InstalledDistrib> installedDistribs = mDistribManager.getInstalledDistribs();
 		int installedCount = installedDistribs.size();
 		
 		InstalledBinary[] result = new InstalledBinary[installedDistribs.size()+1];
 		
-		result[0] = new InstalledBinary("BOINC client", clientVersion);
+		result[0] = new InstalledBinary("BOINC client", installedClient.version,
+				installedClient.description, installedClient.changes);
 		
 		for (int i = 0; i <installedCount; i++) {
 			InstalledDistrib distrib = installedDistribs.get(i);
-			result[i+1] = new InstalledBinary(distrib.projectName, distrib.version); 
+			result[i+1] = new InstalledBinary(distrib.projectName, distrib.version, distrib.description,
+					distrib.changes); 
 		}
 		
 		/* sort result list */
@@ -1020,8 +1035,20 @@ public class InstallerHandler extends Handler {
 		int firstUpdateBoincAppsIndex = 0;
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 		String clientVersion = prefs.getString(PreferenceName.CLIENT_VERSION, null);
+		
+		InstalledClient installedClient = mDistribManager.getInstalledClient();
+		
+		if (installedClient.version.length()!=0) { // from mDistribManager
+			clientVersion = installedClient.version;
+		} else { // if not initialized
+			installedClient.version = clientVersion;
+			// update
+			mDistribManager.save();
+		}
+		
 		if (VersionUtil.compareVersion(mClientDistrib.version, clientVersion) > 0) {
-			updateItems.add(new UpdateItem("BOINC client", mClientDistrib.version, null, false));
+			updateItems.add(new UpdateItem("BOINC client", mClientDistrib.version, null,
+					mClientDistrib.description, mClientDistrib.changes, false));
 			firstUpdateBoincAppsIndex = 1;
 		}
 		
@@ -1040,7 +1067,8 @@ public class InstallerHandler extends Handler {
 				String filename = null;
 				filename = selected.filename;
 				
-				updateItems.add(new UpdateItem(selected.projectName, selected.version, filename, false));
+				updateItems.add(new UpdateItem(selected.projectName, selected.version, filename,
+						selected.description, selected.changes, false));
 			}
 		}
 		/* new project binaries */
@@ -1063,7 +1091,8 @@ public class InstallerHandler extends Handler {
 					break;
 				}
 			
-			updateItems.add(new UpdateItem(selected.projectName, selected.version, selected.filename, true));
+			updateItems.add(new UpdateItem(selected.projectName, selected.version, selected.filename,
+					selected.description, selected.changes, true));
 		}
 		
 		UpdateItem[] array = updateItems.toArray(new UpdateItem[0]);

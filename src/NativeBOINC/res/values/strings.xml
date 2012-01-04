@@ -397,7 +397,8 @@
 	
 	<!-- Screen Lock activity -->
 	<string name="lockWeAreComputing">We are computing...</string>
-	<string name="lockStopped">Stopped...</string>
+	<string name="lockNotRan">Not ran</string>
+	<string name="lockTasksSuspended">Tasks suspended</string>
 	<string name="lockToUnlock">Press HOME key to unlock</string>
 	
 	<!-- Client Error display -->
@@ -445,6 +446,7 @@
 	<string name="nativeAuthorizeError">Unable to authorize access</string>
 	
 	<string name="nativeClientConfigError">Unable to configure native client</string>
+	<string name="nativeClientResultsError">Unable to get results from native client</string>
 	
 	<string name="appListDownloadError">Unable to download app list</string>
 	<string name="appListParseError">Unable to parse app list</string>

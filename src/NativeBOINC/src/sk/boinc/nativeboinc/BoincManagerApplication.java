@@ -27,7 +27,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import sk.boinc.nativeboinc.debug.Logging;
-import sk.boinc.nativeboinc.nativeclient.NativeBoincListener;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincReplyListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.widget.NativeBoincWidgetProvider;
@@ -58,7 +59,7 @@ import android.widget.Toast;
  * <li>provides basic information about application
  * </ul>
  */
-public class BoincManagerApplication extends Application implements NativeBoincListener {
+public class BoincManagerApplication extends Application implements NativeBoincStateListener, NativeBoincReplyListener {
 	private static final String TAG = "BoincManagerApplication";
 
 	public static final String GLOBAL_ID = "sk.boinc.androboinc";
@@ -69,6 +70,8 @@ public class BoincManagerApplication extends Application implements NativeBoincL
 
 	private char[] mReadBuffer = new char[READ_BUF_SIZE];
 	private StringBuilder mStringBuilder = new StringBuilder(LICENSE_TEXT_SIZE);
+	
+	public final static String UPDATE_PROGRESS = "UPDATE_PROGRESS";
 	
 	
 	private boolean mIsInstallerRun = false;
@@ -280,12 +283,7 @@ public class BoincManagerApplication extends Application implements NativeBoincL
 	}
 
 	@Override
-	public void onClientError(String message) {
-		// Do nothing
-	}
-
-	@Override
-	public void onClientConfigured() {
+	public void onNativeBoincError(String message) {
 		// Do nothing
 	}
 	
@@ -305,5 +303,22 @@ public class BoincManagerApplication extends Application implements NativeBoincL
 	
 	public int getWigetUpdatePeriod() {
 		return mWidgetUpdatePeriod;
+	}
+
+	@Override
+	public void onProgressChange(double progress) {
+		Intent intent = new Intent(NativeBoincWidgetProvider.NATIVE_BOINC_WIDGET_UPDATE);
+		intent.putExtra(UPDATE_PROGRESS, progress);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		try {
+			if (Logging.DEBUG) Log.d(TAG, "Send update intent");
+			pendingIntent.send();
+		} catch (Exception ex) { }
+	}
+
+	@Override
+	public void onClientConfigured() {
+		// TODO Auto-generated method stub
+		
 	}
 }

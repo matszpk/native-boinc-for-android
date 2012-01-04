@@ -1,6 +1,6 @@
 /* 
- * NativeBOINC - Native BOINC Client with Manager
- * Copyright (C) 2011, Mateusz Szpakowski
+ * AndroBOINC - BOINC Manager for Android
+ * Copyright (C) 2010, Pavol Michalec
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,7 @@
  * 
  */
 
-package sk.boinc.nativeboinc.installer;
-
-import java.io.IOException;
-import java.io.InputStream;
+package edu.berkeley.boinc.nativeboinc;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -35,35 +32,36 @@ import edu.berkeley.boinc.lite.BaseParser;
  * @author mat
  *
  */
-public class ClientDistribListParser extends BaseParser {
-	private static final String TAG = "ProjectDistribParser";
+public class ClientEventParser extends BaseParser {
+	private static final String TAG = "ClientEventParser";
+
+	private boolean mWithClientEvent = false;
+	private int mClientEventType = -1;
+	private String mProjectUrl = null;
 	
-	private ClientDistrib mClientDistrib = null;
-	
-	public ClientDistrib getClientDistribs() {
-		return mClientDistrib;
+	public ClientEvent getClientEvent() {
+		return new ClientEvent(mClientEventType, mProjectUrl);
 	}
-	
-	public static ClientDistrib parse(InputStream result) {
+
+	public static ClientEvent parse(String rpcResult) {
 		try {
-			ClientDistribListParser parser = new ClientDistribListParser();
-			Xml.parse(result, Xml.Encoding.UTF_8, parser);
-			return parser.getClientDistribs();
+			ClientEventParser parser = new ClientEventParser();
+			Xml.parse(rpcResult, parser);
+			return parser.getClientEvent();
 		} catch (SAXException e) {
-			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + result);
+			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
-			return null;
-		} catch (IOException e2) {
-			if (Logging.ERROR) Log.e(TAG, "I/O Error in XML parsing:\n" + result);
 			return null;
 		}
 	}
 	
-	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		super.startElement(uri, localName, qName, attributes);
-		if (localName.equalsIgnoreCase("client")) {
-			mClientDistrib = new ClientDistrib();
+		if (localName.equalsIgnoreCase("reply")) {
+			if (mWithClientEvent) {
+				if (Logging.DEBUG) Log.d(TAG, "Dropping old reply");
+			}
+			mWithClientEvent = true;
 		} else {
 			// Another element, hopefully primitive and not constructor
 			// (although unknown constructor does not hurt, because there will be primitive start anyway)
@@ -75,21 +73,21 @@ public class ClientDistribListParser extends BaseParser {
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		super.endElement(uri, localName, qName);
-		if (mClientDistrib != null) {
-			if (localName.equalsIgnoreCase("client")) {
-				// Closing tag of <client> - add to vector and be ready for next one
-			} else {
-				trimEnd();
-				if (localName.equalsIgnoreCase("version")) {
-					mClientDistrib.version = mCurrentElement.toString();
-				} else if (localName.equalsIgnoreCase("file")) {
-					mClientDistrib.filename = mCurrentElement.toString();
-				} else if (localName.equalsIgnoreCase("description")) {
-					mClientDistrib.description = mCurrentElement.toString();
-				} else if (localName.equalsIgnoreCase("changes")) {
-					mClientDistrib.changes = mCurrentElement.toString();
+		
+		try {
+			if (mWithClientEvent) {
+				if (!localName.equalsIgnoreCase("reply")) {
+					trimEnd();
+					
+					if (localName.equalsIgnoreCase("type")) {
+						mClientEventType = Integer.parseInt(mCurrentElement.toString());
+					} else if (localName.equalsIgnoreCase("project")) {
+						mProjectUrl = mCurrentElement.toString();
+					}
 				}
 			}
+		} catch(NumberFormatException ex) {
+			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
 		}
 		mElementStarted = false;
 	}

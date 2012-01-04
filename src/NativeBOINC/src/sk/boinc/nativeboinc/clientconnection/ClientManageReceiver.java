@@ -29,7 +29,7 @@ import edu.berkeley.boinc.lite.ProjectListEntry;
  * @author mat
  *
  */
-public interface ClientManageReceiver extends ClientReplyReceiver {
+public interface ClientManageReceiver extends ClientReceiver {
 	
 	public abstract boolean currentBAMInfo(AccountMgrInfo accountMgrInfo);
 	public abstract boolean currentAllProjectsList(Vector<ProjectListEntry> allProjects);

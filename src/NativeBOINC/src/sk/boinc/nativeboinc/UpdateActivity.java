@@ -23,12 +23,12 @@ import java.util.Vector;
 
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
 import sk.boinc.nativeboinc.debug.Logging;
-import sk.boinc.nativeboinc.nativeclient.ClientDistrib;
-import sk.boinc.nativeboinc.nativeclient.InstallerListener;
-import sk.boinc.nativeboinc.nativeclient.InstallerService;
-import sk.boinc.nativeboinc.nativeclient.NativeBoincListener;
+import sk.boinc.nativeboinc.installer.ClientDistrib;
+import sk.boinc.nativeboinc.installer.InstallerListener;
+import sk.boinc.nativeboinc.installer.InstallerService;
+import sk.boinc.nativeboinc.installer.ProjectDistrib;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
-import sk.boinc.nativeboinc.nativeclient.ProjectDistrib;
 import sk.boinc.nativeboinc.service.ConnectionManagerService;
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.HostListDbAdapter;
@@ -60,7 +60,7 @@ import android.widget.Toast;
  * @author mat
  *
  */
-public class UpdateActivity extends Activity implements NativeBoincListener, InstallerListener {
+public class UpdateActivity extends Activity implements NativeBoincStateListener, InstallerListener {
 	private static final String TAG = "UpdateActivity";
 	
 	public static final String ATTACHED_PROJECT_URLS_TAG = "AttachedProjectUrlList";
@@ -375,13 +375,8 @@ public class UpdateActivity extends Activity implements NativeBoincListener, Ins
 	}
 
 	@Override
-	public void onClientError(String message) {
+	public void onNativeBoincError(String message) {
 		showErrorDialog(message);
-	}
-
-	@Override
-	public void onClientConfigured() {
-		// do nothing
 	}
 
 	@Override

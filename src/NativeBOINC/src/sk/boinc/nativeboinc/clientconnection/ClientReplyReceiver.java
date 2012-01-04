@@ -22,19 +22,7 @@ package sk.boinc.nativeboinc.clientconnection;
 import java.util.Vector;
 
 
-public interface ClientReplyReceiver {
-	public static final int PROGRESS_CONNECTING = 0;
-	public static final int PROGRESS_AUTHORIZATION_PENDING = 1;
-	public static final int PROGRESS_INITIAL_DATA = 2;
-	public static final int PROGRESS_XFER_STARTED = 3;
-	public static final int PROGRESS_XFER_FINISHED = 4;
-
-	public abstract void clientConnectionProgress(int progress);
-	public abstract void clientConnected(VersionInfo clientVersion);
-	public abstract void clientDisconnected();
-	
-	public abstract boolean clientError(int errorNum, Vector<String> messages);
-
+public interface ClientReplyReceiver extends ClientReceiver {
 	public abstract boolean updatedClientMode(ModeInfo modeInfo);
 	public abstract boolean updatedHostInfo(HostInfo hostInfo);
 	

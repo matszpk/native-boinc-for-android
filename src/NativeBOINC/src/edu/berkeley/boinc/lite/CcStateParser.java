@@ -37,8 +37,8 @@ public class CcStateParser extends BaseParser {
 	private boolean mInProject = false;
 	private AppsParser mAppsParser = new AppsParser();
 	private boolean mInApp = false;
-//	private AppVersionsParser mAppVersionsParser = new AppVersionsParser();
-//	private boolean mInAppVersion = false;
+	private AppVersionsParser mAppVersionsParser = new AppVersionsParser();
+	private boolean mInAppVersion = false;
 	private WorkunitsParser mWorkunitsParser = new WorkunitsParser();
 	private boolean mInWorkunit = false;
 	private ResultsParser mResultsParser = new ResultsParser();
@@ -74,7 +74,7 @@ public class CcStateParser extends BaseParser {
 		mCcState.host_info = mHostInfoParser.getHostInfo();
 		mCcState.projects = mProjectsParser.getProjects();
 		mCcState.apps = mAppsParser.getApps();
-//		mCcState.app_versions = mAppVersionsParser.getAppVersions();
+		mCcState.app_versions = mAppVersionsParser.getAppVersions();
 		mCcState.workunits = mWorkunitsParser.getWorkunits();
 		mCcState.results = mResultsParser.getResults();
 	}
@@ -103,13 +103,13 @@ public class CcStateParser extends BaseParser {
 		if (mInApp) {
 			mAppsParser.startElement(uri, localName, qName, attributes);
 		}
-//		if (localName.equalsIgnoreCase("app_version")) {
-//			// Just stepped inside <app_version>
-//			mInAppVersion = true;
-//		}
-//		if (mInAppVersion) {
-//			mAppVersionsParser.startElement(uri, localName, qName, attributes);
-//		}
+		if (localName.equalsIgnoreCase("app_version")) {
+			// Just stepped inside <app_version>
+			mInAppVersion = true;
+		}
+		if (mInAppVersion) {
+			mAppVersionsParser.startElement(uri, localName, qName, attributes);
+		}
 		if (localName.equalsIgnoreCase("workunit")) {
 			// Just stepped inside <workunit>
 			mInWorkunit = true;
@@ -149,10 +149,10 @@ public class CcStateParser extends BaseParser {
 			// We are inside <project>
 			mAppsParser.characters(ch, start, length);
 		}
-//		if (mInAppVersion) {
-//			// We are inside <project>
-//			mAppVersionsParser.characters(ch, start, length);
-//		}
+		if (mInAppVersion) {
+			// We are inside <project>
+			mAppVersionsParser.characters(ch, start, length);
+		}
 		if (mInWorkunit) {
 			// We are inside <workunit>
 			mWorkunitsParser.characters(ch, start, length);
@@ -194,15 +194,15 @@ public class CcStateParser extends BaseParser {
 					mInApp = false;
 				}
 			}
-//			if (mInAppVersion) {
-//				// We are inside <app_version>
-//				// parse it by sub-parser in any case (must parse also closing element!)
-//				mAppsParser.endElement(uri, localName, qName);
-//				if (localName.equalsIgnoreCase("app_version")) {
-//					// Closing tag of <app_version>
-//					mInAppVersion = false;
-//				}
-//			}
+			if (mInAppVersion) {
+				// We are inside <app_version>
+				// parse it by sub-parser in any case (must parse also closing element!)
+				mAppsParser.endElement(uri, localName, qName);
+				if (localName.equalsIgnoreCase("app_version")) {
+					// Closing tag of <app_version>
+					mInAppVersion = false;
+				}
+			}
 			if (mInWorkunit) {
 				// We are inside <workunit>
 				// parse it by sub-parser in any case (must parse also closing element!)

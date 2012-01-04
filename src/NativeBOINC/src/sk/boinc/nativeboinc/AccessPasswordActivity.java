@@ -24,7 +24,7 @@ import java.io.IOException;
 import sk.boinc.nativeboinc.R.id;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
 import sk.boinc.nativeboinc.debug.Logging;
-import sk.boinc.nativeboinc.nativeclient.NativeBoincListener;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.service.ConnectionManagerService;
 import sk.boinc.nativeboinc.util.ClientId;
@@ -47,7 +47,7 @@ import android.widget.Toast;
  * @author mat
  *
  */
-public class AccessPasswordActivity extends Activity implements NativeBoincListener {
+public class AccessPasswordActivity extends Activity implements NativeBoincStateListener {
 	private final static String TAG = "AccessPasswordActivity";
 	
 	private EditText mAccessPassword;
@@ -221,13 +221,8 @@ public class AccessPasswordActivity extends Activity implements NativeBoincListe
 	}
 
 	@Override
-	public void onClientError(String message) {
+	public void onNativeBoincError(String message) {
 		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 		finish();
-	}
-
-	@Override
-	public void onClientConfigured() {
-		// do nothing
 	}
 }

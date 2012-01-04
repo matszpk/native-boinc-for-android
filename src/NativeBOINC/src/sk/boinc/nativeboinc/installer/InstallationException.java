@@ -17,7 +17,7 @@
  * 
  */
 
-package sk.boinc.nativeboinc.nativeclient;
+package sk.boinc.nativeboinc.installer;
 
 /**
  * @author mat

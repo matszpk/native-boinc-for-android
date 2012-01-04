@@ -76,8 +76,8 @@ public class RpcClient {
 	private OutputStreamWriter mOutput;
 	private InputStream mInput;
 	private byte[] mReadBuffer = new byte[READ_BUF_SIZE];
-	private StringBuilder mResult = new StringBuilder(RESULT_BUILDER_INIT_SIZE);
-	private StringBuilder mRequest = new StringBuilder(REQUEST_BUILDER_INIT_SIZE);
+	protected StringBuilder mResult = new StringBuilder(RESULT_BUILDER_INIT_SIZE);
+	protected StringBuilder mRequest = new StringBuilder(REQUEST_BUILDER_INIT_SIZE);
 	private NetStats mNetStats = null;
 
 	public RpcClient() {}
@@ -321,7 +321,7 @@ public class RpcClient {
 	 * @param request The request itself
 	 * @throws IOException if error occurs when sending the request
 	 */
-	private void sendRequest(String request) throws IOException {
+	protected void sendRequest(String request) throws IOException {
 		if (Debugging.PERFORMANCE) Log.d(TAG, "mRequest.capacity() = " + mRequest.capacity());
 		if (Debugging.DATA) Log.d(TAG, "Sending request: \n" + request.toString());
 		if (mOutput == null)
@@ -340,7 +340,7 @@ public class RpcClient {
 	 * @return the data read from socket
 	 * @throws IOException if error occurs when reading from socket
 	 */
-	private String receiveReply() throws IOException {
+	protected String receiveReply() throws IOException {
 		mResult.setLength(0);
 		if (Debugging.PERFORMANCE) Log.d(TAG, "mResult.capacity() = " + mResult.capacity());
 

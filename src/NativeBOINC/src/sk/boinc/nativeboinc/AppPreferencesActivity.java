@@ -20,8 +20,8 @@
 package sk.boinc.nativeboinc;
 
 import sk.boinc.nativeboinc.debug.Logging;
-import sk.boinc.nativeboinc.nativeclient.InstalledBinary;
-import sk.boinc.nativeboinc.nativeclient.InstallerService;
+import sk.boinc.nativeboinc.installer.InstalledBinary;
+import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.util.NetStatsStorage;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.ScreenOrientationHandler;

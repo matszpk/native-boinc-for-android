@@ -29,21 +29,17 @@ import edu.berkeley.boinc.lite.ProjectListEntry;
 
 import sk.boinc.nativeboinc.R.id;
 import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
-import sk.boinc.nativeboinc.clientconnection.HostInfo;
-import sk.boinc.nativeboinc.clientconnection.MessageInfo;
-import sk.boinc.nativeboinc.clientconnection.ModeInfo;
+import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
-import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
-import sk.boinc.nativeboinc.clientconnection.TaskInfo;
-import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
-import sk.boinc.nativeboinc.nativeclient.ClientDistrib;
-import sk.boinc.nativeboinc.nativeclient.InstallerListener;
-import sk.boinc.nativeboinc.nativeclient.InstallerService;
-import sk.boinc.nativeboinc.nativeclient.NativeBoincListener;
+import sk.boinc.nativeboinc.installer.ClientDistrib;
+import sk.boinc.nativeboinc.installer.InstallerListener;
+import sk.boinc.nativeboinc.installer.InstallerService;
+import sk.boinc.nativeboinc.installer.ProjectDistrib;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincReplyListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
-import sk.boinc.nativeboinc.nativeclient.ProjectDistrib;
 import sk.boinc.nativeboinc.service.ConnectionManagerService;
 import sk.boinc.nativeboinc.util.AddProjectResult;
 import sk.boinc.nativeboinc.util.ClientId;
@@ -75,7 +71,7 @@ import android.widget.Toast;
  *
  */
 public class InstallWizardActivity extends Activity implements InstallerListener,
-		NativeBoincListener, ClientManageReceiver {
+		NativeBoincStateListener, NativeBoincReplyListener, ClientReceiver, ClientManageReceiver {
 	private final static String TAG = "InstallWizardActivity";
 	
 	private static final int ACTIVITY_SELECT_PROJECT = 1;
@@ -567,7 +563,7 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 			}
 			
 			if (mCurrentStep == INSTALL_STEP_2) { // to configure client
-				mRunner.configureClient();
+				mRunner.configureClient(this);
 			} else if (mCurrentStep == INSTALL_STEP_3) {
 				mCurrentStep++;	/* to finish */
 				prepareView();
@@ -614,7 +610,7 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 	}
 	
 	@Override
-	public void onClientError(String message) {
+	public void onNativeBoincError(String message) {
 		showErrorDialog(message);
 	}
 
@@ -636,42 +632,6 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 	@Override
 	public boolean clientError(int errorNum, Vector<String> messages) {
 		showErrorDialog(getString(R.string.clientError));
-		return false;
-	}
-
-	@Override
-	public boolean updatedClientMode(ModeInfo modeInfo) {
-		// do nothing
-		return false;
-	}
-
-	@Override
-	public boolean updatedHostInfo(HostInfo hostInfo) {
-		// do nothing
-		return false;
-	}
-
-	@Override
-	public boolean updatedProjects(Vector<ProjectInfo> projects) {
-		// do nothing
-		return false;
-	}
-
-	@Override
-	public boolean updatedTasks(Vector<TaskInfo> tasks) {
-		// do nothing
-		return false;
-	}
-
-	@Override
-	public boolean updatedTransfers(Vector<TransferInfo> transfers) {
-		// do nothing
-		return false;
-	}
-
-	@Override
-	public boolean updatedMessages(Vector<MessageInfo> messages) {
-		// do nothing
 		return false;
 	}
 
@@ -737,5 +697,11 @@ public class InstallWizardActivity extends Activity implements InstallerListener
 	private void boincProjectAttach(String url, String authCode, String projectName) {
 		mConnectionManager.projectAttach(this, url, authCode, projectName);
 		Toast.makeText(this, getString(R.string.clientAttachingToProject), Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void onProgressChange(double progress) {
+		// TODO Auto-generated method stub
+		
 	}
 }

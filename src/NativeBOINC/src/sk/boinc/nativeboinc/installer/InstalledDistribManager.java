@@ -17,7 +17,7 @@
  * 
  */
 
-package sk.boinc.nativeboinc.nativeclient;
+package sk.boinc.nativeboinc.installer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,10 +41,17 @@ public class InstalledDistribManager {
 	
 	private Context mContext = null;
 	
+	private InstalledClient mInstalledClient = null;
 	private Vector<InstalledDistrib> mInstalledDistribs = null;
 	
 	public InstalledDistribManager(Context context) {
 		mContext = context;
+	}
+	
+	public synchronized void setClient(ClientDistrib clientDistrib) {
+		mInstalledClient.version = clientDistrib.version;
+		mInstalledClient.description = clientDistrib.description;
+		mInstalledClient.changes = clientDistrib.changes;
 	}
 	
 	public synchronized void addOrUpdateDistrib(ProjectDistrib distrib, Vector<String> files) {
@@ -60,13 +67,17 @@ public class InstalledDistribManager {
 			oldDistrib.projectName = distrib.projectName;
 			oldDistrib.projectUrl = distrib.projectUrl;
 			oldDistrib.version = distrib.version;
+			oldDistrib.description = distrib.description;
+			oldDistrib.changes = distrib.changes;
 			oldDistrib.files = files;
 		} else {	// add
 			InstalledDistrib newDistrib = new InstalledDistrib();
 			newDistrib.projectName = distrib.projectName;
 			newDistrib.projectUrl = distrib.projectUrl;
 			newDistrib.version = distrib.version;
+			newDistrib.description = distrib.description;
 			newDistrib.files = files;
+			newDistrib.changes = distrib.changes;
 			mInstalledDistribs.add(newDistrib);
 		}
 		
@@ -117,6 +128,23 @@ public class InstalledDistribManager {
 					inStream.close();
 			} catch(IOException ex2) { }
 		}
+		
+		try {
+			inStream = mContext.openFileInput("installed_client.xml");
+			/* parse file */
+			mInstalledClient = InstalledClientParser.parse(inStream);
+			if (mInstalledClient == null) {
+				if (Logging.ERROR) Log.e(TAG, "Cant load installedClient");
+				return false;
+			}
+		} catch(FileNotFoundException ex) { 
+			mInstalledClient = new InstalledClient();
+		} finally {
+			try {
+				if (inStream != null)
+					inStream.close();
+			} catch(IOException ex2) { }
+		}
 		return true;
 	}
 	
@@ -142,7 +170,11 @@ public class InstalledDistribManager {
 					sB.append(file);
 					sB.append("</file>\n");
 				}
-				sB.append("  </project>\n");
+				sB.append("    <description>");
+				sB.append(distrib.description);
+				sB.append("</description>\n    <changes>");
+				sB.append(distrib.changes);
+				sB.append("</changes>\n  </project>\n");
 				writer.write(sB.toString());
 			}
 			
@@ -155,7 +187,33 @@ public class InstalledDistribManager {
 					writer.close();
 			} catch ( IOException ex) { }
 		}
+		
+		sB.setLength(0);
+		try {
+			writer = new FileWriter(mContext.getFileStreamPath("installed_client.xml"));
+			sB.append("<client>\n  <version>");
+			sB.append(mInstalledClient.version);
+			sB.append("</version>\n  <description>");
+			sB.append(mInstalledClient.description);
+			sB.append("</description>\n  <changes>");
+			sB.append(mInstalledClient.changes);
+			sB.append("</changes>\n</client>\n");
+			
+			writer.write(sB.toString());
+		} catch(IOException ex) {
+			return false;
+		} finally {
+			try {
+				if (writer != null)
+					writer.close();
+			} catch ( IOException ex) { }
+		}
+		
 		return true;
+	}
+	
+	public InstalledClient getInstalledClient() {
+		return mInstalledClient;
 	}
 	
 	public Vector<InstalledDistrib> getInstalledDistribs() {

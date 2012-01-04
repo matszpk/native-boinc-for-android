@@ -16,11 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
+package sk.boinc.nativeboinc.nativeclient;
 
-package sk.boinc.nativeboinc.installer;
-
+import edu.berkeley.boinc.lite.RpcClient;
 import sk.boinc.nativeboinc.debug.Logging;
-import sk.boinc.nativeboinc.util.UpdateItem;
 import android.content.Context;
 import android.os.ConditionVariable;
 import android.os.Looper;
@@ -30,24 +29,22 @@ import android.util.Log;
  * @author mat
  *
  */
-public class InstallerThread extends Thread {
-	private final static String TAG = "InstallerThread";
+public class NativeBoincWorkerThread extends Thread {
+	private final static String TAG = "NativeBoincWorkerThread";
 	
+	private NativeBoincService.ListenerHandler mListenerHandler;
 	private ConditionVariable mLock;
 	private Context mContext;
-	private InstallerService.ListenerHandler mListenerHandler;
+	private NativeBoincWorkerHandler mHandler;
+	private RpcClient mRpcClient;
 	
-	private InstallerHandler mHandler;
-	
-	public InstallerThread(ConditionVariable lock, final Context context, final InstallerService.ListenerHandler listenerHandler) {
+	public NativeBoincWorkerThread(NativeBoincService.ListenerHandler listenerHandler, final Context context,
+			final ConditionVariable lock, final RpcClient rpcClient) {
 		mListenerHandler = listenerHandler;
 		mLock = lock;
 		mContext = context;
+		mRpcClient = rpcClient;
 		setDaemon(true);
-	}
-	
-	public InstallerHandler getInstallerHandler() {
-		return mHandler;
 	}
 	
 	@Override
@@ -55,7 +52,7 @@ public class InstallerThread extends Thread {
 		if (Logging.DEBUG) Log.d(TAG, "run() - Started " + Thread.currentThread().toString());
 		Looper.prepare();
 		
-		mHandler = new InstallerHandler(mContext, mListenerHandler);
+		mHandler = new NativeBoincWorkerHandler(mContext, mListenerHandler, mRpcClient);
 		
 		if (mLock != null) {
 			mLock.open();
@@ -66,6 +63,7 @@ public class InstallerThread extends Thread {
 		mListenerHandler = null;
 		mContext = null;
 		
+		
 		Looper.loop();
 		
 		if (mLock != null) {
@@ -73,61 +71,53 @@ public class InstallerThread extends Thread {
 			mLock = null;
 		}
 
+		mRpcClient = null;
 		mHandler = null;
 		if (Logging.DEBUG) Log.d(TAG, "run() - Finished" + Thread.currentThread().toString());
+	}
+	
+	public void getGlobalProgress(final NativeBoincReplyListener callback) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.getGlobalProgress(callback);
+			}
+		});
+	}
+	
+	public void configureClient(final NativeBoincReplyListener callback) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.configureClient(callback);
+			}
+		});
+	}
+	
+	public void getResults(final NativeBoincResultsListener callback) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.getResults(callback);
+			}
+		});
+	}
+	
+	public void shutdownClient() {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.shutdownClient();
+			}
+		});
 	}
 	
 	public void stopThread() {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				if (Logging.DEBUG) Log.d(TAG, "Stopping InstallerThread");
+				if (Logging.DEBUG) Log.d(TAG, "Quit message received, stopping " + Thread.currentThread().toString());
 				Looper.myLooper().quit();
-			}
-		});
-	}
-	
-	public void updateClientDistribList() {
-		mHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				mHandler.updateClientDistribList();
-			}
-		});
-	}
-	
-	public void installClientAutomatically() {
-		mHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				mHandler.installClientAutomatically();
-			}
-		});
-	}
-	
-	public void installBoincApplicationAutomatically(final String projectUrl) {
-		mHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				mHandler.installBoincApplicationAutomatically(projectUrl);
-			}
-		});
-	}
-	
-	public void reinstallUpdateItem(final UpdateItem updateItem) {
-		mHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				mHandler.reinstallUpdateItem(updateItem);
-			}
-		});
-	}
-	
-	public void updateProjectDistribList() {
-		mHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				mHandler.updateProjectDistribList();
 			}
 		});
 	}

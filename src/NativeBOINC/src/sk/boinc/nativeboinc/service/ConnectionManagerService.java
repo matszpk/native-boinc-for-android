@@ -30,6 +30,7 @@ import sk.boinc.nativeboinc.bridge.ClientBridge;
 import sk.boinc.nativeboinc.bridge.ClientBridgeCallback;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
@@ -62,7 +63,7 @@ public class ConnectionManagerService extends Service implements ClientRequestHa
 	private ConnectivityStatus mConnectivityStatus = null;
 	private ClientBridge mClientBridge = null;
 	private Set<ClientBridge> mDyingBridges = new HashSet<ClientBridge>();
-	private Set<ClientReplyReceiver> mObservers = new HashSet<ClientReplyReceiver>();
+	private Set<ClientReceiver> mObservers = new HashSet<ClientReceiver>();
 	private NetworkStatisticsHandler mNetStats = null;
 
 
@@ -207,7 +208,7 @@ public class ConnectionManagerService extends Service implements ClientRequestHa
 	 * @param observer - user of the service
 	 */
 	@Override
-	public void registerStatusObserver(ClientReplyReceiver observer) {
+	public void registerStatusObserver(ClientReceiver observer) {
 		mObservers.add(observer);
 		if (mClientBridge != null) {
 			mClientBridge.registerStatusObserver(observer);
@@ -222,7 +223,7 @@ public class ConnectionManagerService extends Service implements ClientRequestHa
 	 * @param observer - user of the service
 	 */
 	@Override
-	public void unregisterStatusObserver(ClientReplyReceiver observer) {
+	public void unregisterStatusObserver(ClientReceiver observer) {
 		mObservers.remove(observer);
 		if (mClientBridge != null) {
 			mClientBridge.unregisterStatusObserver(observer);
@@ -241,9 +242,9 @@ public class ConnectionManagerService extends Service implements ClientRequestHa
 		// Create new bridge first
 		mClientBridge = new ClientBridge(this, mNetStats);
 		// Propagate all current observers to bridge, so they will be informed about status
-		Iterator<ClientReplyReceiver> it = mObservers.iterator();
+		Iterator<ClientReceiver> it = mObservers.iterator();
 		while (it.hasNext()) {
-			ClientReplyReceiver observer = it.next();
+			ClientReceiver observer = it.next();
 			mClientBridge.registerStatusObserver(observer);
 		}
 		// Finally, initiate connection to remote client
@@ -274,7 +275,7 @@ public class ConnectionManagerService extends Service implements ClientRequestHa
 	}
 
 	@Override
-	public void updateClientMode(ClientReplyReceiver callback) {
+	public void updateClientMode(ClientReceiver callback) {
 		if (mClientBridge != null) {
 			mClientBridge.updateClientMode(callback);
 		}

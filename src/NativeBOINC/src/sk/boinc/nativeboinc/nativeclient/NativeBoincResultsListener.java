@@ -17,22 +17,16 @@
  * 
  */
 
-package sk.boinc.nativeboinc.installer;
+package sk.boinc.nativeboinc.nativeclient;
+
+import java.util.Vector;
+
+import edu.berkeley.boinc.lite.Result;
 
 /**
  * @author mat
  *
  */
-public class InstalledBinary {
-	public String name;
-	public String version;
-	public String description;
-	public String changes;
-	
-	public InstalledBinary(String name, String version, String description, String changes) {
-		this.name = name;
-		this.version = version;
-		this.description = description;
-		this.changes = changes;
-	}
+public interface NativeBoincResultsListener extends AbstractNativeBoincListener {
+	public abstract void getResults(Vector<Result> results);
 }

@@ -17,7 +17,7 @@
  * 
  */
 
-package sk.boinc.nativeboinc.nativeclient;
+package sk.boinc.nativeboinc.installer;
 
 /**
  * @author mat
@@ -28,4 +28,6 @@ public class ProjectDistrib {
 	public String projectUrl = "";
 	public String version = "";
 	public String filename = "";
+	public String description = "";
+	public String changes = "";
 }

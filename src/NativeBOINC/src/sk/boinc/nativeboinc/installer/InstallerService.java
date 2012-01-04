@@ -17,7 +17,7 @@
  * 
  */
 
-package sk.boinc.nativeboinc.nativeclient;
+package sk.boinc.nativeboinc.installer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +40,45 @@ import android.util.Log;
  */
 public class InstallerService extends Service {
 	private static final String TAG = "InstallerService";
+	
+	public static final int INSTALL_CLIENT_BEFORE_INSTALL = 0;
+	public static final int INSTALL_CLIENT_DOWNLOAD_PGPKEY = 1;
+	public static final int INSTALL_CLIENT_DOWNLOAD_LIST = 2;
+	public static final int INSTALL_CLIENT_VERIFY_LIST = 3;
+	public static final int INSTALL_CLIENT_DOWNLOAD_CLIENT = 4;
+	public static final int INSTALL_CLIENT_VERIFY_CLIENT = 5;
+	public static final int INSTALL_CLIENT_UNPACK_CLIENT = 6;
+	public static final int INSTALL_CLIENT_PREPARE_TO_RUN = 7;
+	public static final int INSTALL_CLIENT_FIRST_RUN = 8;
+	public static final int INSTALL_CLIENT_FIRST_STOP = 9;
+	public static final int INSTALL_CLIENT_REAL_RUN = 10;
+	public static final int INSTALL_CLIENT_CONFIGURE_CLIENT = 11;
+	public static final int INSTALL_CLIENT_END = 11;
+	
+	public static final int INSTALL_APP_BEFORE_INSTALL = 20;
+	public static final int INSTALL_APP_DOWNLOAD_LIST = 21;
+	public static final int INSTALL_APP_VERIFY_LIST = 21;
+	public static final int INSTALL_APP_AWAITING_FOR_SELECTION = 22;
+	public static final int INSTALL_APP_CONTACT_WITH_PROJECT = 23;
+	public static final int INSTALL_APP_AWAITING_FOR_ACCOUNT = 24;
+	public static final int INSTALL_APP_ADD_PROJECT = 25;
+	public static final int INSTALL_APP_DOWNLOAD_APP = 26;
+	public static final int INSTALL_APP_VERIFY_APP = 27;
+	public static final int INSTALL_APP_UNPACK_APP = 28;
+	public static final int INSTALL_APP_INSTALL_APP = 29;
+	public static final int INSTALL_APP_END = 29;
+	
+	public static final int UPDATE_APPS_BEFORE_UPDATE = 30;
+	public static final int UPDATE_APPS_DOWNLOAD_LIST = 31;
+	public static final int UPDATE_APPS_VERIFY_LIST = 32;
+	public static final int UPDATE_APPS_AWAITING_FOR_SELECTION = 33;
+	// this step repeated by app
+	public static final int UPDATE_APPS_DOWNLOAD_APP = 34;
+	public static final int UPDATE_APPS_VERIFY_APP = 35;
+	public static final int UPDATE_APPS_UPDATE_APP = 36;
+	// after updating
+	public static final int UPDATE_APPS_END = 37;
+	
 	
 	private InstallerThread mInstallerThread = null;
 	private InstallerHandler mInstallerHandler = null;
@@ -211,5 +250,27 @@ public class InstallerService extends Service {
 	 */
 	public UpdateItem[] getBinariesToUpdateOrInstall(String[] attachedProjectUrls) {
 		return mInstallerHandler.getBinariesToUpdateOrInstall(attachedProjectUrls);
+	}
+	
+	/**
+	 * runs client installer 
+	 */
+	
+	public void runBoincClientInstaller() {
+		//mInstallerThread.runBoincClientInstaller();
+	}
+	
+	/**
+	 * runs
+	 */
+	public void runBoincApplicationInstaller() {
+		
+	}
+	
+	/**
+	 * returns current state of installation
+	 */
+	public int getCurrentStep() {
+		return 0;
 	}
 }

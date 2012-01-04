@@ -17,7 +17,7 @@
  * 
  */
 
-package sk.boinc.nativeboinc.nativeclient;
+package sk.boinc.nativeboinc.installer;
 
 import java.util.Vector;
 
@@ -29,5 +29,7 @@ public class InstalledDistrib {
 	public String projectName = "";
 	public String projectUrl = "";
 	public String version = "";
+	public String description = "";
+	public String changes = "";
 	public Vector<String> files = new Vector<String>();
 }

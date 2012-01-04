@@ -17,7 +17,7 @@
  * 
  */
 
-package sk.boinc.nativeboinc.nativeclient;
+package sk.boinc.nativeboinc.installer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -95,8 +95,12 @@ public class ProjectDistribListParser extends BaseParser {
 					mDistrib.projectUrl = mCurrentElement.toString();
 				} else if (localName.equalsIgnoreCase("version")) {
 					mDistrib.version = mCurrentElement.toString();
-				} if (localName.equalsIgnoreCase("file")) {
+				} else if (localName.equalsIgnoreCase("file")) {
 					mDistrib.filename = mCurrentElement.toString();
+				} else if (localName.equalsIgnoreCase("description")) {
+					mDistrib.description = mCurrentElement.toString();
+				} else if (localName.equalsIgnoreCase("changes")) {
+					mDistrib.changes = mCurrentElement.toString();
 				}
 			}
 		}

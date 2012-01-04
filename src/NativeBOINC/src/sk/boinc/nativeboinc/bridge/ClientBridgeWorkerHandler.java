@@ -30,6 +30,7 @@ import java.util.Vector;
 
 import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;
@@ -142,7 +143,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		}
 	}
 	
-	private void rpcFailed() {
+	protected void rpcFailed() {
 		// check whether connection alive
 		ConnectionAliveChecker aliveChecker = new ConnectionAliveChecker();
 		aliveChecker.start();
@@ -264,7 +265,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 
-	public void updateClientMode(final ClientReplyReceiver callback) {
+	public void updateClientMode(final ClientReceiver callback) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		synchronized (mUpdateCancel) {
 			if (mUpdateCancel.contains(callback)) {
@@ -956,7 +957,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 
-	private synchronized void updatedClientMode(final ClientReplyReceiver callback, final ModeInfo clientMode) {
+	private synchronized void updatedClientMode(final ClientReceiver callback, final ModeInfo clientMode) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override

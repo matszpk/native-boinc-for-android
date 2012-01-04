@@ -32,6 +32,7 @@ import edu.berkeley.boinc.lite.ProjectListEntry;
 
 import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
@@ -88,17 +89,17 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 		public void notifyProgress(int progress) {
-			Iterator<ClientReplyReceiver> it = mObservers.iterator();
+			Iterator<ClientReceiver> it = mObservers.iterator();
 			while (it.hasNext()) {
-				ClientReplyReceiver observer = it.next();
+				ClientReceiver observer = it.next();
 				observer.clientConnectionProgress(progress);
 			}
 		}
 		
 		public void notifyError(int errorNum, Vector<String> messages) {
-			Iterator<ClientReplyReceiver> it = mObservers.iterator();
+			Iterator<ClientReceiver> it = mObservers.iterator();
 			while (it.hasNext()) {
-				ClientReplyReceiver observer = it.next();
+				ClientReceiver observer = it.next();
 				observer.clientError(errorNum, messages);
 			}
 		}
@@ -106,9 +107,9 @@ public class ClientBridge implements ClientRequestHandler {
 		public void notifyConnected(VersionInfo clientVersion) {
 			mConnected = true;
 			mRemoteClientVersion = clientVersion;
-			Iterator<ClientReplyReceiver> it = mObservers.iterator();
+			Iterator<ClientReceiver> it = mObservers.iterator();
 			while (it.hasNext()) {
-				ClientReplyReceiver observer = it.next();
+				ClientReceiver observer = it.next();
 				observer.clientConnected(mRemoteClientVersion);
 			}
 		}
@@ -116,9 +117,9 @@ public class ClientBridge implements ClientRequestHandler {
 		public void notifyDisconnected() {
 			mConnected = false;
 			mRemoteClientVersion = null;
-			Iterator<ClientReplyReceiver> it = mObservers.iterator();
+			Iterator<ClientReceiver> it = mObservers.iterator();
 			while (it.hasNext()) {
-				ClientReplyReceiver observer = it.next();
+				ClientReceiver observer = it.next();
 				observer.clientDisconnected();
 				if (Logging.DEBUG) Log.d(TAG, "Detached observer: " + observer.toString()); // see below clearing of all observers
 			}
@@ -126,23 +127,24 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 
-		public void updatedClientMode(final ClientReplyReceiver callback, final ModeInfo modeInfo) {
+		public void updatedClientMode(final ClientReceiver callback, final ModeInfo modeInfo) {
 			if (callback == null) {
 				// No specific callback - broadcast to all observers
 				// This is used for early notification after connect
-				Iterator<ClientReplyReceiver> it = mObservers.iterator();
+				Iterator<ClientReceiver> it = mObservers.iterator();
 				while (it.hasNext()) {
-					ClientReplyReceiver observer = it.next();
-					observer.updatedClientMode(modeInfo);
+					ClientReceiver observer = it.next();
+					if (observer instanceof ClientReplyReceiver)
+						((ClientReplyReceiver)observer).updatedClientMode(modeInfo);
 				}
 				return;
 			}
 			// Check whether callback is still present in observers
-			if (mObservers.contains(callback)) {
+			if (mObservers.contains(callback) && callback instanceof ClientReplyReceiver) {
 				// Observer is still present, so we can call it back with data
-				boolean periodicAllowed = callback.updatedClientMode(modeInfo);
+				boolean periodicAllowed = ((ClientReplyReceiver)callback).updatedClientMode(modeInfo);
 				if (periodicAllowed) {
-					mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.CLIENT_MODE);
+					mAutoRefresh.scheduleAutomaticRefresh((ClientReplyReceiver)callback, AutoRefresh.CLIENT_MODE);
 				}
 			}
 		}
@@ -218,10 +220,11 @@ public class ClientBridge implements ClientRequestHandler {
 			if (callback == null) {
 				// No specific callback - broadcast to all observers
 				// This is used for early notification after connect
-				Iterator<ClientReplyReceiver> it = mObservers.iterator();
+				Iterator<ClientReceiver> it = mObservers.iterator();
 				while (it.hasNext()) {
-					ClientReplyReceiver observer = it.next();
-					observer.updatedProjects(projects);
+					ClientReceiver observer = it.next();
+					if (observer instanceof ClientReplyReceiver)
+						((ClientReplyReceiver)observer).updatedProjects(projects);
 				}
 				return;
 			}
@@ -239,10 +242,11 @@ public class ClientBridge implements ClientRequestHandler {
 			if (callback == null) {
 				// No specific callback - broadcast to all observers
 				// This is used for early notification after connect
-				Iterator<ClientReplyReceiver> it = mObservers.iterator();
+				Iterator<ClientReceiver> it = mObservers.iterator();
 				while (it.hasNext()) {
-					ClientReplyReceiver observer = it.next();
-					observer.updatedTasks(tasks);
+					ClientReceiver observer = it.next();
+					if (observer instanceof ClientReplyReceiver)
+						((ClientReplyReceiver)observer).updatedTasks(tasks);
 				}
 				return;
 			}
@@ -260,10 +264,11 @@ public class ClientBridge implements ClientRequestHandler {
 			if (callback == null) {
 				// No specific callback - broadcast to all observers
 				// This is used for early notification after connect
-				Iterator<ClientReplyReceiver> it = mObservers.iterator();
+				Iterator<ClientReceiver> it = mObservers.iterator();
 				while (it.hasNext()) {
-					ClientReplyReceiver observer = it.next();
-					observer.updatedTransfers(transfers);
+					ClientReceiver observer = it.next();
+					if (observer instanceof ClientReplyReceiver)
+						((ClientReplyReceiver)observer).updatedTransfers(transfers);
 				}
 				return;
 			}
@@ -281,10 +286,11 @@ public class ClientBridge implements ClientRequestHandler {
 			if (callback == null) {
 				// No specific callback - broadcast to all observers
 				// This is used for early notification after connect
-				Iterator<ClientReplyReceiver> it = mObservers.iterator();
+				Iterator<ClientReceiver> it = mObservers.iterator();
 				while (it.hasNext()) {
-					ClientReplyReceiver observer = it.next();
-					observer.updatedMessages(messages);
+					ClientReceiver observer = it.next();
+					if (observer instanceof ClientReplyReceiver)
+						((ClientReplyReceiver)observer).updatedMessages(messages);
 				}
 				return;
 			}
@@ -299,19 +305,22 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 	}
 
-	private final ReplyHandler mReplyHandler = new ReplyHandler();
+	protected final ReplyHandler mReplyHandler = new ReplyHandler();
 
-	private Set<ClientReplyReceiver> mObservers = new HashSet<ClientReplyReceiver>();
-	private boolean mConnected = false;
+	private Set<ClientReceiver> mObservers = new HashSet<ClientReceiver>();
+	protected boolean mConnected = false;
 
-	private ClientBridgeCallback mCallback = null;
-	private ClientBridgeWorkerThread mWorker = null;
+	protected ClientBridgeCallback mCallback = null;
+	protected ClientBridgeWorkerThread mWorker = null;
 
-	private ClientId mRemoteClient = null;
+	protected ClientId mRemoteClient = null;
 	private VersionInfo mRemoteClientVersion = null;
 
-	private AutoRefresh mAutoRefresh = null;
+	protected AutoRefresh mAutoRefresh = null;
 
+	public ClientBridge() {
+	}
+	
 	/**
 	 * Constructs a new <code>ClientBridge</code> and starts worker thread
 	 * 
@@ -335,7 +344,7 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 
 	@Override
-	public void registerStatusObserver(ClientReplyReceiver observer) {
+	public void registerStatusObserver(ClientReceiver observer) {
 		// Another observer wants to be notified - add him into collection of observers
 		mObservers.add(observer);
 		if (Logging.DEBUG) Log.d(TAG, "Attached new observer: " + observer.toString());
@@ -347,13 +356,14 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 
 	@Override
-	public void unregisterStatusObserver(ClientReplyReceiver observer) {
+	public void unregisterStatusObserver(ClientReceiver observer) {
 		// Observer does not want to receive notifications anymore - remove him
 		mObservers.remove(observer);
 		if (mConnected) {
 			// The observer could have automatic refresh pending
 			// Remove it now
-			mAutoRefresh.unscheduleAutomaticRefresh(observer);
+			if (observer instanceof ClientReplyReceiver)
+				mAutoRefresh.unscheduleAutomaticRefresh((ClientReplyReceiver)observer);
 		}
 		if (Logging.DEBUG) Log.d(TAG, "Detached observer: " + observer.toString());
 	}
@@ -382,7 +392,7 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 
 	@Override
-	public void updateClientMode(final ClientReplyReceiver callback) {
+	public void updateClientMode(final ClientReceiver callback) {
 		if (mRemoteClient == null) return; // not connected
 		mWorker.updateClientMode(callback);
 	}

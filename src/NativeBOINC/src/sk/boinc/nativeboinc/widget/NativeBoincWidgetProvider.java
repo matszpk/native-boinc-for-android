@@ -45,6 +45,7 @@ import android.widget.RemoteViews;
 public class NativeBoincWidgetProvider extends AppWidgetProvider {
 	private static final String TAG = "NativeBoincWidgetProvider"; 
 	
+	public static final String NATIVE_BOINC_WIDGET_PREPARE_UPDATE = "sk.boinc.nativeboinc.widget.WIDGET_PREPARE_UPDATE";
 	public static final String NATIVE_BOINC_WIDGET_UPDATE = "sk.boinc.nativeboinc.widget.WIDGET_UPDATE";
 	public static final String NATIVE_BOINC_CLIENT_START_STOP = "sk.boinc.nativeboinc.widget.CLIENT_START_STOP";
 	
@@ -58,10 +59,20 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 		appContext.updateWidgetUpdatePeriod();
 		int updatePeriod = appContext.getWigetUpdatePeriod();
 		
-		/* updating periodically */
-		AlarmManager alarmManager = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);
+		/* first update */
 		Intent intent = new Intent(NATIVE_BOINC_WIDGET_UPDATE);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, intent, 
+				PendingIntent.FLAG_UPDATE_CURRENT);
+		
+		try {
+			if (Logging.DEBUG) Log.d(TAG, "Send update intent");
+			pendingIntent.send();
+		} catch (Exception ex) { }
+		
+		/* updating periodically */
+		AlarmManager alarmManager = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);
+		intent = new Intent(NATIVE_BOINC_WIDGET_PREPARE_UPDATE);
+		pendingIntent = PendingIntent.getBroadcast(appContext, 0, intent, 
 				PendingIntent.FLAG_UPDATE_CURRENT);
 		alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
 				updatePeriod, pendingIntent);
@@ -74,7 +85,7 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 		BoincManagerApplication appContext = (BoincManagerApplication)context.getApplicationContext();
 		/* cancel updating periodically */
 		AlarmManager alarmManager = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);
-		Intent intent = new Intent(NATIVE_BOINC_WIDGET_UPDATE);
+		Intent intent = new Intent(NATIVE_BOINC_WIDGET_PREPARE_UPDATE);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, intent, 
 				PendingIntent.FLAG_UPDATE_CURRENT);
 		alarmManager.cancel(pendingIntent);
@@ -86,7 +97,13 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 		
 		BoincManagerApplication appContext = (BoincManagerApplication)context.getApplicationContext();
 		
-		if (inputIntent.getAction().equals(NATIVE_BOINC_WIDGET_UPDATE)) {
+		if (inputIntent.getAction().equals(NATIVE_BOINC_WIDGET_PREPARE_UPDATE)) {
+			if (Logging.DEBUG) Log.d(TAG, "Widget on prepare update from receive");
+			
+			final NativeBoincService runner = appContext.getRunnerService();
+			runner.getGlobalProgress(appContext);
+			
+		} else if (inputIntent.getAction().equals(NATIVE_BOINC_WIDGET_UPDATE)) {
 			if (Logging.DEBUG) Log.d(TAG, "Widget on update from receive");
 			
 			AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
@@ -109,7 +126,7 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 			
 			/* update progress bar */
 			final NativeBoincService runner = appContext.getRunnerService();
-			double progress = runner.getGlobalProgress();
+			double progress = inputIntent.getDoubleExtra(BoincManagerApplication.UPDATE_PROGRESS, -1.0);
 			boolean isRun = runner.isRun();
 			
 			if (progress >= 0.0) {

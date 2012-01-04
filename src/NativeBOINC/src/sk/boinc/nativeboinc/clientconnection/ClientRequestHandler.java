@@ -25,14 +25,14 @@ import sk.boinc.nativeboinc.util.ClientId;
 
 
 public interface ClientRequestHandler {
-	public abstract void registerStatusObserver(ClientReplyReceiver observer);
-	public abstract void unregisterStatusObserver(ClientReplyReceiver observer);
+	public abstract void registerStatusObserver(ClientReceiver observer);
+	public abstract void unregisterStatusObserver(ClientReceiver observer);
 	public abstract void connect(ClientId host, boolean retrieveInitialData) throws NoConnectivityException;
 	public abstract void disconnect();
 
 	public abstract ClientId getClientId();
 
-	public abstract void updateClientMode(ClientReplyReceiver callback);
+	public abstract void updateClientMode(ClientReceiver callback);
 	public abstract void updateHostInfo(ClientReplyReceiver callback);
 	public abstract void updateProjects(ClientReplyReceiver callback);
 	public abstract void updateTasks(ClientReplyReceiver callback);

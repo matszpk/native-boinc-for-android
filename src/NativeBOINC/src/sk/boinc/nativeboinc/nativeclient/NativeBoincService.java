@@ -36,12 +36,13 @@ import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.PreferenceName;
 
 import edu.berkeley.boinc.lite.Result;
-import edu.berkeley.boinc.lite.RpcClient;
+import edu.berkeley.boinc.nativeboinc.ExtendedRpcClient;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
+import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -96,39 +97,60 @@ public class NativeBoincService extends Service {
 	
 	private LocalBinder mBinder = new LocalBinder();
 	
-	private class ListenerHandler extends Handler implements NativeBoincListener {
-		@Override
+	public class ListenerHandler extends Handler {
 		public void onClientStateChanged(boolean isRun) {
-			for (NativeBoincListener listener: mListeners)
-				listener.onClientStateChanged(isRun);
+			for (AbstractNativeBoincListener listener: mListeners)
+				if (listener instanceof NativeBoincStateListener)
+					((NativeBoincStateListener)listener).onClientStateChanged(isRun);
 		}
 
-		@Override
-		public void onClientError(String message) {
-			for (NativeBoincListener listener: mListeners)
-				listener.onClientError(message);
+		public void onNativeBoincError(String message) {
+			for (AbstractNativeBoincListener listener: mListeners)
+				if (listener instanceof NativeBoincStateListener)
+					((NativeBoincStateListener)listener).onNativeBoincError(message);
 		}
 		
-		@Override
 		public void onClientFirstStart() {
-			for (NativeBoincListener listener: mListeners)
-				listener.onClientFirstStart();
+			for (AbstractNativeBoincListener listener: mListeners)
+				if (listener instanceof NativeBoincStateListener)
+					((NativeBoincStateListener)listener).onClientFirstStart();
 		}
 		
-		@Override
 		public void onAfterClientFirstKill() {
-			for (NativeBoincListener listener: mListeners)
-				listener.onAfterClientFirstKill();
+			for (AbstractNativeBoincListener listener: mListeners)
+				if (listener instanceof NativeBoincStateListener)
+					((NativeBoincStateListener)listener).onAfterClientFirstKill();
 		}
 		
-		@Override
 		public void onClientConfigured() {
-			for (NativeBoincListener listener: mListeners)
-				listener.onClientConfigured();
+			for (AbstractNativeBoincListener listener: mListeners)
+				if (listener instanceof NativeBoincReplyListener)
+					((NativeBoincReplyListener)listener).onClientConfigured();
+		}
+		
+		public void nativeBoincServiceError(AbstractNativeBoincListener callback, String message) {
+			if (mListeners.contains(callback)) 
+				callback.onNativeBoincError(message);
+		}
+
+		public void onProgressChange(NativeBoincReplyListener callback, double progress) {
+			if (mListeners.contains(callback))
+				callback.onProgressChange(progress);
+		}
+		
+		public void onClientConfigured(NativeBoincReplyListener callback) {
+			if (mListeners.contains(callback))
+				callback.onClientConfigured();
+		}
+		
+		public void getResults(NativeBoincResultsListener callback, Vector<Result> results) {
+			if (mListeners.contains(callback))
+				callback.getResults(results);
 		}
 	}
 	
 	private ListenerHandler mListenerHandler = null;
+	private MonitorThread.ListenerHandler mMonitorListenerHandler;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -145,6 +167,8 @@ public class NativeBoincService extends Service {
 		mDimWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, BoincManagerApplication.GLOBAL_ID);
 		mPartialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, BoincManagerApplication.GLOBAL_ID);
 		mListenerHandler = new ListenerHandler();
+		
+		mMonitorListenerHandler = MonitorThread.createListenerHandler();
 	}
 	
 	@Override
@@ -162,9 +186,11 @@ public class NativeBoincService extends Service {
 		mPartialWakeLock = null;
 	}
 	
-	private List<NativeBoincListener> mListeners = new ArrayList<NativeBoincListener>();
+	private List<AbstractNativeBoincListener> mListeners = new ArrayList<AbstractNativeBoincListener>();
 	
-	private RpcClient mRpcClient = null;
+	private NativeBoincWorkerThread mWorkerThread = null;
+	
+	private MonitorThread mMonitorThread = null;
 	
 	private static String[] getEnvArray() {
 		Map<String, String> envMap = System.getenv();
@@ -369,10 +395,11 @@ public class NativeBoincService extends Service {
 			} catch(InterruptedException ex) { }
 			/* open client */
 			if (Logging.DEBUG) Log.d(TAG, "Connecting with native client");
-			mRpcClient = new RpcClient();
+			
+			ExtendedRpcClient rpcClient = new ExtendedRpcClient();
 			boolean isRpcOpened = false;
 			for (int i = 0; i < 4; i++) {
-				if (mRpcClient.open("127.0.0.1", 31416)) {
+				if (rpcClient.open("127.0.0.1", 31416)) {
 					isRpcOpened = true;
 					break;
 				} else {
@@ -384,30 +411,29 @@ public class NativeBoincService extends Service {
 			
 			if (!isRpcOpened) {
 				if (Logging.ERROR) Log.e(TAG, "Connecting with native client failed");
+				mIsRun = false;
 				notifyClientError(getString(R.string.connectNativeClientError));
 				killAllBoincZombies();
 				killNativeBoinc();
-				mRpcClient = null;
 				return;
 			}
 			/* authorize access */
 			try {
-				if (mRpcClient != null && !mRpcClient.authorize(getAccessPassword())) {
+				if (rpcClient != null && !rpcClient.authorize(getAccessPassword())) {
 					if (Logging.ERROR) Log.e(TAG, "Authorizing with native client failed");
+					mIsRun = false;
 					notifyClientError(getString(R.string.nativeAuthorizeError));
 					killAllBoincZombies();
 					killNativeBoinc();
-					mRpcClient = null;
-					mRpcClient = null;
 					return;
 				}
 			} catch(IOException ex) {
 				if (Logging.ERROR) Log.e(TAG, "Authorizing with native client failed");
+				mIsRun = false;
 				notifyClientError(getString(R.string.getAccessPasswordError));
-				mRpcClient.close();
+				rpcClient.close();
 				killAllBoincZombies();
 				killNativeBoinc();
-				mRpcClient = null;
 				return;
 			}
 			
@@ -417,19 +443,47 @@ public class NativeBoincService extends Service {
 			else
 				mPartialWakeLock.acquire();	// partial lock
 			
+			String monitorAuthCode = null;
+			// authorize monitor
+			if (Logging.DEBUG) Log.d(TAG, "Trying to authorize monitor access");
+			try {
+				Thread.sleep(300);
+			} catch(InterruptedException ex) { }
+			
+			if (rpcClient != null) {
+				monitorAuthCode = rpcClient.authorizeMonitor();
+				if (monitorAuthCode == null) {
+					if (Logging.INFO) Log.i(TAG, "Cant authorize monitor access"); 
+				}
+			}
+			
+			// worker thread
+			ConditionVariable lock = new ConditionVariable(false);
+			mWorkerThread = new NativeBoincWorkerThread(mListenerHandler, NativeBoincService.this, lock, rpcClient);
+			mWorkerThread.start();
+			
+			boolean runningOk = lock.block(200); // Locking until new thread fully runs
+			if (!runningOk) {
+				if (Logging.ERROR) Log.e(TAG, "NativeBoincWorkerThread did not start in 0.2 second");
+			} else 
+				if (Logging.DEBUG) Log.d(TAG, "NativeBoincWorkerThread started successfully");
+			
+			// monitor thread
+			if (monitorAuthCode != null) {
+				mMonitorThread = new MonitorThread(mMonitorListenerHandler, monitorAuthCode);
+				mMonitorThread.start();
+			}
+			
 			mIsRun = true;
 			notifyClientStateChanged(true);
 			
-			boolean afterInterrupt = false;
 			try { /* waiting to quit */
 				if (Logging.DEBUG) Log.d(TAG, "Waiting for boinc_client");
 				process.waitFor();
 			} catch(InterruptedException ex) {
-				afterInterrupt = true;
 			}
 			
-			mIsRun = false;
-			mRpcClient = null;
+			rpcClient = null;
 			
 			if (Logging.DEBUG) Log.d(TAG, "boinc_client has been finished");
 			process.destroy();
@@ -444,6 +498,7 @@ public class NativeBoincService extends Service {
 				mPartialWakeLock.release();	// screen unlock
 			
 			notifyClientStateChanged(false);
+			mIsRun = false;
 			
 			mNativeBoincThread = null;
 		}
@@ -455,7 +510,7 @@ public class NativeBoincService extends Service {
 		@Override
 		public void run() {
 			try {
-				Thread.sleep(6000);
+				Thread.sleep(10000);
 			} catch(InterruptedException ex) { }
 			
 			if (!mDontKill && mNativeBoincThread != null) {
@@ -473,137 +528,28 @@ public class NativeBoincService extends Service {
 		}
 	};
 	
-	private static final int WAKELOCK_HOLD_PERIOD = 25000;
-	
-	private class WakeLockHolder extends Thread {
-		private static final String TAG = "WakeLockHolder";
 		
-		private boolean mDoQuit = false;
-		
-		@Override
-		public void run() {
-			SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(
-					NativeBoincService.this);
-			
-			RpcClient ownRpcClient = null;
-			
-			// first awaiting
-			try {
-				Thread.sleep(1000);
-			} catch(InterruptedException ex) {
-				if (Logging.INFO) Log.i(TAG, "exit");
-				return;	// finish
-			}
-			
-			boolean usePartial = globalPrefs.getBoolean(PreferenceName.POWER_SAVING, false);
-			
-			while (true) {
-				if (ownRpcClient == null) {
-					ownRpcClient = new RpcClient();
-					if (!ownRpcClient.open("127.0.0.1", 31416)) {
-						if (Logging.DEBUG) Log.d(TAG, "Not connected");
-						ownRpcClient = null;
-					}
-				}
-				
-				boolean isRunning = false;
-				
-				if (ownRpcClient != null) {
-					Vector<Result> results = ownRpcClient.getResults();
-					
-					if (results != null) {
-						for (Result result: results)
-							/* only if downloading/active (running) */
-							if (result.state == 1 || (result.state == 2 && result.active_task_state == 1)) {
-								isRunning = true;
-								break;
-							}
-						if (Logging.DEBUG) Log.d(TAG, "Connected and with results");
-					} else {
-						if (Logging.DEBUG) Log.d(TAG, "Connected but null result");
-						ownRpcClient.close();
-						ownRpcClient = null;
-					}
-				}
-
-				if (isRunning) {
-					if (Logging.INFO) Log.i(TAG, "Wake lock acquiring");
-					if (!usePartial) {
-						if (mPartialWakeLock != null && mPartialWakeLock.isHeld())
-							mPartialWakeLock.release();
-						if (mDimWakeLock != null && !mDimWakeLock.isHeld())
-							mDimWakeLock.acquire();
-					} else {
-						if (mDimWakeLock != null && mDimWakeLock.isHeld())
-							mDimWakeLock.release();
-						if (mPartialWakeLock != null && !mPartialWakeLock.isHeld())
-							mPartialWakeLock.acquire();
-					}
-				} else {
-					if (Logging.INFO) Log.i(TAG, "Wake lock releasing");
-					if (mDimWakeLock != null && mDimWakeLock.isHeld())
-						mDimWakeLock.release();
-					if (mPartialWakeLock != null && mPartialWakeLock.isHeld())
-						mPartialWakeLock.release();
-				}
-				
-				if (mDoQuit) {
-					if (mDimWakeLock != null && mDimWakeLock.isHeld())
-						mDimWakeLock.release();
-					if (mPartialWakeLock != null && mPartialWakeLock.isHeld())
-						mPartialWakeLock.release();
-					return;	// finish
-				}
-				// sleeping
-				try {
-					Thread.sleep(WAKELOCK_HOLD_PERIOD);
-				} catch(InterruptedException ex) {
-					if (Logging.INFO) Log.i(TAG, "exit");
-					// release wake lock
-					if (mDimWakeLock != null && mDimWakeLock.isHeld())
-						mDimWakeLock.release();
-					if (mPartialWakeLock != null && mPartialWakeLock.isHeld())
-						mPartialWakeLock.release();
-					return;	// finish
-				}
-				// update settings
-				boolean newUsePartial = globalPrefs.getBoolean(PreferenceName.POWER_SAVING, false);
-				if (newUsePartial && !usePartial) { // switch to partial wakelock
-					if (mDimWakeLock != null && mDimWakeLock.isHeld()) {
-						if (Logging.DEBUG) Log.d(TAG, "Switch to partial wake lock");
-						mDimWakeLock.release();
-						if (mPartialWakeLock != null)
-							mPartialWakeLock.acquire();
-					}
-				} else if (!newUsePartial && usePartial) { // switch to dim wakelock
-					if (mPartialWakeLock != null && mPartialWakeLock.isHeld()) {
-						if (Logging.DEBUG) Log.d(TAG, "Switch to dim wake lock");
-						mPartialWakeLock.release();
-						if (mDimWakeLock != null)
-							mDimWakeLock.acquire();
-					}
-				}
-				usePartial = newUsePartial;
-			}
-		}
-		
-		public void quitFromHolder() {
-			mDoQuit = true;
-			interrupt();
-		}
-	}
-	
 	private FirstStartThread mFirstStartThread = null;
 	private NativeBoincThread mNativeBoincThread = null;
 	private NativeKillerThread mNativeKillerThread = null;
 	private WakeLockHolder mWakeLockHolder = null;
 	
-	public void addNativeBoincListener(NativeBoincListener listener) {
+	public void addNativeBoincListener(AbstractNativeBoincListener listener) {
 		mListeners.add(listener);
 	}
 	
-	public void removeNativeBoincListener(NativeBoincListener listener) {
+	public void removeNativeBoincListener(AbstractNativeBoincListener listener) {
 		mListeners.remove(listener);
+	}
+	
+	public void addMonitorListener(MonitorListener listener) {
+		if (mMonitorThread != null)
+			mMonitorThread.addMonitorListener(listener);
+	}
+	
+	public void removeMonitorListener(MonitorListener listener) {
+		if (mMonitorThread != null)
+			mMonitorThread.removeMonitorListener(listener);
 	}
 	
 	/**
@@ -623,8 +569,8 @@ public class NativeBoincService extends Service {
 		if (mNativeBoincThread == null) {
 			mNativeBoincThread = new NativeBoincThread();
 			mNativeBoincThread.start();
-			mWakeLockHolder = new WakeLockHolder();
-			mWakeLockHolder.start();
+			mWakeLockHolder = new WakeLockHolder(this, mPartialWakeLock, mDimWakeLock);
+			//mWakeLockHolder.start();
 		}
 	}
 	
@@ -637,11 +583,7 @@ public class NativeBoincService extends Service {
 			/* start killer */
 			mNativeKillerThread = new NativeKillerThread();
 			mNativeKillerThread.start();
-			if (mRpcClient != null) {
-				mRpcClient.quit();
-				mRpcClient.close();
-				mRpcClient = null;
-			}
+			mWorkerThread.shutdownClient();
 		}
 	}
 	
@@ -652,54 +594,51 @@ public class NativeBoincService extends Service {
 		return mNativeBoincThread.mIsRun;
 	}
 	
-	public void configureClient() {
+	/**
+	 * returns current client state based on monitor events
+	 * @return current client state
+	 */
+	public int getCurrentClientState() {
+		if (mMonitorThread != null)
+			return mMonitorThread.getCurrentClientState();
+		return MonitorThread.STATE_UNKNOWN;
+	}
+	
+	public void configureClient(NativeBoincReplyListener listener) {
 		if (Logging.DEBUG) Log.d(TAG, "Configure native client");
-		if (mRpcClient == null) {
-			notifyClientError(getString(R.string.nativeClientConfigError));
-			return;
+		if (mWorkerThread != null) {
+			mWorkerThread.configureClient(listener);
 		}
-		if (!mRpcClient.setGlobalPrefsOverride(INITIAL_BOINC_CONFIG)) {
-			notifyClientError(getString(R.string.nativeClientConfigError));
-			return;
+	}
+	
+	/**
+	 * get Listener Handler
+	 * @return listener handler
+	 */
+	public ListenerHandler getListenerHandler() {
+		return mListenerHandler;
+	}
+	
+	/**
+	 * getGlobalProgress (concurrent version) 
+	 */
+	public void getGlobalProgress(NativeBoincReplyListener callback) {
+		if (Logging.DEBUG) Log.d(TAG, "Get global progress");
+		if (mWorkerThread != null) {
+			mWorkerThread.getGlobalProgress(callback);
 		}
-		
-		if (!mRpcClient.readGlobalPrefsOverride()) {
-			notifyClientError(getString(R.string.nativeClientConfigError));
-			return;
+	}
+	
+	public void getResults(NativeBoincResultsListener callback) {
+		if (Logging.DEBUG) Log.d(TAG, "Get results");
+		if (mWorkerThread != null) {
+			mWorkerThread.getResults(callback);
 		}
-		
-		notifyClientConfigured();
 	}
 	
 	/**
 	 * 
-	 * @return fraction done (in percents) or -1 if not run
 	 */
-	public double getGlobalProgress() {
-		if (Logging.DEBUG) Log.d(TAG, "Get global progress");
-		if (mRpcClient == null || !mRpcClient.isConnected())
-			return -1.0;	// do nothing
-		
-		Vector<Result> results = mRpcClient.getResults();
-		
-		if (results == null)
-			return -1.0;
-		
-		int taskCount = 0;
-		double globalProgress = 0.0;
-		
-		for (Result result: results)
-			/* only if running */
-			if (result.state == 2 && !result.suspended_via_gui && !result.project_suspended_via_gui &&
-					result.active_task_state == 1) {
-				globalProgress += result.fraction_done*100.0;
-				taskCount++;
-			}
-		
-		if (taskCount == 0)	// no tasks
-			return -1.0;
-		return globalProgress / taskCount;
-	}
 	
 	/* fallback kill zombies */
 	public void killZombieClient() {
@@ -719,8 +658,16 @@ public class NativeBoincService extends Service {
 						mNativeKillerThread = null;
 					}
 					if (mWakeLockHolder != null) {
-						mWakeLockHolder.quitFromHolder();
+						mWakeLockHolder.destroy();
 						mWakeLockHolder = null;
+					}
+					if (mWorkerThread != null) {
+						mWorkerThread.stopThread();
+						mWorkerThread = null;
+					}
+					if (mMonitorThread != null) {
+						mMonitorThread.quitFromThread();
+						mMonitorThread = null;
 					}
 				}
 				mListenerHandler.onClientStateChanged(isRun);
@@ -732,7 +679,7 @@ public class NativeBoincService extends Service {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.onClientError(message);
+				mListenerHandler.onNativeBoincError(message);
 			}
 		});
 	}
@@ -751,15 +698,6 @@ public class NativeBoincService extends Service {
 			@Override
 			public void run() {
 				mListenerHandler.onAfterClientFirstKill();
-			}
-		});
-	}
-	
-	private synchronized void notifyClientConfigured() {
-		mListenerHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				mListenerHandler.onClientConfigured();
 			}
 		});
 	}

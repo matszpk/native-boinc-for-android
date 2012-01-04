@@ -31,6 +31,7 @@ import edu.berkeley.boinc.lite.ProjectConfig;
 import edu.berkeley.boinc.lite.ProjectListEntry;
 
 import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.ModeInfo;
@@ -40,12 +41,12 @@ import sk.boinc.nativeboinc.clientconnection.TaskInfo;
 import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
-import sk.boinc.nativeboinc.nativeclient.ClientDistrib;
-import sk.boinc.nativeboinc.nativeclient.InstallerListener;
-import sk.boinc.nativeboinc.nativeclient.InstallerService;
-import sk.boinc.nativeboinc.nativeclient.NativeBoincListener;
+import sk.boinc.nativeboinc.installer.ClientDistrib;
+import sk.boinc.nativeboinc.installer.InstallerListener;
+import sk.boinc.nativeboinc.installer.InstallerService;
+import sk.boinc.nativeboinc.installer.ProjectDistrib;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
-import sk.boinc.nativeboinc.nativeclient.ProjectDistrib;
 import sk.boinc.nativeboinc.service.ConnectionManagerService;
 import sk.boinc.nativeboinc.util.AddProjectResult;
 import sk.boinc.nativeboinc.util.BAMAccount;
@@ -81,8 +82,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class ManageClientActivity extends PreferenceActivity implements ClientManageReceiver,
-	InstallerListener, NativeBoincListener {
+public class ManageClientActivity extends PreferenceActivity implements ClientReplyReceiver,
+		ClientManageReceiver, InstallerListener, NativeBoincStateListener {
 	private static final String TAG = "ManageClientActivity";
 
 	private static final int DIALOG_WARN_SHUTDOWN = 0;
@@ -1035,7 +1036,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		// do nothing
 	}
 	
-	public void onClientError(String message) {
+	public void onNativeBoincError(String message) {
 		showErrorDialog(message);
 	}
 	

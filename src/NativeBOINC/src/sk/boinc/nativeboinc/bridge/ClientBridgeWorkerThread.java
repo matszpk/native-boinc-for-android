@@ -23,6 +23,7 @@ import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.GlobalPreferences;
 import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.debug.NetStats;
@@ -53,6 +54,10 @@ public class ClientBridgeWorkerThread extends Thread {
 		mNetStats = netStats;
 		setDaemon(true);
 	}
+	
+	protected void initializeWorkerHandler() {
+		mHandler = new ClientBridgeWorkerHandler(mReplyHandler, mContext, mNetStats);
+	}
 
 	@Override
 	public void run() {
@@ -65,7 +70,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		// Create Handler - we must create it within run() method,
 		// so it will be associated with this thread
 		mHandler = new ClientBridgeWorkerHandler(mReplyHandler, mContext, mNetStats);
-
+		
 		// We have handler, we are ready to receive messages :-)
 		if (mLock != null) {
 			mLock.open();
@@ -127,7 +132,7 @@ public class ClientBridgeWorkerThread extends Thread {
 			if (Logging.WARNING) Log.w(TAG, "warning: NPE");
 	}
 
-	public void updateClientMode(final ClientReplyReceiver callback) {
+	public void updateClientMode(final ClientReceiver callback) {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override

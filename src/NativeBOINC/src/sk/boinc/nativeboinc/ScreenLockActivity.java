@@ -21,8 +21,8 @@ package sk.boinc.nativeboinc;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincReplyListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import android.app.Activity;
@@ -47,7 +47,7 @@ import android.widget.TextView;
  * @author mat
  *
  */
-public class ScreenLockActivity extends Activity {
+public class ScreenLockActivity extends Activity implements NativeBoincReplyListener {
 	private static final String TAG = "ScreenLockActivity";
 	
 	private int mUpdatePeriod;
@@ -64,6 +64,8 @@ public class ScreenLockActivity extends Activity {
 	private int mBatteryLevel = -1;
 	
 	private boolean mIsRefreshingOn = true;
+	private boolean mIfProgressUpdated = false;
+	private boolean mIsFirstUpdate = true;
 	
 	private BroadcastReceiver mBatteryStateReceiver = new BroadcastReceiver() {
 		
@@ -84,18 +86,22 @@ public class ScreenLockActivity extends Activity {
 			
 			if (Logging.DEBUG) Log.d(TAG, "Run refreshing action");
 			
-			double progress = -1.0;
-			if (mRunner != null)
-				progress = mRunner.getGlobalProgress();
-			
-			if (progress >= 0.0) {
-				mLockText.setText(getString(R.string.lockWeAreComputing));
-				mLockProgress.setVisibility(View.VISIBLE);
-				mProgressText.setText(String.format("%.3f%%", progress));
-				mProgressRunning.setProgress((int)(progress*10.0));
-			} else {
-				mLockText.setText(getString(R.string.lockStopped));
-				mLockProgress.setVisibility(View.GONE);
+			if (mRunner != null) {
+				mIfProgressUpdated = false;
+				if (mIsFirstUpdate) {
+					mLockProgress.post(new Runnable() {
+						@Override
+						public void run() {
+							/* if not updated through getProgress */
+							if (!mIfProgressUpdated) {
+								mLockText.setText(getString(R.string.lockNotRan));
+								mLockProgress.setVisibility(View.GONE);
+							}
+						}
+					});
+					mIsFirstUpdate = false;
+				}
+				mRunner.getGlobalProgress(ScreenLockActivity.this);
 			}
 			
 			// bar text
@@ -118,12 +124,14 @@ public class ScreenLockActivity extends Activity {
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			mRunner = ((NativeBoincService.LocalBinder)service).getService();
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceConnected()");
+			mRunner.addNativeBoincListener(ScreenLockActivity.this);
 		}
 		
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
 			mRunner = null;
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceDisconnected()");
+			mRunner.removeNativeBoincListener(ScreenLockActivity.this);
 		}
 	};
 	
@@ -193,5 +201,38 @@ public class ScreenLockActivity extends Activity {
 	public boolean onKeyDown(int keyCode, KeyEvent keyEvent) {
 		// do nothing
 		return false;
+	}
+
+	@Override
+	public void onNativeBoincError(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void onProgressChange(final double progress) {
+		mLockProgress.post(new Runnable() {
+			@Override
+			public void run() {
+				if (progress >= 0.0) {
+					mLockText.setText(getString(R.string.lockWeAreComputing));
+					mLockProgress.setVisibility(View.VISIBLE);
+					mProgressText.setText(String.format("%.3f%%", progress));
+					mProgressRunning.setProgress((int)(progress*10.0));
+				} else {
+					if (mRunner.isRun())
+						mLockText.setText(getString(R.string.lockTasksSuspended));
+					else
+						mLockText.setText(getString(R.string.lockNotRan));
+					mLockProgress.setVisibility(View.GONE);
+				}
+				mIfProgressUpdated = true;
+			}
+		});
+	}
+
+	@Override
+	public void onClientConfigured() {
+		// TODO Auto-generated method stub
 	}
 }

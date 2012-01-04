@@ -38,11 +38,11 @@ public class Project {
 	public double  host_total_credit = 0;
 	/** As reported by server */
 	public double  host_expavg_credit = 0;
-//	public double  disk_usage = 0;
+	public double  disk_usage = 0;
 	
 //	/** # of consecutive times we've failed to contact all scheduling servers */
-//	public int     nrpc_failures = 0;
-//	public int     master_fetch_failures = 0;
+	public int     nrpc_failures = 0;
+	public int     master_fetch_failures = 0;
 
 	/** Earliest time to contact any server */
 	public double  min_rpc_time = 0;
@@ -50,16 +50,16 @@ public class Project {
 	public double  upload_backoff = 0;
 	public double  cpu_short_term_debt = 0;
 	public double  cpu_long_term_debt = 0;
-//	public double  cpu_backoff_time = 0;
-//	public double  cpu_backoff_interval = 0;
-//	public double  cuda_debt = 0;
-//	public double  cuda_short_term_debt = 0;
-//	public double  cuda_backoff_time = 0;
-//	public double  cuda_backoff_interval = 0;
-//	public double  ati_debt = 0;
-//	public double  ati_short_term_debt = 0;
-//	public double  ati_backoff_time = 0;
-//	public double  ati_backoff_interval = 0;
+	public double  cpu_backoff_time = 0;
+	public double  cpu_backoff_interval = 0;
+	public double  cuda_debt = 0;
+	public double  cuda_short_term_debt = 0;
+	public double  cuda_backoff_time = 0;
+	public double  cuda_backoff_interval = 0;
+	public double  ati_debt = 0;
+	public double  ati_short_term_debt = 0;
+	public double  ati_backoff_time = 0;
+	public double  ati_backoff_interval = 0;
 	public double  duration_correction_factor = 0;
 
 	/** Need to fetch and parse the master URL */
@@ -67,25 +67,25 @@ public class Project {
 
 	/** Need to contact scheduling server. Encodes the reason for the request. */
 	public int     sched_rpc_pending = 0;
-//	public boolean non_cpu_intensive = false;
+	public boolean non_cpu_intensive = false;
 	public boolean suspended_via_gui = false;
 	public boolean dont_request_more_work = false;
 	public boolean scheduler_rpc_in_progress = false;
-//	public boolean attached_via_acct_mgr = false;
-//	public boolean detach_when_done = false;
-//	public boolean ended = false;
+	public boolean attached_via_acct_mgr = false;
+	public boolean detach_when_done = false;
+	public boolean ended = false;
 	public boolean trickle_up_pending = false;
 	
 //	/** When the last project file download was finished
 //	 *  (i.e. the time when ALL project files were finished downloading). */
-//	public double  project_files_downloaded_time = 0;
+	public double  project_files_downloaded_time = 0;
 //
 //	/** when the last successful scheduler RPC finished */
-//	public double  last_rpc_time = 0;
-//
-//	public boolean no_cpu_pref = false;
-//	public boolean no_cuda_pref = false;
-//	public boolean no_ati_pref = false;
+	public double  last_rpc_time = 0;
+
+	public boolean no_cpu_pref = false;
+	public boolean no_cuda_pref = false;
+	public boolean no_ati_pref = false;
 
 	public final String getName() {
 		return project_name.equals("") ? master_url : project_name;

@@ -31,7 +31,7 @@
 
 		<service android:name=".service.ConnectionManagerService" 
 				android:description="@string/service_desc"/>
-		<service android:name=".nativeclient.InstallerService"
+		<service android:name=".installer.InstallerService"
 				android:description="@string/install_service_desc" />
 		<service android:name=".nativeclient.NativeBoincService"
 				android:description="@string/nboinc_service_desc" />
@@ -42,6 +42,7 @@
 			<intent-filter>
 		        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
 		    	<action android:name="sk.boinc.nativeboinc.widget.WIDGET_UPDATE" />
+		    	<action android:name="sk.boinc.nativeboinc.widget.WIDGET_PREPARE_UPDATE" />
 		    	<action android:name="sk.boinc.nativeboinc.widget.CLIENT_START_STOP" />
 		    </intent-filter>
 			<meta-data android:name="android.appwidget.provider"

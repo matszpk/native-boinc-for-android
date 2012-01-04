@@ -16,23 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
+package sk.boinc.nativeboinc.clientconnection;
 
-package sk.boinc.nativeboinc.installer;
+import java.util.Vector;
 
 /**
  * @author mat
  *
  */
-public class InstalledBinary {
-	public String name;
-	public String version;
-	public String description;
-	public String changes;
+public interface ClientReceiver {
+	public static final int PROGRESS_CONNECTING = 0;
+	public static final int PROGRESS_AUTHORIZATION_PENDING = 1;
+	public static final int PROGRESS_INITIAL_DATA = 2;
+	public static final int PROGRESS_XFER_STARTED = 3;
+	public static final int PROGRESS_XFER_FINISHED = 4;
+
+	public abstract void clientConnectionProgress(int progress);
+	public abstract void clientConnected(VersionInfo clientVersion);
+	public abstract void clientDisconnected();
 	
-	public InstalledBinary(String name, String version, String description, String changes) {
-		this.name = name;
-		this.version = version;
-		this.description = description;
-		this.changes = changes;
-	}
+	public abstract boolean clientError(int errorNum, Vector<String> messages);
 }

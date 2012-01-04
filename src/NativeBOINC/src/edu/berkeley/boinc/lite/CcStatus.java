@@ -28,14 +28,14 @@ public class CcStatus {
 	public int     task_mode_perm         = -1;
 	/** time until task_mode_perm becomes actual task_mode */
 	public double  task_mode_delay        =  0;
-//	public int     task_suspend_reason    = -1;
+	public int     task_suspend_reason    = -1;
 	public int     network_mode           = -1;
 	public int     network_mode_perm      = -1;
 	public double  network_mode_delay     =  0;
-//	public int     network_suspend_reason = -1;
+	public int     network_suspend_reason = -1;
 	public int     network_status         = -1;
-//	public boolean ams_password_error = false;
-//	public boolean manager_must_quit  = false;
-//	public boolean disallow_attach    = false;
-//	public boolean simple_gui_only    = false;
+	public boolean ams_password_error = false;
+	public boolean manager_must_quit  = false;
+	public boolean disallow_attach    = false;
+	public boolean simple_gui_only    = false;
 }

@@ -160,15 +160,15 @@ public class ProjectsParser extends BaseParser {
 					else if (localName.equalsIgnoreCase("host_expavg_credit")) {
 						mProject.host_expavg_credit = Double.parseDouble(mCurrentElement.toString());
 					}
-//					else if (localName.equalsIgnoreCase("disk_usage")) {
-//						mProject.disk_usage = Double.parseDouble(mCurrentElement);
-//					}
-//					else if (localName.equalsIgnoreCase("nrpc_failures")) {
-//						mProject.nrpc_failures = Integer.parseInt(mCurrentElement);
-//					}
-//					else if (localName.equalsIgnoreCase("master_fetch_failures")) {
-//						mProject.master_fetch_failures = Integer.parseInt(mCurrentElement);
-//					}
+					else if (localName.equalsIgnoreCase("disk_usage")) {
+						mProject.disk_usage = Double.parseDouble(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("nrpc_failures")) {
+						mProject.nrpc_failures = Integer.parseInt(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("master_fetch_failures")) {
+						mProject.master_fetch_failures = Integer.parseInt(mCurrentElement.toString());
+					}
 					else if (localName.equalsIgnoreCase("min_rpc_time")) {
 						mProject.min_rpc_time = Double.parseDouble(mCurrentElement.toString());
 					}
@@ -184,36 +184,36 @@ public class ProjectsParser extends BaseParser {
 					else if (localName.equalsIgnoreCase("long_term_debt")) {
 						mProject.cpu_long_term_debt = Double.parseDouble(mCurrentElement.toString());
 					}
-//					else if (localName.equalsIgnoreCase("cpu_backoff_time")) {
-//						mProject.cpu_backoff_time = Double.parseDouble(mCurrentElement);
-//					}
-//					else if (localName.equalsIgnoreCase("cpu_backoff_interval")) {
-//						mProject.cpu_backoff_interval = Double.parseDouble(mCurrentElement);
-//					}
-//					else if (localName.equalsIgnoreCase("cuda_debt")) {
-//						mProject.cuda_debt = Double.parseDouble(mCurrentElement);
-//					}
-//					else if (localName.equalsIgnoreCase("cuda_short_term_debt")) {
-//						mProject.cuda_short_term_debt = Double.parseDouble(mCurrentElement);
-//					}
-//					else if (localName.equalsIgnoreCase("cuda_backoff_time")) {
-//						mProject.cuda_backoff_time = Double.parseDouble(mCurrentElement);
-//					}
-//					else if (localName.equalsIgnoreCase("cuda_backoff_interval")) {
-//						mProject.cuda_backoff_interval = Double.parseDouble(mCurrentElement);
-//					}
-//					else if (localName.equalsIgnoreCase("ati_debt")) {
-//						mProject.ati_debt = Double.parseDouble(mCurrentElement);
-//					}
-//					else if (localName.equalsIgnoreCase("ati_short_term_debt")) {
-//						mProject.ati_short_term_debt = Double.parseDouble(mCurrentElement);
-//					}
-//					else if (localName.equalsIgnoreCase("ati_backoff_time")) {
-//						mProject.ati_backoff_time = Double.parseDouble(mCurrentElement);
-//					}
-//					else if (localName.equalsIgnoreCase("ati_backoff_interval")) {
-//						mProject.ati_backoff_interval = Double.parseDouble(mCurrentElement);
-//					}
+					else if (localName.equalsIgnoreCase("cpu_backoff_time")) {
+						mProject.cpu_backoff_time = Double.parseDouble(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("cpu_backoff_interval")) {
+						mProject.cpu_backoff_interval = Double.parseDouble(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("cuda_debt")) {
+						mProject.cuda_debt = Double.parseDouble(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("cuda_short_term_debt")) {
+						mProject.cuda_short_term_debt = Double.parseDouble(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("cuda_backoff_time")) {
+						mProject.cuda_backoff_time = Double.parseDouble(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("cuda_backoff_interval")) {
+						mProject.cuda_backoff_interval = Double.parseDouble(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("ati_debt")) {
+						mProject.ati_debt = Double.parseDouble(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("ati_short_term_debt")) {
+						mProject.ati_short_term_debt = Double.parseDouble(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("ati_backoff_time")) {
+						mProject.ati_backoff_time = Double.parseDouble(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("ati_backoff_interval")) {
+						mProject.ati_backoff_interval = Double.parseDouble(mCurrentElement.toString());
+					}
 					else if (localName.equalsIgnoreCase("duration_correction_factor")) {
 						mProject.duration_correction_factor = Double.parseDouble(mCurrentElement.toString());
 					}
@@ -225,10 +225,10 @@ public class ProjectsParser extends BaseParser {
 					else if (localName.equalsIgnoreCase("sched_rpc_pending")) {
 						mProject.sched_rpc_pending = Integer.parseInt(mCurrentElement.toString());
 					}
-//					else if (localName.equalsIgnoreCase("non_cpu_intensive")) {
-//						String trimmed = mCurrentElement.trim();
-//						mProject.non_cpu_intensive = !trimmed.equals("0");
-//					}
+					else if (localName.equalsIgnoreCase("non_cpu_intensive")) {
+						//String trimmed = mCurrentElement.trim();
+						mProject.non_cpu_intensive = !mCurrentElement.toString().equals("0");
+					}
 					else if (localName.equalsIgnoreCase("suspended_via_gui")) {
 						mProject.suspended_via_gui = !mCurrentElement.toString().equals("0");
 					}
@@ -238,39 +238,39 @@ public class ProjectsParser extends BaseParser {
 					else if (localName.equalsIgnoreCase("scheduler_rpc_in_progress")) {
 						mProject.scheduler_rpc_in_progress = !mCurrentElement.toString().equals("0");
 					}
-//					else if (localName.equalsIgnoreCase("attached_via_acct_mgr")) {
-//						String trimmed = mCurrentElement.trim();
-//						mProject.attached_via_acct_mgr = !trimmed.equals("0");
-//					}
-//					else if (localName.equalsIgnoreCase("detach_when_done")) {
-//						String trimmed = mCurrentElement.trim();
-//						mProject.detach_when_done = !trimmed.equals("0");
-//					}
-//					else if (localName.equalsIgnoreCase("ended")) {
-//						String trimmed = mCurrentElement.trim();
-//						mProject.ended = !trimmed.equals("0");
-//					}
+					else if (localName.equalsIgnoreCase("attached_via_acct_mgr")) {
+						//String trimmed = mCurrentElement.trim();
+						mProject.attached_via_acct_mgr = !mCurrentElement.toString().equals("0");
+					}
+					else if (localName.equalsIgnoreCase("detach_when_done")) {
+						//String trimmed = mCurrentElement.trim();
+						mProject.detach_when_done = !mCurrentElement.toString().equals("0");
+					}
+					else if (localName.equalsIgnoreCase("ended")) {
+						//String trimmed = mCurrentElement.trim();
+						mProject.ended = !mCurrentElement.toString().equals("0");
+					}
 					else if (localName.equalsIgnoreCase("trickle_up_pending")) {
 						mProject.trickle_up_pending = !mCurrentElement.toString().equals("0");
 					}
-//					else if (localName.equalsIgnoreCase("project_files_downloaded_time")) {
-//						mProject.project_files_downloaded_time = Double.parseDouble(mCurrentElement);
-//					}
-//					else if (localName.equalsIgnoreCase("last_rpc_time")) {
-//						mProject.last_rpc_time = Double.parseDouble(mCurrentElement);
-//					}
-//					else if (localName.equalsIgnoreCase("no_cpu_pref")) {
-//						String trimmed = mCurrentElement.trim();
-//						mProject.no_cpu_pref = !trimmed.equals("0");
-//					}
-//					else if (localName.equalsIgnoreCase("no_cuda_pref")) {
-//						String trimmed = mCurrentElement.trim();
-//						mProject.no_cuda_pref = !trimmed.equals("0");
-//					}
-//					else if (localName.equalsIgnoreCase("no_ati_pref")) {
-//						String trimmed = mCurrentElement.trim();
-//						mProject.no_ati_pref = !trimmed.equals("0");
-//					}
+					else if (localName.equalsIgnoreCase("project_files_downloaded_time")) {
+						mProject.project_files_downloaded_time = Double.parseDouble(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("last_rpc_time")) {
+						mProject.last_rpc_time = Double.parseDouble(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("no_cpu_pref")) {
+						//String trimmed = mCurrentElement.trim();
+						mProject.no_cpu_pref = !mCurrentElement.toString().equals("0");
+					}
+					else if (localName.equalsIgnoreCase("no_cuda_pref")) {
+						//String trimmed = mCurrentElement.trim();
+						mProject.no_cuda_pref = !mCurrentElement.toString().equals("0");
+					}
+					else if (localName.equalsIgnoreCase("no_ati_pref")) {
+						//String trimmed = mCurrentElement.trim();
+						mProject.no_ati_pref = !mCurrentElement.toString().equals("0");
+					}
 				}
 			}
 		}

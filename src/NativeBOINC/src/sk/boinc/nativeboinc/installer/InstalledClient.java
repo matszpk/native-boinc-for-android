@@ -23,16 +23,8 @@ package sk.boinc.nativeboinc.installer;
  * @author mat
  *
  */
-public class InstalledBinary {
-	public String name;
-	public String version;
-	public String description;
-	public String changes;
-	
-	public InstalledBinary(String name, String version, String description, String changes) {
-		this.name = name;
-		this.version = version;
-		this.description = description;
-		this.changes = changes;
-	}
+public class InstalledClient {
+	public String version = "";
+	public String description = "";
+	public String changes = "";
 }

@@ -17,44 +17,38 @@
  * 
  */
 
-package sk.boinc.nativeboinc.installer;
-
-import java.io.IOException;
-import java.io.InputStream;
+package edu.berkeley.boinc.nativeboinc;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+
+import edu.berkeley.boinc.lite.BaseParser;
 
 import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
 import android.util.Xml;
 
-import edu.berkeley.boinc.lite.BaseParser;
-
 /**
  * @author mat
  *
  */
-public class ClientDistribListParser extends BaseParser {
-	private static final String TAG = "ProjectDistribParser";
+public class UpdateProjectAppsReplyParser extends BaseParser {
+	private static final String TAG = "UpdateProjectAppsReplyParser";
+
+	private UpdateProjectAppsReply mUPAR;
 	
-	private ClientDistrib mClientDistrib = null;
-	
-	public ClientDistrib getClientDistribs() {
-		return mClientDistrib;
+	public UpdateProjectAppsReply getUpdateProjectAppsReply() {
+		return mUPAR;
 	}
 	
-	public static ClientDistrib parse(InputStream result) {
+	public static UpdateProjectAppsReply parse(String rpcResult) {
 		try {
-			ClientDistribListParser parser = new ClientDistribListParser();
-			Xml.parse(result, Xml.Encoding.UTF_8, parser);
-			return parser.getClientDistribs();
+			UpdateProjectAppsReplyParser parser = new UpdateProjectAppsReplyParser();
+			Xml.parse(rpcResult, parser);
+			return parser.getUpdateProjectAppsReply();
 		} catch (SAXException e) {
-			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + result);
+			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
-			return null;
-		} catch (IOException e2) {
-			if (Logging.ERROR) Log.e(TAG, "I/O Error in XML parsing:\n" + result);
 			return null;
 		}
 	}
@@ -62,9 +56,16 @@ public class ClientDistribListParser extends BaseParser {
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		super.startElement(uri, localName, qName, attributes);
-		if (localName.equalsIgnoreCase("client")) {
-			mClientDistrib = new ClientDistrib();
-		} else {
+		if (localName.equalsIgnoreCase("update_project_apps_reply")) {
+			if (Logging.INFO) { 
+				if (mUPAR != null) {
+					// previous <update_project_apps_reply> not closed - dropping it!
+					Log.i(TAG, "Dropping unfinished <update_project_apps_reply> data");
+				}
+			}
+			mUPAR = new UpdateProjectAppsReply();
+		}
+		else {
 			// Another element, hopefully primitive and not constructor
 			// (although unknown constructor does not hurt, because there will be primitive start anyway)
 			mElementStarted = true;
@@ -75,21 +76,24 @@ public class ClientDistribListParser extends BaseParser {
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		super.endElement(uri, localName, qName);
-		if (mClientDistrib != null) {
-			if (localName.equalsIgnoreCase("client")) {
-				// Closing tag of <client> - add to vector and be ready for next one
-			} else {
-				trimEnd();
-				if (localName.equalsIgnoreCase("version")) {
-					mClientDistrib.version = mCurrentElement.toString();
-				} else if (localName.equalsIgnoreCase("file")) {
-					mClientDistrib.filename = mCurrentElement.toString();
-				} else if (localName.equalsIgnoreCase("description")) {
-					mClientDistrib.description = mCurrentElement.toString();
-				} else if (localName.equalsIgnoreCase("changes")) {
-					mClientDistrib.changes = mCurrentElement.toString();
+		try {
+			if (mUPAR != null) {
+				// we are inside <update_project_apps_reply>
+				if (localName.equalsIgnoreCase("update_project_apps_reply")) {
+					// Closing tag of <update_project_apps_reply> - nothing to do at the moment
+				}
+				else {
+					// Not the closing tag - we decode possible inner tags
+					trimEnd();
+					if (localName.equalsIgnoreCase("error_num")) {
+						mUPAR.error_num = Integer.parseInt(mCurrentElement.toString());
+					} else if (localName.equalsIgnoreCase("message")) {
+						mUPAR.messages.add(mCurrentElement.toString());
+					}
 				}
 			}
+		} catch (NumberFormatException e) {
+			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
 		}
 		mElementStarted = false;
 	}

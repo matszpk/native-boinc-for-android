@@ -66,6 +66,7 @@ struct GLOBAL_PREFS_MASK {
     bool cpu_usage_limit;
     bool daily_xfer_limit_mb;
     bool daily_xfer_period_days;
+    bool run_if_battery_nl_than; // not lower than
 
     GLOBAL_PREFS_MASK();
     void clear();
@@ -166,6 +167,7 @@ struct GLOBAL_PREFS {
     double cpu_usage_limit;
     double daily_xfer_limit_mb;
     int daily_xfer_period_days;
+    double run_if_battery_nl_than;  // not lower than
     char source_project[256];
     char source_scheduler[256];
     bool host_specific;

@@ -198,6 +198,27 @@ int get_timezone() {
     return 0;
 }
 
+// Returns current host battery level
+double HOST_INFO::host_battery_level() {
+    int present = 0;
+    FILE* f = fopen("/sys/class/power_supply/battery/present","rb");
+    if (f==NULL)    // not found
+        return 0.0;
+    fscanf(f,"%d",present);
+    fclose(f);
+    if (present==0)
+        return 0.0;
+    
+    int capacity=0;
+    f = fopen("/sys/class/power_supply/battery/capacity","rb");
+    if (f==NULL)    // not found
+        return 0.0;
+    fscanf(f,"%d",capacity);
+    fclose(f);
+    
+    return (double)capacity;
+}
+
 // Returns true if the host is currently running off battery power
 // If you can't figure out, return false
 //

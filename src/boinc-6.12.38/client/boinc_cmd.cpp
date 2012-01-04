@@ -78,6 +78,7 @@ Commands:\n\
  --project URL op                   project operation\n\
    op = reset | detach | update | suspend | resume | nomorework | allowmorework\n\
  --project_attach URL auth          attach to project\n\
+ --update_apps URL                  update projects apps\n\
  --quit                             tell client to exit\n\
  --quit_acct_mgr                    quit current account manager\n\
  --read_cc_config\n\
@@ -509,6 +510,30 @@ int main(int argc, char** argv) {
                         boinc_sleep(1);
                     } else {
                         lao.print();
+                        break;
+                    }
+                }
+            }
+        }
+    } else if (!strcmp(cmd, "--update_apps")) {
+        char* url = next_arg(argc, argv, i);
+        retval = rpc.update_project_apps(url);
+        printf("status: %s\n", boincerror(retval));
+        if (!retval) {
+            UPDATE_PROJECT_APPS_REPLY upar;
+            while (1) {
+                retval = rpc.update_project_apps_poll(url, upar);
+                if (retval) {
+                    printf("poll status: %s\n", boincerror(retval));
+                } else {
+                    if (upar.error_num) {
+                        printf("poll status: %s\n", boincerror(upar.error_num));
+                        if (upar.error_num != ERR_IN_PROGRESS) break;
+                        boinc_sleep(1);
+                    } else {
+                        puts("update apps messages:");
+                        for (size_t i=0;i<upar.messages.size();i++)
+                            puts(upar.messages[i].c_str());
                         break;
                     }
                 }

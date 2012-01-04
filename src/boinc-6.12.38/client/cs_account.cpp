@@ -495,6 +495,9 @@ int CLIENT_STATE::add_project(
     projects.push_back(project);
     project->sched_rpc_pending = RPC_REASON_INIT;
     set_client_state_dirty("Add project");
+    
+    // notify monitor
+    gstate.monitor.push_event(MONITOR_EVENT_ATTACH_PROJECT,master_url);
     return 0;
 }
 

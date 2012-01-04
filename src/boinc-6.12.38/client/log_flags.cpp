@@ -111,6 +111,7 @@ int LOG_FLAGS::parse(XML_PARSER& xp) {
         if (xp.parse_bool(tag, "unparsed_xml", unparsed_xml)) continue;
         if (xp.parse_bool(tag, "work_fetch_debug", work_fetch_debug)) continue;
         if (xp.parse_bool(tag, "notice_debug", notice_debug)) continue;
+        if (xp.parse_bool(tag, "update_apps_debug", update_apps_debug)) continue;
 
         msg_printf_notice(NULL, false,
             "http://boinc.berkeley.edu/manager_links.php?target=notice&controlid=log_flags",
@@ -176,6 +177,7 @@ void LOG_FLAGS::show() {
     show_flag(buf, unparsed_xml, "unparsed_xml");
     show_flag(buf, work_fetch_debug, "work_fetch_debug");
     show_flag(buf, notice_debug, "notice_debug");
+    show_flag(buf, update_apps_debug, "update_apps_debug");
 
     if (strlen(buf)) {
         msg_printf(NULL, MSG_INFO, "log flags: %s", buf);

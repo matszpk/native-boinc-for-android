@@ -112,8 +112,16 @@ int CLIENT_STATE::check_suspend_processing() {
     default:
         // "run according to prefs" checks:
         //
-        if (!global_prefs.run_on_batteries
-            && host_info.host_is_running_on_batteries()
+        bool running_on_batteries = false;
+        if (!global_prefs.run_on_batteries || global_prefs.run_if_battery_nl_than>0.0)
+            running_on_batteries = host_info.host_is_running_on_batteries();
+        
+        if (!global_prefs.run_on_batteries && running_on_batteries) {
+            return SUSPEND_REASON_BATTERIES;
+        }
+        if (global_prefs.run_if_battery_nl_than>0.0 &&
+            running_on_batteries &&
+            host_info.host_battery_level() < global_prefs.run_if_battery_nl_than
         ) {
             return SUSPEND_REASON_BATTERIES;
         }

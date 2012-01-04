@@ -1078,6 +1078,7 @@ PROJECT* CLIENT_STATE::next_project_master_pending() {
         p = projects[i];
         if (p->waiting_until_min_rpc_time()) continue;
         if (p->suspended_via_gui) continue;
+        if (p->suspended_during_update) continue;
         if (p->master_url_fetch_pending) {
             return p;
         }
@@ -1127,7 +1128,7 @@ PROJECT* CLIENT_STATE::next_project_sched_rpc_pending() {
         if (honor_backoff && p->waiting_until_min_rpc_time()) {
             continue;
         }
-        if (honor_suspend && p->suspended_via_gui) {
+        if (honor_suspend && (p->suspended_via_gui || p->suspended_during_update)) {
             continue;
         }
         if (p->sched_rpc_pending) {
@@ -1145,6 +1146,7 @@ PROJECT* CLIENT_STATE::next_project_trickle_up_pending() {
         p = projects[i];
         if (p->waiting_until_min_rpc_time()) continue;
         if (p->suspended_via_gui) continue;
+        if (p->suspended_during_update) continue;
         if (p->trickle_up_pending) {
             return p;
         }
@@ -1172,6 +1174,7 @@ PROJECT* CLIENT_STATE::find_project_with_overdue_results() {
         PROJECT* p = r->project;
         if (p->waiting_until_min_rpc_time()) continue;
         if (p->suspended_via_gui) continue;
+        if (p->suspended_during_update) continue;
 
         if (p->dont_request_more_work) {
             return p;

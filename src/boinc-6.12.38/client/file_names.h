@@ -28,6 +28,7 @@ extern int make_soft_link(PROJECT* project, char* link_path, char* rel_file_path
 //
 extern void get_pathname(FILE_INFO* fip, char* path, int len);
 extern void get_project_dir(PROJECT*, char*, int);
+extern void get_project_and_update_dir(PROJECT*, char*, int, char*, int);
 
 // get the pathname (relative to client home dir) of the
 // directory used for a particular application "slot"
@@ -95,5 +96,7 @@ extern void send_log_after(const char* filename, double t, MIOFILE& mf);
 #define TEMP_STATS_FILE_NAME        "temp_stats.xml"
 #define TEMP_TIME_STATS_FILE_NAME   "temp_time_stats.xml"
 #define TIME_STATS_LOG              "time_stats_log"
+#define MESSAGES_FILE               "messages.log"
+#define UPDATES_DIR                 "updates"
 
 #endif

@@ -146,7 +146,7 @@ boinc_client-file_xfer.o: file_xfer.cpp cpp.h ../config.h ../version.h \
  /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_tree.h \
  /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_map.h \
  /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_multimap.h \
- current_version.h file_xfer.h net_stats.h pers_file_xfer.h \
+ current_version.h file_xfer.h monitor.h net_stats.h pers_file_xfer.h \
  scheduler_op.h auto_update.h time_stats.h ../lib/filesys.h \
  /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/dirent.h \
  /home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-4/arch-arm//usr/include/grp.h \
@@ -507,6 +507,8 @@ app.h:
 current_version.h:
 
 file_xfer.h:
+
+monitor.h:
 
 net_stats.h:
 

@@ -582,6 +582,17 @@ struct ACCOUNT_OUT {
     void print();
 };
 
+struct UPDATE_PROJECT_APPS_REPLY {
+    int error_num;
+    std::vector<std::string>messages;
+
+    UPDATE_PROJECT_APPS_REPLY();
+    ~UPDATE_PROJECT_APPS_REPLY() {}
+
+    int parse(MIOFILE&);
+    void clear();
+};
+
 struct CC_STATUS {
     int network_status;         // values: NETWORK_STATUS_*
     bool ams_password_error;
@@ -702,6 +713,9 @@ public:
         bool use_config_file=false
     );
     int acct_mgr_rpc_poll(ACCT_MGR_RPC_REPLY&);
+    
+    int update_project_apps(const char* url);
+    int update_project_apps_poll(const char* url, UPDATE_PROJECT_APPS_REPLY&);
 
     int get_newer_version(std::string&, std::string&);
     int read_global_prefs_override();

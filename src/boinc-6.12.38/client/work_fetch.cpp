@@ -166,6 +166,7 @@ bool RSC_PROJECT_WORK_FETCH::overworked() {
 bool RSC_PROJECT_WORK_FETCH::debt_eligible(PROJECT* p, RSC_WORK_FETCH& rwf) {
     if (p->non_cpu_intensive) return false;
     if (p->suspended_via_gui) return false;
+    if (p->suspended_during_update) return false;
     if (p->some_result_suspended()) return false;
     if (has_runnable_jobs) return true;
         // must precede the done_request_more_work check
@@ -448,10 +449,11 @@ void RSC_WORK_FETCH::print_state(const char* name) {
         double bt = pwf.backoff_time>gstate.now?pwf.backoff_time-gstate.now:0;
 #ifdef USE_REC
         msg_printf(p, MSG_INFO,
-            "[work_fetch] %s: fetch share %.2f rec %.5f prio %.5f backoff dt %.2f int %.2f%s%s%s%s%s%s%s",
+            "[work_fetch] %s: fetch share %.2f rec %.5f prio %.5f backoff dt %.2f int %.2f%s%s%s%s%s%s%s%s",
             name,
             pwf.fetchable_share, p->pwf.rec, project_priority(p), bt, pwf.backoff_interval,
             p->suspended_via_gui?" (susp via GUI)":"",
+            p->suspended_during_update?" (susp update)":"",
             p->master_url_fetch_pending?" (master fetch pending)":"",
             p->min_rpc_time > gstate.now?" (comm deferred)":"",
             p->dont_request_more_work?" (no new tasks)":"",
@@ -461,10 +463,11 @@ void RSC_WORK_FETCH::print_state(const char* name) {
         );
 #else
         msg_printf(p, MSG_INFO,
-            "[work_fetch] %s: fetch share %.2f LTD %.2f backoff dt %.2f int %.2f%s%s%s%s%s%s%s",
+            "[work_fetch] %s: fetch share %.2f LTD %.2f backoff dt %.2f int %.2f%s%s%s%s%s%s%s%s",
             name,
             pwf.fetchable_share, pwf.long_term_debt, bt, pwf.backoff_interval,
             p->suspended_via_gui?" (susp via GUI)":"",
+            p->suspended_during_update?" (susp update)":"",
             p->master_url_fetch_pending?" (master fetch pending)":"",
             p->min_rpc_time > gstate.now?" (comm deferred)":"",
             p->dont_request_more_work?" (no new tasks)":"",
@@ -682,6 +685,7 @@ void RSC_WORK_FETCH::update_short_term_debts() {
 bool PROJECT_WORK_FETCH::compute_can_fetch_work(PROJECT* p) {
     if (p->non_cpu_intensive) return false;
     if (p->suspended_via_gui) return false;
+    if (p->suspended_during_update) return false;
     if (p->master_url_fetch_pending) return false;
     if (p->min_rpc_time > gstate.now) return false;
     if (p->dont_request_more_work) return false;
@@ -1243,6 +1247,7 @@ void CLIENT_STATE::compute_nuploading_results() {
 
 bool PROJECT::runnable(int rsc_type) {
     if (suspended_via_gui) return false;
+    if (suspended_during_update) return false;
     for (unsigned int i=0; i<gstate.results.size(); i++) {
         RESULT* rp = gstate.results[i];
         if (rp->project != this) continue;
@@ -1276,6 +1281,7 @@ bool PROJECT::uploading() {
 
 bool PROJECT::downloading() {
     if (suspended_via_gui) return false;
+    if (suspended_during_update) return false;
     for (unsigned int i=0; i<gstate.results.size(); i++) {
         RESULT* rp = gstate.results[i];
         if (rp->project != this) continue;
@@ -1296,6 +1302,7 @@ bool PROJECT::some_result_suspended() {
 
 bool PROJECT::can_request_work() {
     if (suspended_via_gui) return false;
+    if (suspended_during_update) return false;
     if (master_url_fetch_pending) return false;
     if (min_rpc_time > gstate.now) return false;
     if (dont_request_more_work) return false;
@@ -1321,6 +1328,7 @@ bool PROJECT::nearly_runnable() {
 bool RESULT::runnable() {
     if (suspended_via_gui) return false;
     if (project->suspended_via_gui) return false;
+    if (project->suspended_during_update) return false;
     if (state() != RESULT_FILES_DOWNLOADED) return false;
     if (coproc_missing) return false;
     if (schedule_backoff > gstate.now) return false;
@@ -1336,6 +1344,7 @@ bool RESULT::runnable() {
 bool RESULT::nearly_runnable() {
     if (suspended_via_gui) return false;
     if (project->suspended_via_gui) return false;
+    if (project->suspended_during_update) return false;
     switch (state()) {
     case RESULT_FILES_DOWNLOADED:
     case RESULT_FILES_DOWNLOADING:
@@ -1354,6 +1363,7 @@ bool RESULT::nearly_runnable() {
 bool RESULT::downloading() {
     if (suspended_via_gui) return false;
     if (project->suspended_via_gui) return false;
+    if (project->suspended_during_update) return false;
     if (state() > RESULT_FILES_DOWNLOADING) return false;
     if (some_download_stalled()) return false;
     return true;

@@ -38,8 +38,19 @@ using std::deque;
 #include "main.h"
 
 #include "client_msgs.h"
+#include "file_names.h"
 
 MESSAGE_DESCS message_descs;
+static FILE* message_file = NULL;
+
+void open_messages_file() {
+    message_file = fopen(MESSAGES_FILE, "wb");
+}
+
+void close_messages_file() {
+    if (message_file != NULL)
+        fclose(message_file);
+}
 
 // Show a message:
 // 1) As a MESSAGE_DESC (for GUI event log)
@@ -115,6 +126,10 @@ void show_message(PROJ_AM *p, char* msg, int priority, bool is_html, const char*
         x = "---";
     }
     printf("%s [%s] %s\n", time_string, x, message);
+    if (message_file != NULL) {
+        fprintf(message_file, "%s [%s] %s\n", time_string, x, message);
+        fflush(message_file);
+    }
 #ifdef _WIN32
     if (gstate.executing_as_daemon) {
         char event_message[2048];

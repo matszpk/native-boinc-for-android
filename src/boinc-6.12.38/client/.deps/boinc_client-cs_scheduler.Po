@@ -167,7 +167,7 @@ boinc_client-cs_scheduler.o: cs_scheduler.cpp cpp.h ../config.h \
  client_msgs.h log_flags.h scheduler_op.h auto_update.h sandbox.h \
  client_state.h acct_mgr.h app.h ../lib/app_ipc.h ../lib/hostinfo.h \
  ../lib/proxy_info.h ../lib/prefs.h ../lib/common_defs.h \
- ../lib/procinfo.h current_version.h file_xfer.h net_stats.h \
+ ../lib/procinfo.h current_version.h file_xfer.h monitor.h net_stats.h \
  pers_file_xfer.h time_stats.h
 
 cpp.h:
@@ -579,6 +579,8 @@ app.h:
 current_version.h:
 
 file_xfer.h:
+
+monitor.h:
 
 net_stats.h:
 

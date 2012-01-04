@@ -75,6 +75,9 @@ extern void msg_printf_notice(struct PROJ_AM *p, bool is_html, const char* link,
 
 extern void strip_translation(char*);
 
+extern void open_messages_file();
+extern void close_messages_file();
+
 #define _(x) "_(\""x"\")"
 
 #endif

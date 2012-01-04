@@ -152,7 +152,7 @@ boinc_client-acct_mgr.o: acct_mgr.cpp cpp.h ../config.h ../version.h \
  /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_tree.h \
  /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_map.h \
  /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_multimap.h \
- current_version.h file_xfer.h net_stats.h pers_file_xfer.h \
+ current_version.h file_xfer.h monitor.h net_stats.h pers_file_xfer.h \
  scheduler_op.h auto_update.h time_stats.h ../lib/crypt.h \
  /data/local/tmp/include/openssl/rsa.h \
  /data/local/tmp/include/openssl/asn1.h \
@@ -538,6 +538,8 @@ app.h:
 current_version.h:
 
 file_xfer.h:
+
+monitor.h:
 
 net_stats.h:
 

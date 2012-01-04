@@ -1069,6 +1069,91 @@ static void handle_get_notices(
     notices.write(seqno, grpc, fout, public_only);
 }
 
+/*
+ * request: update project apps
+ */
+
+static void handle_update_projects_apps(char* buf, bool is_local, MIOFILE& fout) {
+    if (!is_local) {
+        fout.printf("<failed/>\n");
+        return;
+    }
+    
+    string url;
+    if (!parse_str(buf, "<project_url>", url)) {
+        fout.printf("<error>Missing URL</error>\n");
+        return;
+    }
+    
+    for (unsigned int i=0;i<gstate.projects.size();i++) {
+        PROJECT* project = gstate.projects[i];
+        if (!strcmp(project->master_url,url.c_str())) {
+            if (log_flags.update_apps_debug)
+                msg_printf(project, MSG_INFO, "init process");
+            gstate.init_update_project_apps(project);
+            fout.printf("<success/>");
+        }
+    }
+    fout.printf("<error>Project not attached</error>\n");
+}
+
+static void handle_update_projects_apps_poll(char* buf, bool is_local, MIOFILE& fout) {
+    if (!is_local) {
+        fout.printf("<update_project_apps_reply>\n"
+                        "  <error_num>%d</error_num>\n</update_project_apps_reply>\n",
+                        ERR_UNAUTH);
+        return;
+    }
+    
+    string url;
+    if (!parse_str(buf, "<project_url>", url)) {
+        fout.printf("<update_project_apps_reply>\n"
+                        "  <error_num>%d</error_num>\n</update_project_apps_reply>\n",
+                        ERR_UPDATE_APPS);
+        return;
+    }
+    
+    for (unsigned int i=0;i<gstate.projects.size();i++) {
+        PROJECT* project = gstate.projects[i];
+        if (!strcmp(project->master_url,url.c_str())) {
+            if (!project->suspended_during_update) {
+                if (project->pending_to_exit==0) { // ok
+                    fout.printf("<update_project_apps_reply>\n"
+                        "  <message>OK</message>\n</update_project_apps_reply>\n");
+                    project->pending_to_exit = -1;
+                    project->dont_preempt_suspended = false;
+                    return;
+                }
+            } else { // if retry
+                fout.printf("<update_project_apps_reply>\n"
+                    "  <error_num>%d</error_num>\n</update_project_apps_reply>\n",
+                    ERR_IN_PROGRESS);
+                return;
+            }
+        }
+    }
+    // failed
+    fout.printf("<update_project_apps_reply>\n"
+                        "  <error_num>%d</error_num>\n</update_project_apps_reply>\n",
+                        ERR_UPDATE_APPS);
+}
+
+/*
+ * request: authorize monitor access, returns authorization code
+ */
+static void handle_auth_monitor(char* buf, bool is_local, MIOFILE& fout) {
+    char* auth_code = gstate.monitor.create_auth_code();
+    
+    if (is_local) {
+        msg_printf(NULL, MSG_INFO, "Authorize monitor access");
+        fout.printf("<value>%s</value>\n", auth_code);
+    } else {
+        msg_printf(NULL, MSG_INFO,
+                   "Disallowed authorization monitor access from remote host");
+        fout.printf("<failed/>\n");
+    }
+}
+
 static bool complete_post_request(char* buf) {
     if (strncmp(buf, "POST", 4)) return false;
     char* p = strstr(buf, "Content-Length: ");
@@ -1238,7 +1323,7 @@ int GUI_RPC_CONN::handle_rpc() {
         sent_unauthorized = true;
     } else if (match_req(request_msg, "project_nomorework")) {
          handle_project_op(request_msg, mf, "nomorework");
-     } else if (match_req(request_msg, "project_allowmorework")) {
+    } else if (match_req(request_msg, "project_allowmorework")) {
          handle_project_op(request_msg, mf, "allowmorework");
     } else if (match_req(request_msg, "project_detach_when_done")) {
          handle_project_op(request_msg, mf, "detach_when_done");
@@ -1274,6 +1359,12 @@ int GUI_RPC_CONN::handle_rpc() {
         handle_set_gpu_mode(request_msg, mf);
     } else if (match_req(request_msg, "quit")) {
         handle_quit(request_msg, mf);
+    } else if (match_req(request_msg, "auth_monitor")) {
+        handle_auth_monitor(request_msg, is_local, mf);
+    } else if (match_req(request_msg, "update_project_apps")) {
+        handle_update_projects_apps(request_msg, is_local, mf);
+    } else if (match_req(request_msg, "update_project_apps_poll")) {
+        handle_update_projects_apps_poll(request_msg, is_local, mf);
     } else if (match_req(request_msg, "acct_mgr_info")) {
         handle_acct_mgr_info(request_msg, mf);
     } else if (match_req(request_msg, "read_global_prefs_override")) {

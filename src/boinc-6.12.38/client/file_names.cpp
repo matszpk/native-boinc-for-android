@@ -69,6 +69,14 @@ void get_project_dir(PROJECT* p, char* path, int len) {
     snprintf(path, len, "%s/%s", PROJECTS_DIR, buf);
 }
 
+void get_project_and_update_dir(PROJECT* p, char* ppath, int plen,
+                                char* upath, int ulen) {
+    char buf[1024];
+    escape_project_url(p->master_url, buf);
+    snprintf(ppath, plen, "%s/%s", PROJECTS_DIR, buf);
+    snprintf(upath, ulen, "%s/%s", UPDATES_DIR, buf);
+}
+
 // Gets the pathname of a file
 //
 void get_pathname(FILE_INFO* fip, char* path, int len) {

@@ -24,6 +24,7 @@
 // (e.g. client, server, Manager, etc.)
 
 #define GUI_RPC_PORT                                31416
+#define MONITOR_PORT                                31417
 
 #define RUN_MODE_ALWAYS 1
 #define RUN_MODE_AUTO   2

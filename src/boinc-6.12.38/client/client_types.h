@@ -410,6 +410,20 @@ struct PROJECT : PROJ_AM {
         // Don't start new results if these exceeds 2*ncpus.
     bool too_many_uploading_results;
 
+    // for installation/update
+    bool suspended_during_update;
+    // already suspeded (installation/update)
+    int pending_to_exit; //
+    bool dont_preempt_suspended;
+    /* states:
+     * suspended_during_update=false, pending_to_exit=-1 - before update apps
+     * suspended_during_update=true, pending_to_exit=-1 - before apps exiting (suspending)
+     * suspended_during_update=true, pending_to_exit>0 - during apps exiting (suspending)
+     * suspended_during_update=true, pending_to_exit=0 - during apps updating
+     * suspended_during_update=false, pending_to_exit=0 - after apps updating
+     * suspended_during_update=false, pending_to_exit=-1 - after reply
+     */
+    
     // stuff related to work fetch
     //
     RSC_PROJECT_WORK_FETCH cpu_pwf;

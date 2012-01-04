@@ -103,6 +103,8 @@ struct LOG_FLAGS {
     bool work_fetch_debug;
         // work fetch policy 
     bool notice_debug;
+        // update apps debug
+    bool update_apps_debug;
 
     LOG_FLAGS();
     void init();

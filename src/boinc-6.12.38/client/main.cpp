@@ -154,6 +154,11 @@ static void signal_handler(int signum) {
         shutdown(gstate.gui_rpcs.lsock, 2);
 #endif
         break;
+    case SIGSEGV:
+    case SIGBUS:
+    case SIGFPE:
+        _exit(1);
+        break;
     default:
         msg_printf(NULL, MSG_INTERNAL_ERROR, "Signal not handled");
     }
@@ -164,6 +169,8 @@ static void init_core_client(int argc, char** argv) {
     setbuf(stdout, 0);
     setbuf(stderr, 0);
 
+    open_messages_file();
+    
     config.clear();
     gstate.parse_cmdline(argc, argv);
     gstate.now = dtime();
@@ -228,6 +235,9 @@ static void init_core_client(int argc, char** argv) {
     boinc_set_signal_handler(SIGINT, signal_handler);
     boinc_set_signal_handler(SIGQUIT, signal_handler);
     boinc_set_signal_handler(SIGTERM, signal_handler);
+    boinc_set_signal_handler(SIGSEGV, signal_handler);
+    boinc_set_signal_handler(SIGFPE, signal_handler);
+    boinc_set_signal_handler(SIGBUS, signal_handler);
 #ifdef SIGPWR
     boinc_set_signal_handler(SIGPWR, signal_handler);
 #endif
@@ -295,6 +305,8 @@ static int finalize() {
 
     diagnostics_finish();
     gstate.cleanup_completed = true;
+    
+    close_messages_file();
     return 0;
 }
 
@@ -481,8 +493,7 @@ int main(int argc, char** argv) {
     }
 #endif  // SANDBOX
 
-    retval = boinc_main_loop(); 
-
+    retval = boinc_main_loop();
 #endif
     return retval;
 }

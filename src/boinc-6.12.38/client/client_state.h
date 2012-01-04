@@ -37,6 +37,7 @@ using std::vector;
 #include "current_version.h"
 #include "file_xfer.h"
 #include "gui_rpc_server.h"
+#include "monitor.h"
 #include "gui_http.h"
 #include "hostinfo.h"
 #include "miofile.h"
@@ -81,6 +82,7 @@ struct CLIENT_STATE {
     FILE_XFER_SET* file_xfers;
 #ifndef SIM
     GUI_RPC_CONN_SET gui_rpcs;
+    MONITOR_INSTANCE monitor;
 #endif
     GUI_HTTP gui_http;
     AUTO_UPDATE auto_update;
@@ -205,6 +207,9 @@ struct CLIENT_STATE {
         // if nonzero, exit this many seconds after starting an app
     double app_started;
         // when the most recent app was started
+    bool no_active_tasks;
+    bool first_change_on_active_tasks;
+        // .....
 
 // --------------- acct_mgr.cpp:
     ACCT_MGR_INFO acct_mgr_info;
@@ -424,6 +429,20 @@ struct CLIENT_STATE {
     int write_tasks_gui(MIOFILE&, bool);
     void sort_results();
 
+// ---------------- cs_updateapps.cpp;
+    void init_update_project_apps(PROJECT* p);
+    int do_update_project_apps();
+    
+    int get_old_app_info(PROJECT* p, FILE* in, vector<FILE_INFO*>& ofis,
+                     vector<APP*>& oapps, vector<APP_VERSION*>& avps);
+    int update_app_info(PROJECT* proj, FILE* in, vector<FILE_INFO*>& oldfis,
+                        vector<APP*>& oldapps, vector<APP_VERSION*>& oldavps);
+    
+    int apply_new_app(PROJECT*, APP*);
+    int apply_new_app_version(PROJECT*, APP_VERSION*);
+    
+    void dont_preempt_suspended_in_projects();
+    
 // --------------- cs_trickle.cpp:
     int read_trickle_files(PROJECT*, FILE*);
     int remove_trickle_files(PROJECT*);
@@ -497,6 +516,8 @@ extern double calculate_exponential_backoff(
 );
 
 extern void print_suspend_tasks_message(int);
+
+extern void check_no_apps(PROJECT* p);
 
 //////// TIME-RELATED CONSTANTS ////////////
 

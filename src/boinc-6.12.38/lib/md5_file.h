@@ -33,4 +33,5 @@ inline std::string md5_string(std::string const& data) {
 }
 
 extern int make_random_string(char*);
+extern int make_weak_random_string(char*);
 #endif

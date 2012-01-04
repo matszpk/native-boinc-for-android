@@ -56,6 +56,7 @@ boinc_client_SOURCES = \
     cs_scheduler.cpp \
     cs_statefile.cpp \
     cs_trickle.cpp \
+    cs_updateapps.cpp \
 	current_version.cpp \
     dhrystone.cpp \
     dhrystone2.cpp \
@@ -69,6 +70,7 @@ boinc_client_SOURCES = \
     http_curl.cpp \
     log_flags.cpp \
     main.cpp \
+    monitor.cpp \
     net_stats.cpp \
     pers_file_xfer.cpp \
     rr_sim.cpp \

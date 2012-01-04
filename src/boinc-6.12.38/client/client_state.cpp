@@ -135,6 +135,8 @@ CLIENT_STATE::CLIENT_STATE()
 #endif
     launched_by_manager = false;
     initialized = false;
+    no_active_tasks = false;
+    first_change_on_active_tasks = true;
     last_wakeup_time = dtime();
 }
 
@@ -196,7 +198,7 @@ void CLIENT_STATE::show_host_info() {
 
 // set no_X_apps for anonymous platform project
 //
-static void check_no_apps(PROJECT* p) {
+void check_no_apps(PROJECT* p) {
     p->no_cpu_apps = true;
     p->no_cuda_apps = true;
     p->no_ati_apps = true;
@@ -530,6 +532,15 @@ int CLIENT_STATE::init() {
         }
         if (retval) return retval;
     }
+    
+    // initialize monitor
+    for (i=0; i <30; i++) {
+        bool last_time = (i==29);
+        retval = monitor.init(last_time);
+        if (!retval) break;
+        boinc_sleep(1.0);
+    }
+    if (retval) return retval;
 
 #ifdef SANDBOX
     get_project_gid();
@@ -571,6 +582,7 @@ static void double_to_timeval(double x, timeval& t) {
 
 FDSET_GROUP curl_fds;
 FDSET_GROUP gui_rpc_fds;
+FDSET_GROUP monitor_fds;
 FDSET_GROUP all_fds;
 
 // Spend x seconds either doing I/O (if possible) or sleeping.
@@ -585,9 +597,11 @@ void CLIENT_STATE::do_io_or_sleep(double x) {
     while (1) {
         curl_fds.zero();
         gui_rpc_fds.zero();
+        monitor_fds.zero();
 		http_ops->get_fdset(curl_fds);
         all_fds = curl_fds;
         gui_rpcs.get_fdset(gui_rpc_fds, all_fds);
+        monitor.get_fdset(monitor_fds, all_fds);
         double_to_timeval(x, tv);
         n = select(
             all_fds.max_fd+1,
@@ -603,6 +617,7 @@ void CLIENT_STATE::do_io_or_sleep(double x) {
 
         http_ops->got_select(all_fds, x);
         gui_rpcs.got_select(all_fds);
+        monitor.got_select(all_fds);
 
         if (n==0) break;
 
@@ -818,7 +833,10 @@ bool CLIENT_STATE::poll_slow_events() {
     if (!tasks_suspended) {
         POLL_ACTION(schedule_cpus, schedule_cpus          );
         tasks_restarted = true;
-    }
+    } else
+        dont_preempt_suspended_in_projects();
+    
+    POLL_ACTION(do_update_project_apps, do_update_project_apps);
     if (!network_suspended) {
         POLL_ACTION(scheduler_rpc          , scheduler_rpc_poll     );
     }
@@ -834,6 +852,25 @@ bool CLIENT_STATE::poll_slow_events() {
             "[poll] CLIENT_STATE::do_something(): End poll: %d tasks active\n", actions
         );
     }
+    
+    /* notify monitor */
+    if (!active_tasks.is_task_executing()) {
+        if (first_change_on_active_tasks || !no_active_tasks) {
+            no_active_tasks = true;
+            if (!monitor.is_event_pushed(MONITOR_EVENT_RUN_BENCHMARK))
+                // push only if EVENT_RUN_BENCHMARK not pushed
+                monitor.push_event(MONITOR_EVENT_SUSPEND_ALL_TASKS, NULL);
+        }
+    } else if (first_change_on_active_tasks || no_active_tasks) {
+        no_active_tasks = false;
+        if (!monitor.is_event_pushed(MONITOR_EVENT_FINISH_BENCHMARK))
+            monitor.push_event(MONITOR_EVENT_RUN_TASKS, NULL);
+    }
+    first_change_on_active_tasks = false;
+    // boradcast events
+    monitor.broadcast_events();
+    
+    
     if (actions > 0) {
         return true;
     } else {
@@ -1814,12 +1851,18 @@ int CLIENT_STATE::detach_project(PROJECT* project) {
 
     rss_feeds.update_feed_list();
 
+    char master_url[256];
+    strcpy(master_url,project->master_url);
+    
     delete project;
     write_state_file();
 
     adjust_debts();
     request_schedule_cpus("Detach");
     request_work_fetch("Detach");
+    
+    // notify monitor
+    monitor.push_event(MONITOR_EVENT_DETACH_PROJECT,master_url);
     return 0;
 }
 
@@ -1841,6 +1884,7 @@ int CLIENT_STATE::quit_activities() {
     }
     write_state_file();
     gui_rpcs.close();
+    monitor.close();
     abort_cpu_benchmarks();
     time_stats.quit();
     return 0;

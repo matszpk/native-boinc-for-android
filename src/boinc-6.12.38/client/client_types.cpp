@@ -115,6 +115,9 @@ void PROJECT::init() {
     send_job_log = 0;
     send_full_workload = false;
     suspended_via_gui = false;
+    suspended_during_update = false;
+    pending_to_exit = -1;
+    dont_preempt_suspended = false;
     dont_request_more_work = false;
     detach_when_done = false;
     attached_via_acct_mgr = false;
@@ -210,6 +213,9 @@ int PROJECT::parse_state(MIOFILE& in) {
         if (parse_bool(buf, "non_cpu_intensive", non_cpu_intensive)) continue;
         if (parse_bool(buf, "verify_files_on_app_start", verify_files_on_app_start)) continue;
         if (parse_bool(buf, "suspended_via_gui", suspended_via_gui)) continue;
+        if (parse_bool(buf, "suspended_during_update", suspended_during_update)) continue;
+        if (parse_int(buf, "<pending_to_exit>", pending_to_exit)) continue;
+        if (parse_bool(buf, "dont_preempt_suspended", dont_preempt_suspended)) continue;
         if (parse_bool(buf, "dont_request_more_work", dont_request_more_work)) continue;
         if (parse_bool(buf, "detach_when_done", detach_when_done)) continue;
         if (parse_bool(buf, "ended", ended)) continue;
@@ -336,7 +342,8 @@ int PROJECT::write_state(MIOFILE& out, bool gui_rpc) {
 		"    <no_cpu_ams>%d</no_cpu_ams>\n"
 		"    <no_cuda_ams>%d</no_cuda_ams>\n"
 		"    <no_ati_ams>%d</no_ati_ams>\n"
-        "%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+        "    <pending_to_exit>%d</pending_to_exit>\n"
+        "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
         master_url,
         project_name,
         symstore,
@@ -392,6 +399,7 @@ int PROJECT::write_state(MIOFILE& out, bool gui_rpc) {
         no_cpu_ams?1:0,
         no_cuda_ams?1:0,
         no_ati_ams?1:0,
+        pending_to_exit,
         anonymous_platform?"    <anonymous_platform/>\n":"",
         master_url_fetch_pending?"    <master_url_fetch_pending/>\n":"",
         trickle_up_pending?"    <trickle_up_pending/>\n":"",
@@ -400,6 +408,8 @@ int PROJECT::write_state(MIOFILE& out, bool gui_rpc) {
         non_cpu_intensive?"    <non_cpu_intensive/>\n":"",
         verify_files_on_app_start?"    <verify_files_on_app_start/>\n":"",
         suspended_via_gui?"    <suspended_via_gui/>\n":"",
+        suspended_during_update?"    <suspended_during_update/>\n":"",
+        dont_preempt_suspended?"    <dont_preempt_suspended/>\n":"",
         dont_request_more_work?"    <dont_request_more_work/>\n":"",
         detach_when_done?"    <detach_when_done/>\n":"",
         ended?"    <ended/>\n":"",
@@ -498,6 +508,9 @@ void PROJECT::copy_state_fields(PROJECT& p) {
     non_cpu_intensive = p.non_cpu_intensive;
     verify_files_on_app_start = p.verify_files_on_app_start;
     suspended_via_gui = p.suspended_via_gui;
+    suspended_during_update = p.suspended_during_update;
+    pending_to_exit = p.pending_to_exit;
+    dont_preempt_suspended = p.dont_preempt_suspended;
     dont_request_more_work = p.dont_request_more_work;
     detach_when_done = p.detach_when_done;
     attached_via_acct_mgr = p.attached_via_acct_mgr;

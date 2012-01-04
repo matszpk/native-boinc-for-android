@@ -191,6 +191,9 @@
 #define ERR_MISSING_COPROC  -234
 #define ERR_PROC_PARSE      -235
 
+#define ERR_UPDATE_APPS     -240
+#define ERR_UNAUTH          -241
+
 // PLEASE: add a text description of your error to 
 // the text description function boincerror() in str_util.cpp.
 

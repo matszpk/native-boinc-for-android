@@ -631,6 +631,7 @@ void project_priority_init() {
         PROJECT* p = gstate.projects[i];
         if (p->non_cpu_intensive) continue;
         if (p->suspended_via_gui) continue;
+        if (p->suspended_during_update) continue;
         rs_sum += p->resource_share;
         rec_sum += p->pwf.rec;
     }
@@ -639,7 +640,8 @@ void project_priority_init() {
     }
     for (unsigned int i=0; i<gstate.projects.size(); i++) {
         PROJECT* p = gstate.projects[i];
-        if (p->non_cpu_intensive || p->suspended_via_gui || rs_sum==0) {
+        if (p->non_cpu_intensive || p->suspended_via_gui || p->suspended_during_update ||
+            rs_sum==0) {
             p->resource_share_frac = 0;
             continue;
         }
@@ -734,7 +736,10 @@ bool CLIENT_STATE::schedule_cpus() {
     vector<RESULT*> run_list;
 
     if (projects.size() == 0) return false;
-    if (results.size() == 0) return false;
+    if (results.size() == 0) {
+        dont_preempt_suspended_in_projects();
+        return false;
+    }
 
     // Reschedule every CPU_SCHED_PERIOD seconds,
     // or if must_schedule_cpus is set
@@ -1749,44 +1754,66 @@ bool CLIENT_STATE::enforce_run_list(vector<RESULT*>& run_list) {
             );
         }
         int preempt_type = REMOVE_MAYBE_SCHED;
+        PROJECT* p = atp->result->project;
         switch (atp->next_scheduler_state) {
         case CPU_SCHED_PREEMPTED:
-            switch (atp->task_state()) {
-            case PROCESS_EXECUTING:
-                action = true;
-                if (check_swap && swap_left < 0) {
-                    if (log_flags.mem_usage_debug) {
-                        msg_printf(atp->result->project, MSG_INFO,
-                            "[mem_usage] out of swap space, will preempt by quit"
-                        );
-                    }
-                    preempt_type = REMOVE_ALWAYS;
+            if (p->suspended_during_update && !p->dont_preempt_suspended) {
+                // suspeded (by removing from memory) during update new
+                // binaries (nativeboinc)
+                if (log_flags.update_apps_debug) {
+                    msg_printf(p, MSG_INFO, "[update_apps] Suspending during update: %d",
+                               p->pending_to_exit);
                 }
-                if (atp->too_large) {
-                    if (log_flags.mem_usage_debug) {
-                        msg_printf(atp->result->project, MSG_INFO,
-                            "[mem_usage] job using too much memory, will preempt by quit"
-                        );
-                    }
-                    preempt_type = REMOVE_ALWAYS;
-                }
+                preempt_type = REMOVE_ALWAYS;
                 atp->preempt(preempt_type);
-                break;
-            case PROCESS_SUSPENDED:
-                // Handle the case where user changes prefs from
-                // "leave in memory" to "remove from memory";
-                // need to quit suspended tasks.
-                //
-                if (atp->checkpoint_cpu_time && !global_prefs.leave_apps_in_memory) {
-                    atp->preempt(REMOVE_ALWAYS);
+            }
+            else { // normal operation
+                switch (atp->task_state()) {
+                case PROCESS_EXECUTING:
+                    action = true;
+                    if (check_swap && swap_left < 0) {
+                        if (log_flags.mem_usage_debug) {
+                            msg_printf(atp->result->project, MSG_INFO,
+                                "[mem_usage] out of swap space, will preempt by quit"
+                            );
+                        }
+                        preempt_type = REMOVE_ALWAYS;
+                    }
+                    if (atp->too_large) {
+                        if (log_flags.mem_usage_debug) {
+                            msg_printf(atp->result->project, MSG_INFO,
+                                "[mem_usage] job using too much memory, will preempt by quit"
+                            );
+                        }
+                        preempt_type = REMOVE_ALWAYS;
+                    }
+                    atp->preempt(preempt_type);
+                    break;
+                case PROCESS_SUSPENDED:
+                    // Handle the case where user changes prefs from
+                    // "leave in memory" to "remove from memory";
+                    // need to quit suspended tasks.
+                    //
+                    if (atp->checkpoint_cpu_time && !global_prefs.leave_apps_in_memory) {
+                        atp->preempt(REMOVE_ALWAYS);
+                    }
+                    break;
                 }
-                break;
             }
             atp->scheduler_state = CPU_SCHED_PREEMPTED;
             break;
         }
         if (atp->result->uses_coprocs() && atp->task_state() == PROCESS_QUIT_PENDING) {
             coproc_quit_pending = true;
+        }
+    }
+    
+    for (size_t i=0; i<projects.size();i++) {
+        PROJECT* p = projects[i];
+        // mark as awaiting for pending exit
+        if (p->suspended_during_update && !p->dont_preempt_suspended) {
+            msg_printf(p, MSG_INFO, "[update_apps] dont preempt suspended (cpusched)");
+            p->dont_preempt_suspended = true;
         }
     }
 

@@ -105,6 +105,7 @@ am_boinc_client_OBJECTS = boinc_client-acct_mgr.$(OBJEXT) \
 	boinc_client-cs_scheduler.$(OBJEXT) \
 	boinc_client-cs_statefile.$(OBJEXT) \
 	boinc_client-cs_trickle.$(OBJEXT) \
+	boinc_client-cs_updateapps.$(OBJEXT) \
 	boinc_client-current_version.$(OBJEXT) \
 	boinc_client-dhrystone.$(OBJEXT) \
 	boinc_client-dhrystone2.$(OBJEXT) \
@@ -117,6 +118,7 @@ am_boinc_client_OBJECTS = boinc_client-acct_mgr.$(OBJEXT) \
 	boinc_client-hostinfo_unix.$(OBJEXT) \
 	boinc_client-http_curl.$(OBJEXT) \
 	boinc_client-log_flags.$(OBJEXT) boinc_client-main.$(OBJEXT) \
+	boinc_client-monitor.$(OBJEXT) \
 	boinc_client-net_stats.$(OBJEXT) \
 	boinc_client-pers_file_xfer.$(OBJEXT) \
 	boinc_client-rr_sim.$(OBJEXT) boinc_client-sandbox.$(OBJEXT) \
@@ -419,6 +421,7 @@ boinc_client_SOURCES = \
     cs_scheduler.cpp \
     cs_statefile.cpp \
     cs_trickle.cpp \
+    cs_updateapps.cpp \
 	current_version.cpp \
     dhrystone.cpp \
     dhrystone2.cpp \
@@ -432,6 +435,7 @@ boinc_client_SOURCES = \
     http_curl.cpp \
     log_flags.cpp \
     main.cpp \
+    monitor.cpp \
     net_stats.cpp \
     pers_file_xfer.cpp \
     rr_sim.cpp \
@@ -572,6 +576,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boinc_client-cs_scheduler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boinc_client-cs_statefile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boinc_client-cs_trickle.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boinc_client-cs_updateapps.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boinc_client-current_version.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boinc_client-dhrystone.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boinc_client-dhrystone2.Po@am__quote@
@@ -585,6 +590,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boinc_client-http_curl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boinc_client-log_flags.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boinc_client-main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boinc_client-monitor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boinc_client-net_stats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boinc_client-pers_file_xfer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boinc_client-rr_sim.Po@am__quote@
@@ -967,6 +973,20 @@ boinc_client-cs_trickle.obj: cs_trickle.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-cs_trickle.obj `if test -f 'cs_trickle.cpp'; then $(CYGPATH_W) 'cs_trickle.cpp'; else $(CYGPATH_W) '$(srcdir)/cs_trickle.cpp'; fi`
 
+boinc_client-cs_updateapps.o: cs_updateapps.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT boinc_client-cs_updateapps.o -MD -MP -MF $(DEPDIR)/boinc_client-cs_updateapps.Tpo -c -o boinc_client-cs_updateapps.o `test -f 'cs_updateapps.cpp' || echo '$(srcdir)/'`cs_updateapps.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/boinc_client-cs_updateapps.Tpo $(DEPDIR)/boinc_client-cs_updateapps.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='cs_updateapps.cpp' object='boinc_client-cs_updateapps.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-cs_updateapps.o `test -f 'cs_updateapps.cpp' || echo '$(srcdir)/'`cs_updateapps.cpp
+
+boinc_client-cs_updateapps.obj: cs_updateapps.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT boinc_client-cs_updateapps.obj -MD -MP -MF $(DEPDIR)/boinc_client-cs_updateapps.Tpo -c -o boinc_client-cs_updateapps.obj `if test -f 'cs_updateapps.cpp'; then $(CYGPATH_W) 'cs_updateapps.cpp'; else $(CYGPATH_W) '$(srcdir)/cs_updateapps.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/boinc_client-cs_updateapps.Tpo $(DEPDIR)/boinc_client-cs_updateapps.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='cs_updateapps.cpp' object='boinc_client-cs_updateapps.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-cs_updateapps.obj `if test -f 'cs_updateapps.cpp'; then $(CYGPATH_W) 'cs_updateapps.cpp'; else $(CYGPATH_W) '$(srcdir)/cs_updateapps.cpp'; fi`
+
 boinc_client-current_version.o: current_version.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT boinc_client-current_version.o -MD -MP -MF $(DEPDIR)/boinc_client-current_version.Tpo -c -o boinc_client-current_version.o `test -f 'current_version.cpp' || echo '$(srcdir)/'`current_version.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/boinc_client-current_version.Tpo $(DEPDIR)/boinc_client-current_version.Po
@@ -1148,6 +1168,20 @@ boinc_client-main.obj: main.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='main.cpp' object='boinc_client-main.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-main.obj `if test -f 'main.cpp'; then $(CYGPATH_W) 'main.cpp'; else $(CYGPATH_W) '$(srcdir)/main.cpp'; fi`
+
+boinc_client-monitor.o: monitor.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT boinc_client-monitor.o -MD -MP -MF $(DEPDIR)/boinc_client-monitor.Tpo -c -o boinc_client-monitor.o `test -f 'monitor.cpp' || echo '$(srcdir)/'`monitor.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/boinc_client-monitor.Tpo $(DEPDIR)/boinc_client-monitor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='monitor.cpp' object='boinc_client-monitor.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-monitor.o `test -f 'monitor.cpp' || echo '$(srcdir)/'`monitor.cpp
+
+boinc_client-monitor.obj: monitor.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT boinc_client-monitor.obj -MD -MP -MF $(DEPDIR)/boinc_client-monitor.Tpo -c -o boinc_client-monitor.obj `if test -f 'monitor.cpp'; then $(CYGPATH_W) 'monitor.cpp'; else $(CYGPATH_W) '$(srcdir)/monitor.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/boinc_client-monitor.Tpo $(DEPDIR)/boinc_client-monitor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='monitor.cpp' object='boinc_client-monitor.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-monitor.obj `if test -f 'monitor.cpp'; then $(CYGPATH_W) 'monitor.cpp'; else $(CYGPATH_W) '$(srcdir)/monitor.cpp'; fi`
 
 boinc_client-net_stats.o: net_stats.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT boinc_client-net_stats.o -MD -MP -MF $(DEPDIR)/boinc_client-net_stats.Tpo -c -o boinc_client-net_stats.o `test -f 'net_stats.cpp' || echo '$(srcdir)/'`net_stats.cpp

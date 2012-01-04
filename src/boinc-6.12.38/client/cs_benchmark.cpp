@@ -254,6 +254,9 @@ void CLIENT_STATE::start_cpu_benchmarks() {
     }
     msg_printf(NULL, MSG_INFO, "Running CPU benchmarks");
 
+    // notify monitor
+    gstate.monitor.push_event(MONITOR_EVENT_RUN_BENCHMARK,NULL);
+    
     cpu_benchmarks_pending = false;
 
     bm_state = BM_FP_INIT;
@@ -395,6 +398,7 @@ bool CLIENT_STATE::cpu_benchmarks_poll() {
         abort_cpu_benchmarks();
         benchmarks_running = false;
         set_client_state_dirty("CPU benchmarks");
+        monitor.push_event(MONITOR_EVENT_FINISH_BENCHMARK, NULL);
         cpu_benchmarks_pending = true;
         return false;
     }
@@ -467,6 +471,7 @@ bool CLIENT_STATE::cpu_benchmarks_poll() {
         abort_cpu_benchmarks();
 		cpu_benchmarks_set_defaults();
         benchmarks_running = false;
+        monitor.push_event(MONITOR_EVENT_FINISH_BENCHMARK, NULL);
         set_client_state_dirty("CPU benchmarks");
     }
 
@@ -545,6 +550,7 @@ bool CLIENT_STATE::cpu_benchmarks_poll() {
         }
         host_info.p_calculated = now;
         benchmarks_running = false;
+        monitor.push_event(MONITOR_EVENT_FINISH_BENCHMARK, NULL);
         set_client_state_dirty("CPU benchmarks");
     }
     return false;

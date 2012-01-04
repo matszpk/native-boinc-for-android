@@ -150,7 +150,7 @@ boinc_client-check_state.o: check_state.cpp cpp.h ../config.h \
  /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_tree.h \
  /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_map.h \
  /home/mat/docs/dev/mobile/android-ndk-r5b/sources/cxx-stl/gnu-libstdc++/include/bits/stl_multimap.h \
- current_version.h file_xfer.h net_stats.h pers_file_xfer.h \
+ current_version.h file_xfer.h monitor.h net_stats.h pers_file_xfer.h \
  ../lib/prefs.h scheduler_op.h auto_update.h time_stats.h
 
 cpp.h:
@@ -512,6 +512,8 @@ app.h:
 current_version.h:
 
 file_xfer.h:
+
+monitor.h:
 
 net_stats.h:
 

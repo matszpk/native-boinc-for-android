@@ -22,14 +22,19 @@ package sk.boinc.nativeboinc.service;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.ArrayList;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.GlobalPreferences;
+import edu.berkeley.boinc.lite.ProjectConfig;
+import edu.berkeley.boinc.lite.ProjectListEntry;
 
 import sk.boinc.nativeboinc.bridge.ClientBridge;
 import sk.boinc.nativeboinc.bridge.ClientBridgeCallback;
+import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
@@ -44,7 +49,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 
-public class ConnectionManagerService extends Service implements ClientRequestHandler, ClientBridgeCallback, ConnectivityListener {
+public class ConnectionManagerService extends Service implements
+		ClientRequestHandler, ClientBridgeCallback, ConnectivityListener {
 	private static final String TAG = "ConnectionManagerService";
 
 	private static final int TERMINATE_GRACE_PERIOD_CONN = 45;
@@ -153,7 +159,8 @@ public class ConnectionManagerService extends Service implements ClientRequestHa
 	public void onConnectivityLost() {
 		if (mClientBridge != null) {
 			// We are interested in this event only when connected
-			if (Logging.DEBUG) Log.d(TAG, "onConnectivityLost() while connected to host " + mClientBridge.getClientId().getNickname());
+			if (Logging.DEBUG) Log.d(TAG, "onConnectivityLost() while connected to host " +
+			mClientBridge.getClientId().getNickname());
 			// TODO Handle connectivity loss
 		}
 	}
@@ -162,7 +169,8 @@ public class ConnectionManagerService extends Service implements ClientRequestHa
 	public void onConnectivityRestored(int connectivityType) {
 		if (mClientBridge != null) {
 			// We are interested in this event only when connected
-			if (Logging.DEBUG) Log.d(TAG, "onConnectivityRestored() while connected to host " + mClientBridge.getClientId().getNickname() + ", connectivity type: " + connectivityType);
+			if (Logging.DEBUG) Log.d(TAG, "onConnectivityRestored() while connected to host " +
+			mClientBridge.getClientId().getNickname() + ", connectivity type: " + connectivityType);
 			// TODO Handle connectivity restoration
 		}
 	}
@@ -171,7 +179,8 @@ public class ConnectionManagerService extends Service implements ClientRequestHa
 	public void onConnectivityChangedType(int connectivityType) {
 		if (mClientBridge != null) {
 			// We are interested in this event only when connected
-			if (Logging.DEBUG) Log.d(TAG, "onConnectivityChangedType() while connected to host " + mClientBridge.getClientId().getNickname() + ", new connectivity type: " + connectivityType);
+			if (Logging.DEBUG) Log.d(TAG, "onConnectivityChangedType() while connected to host " + 
+			mClientBridge.getClientId().getNickname() + ", new connectivity type: " + connectivityType);
 			// TODO Handle connectivity type change
 		}
 	}
@@ -324,21 +333,21 @@ public class ConnectionManagerService extends Service implements ClientRequestHa
 	}
 
 	@Override
-	public void getBAMInfo(ClientManageReceiver callback) {
+	public void getBAMInfo(ClientAccountMgrReceiver callback) {
 		if (mClientBridge != null) {
 			mClientBridge.getBAMInfo(callback);
 		}
 	}
 	
 	@Override
-	public void attachToBAM(ClientReplyReceiver callback, String name, String url, String password) {
+	public void attachToBAM(ClientAccountMgrReceiver callback, String name, String url, String password) {
 		if (mClientBridge != null) {
 			mClientBridge.attachToBAM(callback, name, url, password);
 		}
 	}
 	
 	@Override
-	public void synchronizeWithBAM(ClientReplyReceiver callback) {
+	public void synchronizeWithBAM(ClientAccountMgrReceiver callback) {
 		if (mClientBridge != null) {
 			mClientBridge.synchronizeWithBAM(callback);
 		}
@@ -352,36 +361,55 @@ public class ConnectionManagerService extends Service implements ClientRequestHa
 	}
 	
 	@Override
-	public void getAllProjectsList(ClientManageReceiver callback) {
+	public void getAllProjectsList(ClientAllProjectsListReceiver callback) {
 		if (mClientBridge != null) {
 			mClientBridge.getAllProjectsList(callback);
 		}
 	}
 	
 	@Override
-	public void lookupAccount(ClientManageReceiver callback, AccountIn accountIn) {
+	public void lookupAccount(ClientProjectReceiver callback, AccountIn accountIn) {
 		if (mClientBridge != null) {
 			mClientBridge.lookupAccount(callback, accountIn);
 		}
 	}
 	
-	public void createAccount(ClientManageReceiver callback, AccountIn accountIn) {
+	@Override
+	public void createAccount(ClientProjectReceiver callback, AccountIn accountIn) {
 		if (mClientBridge != null) {
 			mClientBridge.createAccount(callback, accountIn);
 		}
 	}
 	
 	@Override
-	public void projectAttach(ClientManageReceiver callback, String url, String authCode, String projectName) {
+	public void projectAttach(ClientProjectReceiver callback, String url, String authCode, String projectName) {
 		if (mClientBridge != null) {
 			mClientBridge.projectAttach(callback, url, authCode, projectName);
 		}
 	}
 	
-	public void getProjectConfig(ClientManageReceiver callback, String url) {
+	/* join of createAccount/lookupAccount with projectAttach */
+	@Override
+	public void addProject(ClientProjectReceiver callback, AccountIn accountIn, boolean create) {
+		if (mClientBridge != null)
+			mClientBridge.addProject(callback, accountIn, create);
+	}
+	
+	public void getProjectConfig(ClientProjectReceiver callback, String url) {
 		if (mClientBridge != null) {
 			mClientBridge.getProjectConfig(callback, url);
 		}
+	}
+	
+	public ProjectConfig getPendingProjectConfig(String projectUrl) {
+		if (mClientBridge != null)
+			return mClientBridge.getPendingProjectConfig(projectUrl);
+		return null;
+	}
+	
+	public void flushPendingProjectConfig(String projectUrl) {
+		if (mClientBridge != null)
+			mClientBridge.flushPendingProjectConfig(projectUrl);
 	}
 	
 	public void getGlobalPrefsWorking(ClientPreferencesReceiver callback) {

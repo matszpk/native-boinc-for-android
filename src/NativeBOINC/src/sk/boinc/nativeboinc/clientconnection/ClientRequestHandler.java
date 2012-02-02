@@ -40,17 +40,18 @@ public interface ClientRequestHandler {
 	public abstract void updateMessages(ClientReplyReceiver callback);
 	public abstract void cancelScheduledUpdates(ClientReplyReceiver callback);
 
-	public abstract void getBAMInfo(ClientManageReceiver callback);
-	public abstract void attachToBAM(ClientReplyReceiver callback, String name, String url, String password);
-	public abstract void synchronizeWithBAM(ClientReplyReceiver callback);
+	public abstract void getBAMInfo(ClientAccountMgrReceiver callback);
+	public abstract void attachToBAM(ClientAccountMgrReceiver callback, String name, String url, String password);
+	public abstract void synchronizeWithBAM(ClientAccountMgrReceiver callback);
 	public abstract void stopUsingBAM(ClientReplyReceiver callback);
 	
-	public abstract void getAllProjectsList(ClientManageReceiver callback);
+	public abstract void getAllProjectsList(ClientAllProjectsListReceiver callback);
 	
-	public abstract void lookupAccount(ClientManageReceiver callback, AccountIn accountIn);
-	public abstract void createAccount(ClientManageReceiver callback, AccountIn accountIn);
-	public abstract void projectAttach(ClientManageReceiver callback, String url, String authCode, String projectName);
-	public abstract void getProjectConfig(ClientManageReceiver callback, String url);
+	public abstract void lookupAccount(ClientProjectReceiver callback, AccountIn accountIn);
+	public abstract void createAccount(ClientProjectReceiver callback, AccountIn accountIn);
+	public abstract void projectAttach(ClientProjectReceiver callback, String url, String authCode, String projectName);
+	public abstract void getProjectConfig(ClientProjectReceiver callback, String url);
+	public abstract void addProject(ClientProjectReceiver callback, AccountIn accountIn, boolean create);
 	
 	public abstract void getGlobalPrefsWorking(ClientPreferencesReceiver callback);
 	public abstract void setGlobalPrefsOverrideStruct(ClientPreferencesReceiver callback, GlobalPreferences globalPrefs);

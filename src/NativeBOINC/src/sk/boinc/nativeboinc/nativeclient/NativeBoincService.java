@@ -28,7 +28,6 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.R;
@@ -93,6 +92,7 @@ public class NativeBoincService extends Service {
 		"<cpu_usage_limit>100.000000</cpu_usage_limit>\n" +
 		"<daily_xfer_limit_mb>0.000000</daily_xfer_limit_mb>\n" +
 		"<daily_xfer_period_days>0</daily_xfer_period_days>\n" +
+		"<run_if_battery_nl_than>10</run_if_battery_nl_than>\n" +
 		"</global_preferences>";
 	
 	private LocalBinder mBinder = new LocalBinder();
@@ -110,27 +110,9 @@ public class NativeBoincService extends Service {
 					((NativeBoincStateListener)listener).onNativeBoincError(message);
 		}
 		
-		public void onClientFirstStart() {
+		public void nativeBoincServiceError(String message) {
 			for (AbstractNativeBoincListener listener: mListeners)
-				if (listener instanceof NativeBoincStateListener)
-					((NativeBoincStateListener)listener).onClientFirstStart();
-		}
-		
-		public void onAfterClientFirstKill() {
-			for (AbstractNativeBoincListener listener: mListeners)
-				if (listener instanceof NativeBoincStateListener)
-					((NativeBoincStateListener)listener).onAfterClientFirstKill();
-		}
-		
-		public void onClientConfigured() {
-			for (AbstractNativeBoincListener listener: mListeners)
-				if (listener instanceof NativeBoincReplyListener)
-					((NativeBoincReplyListener)listener).onClientConfigured();
-		}
-		
-		public void nativeBoincServiceError(AbstractNativeBoincListener callback, String message) {
-			if (mListeners.contains(callback)) 
-				callback.onNativeBoincError(message);
+				listener.onNativeBoincError(message);
 		}
 
 		public void onProgressChange(NativeBoincReplyListener callback, double progress) {
@@ -138,14 +120,14 @@ public class NativeBoincService extends Service {
 				callback.onProgressChange(progress);
 		}
 		
-		public void onClientConfigured(NativeBoincReplyListener callback) {
-			if (mListeners.contains(callback))
-				callback.onClientConfigured();
-		}
-		
-		public void getResults(NativeBoincResultsListener callback, Vector<Result> results) {
+		public void getResults(NativeBoincResultsListener callback, ArrayList<Result> results) {
 			if (mListeners.contains(callback))
 				callback.getResults(results);
+		}
+		public void updatedProjectApps(String projectUrl) {
+			for (AbstractNativeBoincListener listener: mListeners)
+				if (listener instanceof NativeBoincUpdateListener)
+					((NativeBoincUpdateListener)listener).updatedProjectApps(projectUrl);
 		}
 	}
 	
@@ -173,6 +155,19 @@ public class NativeBoincService extends Service {
 	
 	@Override
 	public void onDestroy() {
+		mWorkerThread.shutdownClient();
+		
+		try { // waits 5 seconds
+			Thread.sleep(5000);
+		} catch(InterruptedException ex) { }
+		
+		killNativeBoinc();
+		killAllBoincZombies();
+		
+		mWorkerThread.stopThread();
+		mWakeLockHolder.destroy();
+		mMonitorThread.quitFromThread();
+		
 		mListeners.clear();
 		if (mDimWakeLock.isHeld()) {
 			if (Logging.DEBUG) Log.d(TAG, "release screen lock");
@@ -329,41 +324,15 @@ public class NativeBoincService extends Service {
 		killProcesses(pids);
 	}
 	
-	private class FirstStartThread extends Thread {
-		@Override
-		public void run() {
-			String[] envArray = getEnvArray();
-			
-			try {
-				if (Logging.DEBUG) Log.d(TAG, "Running boinc_client program");
-				/* run native boinc client */
-				Runtime.getRuntime().exec(new String[] {
-						NativeBoincService.this.getFileStreamPath("boinc_client").getAbsolutePath(),
-						"--allow_remote_gui_rpc" }, envArray,
-						NativeBoincService.this.getFileStreamPath("boinc"));
-			} catch(IOException ex) {
-				if (Logging.ERROR) Log.d(TAG, "First running boinc_client failed");
-				notifyClientError(NativeBoincService.this.getString(R.string.runNativeClientError));
-				return;
-			}
-			
-			notifyClientFirstStart();
-			
-			/* waiting and killing */
-			try {
-				Thread.sleep(300); // sleep 0.3 seconds
-			} catch(InterruptedException ex) { }
-			/* killing boinc client */
-			killNativeBoinc();
-			
-			notifyClientFirstKill();
-		}
-	}
-	
 	private class NativeBoincThread extends Thread {
 		private static final String TAG = "NativeBoincThread";
 		
 		private boolean mIsRun = false;
+		private boolean mSecondStart = false; 
+		
+		public NativeBoincThread(boolean secondStart) {
+			this.mSecondStart = secondStart;
+		}
 		
 		@Override
 		public void run() {
@@ -387,6 +356,7 @@ public class NativeBoincService extends Service {
 				notifyClientStateChanged(false);
 				mIsRun = false;
 				notifyClientError(NativeBoincService.this.getString(R.string.runNativeClientError));
+				mNativeBoincThread = null;
 				return;
 			}
 			
@@ -415,6 +385,7 @@ public class NativeBoincService extends Service {
 				notifyClientError(getString(R.string.connectNativeClientError));
 				killAllBoincZombies();
 				killNativeBoinc();
+				mNativeBoincThread = null;
 				return;
 			}
 			/* authorize access */
@@ -425,6 +396,7 @@ public class NativeBoincService extends Service {
 					notifyClientError(getString(R.string.nativeAuthorizeError));
 					killAllBoincZombies();
 					killNativeBoinc();
+					mNativeBoincThread = null;
 					return;
 				}
 			} catch(IOException ex) {
@@ -434,6 +406,7 @@ public class NativeBoincService extends Service {
 				rpcClient.close();
 				killAllBoincZombies();
 				killNativeBoinc();
+				mNativeBoincThread = null;
 				return;
 			}
 			
@@ -472,6 +445,15 @@ public class NativeBoincService extends Service {
 			if (monitorAuthCode != null) {
 				mMonitorThread = new MonitorThread(mMonitorListenerHandler, monitorAuthCode);
 				mMonitorThread.start();
+			}
+			
+			// configure client
+			if (mSecondStart) {
+				if (Logging.DEBUG) Log.d(TAG, "Configure native client");
+				if (!rpcClient.setGlobalPrefsOverride(NativeBoincService.INITIAL_BOINC_CONFIG))
+					notifyClientError(NativeBoincService.this.getString(R.string.nativeClientConfigError));
+				else if (!rpcClient.readGlobalPrefsOverride())
+					notifyClientError(NativeBoincService.this.getString(R.string.nativeClientConfigError));
 			}
 			
 			mIsRun = true;
@@ -529,7 +511,6 @@ public class NativeBoincService extends Service {
 	};
 	
 		
-	private FirstStartThread mFirstStartThread = null;
 	private NativeBoincThread mNativeBoincThread = null;
 	private NativeKillerThread mNativeKillerThread = null;
 	private WakeLockHolder mWakeLockHolder = null;
@@ -553,24 +534,44 @@ public class NativeBoincService extends Service {
 	}
 	
 	/**
-	 * first starting up client
+	 * first starting up client (ruunning in current thread)
 	 */
-	public void firstStartClient() {
-		mFirstStartThread = new FirstStartThread();
+	public boolean firstStartClient() {
 		if (Logging.DEBUG) Log.d(TAG, "Starting FirstStartThread");
-		mFirstStartThread.start();
+		
+		String[] envArray = getEnvArray();
+		
+		try {
+			if (Logging.DEBUG) Log.d(TAG, "Running boinc_client program");
+			/* run native boinc client */
+			Runtime.getRuntime().exec(new String[] {
+					NativeBoincService.this.getFileStreamPath("boinc_client").getAbsolutePath() },
+					envArray, NativeBoincService.this.getFileStreamPath("boinc"));
+		} catch(IOException ex) {
+			if (Logging.ERROR) Log.d(TAG, "First running boinc_client failed");
+			mNativeBoincThread = null;
+			return false;
+		}
+		
+		/* waiting and killing */
+		try {
+			Thread.sleep(300); // sleep 0.3 seconds
+		} catch(InterruptedException ex) { }
+		/* killing boinc client */
+		killNativeBoinc();
+		return true;
 	}
 	
 	/**
 	 * starting up client
+	 * @param secondStart - if true marks as second start during installation
 	 */
-	public void startClient() {
+	public void startClient(boolean secondStart) {
 		if (Logging.DEBUG) Log.d(TAG, "Starting NativeBoincThread");
 		if (mNativeBoincThread == null) {
-			mNativeBoincThread = new NativeBoincThread();
+			mNativeBoincThread = new NativeBoincThread(secondStart);
 			mNativeBoincThread.start();
 			mWakeLockHolder = new WakeLockHolder(this, mPartialWakeLock, mDimWakeLock);
-			//mWakeLockHolder.start();
 		}
 	}
 	
@@ -604,13 +605,6 @@ public class NativeBoincService extends Service {
 		return MonitorThread.STATE_UNKNOWN;
 	}
 	
-	public void configureClient(NativeBoincReplyListener listener) {
-		if (Logging.DEBUG) Log.d(TAG, "Configure native client");
-		if (mWorkerThread != null) {
-			mWorkerThread.configureClient(listener);
-		}
-	}
-	
 	/**
 	 * get Listener Handler
 	 * @return listener handler
@@ -624,21 +618,21 @@ public class NativeBoincService extends Service {
 	 */
 	public void getGlobalProgress(NativeBoincReplyListener callback) {
 		if (Logging.DEBUG) Log.d(TAG, "Get global progress");
-		if (mWorkerThread != null) {
+		if (mWorkerThread != null)
 			mWorkerThread.getGlobalProgress(callback);
-		}
 	}
 	
 	public void getResults(NativeBoincResultsListener callback) {
 		if (Logging.DEBUG) Log.d(TAG, "Get results");
-		if (mWorkerThread != null) {
+		if (mWorkerThread != null)
 			mWorkerThread.getResults(callback);
-		}
 	}
 	
-	/**
-	 * 
-	 */
+	public void updateProjectApps(String projectUrl) {
+		if (Logging.DEBUG) Log.d(TAG, "update project binaries");
+		if (mWorkerThread != null)
+			mWorkerThread.updateProjectApps(projectUrl);
+	}
 	
 	/* fallback kill zombies */
 	public void killZombieClient() {
@@ -680,24 +674,6 @@ public class NativeBoincService extends Service {
 			@Override
 			public void run() {
 				mListenerHandler.onNativeBoincError(message);
-			}
-		});
-	}
-	
-	private synchronized void notifyClientFirstStart() {
-		mListenerHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				mListenerHandler.onClientFirstStart();
-			}
-		});
-	}
-	
-	private synchronized void notifyClientFirstKill() {
-		mListenerHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				mListenerHandler.onAfterClientFirstKill();
 			}
 		});
 	}

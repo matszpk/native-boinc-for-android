@@ -19,10 +19,14 @@
 
 package sk.boinc.nativeboinc.bridge;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.AccountMgrInfo;
@@ -30,8 +34,10 @@ import edu.berkeley.boinc.lite.GlobalPreferences;
 import edu.berkeley.boinc.lite.ProjectConfig;
 import edu.berkeley.boinc.lite.ProjectListEntry;
 
-import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
@@ -59,6 +65,13 @@ import android.util.Log;
 public class ClientBridge implements ClientRequestHandler {
 	private static final String TAG = "ClientBridge";
 
+	private Map<String, ProjectConfig> mPendingProjectConfigs = Collections.synchronizedMap(
+			new HashMap<String, ProjectConfig>());
+	
+	// for joining two requests in one (create/lookup and attach)
+	private ConcurrentHashMap<String, String> mJoinedAddProjectsMap = new ConcurrentHashMap<String, String>();
+		
+	
 	public class ReplyHandler extends Handler {
 		private static final String TAG = "ClientBridge.ReplyHandler";
 
@@ -96,14 +109,15 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 		}
 		
-		public void notifyError(int errorNum, Vector<String> messages) {
+		public void notifyPollError(int errorNum, int operation, String param) {
 			Iterator<ClientReceiver> it = mObservers.iterator();
 			while (it.hasNext()) {
 				ClientReceiver observer = it.next();
-				observer.clientError(errorNum, messages);
+				if (observer instanceof ClientAccountMgrReceiver)
+					((ClientAccountMgrReceiver)observer).onPollError(errorNum, operation, param);
 			}
 		}
-
+		
 		public void notifyConnected(VersionInfo clientVersion) {
 			mConnected = true;
 			mRemoteClientVersion = clientVersion;
@@ -144,7 +158,8 @@ public class ClientBridge implements ClientRequestHandler {
 				// Observer is still present, so we can call it back with data
 				boolean periodicAllowed = ((ClientReplyReceiver)callback).updatedClientMode(modeInfo);
 				if (periodicAllowed) {
-					mAutoRefresh.scheduleAutomaticRefresh((ClientReplyReceiver)callback, AutoRefresh.CLIENT_MODE);
+					mAutoRefresh.scheduleAutomaticRefresh(
+							(ClientReplyReceiver)callback, AutoRefresh.CLIENT_MODE);
 				}
 			}
 		}
@@ -157,7 +172,7 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 		}
 		
-		public void currentBAMInfo(final ClientManageReceiver callback, final AccountMgrInfo bamInfo) {
+		public void currentBAMInfo(final ClientAccountMgrReceiver callback, final AccountMgrInfo bamInfo) {
 			// First, check whether callback is still present in observers
 			if (mObservers.contains(callback)) {
 				// Yes, observer is still present, so we can call it back with data
@@ -165,8 +180,8 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 		}
 		
-		public void currentAllProjectsList(final ClientManageReceiver callback,
-				final Vector<ProjectListEntry> projects) {
+		public void currentAllProjectsList(final ClientAllProjectsListReceiver callback,
+				final ArrayList<ProjectListEntry> projects) {
 			// First, check whether callback is still present in observers
 			if (mObservers.contains(callback)) {
 				// Yes, observer is still present, so we can call it back with data
@@ -174,17 +189,21 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 		}
 		
-		public void currentAuthCode(final ClientManageReceiver callback, final String authCode) {
+		public void currentAuthCode(final ClientProjectReceiver callback, final String projectUrl,
+				final String authCode) {
 			// First, check whether callback is still present in observers
 			if (mObservers.contains(callback)) {
 				// Yes, observer is still present, so we can call it back with data
 				callback.currentAuthCode(authCode);
 			}
+			if (mJoinedAddProjectsMap.contains(projectUrl))
+				projectAttach(callback, projectUrl, authCode, "");
 		}
 		
-		public void currentProjectConfig(final ClientManageReceiver callback,
+		public void currentProjectConfig(final ClientProjectReceiver callback,
 				final ProjectConfig projectConfig) {
 			// First, check whether callback is still present in observers
+			mPendingProjectConfigs.put(projectConfig.master_url, projectConfig);
 			if (mObservers.contains(callback)) {
 				// Yes, observer is still present, so we can call it back with data
 				callback.currentProjectConfig(projectConfig);
@@ -200,8 +219,17 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 		}
 		
-		public void afterProjectAttach(final ClientManageReceiver callback) {
+		public void afterAccountMgrRPC(final ClientAccountMgrReceiver callback) {
 			// First, check whether callback is still present in observers
+			if (mObservers.contains(callback)) {
+				// Yes, observer is still present, so we can call it back with data
+				callback.onAfterAccountMgrRPC();
+			}
+		}
+		
+		public void afterProjectAttach(final ClientProjectReceiver callback, final String projectUrl) {
+			// First, check whether callback is still present in observers
+			mJoinedAddProjectsMap.remove(projectUrl);
 			if (mObservers.contains(callback)) {
 				// Yes, observer is still present, so we can call it back with data
 				callback.onAfterProjectAttach();
@@ -216,7 +244,7 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 		}
 
-		public void updatedProjects(final ClientReplyReceiver callback, final Vector <ProjectInfo> projects) {
+		public void updatedProjects(final ClientReplyReceiver callback, final ArrayList <ProjectInfo> projects) {
 			if (callback == null) {
 				// No specific callback - broadcast to all observers
 				// This is used for early notification after connect
@@ -238,7 +266,7 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 		}
 
-		public void updatedTasks(final ClientReplyReceiver callback, final Vector <TaskInfo> tasks) {
+		public void updatedTasks(final ClientReplyReceiver callback, final ArrayList <TaskInfo> tasks) {
 			if (callback == null) {
 				// No specific callback - broadcast to all observers
 				// This is used for early notification after connect
@@ -260,7 +288,7 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 		}
 
-		public void updatedTransfers(final ClientReplyReceiver callback, final Vector <TransferInfo> transfers) {
+		public void updatedTransfers(final ClientReplyReceiver callback, final ArrayList <TransferInfo> transfers) {
 			if (callback == null) {
 				// No specific callback - broadcast to all observers
 				// This is used for early notification after connect
@@ -282,7 +310,7 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 		}
 
-		public void updatedMessages(final ClientReplyReceiver callback, final Vector <MessageInfo> messages) {
+		public void updatedMessages(final ClientReplyReceiver callback, final ArrayList <MessageInfo> messages) {
 			if (callback == null) {
 				// No specific callback - broadcast to all observers
 				// This is used for early notification after connect
@@ -378,6 +406,14 @@ public class ClientBridge implements ClientRequestHandler {
 		mRemoteClient = remoteClient;
 		mWorker.connect(remoteClient, retrieveInitialData);
 	}
+	
+	public ProjectConfig getPendingProjectConfig(String projectUrl) {
+		return mPendingProjectConfigs.get(projectUrl);
+	}
+	
+	public void flushPendingProjectConfig(String projectUrl) {
+		mPendingProjectConfigs.remove(projectUrl);
+	}
 
 	@Override
 	public void disconnect() {
@@ -438,19 +474,19 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 
 	@Override
-	public void getBAMInfo(ClientManageReceiver callback) {
+	public void getBAMInfo(ClientAccountMgrReceiver callback) {
 		if (mRemoteClient == null) return; // not connected
 		mWorker.getBAMInfo(callback);
 	}
 	
 	@Override
-	public void attachToBAM(ClientReplyReceiver callback, String name, String url, String password) {
+	public void attachToBAM(ClientAccountMgrReceiver callback, String name, String url, String password) {
 		if (mRemoteClient == null) return; // not connected
 		mWorker.attachToBAM(callback, name, url, password);
 	}
 	
 	@Override
-	public void synchronizeWithBAM(ClientReplyReceiver callback) {
+	public void synchronizeWithBAM(ClientAccountMgrReceiver callback) {
 		if (mRemoteClient == null) return; // not connected
 		mWorker.synchronizeWithBAM(callback);
 	}
@@ -462,31 +498,42 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 	
 	@Override
-	public void getAllProjectsList(ClientManageReceiver callback) {
+	public void getAllProjectsList(ClientAllProjectsListReceiver callback) {
 		if (mRemoteClient == null) return; // not connected
 		mWorker.getAllProjectsList(callback);
 	}
 	
 	@Override
-	public void lookupAccount(ClientManageReceiver callback, AccountIn accountIn) {
+	public void lookupAccount(ClientProjectReceiver callback, AccountIn accountIn) {
 		if (mRemoteClient == null) return; // not connected
 		mWorker.lookupAccount(callback, accountIn);
 	}
 	
 	@Override
-	public void createAccount(ClientManageReceiver callback, AccountIn accountIn) {
+	public void createAccount(ClientProjectReceiver callback, AccountIn accountIn) {
 		if (mRemoteClient == null) return; // not connected
 		mWorker.createAccount(callback, accountIn);
 	}
 	
 	@Override
-	public void projectAttach(ClientManageReceiver callback, String url, String authCode, String projectName) {
+	public void projectAttach(ClientProjectReceiver callback, String url, String authCode, String projectName) {
 		if (mRemoteClient == null) return; // not connected
 		mWorker.projectAttach(callback, url, authCode, projectName);
 	}
 	
 	@Override
-	public void getProjectConfig(ClientManageReceiver callback, String url) {
+	public void addProject(ClientProjectReceiver callback, AccountIn accountIn, boolean create) {
+		if (mRemoteClient == null) return; // not connected
+		if (mJoinedAddProjectsMap.putIfAbsent(accountIn.url, "") != null)
+			return;
+		if (create)
+			mWorker.createAccount(callback, accountIn);
+		else
+			mWorker.lookupAccount(callback, accountIn);
+	}
+	
+	@Override
+	public void getProjectConfig(ClientProjectReceiver callback, String url) {
 		if (mRemoteClient == null) return; // not connected
 		mWorker.getProjectConfig(callback, url);
 	}

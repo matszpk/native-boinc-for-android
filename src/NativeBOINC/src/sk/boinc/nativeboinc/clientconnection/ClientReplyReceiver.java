@@ -19,15 +19,15 @@
 
 package sk.boinc.nativeboinc.clientconnection;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 
 public interface ClientReplyReceiver extends ClientReceiver {
 	public abstract boolean updatedClientMode(ModeInfo modeInfo);
 	public abstract boolean updatedHostInfo(HostInfo hostInfo);
 	
-	public abstract boolean updatedProjects(Vector<ProjectInfo> projects);
-	public abstract boolean updatedTasks(Vector<TaskInfo> tasks);
-	public abstract boolean updatedTransfers(Vector<TransferInfo> transfers);
-	public abstract boolean updatedMessages(Vector<MessageInfo> messages);
+	public abstract boolean updatedProjects(ArrayList<ProjectInfo> projects);
+	public abstract boolean updatedTasks(ArrayList<TaskInfo> tasks);
+	public abstract boolean updatedTransfers(ArrayList<TransferInfo> transfers);
+	public abstract boolean updatedMessages(ArrayList<MessageInfo> messages);
 }

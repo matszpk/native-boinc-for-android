@@ -25,7 +25,6 @@ import sk.boinc.nativeboinc.util.ScreenOrientationHandler;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -105,13 +104,6 @@ public class HostListActivity extends ListActivity {
 		}
 		mScreenOrientation = null;
 		super.onDestroy();
-	}
-
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		// We handle only orientation changes
-		mScreenOrientation.setOrientation();
 	}
 
 	@Override

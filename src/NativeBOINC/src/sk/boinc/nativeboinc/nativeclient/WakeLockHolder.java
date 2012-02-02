@@ -162,16 +162,6 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 	}
 
 	@Override
-	public void onClientFirstStart() {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void onAfterClientFirstKill() {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {
 		if (key.equals(PreferenceName.POWER_SAVING)) {

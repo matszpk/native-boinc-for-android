@@ -32,6 +32,7 @@ public class ProjectItem implements Parcelable {
 	
 	private String mUrl;
 	private String mName;
+	private String mVersion;
 	
 	@Override
 	public int describeContents() {
@@ -43,16 +44,25 @@ public class ProjectItem implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(mUrl);
 		dest.writeString(mName);
+		dest.writeString(mVersion);
 	}
 	
 	private ProjectItem(Parcel in) {
 		mUrl = in.readString();
 		mName = in.readString();
+		mVersion = in.readString();
 	}
 	
 	public ProjectItem(String name, String url) {
 		mName = name;
 		mUrl = url;
+		mVersion = null;
+	}
+	
+	public ProjectItem(String name, String url, String version) {
+		mName = name;
+		mUrl = url;
+		mVersion = version;
 	}
 	
 	public static final Parcelable.Creator<ProjectItem> CREATOR
@@ -74,5 +84,9 @@ public class ProjectItem implements Parcelable {
 
 	public String getUrl() {
 		return mUrl;
+	}
+	
+	public String getVersion() {
+		return mVersion;
 	}
 }

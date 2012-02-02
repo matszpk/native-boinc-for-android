@@ -23,14 +23,16 @@ import hal.android.workarounds.FixedProgressDialog;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.AccountMgrInfo;
 import edu.berkeley.boinc.lite.ProjectConfig;
 import edu.berkeley.boinc.lite.ProjectListEntry;
 
-import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;
@@ -42,8 +44,9 @@ import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
-import sk.boinc.nativeboinc.installer.InstallerListener;
+import sk.boinc.nativeboinc.installer.InstallerProgressListener;
 import sk.boinc.nativeboinc.installer.InstallerService;
+import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
@@ -52,8 +55,8 @@ import sk.boinc.nativeboinc.util.AddProjectResult;
 import sk.boinc.nativeboinc.util.BAMAccount;
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.HostListDbAdapter;
-import sk.boinc.nativeboinc.util.ProjectConfigOptions;
 import sk.boinc.nativeboinc.util.ProjectItem;
+import sk.boinc.nativeboinc.util.ScreenOrientationHandler;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -83,7 +86,9 @@ import android.widget.Toast;
 
 
 public class ManageClientActivity extends PreferenceActivity implements ClientReplyReceiver,
-		ClientManageReceiver, InstallerListener, NativeBoincStateListener {
+		ClientAccountMgrReceiver, ClientProjectReceiver, ClientAllProjectsListReceiver, 
+		InstallerProgressListener, InstallerUpdateListener,
+		NativeBoincStateListener {
 	private static final String TAG = "ManageClientActivity";
 
 	private static final int DIALOG_WARN_SHUTDOWN = 0;
@@ -102,7 +107,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	private HostInfo mHostInfo = null;
 	
 	private int mClientErrorNum = 0;
-	private Vector<String> mClientErrorMessages = null;
+	private ArrayList<String> mClientErrorMessages = null;
 	
 	private AccountMgrInfo mBAMInfo = null;
 	private boolean mPeriodicModeRetrievalAllowed = false;
@@ -118,7 +123,12 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	private boolean mShutdownByProjectAttach = false;
 	private boolean mDoUpdateActivity = false;
 	
+	private boolean mDelayedInstallerListenerRegistration = false;
+	private boolean mDelayedRunnerListenerRegistration = false;
+	
 	private ProgressDialog mProgressDialog = null;
+	
+	private ScreenOrientationHandler mScreenOrientation;
 	
 	private class SavedState {
 		public final HostInfo hostInfo;
@@ -166,7 +176,10 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			mInstaller = ((InstallerService.LocalBinder)service).getService();
 			if (Logging.DEBUG) Log.d(TAG, "installer.onServiceConnected()");
-			mInstaller.addInstallerListener(ManageClientActivity.this);
+			if (mDelayedInstallerListenerRegistration) {
+				mInstaller.addInstallerListener(ManageClientActivity.this);
+				mDelayedInstallerListenerRegistration = false;
+			}
 		}
 
 		@Override
@@ -182,8 +195,11 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			mRunner = ((NativeBoincService.LocalBinder)service).getService();
+			if (mDelayedRunnerListenerRegistration) {
+				mRunner.addNativeBoincListener(ManageClientActivity.this);
+				mDelayedRunnerListenerRegistration = false;
+			}
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceConnected()");
-			mRunner.addNativeBoincListener(ManageClientActivity.this);
 		}
 		
 		@Override
@@ -236,6 +252,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 
 		super.onCreate(savedInstanceState);
 
+		mScreenOrientation = new ScreenOrientationHandler(this);
+		
 		doBindService();
 		doBindInstallerService();
 		doBindRunnerService();
@@ -395,6 +413,10 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	@Override
 	protected void onResume() {
 		super.onResume();
+		
+		// setup orientation
+		mScreenOrientation.setOrientation();
+		
 		// We are in foreground, so we want to receive notification when data are updated
 		if (mConnectionManager != null) {
 			// register right now
@@ -445,12 +467,15 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 			}
 		}
 		
-		if (mRunner == null) {
-			doBindRunnerService();
-		}
-		if (mInstaller == null) {
-			doBindInstallerService();
-		}
+		if (mRunner != null)
+			mRunner.addNativeBoincListener(this);
+		else
+			mDelayedRunnerListenerRegistration = true;
+		
+		if (mInstaller != null)
+			mInstaller.addInstallerListener(this);
+		else
+			mDelayedInstallerListenerRegistration = true;
 	}
 
 	@Override
@@ -473,19 +498,20 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		mDelayedObserverRegistration = false;
 		// If we did not perform deferred connect so far, we needn't do that anymore
 		mSelectedClient = null;
+		
+		if (mInstaller != null)
+			mInstaller.removeInstallerListener(this);
+		if (mRunner != null)
+			mRunner.removeNativeBoincListener(this);
+		
+		mDelayedInstallerListenerRegistration = false;
+		mDelayedRunnerListenerRegistration = false;
 	}
 
 	@Override
 	protected void onDestroy() {
 		if (Logging.DEBUG) Log.d(TAG, "onDestroy()");
-		if (mRunner != null) {
-			mRunner.removeNativeBoincListener(this);
-			mRunner = null;
-		}
-		if (mInstaller != null) {
-			mInstaller.removeInstallerListener(this);
-			mInstaller = null;
-		}
+		mScreenOrientation = null;
 		doUnbindService();
 		doUnbindInstallerService();
 		doUnbindRunnerService();
@@ -496,7 +522,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	public boolean onKeyDown(int keyCode, KeyEvent keyEvent) {
 		if (keyCode == KeyEvent.KEYCODE_BACK && mInstaller != null) {
 			if (Logging.DEBUG) Log.d(TAG, "Cancel installer operation");
-			mInstaller.cancelOperation();
+			mInstaller.cancelAll();
 			mShutdownByProjectAttach = false;
 		}
 		return super.onKeyDown(keyCode, keyEvent);
@@ -694,7 +720,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		mShutdownByProjectAttach = false;
 		
 		if (!mRunner.isRun())
-			mRunner.startClient();
+			mRunner.startClient(false);
 	}
 
 	private void showErrorDialog(String message) {
@@ -787,14 +813,6 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	}
 	
 	@Override
-	public boolean clientError(int errorNum, Vector<String> messages) {
-		mClientErrorNum = errorNum;
-		mClientErrorMessages = messages;
-		showDialog(DIALOG_CLIENT_ERROR);
-		return false;
-	}
-
-	@Override
 	public boolean updatedClientMode(ModeInfo modeInfo) {
 		if (Logging.DEBUG) Log.d(TAG, "Client run/network mode info updated, refreshing view");
 		mClientMode = modeInfo;
@@ -833,7 +851,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	}
 	
 	@Override
-	public boolean currentAllProjectsList(Vector<ProjectListEntry> allProjects) {
+	public boolean currentAllProjectsList(ArrayList<ProjectListEntry> allProjects) {
 		ProjectItem[] projectItems = new ProjectItem[allProjects.size()];
 		for (int i = 0; i < allProjects.size(); i++) {
 			ProjectListEntry entry = allProjects.get(i);
@@ -864,7 +882,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	public boolean currentProjectConfig(ProjectConfig projectConfig) {
 		// start AddProject dialog
 		Intent intent = new Intent(this, AddProjectActivity.class);
-		intent.putExtra(ProjectConfigOptions.TAG, new ProjectConfigOptions(projectConfig));
+		//intent.putExtra(ProjectConfigOptions.TAG, new ProjectConfigOptions(projectConfig));
 		startActivityForResult(intent, ACTIVITY_ADD_PROJECT);
 		return false;
 	}
@@ -881,13 +899,13 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	}
 	
 	@Override
-	public boolean updatedMessages(Vector<MessageInfo> messages) {
+	public boolean updatedMessages(ArrayList<MessageInfo> messages) {
 		// Never requested, nothing to do
 		return false;
 	}
 
 	@Override
-	public boolean updatedProjects(Vector<ProjectInfo> projects) {
+	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
 		if (mDoUpdateActivity) {
 			// run update activity
 			Intent intent = new Intent(this, UpdateActivity.class);
@@ -910,13 +928,13 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	}
 
 	@Override
-	public boolean updatedTasks(Vector<TaskInfo> tasks) {
+	public boolean updatedTasks(ArrayList<TaskInfo> tasks) {
 		// Never requested, nothing to do
 		return false;
 	}
 
 	@Override
-	public boolean updatedTransfers(Vector<TransferInfo> transfers) {
+	public boolean updatedTransfers(ArrayList<TransferInfo> transfers) {
 		// Never requested, nothing to do
 		return false;
 	}
@@ -925,13 +943,13 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	 * InstallerListener methods
 	 */
 	@Override
-	public void onOperation(String opDescription) {
+	public void onOperation(String distribName, String opDescription) {
 		setProgressBarIndeterminateVisibility(true);
 		Toast.makeText(this, opDescription, Toast.LENGTH_SHORT).show();
 	}
 	
 	@Override
-	public void onOperationProgress(String opDescription, int progress) {
+	public void onOperationProgress(String distribName, String opDescription, int progress) {
 		if (mProgressDialog == null) {
 			mProgressDialog = new ProgressDialog(this);
 			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -942,7 +960,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		    mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dialog) {
-					mInstaller.cancelOperation();
+					mInstaller.cancelAll();
 					finish();
 				}
 			});
@@ -957,12 +975,12 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	}
 	
 	@Override
-	public void onOperationError(String errorMessage) {
+	public void onOperationError(String distribName, String errorMessage) {
 		showErrorDialog(errorMessage);
 	}
 	
 	@Override
-	public void onOperationCancel() {
+	public void onOperationCancel(String distribName) {
 		Toast.makeText(this, R.string.operationCancelled, Toast.LENGTH_LONG).show();
 		if (mProgressDialog != null) {
 			mProgressDialog.dismiss();
@@ -972,7 +990,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	}
 	
 	@Override
-	public void onOperationFinish() {
+	public void onOperationFinish(String distribName) {
 		if (mProgressDialog != null) {
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
@@ -980,18 +998,19 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		setProgressBarIndeterminateVisibility(false);
 		
 		if (mShutdownByProjectAttach) {
-			mRunner.startClient(); // restart native client
+			mRunner.startClient(false); // restart native client
 		}
 	}
 
 	@Override
-	public void currentProjectDistribList(Vector<ProjectDistrib> projectDistribs) {
+	public void currentProjectDistribList(ArrayList<ProjectDistrib> projectDistribs) {
 		ProjectItem[] projectItems = new ProjectItem[projectDistribs.size()];
 		
 		/* prepare list */
 		for (int i = 0; i < projectDistribs.size(); i++) {
 			ProjectDistrib distrib = projectDistribs.get(i);
-			projectItems[i] = new ProjectItem(distrib.projectName, distrib.projectUrl);
+			projectItems[i] = new ProjectItem(distrib.projectName, distrib.projectUrl,
+					distrib.version);
 		}
 		
 		Intent intent = new Intent(this, ProjectListActivity.class);
@@ -1023,7 +1042,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 					mShutdownByProjectAttach);
 			if (mShutdownByProjectAttach) {
 				/* get updated projects for installation */
-				mInstaller.installBoincApplicationAutomatically(mProjectUrl);
+				mInstaller.installProjectApplicationsAutomatically(null, mProjectUrl);
 			}
 		}
 	}
@@ -1271,5 +1290,17 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	private void boincShutdownClient() {
 		mConnectionManager.shutdownCore();
 		Toast.makeText(this, getString(R.string.clientShutdownNotify), Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public boolean onAfterAccountMgrRPC() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean onPollError(int errorNum, int operation, String param) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

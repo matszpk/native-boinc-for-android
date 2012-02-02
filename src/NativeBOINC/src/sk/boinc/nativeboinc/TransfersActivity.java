@@ -19,7 +19,7 @@
 
 package sk.boinc.nativeboinc;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.clientconnection.ClientOp;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
@@ -80,12 +80,12 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	private boolean mViewUpdatesAllowed = false;
 	private boolean mViewDirty = false;
 
-	private Vector<TransferInfo> mTransfers = new Vector<TransferInfo>();
+	private ArrayList<TransferInfo> mTransfers = new ArrayList<TransferInfo>();
 	private int mPosition = 0;
 
 
 	private class SavedState {
-		private final Vector<TransferInfo> transfers;
+		private final ArrayList<TransferInfo> transfers;
 
 		public SavedState() {
 			transfers = mTransfers;
@@ -121,7 +121,7 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 
 		@Override
 		public Object getItem(int position) {
-			return mTransfers.elementAt(position);
+			return mTransfers.get(position);
 		}
 
 		@Override
@@ -139,7 +139,7 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 			else {
 				layout = convertView;
 			}
-			TransferInfo transfer = mTransfers.elementAt(position);
+			TransferInfo transfer = mTransfers.get(position);
 			TextView tv;
 			tv = (TextView)layout.findViewById(R.id.transferFileName);
 			tv.setText(transfer.fileName);
@@ -440,12 +440,6 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
 	}
-	
-	@Override
-	public boolean clientError(int errorNum, Vector<String> messages) {
-		// Do nothing
-		return false;
-	}
 
 	@Override
 	public boolean updatedClientMode(ModeInfo modeInfo) {
@@ -460,19 +454,19 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	}
 
 	@Override
-	public boolean updatedProjects(Vector<ProjectInfo> projects) {
+	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
 		// Just ignore
 		return false;
 	}
 
 	@Override
-	public boolean updatedTasks(Vector<TaskInfo> tasks) {
+	public boolean updatedTasks(ArrayList<TaskInfo> tasks) {
 		// Just ignore
 		return false;
 	}
 
 	@Override
-	public boolean updatedTransfers(Vector<TransferInfo> transfers) {
+	public boolean updatedTransfers(ArrayList<TransferInfo> transfers) {
 		mTransfers = transfers;
 		if (mViewUpdatesAllowed) {
 			// We are visible, update the view with fresh data
@@ -489,7 +483,7 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	}
 
 	@Override
-	public boolean updatedMessages(Vector<MessageInfo> messages) {
+	public boolean updatedMessages(ArrayList<MessageInfo> messages) {
 		// Just ignore
 		return false;
 	}
@@ -499,7 +493,7 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	}
 
 	private String prepareTransferDetails(int position) {
-		TransferInfo transfer = mTransfers.elementAt(position);
+		TransferInfo transfer = mTransfers.get(position);
 		return getString(R.string.transferDetailedInfo, 
 				TextUtils.htmlEncode(transfer.fileName),
 				TextUtils.htmlEncode(transfer.project),

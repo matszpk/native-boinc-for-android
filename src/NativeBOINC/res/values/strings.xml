@@ -29,8 +29,13 @@
 	<string name="widget_service_desc">Native BOINC Widget service</string>
 
 	<!-- Some common, generic strings -->
+	<string name="back">Back</string>
+	<string name="next">Next</string>
+	<string name="finish">Finish</string>
+	<string name="info">Info</string>
 	<string name="authorization">Authorization...</string>
 	<string name="cancel">Cancel</string>
+	<string name="cancelAll">Cancel all</string>
 	<string name="changelog">ChangeLog</string>
 	<string name="close">Close</string>
 	<string name="connecting">Connecting...</string>
@@ -100,7 +105,8 @@
 		%1$s is fully fledged native BOINC client for Android integrated
 		with AndroBOINC manager v1.6.7b3.\n
 		Thank you for use my software.\n
-		Copyright (C) 2011 matszpk\n
+		Copyright (C) 2012 matszpk\n
+		Original AndroBOINC by Pavel Michalec (Paulo M.)\n
 		\n
 		Thanks for:\n
 		Troll81 - for logo design.\n
@@ -276,40 +282,53 @@
 	<string name="addProjectName">User name</string>
 	<string name="addProjectEmail">Email address</string>
 	<string name="addProjectPassword">Password</string>
-	<string name="addProjectConfirmPassword">Confirm password</string>
-	<string name="addProjectMinPassword">Min. password length:</string>
+	<string name="addProjectMinPassword">Min. password length</string>
 	<string name="termsOfUse">Terms of use</string>
 
 	<!-- Install Wizard Activity -->
 	<string name="installWizard">Installation Wizard</string>
-	<string name="installNext">Next</string>
-	<string name="installFinish">Finish</string>
 	<string name="installWelcome">Welcome to NativeBOINC!</string>
 	<string name="installClientInstall">Please tap \'Next\' button to download and install native BOINC client.</string>
-	<string name="installAccessPasswordStep">Please change access password to BOINC client or skip this step and remember current password.</string>
-	<string name="installCurrentPassword">Current password</string>
-	<string name="installNewPassword">New password</string>
+	<string name="versionToInstall">Version to install</string>
 	<string name="installSuccessfully">Native BOINC client has been installed successfully!</string>
 	<string name="installAddProject">Please tap \'Next\' button to add first BOINC project.</string>
 	<string name="installFinished">Installation have been finished. Please tap \'Finish\' button.</string>
 	<string name="installFinishedBut">Installation have been finished without project attachment. Please tap \'Finish\' button.</string>
 	<string name="installWidgetFinished">Notice: We recommends to use NativeBOINC widget to control native client.</string>
+	<string name="installFinishedBenchmark">Currently boinc client ran benchmark. Please waits 30 seconds to finish benchmark.</string>
 
 	<string name="installReadBefore">READ BEFORE INSTALLATION:</string>
 	<string name="installAttention1">Please DO NOT uninstall this application BEFORE shutting down BOINC client!!!</string>
-	<string name="installAttention2">If application closes unexpectedly, please use \'Force close\' and run again. Application kills all clients at start up.</string>
+	<string name="installAttention2">If application closes unexpectedly, please use \'Force close\' and run again.
+	    Application kills all clients at start up.</string>
 	<string name="installAttention3">BOINC client will be working in background. Please use \'Shutdown\' option to shutdown client.</string>
+	
+	<string name="installNetworkAccess1">Boinc client allows to you connect with it through network with using Boinc Manager.</string>
+	<string name="installNetworkAccess2">To get access password and remote access options please select on main
+	    screen in menu \'Manage client\'->\'Network access\'.</string>
 
-	<string name="PGPKey">CAD10E7D</string>
+	<string name="installClientNotifyBegin">Installing boinc client</string>
+	<string name="installProjectNotifyBegin">Installing applications for </string>
 
 	<!-- Change password activity -->
 	<string name="changeAccessPassword">Change access password</string>
 
+	<!--  info ..... -->
+	<string name="clientInfo">Client informations</string>
+	<string name="clientVersion">Client version</string>
+	<string name="description">Description</string>
+	<string name="changes">Changes</string>
+	
+	<string name="noInstallOpsText">No operations in background.</string>
+	<string name="installProgressText">Installer are performing some operations in background.</string>
+	<string name="installingUpdating">Installing/Updating binaries</string>
+	
 	<!-- install sources -->
-	<string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>
-	<!-- <string name="installClientSourceUrl">http://192.168.1.12:8080/examples/boinc_client/</string>-->
-	<string name="installAppsSourceUrl">http://krzyszp.info/matszpk/boinc_apps/</string>
-	<!-- <string name="installAppsSourceUrl">http://192.168.1.12:8080/examples/boinc_apps/</string>-->
+	<string name="PGPKey">CAD10E7D</string>
+	<!-- <string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>-->
+	<string name="installClientSourceUrl">http://192.168.1.3:8080/examples/boinc_client/</string>
+	<!-- <string name="installAppsSourceUrl">http://krzyszp.info/matszpk/boinc_apps/</string>-->
+	<string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/boinc_apps/</string>
 	
 	<!-- ProjectsActivity -->
 	<string name="projectCtxMenuTitle">Commands</string>
@@ -401,6 +420,7 @@
 	<string name="lockTasksSuspended">Tasks suspended</string>
 	<string name="lockToUnlock">Press HOME key to unlock</string>
 	
+	<string name="clientDisconnected">Client disconnected</string>
 	<!-- Client Error display -->
 	<string name="clientError">Client error</string>
 	<string name="clientErrorNum">Error number:</string>
@@ -410,33 +430,36 @@
 	<string name="verifySignature">Verifying signature</string>
 	<string name="downloadNativeClient">Downloading native client</string>
 	<string name="unpackNativeClient">Unpacking native client</string>
-	<string name="unpackApplication">Unpacking project application</string>
+	<string name="unpackApplication">Unpacking project applications</string>
 	
-	<string name="downloadApplication">Dowloading project application</string>
+	<string name="downloadApplication">Dowloading project applications</string>
 	
 	<string name="operationCancelled">Operation cancelled</string>
+	<string name="operationFinished">Operation finished</string>
 	
-	<string name="nativeClientFirstStart">First start of native client</string>
-	<string name="nativeClientFirstKill">First kill of native client</string>
+	<string name="nativeClientFirstStart">First start native client</string>
+	<string name="nativeClientFirstStartError">First start native client failed</string>
+	<string name="nativeClientFirstKill">First kill native client</string>
 	
 	<string name="nativeClientConfigured">Native client has been configured</string>
 	
 	<string name="nativeClientStart">Native client started up</string>
 	<string name="nativeClientShutdown">Native client stopped</string>
 	
-	<string name="appListDownload">Downloading app list</string>
+	<string name="appListDownload">Downloading project applications list</string>
 	<string name="clientListDownload">Downloading client list</string>
 	
 	<!-- Error strings -->
+	<string name="installError">Installation error</string>
 	<string name="downloadPGPKeyError">Unable to download PGP key</string>
 	<string name="loadPGPKeyError">Unable to load PGP key</string>
 	<string name="downloadNativeClientError">Unable to download native client</string>
-	<string name="downloadApplicationError">Unable to download project application</string>
+	<string name="downloadApplicationError">Unable to download project applications</string>
 	<string name="downloadSignatureError">Unable to download signature</string>
 	<string name="verifySignatureError">Unable to verify signature</string>
 	<string name="verifySignatureFailed">Signature verification failed</string>
 	<string name="unpackNativeClientError">Unable to unpack native client</string>
-	<string name="unpackApplicationError">Unable to unpack project application</string>
+	<string name="unpackApplicationError">Unable to unpack project applications</string>
 	<string name="changePermissionsError">Unable to change permissions</string>
 	
 	<string name="runNativeClientError">Unable to run native client</string>
@@ -448,11 +471,13 @@
 	<string name="nativeClientConfigError">Unable to configure native client</string>
 	<string name="nativeClientResultsError">Unable to get results from native client</string>
 	
-	<string name="appListDownloadError">Unable to download app list</string>
-	<string name="appListParseError">Unable to parse app list</string>
+	<string name="appListDownloadError">Unable to download project applications list</string>
+	<string name="appListParseError">Unable to parse project applications list</string>
 	<string name="clientListDownloadError">Unable to download client list</string>
 	<string name="clientListParseError">Unable to parse client list</string>
-	<string name="projectAppNotFound">Application for this project not found</string>
+	<string name="projectAppNotFound">Project for this project not found</string>
+	
+	<string name="updateProjectAppError">Unable to finalize updating project applications for</string>
 	
 	<!-- HostInfo display -->
 	<string name="hostInfoPart1">

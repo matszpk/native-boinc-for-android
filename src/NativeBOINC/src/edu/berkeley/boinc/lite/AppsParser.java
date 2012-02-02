@@ -19,7 +19,7 @@
 
 package edu.berkeley.boinc.lite;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -33,11 +33,11 @@ import android.util.Xml;
 public class AppsParser extends BaseParser {
 	private static final String TAG = "AppsParser";
 
-	private Vector<App> mApps = new Vector<App>();
+	private ArrayList<App> mApps = new ArrayList<App>();
 	private App mApp = null;
 
 
-	public final Vector<App> getApps() {
+	public final ArrayList<App> getApps() {
 		return mApps;
 	}
 
@@ -46,7 +46,7 @@ public class AppsParser extends BaseParser {
 	 * @param rpcResult String returned by RPC call of core client
 	 * @return vector of app
 	 */
-	public static Vector<App> parse(String rpcResult) {
+	public static ArrayList<App> parse(String rpcResult) {
 		try {
 			AppsParser parser = new AppsParser();
 			Xml.parse(rpcResult, parser);

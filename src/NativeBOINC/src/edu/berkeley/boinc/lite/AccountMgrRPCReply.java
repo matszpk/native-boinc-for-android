@@ -19,7 +19,7 @@
 
 package edu.berkeley.boinc.lite;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * @author mat
@@ -27,5 +27,5 @@ import java.util.Vector;
  */
 public class AccountMgrRPCReply {
 	public int error_num = 0;
-	public Vector<String> messages = new Vector<String>();
+	public ArrayList<String> messages = new ArrayList<String>();
 }

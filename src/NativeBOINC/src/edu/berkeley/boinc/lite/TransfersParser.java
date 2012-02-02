@@ -19,7 +19,7 @@
 
 package edu.berkeley.boinc.lite;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -33,11 +33,11 @@ import android.util.Xml;
 public class TransfersParser extends BaseParser {
 	private static final String TAG = "TransfersParser";
 
-	private Vector<Transfer> mTransfers = new Vector<Transfer>();
+	private ArrayList<Transfer> mTransfers = new ArrayList<Transfer>();
 	private Transfer mTransfer = null;
 
 
-	public final Vector<Transfer> getTransfers() {
+	public final ArrayList<Transfer> getTransfers() {
 		return mTransfers;
 	}
 
@@ -46,7 +46,7 @@ public class TransfersParser extends BaseParser {
 	 * @param rpcResult String returned by RPC call of core client
 	 * @return vector of projects info
 	 */
-	public static Vector<Transfer> parse(String rpcResult) {
+	public static ArrayList<Transfer> parse(String rpcResult) {
 		try {
 			TransfersParser parser = new TransfersParser();
 			Xml.parse(rpcResult, parser);

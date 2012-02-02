@@ -20,7 +20,6 @@
 package sk.boinc.nativeboinc;
 
 import sk.boinc.nativeboinc.util.BAMAccount;
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -33,7 +32,7 @@ import android.widget.EditText;
  * @author mat
  *
  */
-public class EditBAMActivity extends Activity {
+public class EditBAMActivity extends AbstractBoincActivity {
 
 	private EditText mName;
 	private EditText mUrl;

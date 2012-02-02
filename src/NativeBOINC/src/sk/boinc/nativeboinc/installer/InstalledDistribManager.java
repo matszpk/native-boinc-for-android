@@ -25,7 +25,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.debug.Logging;
 
@@ -42,7 +42,7 @@ public class InstalledDistribManager {
 	private Context mContext = null;
 	
 	private InstalledClient mInstalledClient = null;
-	private Vector<InstalledDistrib> mInstalledDistribs = null;
+	private ArrayList<InstalledDistrib> mInstalledDistribs = null;
 	
 	public InstalledDistribManager(Context context) {
 		mContext = context;
@@ -54,7 +54,7 @@ public class InstalledDistribManager {
 		mInstalledClient.changes = clientDistrib.changes;
 	}
 	
-	public synchronized void addOrUpdateDistrib(ProjectDistrib distrib, Vector<String> files) {
+	public synchronized void addOrUpdateDistrib(ProjectDistrib distrib, ArrayList<String> files) {
 		int index = -1;
 		for (int i = 0; i < mInstalledDistribs.size(); i++)
 			if (mInstalledDistribs.get(i).projectUrl.equals(distrib.projectUrl)) {
@@ -94,7 +94,7 @@ public class InstalledDistribManager {
 	}
 	
 	public synchronized void synchronizeWithProjectList(Context context) {
-		Vector<InstalledDistrib> newDistribs = new Vector<InstalledDistrib>();
+		ArrayList<InstalledDistrib> newDistribs = new ArrayList<InstalledDistrib>();
 		
 		String projectsPath = context.getFilesDir().getAbsolutePath()+"/boinc/projects/";
 		
@@ -121,7 +121,7 @@ public class InstalledDistribManager {
 			}
 		} catch(FileNotFoundException ex) { 
 			/* set as empty installed Distrib */
-			mInstalledDistribs = new Vector<InstalledDistrib>();
+			mInstalledDistribs = new ArrayList<InstalledDistrib>();
 		} finally {
 			try {
 				if (inStream != null)
@@ -216,7 +216,7 @@ public class InstalledDistribManager {
 		return mInstalledClient;
 	}
 	
-	public Vector<InstalledDistrib> getInstalledDistribs() {
+	public ArrayList<InstalledDistrib> getInstalledDistribs() {
 		return mInstalledDistribs;
 	}
 	

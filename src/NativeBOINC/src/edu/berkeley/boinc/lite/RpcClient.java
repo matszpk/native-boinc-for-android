@@ -27,7 +27,7 @@ import java.io.StringReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -454,10 +454,10 @@ public class RpcClient {
 	 * Performs get_file_transfers RPC towards BOINC client
 	 * @return result of RPC call in case of success, null otherwise
 	 */
-	public Vector<Transfer> getFileTransfers() {
+	public ArrayList<Transfer> getFileTransfers() {
 		try {
 			sendRequest("<get_file_transfers/>\n");
-			Vector<Transfer> transfers = TransfersParser.parse(receiveReply());
+			ArrayList<Transfer> transfers = TransfersParser.parse(receiveReply());
 			return transfers;
 		}
 		catch (IOException e) {
@@ -504,7 +504,7 @@ public class RpcClient {
 	 * 
 	 * @return result of RPC call in case of success, null otherwise
 	 */
-	public Vector<Message> getMessages(int seqNo) {
+	public ArrayList<Message> getMessages(int seqNo) {
 		try {
 			String request;
 			if (seqNo == 0) {
@@ -518,7 +518,7 @@ public class RpcClient {
 					"</get_messages>\n";
 			}
 			sendRequest(request);
-			Vector<Message> messages = MessagesParser.parse(receiveReply());
+			ArrayList<Message> messages = MessagesParser.parse(receiveReply());
 			return messages;
 		}
 		catch (IOException e) {
@@ -532,10 +532,10 @@ public class RpcClient {
 	 * 
 	 * @return result of RPC call in case of success, null otherwise
 	 */
-	public Vector<Project> getProjectStatus() {
+	public ArrayList<Project> getProjectStatus() {
 		try {
 			sendRequest("<get_project_status/>\n");
-			Vector<Project> projects = ProjectsParser.parse(receiveReply());
+			ArrayList<Project> projects = ProjectsParser.parse(receiveReply());
 			return projects;
 		}
 		catch (IOException e) {
@@ -549,14 +549,14 @@ public class RpcClient {
 	 * 
 	 * @return result of RPC call in case of success, null otherwise
 	 */
-	public Vector<Result> getActiveResults() {
+	public ArrayList<Result> getActiveResults() {
 		final String request =
 			"<get_results>\n" +
 			"<active_only>1</active_only>\n" +
 			"</get_results>\n";
 		try {
 			sendRequest(request);
-			Vector<Result> results = ResultsParser.parse(receiveReply());
+			ArrayList<Result> results = ResultsParser.parse(receiveReply());
 			return results;
 		}
 		catch (IOException e) {
@@ -570,10 +570,10 @@ public class RpcClient {
 	 * 
 	 * @return result of RPC call in case of success, null otherwise
 	 */
-	public Vector<Result> getResults() {
+	public ArrayList<Result> getResults() {
 		try {
 			sendRequest("<get_results/>\n");
-			Vector<Result> results = ResultsParser.parse(receiveReply());
+			ArrayList<Result> results = ResultsParser.parse(receiveReply());
 			return results;
 		}
 		catch (IOException e) {
@@ -604,7 +604,7 @@ public class RpcClient {
 	 * 
 	 * @return result of RPC call in case of success, null otherwise
 	 */
-	public Vector<ProjectListEntry> getAllProjectsList() {
+	public ArrayList<ProjectListEntry> getAllProjectsList() {
 		try {
 			sendRequest("<get_all_projects_list/>\n");
 			return ProjectListParser.parse(receiveReply());

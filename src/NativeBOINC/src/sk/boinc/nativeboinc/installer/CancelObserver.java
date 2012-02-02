@@ -17,27 +17,12 @@
  * 
  */
 
-package sk.boinc.nativeboinc.clientconnection;
-
-import java.util.Vector;
-
-import edu.berkeley.boinc.lite.AccountMgrInfo;
-import edu.berkeley.boinc.lite.ProjectConfig;
-import edu.berkeley.boinc.lite.ProjectListEntry;
+package sk.boinc.nativeboinc.installer;
 
 /**
  * @author mat
  *
  */
-public interface ClientManageReceiver extends ClientReceiver {
-	
-	public abstract boolean currentBAMInfo(AccountMgrInfo accountMgrInfo);
-	public abstract boolean currentAllProjectsList(Vector<ProjectListEntry> allProjects);
-	
-	// result from lookupAccount/createAccout call
-	public abstract boolean currentAuthCode(String authCode);
-	
-	public abstract boolean currentProjectConfig(ProjectConfig projectConfig);
-	
-	public abstract boolean onAfterProjectAttach();
+public interface CancelObserver {
+	public abstract boolean isCancelled();
 }

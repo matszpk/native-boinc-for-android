@@ -230,9 +230,4 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 			}
 		});
 	}
-
-	@Override
-	public void onClientConfigured() {
-		// TODO Auto-generated method stub
-	}
 }

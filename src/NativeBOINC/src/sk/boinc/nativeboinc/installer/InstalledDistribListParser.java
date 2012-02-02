@@ -21,7 +21,7 @@ package sk.boinc.nativeboinc.installer;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -39,14 +39,14 @@ import edu.berkeley.boinc.lite.BaseParser;
 public class InstalledDistribListParser extends BaseParser {
 	private static final String TAG = "InstalledDistribParser";
 	
-	private Vector<InstalledDistrib> mInstalledDistribs = null;
+	private ArrayList<InstalledDistrib> mInstalledDistribs = null;
 	private InstalledDistrib mDistrib = null;
 	
-	public Vector<InstalledDistrib> getInstalledDistribs() {
+	public ArrayList<InstalledDistrib> getInstalledDistribs() {
 		return mInstalledDistribs;
 	}
 
-	public static Vector<InstalledDistrib> parse(InputStream result) {
+	public static ArrayList<InstalledDistrib> parse(InputStream result) {
 		try {
 			InstalledDistribListParser parser = new InstalledDistribListParser();
 			Xml.parse(result, Xml.Encoding.UTF_8, parser);
@@ -65,7 +65,7 @@ public class InstalledDistribListParser extends BaseParser {
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		super.startElement(uri, localName, qName, attributes);
 		if (localName.equalsIgnoreCase("distribs")) {
-			mInstalledDistribs = new Vector<InstalledDistrib>();
+			mInstalledDistribs = new ArrayList<InstalledDistrib>();
 		} else if (localName.equalsIgnoreCase("project")) {
 			mDistrib = new InstalledDistrib();
 		} else {

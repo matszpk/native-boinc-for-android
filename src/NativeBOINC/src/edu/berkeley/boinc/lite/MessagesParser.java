@@ -19,7 +19,7 @@
 
 package edu.berkeley.boinc.lite;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.debug.Logging;
 
@@ -29,11 +29,11 @@ import android.util.Log;
 public class MessagesParser {
 	private static final String TAG = "MessagesParser";
 
-	private Vector<Message> mMessages = new Vector<Message>();
+	private ArrayList<Message> mMessages = new ArrayList<Message>();
 	//private Message mMessage = null;
 
 
-	public final Vector<Message> getMessages() {
+	public final ArrayList<Message> getMessages() {
 		return mMessages;
 	}
 
@@ -42,7 +42,7 @@ public class MessagesParser {
 	 * @param rpcResult String returned by RPC call of core client
 	 * @return vector of application version
 	 */
-	public static Vector<Message> parse(String rpcResult) {
+	public static ArrayList<Message> parse(String rpcResult) {
 		MessagesParser parser = new MessagesParser();
 		try {
 			parser.parseMessages(rpcResult);

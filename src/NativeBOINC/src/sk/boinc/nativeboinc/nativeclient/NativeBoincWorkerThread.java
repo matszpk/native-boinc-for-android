@@ -18,7 +18,7 @@
  */
 package sk.boinc.nativeboinc.nativeclient;
 
-import edu.berkeley.boinc.lite.RpcClient;
+import edu.berkeley.boinc.nativeboinc.ExtendedRpcClient;
 import sk.boinc.nativeboinc.debug.Logging;
 import android.content.Context;
 import android.os.ConditionVariable;
@@ -36,10 +36,10 @@ public class NativeBoincWorkerThread extends Thread {
 	private ConditionVariable mLock;
 	private Context mContext;
 	private NativeBoincWorkerHandler mHandler;
-	private RpcClient mRpcClient;
+	private ExtendedRpcClient mRpcClient;
 	
 	public NativeBoincWorkerThread(NativeBoincService.ListenerHandler listenerHandler, final Context context,
-			final ConditionVariable lock, final RpcClient rpcClient) {
+			final ConditionVariable lock, final ExtendedRpcClient rpcClient) {
 		mListenerHandler = listenerHandler;
 		mLock = lock;
 		mContext = context;
@@ -85,15 +85,6 @@ public class NativeBoincWorkerThread extends Thread {
 		});
 	}
 	
-	public void configureClient(final NativeBoincReplyListener callback) {
-		mHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				mHandler.configureClient(callback);
-			}
-		});
-	}
-	
 	public void getResults(final NativeBoincResultsListener callback) {
 		mHandler.post(new Runnable() {
 			@Override
@@ -108,6 +99,15 @@ public class NativeBoincWorkerThread extends Thread {
 			@Override
 			public void run() {
 				mHandler.shutdownClient();
+			}
+		});
+	}
+	
+	public void updateProjectApps(final String projectUrl) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.updateProjectApps(projectUrl);
 			}
 		});
 	}

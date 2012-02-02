@@ -22,7 +22,8 @@
 		android:description="@string/app_desc"
 		android:icon="@drawable/nativeboinc" android:debuggable="false">
 
-		<activity android:name=".BoincManagerActivity">
+		<activity android:name=".BoincManagerActivity" 
+		    android:launchMode="singleTop">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
@@ -50,17 +51,20 @@
 		</receiver>
 
 		<activity android:name=".ManageClientActivity"
-			android:screenOrientation="portrait"
-			android:label="@string/menuManage" />
+			android:label="@string/menuManage"
+			android:launchMode="singleTop" />
 
 		<activity android:name=".AppPreferencesActivity"
-			android:label="@string/menuPreferences" />
+			android:label="@string/menuPreferences"
+			android:launchMode="singleTop" />
 
 		<activity android:name=".HostListActivity"
-			android:label="@string/selectHost" />
+			android:label="@string/selectHost"
+			android:launchMode="singleTop" />
 
 		<activity android:name=".EditHostActivity"
-			android:label="@string/hostEdit" />
+			android:label="@string/hostEdit"
+			android:launchMode="singleTop" />
 
 		<activity android:name=".ProjectsActivity" />
 
@@ -71,34 +75,41 @@
 		<activity android:name=".MessagesActivity" />
 		
 		<activity android:name=".EditBAMActivity"
-			android:screenOrientation="portrait"
-			android:label="@string/editBAM" />
+			android:label="@string/editBAM"
+			android:launchMode="singleTop" />
 		
 		<activity android:name=".ProjectListActivity"
-			android:screenOrientation="portrait"
-			android:label="@string/projectList" />
+			android:label="@string/projectList"
+			android:launchMode="singleTop" />
 
 		<activity android:name=".AddProjectActivity"
-			android:screenOrientation="portrait"
-			android:label="@string/addProject" />
+			android:label="@string/addProject"
+			android:launchMode="singleTop" />
 		
-		<activity android:name=".InstallWizardActivity"
-			android:screenOrientation="portrait"
+		<activity android:name=".InstallStep1Activity"
 			android:launchMode="singleTask"
-			android:label="@string/installWizard"
-			android:configChanges="keyboard|keyboardHidden|screenLayout|navigation|touchscreen" />
+			android:label="@string/installWizard" />
+			
+		<activity android:name=".InstallStep2Activity"
+			android:launchMode="singleTask"
+			android:label="@string/installWizard" />
+		
+		<activity android:name=".ProgressActivity"
+			android:launchMode="singleTop"
+			android:label="@string/installingUpdating" />
 		
 		<activity android:name=".AccessPasswordActivity"
-			android:screenOrientation="portrait"
-			android:label="@string/changeAccessPassword" />
+			android:label="@string/changeAccessPassword"
+			android:launchMode="singleTop" />
 		
 		<activity android:name=".ScreenLockActivity"
 			android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-			android:screenOrientation="landscape" />
+			android:screenOrientation="landscape"
+			android:launchMode="singleTop" />
 		
 		<activity android:name=".UpdateActivity"
-			android:screenOrientation="portrait"
-			android:label="@string/updateBinaries" />
+			android:label="@string/updateBinaries"
+			android:launchMode="singleTop" />
 			
 		<activity android:name=".ShutdownDialogActivity"
 			android:screenOrientation="portrait"
@@ -106,8 +117,8 @@
 			android:theme="@android:style/Theme.Dialog" />
 		
 		<activity android:name=".LocalPreferencesActivity"
-			android:screenOrientation="portrait"
-			android:label="@string/localPreferences" />
+			android:label="@string/localPreferences"
+			android:launchMode="singleTop" />
 	</application>
     
 </manifest>

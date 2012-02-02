@@ -3,7 +3,7 @@
  */
 package edu.berkeley.boinc.nativeboinc;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * @author mat
@@ -11,5 +11,5 @@ import java.util.Vector;
  */
 public class UpdateProjectAppsReply {
 	public int error_num = 0;
-	public Vector<String> messages = new Vector<String>();
+	public ArrayList<String> messages = new ArrayList<String>();
 }

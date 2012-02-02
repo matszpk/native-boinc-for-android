@@ -19,7 +19,7 @@
 
 package edu.berkeley.boinc.lite;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * @author mat
@@ -41,5 +41,5 @@ public class ProjectConfig {
 	public boolean web_stopped = false;
 	public int min_client_version = 0;
 	public String terms_of_use = "";
-	public Vector<String> platforms = new Vector<String>();
+	public ArrayList<String> platforms = new ArrayList<String>();
 }

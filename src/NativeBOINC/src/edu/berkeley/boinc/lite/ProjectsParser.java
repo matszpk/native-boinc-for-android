@@ -19,7 +19,7 @@
 
 package edu.berkeley.boinc.lite;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -33,12 +33,12 @@ import android.util.Xml;
 public class ProjectsParser extends BaseParser {
 	private static final String TAG = "ProjectsParser";
 
-	private Vector<Project> mProjects = new Vector<Project>();
+	private ArrayList<Project> mProjects = new ArrayList<Project>();
 	private Project mProject = null;
 	private GuiUrl mGuiUrl = null;
 
 
-	public final Vector<Project> getProjects() {
+	public final ArrayList<Project> getProjects() {
 		return mProjects;
 	}
 
@@ -47,7 +47,7 @@ public class ProjectsParser extends BaseParser {
 	 * @param rpcResult String returned by RPC call of core client
 	 * @return vector of projects info
 	 */
-	public static Vector<Project> parse(String rpcResult) {
+	public static ArrayList<Project> parse(String rpcResult) {
 		try {
 			ProjectsParser parser = new ProjectsParser();
 			Xml.parse(rpcResult, parser);

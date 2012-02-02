@@ -26,15 +26,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.Vector;
+import java.util.ArrayList;
 
-import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.ModeInfo;
+import sk.boinc.nativeboinc.clientconnection.PollOp;
 import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
 import sk.boinc.nativeboinc.clientconnection.TaskInfo;
 import sk.boinc.nativeboinc.clientconnection.TransferInfo;
@@ -92,7 +95,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 	private Map<String, Workunit> mWorkunits = new HashMap<String, Workunit>();
 	private Map<String, TaskInfo> mTasks = new HashMap<String, TaskInfo>();
 	private Set<String> mActiveTasks = new HashSet<String>();
-	private Vector<TransferInfo> mTransfers = new Vector<TransferInfo>();
+	private ArrayList<TransferInfo> mTransfers = new ArrayList<TransferInfo>();
 	private SortedMap<Integer, MessageInfo> mMessages = new TreeMap<Integer, MessageInfo>();
 	private boolean mInitialStateRetrieved = false;
 
@@ -124,6 +127,12 @@ public class ClientBridgeWorkerHandler extends Handler {
 
 	private void closeConnection() {
 		if (mRpcClient != null) {
+			removeCallbacks(mAccountMgrRPCPoller);
+			removeCallbacks(mLookupAccountPoller);
+			removeCallbacks(mCreateAccountPoller);
+			removeCallbacks(mProjectAttachPoller);
+			removeCallbacks(mGetProjectConfigPoller);
+			
 			mRpcClient.close();
 			mRpcClient = null;
 			if (Logging.DEBUG) Log.d(TAG, "Connection closed");
@@ -319,7 +328,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			}
 		}
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
-		Vector<Project> projects = mRpcClient.getProjectStatus();
+		ArrayList<Project> projects = mRpcClient.getProjectStatus();
 		if (projects == null) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in updateProjects()");
 			rpcFailed();
@@ -341,7 +350,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		}
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		boolean updateFinished = false;
-		Vector<Result> results;
+		ArrayList<Result> results;
 		if (!mInitialStateRetrieved) {
 			// Initial state retrieval was not done yet
 			initialStateRetrieval();
@@ -380,7 +389,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			}
 		}
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
-		Vector<Transfer> transfers = mRpcClient.getFileTransfers();
+		ArrayList<Transfer> transfers = mRpcClient.getFileTransfers();
 		if (transfers == null) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in updateTransfers()");
 			rpcFailed();
@@ -417,7 +426,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			}
 		}
 		if (mDisconnecting) return;  // already in disconnect phase
-		Vector<Message> messages = mRpcClient.getMessages(reqSeqno);
+		ArrayList<Message> messages = mRpcClient.getMessages(reqSeqno);
 		if (messages == null) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in updateMessages()");
 			rpcFailed();
@@ -428,10 +437,10 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 	}
 	
-	public void getAllProjectsList(ClientManageReceiver callback) {
+	public void getAllProjectsList(ClientAllProjectsListReceiver callback) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
-		Vector<ProjectListEntry> projects = mRpcClient.getAllProjectsList();
+		ArrayList<ProjectListEntry> projects = mRpcClient.getAllProjectsList();
 		if (projects == null) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in getAllProjectsList()");
 			rpcFailed();
@@ -441,7 +450,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 	}
 
-	public void getBAMInfo(ClientManageReceiver callback) {
+	public void getBAMInfo(ClientAccountMgrReceiver callback) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		AccountMgrInfo accountMgrInfo = mRpcClient.getAccountMgrInfo();
@@ -454,9 +463,93 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 	}
 	
-	private void accountMgrRPC(ClientReplyReceiver callback, String name, String url, String password,
-			boolean useConfigFile, String infoMsg) {
+	private static class AccountMgrRPCCall {
+		public ClientAccountMgrReceiver callback;
+		public int operation;
+		public String name;
+		public String url;
+		public String password;
+		public boolean useConfigFile;
+		public String infoMsg;
+		public long startTime;
+		
+		public AccountMgrRPCCall(ClientAccountMgrReceiver callback, int operation, String name,
+				String url, String password, boolean useConfigFile, String infoMsg, long startTime) {
+			this.callback = callback;
+			this.operation = operation;
+			this.name = name;
+			this.url = url;
+			this.password = password;
+			this.useConfigFile = useConfigFile;
+			this.infoMsg = infoMsg;
+			this.startTime = startTime;
+		}
+	}
+	
+	private AccountMgrRPCCall mAccountMgrRPCCall = null;
+	
+	/**
+	 * poller - polls in every second during performing operation
+	 */
+	private Runnable mAccountMgrRPCPoller = new Runnable() {
+		@Override
+		public void run() {
+			AccountMgrRPCReply reply;
+			if (mAccountMgrRPCCall == null) return;
+			if (mDisconnecting) return;  // already in disconnect phase
+			if (SystemClock.elapsedRealtime()-mAccountMgrRPCCall.startTime >= TIMEOUT) { // time out
+				if (Logging.INFO) Log.i(TAG, "RPC failed in " + mAccountMgrRPCCall.infoMsg);
+				mAccountMgrRPCCall = null;
+				rpcFailed();
+				return;
+			}
+			
+			reply = mRpcClient.accountMgrRPCPoll();
+			if (reply != null) {
+				if (reply.error_num == RpcClient.ERR_IN_PROGRESS) {
+					// try poll in next second
+					if (Logging.DEBUG) Log.d(TAG, "polling mAccountMgr()");
+					postDelayed(mAccountMgrRPCPoller, 1000);
+				} else if (reply.error_num == RpcClient.ERR_RETRY) { // retry operation
+					if (mRpcClient.accountMgrRPC(mAccountMgrRPCCall.url,
+							mAccountMgrRPCCall.name, mAccountMgrRPCCall.password,
+							mAccountMgrRPCCall.useConfigFile) == false) {
+						if (Logging.INFO) Log.i(TAG, "RPC failed in " + mAccountMgrRPCCall.infoMsg);
+						
+						mAccountMgrRPCCall = null;
+						rpcFailed();
+					} else {
+						// try poll in next second
+						if (Logging.DEBUG) Log.d(TAG, "polling mAccountMgr() (retry)");
+						postDelayed(mAccountMgrRPCPoller, 1000);
+					}
+				} else {	// if other error
+					if (reply.error_num != RpcClient.SUCCESS) {
+						if (Logging.INFO) Log.i(TAG, "RPC failed in " + mAccountMgrRPCCall.infoMsg);
+						notifyPollError(reply.error_num, mAccountMgrRPCCall.operation, null);
+						mAccountMgrRPCCall = null;
+					} else {
+						// if success
+						updateClientMode(mAccountMgrRPCCall.callback);
+						notifyAfterAccountMgrRPC(mAccountMgrRPCCall.callback);
+						mAccountMgrRPCCall = null;
+					}
+				}
+			} else {	// rpc failed
+				if (Logging.INFO) Log.i(TAG, "RPC failed in " + mAccountMgrRPCCall.infoMsg);
+				mAccountMgrRPCCall = null;
+				rpcFailed();
+			}
+		}
+	};
+	
+	private void accountMgrRPC(ClientAccountMgrReceiver callback, int operation, String name, String url,
+			String password, boolean useConfigFile, String infoMsg) {
 		if (mDisconnecting) return;  // already in disconnect phase
+		
+		// do nothing ig already run
+		if (mAccountMgrRPCCall != null) return;
+		
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		if (mRpcClient.accountMgrRPC(url, name, password, useConfigFile) == false) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in " + infoMsg);
@@ -466,51 +559,20 @@ public class ClientBridgeWorkerHandler extends Handler {
 		
 		long startTime = SystemClock.elapsedRealtime();
 		
-		AccountMgrRPCReply reply;
-		while (true) {
-			if (mDisconnecting) return;  // already in disconnect phase
-			if (SystemClock.elapsedRealtime()-startTime >= TIMEOUT) { // time out
-				if (Logging.INFO) Log.i(TAG, "RPC failed in " + infoMsg);
-				rpcFailed();
-				return;
-			}
-			reply = mRpcClient.accountMgrRPCPoll();
-			if (reply != null) {
-				if (reply.error_num == RpcClient.ERR_IN_PROGRESS) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException ex) { }
-				} else if (reply.error_num == RpcClient.ERR_RETRY) { // retry operation
-					if (mRpcClient.accountMgrRPC(url, name, password, useConfigFile) == false) {
-						if (Logging.INFO) Log.i(TAG, "RPC failed in " + infoMsg);
-						rpcFailed();
-						return;
-					}
-				} else	// if other error
-					break;
-			} else {	// rpc failed
-				if (Logging.INFO) Log.i(TAG, "RPC failed in " + infoMsg);
-				rpcFailed();
-				return;
-			}
-		}
-		if (reply.error_num != RpcClient.SUCCESS) {
-			if (Logging.INFO) Log.i(TAG, "RPC failed in " + infoMsg);
-			notifyError(reply.error_num, reply.messages);
-			return;
-		}
+		mAccountMgrRPCCall = new AccountMgrRPCCall(callback, operation, name, url, password,
+				useConfigFile, infoMsg, startTime);
+		postDelayed(mAccountMgrRPCPoller, 1000);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
-		// Regardless of success we run update of client mode
-		// If there is problem with socket, it will be handled there
-		updateClientMode(callback);
 	}
 	
-	public void attachToBAM(ClientReplyReceiver callback, String name, String url, String password) {
-		accountMgrRPC(callback, name, url, password, false, "RPC failed in attachToBAM()");
+	public void attachToBAM(ClientAccountMgrReceiver callback, String name, String url, String password) {
+		accountMgrRPC(callback, PollOp.POLL_ATTACH_TO_BAM, name, url, password, false,
+				"RPC failed in attachToBAM()");
 	}
 	
-	public void synchronizeWithBAM(ClientReplyReceiver callback) {
-		accountMgrRPC(callback, "", "", "", true, "RPC failed in attachToBAM()");
+	public void synchronizeWithBAM(ClientAccountMgrReceiver callback) {
+		accountMgrRPC(callback, PollOp.POLL_SYNC_WITH_BAM, "", "", "", true,
+				"RPC failed in synchorizeWithBAM()");
 	}
 	
 	public void stopUsingBAM(ClientReplyReceiver callback) {
@@ -529,59 +591,168 @@ public class ClientBridgeWorkerHandler extends Handler {
 		updateClientMode(callback);
 	}
 	
-	public void lookupAccount(ClientManageReceiver callback, AccountIn accountIn) {
+	private static class LookupAccountCall {
+		public ClientProjectReceiver callback;
+		public AccountIn accountIn;
+		public long startTime;
+		
+		public LookupAccountCall(ClientProjectReceiver callback, AccountIn accountIn, long startTime) {
+			this.callback = callback;
+			this.accountIn = accountIn;
+			this.startTime = startTime;
+		}
+	}
+	
+	private LookupAccountCall mLookupAccountCall = null;
+	
+	/**
+	 * poller - polls in every second during performing operation
+	 */
+	private Runnable mLookupAccountPoller = new Runnable() {
+		@Override
+		public void run() {
+			if (mLookupAccountCall == null) return;
+			if (mDisconnecting) return;  // already in disconnect phase
+			if (SystemClock.elapsedRealtime()-mLookupAccountCall.startTime >= TIMEOUT) { // time out
+				if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount()");
+				mLookupAccountCall = null;
+				rpcFailed();
+				return;
+			}
+			
+			AccountOut accountOut = mRpcClient.lookupAccountPoll();
+			if (accountOut != null) {
+				if (accountOut.error_num == RpcClient.ERR_IN_PROGRESS) {
+					// try poll in next second
+					if (Logging.DEBUG) Log.d(TAG, "polling lookupAccount()");
+					postDelayed(mLookupAccountPoller, 1000);
+				} else if (accountOut.error_num == RpcClient.ERR_RETRY) { // retry operation
+					if (mRpcClient.lookupAccount(mLookupAccountCall.accountIn) == false) {
+						if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount()");
+						
+						mLookupAccountCall = null;
+						rpcFailed();
+					} else {
+						// try poll in next second
+						if (Logging.DEBUG) Log.d(TAG, "polling lookupAccount() (retry)");
+						postDelayed(mLookupAccountPoller, 1000);
+					}
+				} else {	// if other error
+					if (accountOut.error_num != RpcClient.SUCCESS) {
+						if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount()");
+						notifyPollError(accountOut.error_num, PollOp.POLL_LOOKUP_ACCOUNT,
+								mLookupAccountCall.accountIn.url);
+						mLookupAccountCall = null;
+					} else {
+						// if success
+						updateClientMode(mLookupAccountCall.callback);
+						currentAuthCode(mLookupAccountCall.callback, mLookupAccountCall.accountIn.url,
+								accountOut.authenticator);
+						mLookupAccountCall = null;
+					}
+				}
+			} else {	// rpc failed
+				if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount()");
+				mLookupAccountCall = null;
+				rpcFailed();
+			}
+		}
+	};
+	
+	public void lookupAccount(ClientProjectReceiver callback, AccountIn accountIn) {
 		if (mDisconnecting) return;  // already in disconnect phase
+		
+		// do nothing if already run
+		if (mLookupAccountCall != null) return;
+		
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		if (mRpcClient.lookupAccount(accountIn) == false) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount()");
 			rpcFailed();
 			return;
 		}
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 		
 		long startTime = SystemClock.elapsedRealtime();
+		mLookupAccountCall = new LookupAccountCall(callback, accountIn, startTime);
 		
-		AccountOut accountOut = null;
-		while (true) {
-			if (mDisconnecting) return;  // already in disconnect phase
-			if (SystemClock.elapsedRealtime()-startTime >= TIMEOUT) { // time out
-				if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount()");
-				rpcFailed();
-				return;
-			}
-			accountOut = mRpcClient.lookupAccountPoll();
-			if (accountOut != null) {
-				if (accountOut.error_num == RpcClient.ERR_IN_PROGRESS) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException ex) { }
-				} else if (accountOut.error_num == RpcClient.ERR_RETRY) {
-					// retry operation
-					if (mRpcClient.lookupAccount(accountIn) == false) {
-						if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount()");
-						rpcFailed();
-						return;
-					}
-				} else // if other error
-					break;
-			} else {	// rpc failed
-				if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount()");
-				rpcFailed();
-				return;
-			}
-		}
-		if (accountOut.error_num != RpcClient.SUCCESS) {
-			if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount()");
-			Vector<String> msgs = new Vector<String>();
-			msgs.add(accountOut.error_msg);
-			notifyError(accountOut.error_num, msgs);
-			return;
-		}
-		currentAuthCode(callback, accountOut.authenticator);
-		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
+		postDelayed(mLookupAccountPoller, 1000);
 	}
 	
-	public void createAccount(ClientManageReceiver callback, AccountIn accountIn) {
+	private static class CreateAccountCall {
+		public ClientProjectReceiver callback;
+		public AccountIn accountIn;
+		public long startTime;
+		
+		public CreateAccountCall(ClientProjectReceiver callback, AccountIn accountIn, long startTime) {
+			this.callback = callback;
+			this.accountIn = accountIn;
+			this.startTime = startTime;
+		}
+	}
+	
+	private CreateAccountCall mCreateAccountCall = null;
+	
+	/**
+	 * poller - polls in every second during performing operation
+	 */
+	private Runnable mCreateAccountPoller = new Runnable() {
+		@Override
+		public void run() {
+			if (mCreateAccountCall == null) return;
+			if (mDisconnecting) return;  // already in disconnect phase
+			if (SystemClock.elapsedRealtime()-mCreateAccountCall.startTime >= TIMEOUT) { // time out
+				if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
+				mCreateAccountCall = null;
+				rpcFailed();
+				return;
+			}
+			
+			AccountOut accountOut = mRpcClient.createAccountPoll();
+			if (accountOut != null) {
+				if (accountOut.error_num == RpcClient.ERR_IN_PROGRESS) {
+					// try poll in next second
+					if (Logging.DEBUG) Log.d(TAG, "polling createAccount()");
+					postDelayed(mCreateAccountPoller, 1000);
+				} else if (accountOut.error_num == RpcClient.ERR_RETRY) { // retry operation
+					if (mRpcClient.createAccount(mCreateAccountCall.accountIn) == false) {
+						if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
+						
+						mCreateAccountCall = null;
+						rpcFailed();
+					} else {
+						// try poll in next second
+						if (Logging.DEBUG) Log.d(TAG, "polling createAccount() (retry)");
+						postDelayed(mCreateAccountPoller, 1000);
+					}
+				} else {	// if other error
+					if (accountOut.error_num != RpcClient.SUCCESS) {
+						if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
+						notifyPollError(accountOut.error_num, PollOp.POLL_CREATE_ACCOUNT,
+								mCreateAccountCall.accountIn.url);
+						mCreateAccountCall = null;
+					} else {
+						// if success
+						updateClientMode(mCreateAccountCall.callback);
+						currentAuthCode(mCreateAccountCall.callback, mLookupAccountCall.accountIn.url,
+								accountOut.authenticator);
+						mCreateAccountCall = null;
+					}
+				}
+			} else {	// rpc failed
+				if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
+				mCreateAccountCall = null;
+				rpcFailed();
+			}
+		}
+	};
+	
+	public void createAccount(ClientProjectReceiver callback, AccountIn accountIn) {
 		if (mDisconnecting) return;  // already in disconnect phase
+		
+		// do nothing if already run
+		if (mCreateAccountCall != null) return;
+		
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		if (mRpcClient.createAccount(accountIn) == false) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
@@ -590,101 +761,177 @@ public class ClientBridgeWorkerHandler extends Handler {
 		}
 		
 		long startTime = SystemClock.elapsedRealtime();
+		mCreateAccountCall = new CreateAccountCall(callback, accountIn, startTime);
 		
-		AccountOut accountOut = null;
-		while (true) {
-			if (mDisconnecting) return;  // already in disconnect phase
-			if (SystemClock.elapsedRealtime()-startTime >= TIMEOUT) { // time out
-				if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
-				rpcFailed();
-				return;
-			}
-			accountOut = mRpcClient.createAccountPoll();
-			if (accountOut != null) {
-				if (accountOut.error_num == RpcClient.ERR_IN_PROGRESS) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException ex) { }
-				} else if (accountOut.error_num == RpcClient.ERR_RETRY) {
-					// retry operation
-					if (mRpcClient.createAccount(accountIn) == false) {
-						if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
-						rpcFailed();
-						return;
-					}
-				} else // if other error
-					break;
-			} else {	// rpc failed
-				if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
-				rpcFailed();
-				return;
-			}
-		}
-		if (accountOut.error_num != RpcClient.SUCCESS) {
-			if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
-			Vector<String> msgs = new Vector<String>();
-			msgs.add(accountOut.error_msg);
-			notifyError(accountOut.error_num, msgs);
-			return;
-		}
-		currentAuthCode(callback, accountOut.authenticator);
-		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
+		postDelayed(mCreateAccountPoller, 1000);
 	}
 
-	public void projectAttach(ClientManageReceiver callback, String url, String authCode, String projectName) {
+	private static class ProjectAttachCall {
+		public ClientProjectReceiver callback;
+		public String url;
+		public String authCode;
+		public String projectName;
+		public long startTime;
+		
+		public ProjectAttachCall(ClientProjectReceiver callback, String url, String authCode,
+				String projectName, long startTime) {
+			this.callback = callback;
+			this.url = url;
+			this.authCode = authCode;
+			this.projectName = projectName;
+			this.startTime = startTime;
+		}
+	}
+	
+	private ProjectAttachCall mProjectAttachCall = null;
+	
+	/**
+	 * poller - polls in every second during performing operation
+	 */
+	private Runnable mProjectAttachPoller = new Runnable() {
+		@Override
+		public void run() {
+			if (mProjectAttachCall == null) return;
+			if (mDisconnecting) return;  // already in disconnect phase
+			if (SystemClock.elapsedRealtime()-mProjectAttachCall.startTime >= TIMEOUT) { // time out
+				mProjectAttachCall = null;
+				if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
+				rpcFailed();
+				return;
+			}
+			
+			ProjectAttachReply reply = mRpcClient.projectAttachPoll();
+			if (reply != null) {
+				if (reply.error_num == RpcClient.ERR_IN_PROGRESS) {
+					// try poll in next second
+					if (Logging.DEBUG) Log.d(TAG, "polling projectAttach()");
+					postDelayed(mProjectAttachPoller, 1000);
+				} else if (reply.error_num == RpcClient.ERR_RETRY) { // retry operation
+					if (mRpcClient.projectAttach(mProjectAttachCall.url, mProjectAttachCall.authCode,
+							mProjectAttachCall.projectName) == false) {
+						if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
+						
+						mProjectAttachCall = null;
+						rpcFailed();
+					} else {
+						// try poll in next second
+						if (Logging.DEBUG) Log.d(TAG, "polling projectAttach() (retry)");
+						postDelayed(mProjectAttachPoller, 1000);
+					}
+				} else {	// if other error
+					if (reply.error_num != RpcClient.SUCCESS) {
+						if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
+						notifyPollError(reply.error_num, PollOp.POLL_PROJECT_ATTACH,
+								mCreateAccountCall.accountIn.url);
+						mProjectAttachCall = null;
+					} else {
+						// if success
+						updateClientMode(mProjectAttachCall.callback);
+						notifyAfterProjectAttach(mProjectAttachCall.callback, mProjectAttachCall.url);
+						mProjectAttachCall = null;
+					}
+				}
+			} else {	// rpc failed
+				if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
+				mProjectAttachCall = null;
+				rpcFailed();
+			}
+		}
+	};
+	
+	public void projectAttach(ClientProjectReceiver callback, String url, String authCode,
+			String projectName) {
 		if (mDisconnecting) return;  // already in disconnect phase
+		
+		// do nothing if already run
+		if (mProjectAttachCall != null) return;
+		
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		if (mRpcClient.projectAttach(url, authCode, projectName) == false) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
 			rpcFailed();
 			return;
 		}
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 		
 		long startTime = SystemClock.elapsedRealtime();
-		
-		ProjectAttachReply reply;
-		while (true) {
-			if (mDisconnecting) return;  // already in disconnect phase
-			if (SystemClock.elapsedRealtime()-startTime >= TIMEOUT) { // time out
-				if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
-				rpcFailed();
-				return;
-			}
-			reply = mRpcClient.projectAttachPoll();
-			if (reply != null) {
-				if (reply.error_num == RpcClient.ERR_IN_PROGRESS) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException ex) { }
-				} else if (reply.error_num == RpcClient.ERR_RETRY) {
-					// retry operation
-					if (mRpcClient.projectAttach(url, authCode, projectName) == false) {
-						if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
-						rpcFailed();
-						return;
-					}
-				} else // if other error
-					break;
-			} else {	// rpc failed
-				if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
-				rpcFailed();
-				return;
-			}
-		}
-		if (reply.error_num != RpcClient.SUCCESS) {
-			if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
-			notifyError(reply.error_num, reply.messages);
-			return;
-		}
-		notifyAfterProjectAttach(callback);
-		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
-		// Regardless of success we run update of client mode
-		// If there is problem with socket, it will be handled there
-		updateClientMode(callback);
+		mProjectAttachCall = new ProjectAttachCall(callback, url, authCode, projectName, startTime);
+		postDelayed(mProjectAttachPoller, 1000);
 	}
 	
-	public void getProjectConfig(ClientManageReceiver callback, String url) {
+	private static class GetProjectConfigCall {
+		public ClientProjectReceiver callback;
+		public String url;
+		public long startTime;
+		
+		public GetProjectConfigCall(ClientProjectReceiver callback, String url, long startTime) {
+			this.callback = callback;
+			this.url = url;
+			this.startTime = startTime;
+		}
+	}
+	
+	private GetProjectConfigCall mGetProjectConfigCall = null;
+	
+	/**
+	 * poller - polls in every second during performing operation
+	 */
+	private Runnable mGetProjectConfigPoller = new Runnable() {
+		@Override
+		public void run() {
+			if (mGetProjectConfigCall == null) return;
+			if (mDisconnecting) return;  // already in disconnect phase
+			if (SystemClock.elapsedRealtime()-mGetProjectConfigCall.startTime >= TIMEOUT) { // time out
+				if (Logging.INFO) Log.i(TAG, "RPC failed in getProjectConfig()");
+				mGetProjectConfigCall = null;
+				rpcFailed();
+				return;
+			}
+			
+			ProjectConfig projectConfig = mRpcClient.getProjectConfigPoll();
+			if (projectConfig != null) {
+				if (projectConfig.error_num == RpcClient.ERR_IN_PROGRESS) {
+					// try poll in next second
+					if (Logging.DEBUG) Log.d(TAG, "polling getProjectConfig()");
+					postDelayed(mGetProjectConfigPoller, 1000);
+				} else if (projectConfig.error_num == RpcClient.ERR_RETRY) { // retry operation
+					if (mRpcClient.getProjectConfig(mGetProjectConfigCall.url) == false) {
+						if (Logging.INFO) Log.i(TAG, "RPC failed in getProjectConfig()");
+						
+						mGetProjectConfigCall = null;
+						rpcFailed();
+					} else {
+						// try poll in next second
+						if (Logging.DEBUG) Log.d(TAG, "polling getProjectConfig() (retry)");
+						postDelayed(mGetProjectConfigPoller, 1000);
+					}
+				} else {	// if other error
+					if (projectConfig.error_num != RpcClient.SUCCESS) {
+						if (Logging.INFO) Log.i(TAG, "RPC failed in getProjectConfig()");
+						notifyPollError(projectConfig.error_num, PollOp.POLL_PROJECT_CONFIG,
+								mGetProjectConfigCall.url);
+						mGetProjectConfigCall = null;
+					} else {
+						// if success
+						updateClientMode(mGetProjectConfigCall.callback);
+						currentProjectConfig(mGetProjectConfigCall.callback, projectConfig);
+						mGetProjectConfigCall = null;
+					}
+				}
+			} else {	// rpc failed
+				if (Logging.INFO) Log.i(TAG, "RPC failed in getProjectConfig()");
+				mGetProjectConfigCall = null;
+				rpcFailed();
+			}
+		}
+	};
+	
+	public void getProjectConfig(ClientProjectReceiver callback, String url) {
 		if (mDisconnecting) return;  // already in disconnect phase
+		
+		// do nothing if already run
+		if (mGetProjectConfigCall != null) return;
+		
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		if (mRpcClient.getProjectConfig(url) == false) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in projectConfig()");
@@ -692,46 +939,11 @@ public class ClientBridgeWorkerHandler extends Handler {
 			return;
 		}
 		
-		long startTime = SystemClock.elapsedRealtime();
-		
-		ProjectConfig projectConfig = null;
-		while (true) {
-			if (mDisconnecting) return;  // already in disconnect phase
-			if (SystemClock.elapsedRealtime()-startTime >= TIMEOUT) { // time out
-				if (Logging.INFO) Log.i(TAG, "RPC failed in getProjectConfig()");
-				rpcFailed();
-				return;
-			}
-			projectConfig = mRpcClient.getProjectConfigPoll();
-			if (projectConfig != null) {
-				if (projectConfig.error_num == RpcClient.ERR_IN_PROGRESS) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException ex) { }
-				} else if (projectConfig.error_num == RpcClient.ERR_RETRY) {
-					// retry operation
-					if (mRpcClient.getProjectConfig(url) == false) {
-						if (Logging.INFO) Log.i(TAG, "RPC failed in getProjectConfig()");
-						rpcFailed();
-						return;
-					}
-				} else // if other error
-					break;
-			} else {	// rpc failed
-				if (Logging.INFO) Log.i(TAG, "RPC failed in getProjectConfig()");
-				rpcFailed();
-				return;
-			}
-		}
-		if (projectConfig.error_num != RpcClient.SUCCESS) {
-			if (Logging.INFO) Log.i(TAG, "RPC failed in projectConfig()");
-			Vector<String> msgs = new Vector<String>();
-			msgs.add(projectConfig.error_msg);
-			notifyError(projectConfig.error_num, msgs);
-			return;
-		}
-		currentProjectConfig(callback, projectConfig);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
+		
+		long startTime = SystemClock.elapsedRealtime();
+		mGetProjectConfigCall = new GetProjectConfigCall(callback, url, startTime);
+		postDelayed(mGetProjectConfigPoller, 1000);
 	}
 	
 	public void getGlobalPrefsWorking(ClientPreferencesReceiver callback) {
@@ -921,12 +1133,13 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 	
-	private synchronized void notifyError(final int errorNum, final Vector<String> messages) {
+	public synchronized void notifyPollError(final int error_num, final int operation,
+			final String param) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.notifyError(errorNum, messages);
+				mReplyHandler.notifyPollError(error_num, operation, param);
 			}
 		});
 	}
@@ -977,8 +1190,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 	
-	private synchronized void currentAllProjectsList(final ClientManageReceiver callback,
-			final Vector<ProjectListEntry> projects) {
+	private synchronized void currentAllProjectsList(final ClientAllProjectsListReceiver callback,
+			final ArrayList<ProjectListEntry> projects) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
@@ -988,7 +1201,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 	
-	private synchronized void currentBAMInfo(final ClientManageReceiver callback, final AccountMgrInfo bamInfo) {
+	private synchronized void currentBAMInfo(final ClientAccountMgrReceiver callback, final AccountMgrInfo bamInfo) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
@@ -998,17 +1211,18 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 	
-	private synchronized void currentAuthCode(final ClientManageReceiver callback, final String authCode) {
+	private synchronized void currentAuthCode(final ClientProjectReceiver callback,
+			final String projectUrl, final String authCode) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.currentAuthCode(callback, authCode);
+				mReplyHandler.currentAuthCode(callback, projectUrl, authCode);
 			}
 		});
 	}
 	
-	private synchronized void currentProjectConfig(final ClientManageReceiver callback,
+	private synchronized void currentProjectConfig(final ClientProjectReceiver callback,
 			final ProjectConfig projectConfig) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
@@ -1040,18 +1254,29 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 	
-	private synchronized void notifyAfterProjectAttach(final ClientManageReceiver callback) {
+	private synchronized void notifyAfterProjectAttach(final ClientProjectReceiver callback,
+			final String projectUrl) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.afterProjectAttach(callback);
+				mReplyHandler.afterProjectAttach(callback, projectUrl);
+			}
+		});
+	}
+	
+	private synchronized void notifyAfterAccountMgrRPC(final ClientAccountMgrReceiver callback) {
+		if (mDisconnecting) return;
+		mReplyHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mReplyHandler.afterAccountMgrRPC(callback);
 			}
 		});
 	}
 
 	private synchronized void updatedProjects(final ClientReplyReceiver callback,
-			final Vector<ProjectInfo> projects) {
+			final ArrayList<ProjectInfo> projects) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
@@ -1061,7 +1286,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 
-	private synchronized void updatedTasks(final ClientReplyReceiver callback, final Vector<TaskInfo> tasks) {
+	private synchronized void updatedTasks(final ClientReplyReceiver callback, final ArrayList<TaskInfo> tasks) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
@@ -1072,7 +1297,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 	}
 
 	private synchronized void updatedTransfers(final ClientReplyReceiver callback,
-			final Vector<TransferInfo> transfers) {
+			final ArrayList<TransferInfo> transfers) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
@@ -1083,7 +1308,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 	}
 
 	private synchronized void updatedMessages(final ClientReplyReceiver callback,
-			final Vector<MessageInfo> messages) {
+			final ArrayList<MessageInfo> messages) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
@@ -1136,7 +1361,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		mInitialStateRetrieved = true;
 	}
 
-	private void dataSetProjects(Vector<Project> projects) {
+	private void dataSetProjects(ArrayList<Project> projects) {
 		if (Logging.DEBUG) Log.d(TAG, "dataSetProjects(): Begin update");
 		mProjects.clear();
 		Iterator<Project> pi;
@@ -1156,7 +1381,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		if (Logging.DEBUG) Log.d(TAG, "dataSetProjects(): End update");
 	}
 
-	private void dataSetApps(Vector<App> apps) {
+	private void dataSetApps(ArrayList<App> apps) {
 		mApps.clear();
 		Iterator<App> ai = apps.iterator();
 		while (ai.hasNext()) {
@@ -1165,7 +1390,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		}
 	}
 
-	private void dataSetTasks(Vector<Workunit> workunits, Vector<Result> results) {
+	private void dataSetTasks(ArrayList<Workunit> workunits, ArrayList<Result> results) {
 		if (Logging.DEBUG) Log.d(TAG, "dataSetTasks(): Begin update");
 		mTasks.clear();
 		mActiveTasks.clear();
@@ -1208,7 +1433,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		if (Logging.DEBUG) Log.d(TAG, "dataSetTasks(): End update");
 	}
 
-	private void dataSetTransfers(Vector<Transfer> transfers) {
+	private void dataSetTransfers(ArrayList<Transfer> transfers) {
 		if (Logging.DEBUG) Log.d(TAG, "dataSetTransfers(): Begin update");
 		mTransfers.clear();
 		Iterator<Transfer> ti = transfers.iterator();
@@ -1227,7 +1452,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		if (Logging.DEBUG) Log.d(TAG, "dataSetTransfers(): End update");
 	}
 
-	private boolean dataUpdateTasks(Vector<Result> results) {
+	private boolean dataUpdateTasks(ArrayList<Result> results) {
 		if (Logging.DEBUG) Log.d(TAG, "dataUpdateTasks(): Begin update");
 		// Auxiliary set, to know which tasks were updated and which not
 		Set<String> oldTaskNames = new HashSet<String>(mTasks.keySet());
@@ -1270,7 +1495,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		return true;
 	}
 
-	private void dataUpdateMessages(Vector<Message> messages) {
+	private void dataUpdateMessages(ArrayList<Message> messages) {
 		if (messages == null) return;
 		if (Logging.DEBUG) Log.d(TAG, "dataUpdateMessages(): Begin update");
 		Iterator<Message> mi = messages.iterator();
@@ -1282,19 +1507,19 @@ public class ClientBridgeWorkerHandler extends Handler {
 		if (Logging.DEBUG) Log.d(TAG, "dataUpdateMessages(): End update");
 	}
 
-	private final Vector<ProjectInfo> getProjects() {
-		return new Vector<ProjectInfo>(mProjects.values());
+	private final ArrayList<ProjectInfo> getProjects() {
+		return new ArrayList<ProjectInfo>(mProjects.values());
 	}
 
-	private final Vector<TaskInfo> getTasks() {
-		return new Vector<TaskInfo>(mTasks.values());
+	private final ArrayList<TaskInfo> getTasks() {
+		return new ArrayList<TaskInfo>(mTasks.values());
 	}
 
-	private final Vector<TransferInfo> getTransfers() {
-		return new Vector<TransferInfo>(mTransfers);
+	private final ArrayList<TransferInfo> getTransfers() {
+		return new ArrayList<TransferInfo>(mTransfers);
 	}
 
-	private final Vector<MessageInfo> getMessages() {
-		return new Vector<MessageInfo>(mMessages.values());
+	private final ArrayList<MessageInfo> getMessages() {
+		return new ArrayList<MessageInfo>(mMessages.values());
 	}
 }

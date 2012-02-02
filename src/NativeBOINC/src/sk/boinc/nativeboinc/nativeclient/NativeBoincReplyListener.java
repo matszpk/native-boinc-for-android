@@ -21,5 +21,4 @@ package sk.boinc.nativeboinc.nativeclient;
 
 public interface NativeBoincReplyListener extends AbstractNativeBoincListener {
 	public abstract void onProgressChange(double progress);
-	public abstract void onClientConfigured();	
 }

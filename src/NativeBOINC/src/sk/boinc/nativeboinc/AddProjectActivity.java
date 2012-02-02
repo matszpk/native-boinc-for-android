@@ -19,17 +19,26 @@
 
 package sk.boinc.nativeboinc;
 
+
+import edu.berkeley.boinc.lite.AccountIn;
+import edu.berkeley.boinc.lite.ProjectConfig;
+import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
+import sk.boinc.nativeboinc.clientconnection.VersionInfo;
+import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.AddProjectResult;
-import sk.boinc.nativeboinc.util.ProjectConfigOptions;
-import android.app.Activity;
+import sk.boinc.nativeboinc.util.ProjectItem;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -41,48 +50,51 @@ import android.widget.TextView;
  * @author mat
  *
  */
-public class AddProjectActivity extends Activity {
-	
+public class AddProjectActivity extends ServiceBoincActivity implements ClientProjectReceiver {
+	private static final String TAG = "AddProjectActivity";
+		
 	private final static int DIALOG_TERMS_OF_USE = 1;
+	private final static int DIALOG_ERROR = 2;
 	
-	private LinearLayout mNameLayout;
-	private EditText mName;
+	private BoincManagerApplication mApp = null;
+	
+	private LinearLayout mNicknameLayout;
+	private EditText mNickname;
 	private EditText mEmail;
 	private EditText mPassword;
-	private EditText mConfirmPassword;
-	private LinearLayout mConfirmPasswordLayout;
 	private Button mConfirmButton;
 	private TextView mMinPasswordText;
 	
+	private ProjectItem mProjectItem = null;
+	private ProjectConfig mProjectConfig = null;
+	
 	private boolean mAccountCreationDisabled = false;
-	private int mMinPasswordLength;
+	//private int mMinPasswordLength;
 	private String mTermsOfUse = "";
+	private boolean mTermOfUseDisplayed = false;
 	
 	public boolean mDoAccountCreation = true;
 	
+	private final static String ARG_ERROR = "Error";
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		
+		setUpService(true, true, false, false, false, false);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.add_project);
 		
-		ProjectConfigOptions projectConfig = getIntent().getParcelableExtra(ProjectConfigOptions.TAG);
-		mMinPasswordLength = projectConfig.getMinPasswordLength();
-		mAccountCreationDisabled = projectConfig.isAccountCreationDisabled() ||
-			projectConfig.isClientAccountCreationDisabled();
-		mTermsOfUse = projectConfig.getTermsOfUse();
+		mApp = (BoincManagerApplication)getApplication();
+				
+		mProjectItem = (ProjectItem)getIntent().getParcelableExtra(ProjectItem.TAG);
 		
-		StringBuilder sB = new StringBuilder();
-		sB.append(getString(R.string.addProject));
-		sB.append(" ");
-		sB.append(projectConfig.getName());
-		setTitle(sB);
+		setTitle(getString(R.string.addProject) + " " + mProjectItem.getName());
 		
-		mNameLayout = (LinearLayout)findViewById(R.id.addProjectNameLayout);
-		mName = (EditText)findViewById(R.id.addProjectName);
+		mNicknameLayout = (LinearLayout)findViewById(R.id.addProjectNameLayout);
+		mNickname = (EditText)findViewById(R.id.addProjectName);
 		mEmail = (EditText)findViewById(R.id.addProjectEmail);
 		mPassword = (EditText)findViewById(R.id.addProjectPassword);
-		mConfirmPassword = (EditText)findViewById(R.id.addProjectConfirmPassword);
-		mConfirmPasswordLayout = (LinearLayout)findViewById(R.id.addProjectConfirmPasswordLayout);
 		mMinPasswordText = (TextView)findViewById(R.id.addProjectMinPasswordLength);
 		
 		TextWatcher textWatcher = new TextWatcher() {
@@ -99,11 +111,9 @@ public class AddProjectActivity extends Activity {
 				// Not needed
 			}
 		};
-		mName.addTextChangedListener(textWatcher);
+		mNickname.addTextChangedListener(textWatcher);
 		mEmail.addTextChangedListener(textWatcher);
 		mPassword.addTextChangedListener(textWatcher);
-		mConfirmPassword.addTextChangedListener(textWatcher);
-		mMinPasswordText.setText(getString(R.string.addProjectMinPassword)+mMinPasswordLength);
 		
 		mConfirmButton = (Button)findViewById(R.id.addProjectOk);
 		
@@ -131,8 +141,6 @@ public class AddProjectActivity extends Activity {
 		Button cancelButton = (Button)findViewById(R.id.addProjectCancel);
 		cancelButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
-				Intent intent = new Intent();
-				setResult(RESULT_CANCELED, intent);
 				finish();
 			}
 		});
@@ -140,25 +148,60 @@ public class AddProjectActivity extends Activity {
 		setConfirmButtonState();
 		mConfirmButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
-				AddProjectResult result = new AddProjectResult(
-						mName.getText().toString(), mEmail.getText().toString(),
-						mPassword.getText().toString(), mDoAccountCreation);
-				Intent intent = new Intent().putExtra(AddProjectResult.TAG, result);
-				setResult(RESULT_OK, intent);
-				finish();
+				if (mConnectionServiceConnection != null) {
+					AccountIn accountIn = new AccountIn();
+					if (mDoAccountCreation)
+						accountIn.user_name = mNickname.getText().toString();
+					
+					accountIn.email_addr = mEmail.getText().toString();
+					accountIn.url = mProjectItem.getUrl();
+					accountIn.passwd = mPassword.getText().toString();
+					
+					mConnectionManager.addProject(AddProjectActivity.this, accountIn, 
+							mDoAccountCreation);
+				}
 			}
 		});
-		
-		if (mTermsOfUse.length() != 0) {
-			showDialog(DIALOG_TERMS_OF_USE);
-		}
 	}
 	
 	@Override
-	protected Dialog onCreateDialog(int id) {
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if (mApp.isInstallerRun())
+			mApp.installerIsRun(false);
+			finish();
+			return true; 
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	private void afterLoadingProjectConfig() {
+		if (Logging.DEBUG) Log.d(TAG, "After Loading Project config");
+		mMinPasswordText.setText(getString(R.string.addProjectMinPassword) + ": " +
+				mProjectConfig.min_passwd_length);
+		
+		if (mTermsOfUse.length() != 0 && !mTermOfUseDisplayed)
+			showDialog(DIALOG_TERMS_OF_USE);
+	}
+	
+	@Override
+	protected void onConnectionManagerConnected() {
+		mProjectConfig = mConnectionManager.getPendingProjectConfig(mProjectItem.getUrl());
+		if (mProjectConfig == null) { // should be fetched
+			if (Logging.DEBUG) Log.d(TAG, "get project config from client");
+			mConnectionManager.getProjectConfig(this, mProjectItem.getUrl());
+		} else
+			afterLoadingProjectConfig();
+	}
+	
+	@Override
+	protected Dialog onCreateDialog(int dialogId, Bundle args) {
 		View v;
 		TextView text;
-		if (id == DIALOG_TERMS_OF_USE) {
+		switch(dialogId) {
+		case DIALOG_TERMS_OF_USE: {
+			mTermOfUseDisplayed = true; // displayed
+			
 			v = LayoutInflater.from(this).inflate(R.layout.dialog, null);
 			text = (TextView)v.findViewById(R.id.dialogText);
 			text.setText(mTermsOfUse);
@@ -169,17 +212,33 @@ public class AddProjectActivity extends Activity {
 	    		.setNegativeButton(R.string.dismiss, null)
 	    		.create();
 		}
+		case DIALOG_ERROR: {
+			if (dialogId==DIALOG_ERROR)
+				return new AlertDialog.Builder(this)
+					.setIcon(android.R.drawable.ic_dialog_alert)
+					.setTitle(R.string.installError)
+					.setView(LayoutInflater.from(this).inflate(R.layout.dialog, null))
+					.setNegativeButton(R.string.ok, null)
+					.create();
+		}
+		}
 		return null;
+	}
+	
+	@Override
+	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
+		if (dialogId == DIALOG_ERROR) {
+			TextView textView = (TextView)dialog.findViewById(R.id.dialogText);
+			textView.setText(args.getString(ARG_ERROR));
+		}
 	}
 	
 	private void updateViewMode() {
 		if (mDoAccountCreation) {
-			mNameLayout.setVisibility(View.VISIBLE);
-			mConfirmPasswordLayout.setVisibility(View.VISIBLE);
+			mNicknameLayout.setVisibility(View.VISIBLE);
 			mMinPasswordText.setVisibility(View.VISIBLE);
 		} else {
-			mNameLayout.setVisibility(View.GONE);
-			mConfirmPasswordLayout.setVisibility(View.GONE);
+			mNicknameLayout.setVisibility(View.GONE);
 			mMinPasswordText.setVisibility(View.GONE);
 		}
 		setConfirmButtonState();
@@ -190,12 +249,63 @@ public class AddProjectActivity extends Activity {
 			mConfirmButton.setEnabled(false);
 			return;
 		}
-		if (mDoAccountCreation && ((mName.getText().toString().length() == 0) ||
-				(mPassword.getText().length() < mMinPasswordLength) ||
-				!mConfirmPassword.getText().toString().equals(mPassword.getText().toString()))) {
+		int minPasswordLength = 0;
+		if (mProjectConfig != null)
+			minPasswordLength = mProjectConfig.min_passwd_length;
+		
+		if (mDoAccountCreation && ((mNickname.getText().toString().length() == 0) ||
+				(mPassword.getText().length() < minPasswordLength))) {
 			mConfirmButton.setEnabled(false);
 			return;
 		}
 		mConfirmButton.setEnabled(true);
+	}
+
+	@Override
+	public boolean onPollError(int errorNum, int operation, String param) {
+		if (Logging.WARNING) Log.w(TAG, "Poller error:"+errorNum+":"+operation+":"+param);
+		setProgressBarIndeterminateVisibility(false);
+		return true;
+	}
+
+	@Override
+	public void clientConnectionProgress(int progress) {
+		setProgressBarIndeterminateVisibility(true);
+	}
+
+	@Override
+	public void clientConnected(VersionInfo clientVersion) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void clientDisconnected() {
+		if (Logging.WARNING) Log.w(TAG, "Client disconnected");
+		setProgressBarIndeterminateVisibility(false);
+		
+		Bundle args = new Bundle();
+		args.putString(ARG_ERROR, getString(R.string.clientDisconnected));
+		showDialog(DIALOG_ERROR, args);
+	}
+
+	@Override
+	public boolean currentAuthCode(String authCode) {
+		return false;
+	}
+
+	@Override
+	public boolean currentProjectConfig(ProjectConfig projectConfig) {
+		mProjectConfig = projectConfig;
+		setProgressBarIndeterminateVisibility(false);
+		afterLoadingProjectConfig();
+		return true;
+	}
+
+	@Override
+	public boolean onAfterProjectAttach() {
+		setProgressBarIndeterminateVisibility(false);
+		/* finish */
+		finish();
+		return true;
 	}
 }

@@ -19,7 +19,7 @@
 
 package sk.boinc.nativeboinc.nativeclient;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import edu.berkeley.boinc.lite.Result;
 
@@ -28,5 +28,5 @@ import edu.berkeley.boinc.lite.Result;
  *
  */
 public interface NativeBoincResultsListener extends AbstractNativeBoincListener {
-	public abstract void getResults(Vector<Result> results);
+	public abstract void getResults(ArrayList<Result> results);
 }

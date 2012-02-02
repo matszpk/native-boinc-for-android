@@ -19,7 +19,7 @@
 
 package sk.boinc.nativeboinc;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
@@ -31,18 +31,10 @@ import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
-import sk.boinc.nativeboinc.service.ConnectionManagerService;
-import sk.boinc.nativeboinc.util.ClientId;
 import edu.berkeley.boinc.lite.GlobalPreferences;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -58,50 +50,10 @@ import android.widget.EditText;
  * @author mat
  *
  */
-public class LocalPreferencesActivity extends Activity implements ClientPreferencesReceiver {
+public class LocalPreferencesActivity extends ServiceBoincActivity implements ClientPreferencesReceiver {
 	private static final String TAG = "LocalPrefsActivity";
 	
-	private ConnectionManagerService mConnectionManager = null;
-	
 	private boolean mIsGlobalPrefsFetched = false;
-	
-	private ServiceConnection mServiceConnection = new ServiceConnection() {
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			mConnectionManager = ((ConnectionManagerService.LocalBinder)service).getService();
-			if (Logging.DEBUG) Log.d(TAG, "onServiceConnected()");
-			mConnectionManager.registerStatusObserver(LocalPreferencesActivity.this);
-			
-			if (!mIsGlobalPrefsFetched)
-				mConnectionManager.getGlobalPrefsWorking(LocalPreferencesActivity.this);
-			
-			ClientId clientId = mConnectionManager.getClientId();
-			if (clientId == null || !clientId.getNickname().equals("nativeboinc")) {
-				Button applyDefault = (Button)findViewById(R.id.localPrefDefault);
-				applyDefault.setEnabled(false);
-			}
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			mConnectionManager = null;
-			// This should not happen normally, because it's local service 
-			// running in the same process...
-			if (Logging.WARNING) Log.w(TAG, "onServiceDisconnected()"); 
-		}
-	};
-	
-	private void doBindService() {
-		if (Logging.DEBUG) Log.d(TAG, "doBindService()");
-		bindService(new Intent(LocalPreferencesActivity.this, ConnectionManagerService.class),
-				mServiceConnection, Context.BIND_AUTO_CREATE);
-	}
-	
-	private void doUnbindService() {
-		if (Logging.DEBUG) Log.d(TAG, "doUnbindService()");
-		unbindService(mServiceConnection);
-		mConnectionManager = null;
-	}
 	
 	private CheckBox mComputeOnBatteries;
 	private CheckBox mComputeInUse;
@@ -131,11 +83,10 @@ public class LocalPreferencesActivity extends Activity implements ClientPreferen
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		setUpService(true, true, false, false, false, false);
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.local_prefs);
-		
-		doBindService();
 		
 		mComputeOnBatteries = (CheckBox)findViewById(R.id.localPrefComputeOnBatteries);
 		mComputeInUse = (CheckBox)findViewById(R.id.localPrefComputeInUse);
@@ -236,25 +187,6 @@ public class LocalPreferencesActivity extends Activity implements ClientPreferen
 		
 		if (mConnectionManager != null)
 			mConnectionManager.unregisterStatusObserver(this);
-	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-		
-		if (mConnectionManager != null) // register right now
-			mConnectionManager.registerStatusObserver(LocalPreferencesActivity.this);
-		
-		if (mConnectionManager == null)	// bind service if not bound
-			doBindService();
-	}
-	
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		
-		mConnectionManager = null;
-		doUnbindService();
 	}
 	
 	private void setApplyButtonState() {
@@ -432,12 +364,6 @@ public class LocalPreferencesActivity extends Activity implements ClientPreferen
 	}
 
 	@Override
-	public boolean clientError(int errorNum, Vector<String> messages) {
-		showErrorDialog(getString(R.string.clientError));
-		return false;
-	}
-
-	@Override
 	public boolean updatedClientMode(ModeInfo modeInfo) {
 		// do nothing
 		return false;
@@ -450,25 +376,25 @@ public class LocalPreferencesActivity extends Activity implements ClientPreferen
 	}
 
 	@Override
-	public boolean updatedProjects(Vector<ProjectInfo> projects) {
+	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
 		// do nothing
 		return false;
 	}
 
 	@Override
-	public boolean updatedTasks(Vector<TaskInfo> tasks) {
+	public boolean updatedTasks(ArrayList<TaskInfo> tasks) {
 		// do nothing
 		return false;
 	}
 
 	@Override
-	public boolean updatedTransfers(Vector<TransferInfo> transfers) {
+	public boolean updatedTransfers(ArrayList<TransferInfo> transfers) {
 		// do nothing
 		return false;
 	}
 
 	@Override
-	public boolean updatedMessages(Vector<MessageInfo> messages) {
+	public boolean updatedMessages(ArrayList<MessageInfo> messages) {
 		// do nothing
 		return false;
 	}

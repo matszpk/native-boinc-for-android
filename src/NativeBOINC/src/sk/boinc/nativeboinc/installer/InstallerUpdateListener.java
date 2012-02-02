@@ -19,21 +19,13 @@
 
 package sk.boinc.nativeboinc.installer;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * @author mat
  *
  */
-public interface InstallerListener {
-	public final static int FINISH_PROGRESS = 10000;
-	
-	public abstract void onOperation(String opDescription);
-	public abstract void onOperationProgress(String opDescription, int progress);
-	public abstract void onOperationError(String errorMessage);
-	public abstract void onOperationCancel();
-	public abstract void onOperationFinish();
-	
-	public abstract void currentProjectDistribList(Vector<ProjectDistrib> projectDistribs);
+public interface InstallerUpdateListener extends AbstractInstallerListener {
+	public abstract void currentProjectDistribList(ArrayList<ProjectDistrib> projectDistribs);
 	public abstract void currentClientDistrib(ClientDistrib clientDistrib);
 }

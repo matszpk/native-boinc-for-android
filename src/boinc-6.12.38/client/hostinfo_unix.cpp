@@ -204,7 +204,7 @@ double HOST_INFO::host_battery_level() {
     FILE* f = fopen("/sys/class/power_supply/battery/present","rb");
     if (f==NULL)    // not found
         return 0.0;
-    fscanf(f,"%d",present);
+    fscanf(f,"%d",&present);
     fclose(f);
     if (present==0)
         return 0.0;
@@ -213,7 +213,7 @@ double HOST_INFO::host_battery_level() {
     f = fopen("/sys/class/power_supply/battery/capacity","rb");
     if (f==NULL)    // not found
         return 0.0;
-    fscanf(f,"%d",capacity);
+    fscanf(f,"%d",&capacity);
     fclose(f);
     
     return (double)capacity;
@@ -1434,7 +1434,7 @@ int HOST_INFO::get_host_info() {
     // http://developer.apple.com/documentation/Performance/Conceptual/ManagingMemory/Articles/AboutMemory.html says:
     //    Unlike most UNIX-based operating systems, Mac OS X does not use a 
     //    preallocated swap partition for virtual memory. Instead, it uses all
-    //    of the available space on the machine’s boot partition.
+    //    of the available space on the machine√ïs boot partition.
     struct statfs fs_info;
 
     statfs(".", &fs_info);

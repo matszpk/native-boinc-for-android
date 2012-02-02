@@ -21,7 +21,7 @@ package sk.boinc.nativeboinc;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
@@ -65,11 +65,11 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 	private boolean mViewUpdatesAllowed = false;
 	private boolean mViewDirty = false;
 
-	private Vector<MessageInfo> mMessages = new Vector<MessageInfo>();
+	private ArrayList<MessageInfo> mMessages = new ArrayList<MessageInfo>();
 
 
 	private class SavedState {
-		private final Vector<MessageInfo> messages;
+		private final ArrayList<MessageInfo> messages;
 
 		public SavedState() {
 			messages = mMessages;
@@ -105,7 +105,7 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 
 		@Override
 		public Object getItem(int position) {
-			return mMessages.elementAt(position);
+			return mMessages.get(position);
 		}
 
 		@Override
@@ -124,18 +124,18 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 				layout = convertView;
 			}
 			int color = mContext.getResources().getColorStateList(android.R.color.secondary_text_dark).getDefaultColor();
-			if (mMessages.elementAt(position).priority == 2) {
+			if (mMessages.get(position).priority == 2) {
 				color = mContext.getResources().getColor(R.color.orange);
 			}
 			TextView tv;
 			tv = (TextView)layout.findViewById(R.id.messageTimestamp);
-			tv.setText(mMessages.elementAt(position).time);
+			tv.setText(mMessages.get(position).time);
 			tv.setTextColor(color);
 			tv = (TextView)layout.findViewById(R.id.messageProject);
-			tv.setText(mMessages.elementAt(position).project);
+			tv.setText(mMessages.get(position).project);
 			tv.setTextColor(color);
 			tv = (TextView)layout.findViewById(R.id.messageBody);
-			tv.setText(mMessages.elementAt(position).body);
+			tv.setText(mMessages.get(position).body);
 			tv.setTextColor(color);
 			return layout;
 		}
@@ -305,12 +305,6 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
 	}
-	
-	@Override
-	public boolean clientError(int errorNum, Vector<String> messages) {
-		// Do nothing
-		return false;
-	}
 
 	@Override
 	public boolean updatedClientMode(ModeInfo modeInfo) {
@@ -325,25 +319,25 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 	}
 
 	@Override
-	public boolean updatedProjects(Vector<ProjectInfo> projects) {
+	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
 		// Just ignore
 		return false;
 	}
 
 	@Override
-	public boolean updatedTasks(Vector<TaskInfo> tasks) {
+	public boolean updatedTasks(ArrayList<TaskInfo> tasks) {
 		// Just ignore
 		return false;
 	}
 
 	@Override
-	public boolean updatedTransfers(Vector<TransferInfo> transfers) {
+	public boolean updatedTransfers(ArrayList<TransferInfo> transfers) {
 		// Just ignore
 		return false;
 	}
 
 	@Override
-	public boolean updatedMessages(Vector<MessageInfo> messages) {
+	public boolean updatedMessages(ArrayList<MessageInfo> messages) {
 		if (mMessages.size() != messages.size()) {
 			// Number of messages has changed (increased)
 			// This is the only case when we need an update, because content of messages

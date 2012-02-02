@@ -21,7 +21,7 @@ package sk.boinc.nativeboinc.installer;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -40,17 +40,17 @@ public class ExecFilesAppInfoParser extends BaseParser {
 
 	private static final String TAG = "ExecFilesAppInfoParser";
 	
-	private Vector<String> mExecFiles = new Vector<String>();
+	private ArrayList<String> mExecFiles = new ArrayList<String>();
 	
 	private boolean mInsideFileInfo = false;
 	private boolean mIsExecutable = false;
 	private String mFilename = null;
 	
-	public Vector<String> getExecFiles() {
+	public ArrayList<String> getExecFiles() {
 		return mExecFiles;
 	}
 	
-	public static Vector<String> parse(InputStream result) {
+	public static ArrayList<String> parse(InputStream result) {
 		try {
 			ExecFilesAppInfoParser parser = new ExecFilesAppInfoParser();
 			Xml.parse(result, Xml.Encoding.UTF_8, parser);

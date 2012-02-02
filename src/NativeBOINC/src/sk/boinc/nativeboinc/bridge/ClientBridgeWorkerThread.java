@@ -21,8 +21,10 @@ package sk.boinc.nativeboinc.bridge;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.GlobalPreferences;
-import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.debug.Logging;
@@ -192,7 +194,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
-	public void getBAMInfo(final ClientManageReceiver callback) {
+	public void getBAMInfo(final ClientAccountMgrReceiver callback) {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override
@@ -202,7 +204,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
-	public void attachToBAM(final ClientReplyReceiver callback, final String name, final String url, final String password) {
+	public void attachToBAM(final ClientAccountMgrReceiver callback, final String name, final String url, final String password) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
@@ -211,7 +213,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
-	public void synchronizeWithBAM(final ClientReplyReceiver callback) {
+	public void synchronizeWithBAM(final ClientAccountMgrReceiver callback) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
@@ -229,7 +231,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
-	public void getAllProjectsList(final ClientManageReceiver callback) {
+	public void getAllProjectsList(final ClientAllProjectsListReceiver callback) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
@@ -238,7 +240,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
-	public void lookupAccount(final ClientManageReceiver callback, final AccountIn accountIn) {
+	public void lookupAccount(final ClientProjectReceiver callback, final AccountIn accountIn) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
@@ -247,7 +249,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
-	public void createAccount(final ClientManageReceiver callback, final AccountIn accountIn) {
+	public void createAccount(final ClientProjectReceiver callback, final AccountIn accountIn) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
@@ -256,7 +258,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
-	public void projectAttach(final ClientManageReceiver callback, final String url,
+	public void projectAttach(final ClientProjectReceiver callback, final String url,
 			final String authCode, final String projectName) {
 		mHandler.post(new Runnable() {
 			@Override
@@ -266,7 +268,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
-	public void getProjectConfig(final ClientManageReceiver callback, final String url) {
+	public void getProjectConfig(final ClientProjectReceiver callback, final String url) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {

@@ -19,7 +19,7 @@
 
 package edu.berkeley.boinc.lite;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 
 public class Project {
@@ -30,7 +30,7 @@ public class Project {
 	public String  user_name = "";
 	public String  team_name = "";
 	public int     hostid = 0;
-	public Vector<GuiUrl> gui_urls = new Vector<GuiUrl>();
+	public ArrayList<GuiUrl> gui_urls = new ArrayList<GuiUrl>();
 	public double  user_total_credit = 0;
 	public double  user_expavg_credit = 0;
 

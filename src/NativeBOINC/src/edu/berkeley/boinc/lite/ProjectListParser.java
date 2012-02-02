@@ -19,7 +19,7 @@
 
 package edu.berkeley.boinc.lite;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -35,15 +35,15 @@ import android.util.Xml;
 public class ProjectListParser extends BaseParser {
 	private static final String TAG = "ProjectListParser";
 	
-	private Vector<ProjectListEntry> mProjectList = new Vector<ProjectListEntry>();
+	private ArrayList<ProjectListEntry> mProjectList = new ArrayList<ProjectListEntry>();
 	private ProjectListEntry mProjectEntry = null;
 	private boolean mInsidePlatforms = false;
 	
-	public Vector<ProjectListEntry> getProjectList() {
+	public ArrayList<ProjectListEntry> getProjectList() {
 		return mProjectList;
 	}
 	
-	public static Vector<ProjectListEntry> parse(String rpcResult) {
+	public static ArrayList<ProjectListEntry> parse(String rpcResult) {
 		try {
 			String outResult;
 			int xmlHeaderStart = rpcResult.indexOf("<?xml");

@@ -21,113 +21,32 @@ package sk.boinc.nativeboinc;
 
 import java.io.IOException;
 
-import sk.boinc.nativeboinc.R.id;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
-import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
-import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
-import sk.boinc.nativeboinc.service.ConnectionManagerService;
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.HostListDbAdapter;
-import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 /**
  * @author mat
  *
  */
-public class AccessPasswordActivity extends Activity implements NativeBoincStateListener {
-	private final static String TAG = "AccessPasswordActivity";
-	
+public class AccessPasswordActivity extends ServiceBoincActivity implements NativeBoincStateListener {
 	private EditText mAccessPassword;
-	
-	private ConnectionManagerService mConnectionManager = null;
-	private NativeBoincService mRunner = null;
 	
 	private boolean mShutdownFromConfirm = false;
 	
 	private ClientId mClientId = null;
-	
-	private ServiceConnection mConnectionServiceConnection = new ServiceConnection() {
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			mConnectionManager = ((ConnectionManagerService.LocalBinder)service).getService();
-			if (Logging.DEBUG) Log.d(TAG, "onServiceConnected()");
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			mConnectionManager = null;
-			// This should not happen normally, because it's local service 
-			// running in the same process...
-			if (Logging.WARNING) Log.w(TAG, "onServiceDisconnected()");
-			// We also reset client reference to prevent mess
-		}
-	};
-	
-	private ServiceConnection mRunnerServiceConnection = new ServiceConnection() {
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			mRunner = ((NativeBoincService.LocalBinder)service).getService();
-			if (Logging.DEBUG) Log.d(TAG, "installer.onServiceConnected()");
-			mRunner.addNativeBoincListener(AccessPasswordActivity.this);
-			
-			TextView currentAccessPassword = (TextView)findViewById(id.currentAccessPassword);
-			
-			try {
-				String accessPasswordString = mRunner.getAccessPassword();
-				currentAccessPassword.setText(getString(R.string.installCurrentPassword) +
-						": " + accessPasswordString);
-			} catch(IOException ex) {
-				finish();	// cancelling
-			}
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			mRunner = null;
-			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceDisconnected()");
-		}
-	};
-	
-	private void doBindConnectionManagerService() {
-		bindService(new Intent(AccessPasswordActivity.this, ConnectionManagerService.class),
-				mConnectionServiceConnection, Context.BIND_AUTO_CREATE);
-	}
-	
-	private void doUnbindConnectionManagerService() {
-		unbindService(mConnectionServiceConnection);
-		mConnectionManager = null;
-	}
-	
-	private void doBindRunnerService() {
-		bindService(new Intent(AccessPasswordActivity.this, NativeBoincService.class),
-				mRunnerServiceConnection, Context.BIND_AUTO_CREATE);
-	}
-	
-	private void doUnbindRunnerService() {
-		unbindService(mRunnerServiceConnection);
-		mRunner = null;
-	}
-	
+		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setUpService(true, false, true, true, false, false);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.access_password);
-		
-		doBindConnectionManagerService();
-		doBindRunnerService();
 		
 		mAccessPassword = (EditText)findViewById(R.id.accessPassword);
 		Button confirmButton = (Button)findViewById(R.id.accessPasswordOk);
@@ -152,30 +71,6 @@ public class AccessPasswordActivity extends Activity implements NativeBoincState
 		});
 	}
 	
-	@Override
-	protected void onResume() {
-		super.onResume();
-		if (mConnectionManager == null)
-			doBindConnectionManagerService();
-		if (mRunner == null)
-			doBindRunnerService();
-	}
-	
-	@Override
-	protected void onDestroy() {
-		if (mRunner != null) {
-			mRunner.removeNativeBoincListener(AccessPasswordActivity.this);
-			mRunner = null;
-		}
-		if (mConnectionManager != null)
-			mConnectionManager = null;
-		
-		super.onDestroy();
-		
-		doUnbindRunnerService();
-		doUnbindConnectionManagerService();
-	}
-
 	@Override
 	public void onClientStateChanged(boolean isRun) {
 		if (isRun) {
@@ -205,19 +100,9 @@ public class AccessPasswordActivity extends Activity implements NativeBoincState
 				hostListDbHelper.close();
 				
 				// restart client
-				mRunner.startClient();
+				mRunner.startClient(false);
 			}
 		}
-	}
-
-	@Override
-	public void onClientFirstStart() {
-		// do nothing		
-	}
-
-	@Override
-	public void onAfterClientFirstKill() {
-		// do nothing
 	}
 
 	@Override

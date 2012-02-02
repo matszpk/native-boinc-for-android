@@ -19,7 +19,7 @@
 
 package edu.berkeley.boinc.lite;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -34,12 +34,12 @@ import android.util.Xml;
 public class AppVersionsParser extends DefaultHandler {
 	private static final String TAG = "AppVersionsParser";
 
-	private Vector<AppVersion> mAppVersions = new Vector<AppVersion>();
+	private ArrayList<AppVersion> mAppVersions = new ArrayList<AppVersion>();
 	private AppVersion mAppVersion = null;
 	private StringBuilder mCurrentElement = new StringBuilder();
 
 
-	public final Vector<AppVersion> getAppVersions() {
+	public final ArrayList<AppVersion> getAppVersions() {
 		return mAppVersions;
 	}
 
@@ -48,7 +48,7 @@ public class AppVersionsParser extends DefaultHandler {
 	 * @param rpcResult String returned by RPC call of core client
 	 * @return vector of application version
 	 */
-	public static Vector<AppVersion> parse(String rpcResult) {
+	public static ArrayList<AppVersion> parse(String rpcResult) {
 		try {
 			AppVersionsParser parser = new AppVersionsParser();
 			Xml.parse(rpcResult, parser);

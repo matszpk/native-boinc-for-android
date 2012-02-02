@@ -21,7 +21,7 @@ package sk.boinc.nativeboinc;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.clientconnection.ClientOp;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
@@ -84,11 +84,11 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 	private boolean mViewUpdatesAllowed = false;
 	private boolean mViewDirty = false;
 
-	private Vector<ProjectInfo> mProjs = new Vector<ProjectInfo>();
+	private ArrayList<ProjectInfo> mProjs = new ArrayList<ProjectInfo>();
 	private int mPosition = 0;
 
 	private class SavedState {
-		private final Vector<ProjectInfo> projs;
+		private final ArrayList<ProjectInfo> projs;
 
 		public SavedState() {
 			projs = mProjs;
@@ -125,7 +125,7 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 
 		@Override
 		public Object getItem(int position) {
-			return mProjs.elementAt(position);
+			return mProjs.get(position);
 		}
 
 		@Override
@@ -143,7 +143,7 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 			else {
 				layout = convertView;
 			}
-			ProjectInfo proj = mProjs.elementAt(position);
+			ProjectInfo proj = mProjs.get(position);
 			TextView title = (TextView)layout.findViewById(R.id.projectName);
 			title.setText(proj.project);
 			ProgressBar shareActive = (ProgressBar)layout.findViewById(R.id.projectShareActive);
@@ -427,12 +427,6 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
 	}
-	
-	@Override
-	public boolean clientError(int errorNum, Vector<String> messages) {
-		// Do nothing
-		return false;
-	}
 
 	@Override
 	public boolean updatedClientMode(ModeInfo modeInfo) {
@@ -447,7 +441,7 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 	}
 
 	@Override
-	public boolean updatedProjects(Vector<ProjectInfo> projects) {
+	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
 		mProjs = projects;
 		if (mViewUpdatesAllowed) {
 			// We are visible, update the view with fresh data
@@ -464,19 +458,19 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 	}
 
 	@Override
-	public boolean updatedTasks(Vector<TaskInfo> tasks) {
+	public boolean updatedTasks(ArrayList<TaskInfo> tasks) {
 		// Just ignore
 		return false;
 	}
 
 	@Override
-	public boolean updatedTransfers(Vector<TransferInfo> transfers) {
+	public boolean updatedTransfers(ArrayList<TransferInfo> transfers) {
 		// Just ignore
 		return false;
 	}
 
 	@Override
-	public boolean updatedMessages(Vector<MessageInfo> messages) {
+	public boolean updatedMessages(ArrayList<MessageInfo> messages) {
 		// Just ignore
 		return false;
 	}
@@ -493,7 +487,7 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 	}
 
 	private String prepareProjectDetails(int position) {
-		ProjectInfo proj = mProjs.elementAt(position);
+		ProjectInfo proj = mProjs.get(position);
 		return getString(R.string.projectDetailedInfo, 
 				TextUtils.htmlEncode(proj.project),
 				TextUtils.htmlEncode(proj.account),

@@ -19,7 +19,7 @@
 
 package sk.boinc.nativeboinc.installer;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * @author mat
@@ -31,5 +31,5 @@ public class InstalledDistrib {
 	public String version = "";
 	public String description = "";
 	public String changes = "";
-	public Vector<String> files = new Vector<String>();
+	public ArrayList<String> files = new ArrayList<String>();
 }

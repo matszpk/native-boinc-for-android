@@ -19,14 +19,14 @@
 
 package edu.berkeley.boinc.lite;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 public class CcState {
 	public VersionInfo version_info;
 	public HostInfo host_info;
-	public Vector<Project> projects = new Vector<Project>();
-	public Vector<App> apps = new Vector<App>();
-	public Vector<AppVersion> app_versions = new Vector<AppVersion>();
-	public Vector<Workunit> workunits = new Vector<Workunit>();
-	public Vector<Result> results = new Vector<Result>();
+	public ArrayList<Project> projects = new ArrayList<Project>();
+	public ArrayList<App> apps = new ArrayList<App>();
+	public ArrayList<AppVersion> app_versions = new ArrayList<AppVersion>();
+	public ArrayList<Workunit> workunits = new ArrayList<Workunit>();
+	public ArrayList<Result> results = new ArrayList<Result>();
 }

@@ -21,10 +21,7 @@ package sk.boinc.nativeboinc;
 
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.HostListDbAdapter;
-import sk.boinc.nativeboinc.util.ScreenOrientationHandler;
-import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -33,9 +30,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 
-public class EditHostActivity extends Activity {
-
-	private ScreenOrientationHandler mScreenOrientation;
+public class EditHostActivity extends AbstractBoincActivity {
 
 	private EditText mNickname;
 	private EditText mAddress;
@@ -48,7 +43,6 @@ public class EditHostActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mScreenOrientation = new ScreenOrientationHandler(this);
 		setContentView(R.layout.edit_host);
 
 		mDbHelper = new HostListDbAdapter(this);
@@ -123,26 +117,12 @@ public class EditHostActivity extends Activity {
 	}
 
 	@Override
-	protected void onResume() {
-		super.onResume();
-		mScreenOrientation.setOrientation();
-	}
-
-	@Override
 	protected void onDestroy() {
 		if (mDbHelper != null) {
 			mDbHelper.close();
 			mDbHelper = null;
 		}
-		mScreenOrientation = null;
 		super.onDestroy();
-	}
-
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		// We handle only orientation changes
-		mScreenOrientation.setOrientation();
 	}
 
 	private void setConfirmButtonState() {

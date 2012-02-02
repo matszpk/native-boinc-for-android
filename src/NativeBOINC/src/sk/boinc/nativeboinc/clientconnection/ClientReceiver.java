@@ -18,8 +18,6 @@
  */
 package sk.boinc.nativeboinc.clientconnection;
 
-import java.util.Vector;
-
 /**
  * @author mat
  *
@@ -34,6 +32,4 @@ public interface ClientReceiver {
 	public abstract void clientConnectionProgress(int progress);
 	public abstract void clientConnected(VersionInfo clientVersion);
 	public abstract void clientDisconnected();
-	
-	public abstract boolean clientError(int errorNum, Vector<String> messages);
 }

@@ -19,6 +19,8 @@
 
 package sk.boinc.nativeboinc.installer;
 
+import java.util.ArrayList;
+
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.UpdateItem;
 import android.content.Context;
@@ -87,11 +89,11 @@ public class InstallerThread extends Thread {
 		});
 	}
 	
-	public void updateClientDistribList() {
+	public void updateClientDistrib() {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateClientDistribList();
+				mHandler.updateClientDistrib();
 			}
 		});
 	}
@@ -100,7 +102,7 @@ public class InstallerThread extends Thread {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.installClientAutomatically();
+				mHandler.installClientAutomatically(true);
 			}
 		});
 	}
@@ -109,16 +111,16 @@ public class InstallerThread extends Thread {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.installBoincApplicationAutomatically(projectUrl);
+				mHandler.installProjectApplicationsAutomatically(projectUrl);
 			}
 		});
 	}
 	
-	public void reinstallUpdateItem(final UpdateItem updateItem) {
+	public void reinstallUpdateItems(final ArrayList<UpdateItem> updateItems) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.reinstallUpdateItem(updateItem);
+				mHandler.reinstallUpdateItems(updateItems);
 			}
 		});
 	}

@@ -18,12 +18,15 @@
  */
 package sk.boinc.nativeboinc.nativeclient;
 
-import java.util.Vector;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
 import edu.berkeley.boinc.lite.Result;
 import edu.berkeley.boinc.lite.RpcClient;
+import edu.berkeley.boinc.nativeboinc.ExtendedRpcClient;
+import edu.berkeley.boinc.nativeboinc.UpdateProjectAppsReply;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
@@ -37,10 +40,10 @@ public class NativeBoincWorkerHandler extends Handler {
 	
 	private Context mContext;
 	private NativeBoincService.ListenerHandler mListenerHandler;
-	private RpcClient mRpcClient;
+	private ExtendedRpcClient mRpcClient;
 	
 	public NativeBoincWorkerHandler(final Context context, final NativeBoincService.ListenerHandler listenerHandler,
-			RpcClient rpcClient) {
+			ExtendedRpcClient rpcClient) {
 		mContext = context;
 		mListenerHandler = listenerHandler;
 		mRpcClient = rpcClient;
@@ -56,7 +59,7 @@ public class NativeBoincWorkerHandler extends Handler {
 			return;
 		}
 		
-		Vector<Result> results = mRpcClient.getResults();
+		ArrayList<Result> results = mRpcClient.getActiveResults();
 		
 		if (results == null) {
 			notifyGlobalProgress(callback, -1.0);
@@ -82,28 +85,6 @@ public class NativeBoincWorkerHandler extends Handler {
 	}
 	
 	/**
-	 * configureClient
-	 */
-	public void configureClient(NativeBoincReplyListener callback) {
-		if (Logging.DEBUG) Log.d(TAG, "Configure native client");
-		if (mRpcClient == null) {
-			notifyNativeBoincServiceError(callback, mContext.getString(R.string.nativeClientConfigError));
-			return;
-		}
-		if (!mRpcClient.setGlobalPrefsOverride(NativeBoincService.INITIAL_BOINC_CONFIG)) {
-			notifyNativeBoincServiceError(callback, mContext.getString(R.string.nativeClientConfigError));
-			return;
-		}
-		
-		if (!mRpcClient.readGlobalPrefsOverride()) {
-			notifyNativeBoincServiceError(callback, mContext.getString(R.string.nativeClientConfigError));
-			return;
-		}
-		
-		notifyClientConfigured(callback);
-	}
-	
-	/**
 	 * get results
 	 * 
 	 */
@@ -111,15 +92,73 @@ public class NativeBoincWorkerHandler extends Handler {
 		if (Logging.DEBUG) Log.d(TAG, "Get results from native client");
 		
 		if (mRpcClient == null) {
-			notifyNativeBoincServiceError(callback, mContext.getString(R.string.nativeClientResultsError));
+			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError));
 			return;
 		}
-		Vector<Result> results = mRpcClient.getResults();
+		ArrayList<Result> results = mRpcClient.getResults();
 		if (results == null) {
-			notifyNativeBoincServiceError(callback, mContext.getString(R.string.nativeClientResultsError));
+			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError));
 			return;
 		}
 		notifyResults(callback, results);
+	}
+	
+	private boolean mUpdatingPollerIsRun = false;
+	private ArrayList<String> mUpdatingProjects = new ArrayList<String>();
+	
+	private Runnable mUpdatingPoller = new Runnable() {
+		@Override
+		public void run() {
+			int count = 0;
+			UpdateProjectAppsReply reply = null;
+			Iterator<String> listIter = mUpdatingProjects.iterator();
+			
+			if (mRpcClient == null) {
+				mUpdatingProjects.clear();
+				return;
+			}
+			while (listIter.hasNext()) {
+				String projectUrl = listIter.next();
+				reply = mRpcClient.updateProjectAppsPoll(projectUrl);
+				if (reply.error_num == RpcClient.ERR_IN_PROGRESS) {
+					count++;
+				} else {
+					// remove finished
+					listIter.remove();
+					
+					if (reply.error_num == 0)
+						notifyUpdatedProject(projectUrl);
+					else	// if error
+						notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError)+
+								" "+projectUrl);
+				}
+			}
+			if (count != 0) // do next update
+				postDelayed(mUpdatingPoller, 1000);
+		}
+	};
+	
+	public void updateProjectApps(String projectUrl) {
+		if (Logging.DEBUG) Log.d(TAG, "Update projects apps");
+		
+		if (mRpcClient == null) {
+			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError));
+			return;
+		}
+		
+		if (mUpdatingProjects.contains(projectUrl)) // do nothing already updating
+			return;
+		
+		if (mRpcClient.updateProjectApps(projectUrl)) {
+			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError)+
+					" "+projectUrl);
+		} else
+			mUpdatingProjects.add(projectUrl);
+		
+		if (!mUpdatingPollerIsRun) {
+			mUpdatingPollerIsRun = true;
+			postAtTime(mUpdatingPoller, 1000);
+		}
 	}
 	
 	/**
@@ -127,19 +166,11 @@ public class NativeBoincWorkerHandler extends Handler {
 	 */
 	public void shutdownClient() {
 		if (mRpcClient != null) {
+			removeCallbacks(mUpdatingPoller);
 			mRpcClient.quit();
 			mRpcClient.close();
 			mRpcClient = null;
 		}
-	}
-	
-	private synchronized void notifyClientConfigured(final NativeBoincReplyListener callback) {
-		mListenerHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				mListenerHandler.onClientConfigured(callback);
-			}
-		});
 	}
 	
 	private synchronized void notifyGlobalProgress(final NativeBoincReplyListener callback,
@@ -152,22 +183,30 @@ public class NativeBoincWorkerHandler extends Handler {
 		});
 	}
 	
-	private synchronized void notifyNativeBoincServiceError(final AbstractNativeBoincListener callback,
-			final String message) {
+	private synchronized void notifyNativeBoincServiceError(final String message) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.nativeBoincServiceError(callback, message);
+				mListenerHandler.nativeBoincServiceError(message);
 			}
 		});
 	}
 	
 	private synchronized void notifyResults(final NativeBoincResultsListener callback,
-			final Vector<Result> results) {
+			final ArrayList<Result> results) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
 				mListenerHandler.getResults(callback, results);
+			}
+		});
+	}
+	
+	private synchronized void notifyUpdatedProject(final String projectUrl) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.updatedProjectApps(projectUrl);
 			}
 		});
 	}

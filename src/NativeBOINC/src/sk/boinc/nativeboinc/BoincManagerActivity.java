@@ -21,7 +21,7 @@ package sk.boinc.nativeboinc;
 
 import hal.android.workarounds.FixedProgressDialog;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
@@ -139,9 +139,18 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			// If service is already connected to client, it will call back the clientConnected()
 			// So the mConnectedClient will be set now.
 			if (mSelectedClient != null) {
-				// Some client was selected at the time when service was not bound yet
-				// Now the service is available, so connection can proceed
-				connectOrReconnect();
+				ClientId currentlyOpenedClient = mConnectionManager.getClientId();
+				if (currentlyOpenedClient != null && currentlyOpenedClient.equals(mSelectedClient)) {
+					// reuse opened connection
+					if (Logging.DEBUG) Log.d(TAG, "Reuse opened connection");
+					mConnectedClient = currentlyOpenedClient;
+					// available, because opened connection on previous session
+					mInitialDataAvailable = true;
+				} else {
+					// Some client was selected at the time when service was not bound yet
+					// Now the service is available, so connection can proceed
+					connectOrReconnect();
+				}
 			}
 		}
 
@@ -173,9 +182,8 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			
 			if ((!mInstaller.isClientInstalled() || clientId == null) &&!mApp.isInstallerRun()) {
 				// run installation wizard
-				mApp.installerIsRun(true);
 				startActivity(new Intent(BoincManagerActivity.this,
-						InstallWizardActivity.class));
+						InstallStep1Activity.class));
 			}
 		}
 
@@ -519,7 +527,7 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		switch (item.getItemId()) {
 		case R.id.menuStartUp:
 			mClientStartFromMenu = true;
-			mRunner.startClient();
+			mRunner.startClient(false);
 			return true;
 		case R.id.menuShutdown:
 			new AlertDialog.Builder(this)
@@ -773,12 +781,6 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 	}
 	
 	@Override
-	public boolean clientError(int errorNum, Vector<String> messages) {
-		// Do nothing
-		return false;
-	}
-
-	@Override
 	public boolean updatedClientMode(ModeInfo modeInfo) {
 		// TODO: Handle client mode
 		// If run mode is suspended, show notification about it (pause symbol?)
@@ -793,25 +795,25 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 	}
 	
 	@Override
-	public boolean updatedProjects(Vector<ProjectInfo> projects) {
+	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
 		// Never requested, nothing to do
 		return false;
 	}
 
 	@Override
-	public boolean updatedTasks(Vector<TaskInfo> tasks) {
+	public boolean updatedTasks(ArrayList<TaskInfo> tasks) {
 		// Never requested, nothing to do
 		return false;
 	}
 
 	@Override
-	public boolean updatedTransfers(Vector<TransferInfo> transfers) {
+	public boolean updatedTransfers(ArrayList<TransferInfo> transfers) {
 		// Never requested, nothing to do
 		return false;
 	}
 
 	@Override
-	public boolean updatedMessages(Vector<MessageInfo> messages) {
+	public boolean updatedMessages(ArrayList<MessageInfo> messages) {
 		if (mInitialDataRetrievalStarted) {
 			dismissProgressDialog();
 			mInitialDataRetrievalStarted = false;
@@ -844,23 +846,11 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		}
 	}
 	
-	public void onClientFirstStart() {
-		// do nothing
-	}
-	
-	public void onAfterClientFirstKill() {
-		// do nothing
-	}
-	
+	@Override
 	public void onNativeBoincError(String message) {
 		mClientStartFromMenu = false;
 		mClientShutdownFromMenu = false;
 	}
-	
-	public void onClientConfigured() {
-		// do nothing
-	}
-	
 	
 	private void updateTitle() {
 		if (mConnectedClient != null) {

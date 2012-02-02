@@ -19,15 +19,57 @@
 
 package sk.boinc.nativeboinc.installer;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * @author mat
  * class of project distribution info
  */
-public class ProjectDistrib {
+public class ProjectDistrib implements Parcelable {
 	public String projectName = "";
 	public String projectUrl = "";
 	public String version = "";
 	public String filename = "";
 	public String description = "";
 	public String changes = "";
+	
+	public ProjectDistrib() { }
+	
+	private ProjectDistrib(Parcel in) {
+		projectName = in.readString();
+		projectUrl = in.readString();
+		version = in.readString();
+		filename = in.readString();
+		description = in.readString();
+		changes = in.readString();
+	}
+	
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+	
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(projectName);
+		dest.writeString(projectUrl);
+		dest.writeString(version);
+		dest.writeString(filename);
+		dest.writeString(description);
+		dest.writeString(changes);
+	}
+	
+	public static final Parcelable.Creator<ProjectDistrib> CREATOR
+		= new Parcelable.Creator<ProjectDistrib>() {
+			@Override
+			public ProjectDistrib createFromParcel(Parcel in) {
+				return new ProjectDistrib(in);
+			}
+	
+			@Override
+			public ProjectDistrib[] newArray(int size) {
+				return new ProjectDistrib[size];
+			}
+	};
 }

@@ -177,7 +177,7 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 					pendingIntent.send();
 				} catch(CanceledException ex) { }
 			} else
-				runner.startClient();
+				runner.startClient(false);
 		}
 	}
 }

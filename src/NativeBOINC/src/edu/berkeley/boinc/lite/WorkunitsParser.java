@@ -19,7 +19,7 @@
 
 package edu.berkeley.boinc.lite;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -32,11 +32,11 @@ import android.util.Xml;
 public class WorkunitsParser extends BaseParser {
 	private static final String TAG = "WorkunitsParser";
 
-	private Vector<Workunit> mWorkunits = new Vector<Workunit>();
+	private ArrayList<Workunit> mWorkunits = new ArrayList<Workunit>();
 	private Workunit mWorkunit = null;
 
 
-	public final Vector<Workunit> getWorkunits() {
+	public final ArrayList<Workunit> getWorkunits() {
 		return mWorkunits;
 	}
 
@@ -45,7 +45,7 @@ public class WorkunitsParser extends BaseParser {
 	 * @param rpcResult String returned by RPC call of core client
 	 * @return vector of workunits
 	 */
-	public static Vector<Workunit> parse(String rpcResult) {
+	public static ArrayList<Workunit> parse(String rpcResult) {
 		try {
 			WorkunitsParser parser = new WorkunitsParser();
 			Xml.parse(rpcResult, parser);

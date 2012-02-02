@@ -20,19 +20,35 @@
 package sk.boinc.nativeboinc.installer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
+import java.util.Map;
+import java.util.ArrayList;
 
+import sk.boinc.nativeboinc.AddProjectActivity;
+import sk.boinc.nativeboinc.ProgressActivity;
+import sk.boinc.nativeboinc.R;
+import sk.boinc.nativeboinc.UpdateActivity;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
+import sk.boinc.nativeboinc.util.NotificationId;
+import sk.boinc.nativeboinc.util.ProgressItem;
 import sk.boinc.nativeboinc.util.UpdateItem;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 /**
  * @author mat
@@ -41,49 +57,41 @@ import android.util.Log;
 public class InstallerService extends Service {
 	private static final String TAG = "InstallerService";
 	
-	public static final int INSTALL_CLIENT_BEFORE_INSTALL = 0;
-	public static final int INSTALL_CLIENT_DOWNLOAD_PGPKEY = 1;
-	public static final int INSTALL_CLIENT_DOWNLOAD_LIST = 2;
-	public static final int INSTALL_CLIENT_VERIFY_LIST = 3;
-	public static final int INSTALL_CLIENT_DOWNLOAD_CLIENT = 4;
-	public static final int INSTALL_CLIENT_VERIFY_CLIENT = 5;
-	public static final int INSTALL_CLIENT_UNPACK_CLIENT = 6;
-	public static final int INSTALL_CLIENT_PREPARE_TO_RUN = 7;
-	public static final int INSTALL_CLIENT_FIRST_RUN = 8;
-	public static final int INSTALL_CLIENT_FIRST_STOP = 9;
-	public static final int INSTALL_CLIENT_REAL_RUN = 10;
-	public static final int INSTALL_CLIENT_CONFIGURE_CLIENT = 11;
-	public static final int INSTALL_CLIENT_END = 11;
+	public static final String BOINC_CLIENT_ITEM_NAME = "BOINC client";
 	
-	public static final int INSTALL_APP_BEFORE_INSTALL = 20;
-	public static final int INSTALL_APP_DOWNLOAD_LIST = 21;
-	public static final int INSTALL_APP_VERIFY_LIST = 21;
-	public static final int INSTALL_APP_AWAITING_FOR_SELECTION = 22;
-	public static final int INSTALL_APP_CONTACT_WITH_PROJECT = 23;
-	public static final int INSTALL_APP_AWAITING_FOR_ACCOUNT = 24;
-	public static final int INSTALL_APP_ADD_PROJECT = 25;
-	public static final int INSTALL_APP_DOWNLOAD_APP = 26;
-	public static final int INSTALL_APP_VERIFY_APP = 27;
-	public static final int INSTALL_APP_UNPACK_APP = 28;
-	public static final int INSTALL_APP_INSTALL_APP = 29;
-	public static final int INSTALL_APP_END = 29;
+	private NotificationManager mNotificationManager = null;
 	
-	public static final int UPDATE_APPS_BEFORE_UPDATE = 30;
-	public static final int UPDATE_APPS_DOWNLOAD_LIST = 31;
-	public static final int UPDATE_APPS_VERIFY_LIST = 32;
-	public static final int UPDATE_APPS_AWAITING_FOR_SELECTION = 33;
-	// this step repeated by app
-	public static final int UPDATE_APPS_DOWNLOAD_APP = 34;
-	public static final int UPDATE_APPS_VERIFY_APP = 35;
-	public static final int UPDATE_APPS_UPDATE_APP = 36;
-	// after updating
-	public static final int UPDATE_APPS_END = 37;
+	private class DistribNotification {
+		public int notificationId;
+		public Notification notification;
+		public RemoteViews contentView;
+		
+		public DistribNotification(int notificationId, Notification notification,
+				RemoteViews contentView) {
+			this.notificationId = notificationId;
+			this.notification = notification;
+			this.contentView = contentView;
+		}
+	}
 	
+	private DistribNotification mClientInstallNotification = null;
+	
+	private Map<String, DistribNotification> mProjectInstallNotifications =
+			new HashMap<String, DistribNotification>();
+	
+	private Map<String, ProgressItem> mDistribInstallProgresses =
+			new HashMap<String, ProgressItem>();
+	
+	private int mCurrentProjectInstallNotificationId = 0;
 	
 	private InstallerThread mInstallerThread = null;
 	private InstallerHandler mInstallerHandler = null;
 	
-	private List<InstallerListener> mListeners = new ArrayList<InstallerListener>();
+	private Context mAppContext = null;
+	
+	private boolean mAtUpdating = false;
+	
+	private List<AbstractInstallerListener> mListeners = new ArrayList<AbstractInstallerListener>();
 	
 	public class LocalBinder extends Binder {
 		public InstallerService getService() {
@@ -93,14 +101,50 @@ public class InstallerService extends Service {
 	
 	private LocalBinder mBinder = new LocalBinder();
 	
+	private NativeBoincService mRunner = null;
+	
+	private ServiceConnection mRunnerServiceConnection = new ServiceConnection() {
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			mRunner = ((NativeBoincService.LocalBinder)service).getService();
+			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceConnected()");
+			mRunner.addNativeBoincListener(mInstallerHandler);
+			mRunner.addMonitorListener(mInstallerHandler);
+			mInstallerHandler.setRunnerService(mRunner);
+		}
+		
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			mRunner.removeNativeBoincListener(mInstallerHandler);
+			mRunner.removeMonitorListener(mInstallerHandler);
+			mRunner = null;
+			mInstallerHandler.setRunnerService(null);
+			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceDisconnected()");
+		}
+	};
+	
+	private void doBindRunnerService() {
+		bindService(new Intent(InstallerService.this, NativeBoincService.class),
+				mRunnerServiceConnection, Context.BIND_AUTO_CREATE);
+	}
+	
+	private void doUnbindRunnerService() {
+		unbindService(mRunnerServiceConnection);
+		mRunner = null;
+	}
+	
 	@Override
 	public void onCreate() {
 		mListenerHandler = new ListenerHandler();
+		mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+		mAppContext = getApplicationContext();
 		startInstaller();
+		doBindRunnerService();
 	}
 	
 	@Override
 	public void onDestroy() {
+		doUnbindRunnerService();
 		stopInstaller();
 	}
 	
@@ -110,57 +154,112 @@ public class InstallerService extends Service {
 		return mBinder;
 	}
 	
-	public class ListenerHandler extends Handler implements InstallerListener {
-		@Override
-		public void onOperation(String opDescription) {
-			for (InstallerListener listener: mListeners)
-				listener.onOperation(opDescription);
+	/**
+	 * listener handler - 
+	 * @author mat
+	 *
+	 */
+	public class ListenerHandler extends Handler {
+		
+		public void onOperation(String distribName, String projectUrl, String opDescription) {
+			updateDistribInstallProgress(distribName, projectUrl, opDescription, -1,
+					ProgressItem.STATE_IN_PROGRESS);
+			
+			if (distribName.equals(BOINC_CLIENT_ITEM_NAME))
+				notifyInstallClientOperation(opDescription);
+			// ignore non distrib notifications
+			else if (distribName.length()!=0)
+				notifyInstallProjectAppsOperation(distribName, opDescription);
+			
+			for (AbstractInstallerListener listener: mListeners)
+				if (listener instanceof InstallerProgressListener)
+					((InstallerProgressListener)listener).onOperation(distribName, opDescription);
 		}
 		
-		@Override
-		public void onOperationProgress(String opDescription, int progress) {
-			for (InstallerListener listener: mListeners)
-				listener.onOperationProgress(opDescription, progress);
+		public void onOperationProgress(String distribName, String projectUrl,
+				String opDescription,int progress) {
+			
+			updateDistribInstallProgress(distribName, projectUrl, opDescription, progress,
+					ProgressItem.STATE_IN_PROGRESS);
+			
+			if (distribName.equals(BOINC_CLIENT_ITEM_NAME))
+				notifyInstallClientProgress(opDescription, progress);
+			// ignore non distrib notifications
+			else if (distribName.length()!=0)
+				notifyInstallProjectAppsProgress(distribName, opDescription, progress);
+			
+			for (AbstractInstallerListener listener: mListeners)
+				if (listener instanceof InstallerProgressListener)
+					((InstallerProgressListener)listener).onOperationProgress(
+							distribName, opDescription, progress);
 		}
 
-		@Override
-		public void onOperationError(String errorMessage) {
-			for (InstallerListener listener: mListeners)
-				listener.onOperationError(errorMessage);
+		public void onOperationError(String distribName, String projectUrl, String errorMessage) {
+			updateDistribInstallProgress(distribName, projectUrl, errorMessage, -1,
+					ProgressItem.STATE_ERROR_OCCURRED);
+			
+			if (distribName.equals(BOINC_CLIENT_ITEM_NAME))
+				notifyInstallClientOperation(errorMessage);
+			// ignore non distrib notifications
+			else if (distribName.length()!=0)
+				notifyInstallProjectAppsOperation(distribName, errorMessage);
+			
+			for (AbstractInstallerListener listener: mListeners)
+				if (listener instanceof InstallerProgressListener)
+					((InstallerProgressListener)listener).onOperationError(
+							distribName, errorMessage);
 		}
 		
-		@Override
-		public void onOperationCancel() {
-			for (InstallerListener listener: mListeners)
-				listener.onOperationCancel();
+		public void onOperationCancel(String distribName, String projectUrl) {
+			updateDistribInstallProgress(distribName, projectUrl, null, -1, 
+					ProgressItem.STATE_CANCELLED);
+
+			if (distribName.equals(BOINC_CLIENT_ITEM_NAME))
+				notifyInstallClientOperation(getString(R.string.operationCancelled));
+			// ignore non distrib notifications
+			else if (distribName.length()!=0)
+				notifyInstallProjectAppsOperation(distribName,
+						getString(R.string.operationCancelled));
+			
+			for (AbstractInstallerListener listener: mListeners)
+				if (listener instanceof InstallerProgressListener)
+					((InstallerProgressListener)listener).onOperationCancel(distribName);
 		}
 		
-		@Override
-		public void onOperationFinish() {
-			for (InstallerListener listener: mListeners)
-				listener.onOperationFinish();
+		public void onOperationFinish(String distribName, String projectUrl) {
+			updateDistribInstallProgress(distribName, projectUrl, null, -1, 
+					ProgressItem.STATE_FINISHED);
+			
+			if (distribName.equals(BOINC_CLIENT_ITEM_NAME))
+				notifyInstallClientFinish();
+			else
+				notifyInstallProjectAppsFinish(distribName);
+			
+			for (AbstractInstallerListener listener: mListeners)
+				if (listener instanceof InstallerProgressListener)
+					((InstallerProgressListener)listener).onOperationFinish(distribName);
 		}
 		
-		@Override
-		public void currentProjectDistribList(Vector<ProjectDistrib> projectDistribs) {
-			for (InstallerListener listener: mListeners)
-				listener.currentProjectDistribList(projectDistribs);
+		public void currentProjectDistribList(ArrayList<ProjectDistrib> projectDistribs) {
+			for (AbstractInstallerListener listener: mListeners)
+				if (listener instanceof InstallerUpdateListener)
+					((InstallerUpdateListener)listener).currentProjectDistribList(projectDistribs);
 		}
 		
-		@Override
 		public void currentClientDistrib(ClientDistrib clientDistrib) {
-			for (InstallerListener listener: mListeners)
-				listener.currentClientDistrib(clientDistrib);
+			for (AbstractInstallerListener listener: mListeners)
+				if (listener instanceof InstallerUpdateListener)
+					((InstallerUpdateListener)listener).currentClientDistrib(clientDistrib);
 		}
 	}
 	
 	private ListenerHandler mListenerHandler = null;
 	
-	public void addInstallerListener(InstallerListener listener) {
+	public void addInstallerListener(AbstractInstallerListener listener) {
 		mListeners.add(listener);
 	}
 	
-	public void removeInstallerListener(InstallerListener listener) {
+	public void removeInstallerListener(AbstractInstallerListener listener) {
 		mListeners.remove(listener);
 	}
 	
@@ -182,21 +281,149 @@ public class InstallerService extends Service {
 	}
 	
 	public void stopInstaller() {
+		mInstallerHandler.cancelAll();
 		mInstallerThread.stopThread();
 		mInstallerThread = null;
 		mListeners.clear();
 		mListenerHandler = null;
 	}
-
+	
+	/*
+	 * adds, update distrib install progresses 
+	 */
+	private synchronized void updateDistribInstallProgress(String distribName,
+			String projectUrl, String opDesc, int progress, int state) {
+		ProgressItem toUpdate = mDistribInstallProgresses.get(distribName);
+		if (toUpdate!=null) {
+			toUpdate.opDesc = opDesc;
+			toUpdate.progress = progress;
+			toUpdate.state = state;
+		} else {	// adds new progress item
+			if (distribName != null && distribName.length() != 0)
+				mDistribInstallProgresses.put(distribName, 
+						new ProgressItem(distribName, projectUrl, opDesc, -1,
+								ProgressItem.STATE_IN_PROGRESS));
+		}
+	}
+	
+	public synchronized void clearDistribInstallProgresses() {
+		mDistribInstallProgresses.clear();
+	}
+	
+	/**
+	 * Notificaitions 
+	 */
+	private void notifyInstallClientBegin() {
+		Intent intent = null;
+		intent = new Intent(this, ProgressActivity.class);
+		
+		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+		RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.install_notification);
+		
+		String notifyText = getString(R.string.installClientNotifyBegin);
+		
+		Notification notification = new Notification(R.drawable.nativeboinc, notifyText,
+				System.currentTimeMillis());
+		mClientInstallNotification = new DistribNotification(NotificationId.INSTALL_BOINC_CLIENT,
+				notification, contentView);
+		notification.setLatestEventInfo(mAppContext, notifyText, notifyText, pendingIntent);
+		
+		mNotificationManager.notify(NotificationId.INSTALL_BOINC_CLIENT, notification);
+	}
+	
+	private void notifyInstallClientOperation(String description) {
+		String notifyText = BOINC_CLIENT_ITEM_NAME + ": " + description;
+		
+		mClientInstallNotification.notification.setLatestEventInfo(this, notifyText, notifyText,
+				mClientInstallNotification.notification.contentIntent);
+		mNotificationManager.notify(NotificationId.INSTALL_BOINC_CLIENT,
+				mClientInstallNotification.notification);
+	}
+	
+	private void notifyInstallClientProgress(String description, int progress) {
+		String notifyText = BOINC_CLIENT_ITEM_NAME + ": " + description;
+		
+		mClientInstallNotification.notification.contentView = mClientInstallNotification.contentView;
+		mClientInstallNotification.contentView.setProgressBar(R.id.operationProgress,
+				10000, progress, false);
+		mClientInstallNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
+		mNotificationManager.notify(NotificationId.INSTALL_BOINC_CLIENT,
+				mClientInstallNotification.notification);
+	}
+	
+	private void notifyInstallClientFinish() {
+		mNotificationManager.cancel(NotificationId.INSTALL_BOINC_CLIENT);
+		mClientInstallNotification = null;
+	}
+	
+	private void notifyInstallProjectBegin(String projectName) {
+		Intent intent = null;
+		if (!mAtUpdating)
+			intent = new Intent(this, AddProjectActivity.class);
+		else
+			intent = new Intent(this, UpdateActivity.class);
+		
+		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+		RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.install_notification);
+		
+		String notifyText = getString(R.string.installProjectNotifyBegin) + " " + projectName;
+		
+		Notification notification = new Notification(R.drawable.nativeboinc, notifyText,
+				System.currentTimeMillis());
+		
+		int notificationId = mCurrentProjectInstallNotificationId++;
+		
+		mProjectInstallNotifications.put(projectName, new DistribNotification(notificationId,
+				notification, contentView));
+		notification.setLatestEventInfo(mAppContext, notifyText, notifyText, pendingIntent);
+		
+		mNotificationManager.notify(notificationId, notification);
+	}
+	
+	private void notifyInstallProjectAppsOperation(String projectName, String description) {
+		DistribNotification notification = mProjectInstallNotifications.get(projectName);
+		
+		if (notification != null) {
+			String notifyText = projectName + ": " + description;
+			
+			mClientInstallNotification.notification.setLatestEventInfo(this, notifyText,
+					notifyText, notification.notification.contentIntent);
+			mNotificationManager.notify(notification.notificationId, notification.notification);
+		}
+	}
+	
+	private void notifyInstallProjectAppsProgress(String projectName,
+			String description, int progress) {
+		DistribNotification notification = mProjectInstallNotifications.get(projectName);
+		if (notification != null) {
+			String notifyText = projectName + ": " + description;
+			
+			notification.notification.contentView = notification.contentView;
+			notification.contentView.setProgressBar(R.id.operationProgress,
+					10000, progress, false);
+			notification.contentView.setTextViewText(R.id.operationDesc, notifyText);
+			mNotificationManager.notify(notification.notificationId, notification.notification);
+		}
+	}
+	
+	private void notifyInstallProjectAppsFinish(String projectName) {
+		DistribNotification notification = mProjectInstallNotifications.remove(projectName);
+		if (notification != null)
+			mNotificationManager.cancel(notification.notificationId);
+	}
+	
 	/**
 	 * Install client automatically (with signature checking)
 	 */
 	public void installClientAutomatically() {
+		mAtUpdating = false;
+		notifyInstallClientBegin();
 		mInstallerThread.installClientAutomatically();
 	}
 	
-	public void updateClientDistribList() {
-		mInstallerThread.updateClientDistribList();
+	/* update client distrib info */
+	public void updateClientDistrib() {
+		mInstallerThread.updateClientDistrib();
 	}
 	
 	/**
@@ -204,15 +431,27 @@ public class InstallerService extends Service {
 	 * @param projectUrl
 	 * @param appName
 	 */
-	public void installBoincApplicationAutomatically(String projectUrl) {
+	public void installProjectApplicationsAutomatically(String projectName, String projectUrl) {
+		mAtUpdating = false;
+		mCurrentProjectInstallNotificationId = NotificationId.INSTALL_PROJECT_APPS_BASE;
+		notifyInstallProjectBegin(projectName);
 		mInstallerThread.installBoincApplicationAutomatically(projectUrl);
 	}
 	
 	/**
 	 * Reinstalls update item 
 	 */
-	public void reinstallUpdateItem(UpdateItem updateItem) {
-		mInstallerThread.reinstallUpdateItem(updateItem);
+	public void reinstallUpdateItems(ArrayList<UpdateItem> updateItems) {
+		mAtUpdating = true;
+		mCurrentProjectInstallNotificationId = NotificationId.INSTALL_PROJECT_APPS_BASE;
+		
+		for (UpdateItem item: updateItems)
+			if (item.name.equals(BOINC_CLIENT_ITEM_NAME))
+				notifyInstallClientBegin();
+			else
+				notifyInstallProjectBegin(item.name);
+			
+		mInstallerThread.reinstallUpdateItems(updateItems);
 	}
 	
 	public void updateProjectDistribList() {
@@ -224,8 +463,16 @@ public class InstallerService extends Service {
 		mInstallerHandler.synchronizeInstalledProjects();
 	}
 	
-	public void cancelOperation() {
-		mInstallerHandler.cancelOperation();
+	public void cancelAll() {
+		mInstallerHandler.cancelAll();
+	}
+	
+	public void cancelClientInstallation() {
+		mInstallerHandler.cancelClientInstallation();
+	}
+	
+	public void cancelProjectAppsInstallation(String projectUrl) {
+		mInstallerHandler.cancelProjectAppsInstallation(projectUrl);
 	}
 	
 	/**
@@ -252,25 +499,36 @@ public class InstallerService extends Service {
 		return mInstallerHandler.getBinariesToUpdateOrInstall(attachedProjectUrls);
 	}
 	
-	/**
-	 * runs client installer 
-	 */
-	
-	public void runBoincClientInstaller() {
-		//mInstallerThread.runBoincClientInstaller();
+	public boolean isWorking() {
+		return mInstallerHandler.isWorking();
 	}
 	
 	/**
-	 * runs
+	 * get currently installed distrib (progresses)
+	 * @return distrib progresses (not sorted)
 	 */
-	public void runBoincApplicationInstaller() {
+	public synchronized ProgressItem[] getCurrentlyInstalledBinaries() {
+		if (mDistribInstallProgresses.isEmpty())
+			return null;
 		
+		ProgressItem[] installProgresses = new ProgressItem[mDistribInstallProgresses.size()];
+		
+		int index = 0;
+		for (ProgressItem progress: mDistribInstallProgresses.values()) {
+			installProgresses[index] = new ProgressItem(progress.name, progress.projectUrl,
+					progress.opDesc, progress.progress, progress.state);
+			index++;
+		}
+		
+		return installProgresses;
 	}
 	
-	/**
-	 * returns current state of installation
-	 */
-	public int getCurrentStep() {
-		return 0;
+	/* get current status */
+	public synchronized ProgressItem getCurrentStatusForDistribInstall(String distribName) {
+		ProgressItem progress = mDistribInstallProgresses.get(distribName);
+		if (progress == null)
+			return null;
+		return new ProgressItem(progress.name, progress.projectUrl, progress.opDesc,
+				progress.progress, progress.state);
 	}
 }

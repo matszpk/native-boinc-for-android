@@ -356,10 +356,6 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 		netStats.registerOnSharedPreferenceChangeListener(this);
 		// And update current numbers in display of network statistics
 		updateNetworkStats();
-		
-		//
-		if (mInstaller == null)
-			doBindInstallerService();
 	}
 
 	@Override
@@ -447,7 +443,8 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 					@Override
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// Confirmed; turn on network statistics now
-						CheckBoxPreference cbPref = (CheckBoxPreference)findPreference(PreferenceName.COLLECT_STATS);
+						CheckBoxPreference cbPref = (CheckBoxPreference)
+								findPreference(PreferenceName.COLLECT_STATS);
 						cbPref.setChecked(true);
 						// Additionally, if the opt-out checkbox was selected, store property to
 						// disable this dialog for future
@@ -455,7 +452,8 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 						CheckBox optOut = (CheckBox)ad.findViewById(R.id.optOutSetting);
 						if (optOut.isChecked()) {
 							if (Logging.DEBUG) { Log.d(TAG, "Disabling notice for future"); }
-							SharedPreferences netStats = getSharedPreferences(NetStatsStorage.NET_STATS_FILE, MODE_PRIVATE);
+							SharedPreferences netStats = getSharedPreferences(
+									NetStatsStorage.NET_STATS_FILE, MODE_PRIVATE);
 							SharedPreferences.Editor editor = netStats.edit();
 							editor.putBoolean(NetStatsStorage.NET_STATS_WARNING, true);
 							editor.commit();

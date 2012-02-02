@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="10dp">
+    <TextView
+		android:layout_width="fill_parent"
+  		android:layout_height="wrap_content"
+  		android:textSize="14dip"
+  		android:text="@string/installSuccessfully" />
+  	<TextView
+		android:layout_width="fill_parent"
+  		android:layout_height="wrap_content"
+  		android:textSize="14dip"
+  		android:paddingTop="10dip"
+  		android:text="@string/installNetworkAccess1" />
+  	<TextView
+		android:layout_width="fill_parent"
+  		android:layout_height="wrap_content"
+  		android:textSize="14dip"
+  		android:paddingTop="10dip"
+  		android:text="@string/installNetworkAccess2" />
+  	<TextView
+		android:layout_width="fill_parent"
+  		android:layout_height="wrap_content"
+  		android:textSize="14dip"
+  		android:paddingTop="10dip"
+  		android:text="@string/installAddProject" />
+  	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right"
+		android:paddingTop="10dip">
+	  	<Button android:id="@+id/installCancel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/cancel" />
+		<Button android:id="@+id/installNext" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/next" />
+	</LinearLayout>
+</LinearLayout>

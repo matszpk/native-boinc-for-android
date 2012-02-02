@@ -271,18 +271,6 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	}
 
 	@Override
-	public void onClientFirstStart() {
-		// Do nothing
-		
-	}
-
-	@Override
-	public void onAfterClientFirstKill() {
-		// Do nothing
-		
-	}
-
-	@Override
 	public void onNativeBoincError(String message) {
 		// Do nothing
 	}
@@ -314,11 +302,5 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 			if (Logging.DEBUG) Log.d(TAG, "Send update intent");
 			pendingIntent.send();
 		} catch (Exception ex) { }
-	}
-
-	@Override
-	public void onClientConfigured() {
-		// TODO Auto-generated method stub
-		
 	}
 }

@@ -19,7 +19,7 @@
 
 package edu.berkeley.boinc.lite;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * @author mat
@@ -33,5 +33,5 @@ public class ProjectListEntry {
 	public String description = "";
 	public String home = "";
 	public String image = "";
-	public Vector<String> platforms = new Vector<String>();
+	public ArrayList<String> platforms = new ArrayList<String>();
 }

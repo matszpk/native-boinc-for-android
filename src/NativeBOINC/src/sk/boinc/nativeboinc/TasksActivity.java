@@ -22,7 +22,7 @@ package sk.boinc.nativeboinc;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.clientconnection.ClientOp;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
@@ -87,13 +87,13 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 	private boolean mViewUpdatesAllowed = false;
 	private boolean mViewDirty = false;
 
-	private Vector<TaskInfo> mTasks = new Vector<TaskInfo>();
+	private ArrayList<TaskInfo> mTasks = new ArrayList<TaskInfo>();
 	private int mPosition = 0;
 
 	private StringBuilder mSb = new StringBuilder(SB_INIT_CAPACITY);
 
 	private class SavedState {
-		private final Vector<TaskInfo> tasks;
+		private final ArrayList<TaskInfo> tasks;
 
 		public SavedState() {
 			tasks = mTasks;
@@ -129,7 +129,7 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 
 		@Override
 		public Object getItem(int position) {
-			return mTasks.elementAt(position);
+			return mTasks.get(position);
 		}
 
 		@Override
@@ -147,7 +147,7 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 			else {
 				layout = convertView;
 			}
-			TaskInfo task = mTasks.elementAt(position);
+			TaskInfo task = mTasks.get(position);
 			TextView tv;
 			tv = (TextView)layout.findViewById(R.id.taskAppName);
 			tv.setText(task.application);
@@ -476,13 +476,6 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
 	}
-	
-	@Override
-	public boolean clientError(int errorNum, Vector<String> messages) {
-		// Do nothing
-		return false;
-	}
-
 
 	@Override
 	public boolean updatedClientMode(ModeInfo modeInfo) {
@@ -497,13 +490,13 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 	}
 
 	@Override
-	public boolean updatedProjects(Vector<ProjectInfo> projects) {
+	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
 		// Just ignore
 		return false;
 	}
 
 	@Override
-	public boolean updatedTasks(Vector<TaskInfo> tasks) {
+	public boolean updatedTasks(ArrayList<TaskInfo> tasks) {
 		mTasks = tasks;
 		if (mViewUpdatesAllowed) {
 			// We are visible, update the view with fresh data
@@ -520,13 +513,13 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 	}
 
 	@Override
-	public boolean updatedTransfers(Vector<TransferInfo> transfers) {
+	public boolean updatedTransfers(ArrayList<TransferInfo> transfers) {
 		// Just ignore
 		return false;
 	}
 
 	@Override
-	public boolean updatedMessages(Vector<MessageInfo> messages) {
+	public boolean updatedMessages(ArrayList<MessageInfo> messages) {
 		// Just ignore
 		return false;
 	}
@@ -576,7 +569,7 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 	}
 
 	private String prepareTaskDetails(int position) {
-		TaskInfo task = mTasks.elementAt(position);
+		TaskInfo task = mTasks.get(position);
 		mSb.setLength(0);
 		mSb.append(getString(R.string.taskDetailedInfoCommon, 
 				TextUtils.htmlEncode(task.taskName),

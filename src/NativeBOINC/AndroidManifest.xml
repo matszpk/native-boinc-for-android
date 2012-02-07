@@ -94,6 +94,10 @@
 			android:launchMode="singleTask"
 			android:label="@string/installWizard" />
 		
+		<activity android:name=".InstallFinishActivity"
+			android:launchMode="singleTask"
+			android:label="@string/installWizard" />
+		
 		<activity android:name=".ProgressActivity"
 			android:launchMode="singleTop"
 			android:label="@string/installingUpdating" />

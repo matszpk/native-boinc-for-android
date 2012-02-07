@@ -25,10 +25,10 @@ package sk.boinc.nativeboinc.clientconnection;
  */
 public interface PollOp {
 	// polling operation - 
-	public static final int POLL_ATTACH_TO_BAM = 1;
-	public static final int POLL_SYNC_WITH_BAM = 2;
-	public static final int POLL_LOOKUP_ACCOUNT = 3;
-	public static final int POLL_CREATE_ACCOUNT = 4;
-	public static final int POLL_PROJECT_ATTACH = 5;
-	public static final int POLL_PROJECT_CONFIG = 6;
+	public static final int POLL_ATTACH_TO_BAM = 0;
+	public static final int POLL_SYNC_WITH_BAM = 1;
+	public static final int POLL_LOOKUP_ACCOUNT = 2;
+	public static final int POLL_CREATE_ACCOUNT = 3;
+	public static final int POLL_PROJECT_ATTACH = 4;
+	public static final int POLL_PROJECT_CONFIG = 5;
 }

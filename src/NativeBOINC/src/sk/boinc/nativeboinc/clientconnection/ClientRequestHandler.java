@@ -47,11 +47,11 @@ public interface ClientRequestHandler {
 	
 	public abstract void getAllProjectsList(ClientAllProjectsListReceiver callback);
 	
-	public abstract void lookupAccount(ClientProjectReceiver callback, AccountIn accountIn);
-	public abstract void createAccount(ClientProjectReceiver callback, AccountIn accountIn);
-	public abstract void projectAttach(ClientProjectReceiver callback, String url, String authCode, String projectName);
-	public abstract void getProjectConfig(ClientProjectReceiver callback, String url);
-	public abstract void addProject(ClientProjectReceiver callback, AccountIn accountIn, boolean create);
+	public abstract void lookupAccount(AccountIn accountIn);
+	public abstract void createAccount(AccountIn accountIn);
+	public abstract void projectAttach(String url, String authCode, String projectName);
+	public abstract void getProjectConfig(String url);
+	public abstract void addProject(AccountIn accountIn, boolean create);
 	
 	public abstract void getGlobalPrefsWorking(ClientPreferencesReceiver callback);
 	public abstract void setGlobalPrefsOverrideStruct(ClientPreferencesReceiver callback, GlobalPreferences globalPrefs);

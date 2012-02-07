@@ -23,12 +23,15 @@ import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
+import sk.boinc.nativeboinc.service.ConnectionManagerService;
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.HostListDbAdapter;
+import sk.boinc.nativeboinc.util.StandardDialogs;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -37,35 +40,48 @@ import android.widget.Button;
  * @author mat
  *
  */
-public class InstallStep2Activity extends ServiceBoincActivity implements ClientReceiver {
+public class InstallStep2Activity extends ServiceBoincActivity implements ClientReceiver,
+		NativeBoincStateListener {
 
 	private final static String TAG = "InstallStep2Activity";
 	
+	private static final String STATE_CONNECTION_FAILED = "ConnFailed";
+	
 	private BoincManagerApplication mApp = null;
+	
+	private Button mNextButton = null;
+	
+	private boolean mConnectionFailed = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		setUpService(true, true, false, false, false, false);
+		
+		if (savedInstanceState != null)
+			mConnectionFailed = savedInstanceState.getBoolean(STATE_CONNECTION_FAILED);
+		
+		setUpService(true, true, true, true, false, false);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.install_step2);
 		
-		mApp = (BoincManagerApplication)getApplication();
+		startService(new Intent(this, ConnectionManagerService.class));
 		
-		Button nextButton = (Button)findViewById(R.id.installNext);
+		mApp = (BoincManagerApplication)getApplication();
+		mApp.setInstallerStage(BoincManagerApplication.INSTALLER_PROJECT_STAGE);
+		
+		mNextButton = (Button)findViewById(R.id.installNext);
 		Button cancelButton = (Button)findViewById(R.id.installCancel);
 		
 		cancelButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				finish();
+				InstallStep2Activity.this.onBackPressed();
 			}
 		});
 		
-		nextButton.setOnClickListener(new View.OnClickListener() {
+		mNextButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				
 				Intent intent = new Intent(InstallStep2Activity.this, ProjectListActivity.class);
 				intent.putExtra(ProjectListActivity.TAG_OTHER_PROJECT_OPTION, false);
 				intent.putExtra(ProjectListActivity.TAG_FROM_INSTALLER, true);
@@ -76,7 +92,25 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 	}
 	
 	@Override
-	protected void onConnectionManagerConnected() {
+	protected void onSaveInstanceState(Bundle outState) {
+		outState.putBoolean(STATE_CONNECTION_FAILED, mConnectionFailed);
+		super.onSaveInstanceState(outState);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		if (mRunner != null && !mConnectionFailed) {
+			if (!mRunner.isRun()) {
+				setProgressBarIndeterminateVisibility(true);
+				mRunner.startClient(false);
+			} else if (mConnectionManager != null)	// now try to connect
+				connectWithNativeClient();
+		}
+	}
+	
+	private void connectWithNativeClient() {
 		HostListDbAdapter dbAdapter = null;
 		try {
 			dbAdapter = new HostListDbAdapter(this);
@@ -85,42 +119,90 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 			if (Logging.DEBUG) Log.d(TAG, "Connect with nativeboinc");
 			
 			ClientId client = dbAdapter.fetchHost("nativeboinc");
-			mConnectionManager.connect(client, true);
+			ClientId connected = mConnectionManager.getClientId();
 			
-			// starting connecting
-			setProgressBarIndeterminateVisibility(true);
+			if (connected == null || !client.equals(connected)) {
+				// if not connected
+				mConnectionManager.connect(client, true);
+				// starting connecting
+				setProgressBarIndeterminateVisibility(true);
+			}
 		} catch(NoConnectivityException ex) {
 			// error
 		} finally {
 			dbAdapter.close();
 		}
-	} 
+	}
 	
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			mApp.installerIsRun(false);
-			finish();
-			return true; 
+	protected void onConnectionManagerConnected() {
+		if (mRunner != null && mRunner.isRun() && !mConnectionFailed)
+			connectWithNativeClient();
+	}
+	
+	@Override
+	protected void onRunnerConnected() {
+		if (!mConnectionFailed) {
+			if (!mRunner.isRun()) {
+				setProgressBarIndeterminateVisibility(true);
+				mRunner.startClient(false);
+			} else if (mConnectionManager != null)	// now try to connect
+				connectWithNativeClient();
 		}
-		return super.onKeyDown(keyCode, event);
+	}
+	
+	@Override
+	public void onBackPressed() {
+		finish();
+	}
+	
+	@Override
+	protected Dialog onCreateDialog(int dialogId, Bundle args) {
+		return StandardDialogs.onCreateDialog(this, dialogId, args);
+	}
+	
+	@Override
+	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
+		StandardDialogs.onPrepareDialog(this, dialogId, dialog, args);
 	}
 
 	@Override
 	public void clientConnectionProgress(int progress) {
-		// TODO Auto-generated method stub
-		
+		setProgressBarIndeterminateVisibility(true);
 	}
 
 	@Override
 	public void clientConnected(VersionInfo clientVersion) {
 		// if after connecting
 		setProgressBarIndeterminateVisibility(false);
+		mNextButton.setEnabled(true);
 	}
 
 	@Override
 	public void clientDisconnected() {
+		if (Logging.WARNING) Log.w(TAG, "Client disconnected");
 		// if after try (failed)
 		setProgressBarIndeterminateVisibility(false);
+		StandardDialogs.showErrorDialog(this, getString(R.string.clientDisconnected));
+	}
+
+	@Override
+	public void onNativeBoincError(String message) {
+		setProgressBarIndeterminateVisibility(false);
+		mConnectionFailed = true;
+		StandardDialogs.showErrorDialog(this, message);
+	}
+
+	@Override
+	public void onClientStateChanged(boolean isRun) {
+		if (isRun && mConnectionManager != null)
+			connectWithNativeClient();
+	}
+
+	@Override
+	public void clientError(int errorNum, String message) {
+		setProgressBarIndeterminateVisibility(false);
+		mConnectionFailed = true;
+		StandardDialogs.showClientErrorDialog(this, errorNum, message);
 	}
 }

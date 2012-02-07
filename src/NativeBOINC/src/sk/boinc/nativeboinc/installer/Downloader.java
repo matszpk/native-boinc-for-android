@@ -115,13 +115,18 @@ public class Downloader {
 							break;
 						keyBlock.append(buffer, 0, readed);
 					}
-				}
+				} else
+					if (Logging.WARNING) Log.w(TAG, "Response: " + response.getStatusLine() +
+							" from " + keyserver);
 				
 				int keyStart = keyBlock.indexOf("-----BEGIN PGP PUBLIC KEY BLOCK-----");
 				int keyEnd = keyBlock.indexOf("-----END PGP PUBLIC KEY BLOCK-----");
 				
-				if (keyStart == -1 || keyEnd == -1)
+				if (keyStart == -1 || keyEnd == -1) {
+					if (Logging.WARNING) Log.w(TAG, "Bad keyBlock: from " + keyserver + ", keyblock: " +
+							keyBlock);
 					throw new Exception("Error");
+				}
 	
 				pgpStream = mContext.openFileOutput("pgpkey.pgp", Context.MODE_PRIVATE);
 				
@@ -138,6 +143,7 @@ public class Downloader {
 				return;
 			} catch(Exception ex) {	/* on error */
 				mContext.deleteFile("pgpkey.pgp");
+				if (Logging.WARNING) Log.w(TAG, "Exception: "+ ex.getMessage() + " for " + keyserver);
 			} finally {
 				try {
 					if (reader != null)
@@ -284,9 +290,9 @@ public class Downloader {
 	            				(int)((double)readed*10000.0/(double)length));
 	            		time = newTime;
 	            	}
-	            	/*try {
+	            	try {
 						Thread.sleep(40);
-					} catch(InterruptedException ex) { }*/
+					} catch(InterruptedException ex) { }
 	            }
 	        }
 	        
@@ -356,9 +362,9 @@ public class Downloader {
 							currentTime = newTime;
 						}
 					}
-					/*try {
+					try {
 						Thread.sleep(40);
-					} catch(InterruptedException ex) { }*/
+					} catch(InterruptedException ex) { }
 				}
 				
 				notifyProgress(distribName, projectUrl, opDesc, 10000);

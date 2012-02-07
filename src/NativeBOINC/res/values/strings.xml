@@ -295,7 +295,7 @@
 	<string name="installFinished">Installation have been finished. Please tap \'Finish\' button.</string>
 	<string name="installFinishedBut">Installation have been finished without project attachment. Please tap \'Finish\' button.</string>
 	<string name="installWidgetFinished">Notice: We recommends to use NativeBOINC widget to control native client.</string>
-	<string name="installFinishedBenchmark">Currently boinc client ran benchmark. Please waits 30 seconds to finish benchmark.</string>
+	<string name="installFinishedBenchmark">During installing first project, BOINC can run benchmark, which works by 30 seconds.</string>
 
 	<string name="installReadBefore">READ BEFORE INSTALLATION:</string>
 	<string name="installAttention1">Please DO NOT uninstall this application BEFORE shutting down BOINC client!!!</string>
@@ -448,8 +448,13 @@
 	
 	<string name="appListDownload">Downloading project applications list</string>
 	<string name="clientListDownload">Downloading client list</string>
+	<string name="waitingForClientUpdateAndRun">Waiting for client update and run</string>
+	<string name="finalizeProjectAppInstall">Finalize project application installation</string>
+	
+	<string name="waitingForBenchmarkFinish">Waiting for benchmark finish</string>
 	
 	<!-- Error strings -->
+	<string name="clientDistribNotFound">Unable to determine client distribution</string>
 	<string name="installError">Installation error</string>
 	<string name="downloadPGPKeyError">Unable to download PGP key</string>
 	<string name="loadPGPKeyError">Unable to load PGP key</string>
@@ -478,6 +483,12 @@
 	<string name="projectAppNotFound">Project for this project not found</string>
 	
 	<string name="updateProjectAppError">Unable to finalize updating project applications for</string>
+	
+	<string name="updateClientModeError">Error happens during updating client mode</string>
+	<string name="boincOperationError">Error happens during BOINC operation</string>
+	<string name="boincPollError">Error happens during BOINC polling operation</string>
+	
+	<string name="errorNumFormat">(error: %d)</string>
 	
 	<!-- HostInfo display -->
 	<string name="hostInfoPart1">

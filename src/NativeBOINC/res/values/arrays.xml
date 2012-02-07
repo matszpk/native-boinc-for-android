@@ -112,7 +112,17 @@
 	</string-array>
 
 	<string-array name="PGPkeyservers">
-		<item>keyserver.stack.nl</item>
+		<!-- <item>keyserver.stack.nl</item>-->
+		<item>pgp.zdv.uni-mainz.de</item>
 		<item>subkeys.pgp.net</item>
+	</string-array>
+	
+	<string-array name="pollOps">
+	    <item>Attach to BAM</item>
+	    <item>Synchronize with BAM</item>
+	    <item>Lookup project account</item>
+	    <item>Create project account</item>
+	    <item>Project attach</item>
+	    <item>Get project config</item>
 	</string-array>
 </resources>

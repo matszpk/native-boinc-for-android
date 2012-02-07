@@ -111,12 +111,14 @@ public class NativeBoincWorkerHandler extends Handler {
 		public void run() {
 			int count = 0;
 			UpdateProjectAppsReply reply = null;
-			Iterator<String> listIter = mUpdatingProjects.iterator();
 			
 			if (mRpcClient == null) {
 				mUpdatingProjects.clear();
 				return;
 			}
+			
+			Iterator<String> listIter = mUpdatingProjects.iterator();
+			
 			while (listIter.hasNext()) {
 				String projectUrl = listIter.next();
 				reply = mRpcClient.updateProjectAppsPoll(projectUrl);
@@ -126,30 +128,36 @@ public class NativeBoincWorkerHandler extends Handler {
 					// remove finished
 					listIter.remove();
 					
-					if (reply.error_num == 0)
+					if (reply.error_num == 0) {
+						if (Logging.INFO) Log.i(TAG, "after update_apps for "+projectUrl);
 						notifyUpdatedProject(projectUrl);
-					else	// if error
+					}
+					else {	// if error
+						if (Logging.WARNING) Log.w(TAG, "error in updating app for "+projectUrl +
+								",errornum:" +reply.error_num);
 						notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError)+
 								" "+projectUrl);
+					}
 				}
 			}
-			if (count != 0) // do next update
+			if (count != 0) { // do next update
+				if (Logging.DEBUG) Log.d(TAG, "polling update_apps");
 				postDelayed(mUpdatingPoller, 1000);
+			}
 		}
 	};
 	
 	public void updateProjectApps(String projectUrl) {
 		if (Logging.DEBUG) Log.d(TAG, "Update projects apps");
 		
-		if (mRpcClient == null) {
-			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError));
+		if (mRpcClient == null)
 			return;
-		}
 		
 		if (mUpdatingProjects.contains(projectUrl)) // do nothing already updating
 			return;
 		
-		if (mRpcClient.updateProjectApps(projectUrl)) {
+		if (!mRpcClient.updateProjectApps(projectUrl)) {
+			if (Logging.WARNING) Log.w(TAG, "updatProjectApps error "+projectUrl);
 			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError)+
 					" "+projectUrl);
 		} else
@@ -157,7 +165,7 @@ public class NativeBoincWorkerHandler extends Handler {
 		
 		if (!mUpdatingPollerIsRun) {
 			mUpdatingPollerIsRun = true;
-			postAtTime(mUpdatingPoller, 1000);
+			postDelayed(mUpdatingPoller, 1000);
 		}
 	}
 	

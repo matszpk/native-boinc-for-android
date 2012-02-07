@@ -28,6 +28,12 @@
   		android:textSize="14dip"
   		android:paddingTop="10dip"
   		android:text="@string/installAddProject" />
+  	<TextView
+		android:layout_width="fill_parent"
+  		android:layout_height="wrap_content"
+  		android:textSize="14dip"
+  		android:paddingTop="10dip"
+  		android:text="@string/installFinishedBenchmark" />
   	<LinearLayout
 		android:orientation="horizontal"
 		android:layout_width="wrap_content"
@@ -39,6 +45,7 @@
 			android:layout_height="wrap_content"
 			android:text="@string/cancel" />
 		<Button android:id="@+id/installNext" 
+		    android:enabled="false"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/next" />

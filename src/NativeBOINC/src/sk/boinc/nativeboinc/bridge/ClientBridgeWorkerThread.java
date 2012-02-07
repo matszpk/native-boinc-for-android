@@ -240,39 +240,38 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
-	public void lookupAccount(final ClientProjectReceiver callback, final AccountIn accountIn) {
+	public void lookupAccount(final AccountIn accountIn) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.lookupAccount(callback, accountIn);
+				mHandler.lookupAccount(accountIn);
 			}
 		});
 	}
 	
-	public void createAccount(final ClientProjectReceiver callback, final AccountIn accountIn) {
+	public void createAccount(final AccountIn accountIn) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.createAccount(callback, accountIn);
+				mHandler.createAccount(accountIn);
 			}
 		});
 	}
 	
-	public void projectAttach(final ClientProjectReceiver callback, final String url,
-			final String authCode, final String projectName) {
+	public void projectAttach(final String url, final String authCode, final String projectName) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.projectAttach(callback, url, authCode, projectName);
+				mHandler.projectAttach(url, authCode, projectName);
 			}
 		});
 	}
 	
-	public void getProjectConfig(final ClientProjectReceiver callback, final String url) {
+	public void getProjectConfig(final String url) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.getProjectConfig(callback, url);
+				mHandler.getProjectConfig(url);
 			}
 		});
 	}

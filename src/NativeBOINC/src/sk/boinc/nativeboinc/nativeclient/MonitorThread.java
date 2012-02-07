@@ -61,6 +61,13 @@ public class MonitorThread extends Thread {
 			for (MonitorListener callback: mListeners)
 				callback.onMonitorEvent(event);
 		}
+		
+		public synchronized void addMonitorListener(MonitorListener listener) {
+			mListeners.add(listener);
+		}
+		public synchronized void removeMonitorListener(MonitorListener listener) {
+			mListeners.remove(listener);
+		}
 	}
 	
 	private ListenerHandler mListenerHandler = null;
@@ -75,13 +82,6 @@ public class MonitorThread extends Thread {
 		mAuthCode = authCode;
 		mListenerHandler = listenerHandler;
 		mListeners = listenerHandler.mListeners;
-	}
-	
-	public synchronized void addMonitorListener(MonitorListener listener) {
-		mListeners.add(listener);
-	}
-	public synchronized void removeMonitorListener(MonitorListener listener) {
-		mListeners.remove(listener);
 	}
 	
 	/**

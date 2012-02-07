@@ -22,23 +22,22 @@ package sk.boinc.nativeboinc.service;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.ArrayList;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.GlobalPreferences;
 import edu.berkeley.boinc.lite.ProjectConfig;
-import edu.berkeley.boinc.lite.ProjectListEntry;
 
 import sk.boinc.nativeboinc.bridge.ClientBridge;
 import sk.boinc.nativeboinc.bridge.ClientBridgeCallback;
 import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
+import sk.boinc.nativeboinc.clientconnection.PollError;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.ClientId;
 import android.app.Service;
@@ -282,6 +281,15 @@ public class ConnectionManagerService extends Service implements
 			return null;
 		}
 	}
+	
+	public boolean isNativeConnected() {
+		if (mClientBridge != null) {
+			ClientId clientId = mClientBridge.getClientId();
+			String clientAddress = clientId.getAddress();
+			return clientAddress.equals("127.0.0.1") || clientAddress.equals("localhost");
+		}
+		else return false;
+	}
 
 	@Override
 	public void updateClientMode(ClientReceiver callback) {
@@ -368,48 +376,72 @@ public class ConnectionManagerService extends Service implements
 	}
 	
 	@Override
-	public void lookupAccount(ClientProjectReceiver callback, AccountIn accountIn) {
+	public void lookupAccount(AccountIn accountIn) {
 		if (mClientBridge != null) {
-			mClientBridge.lookupAccount(callback, accountIn);
+			mClientBridge.lookupAccount(accountIn);
 		}
 	}
 	
 	@Override
-	public void createAccount(ClientProjectReceiver callback, AccountIn accountIn) {
+	public void createAccount(AccountIn accountIn) {
 		if (mClientBridge != null) {
-			mClientBridge.createAccount(callback, accountIn);
+			mClientBridge.createAccount(accountIn);
 		}
 	}
 	
 	@Override
-	public void projectAttach(ClientProjectReceiver callback, String url, String authCode, String projectName) {
+	public void projectAttach(String url, String authCode, String projectName) {
 		if (mClientBridge != null) {
-			mClientBridge.projectAttach(callback, url, authCode, projectName);
+			mClientBridge.projectAttach(url, authCode, projectName);
 		}
+	}
+	
+	public boolean isProjectBeingAdded(String projectUrl) {
+		if (mClientBridge != null)
+			return mClientBridge.isProjectBeingAdded(projectUrl);
+		return false;
 	}
 	
 	/* join of createAccount/lookupAccount with projectAttach */
 	@Override
-	public void addProject(ClientProjectReceiver callback, AccountIn accountIn, boolean create) {
+	public void addProject(AccountIn accountIn, boolean create) {
 		if (mClientBridge != null)
-			mClientBridge.addProject(callback, accountIn, create);
+			mClientBridge.addProject(accountIn, create);
 	}
 	
-	public void getProjectConfig(ClientProjectReceiver callback, String url) {
+	public void getProjectConfig(String url) {
 		if (mClientBridge != null) {
-			mClientBridge.getProjectConfig(callback, url);
+			mClientBridge.getProjectConfig(url);
 		}
 	}
 	
+	/**
+	 * returns pending project config after calling.
+	 * @param projectUrl
+	 * @return pending projectConfig
+	 */
 	public ProjectConfig getPendingProjectConfig(String projectUrl) {
 		if (mClientBridge != null)
 			return mClientBridge.getPendingProjectConfig(projectUrl);
 		return null;
 	}
 	
-	public void flushPendingProjectConfig(String projectUrl) {
-		if (mClientBridge != null)
-			mClientBridge.flushPendingProjectConfig(projectUrl);
+	
+	public ClientError getPendingClientError() {
+		if (mClientBridge != null) {
+			return mClientBridge.getPendingClientError();
+		}
+		return null;
+	}
+	
+	/**
+	 * pending poll errors
+	 */
+	public PollError getPendingPollError(String projectUrl) {
+		if (mClientBridge != null) {
+			return mClientBridge.getPendingPollError(projectUrl);
+		}
+		return null;
 	}
 	
 	public void getGlobalPrefsWorking(ClientPreferencesReceiver callback) {

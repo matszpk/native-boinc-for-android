@@ -19,15 +19,20 @@
 
 package sk.boinc.nativeboinc.clientconnection;
 
-import edu.berkeley.boinc.lite.ProjectConfig;
-
 /**
  * @author mat
  *
  */
-public interface ClientProjectReceiver extends ClientPollErrorReceiver {
-	public abstract boolean currentAuthCode(String projectUrl, String authCode);
-	public abstract boolean currentProjectConfig(ProjectConfig projectConfig);
+public class PollError {
+	public int errorNum;
+	public int operation;
+	public String message;
+	public String param;
 	
-	public abstract boolean onAfterProjectAttach(String projectUrl);
+	public PollError(int errorNum, int operation, String message, String param) {
+		this.errorNum = errorNum;
+		this.operation = operation;
+		this.message = message;
+		this.param = param;
+	}
 }

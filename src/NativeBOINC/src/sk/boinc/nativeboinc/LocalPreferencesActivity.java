@@ -314,15 +314,6 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	}
 	
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			finish();	// cancel
-			return false;
-		} else
-			return super.onKeyDown(keyCode, event);
-	}
-	
-	@Override
 	public void clientConnectionProgress(int progress) {
 		// do nothing
 		switch (progress) {
@@ -411,5 +402,11 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	public void onGlobalPreferencesChanged() {
 		// finish
 		finish();
+	}
+
+	@Override
+	public void clientError(int err_num, String message) {
+		// TODO Auto-generated method stub
+		
 	}
 }

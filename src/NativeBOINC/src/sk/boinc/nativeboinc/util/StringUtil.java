@@ -17,17 +17,25 @@
  * 
  */
 
-package sk.boinc.nativeboinc.clientconnection;
+package sk.boinc.nativeboinc.util;
 
-import edu.berkeley.boinc.lite.ProjectConfig;
+import java.util.ArrayList;
+import java.util.Iterator;
 
-/**
- * @author mat
- *
- */
-public interface ClientProjectReceiver extends ClientPollErrorReceiver {
-	public abstract boolean currentAuthCode(String projectUrl, String authCode);
-	public abstract boolean currentProjectConfig(ProjectConfig projectConfig);
-	
-	public abstract boolean onAfterProjectAttach(String projectUrl);
+public class StringUtil {
+
+	public static String joinString(String delimiter, ArrayList<String> messages) {
+		if (messages == null || delimiter == null)
+			return null;
+		
+		StringBuilder builder = new StringBuilder();
+		Iterator<String> iter = messages.iterator();
+		
+		while(iter.hasNext()) {
+			builder.append(iter.next());
+			if (iter.hasNext())
+				builder.append(delimiter);
+		}
+		return builder.toString();
+	}
 }

@@ -180,7 +180,10 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			ClientId clientId = dbHelper.fetchHost("nativeboinc");
 			dbHelper.close();
 			
-			if ((!mInstaller.isClientInstalled() || clientId == null) &&!mApp.isInstallerRun()) {
+			if (mApp.isInstallerRun()) {
+				// open again installer activity
+				mApp.runInstallerActivity(BoincManagerActivity.this);
+			} else if ((!mInstaller.isClientInstalled() || clientId == null)) {
 				// run installation wizard
 				startActivity(new Intent(BoincManagerActivity.this,
 						InstallStep1Activity.class));
@@ -939,5 +942,11 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		mConnectionManager.updateTransfers(null);
 		mConnectionManager.updateMessages(null);
 		mInitialDataRetrievalStarted = true;
+	}
+
+	@Override
+	public void clientError(int err_num, String message) {
+		// TODO Auto-generated method stub
+		
 	}
 }

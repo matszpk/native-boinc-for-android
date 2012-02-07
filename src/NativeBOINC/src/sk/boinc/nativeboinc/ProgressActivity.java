@@ -32,7 +32,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,12 +53,6 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	private ProgressItem[] mCurrentProgress;
 	
 	public final static String ARG_GOTO_ACTIVITY = "GoTo";
-	
-	public final static int NO_GOTO = 0;
-	public final static int GOTO_INSTALL_STEP_2 = 1;
-	public final static int GOTO_INSTALL_STEP_FINISH = 2;
-	
-	private int mGoToActivity = NO_GOTO;
 	
 	private class ProgressCancelOnClickListener implements View.OnClickListener {
 
@@ -189,6 +182,8 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	
 	private TextView mProgressText = null;
 	
+	private int mInstallerStage = -1;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -209,22 +204,23 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 		mNextButton = (Button)findViewById(R.id.progressNext);
 		mProgressText = (TextView)findViewById(R.id.installProgressText);
 		
-		mGoToActivity = getIntent().getIntExtra(ARG_GOTO_ACTIVITY, NO_GOTO);
+		mInstallerStage = mApp.getInstallerStage();
 		
-		if (Logging.DEBUG) Log.d(TAG, "GoToActivty: "+mGoToActivity);
-		
-		if (mGoToActivity != NO_GOTO) {
-			back.setVisibility(View.GONE);
+		if (mInstallerStage != BoincManagerApplication.INSTALLER_NO_STAGE) {
 			mNextButton.setVisibility(View.VISIBLE);
 			
 			mNextButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					mInstaller.clearDistribInstallProgresses();
+					mInstaller.removeAllNotInProgress();
 					finish();
-					if (mGoToActivity == GOTO_INSTALL_STEP_2)
+					
+					if (mInstallerStage == BoincManagerApplication.INSTALLER_CLIENT_INSTALLING_STAGE ||
+							mInstallerStage == BoincManagerApplication.INSTALLER_PROJECT_STAGE)
 						startActivity(new Intent(ProgressActivity.this, InstallStep2Activity.class));
-					// if install finish
+					else if (mInstallerStage == BoincManagerApplication.INSTALLER_PROJECT_INSTALLING_STAGE ||
+							mInstallerStage == BoincManagerApplication.INSTALLER_FINISH_STAGE)
+						startActivity(new Intent(ProgressActivity.this, InstallFinishActivity.class));
 				}
 			});
 		}
@@ -240,8 +236,7 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 		back.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mInstaller.clearDistribInstallProgresses();
-				finish();
+				ProgressActivity.this.onBackPressed();
 			}
 		});
 	}
@@ -266,16 +261,27 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 				return false;
 		return true;
 	}
+	
+	public boolean areAllTasksFinishedSuccessfully() {
+		for (ProgressItem progress: mCurrentProgress)
+			if (progress.state != ProgressItem.STATE_FINISHED)
+				return false;
+		return true;
+	}
 
 	private void ifNothingInBackground() {
 		if (areAllTasksNotRan()) {
 			setProgressBarIndeterminateVisibility(false);
-			if (mGoToActivity != NO_GOTO)
-				mNextButton.setEnabled(true);
+			if (mInstallerStage != BoincManagerApplication.INSTALLER_NO_STAGE) {
+				if (areAllTasksFinishedSuccessfully())
+					mNextButton.setEnabled(true);
+			}
 			
 			mProgressText.setText(getString(R.string.noInstallOpsText));
-		} else // if nothing working
+		} else {
+			setProgressBarIndeterminateVisibility(true);
 			mProgressText.setText(getString(R.string.installProgressText));
+		}
 	}
 	
 	private void getProgressFromInstaller() {
@@ -312,14 +318,9 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	}
 	
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if (mApp.isInstallerRun())
-				mApp.installerIsRun(false);
-			finish();
-			return true; 
-		}
-		return super.onKeyDown(keyCode, event);
+	public void onBackPressed() {
+		mInstaller.removeAllNotInProgress();
+		finish();
 	}
 	
 	private Comparator<ProgressItem> mProgressCompatator = new Comparator<ProgressItem>() {
@@ -371,6 +372,7 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 			position = addNewProgressItem(distribName);
 			// add to list by updating
 			mProgressItemAdapter.notifyDataSetChanged();
+			return position;
 		}
 		
 		while (position < mCurrentProgress.length) {

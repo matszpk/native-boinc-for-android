@@ -369,4 +369,10 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 		Collections.sort(mMessages, comparator);
 	}
 
+	@Override
+	public void clientError(int err_num, String message) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

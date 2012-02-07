@@ -97,6 +97,8 @@ public class NativeBoincService extends Service {
 	
 	private LocalBinder mBinder = new LocalBinder();
 	
+	private String mPendingError = null;
+	
 	public class ListenerHandler extends Handler {
 		public void onClientStateChanged(boolean isRun) {
 			for (AbstractNativeBoincListener listener: mListeners)
@@ -105,14 +107,36 @@ public class NativeBoincService extends Service {
 		}
 
 		public void onNativeBoincError(String message) {
+			boolean called = false;
+			
 			for (AbstractNativeBoincListener listener: mListeners)
-				if (listener instanceof NativeBoincStateListener)
+				if (listener instanceof NativeBoincStateListener) {
 					((NativeBoincStateListener)listener).onNativeBoincError(message);
+					called = true;
+				}
+			
+			synchronized(NativeBoincService.this) {
+				if (!called)
+					mPendingError = message;
+				else	// if already handled
+					mPendingError = null;
+			}
 		}
 		
 		public void nativeBoincServiceError(String message) {
-			for (AbstractNativeBoincListener listener: mListeners)
+			boolean called = false;
+			
+			for (AbstractNativeBoincListener listener: mListeners) {
 				listener.onNativeBoincError(message);
+				called = true;
+			}
+			
+			synchronized(NativeBoincService.this) {
+				if (!called)
+					mPendingError = message;
+				else	// if already handled
+					mPendingError = null;
+			}
 		}
 
 		public void onProgressChange(NativeBoincReplyListener callback, double progress) {
@@ -323,7 +347,7 @@ public class NativeBoincService extends Service {
 		// kill processes
 		killProcesses(pids);
 	}
-	
+		
 	private class NativeBoincThread extends Thread {
 		private static final String TAG = "NativeBoincThread";
 		
@@ -524,13 +548,11 @@ public class NativeBoincService extends Service {
 	}
 	
 	public void addMonitorListener(MonitorListener listener) {
-		if (mMonitorThread != null)
-			mMonitorThread.addMonitorListener(listener);
+		mMonitorListenerHandler.addMonitorListener(listener);
 	}
 	
 	public void removeMonitorListener(MonitorListener listener) {
-		if (mMonitorThread != null)
-			mMonitorThread.removeMonitorListener(listener);
+		mMonitorListenerHandler.removeMonitorListener(listener);
 	}
 	
 	/**
@@ -560,6 +582,12 @@ public class NativeBoincService extends Service {
 		/* killing boinc client */
 		killNativeBoinc();
 		return true;
+	}
+	
+	public synchronized String getPendingErrorMessage() {
+		String current = mPendingError;
+		mPendingError = null;
+		return current;
 	}
 	
 	/**

@@ -37,14 +37,7 @@
   		android:textSize="14dip"
   		android:paddingTop="10dip"
   		android:text="@string/installWidgetFinished" />
-  	<TextView
-		android:layout_width="fill_parent"
-  		android:layout_height="wrap_content"
-  		android:textSize="14dip"
-  		android:paddingTop="10dip"
-  		android:text="@string/installFinishedBenchmark" />
   	<Button android:id="@+id/installFinish"
-		android:enabled="false"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="right"

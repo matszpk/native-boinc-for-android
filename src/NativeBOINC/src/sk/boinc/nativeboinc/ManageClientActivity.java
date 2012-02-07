@@ -75,7 +75,6 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.text.Html;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -519,13 +518,10 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	}
 	
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent keyEvent) {
-		if (keyCode == KeyEvent.KEYCODE_BACK && mInstaller != null) {
-			if (Logging.DEBUG) Log.d(TAG, "Cancel installer operation");
-			mInstaller.cancelAll();
-			mShutdownByProjectAttach = false;
-		}
-		return super.onKeyDown(keyCode, keyEvent);
+	public void onBackPressed() {
+		if (Logging.DEBUG) Log.d(TAG, "Cancel installer operation");
+		mInstaller.cancelAll();
+		mShutdownByProjectAttach = false;
 	}
 
 	@Override
@@ -873,7 +869,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	}
 	
 	@Override
-	public boolean currentAuthCode(String authCode) {
+	public boolean currentAuthCode(String projectUrl, String authCode) {
 		boincProjectAttach(mProjectUrl, authCode, "");
 		return false;
 	}
@@ -888,7 +884,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	}
 	
 	@Override
-	public boolean onAfterProjectAttach() {
+	public boolean onAfterProjectAttach(String projectUrl) {
 		if (isNativeConnected()) {
 			mShutdownByProjectAttach = true;
 			mInstaller.synchronizeInstalledProjects();
@@ -1241,7 +1237,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	}
 	
 	private void boincProjectConfig(String url) {
-		mConnectionManager.getProjectConfig(this, url);
+		mConnectionManager.getProjectConfig(url);
 		Toast.makeText(this, getString(R.string.clientProjectConfig), Toast.LENGTH_LONG).show();
 	}
 
@@ -1251,7 +1247,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		accountIn.user_name = name;
 		accountIn.email_addr = email;
 		accountIn.passwd = password;
-		mConnectionManager.createAccount(this, accountIn);
+		mConnectionManager.createAccount(accountIn);
 		Toast.makeText(this, getString(R.string.clientCreatingAccount), Toast.LENGTH_LONG).show();
 	}
 	
@@ -1260,12 +1256,12 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		accountIn.url = mProjectUrl;
 		accountIn.email_addr = email;
 		accountIn.passwd = password;
-		mConnectionManager.lookupAccount(this, accountIn);
+		mConnectionManager.lookupAccount(accountIn);
 		Toast.makeText(this, getString(R.string.clientLookingUpAccount), Toast.LENGTH_LONG).show();
 	}
 	
 	private void boincProjectAttach(String url, String authCode, String projectName) {
-		mConnectionManager.projectAttach(this, url, authCode, projectName);
+		mConnectionManager.projectAttach(url, authCode, projectName);
 		Toast.makeText(this, getString(R.string.clientAttachingToProject), Toast.LENGTH_LONG).show();
 	}
 
@@ -1299,8 +1295,14 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	}
 
 	@Override
-	public boolean onPollError(int errorNum, int operation, String param) {
+	public boolean onPollError(int errorNum, int operation, String errorMessage, String param) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void clientError(int err_num, String message) {
+		// TODO Auto-generated method stub
+		
 	}
 }

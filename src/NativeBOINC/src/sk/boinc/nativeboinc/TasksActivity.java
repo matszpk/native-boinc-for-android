@@ -593,4 +593,10 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 		if (Logging.DEBUG) Log.d(TAG, "mSb.length()=" + mSb.length() + ", mSb.capacity()=" + mSb.capacity());
 		return mSb.toString();
 	}
+
+	@Override
+	public void clientError(int err_num, String message) {
+		// TODO Auto-generated method stub
+		
+	}
 }

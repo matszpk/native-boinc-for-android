@@ -21,20 +21,25 @@ package edu.berkeley.boinc.lite;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 import sk.boinc.nativeboinc.debug.Logging;
 
 import android.util.Log;
 import android.util.Xml;
 
-public class SimpleReplyParser extends DefaultHandler {
+public class SimpleReplyParser extends BaseParser {
 	private static final String TAG = "SimpleReplyParser";
 
 	private boolean mParsed = false;
 	private boolean mInReply = false;
 	private boolean mSuccess = false;
+	
+	private String errorMessage = null;
 
+	public final String getErrorMessage() {
+		return errorMessage;
+	}
+	
 	// Disable direct instantiation of this class
 	private SimpleReplyParser() {}
 
@@ -42,18 +47,17 @@ public class SimpleReplyParser extends DefaultHandler {
 		return mSuccess;
 	}
 
-	public static boolean isSuccess(String reply) {
+	public static SimpleReplyParser parse(String reply) {
 		try {
 			SimpleReplyParser parser = new SimpleReplyParser();
 			Xml.parse(reply, parser);
-			return parser.result();
+			return parser;
 		}
 		catch (SAXException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + reply);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
-			return false;
+			return null;
 		}		
-
 	}
 
 	@Override
@@ -61,6 +65,8 @@ public class SimpleReplyParser extends DefaultHandler {
 		super.startElement(uri, localName, qName, attributes);
 		if (localName.equalsIgnoreCase("boinc_gui_rpc_reply")) {
 			mInReply = true;
+		} else {
+			mElementStarted = true;
 		}
 	}
 
@@ -75,11 +81,14 @@ public class SimpleReplyParser extends DefaultHandler {
 			if (localName.equalsIgnoreCase("success")) {
 				mSuccess = true;
 				mParsed = true;
-			}
-			else if (localName.equalsIgnoreCase("failure")) {
+			} else if (localName.equalsIgnoreCase("failure")) {
 				mSuccess = false;
 				mParsed = true;
+			} else if (localName.equalsIgnoreCase("error")) {
+				trimEnd();
+				errorMessage = mCurrentElement.toString(); 
 			}
 		}
+		mElementStarted = false;
 	}
 }

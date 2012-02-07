@@ -73,8 +73,13 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	
 	public final static String UPDATE_PROGRESS = "UPDATE_PROGRESS";
 	
-	
-	private boolean mIsInstallerRun = false;
+	public final static int INSTALLER_NO_STAGE = 0;
+	public final static int INSTALLER_CLIENT_STAGE = 1;
+	public final static int INSTALLER_CLIENT_INSTALLING_STAGE = 2;
+	public final static int INSTALLER_PROJECT_STAGE = 3;
+	public final static int INSTALLER_PROJECT_INSTALLING_STAGE = 4;
+	public final static int INSTALLER_FINISH_STAGE = 5;
+	private int mInstallerStage = INSTALLER_NO_STAGE;
 	
 	private NativeBoincService mRunner = null;
 	
@@ -245,11 +250,34 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	}
 	
 	public boolean isInstallerRun() {
-		return mIsInstallerRun;
+		return mInstallerStage != INSTALLER_NO_STAGE;
 	}
 	
-	public void installerIsRun(boolean isRun) {
-		mIsInstallerRun = isRun;
+	public int getInstallerStage() {
+		return mInstallerStage;
+	}
+	
+	public void setInstallerStage(int stage) {
+		mInstallerStage = stage;
+	}
+	
+	public void unsetInstallerStage() {
+		mInstallerStage = INSTALLER_NO_STAGE;
+	}
+	
+	public void runInstallerActivity(Context context) {
+		switch (mInstallerStage) {
+		case INSTALLER_CLIENT_STAGE:
+			context.startActivity(new Intent(context, InstallStep1Activity.class));
+			break;
+		case INSTALLER_CLIENT_INSTALLING_STAGE:
+		case INSTALLER_PROJECT_INSTALLING_STAGE:
+			context.startActivity(new Intent(context, ProgressActivity.class));
+			break;
+		case INSTALLER_PROJECT_STAGE:
+			context.startActivity(new Intent(context, InstallStep2Activity.class));
+			break;
+		}
 	}
 	
 	public NativeBoincService getRunnerService() {

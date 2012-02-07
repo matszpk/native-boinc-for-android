@@ -32,6 +32,7 @@ import sk.boinc.nativeboinc.installer.InstallerProgressListener;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
 import sk.boinc.nativeboinc.util.ProjectItem;
+import sk.boinc.nativeboinc.util.StandardDialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -60,7 +61,6 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	
 	private static final int DIALOG_ENTER_URL = 1;
 	private static final int DIALOG_PROJECT_INFO = 2;
-	private final static int DIALOG_ERROR = 3;
 	
 	public static final String TAG_OTHER_PROJECT_OPTION = "OtherProjectOption";
 	public static final String TAG_FROM_INSTALLER = "FromInstaller";
@@ -71,8 +71,6 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	private static final String ARG_DISTRIB_NAME = "DistribName";
 	private static final String ARG_DISTRIB_DESC = "DistribDesc";
 	private static final String ARG_DISTRIB_CHANGES = "DistribChanges";
-	
-	private final static String ARG_ERROR = "Error";
 	
 	private ArrayList<ProjectItem> mProjectsList = null;
 	private ArrayList<ProjectDistrib> mProjectDistribs = null;
@@ -222,14 +220,21 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		
+		if (savedInstanceState != null) {
+			mProjectDistribs = savedInstanceState.getParcelableArrayList(STATE_PROJECT_DISTRIBS);
+			mProjectsList = savedInstanceState.getParcelableArrayList(STATE_PROJECTS_LIST);
+		}
+		
+		Intent intent = getIntent();
+		mOtherProjectOption = intent.getBooleanExtra(TAG_OTHER_PROJECT_OPTION, true);
+		mGetFromInstaller = intent.getBooleanExtra(TAG_FROM_INSTALLER, false);
+		
 		setUpService(true, true, false, false, true, true);
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.project_list);
 		
-		Intent intent = getIntent();
-		mOtherProjectOption = intent.getBooleanExtra(TAG_OTHER_PROJECT_OPTION, true);
-		mGetFromInstaller = intent.getBooleanExtra(TAG_FROM_INSTALLER, false);
 		
 		mListView = (ListView)findViewById(android.R.id.list);
 		mListEmptyText = (TextView)findViewById(android.R.id.empty);
@@ -243,8 +248,6 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		mListView.setAdapter(mListAdapter);
 		
 		if (savedInstanceState != null) {
-			mProjectDistribs = savedInstanceState.getParcelableArrayList(STATE_PROJECT_DISTRIBS);
-			mProjectsList = savedInstanceState.getParcelableArrayList(STATE_PROJECTS_LIST);
 			if (mProjectDistribs != null || mProjectsList != null) {
 				if (Logging.DEBUG) Log.d(TAG, "From save instance");
 				updateDataSet();
@@ -286,9 +289,21 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	}
 	
 	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		if (mProjectDistribs == null && mGetFromInstaller && mInstaller != null) {
+			if (Logging.DEBUG) Log.d(TAG, "List from installer");
+			mInstaller.updateProjectDistribList();
+		}
+		if (mProjectsList == null && !mGetFromInstaller && mConnectionManager != null) {
+			if (Logging.DEBUG) Log.d(TAG, "List from boinc client");
+			mConnectionManager.getAllProjectsList(this);
+		}
+	}
+	
+	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		/*if (mProjectsList != null)
-			outState.putBoolean(STATE_PROJECT_LIST, mPro);*/
 		if (mProjectsList != null)
 			outState.putParcelableArrayList(STATE_PROJECTS_LIST, mProjectsList);
 		if (mProjectDistribs != null)
@@ -340,6 +355,10 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	
 	@Override
 	protected Dialog onCreateDialog(int dialogId, Bundle args) {
+		Dialog dialog = StandardDialogs.onCreateDialog(this, dialogId, args);
+		if (dialog != null)
+			return dialog;
+		
 		switch(dialogId) {
 		case DIALOG_ENTER_URL:
 		{
@@ -377,26 +396,16 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 				.setView(view)
 				.create();
 		}
-		case DIALOG_ERROR:
-		{
-			if (dialogId==DIALOG_ERROR)
-				return new AlertDialog.Builder(this)
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setTitle(R.string.installError)
-					.setView(LayoutInflater.from(this).inflate(R.layout.dialog, null))
-					.setNegativeButton(R.string.ok, null)
-					.create();
-		}
 		}
 		return null;
 	}
 	
 	@Override
 	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
-		if (dialogId == DIALOG_ERROR) {
-			TextView textView = (TextView)dialog.findViewById(R.id.dialogText);
-			textView.setText(args.getString(ARG_ERROR));
-		} else if (dialogId == DIALOG_PROJECT_INFO) {
+		if (StandardDialogs.onPrepareDialog(this, dialogId, dialog, args))
+			return;
+		
+		if (dialogId == DIALOG_PROJECT_INFO) {
 			TextView distribVersion = (TextView)dialog.findViewById(R.id.distribVersion);
 			TextView distribDesc = (TextView)dialog.findViewById(R.id.distribDesc);
 			TextView distribChanges = (TextView)dialog.findViewById(R.id.distribChanges);
@@ -435,6 +444,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	@Override
 	public void onOperationError(String distribName, String errorMessage) {
 		setProgressBarIndeterminateVisibility(false);
+		StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
 	}
 
 	@Override
@@ -458,17 +468,14 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	@Override
 	public void clientConnected(VersionInfo clientVersion) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void clientDisconnected() {
 		if (Logging.WARNING) Log.w(TAG, "Client disconnected");
 		setProgressBarIndeterminateVisibility(false);
-		
-		Bundle args = new Bundle();
-		args.putString(ARG_ERROR, getString(R.string.clientDisconnected));
-		showDialog(DIALOG_ERROR, args);
+
+		StandardDialogs.showErrorDialog(this, getString(R.string.clientDisconnected));
 	}
 
 	@Override
@@ -480,5 +487,11 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			mProjectsList.add(new ProjectItem(entry.name, entry.url));
 		updateDataSet();
 		return true;
+	}
+
+	@Override
+	public void clientError(int errorNum, String message) {
+		setProgressBarIndeterminateVisibility(false);
+		StandardDialogs.showClientErrorDialog(this, errorNum, message);
 	}	
 }

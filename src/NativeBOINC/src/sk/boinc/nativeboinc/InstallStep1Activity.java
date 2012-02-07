@@ -23,16 +23,17 @@ import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
+import sk.boinc.nativeboinc.installer.InstallError;
 import sk.boinc.nativeboinc.installer.InstallerProgressListener;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
+import sk.boinc.nativeboinc.util.StandardDialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -54,16 +55,13 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 	private BoincManagerApplication mApp = null;
 
 	private final static int DIALOG_INFO = 1;
-	private final static int DIALOG_ERROR = 2;
-	private final static String ARG_ERROR = "Error";
-
-	private boolean mDelayedInstallClient = false;
-
+	
 	// if true, then client distrib shouldnot be updated
 	private ClientDistrib mClientDistrib = null;
 
 	private Button mInfoButton = null;
-
+	private Button mNextButton = null;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -71,45 +69,43 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 		// starting service - prevents breaking on recreating activities
 		startService(new Intent(this, InstallerService.class));
 
+		if (savedInstanceState != null)
+			mClientDistrib = savedInstanceState.getParcelable(STATE_CLIENT_DISTRIB);
+		
 		setUpService(false, false, false, false, true, true);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.install_step1);
 
 		mVersionToInstall = (TextView) findViewById(R.id.versionToInstall);
 
-		Button nextButton = (Button) findViewById(R.id.installNext);
-		Button cancelButton = (Button) findViewById(R.id.installCancel);
+		mNextButton = (Button)findViewById(R.id.installNext);
+		Button cancelButton = (Button)findViewById(R.id.installCancel);
 
 		mInfoButton = (Button) findViewById(R.id.clientInfo);
 
-		if (savedInstanceState != null)
-			mClientDistrib = savedInstanceState.getParcelable(STATE_CLIENT_DISTRIB);
-		
 		if (mClientDistrib != null) {
 			mVersionToInstall.setText(getString(R.string.versionToInstall) + ": " +
 					mClientDistrib.version);
 	
 			mInfoButton.setEnabled(true);
+			mNextButton.setEnabled(true);
 		} else
 			mVersionToInstall.setText(getString(R.string.versionToInstall) + ": ...");
 
 		mApp = (BoincManagerApplication) getApplication();
-		mApp.installerIsRun(true);	// set as run
+		mApp.setInstallerStage(BoincManagerApplication.INSTALLER_CLIENT_STAGE);	// set as run
 
-		nextButton.setOnClickListener(new View.OnClickListener() {
+		mNextButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (mInstaller != null)
 					installClient();
-				else
-					// if installer not connected with activity
-					mDelayedInstallClient = true;
 			}
 		});
 		cancelButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				finish();
+				InstallStep1Activity.this.onBackPressed();
 			}
 		});
 
@@ -124,8 +120,15 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (mClientDistrib == null && mInstaller != null)
-			mInstaller.updateClientDistrib();
+		if (mInstaller != null) {
+			InstallError installError = mInstaller.getPendingError();
+			if (installError != null)
+				StandardDialogs.showInstallErrorDialog(this,
+						installError.distribName, installError.errorMessage);
+			
+			if (mClientDistrib == null && mInstaller != null)
+				mInstaller.updateClientDistrib();
+		}
 	}
 	
 	@Override
@@ -136,17 +139,17 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 	}
 
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			mApp.installerIsRun(false);
-			finish();
-			return true; 
-		}
-		return super.onKeyDown(keyCode, event);
+	public void onBackPressed() {
+		finish();
 	}
 
 	@Override
 	protected void onInstallerConnected() {
+		InstallError installError = mInstaller.getPendingError();
+		if (installError != null)
+			StandardDialogs.showInstallErrorDialog(this,
+					installError.distribName, installError.errorMessage);
+		
 		mVersionToInstall.post(new Runnable() {
 			@Override
 			public void run() {
@@ -159,15 +162,11 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 
 	@Override
 	public Dialog onCreateDialog(int dialogId, Bundle args) {
-		if (dialogId == DIALOG_ERROR)
-			return new AlertDialog.Builder(this)
-					.setIcon(android.R.drawable.ic_dialog_alert)
-					.setTitle(R.string.installError)
-					.setView(
-							LayoutInflater.from(this).inflate(R.layout.dialog,
-									null)).setNegativeButton(R.string.ok, null)
-					.create();
-		else if (dialogId == DIALOG_INFO) {
+		Dialog dialog = StandardDialogs.onCreateDialog(this, dialogId, args);
+		if (dialog != null)
+			return dialog;
+		
+		if (dialogId == DIALOG_INFO) {
 			if (mClientDistrib == null)
 				return null;
 			LayoutInflater inflater = LayoutInflater.from(this);
@@ -183,10 +182,10 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 
 	@Override
 	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
-		if (dialogId == DIALOG_ERROR) {
-			TextView textView = (TextView) dialog.findViewById(R.id.dialogText);
-			textView.setText(args.getString(ARG_ERROR));
-		} else if (dialogId == DIALOG_INFO) {
+		if (StandardDialogs.onPrepareDialog(this, dialogId, dialog, args))
+			return;
+		
+		if (dialogId == DIALOG_INFO) {
 			TextView clientVersion = (TextView) dialog
 					.findViewById(R.id.distribVersion);
 			TextView clientDesc = (TextView) dialog
@@ -219,9 +218,7 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 
 	@Override
 	public void onOperationError(String distribName, String errorMessage) {
-		Bundle args = new Bundle();
-		args.putString(ARG_ERROR, errorMessage);
-		showDialog(DIALOG_ERROR, args);
+		StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
 		setProgressBarIndeterminateVisibility(false);
 	}
 
@@ -252,18 +249,13 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 				clientDistrib.version);
 
 		mInfoButton.setEnabled(true);
-
-		/* if delayed install client (if not connected service) */
-		if (mDelayedInstallClient)
-			installClient();
+		mNextButton.setEnabled(true);
 	}
 
 	private void installClient() {
+		mApp.setInstallerStage(BoincManagerApplication.INSTALLER_CLIENT_INSTALLING_STAGE);
 		mInstaller.installClientAutomatically();
 		finish();
-		Intent intent = new Intent(this, ProgressActivity.class);
-		intent.putExtra(ProgressActivity.ARG_GOTO_ACTIVITY,
-				ProgressActivity.GOTO_INSTALL_STEP_2);
-		startActivity(intent);
+		startActivity(new Intent(this, ProgressActivity.class));
 	}
 }

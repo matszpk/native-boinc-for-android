@@ -499,4 +499,10 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 				proj.share,
 				proj.status);
 	}
+
+	@Override
+	public void clientError(int err_num, String message) {
+		// TODO Auto-generated method stub
+		
+	}
 }

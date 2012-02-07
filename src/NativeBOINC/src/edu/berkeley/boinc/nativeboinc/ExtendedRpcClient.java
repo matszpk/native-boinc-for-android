@@ -45,7 +45,12 @@ public class ExtendedRpcClient extends RpcClient {
 			mRequest.append(projectUrl);
 			mRequest.append("</project_url>\n</update_project_apps>\n");
 			sendRequest(mRequest.toString());
-			return SimpleReplyParser.isSuccess(receiveReply());
+			
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
 		} catch (IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in updateProjectApps()", e);
 			return false;
@@ -60,6 +65,7 @@ public class ExtendedRpcClient extends RpcClient {
 		try {
 			mRequest.setLength(0);
 			mRequest.append("<update_project_apps_poll>\n  <project_url>");
+			mRequest.append(projectUrl);
 			mRequest.append("</project_url>\n</update_project_apps_poll>\n");
 			sendRequest(mRequest.toString());
 			return UpdateProjectAppsReplyParser.parse(receiveReply());

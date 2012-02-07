@@ -24,5 +24,5 @@ package sk.boinc.nativeboinc.clientconnection;
  *
  */
 public interface ClientPollErrorReceiver extends ClientReceiver {
-	public abstract boolean onPollError(int errorNum, int operation, String param);
+	public abstract boolean onPollError(int errorNum, int operation, String errorMessage, String param);
 }

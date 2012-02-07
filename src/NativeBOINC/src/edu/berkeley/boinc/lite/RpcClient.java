@@ -80,6 +80,8 @@ public class RpcClient {
 	protected StringBuilder mRequest = new StringBuilder(REQUEST_BUILDER_INIT_SIZE);
 	private NetStats mNetStats = null;
 
+	protected String mLastErrorMessage = null;
+	
 	public RpcClient() {}
 
 	public RpcClient(NetStats netStats) {
@@ -231,6 +233,10 @@ public class RpcClient {
 			mNetStats.connectionClosed();
 		}
 		mSocket = null;
+	}
+	
+	public String getLastErrorMessage() {
+		return mLastErrorMessage;
 	}
 
 	/**
@@ -399,6 +405,7 @@ public class RpcClient {
 	 */
 
 	public VersionInfo exchangeVersions() {
+		mLastErrorMessage = null;
 		mRequest.setLength(0);
 		mRequest.append("<exchange_versions>\n  <major>");
 		mRequest.append(Boinc.MAJOR_VERSION);
@@ -423,6 +430,7 @@ public class RpcClient {
 	 * @return result of RPC call in case of success, null otherwise
 	 */
 	public AccountMgrInfo getAccountMgrInfo() {
+		mLastErrorMessage = null;
 		try {
 			sendRequest("<acct_mgr_info/>\n");
 			AccountMgrInfo out = AccountMgrInfoParser.parse(receiveReply());
@@ -439,6 +447,7 @@ public class RpcClient {
 	 * @return result of RPC call in case of success, null otherwise
 	 */
 	public CcStatus getCcStatus() {
+		mLastErrorMessage = null;
 		try {
 			sendRequest("<get_cc_status/>\n");
 			CcStatus ccStatus = CcStatusParser.parse(receiveReply());
@@ -455,6 +464,7 @@ public class RpcClient {
 	 * @return result of RPC call in case of success, null otherwise
 	 */
 	public ArrayList<Transfer> getFileTransfers() {
+		mLastErrorMessage = null;
 		try {
 			sendRequest("<get_file_transfers/>\n");
 			ArrayList<Transfer> transfers = TransfersParser.parse(receiveReply());
@@ -472,6 +482,7 @@ public class RpcClient {
 	 * @return result of RPC call in case of success, null otherwise
 	 */
 	public HostInfo getHostInfo() {
+		mLastErrorMessage = null;
 		try {
 			sendRequest("<get_host_info/>\n");
 			HostInfo hostInfo = HostInfoParser.parse(receiveReply());
@@ -489,6 +500,7 @@ public class RpcClient {
 	 * @return result of RPC call in case of success, null otherwise
 	 */
 	public int getMessageCount() {
+		mLastErrorMessage = null;
 		try {
 			sendRequest("<get_message_count/>\n");
 			return MessageCountParser.getSeqno(receiveReply());
@@ -505,6 +517,7 @@ public class RpcClient {
 	 * @return result of RPC call in case of success, null otherwise
 	 */
 	public ArrayList<Message> getMessages(int seqNo) {
+		mLastErrorMessage = null;
 		try {
 			String request;
 			if (seqNo == 0) {
@@ -533,6 +546,7 @@ public class RpcClient {
 	 * @return result of RPC call in case of success, null otherwise
 	 */
 	public ArrayList<Project> getProjectStatus() {
+		mLastErrorMessage = null;
 		try {
 			sendRequest("<get_project_status/>\n");
 			ArrayList<Project> projects = ProjectsParser.parse(receiveReply());
@@ -550,6 +564,7 @@ public class RpcClient {
 	 * @return result of RPC call in case of success, null otherwise
 	 */
 	public ArrayList<Result> getActiveResults() {
+		mLastErrorMessage = null;
 		final String request =
 			"<get_results>\n" +
 			"<active_only>1</active_only>\n" +
@@ -571,6 +586,7 @@ public class RpcClient {
 	 * @return result of RPC call in case of success, null otherwise
 	 */
 	public ArrayList<Result> getResults() {
+		mLastErrorMessage = null;
 		try {
 			sendRequest("<get_results/>\n");
 			ArrayList<Result> results = ResultsParser.parse(receiveReply());
@@ -588,6 +604,7 @@ public class RpcClient {
 	 * @return result of RPC call in case of success, null otherwise
 	 */
 	public CcState getState() {
+		mLastErrorMessage = null;
 		try {
 			sendRequest("<get_state/>\n");
 			CcState result = CcStateParser.parse(receiveReply());
@@ -605,6 +622,7 @@ public class RpcClient {
 	 * @return result of RPC call in case of success, null otherwise
 	 */
 	public ArrayList<ProjectListEntry> getAllProjectsList() {
+		mLastErrorMessage = null;
 		try {
 			sendRequest("<get_all_projects_list/>\n");
 			return ProjectListParser.parse(receiveReply());
@@ -620,9 +638,14 @@ public class RpcClient {
 	 * @return true for success, false for failure
 	 */
 	public boolean networkAvailable() {
+		mLastErrorMessage = null;
 		try {
 			sendRequest("<network_available/>\n");
-			return SimpleReplyParser.isSuccess(receiveReply());
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
 		}
 		catch (IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in networkAvailable()", e);
@@ -668,7 +691,11 @@ public class RpcClient {
 				"</" + opTag + ">\n";
 
 			sendRequest(request);
-			return SimpleReplyParser.isSuccess(receiveReply());
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
 		}
 		catch (IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in projectOp()", e);
@@ -703,7 +730,12 @@ public class RpcClient {
 			mRequest.append("</team_name>\n<create_account>\n");
 			
 			sendRequest(mRequest.toString());
-			return SimpleReplyParser.isSuccess(receiveReply());
+			
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
 		} catch (IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in createAccount()", e);
 			return false;
@@ -744,7 +776,12 @@ public class RpcClient {
 			mRequest.append("</passwd_hash>\n<lookup_account>\n");
 			
 			sendRequest(mRequest.toString());
-			return SimpleReplyParser.isSuccess(receiveReply());
+			
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
 		} catch (IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in lookupAccount()", e);
 			return false;
@@ -787,7 +824,11 @@ public class RpcClient {
 			mRequest.append("</project_name>\n</project_attach>\n");
 			
 			sendRequest(mRequest.toString());
-			return SimpleReplyParser.isSuccess(receiveReply());
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
 		} catch (IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in projectAttach()", e);
 			return false;
@@ -835,7 +876,11 @@ public class RpcClient {
 			}
 						
 			sendRequest(mRequest.toString());
-			return SimpleReplyParser.isSuccess(receiveReply());
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
 		} catch (IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in accountMgrRPC()", e);
 			return false;
@@ -863,7 +908,11 @@ public class RpcClient {
 			mRequest.append("</url>\n</get_project_config>\n");
 			
 			sendRequest(mRequest.toString());
-			return SimpleReplyParser.isSuccess(receiveReply());
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
 		} catch (IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in getProjectConfig()", e);
 			return false;
@@ -975,6 +1024,8 @@ public class RpcClient {
 			mRequest.setLength(0);
 			mRequest.append("<read_global_prefs_override/>");
 			sendRequest(mRequest.toString());
+			
+			// TODO: handle errors
 			receiveReply();
 			return true;
 		} catch (IOException e) {
@@ -1019,7 +1070,11 @@ public class RpcClient {
 			mRequest.append(">\n");
 
 			sendRequest(mRequest.toString());
-			return SimpleReplyParser.isSuccess(receiveReply());
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
 		}
 		catch (IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in resultOp()", e);
@@ -1034,7 +1089,11 @@ public class RpcClient {
 	public boolean quit() {
 		try {
 			sendRequest("<quit/>\n");
-			return SimpleReplyParser.isSuccess(receiveReply());
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
 		}
 		catch (IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in quit()", e);
@@ -1049,7 +1108,11 @@ public class RpcClient {
 	public boolean runBenchmarks() {
 		try {
 			sendRequest("<run_benchmarks/>\n");
-			return SimpleReplyParser.isSuccess(receiveReply());
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
 		}
 		catch (IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in runBenchmarks()", e);
@@ -1072,7 +1135,11 @@ public class RpcClient {
 			"</set_network_mode>\n";
 		try {
 			sendRequest(request);
-			return SimpleReplyParser.isSuccess(receiveReply());
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
 		}
 		catch (IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in setNetworkMode()", e);
@@ -1095,7 +1162,11 @@ public class RpcClient {
 			"</set_run_mode>\n";
 		try {
 			sendRequest(request);
-			return SimpleReplyParser.isSuccess(receiveReply());
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
 		}
 		catch (IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in setRunMode()", e);
@@ -1135,7 +1206,12 @@ public class RpcClient {
 			mRequest.append(opTag);
 			mRequest.append(">\n");
 			sendRequest(mRequest.toString());
-			return SimpleReplyParser.isSuccess(receiveReply());
+			
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
 		}
 		catch (IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in transferOp()", e);

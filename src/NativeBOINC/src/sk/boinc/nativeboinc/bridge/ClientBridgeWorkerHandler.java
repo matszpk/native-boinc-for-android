@@ -28,10 +28,10 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.ArrayList;
 
+import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
@@ -47,6 +47,7 @@ import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.debug.NetStats;
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.PreferenceName;
+import sk.boinc.nativeboinc.util.StringUtil;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -98,7 +99,6 @@ public class ClientBridgeWorkerHandler extends Handler {
 	private ArrayList<TransferInfo> mTransfers = new ArrayList<TransferInfo>();
 	private SortedMap<Integer, MessageInfo> mMessages = new TreeMap<Integer, MessageInfo>();
 	private boolean mInitialStateRetrieved = false;
-
 
 	public ClientBridgeWorkerHandler(ClientBridge.ReplyHandler replyHandler,
 			final Context context, final NetStats netStats) {
@@ -287,6 +287,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		CcStatus ccStatus = mRpcClient.getCcStatus();
 		if (ccStatus == null) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in updateClientMode()");
+			notifyError(0, mContext.getString(R.string.updateClientModeError));
 			rpcFailed();
 			return;
 		}
@@ -309,6 +310,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		edu.berkeley.boinc.lite.HostInfo boincHostInfo = mRpcClient.getHostInfo();
 		if (boincHostInfo == null) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in updateHostInfo()");
+			notifyError(0, mContext.getString(R.string.boincOperationError));
 			rpcFailed();
 			return;
 		}
@@ -331,6 +333,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		ArrayList<Project> projects = mRpcClient.getProjectStatus();
 		if (projects == null) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in updateProjects()");
+			notifyError(0, mContext.getString(R.string.boincOperationError));
 			rpcFailed();
 			return;
 		}
@@ -361,6 +364,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			results = mRpcClient.getResults();
 			if (results == null) {
 				if (Logging.INFO) Log.i(TAG, "RPC failed in updateTasks()");
+				notifyError(0, mContext.getString(R.string.boincOperationError));
 				rpcFailed();
 				return;
 			}
@@ -392,6 +396,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		ArrayList<Transfer> transfers = mRpcClient.getFileTransfers();
 		if (transfers == null) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in updateTransfers()");
+			notifyError(0, mContext.getString(R.string.boincOperationError));
 			rpcFailed();
 			return;
 		}
@@ -429,6 +434,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		ArrayList<Message> messages = mRpcClient.getMessages(reqSeqno);
 		if (messages == null) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in updateMessages()");
+			notifyError(0, mContext.getString(R.string.boincOperationError));
 			rpcFailed();
 			return;
 		}
@@ -443,6 +449,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		ArrayList<ProjectListEntry> projects = mRpcClient.getAllProjectsList();
 		if (projects == null) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in getAllProjectsList()");
+			notifyError(0, mContext.getString(R.string.boincOperationError));
 			rpcFailed();
 			return;
 		}
@@ -456,6 +463,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		AccountMgrInfo accountMgrInfo = mRpcClient.getAccountMgrInfo();
 		if (accountMgrInfo == null) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in getBAMInfo()");
+			notifyError(0, mContext.getString(R.string.boincOperationError));
 			rpcFailed();
 			return;
 		}
@@ -464,7 +472,6 @@ public class ClientBridgeWorkerHandler extends Handler {
 	}
 	
 	private static class AccountMgrRPCCall {
-		public ClientAccountMgrReceiver callback;
 		public int operation;
 		public String name;
 		public String url;
@@ -473,9 +480,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 		public String infoMsg;
 		public long startTime;
 		
-		public AccountMgrRPCCall(ClientAccountMgrReceiver callback, int operation, String name,
-				String url, String password, boolean useConfigFile, String infoMsg, long startTime) {
-			this.callback = callback;
+		public AccountMgrRPCCall(int operation, String name, String url, String password,
+				boolean useConfigFile, String infoMsg, long startTime) {
 			this.operation = operation;
 			this.name = name;
 			this.url = url;
@@ -499,6 +505,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			if (mDisconnecting) return;  // already in disconnect phase
 			if (SystemClock.elapsedRealtime()-mAccountMgrRPCCall.startTime >= TIMEOUT) { // time out
 				if (Logging.INFO) Log.i(TAG, "RPC failed in " + mAccountMgrRPCCall.infoMsg);
+				notifyError(0, mContext.getString(R.string.boincPollError));
 				mAccountMgrRPCCall = null;
 				rpcFailed();
 				return;
@@ -516,6 +523,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 							mAccountMgrRPCCall.useConfigFile) == false) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in " + mAccountMgrRPCCall.infoMsg);
 						
+						notifyError(0, mContext.getString(R.string.boincPollError));
 						mAccountMgrRPCCall = null;
 						rpcFailed();
 					} else {
@@ -526,17 +534,19 @@ public class ClientBridgeWorkerHandler extends Handler {
 				} else {	// if other error
 					if (reply.error_num != RpcClient.SUCCESS) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in " + mAccountMgrRPCCall.infoMsg);
-						notifyPollError(reply.error_num, mAccountMgrRPCCall.operation, null);
+						notifyPollError(reply.error_num, mAccountMgrRPCCall.operation,
+								StringUtil.joinString("\n", reply.messages), null);
+						
 						mAccountMgrRPCCall = null;
 					} else {
 						// if success
-						updateClientMode(mAccountMgrRPCCall.callback);
-						notifyAfterAccountMgrRPC(mAccountMgrRPCCall.callback);
+						notifyAfterAccountMgrRPC();
 						mAccountMgrRPCCall = null;
 					}
 				}
 			} else {	// rpc failed
 				if (Logging.INFO) Log.i(TAG, "RPC failed in " + mAccountMgrRPCCall.infoMsg);
+				notifyError(0, mContext.getString(R.string.boincPollError));
 				mAccountMgrRPCCall = null;
 				rpcFailed();
 			}
@@ -553,16 +563,17 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		if (mRpcClient.accountMgrRPC(url, name, password, useConfigFile) == false) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in " + infoMsg);
+			notifyError(0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
 			return;
 		}
 		
 		long startTime = SystemClock.elapsedRealtime();
 		
-		mAccountMgrRPCCall = new AccountMgrRPCCall(callback, operation, name, url, password,
+		mAccountMgrRPCCall = new AccountMgrRPCCall(operation, name, url, password,
 				useConfigFile, infoMsg, startTime);
 		postDelayed(mAccountMgrRPCPoller, 1000);
-		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_POLL);
 	}
 	
 	public void attachToBAM(ClientAccountMgrReceiver callback, String name, String url, String password) {
@@ -583,6 +594,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		
 		if (!success) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in stopUsingBAM()");
+			notifyError(0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
 			return;
 		}
@@ -592,12 +604,10 @@ public class ClientBridgeWorkerHandler extends Handler {
 	}
 	
 	private static class LookupAccountCall {
-		public ClientProjectReceiver callback;
 		public AccountIn accountIn;
 		public long startTime;
 		
-		public LookupAccountCall(ClientProjectReceiver callback, AccountIn accountIn, long startTime) {
-			this.callback = callback;
+		public LookupAccountCall(AccountIn accountIn, long startTime) {
 			this.accountIn = accountIn;
 			this.startTime = startTime;
 		}
@@ -614,7 +624,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 			if (mLookupAccountCall == null) return;
 			if (mDisconnecting) return;  // already in disconnect phase
 			if (SystemClock.elapsedRealtime()-mLookupAccountCall.startTime >= TIMEOUT) { // time out
-				if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount()");
+				if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount() timeout");
+				notifyError(0, mContext.getString(R.string.boincPollError));
 				mLookupAccountCall = null;
 				rpcFailed();
 				return;
@@ -628,8 +639,9 @@ public class ClientBridgeWorkerHandler extends Handler {
 					postDelayed(mLookupAccountPoller, 1000);
 				} else if (accountOut.error_num == RpcClient.ERR_RETRY) { // retry operation
 					if (mRpcClient.lookupAccount(mLookupAccountCall.accountIn) == false) {
-						if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount()");
+						if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount() retry");
 						
+						notifyError(0, mContext.getString(R.string.boincPollError));
 						mLookupAccountCall = null;
 						rpcFailed();
 					} else {
@@ -639,27 +651,28 @@ public class ClientBridgeWorkerHandler extends Handler {
 					}
 				} else {	// if other error
 					if (accountOut.error_num != RpcClient.SUCCESS) {
-						if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount()");
+						if (Logging.INFO) Log.i(TAG,
+								"RPC failed in lookupAccount(): "+accountOut.error_num);
+						
 						notifyPollError(accountOut.error_num, PollOp.POLL_LOOKUP_ACCOUNT,
-								mLookupAccountCall.accountIn.url);
+								accountOut.error_msg, mLookupAccountCall.accountIn.url);
 						mLookupAccountCall = null;
 					} else {
 						// if success
-						updateClientMode(mLookupAccountCall.callback);
-						currentAuthCode(mLookupAccountCall.callback, mLookupAccountCall.accountIn.url,
-								accountOut.authenticator);
+						currentAuthCode(mLookupAccountCall.accountIn.url, accountOut.authenticator);
 						mLookupAccountCall = null;
 					}
 				}
 			} else {	// rpc failed
-				if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount()");
+				if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount() (null)");
+				notifyError(0, mContext.getString(R.string.boincPollError));
 				mLookupAccountCall = null;
 				rpcFailed();
 			}
 		}
 	};
 	
-	public void lookupAccount(ClientProjectReceiver callback, AccountIn accountIn) {
+	public void lookupAccount(AccountIn accountIn) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		
 		// do nothing if already run
@@ -668,24 +681,23 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		if (mRpcClient.lookupAccount(accountIn) == false) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount()");
+			notifyError(0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
 			return;
 		}
-		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_POLL);
 		
 		long startTime = SystemClock.elapsedRealtime();
-		mLookupAccountCall = new LookupAccountCall(callback, accountIn, startTime);
+		mLookupAccountCall = new LookupAccountCall(accountIn, startTime);
 		
 		postDelayed(mLookupAccountPoller, 1000);
 	}
 	
 	private static class CreateAccountCall {
-		public ClientProjectReceiver callback;
 		public AccountIn accountIn;
 		public long startTime;
 		
-		public CreateAccountCall(ClientProjectReceiver callback, AccountIn accountIn, long startTime) {
-			this.callback = callback;
+		public CreateAccountCall(AccountIn accountIn, long startTime) {
 			this.accountIn = accountIn;
 			this.startTime = startTime;
 		}
@@ -703,6 +715,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			if (mDisconnecting) return;  // already in disconnect phase
 			if (SystemClock.elapsedRealtime()-mCreateAccountCall.startTime >= TIMEOUT) { // time out
 				if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
+				notifyError(0, mContext.getString(R.string.boincPollError));
 				mCreateAccountCall = null;
 				rpcFailed();
 				return;
@@ -718,6 +731,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 					if (mRpcClient.createAccount(mCreateAccountCall.accountIn) == false) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
 						
+						notifyError(0, mContext.getString(R.string.boincPollError));
 						mCreateAccountCall = null;
 						rpcFailed();
 					} else {
@@ -729,25 +743,24 @@ public class ClientBridgeWorkerHandler extends Handler {
 					if (accountOut.error_num != RpcClient.SUCCESS) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
 						notifyPollError(accountOut.error_num, PollOp.POLL_CREATE_ACCOUNT,
-								mCreateAccountCall.accountIn.url);
+								accountOut.error_msg, mCreateAccountCall.accountIn.url);
 						mCreateAccountCall = null;
 					} else {
 						// if success
-						updateClientMode(mCreateAccountCall.callback);
-						currentAuthCode(mCreateAccountCall.callback, mLookupAccountCall.accountIn.url,
-								accountOut.authenticator);
+						currentAuthCode(mLookupAccountCall.accountIn.url, accountOut.authenticator);
 						mCreateAccountCall = null;
 					}
 				}
 			} else {	// rpc failed
 				if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
+				notifyError(0, mContext.getString(R.string.boincPollError));
 				mCreateAccountCall = null;
 				rpcFailed();
 			}
 		}
 	};
 	
-	public void createAccount(ClientProjectReceiver callback, AccountIn accountIn) {
+	public void createAccount(AccountIn accountIn) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		
 		// do nothing if already run
@@ -756,26 +769,25 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		if (mRpcClient.createAccount(accountIn) == false) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
+			notifyError(0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
 			return;
 		}
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_POLL);
 		
 		long startTime = SystemClock.elapsedRealtime();
-		mCreateAccountCall = new CreateAccountCall(callback, accountIn, startTime);
+		mCreateAccountCall = new CreateAccountCall(accountIn, startTime);
 		
 		postDelayed(mCreateAccountPoller, 1000);
 	}
 
 	private static class ProjectAttachCall {
-		public ClientProjectReceiver callback;
 		public String url;
 		public String authCode;
 		public String projectName;
 		public long startTime;
 		
-		public ProjectAttachCall(ClientProjectReceiver callback, String url, String authCode,
-				String projectName, long startTime) {
-			this.callback = callback;
+		public ProjectAttachCall(String url, String authCode, String projectName, long startTime) {
 			this.url = url;
 			this.authCode = authCode;
 			this.projectName = projectName;
@@ -796,6 +808,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			if (SystemClock.elapsedRealtime()-mProjectAttachCall.startTime >= TIMEOUT) { // time out
 				mProjectAttachCall = null;
 				if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
+				notifyError(0, mContext.getString(R.string.boincPollError));
 				rpcFailed();
 				return;
 			}
@@ -811,6 +824,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 							mProjectAttachCall.projectName) == false) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
 						
+						notifyError(0, mContext.getString(R.string.boincPollError));
 						mProjectAttachCall = null;
 						rpcFailed();
 					} else {
@@ -822,25 +836,24 @@ public class ClientBridgeWorkerHandler extends Handler {
 					if (reply.error_num != RpcClient.SUCCESS) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
 						notifyPollError(reply.error_num, PollOp.POLL_PROJECT_ATTACH,
-								mCreateAccountCall.accountIn.url);
+								null, mCreateAccountCall.accountIn.url);
 						mProjectAttachCall = null;
 					} else {
 						// if success
-						updateClientMode(mProjectAttachCall.callback);
-						notifyAfterProjectAttach(mProjectAttachCall.callback, mProjectAttachCall.url);
+						notifyAfterProjectAttach(mProjectAttachCall.url);
 						mProjectAttachCall = null;
 					}
 				}
 			} else {	// rpc failed
 				if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
+				notifyError(0, mContext.getString(R.string.boincPollError));
 				mProjectAttachCall = null;
 				rpcFailed();
 			}
 		}
 	};
 	
-	public void projectAttach(ClientProjectReceiver callback, String url, String authCode,
-			String projectName) {
+	public void projectAttach(String url, String authCode, String projectName) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		
 		// do nothing if already run
@@ -849,23 +862,22 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		if (mRpcClient.projectAttach(url, authCode, projectName) == false) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
+			notifyError(0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
 			return;
 		}
-		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_POLL);
 		
 		long startTime = SystemClock.elapsedRealtime();
-		mProjectAttachCall = new ProjectAttachCall(callback, url, authCode, projectName, startTime);
+		mProjectAttachCall = new ProjectAttachCall(url, authCode, projectName, startTime);
 		postDelayed(mProjectAttachPoller, 1000);
 	}
 	
 	private static class GetProjectConfigCall {
-		public ClientProjectReceiver callback;
 		public String url;
 		public long startTime;
 		
-		public GetProjectConfigCall(ClientProjectReceiver callback, String url, long startTime) {
-			this.callback = callback;
+		public GetProjectConfigCall(String url, long startTime) {
 			this.url = url;
 			this.startTime = startTime;
 		}
@@ -883,6 +895,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 			if (mDisconnecting) return;  // already in disconnect phase
 			if (SystemClock.elapsedRealtime()-mGetProjectConfigCall.startTime >= TIMEOUT) { // time out
 				if (Logging.INFO) Log.i(TAG, "RPC failed in getProjectConfig()");
+				
+				notifyError(0, mContext.getString(R.string.boincPollError));
 				mGetProjectConfigCall = null;
 				rpcFailed();
 				return;
@@ -898,6 +912,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 					if (mRpcClient.getProjectConfig(mGetProjectConfigCall.url) == false) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in getProjectConfig()");
 						
+						notifyError(0, mContext.getString(R.string.boincPollError));
 						mGetProjectConfigCall = null;
 						rpcFailed();
 					} else {
@@ -909,24 +924,24 @@ public class ClientBridgeWorkerHandler extends Handler {
 					if (projectConfig.error_num != RpcClient.SUCCESS) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in getProjectConfig()");
 						notifyPollError(projectConfig.error_num, PollOp.POLL_PROJECT_CONFIG,
-								mGetProjectConfigCall.url);
+								projectConfig.error_msg, mGetProjectConfigCall.url);
 						mGetProjectConfigCall = null;
 					} else {
 						// if success
-						updateClientMode(mGetProjectConfigCall.callback);
-						currentProjectConfig(mGetProjectConfigCall.callback, projectConfig);
+						currentProjectConfig(projectConfig);
 						mGetProjectConfigCall = null;
 					}
 				}
 			} else {	// rpc failed
 				if (Logging.INFO) Log.i(TAG, "RPC failed in getProjectConfig()");
+				notifyError(0, mContext.getString(R.string.boincPollError));
 				mGetProjectConfigCall = null;
 				rpcFailed();
 			}
 		}
 	};
 	
-	public void getProjectConfig(ClientProjectReceiver callback, String url) {
+	public void getProjectConfig(String url) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		
 		// do nothing if already run
@@ -935,14 +950,15 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		if (mRpcClient.getProjectConfig(url) == false) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in projectConfig()");
+			notifyError(0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
 			return;
 		}
 		
-		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_POLL);
 		
 		long startTime = SystemClock.elapsedRealtime();
-		mGetProjectConfigCall = new GetProjectConfigCall(callback, url, startTime);
+		mGetProjectConfigCall = new GetProjectConfigCall(url, startTime);
 		postDelayed(mGetProjectConfigPoller, 1000);
 	}
 	
@@ -953,6 +969,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		GlobalPreferences globalPrefs = mRpcClient.getGlobalPrefsWorkingStruct();
 		if (globalPrefs == null) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in getGlobalPrefsWorking()");
+			notifyError(0, mContext.getString(R.string.boincOperationError));
 			rpcFailed();
 			return;
 		}
@@ -968,6 +985,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		
 		if (!success) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in setGlobalPrefsOverride()");
+			notifyError(0, mContext.getString(R.string.boincOperationError));
 			rpcFailed();
 			return;
 		} 
@@ -975,6 +993,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		success = mRpcClient.readGlobalPrefsOverride();
 		if (!success) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in setGlobalPrefsOverride()");
+			notifyError(0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
 			return;
 		} 
@@ -992,6 +1011,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		
 		if (!success) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in setGlobalPrefsOverride()");
+			notifyError(0, mContext.getString(R.string.boincOperationError));
 			rpcFailed();
 			return;
 		}
@@ -999,6 +1019,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		success = mRpcClient.readGlobalPrefsOverride();
 		if (!success) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in setGlobalPrefsOverride()");
+			notifyError(0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
 			return;
 		} 
@@ -1015,6 +1036,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 		if (!success) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in runBenchmarks()");
+			notifyError(0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
 			return;
 		}
@@ -1086,6 +1108,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 		if (!success) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in doNetworkCommunication()");
+			notifyError(0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
 			return;
 		}
@@ -1133,13 +1156,23 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 	
-	public synchronized void notifyPollError(final int error_num, final int operation,
-			final String param) {
+	private synchronized void notifyError(final int error_num, final String message) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.notifyPollError(error_num, operation, param);
+				mReplyHandler.notifyError(error_num, message);
+			}
+		});
+	}
+	
+	public synchronized void notifyPollError(final int error_num, final int operation,
+			final String errorMessage, final String param) {
+		if (mDisconnecting) return;
+		mReplyHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mReplyHandler.notifyPollError(error_num, operation, errorMessage, param);
 			}
 		});
 	}
@@ -1211,24 +1244,22 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 	
-	private synchronized void currentAuthCode(final ClientProjectReceiver callback,
-			final String projectUrl, final String authCode) {
+	private synchronized void currentAuthCode(final String projectUrl, final String authCode) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.currentAuthCode(callback, projectUrl, authCode);
+				mReplyHandler.currentAuthCode(projectUrl, authCode);
 			}
 		});
 	}
 	
-	private synchronized void currentProjectConfig(final ClientProjectReceiver callback,
-			final ProjectConfig projectConfig) {
+	private synchronized void currentProjectConfig(final ProjectConfig projectConfig) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.currentProjectConfig(callback, projectConfig);
+				mReplyHandler.currentProjectConfig(projectConfig);
 			}
 		});
 	}
@@ -1254,23 +1285,22 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 	
-	private synchronized void notifyAfterProjectAttach(final ClientProjectReceiver callback,
-			final String projectUrl) {
+	private synchronized void notifyAfterProjectAttach(final String projectUrl) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.afterProjectAttach(callback, projectUrl);
+				mReplyHandler.afterProjectAttach(projectUrl);
 			}
 		});
 	}
 	
-	private synchronized void notifyAfterAccountMgrRPC(final ClientAccountMgrReceiver callback) {
+	private synchronized void notifyAfterAccountMgrRPC() {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.afterAccountMgrRPC(callback);
+				mReplyHandler.afterAccountMgrRPC();
 			}
 		});
 	}

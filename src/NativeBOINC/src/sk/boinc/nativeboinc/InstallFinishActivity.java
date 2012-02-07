@@ -16,18 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
+package sk.boinc.nativeboinc;
 
-package sk.boinc.nativeboinc.clientconnection;
-
-import edu.berkeley.boinc.lite.ProjectConfig;
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 /**
  * @author mat
  *
  */
-public interface ClientProjectReceiver extends ClientPollErrorReceiver {
-	public abstract boolean currentAuthCode(String projectUrl, String authCode);
-	public abstract boolean currentProjectConfig(ProjectConfig projectConfig);
+public class InstallFinishActivity extends Activity {
+
+	private BoincManagerApplication mApp = null;
 	
-	public abstract boolean onAfterProjectAttach(String projectUrl);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.install_finish);
+		
+		mApp = (BoincManagerApplication)getApplication();
+		mApp.unsetInstallerStage();
+		
+		Button finishButton = (Button)findViewById(R.id.installFinish);
+		finishButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				finish();
+			}
+		});
+	}
 }

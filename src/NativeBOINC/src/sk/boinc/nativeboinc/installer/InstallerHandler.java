@@ -257,6 +257,13 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				return;
 			}
 			
+			if (mClientDistrib == null) {
+				notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
+						mContext.getString(R.string.clientDistribNotFound));
+				return;
+			}
+		
+			
 			zipFilename = mClientDistrib.filename;
 			if (Logging.INFO) Log.i(TAG, "Use zip "+zipFilename);
 			
@@ -669,14 +676,21 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		/* if client not installed and ran then acquired */ 
 		private Semaphore mClientUpdatedAndRanSem = new Semaphore(1);
 		
+		/* should be released after benchmark */
+		private Semaphore mBenchmarkFinishSem = new Semaphore(1);
+		
 		public ProjectAppsInstaller(String zipFilename, ProjectDistrib projectDistrib) {
 			mZipFilename = zipFilename;
 			mProjectDistrib = projectDistrib;
 			mCancelObserver = new AppInstallCancelObserver(this);
+			/* acquiring all semaphores */
 			try {
 				mClientUpdatedAndRanSem.acquire();
 			} catch(InterruptedException ex) { }
-			mIsCancelled = true;
+			try {
+				mBenchmarkFinishSem.acquire();
+			} catch(InterruptedException ex) { }
+			mIsCancelled = false;
 		}
 		
 		@Override
@@ -685,6 +699,18 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				notifyCancel(mProjectDistrib.projectName, mProjectDistrib.projectUrl);
 				return;
 			}
+			
+			/* awaiting for benchmark finish */
+			notifyOperation(mProjectDistrib.projectName, mProjectDistrib.projectUrl,
+					mContext.getString(R.string.waitingForBenchmarkFinish));
+			try {
+				mBenchmarkFinishSem.acquire();
+			} catch(InterruptedException ex) {
+				Log.d(TAG, "Cancelled during waiting benchmark finish");
+				notifyCancel(mProjectDistrib.projectName, mProjectDistrib.projectUrl);
+				return;
+			}
+			mBenchmarkFinishSem.release();
 			
 			String zipUrl = mContext.getString(R.string.installAppsSourceUrl) + mZipFilename;
 			
@@ -736,9 +762,20 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				return;
 			}
 			
+			notifyOperation(mProjectDistrib.projectName, mProjectDistrib.projectUrl,
+					mContext.getString(R.string.waitingForClientUpdateAndRun));
+			
 			try {
 				mClientUpdatedAndRanSem.acquire();
-			} catch(InterruptedException ex) { }
+			} catch(InterruptedException ex) {
+				Log.d(TAG, "Cancelled during waiting for client update");
+				notifyCancel(mProjectDistrib.projectName, mProjectDistrib.projectUrl);
+				return;
+			}
+			mClientUpdatedAndRanSem.release();
+			
+			notifyOperation(mProjectDistrib.projectName, mProjectDistrib.projectUrl,
+					mContext.getString(R.string.finalizeProjectAppInstall));
 			
 			/* update in client side */
 			if (Logging.DEBUG) Log.d(TAG, "Run update_apps on boinc_client for "+
@@ -758,10 +795,12 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			interrupt();
 		}
 		
-		public void notifyIfClientUpdatedAndRan() {
-			synchronized (this) {
-				mClientUpdatedAndRanSem.release();
-			}
+		public synchronized void notifyIfClientUpdatedAndRan() {
+			mClientUpdatedAndRanSem.release();
+		}
+		
+		public synchronized void notifyIfBenchmarkFinished() {
+			mBenchmarkFinishSem.release();
 		}
 	}
 	
@@ -774,13 +813,21 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			appInstaller.notifyIfClientUpdatedAndRan();
 	}
 	
+	private synchronized void notifyIfBenchmarkFinished() {
+		for (ProjectAppsInstaller appInstaller: mProjectAppsInstallers.values())
+			appInstaller.notifyIfBenchmarkFinished();
+	}
+	
 	private synchronized boolean isProjectAppBeingInstalled(String projectUrl) {
 		return mProjectAppsInstallers.containsKey(projectUrl);
 	}
 	
+	private boolean mBenchmarkIsRun = false;
+	
+	private static final int MAX_PERIOD_BEFORE_BENCHMARK = 3000;
+	
 	public void installProjectApplicationsAutomatically(String projectUrl) {
 		if (Logging.DEBUG) Log.d(TAG, "install App "+projectUrl);
-		
 		
 		ProjectDistrib projectDistrib = null;
 		
@@ -808,7 +855,19 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		// installBoincApplicationAutomatically(zipFilename, projectDistrib);
 		// run in separate thread
-		ProjectAppsInstaller appInstaller = new ProjectAppsInstaller(zipFilename, projectDistrib);
+		final ProjectAppsInstaller appInstaller = new ProjectAppsInstaller(zipFilename, projectDistrib);
+		// unlock lock for client updating
+		appInstaller.notifyIfClientUpdatedAndRan();
+		
+		postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				if (!mBenchmarkIsRun) // if again benchmark is not ran
+					// unlock benchmark lock
+					appInstaller.notifyIfBenchmarkFinished();
+			}
+		}, MAX_PERIOD_BEFORE_BENCHMARK);
+		
 		synchronized(this) {
 			mProjectAppsInstallers.put(projectDistrib.projectUrl, appInstaller);
 		}
@@ -1188,13 +1247,26 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				appsInstaller.mProjectDistrib.projectName);
 		
 		mDistribManager.addOrUpdateDistrib(appsInstaller.mProjectDistrib, appsInstaller.mFileList);
+		
+		notifyFinish(appsInstaller.mProjectDistrib.projectName, projectUrl);
+	}
+	
+	@Override
+	public void updateProjectAppsError(String projectUrl) {
+		ProjectAppsInstaller appsInstaller = mProjectAppsInstallers.remove(projectUrl);
+		if (Logging.DEBUG) Log.d(TAG, "After update on client side error: "+
+				appsInstaller.mProjectDistrib.projectName);
+		
+		notifyError(appsInstaller.mProjectDistrib.projectName, projectUrl,
+				mContext.getString(R.string.updateProjectAppError));
 	}
 
-	private static final int INSTALL_PROJECT_DELAY = 500;
+	private static final int INSTALL_PROJECT_DELAY = 200;
 	
 	@Override
 	public void onMonitorEvent(final ClientEvent event) {
-		if (event.type == ClientEvent.EVENT_ATTACHED_PROJECT) {
+		switch(event.type) {
+		case ClientEvent.EVENT_ATTACHED_PROJECT:
 			postDelayed(new Runnable() {
 				/* do install project binaries */
 				@Override
@@ -1204,7 +1276,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					installProjectApplicationsAutomatically(event.projectUrl);
 				}
 			}, INSTALL_PROJECT_DELAY);
-		}  else if (event.type == ClientEvent.EVENT_DETACHED_PROJECT) {
+		case ClientEvent.EVENT_DETACHED_PROJECT:
 			// synchronize with installed projects
 			post(new Runnable() {
 				@Override
@@ -1212,6 +1284,14 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					synchronizeInstalledProjects();
 				}
 			});
+		case ClientEvent.EVENT_RUN_BENCHMARK:
+			mBenchmarkIsRun = true;
+			break;
+		case ClientEvent.EVENT_FINISH_BENCHMARK:
+			mBenchmarkIsRun = false;
+			// unlock
+			notifyIfBenchmarkFinished();
+			break;
 		}
 	}
 

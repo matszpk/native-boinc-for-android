@@ -503,4 +503,10 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 				transfer.speed,
 				transfer.state);
 	}
+
+	@Override
+	public void clientError(int err_num, String message) {
+		// TODO Auto-generated method stub
+		
+	}
 }

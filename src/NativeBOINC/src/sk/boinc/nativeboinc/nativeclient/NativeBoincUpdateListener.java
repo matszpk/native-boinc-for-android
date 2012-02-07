@@ -9,4 +9,5 @@ package sk.boinc.nativeboinc.nativeclient;
  */
 public interface NativeBoincUpdateListener extends AbstractNativeBoincListener {
 	public abstract void updatedProjectApps(String projectUrl);
+	public abstract void updateProjectAppsError(String projectUrl);
 }

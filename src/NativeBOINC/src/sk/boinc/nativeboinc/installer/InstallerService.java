@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.AddProjectActivity;
+import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.ProgressActivity;
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.UpdateActivity;
@@ -93,6 +93,8 @@ public class InstallerService extends Service {
 	
 	private List<AbstractInstallerListener> mListeners = new ArrayList<AbstractInstallerListener>();
 	
+	private BoincManagerApplication mApp = null;
+	
 	public class LocalBinder extends Binder {
 		public InstallerService getService() {
 			return InstallerService.this;
@@ -135,6 +137,7 @@ public class InstallerService extends Service {
 	
 	@Override
 	public void onCreate() {
+		mApp = (BoincManagerApplication)getApplication();
 		mListenerHandler = new ListenerHandler();
 		mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 		mAppContext = getApplicationContext();
@@ -153,6 +156,8 @@ public class InstallerService extends Service {
 		startService(new Intent(this, InstallerService.class));
 		return mBinder;
 	}
+	
+	private InstallError mPendingInstallError = null;
 	
 	/**
 	 * listener handler - 
@@ -195,6 +200,9 @@ public class InstallerService extends Service {
 		}
 
 		public void onOperationError(String distribName, String projectUrl, String errorMessage) {
+			if (mApp.isInstallerRun())
+				mApp.unsetInstallerStage();
+			
 			updateDistribInstallProgress(distribName, projectUrl, errorMessage, -1,
 					ProgressItem.STATE_ERROR_OCCURRED);
 			
@@ -204,13 +212,27 @@ public class InstallerService extends Service {
 			else if (distribName.length()!=0)
 				notifyInstallProjectAppsOperation(distribName, errorMessage);
 			
+			boolean called = false;
+			
 			for (AbstractInstallerListener listener: mListeners)
-				if (listener instanceof InstallerProgressListener)
+				if (listener instanceof InstallerProgressListener) {
 					((InstallerProgressListener)listener).onOperationError(
 							distribName, errorMessage);
+					called = true;
+				}
+			
+			synchronized(InstallerService.this) {
+				if (!called)
+					mPendingInstallError = new InstallError(distribName, projectUrl, errorMessage);
+				else // if already handled
+					mPendingInstallError = null;
+			}
 		}
 		
 		public void onOperationCancel(String distribName, String projectUrl) {
+			if (mApp.isInstallerRun())
+				mApp.unsetInstallerStage();
+			
 			updateDistribInstallProgress(distribName, projectUrl, null, -1, 
 					ProgressItem.STATE_CANCELLED);
 
@@ -227,6 +249,13 @@ public class InstallerService extends Service {
 		}
 		
 		public void onOperationFinish(String distribName, String projectUrl) {
+			/* to next insraller stage */
+			int installerStage = mApp.getInstallerStage(); 
+			if (installerStage == BoincManagerApplication.INSTALLER_CLIENT_INSTALLING_STAGE)
+				mApp.setInstallerStage(BoincManagerApplication.INSTALLER_PROJECT_STAGE);
+			else if (installerStage == BoincManagerApplication.INSTALLER_PROJECT_INSTALLING_STAGE)
+				mApp.setInstallerStage(BoincManagerApplication.INSTALLER_FINISH_STAGE);
+			
 			updateDistribInstallProgress(distribName, projectUrl, null, -1, 
 					ProgressItem.STATE_FINISHED);
 			
@@ -301,13 +330,28 @@ public class InstallerService extends Service {
 		} else {	// adds new progress item
 			if (distribName != null && distribName.length() != 0)
 				mDistribInstallProgresses.put(distribName, 
-						new ProgressItem(distribName, projectUrl, opDesc, -1,
-								ProgressItem.STATE_IN_PROGRESS));
+						new ProgressItem(distribName, projectUrl, opDesc, -1, state));
 		}
 	}
 	
-	public synchronized void clearDistribInstallProgresses() {
-		mDistribInstallProgresses.clear();
+	/**
+	 * remove and cancels all notifications for cancelled, aborted and finished tasks
+	 */
+	public synchronized void removeAllNotInProgress() {
+		ArrayList<String> toRemove = new ArrayList<String>();
+		for (Map.Entry<String,ProgressItem> entry: mDistribInstallProgresses.entrySet()) {
+			ProgressItem item = entry.getValue();
+			if (item.state != ProgressItem.STATE_IN_PROGRESS)
+				toRemove.add(entry.getKey());
+		}
+		for (String url: toRemove) {
+			mDistribInstallProgresses.remove(url);
+			// cancel notifications
+			if (url.equals(BOINC_CLIENT_ITEM_NAME))
+				notifyInstallClientFinish();
+			else
+				notifyInstallProjectAppsFinish(url);
+		}
 	}
 	
 	/**
@@ -424,6 +468,16 @@ public class InstallerService extends Service {
 	/* update client distrib info */
 	public void updateClientDistrib() {
 		mInstallerThread.updateClientDistrib();
+	}
+	
+	/**
+	 * get pending install error
+	 * @return pending install error
+	 */
+	public synchronized InstallError getPendingError() {
+		InstallError installError = mPendingInstallError;
+		mPendingInstallError = null;
+		return installError;
 	}
 	
 	/**

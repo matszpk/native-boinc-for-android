@@ -19,20 +19,21 @@
 
 package sk.boinc.nativeboinc.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import edu.berkeley.boinc.lite.AccountIn;
+import edu.berkeley.boinc.lite.AccountMgrInfo;
 import edu.berkeley.boinc.lite.GlobalPreferences;
 import edu.berkeley.boinc.lite.ProjectConfig;
+import edu.berkeley.boinc.lite.ProjectListEntry;
 
 import sk.boinc.nativeboinc.bridge.ClientBridge;
 import sk.boinc.nativeboinc.bridge.ClientBridgeCallback;
-import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
@@ -239,9 +240,14 @@ public class ConnectionManagerService extends Service implements
 		if (Logging.DEBUG) Log.d(TAG, "Detached observer: " + observer.toString());
 	}
 
+	private boolean mDisconnectedByManager = false;
+	
 	@Override
 	public void connect(ClientId host, boolean retrieveInitialData) throws NoConnectivityException {
 		if (Logging.DEBUG) Log.d(TAG, "connect() to host " + host.getNickname());
+		
+		mDisconnectedByManager = false;
+		
 		if (mClientBridge != null) {
 			// Connected to some client - disconnect it first
 			disconnect();
@@ -258,9 +264,14 @@ public class ConnectionManagerService extends Service implements
 		// Finally, initiate connection to remote client
 		mClientBridge.connect(host, retrieveInitialData);
 	}
+	
+	public boolean isDisconnectedByManager() {
+		return mDisconnectedByManager;
+	}
 
 	@Override
 	public void disconnect() {
+		mDisconnectedByManager = true;
 		if (mClientBridge != null) {
 			if (Logging.DEBUG) Log.d(TAG, "disconnect() - started towards " + mClientBridge.getClientId().getNickname());
 			mDyingBridges.add(mClientBridge);
@@ -282,11 +293,18 @@ public class ConnectionManagerService extends Service implements
 		}
 	}
 	
+	@Override
+	public boolean isWorking() {
+		if (mClientBridge != null) {
+			return mClientBridge.isWorking();
+		}
+		else return false;
+	}
+	
+	@Override
 	public boolean isNativeConnected() {
 		if (mClientBridge != null) {
-			ClientId clientId = mClientBridge.getClientId();
-			String clientAddress = clientId.getAddress();
-			return clientAddress.equals("127.0.0.1") || clientAddress.equals("localhost");
+			return mClientBridge.isNativeConnected();
 		}
 		else return false;
 	}
@@ -341,38 +359,59 @@ public class ConnectionManagerService extends Service implements
 	}
 
 	@Override
-	public void getBAMInfo(ClientAccountMgrReceiver callback) {
+	public void getBAMInfo() {
 		if (mClientBridge != null) {
-			mClientBridge.getBAMInfo(callback);
+			mClientBridge.getBAMInfo();
 		}
 	}
 	
 	@Override
-	public void attachToBAM(ClientAccountMgrReceiver callback, String name, String url, String password) {
+	public AccountMgrInfo getPendingBAMInfo() {
+		if (mClientBridge != null)
+			return mClientBridge.getPendingBAMInfo();
+		return null;
+	}
+	
+	@Override
+	public void attachToBAM(String name, String url, String password) {
 		if (mClientBridge != null) {
-			mClientBridge.attachToBAM(callback, name, url, password);
+			mClientBridge.attachToBAM(name, url, password);
 		}
 	}
 	
 	@Override
-	public void synchronizeWithBAM(ClientAccountMgrReceiver callback) {
+	public void synchronizeWithBAM() {
 		if (mClientBridge != null) {
-			mClientBridge.synchronizeWithBAM(callback);
+			mClientBridge.synchronizeWithBAM();
 		}
 	}
 	
 	@Override
-	public void stopUsingBAM(ClientReplyReceiver callback) {
+	public void stopUsingBAM() {
 		if (mClientBridge != null) {
-			mClientBridge.stopUsingBAM(callback);
+			mClientBridge.stopUsingBAM();
 		}
 	}
 	
 	@Override
-	public void getAllProjectsList(ClientAllProjectsListReceiver callback) {
+	public boolean isBAMBeingSynchronized() {
+		if (mClientBridge != null)
+			return mClientBridge.isBAMBeingSynchronized();
+		return false;
+	}
+	
+	@Override
+	public void getAllProjectsList() {
 		if (mClientBridge != null) {
-			mClientBridge.getAllProjectsList(callback);
+			mClientBridge.getAllProjectsList();
 		}
+	}
+	
+	@Override
+	public ArrayList<ProjectListEntry> getPendingAllProjectsList() {
+		if (mClientBridge != null)
+			return mClientBridge.getPendingAllProjectsList();
+		return null;
 	}
 	
 	@Override
@@ -396,6 +435,7 @@ public class ConnectionManagerService extends Service implements
 		}
 	}
 	
+	@Override
 	public boolean isProjectBeingAdded(String projectUrl) {
 		if (mClientBridge != null)
 			return mClientBridge.isProjectBeingAdded(projectUrl);
@@ -409,6 +449,7 @@ public class ConnectionManagerService extends Service implements
 			mClientBridge.addProject(accountIn, create);
 	}
 	
+	@Override
 	public void getProjectConfig(String url) {
 		if (mClientBridge != null) {
 			mClientBridge.getProjectConfig(url);
@@ -420,13 +461,14 @@ public class ConnectionManagerService extends Service implements
 	 * @param projectUrl
 	 * @return pending projectConfig
 	 */
+	@Override
 	public ProjectConfig getPendingProjectConfig(String projectUrl) {
 		if (mClientBridge != null)
 			return mClientBridge.getPendingProjectConfig(projectUrl);
 		return null;
 	}
 	
-	
+	@Override
 	public ClientError getPendingClientError() {
 		if (mClientBridge != null) {
 			return mClientBridge.getPendingClientError();
@@ -437,6 +479,7 @@ public class ConnectionManagerService extends Service implements
 	/**
 	 * pending poll errors
 	 */
+	@Override
 	public PollError getPendingPollError(String projectUrl) {
 		if (mClientBridge != null) {
 			return mClientBridge.getPendingPollError(projectUrl);
@@ -444,12 +487,14 @@ public class ConnectionManagerService extends Service implements
 		return null;
 	}
 	
+	@Override
 	public void getGlobalPrefsWorking(ClientPreferencesReceiver callback) {
 		if (mClientBridge != null) {
 			mClientBridge.getGlobalPrefsWorking(callback);
 		}
 	}
 	
+	@Override
 	public void setGlobalPrefsOverride(ClientPreferencesReceiver callback, String globalPrefs) {
 		if (mClientBridge != null) {
 			mClientBridge.setGlobalPrefsOverride(callback, globalPrefs);

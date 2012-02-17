@@ -96,19 +96,6 @@
 			android:shouldDisableView="true"
 			android:persistent="false" />
 		<Preference
-			android:key="changeAccessPassword"
-			android:title="@string/clientChangePasswordTitle"
-			android:summary="@string/clientChangePasswordSummary"
-			android:shouldDisableView="true"
-			android:persistent="false" />
-		<Preference
-			android:key="updateBinaries"
-			android:title="@string/clientUpdateTitle"
-			android:summary="@string/clientUpdateSummary"
-			android:shouldDisableView="true"
-			android:dependency="changeAccessPassword"
-			android:persistent="false" />
-		<Preference
 			android:key="shutDownClient"
 			android:title="@string/clientShutdownTitle"
 			android:summary="@string/clientShutdownSummary"

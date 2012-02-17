@@ -26,39 +26,38 @@
 	android:background="@drawable/widget_bg">
 	<LinearLayout
 		android:orientation="horizontal"
-		android:layout_width="wrap_content"
+		android:layout_width="fill_parent"
 		android:layout_gravity="center_horizontal"
 		android:layout_height="wrap_content"
 		android:paddingBottom="3dip">
 		<Button
 			android:id="@+id/widgetStart" 
-			android:layout_width="wrap_content"
+			android:layout_width="0dip"
 			android:layout_height="wrap_content"
-			android:drawablePadding="0dip"
-			android:width="50dip"
-			android:height="40dip"
-			android:drawableTop="@android:drawable/ic_media_play" />
+			android:layout_weight="1"
+			android:textSize="1dip"
+			android:drawableRight="@android:drawable/ic_media_play" />
 		<Button
 			android:id="@+id/widgetStop" 
-			android:layout_width="wrap_content"
+			android:layout_width="0dip"
 			android:layout_height="wrap_content"
-			android:width="50dip"
-			android:height="40dip"
-			android:drawableTop="@android:drawable/ic_media_pause" />
+			android:layout_weight="1"
+			android:textSize="1dip"
+			android:drawableRight="@android:drawable/ic_media_pause" />
 		<Button
 			android:id="@+id/widgetManager" 
-			android:layout_width="wrap_content"
+			android:layout_width="0dip"
 			android:layout_height="wrap_content"
-			android:width="50dip"
-			android:height="40dip"
-			android:drawableTop="@drawable/manager_icon" />
+			android:layout_weight="1"
+			android:textSize="1dip"
+			android:drawableRight="@drawable/nativeboinc_alpha" />
 		<Button
 			android:id="@+id/widgetLock" 
-			android:layout_width="wrap_content"
+			android:layout_width="0dip"
 			android:layout_height="wrap_content"
-			android:width="50dip"
-			android:height="40dip"
-			android:drawableTop="@android:drawable/ic_lock_lock" />
+			android:layout_weight="1"
+			android:textSize="1dip"
+			android:drawableRight="@android:drawable/ic_lock_lock" />
 	</LinearLayout>
 	<RelativeLayout	android:id="@+id/widgetProgress"
 		android:layout_width="fill_parent"

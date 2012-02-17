@@ -24,5 +24,5 @@ package sk.boinc.nativeboinc.installer;
  *
  */
 public interface AbstractInstallerListener {
-
+	public abstract void onInstallerWorking(boolean isWorking);
 }

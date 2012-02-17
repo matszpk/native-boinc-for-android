@@ -19,8 +19,13 @@
 
 package sk.boinc.nativeboinc.clientconnection;
 
+import java.util.ArrayList;
+
 import edu.berkeley.boinc.lite.AccountIn;
+import edu.berkeley.boinc.lite.AccountMgrInfo;
 import edu.berkeley.boinc.lite.GlobalPreferences;
+import edu.berkeley.boinc.lite.ProjectConfig;
+import edu.berkeley.boinc.lite.ProjectListEntry;
 import sk.boinc.nativeboinc.util.ClientId;
 
 
@@ -32,6 +37,8 @@ public interface ClientRequestHandler {
 
 	public abstract ClientId getClientId();
 
+	public abstract boolean isWorking();
+	
 	public abstract void updateClientMode(ClientReceiver callback);
 	public abstract void updateHostInfo(ClientReplyReceiver callback);
 	public abstract void updateProjects(ClientReplyReceiver callback);
@@ -40,18 +47,28 @@ public interface ClientRequestHandler {
 	public abstract void updateMessages(ClientReplyReceiver callback);
 	public abstract void cancelScheduledUpdates(ClientReplyReceiver callback);
 
-	public abstract void getBAMInfo(ClientAccountMgrReceiver callback);
-	public abstract void attachToBAM(ClientAccountMgrReceiver callback, String name, String url, String password);
-	public abstract void synchronizeWithBAM(ClientAccountMgrReceiver callback);
-	public abstract void stopUsingBAM(ClientReplyReceiver callback);
+	public abstract ClientError getPendingClientError();
+	public abstract PollError getPendingPollError(String projectUrl);
 	
-	public abstract void getAllProjectsList(ClientAllProjectsListReceiver callback);
+	public abstract boolean isNativeConnected();
+	
+	public abstract void getBAMInfo();
+	public abstract AccountMgrInfo getPendingBAMInfo();
+	public abstract void attachToBAM(String name, String url, String password);
+	public abstract void synchronizeWithBAM();
+	public abstract void stopUsingBAM();
+	public abstract boolean isBAMBeingSynchronized();
+	
+	public abstract void getAllProjectsList();
+	public abstract ArrayList<ProjectListEntry> getPendingAllProjectsList();
 	
 	public abstract void lookupAccount(AccountIn accountIn);
 	public abstract void createAccount(AccountIn accountIn);
 	public abstract void projectAttach(String url, String authCode, String projectName);
 	public abstract void getProjectConfig(String url);
+	public abstract ProjectConfig getPendingProjectConfig(String projectUrl);
 	public abstract void addProject(AccountIn accountIn, boolean create);
+	public abstract boolean isProjectBeingAdded(String projectUrl);
 	
 	public abstract void getGlobalPrefsWorking(ClientPreferencesReceiver callback);
 	public abstract void setGlobalPrefsOverrideStruct(ClientPreferencesReceiver callback, GlobalPreferences globalPrefs);

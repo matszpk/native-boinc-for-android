@@ -19,12 +19,25 @@
 
 package sk.boinc.nativeboinc;
 
+import edu.berkeley.boinc.lite.AccountMgrInfo;
+import hal.android.workarounds.FixedProgressDialog;
+import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientError;
+import sk.boinc.nativeboinc.clientconnection.PollError;
+import sk.boinc.nativeboinc.clientconnection.VersionInfo;
+import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.BAMAccount;
+import sk.boinc.nativeboinc.util.ClientId;
+import sk.boinc.nativeboinc.util.StandardDialogs;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -32,21 +45,36 @@ import android.widget.EditText;
  * @author mat
  *
  */
-public class EditBAMActivity extends AbstractBoincActivity {
+public class EditBAMActivity extends ServiceBoincActivity implements ClientAccountMgrReceiver {
 
-	private EditText mName;
-	private EditText mUrl;
-	private EditText mPassword;
+	private static final String TAG = "EditBAMActivity";
+	
+	private final static int DIALOG_CHANGE_BAM_PROGRESS = 1;
+	
+	private EditText mNameEdit;
+	private EditText mUrlEdit;
+	private EditText mPasswordEdit;
 	private Button mConfirmButton;
+	
+	private ClientId mConnectedClient = null;
+	private boolean mAttachBAMInProgress = false; // if 
+	
+	private static final String STATE_ATTACH_BAM_PROGRESS = "AttachBAMProgress";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		
+		if (savedInstanceState != null)
+			mAttachBAMInProgress = savedInstanceState.getBoolean(STATE_ATTACH_BAM_PROGRESS);
+		
+		setUpService(true, true, false, false, false, false);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.edit_bam);
 		
-		mName = (EditText)findViewById(R.id.editBAMName);
-		mUrl = (EditText)findViewById(R.id.editBAMUrl);
-		mPassword = (EditText)findViewById(R.id.editBAMPassword);
+		mNameEdit = (EditText)findViewById(R.id.editBAMName);
+		mUrlEdit = (EditText)findViewById(R.id.editBAMUrl);
+		mPasswordEdit = (EditText)findViewById(R.id.editBAMPassword);
 		
 		TextWatcher textWatcher = new TextWatcher() {
 			@Override
@@ -62,19 +90,19 @@ public class EditBAMActivity extends AbstractBoincActivity {
 				// Not needed
 			}
 		};
-		mName.addTextChangedListener(textWatcher);
-		mUrl.addTextChangedListener(textWatcher);
+		mNameEdit.addTextChangedListener(textWatcher);
+		mUrlEdit.addTextChangedListener(textWatcher);
 		
 		mConfirmButton = (Button)findViewById(R.id.editBAMOk);
 		
 		BAMAccount bamAccount = getIntent().getParcelableExtra(BAMAccount.TAG);
 		if (bamAccount != null) {
-			mName.setText(bamAccount.getName());
-			mUrl.setText(bamAccount.getUrl());
-			mPassword.setText(bamAccount.getPassword());
+			mNameEdit.setText(bamAccount.getName());
+			mUrlEdit.setText(bamAccount.getUrl());
+			mPasswordEdit.setText(bamAccount.getPassword());
 		} else {
 			String s = getString(R.string.editBAMDefaultUrl);
-			mUrl.setText(s);
+			mUrlEdit.setText(s);
 		}
 		
 		Button cancelButton = (Button)findViewById(R.id.editBAMCancel);
@@ -89,22 +117,167 @@ public class EditBAMActivity extends AbstractBoincActivity {
 		setConfirmButtonState();
 		mConfirmButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
-				BAMAccount bamAccount = new BAMAccount(mName.getText().toString(),
-						mUrl.getText().toString(), mPassword.getText().toString());
-				Intent intent = new Intent().putExtra(BAMAccount.TAG, bamAccount);
-				setResult(RESULT_OK, intent);
-				finish();
+				showDialog(DIALOG_CHANGE_BAM_PROGRESS);
+				mAttachBAMInProgress = true;
+				mConnectionManager.attachToBAM(mNameEdit.getText().toString(),
+						mUrlEdit.getText().toString(), mPasswordEdit.getText().toString());
 			}
 		});
 	}
 	
+	private void updateActivityState() {
+		if (mConnectionManager.isWorking())
+			setProgressBarIndeterminateVisibility(true);
+		else
+			setProgressBarIndeterminateVisibility(false);
+		
+		ClientError error = mConnectionManager.getPendingClientError();
+		// get error for account mgr operations 
+		PollError pollError = mConnectionManager.getPendingPollError("");
+		if (error != null) {
+			clientError(error.errorNum, error.message);
+			return;
+		} else if (pollError != null) {
+			onPollError(pollError.errorNum, pollError.operation,
+					pollError.message, pollError.param);
+			return;
+		} else if (mConnectedClient == null) {
+			clientDisconnected(); // if disconnected
+			return;
+		}
+		
+		if (mAttachBAMInProgress) {
+			if (!mConnectionManager.isBAMBeingSynchronized())
+				onAfterAccountMgrRPC();
+		}
+	}
+	
+	@Override
+	protected void onConnectionManagerConnected() {
+		mConnectedClient = mConnectionManager.getClientId();
+		updateActivityState();
+	}
+	
+	@Override
+	protected void onConnectionManagerDisconnected() {
+		mConnectedClient = null;
+		setProgressBarIndeterminateVisibility(false);
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean(STATE_ATTACH_BAM_PROGRESS, mAttachBAMInProgress);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		if (mConnectionManager != null) {
+			mConnectedClient = mConnectionManager.getClientId();
+			updateActivityState();
+		}
+	}
+	
 	private void setConfirmButtonState() {
 		// Check that required fields are non-empty
-		if ((mName.getText().length() == 0) || (mUrl.getText().length() == 0)) {
+		if ((mNameEdit.getText().length() == 0) || (mUrlEdit.getText().length() == 0)) {
 			// One of the required fields is empty, we must disable confirm button
 			mConfirmButton.setEnabled(false);
 			return;
 		}
 		mConfirmButton.setEnabled(true);
+	}
+
+	@Override
+	public Dialog onCreateDialog(int dialogId, Bundle args) {
+		Dialog dialog = StandardDialogs.onCreateDialog(this, dialogId, args);
+		if (dialog != null)
+			return dialog;
+		
+		if (dialogId == DIALOG_CHANGE_BAM_PROGRESS) {
+			ProgressDialog progressDialog = new FixedProgressDialog(this);
+			progressDialog.setIndeterminate(true);
+			progressDialog.setCancelable(true);
+			return progressDialog;
+		}
+		return null;
+	}
+	
+	@Override
+	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
+		if (StandardDialogs.onPrepareDialog(this, dialogId, dialog, args))
+			return;
+		
+		if (dialogId == DIALOG_CHANGE_BAM_PROGRESS) {
+			ProgressDialog progressDialog = (ProgressDialog)dialog;
+			progressDialog.setMessage(getString(R.string.attachBAMInProgress));
+		}
+	}
+	
+	@Override
+	public boolean clientError(int errorNum, String errorMessage) {
+		if (mAttachBAMInProgress)
+			dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
+		
+		mAttachBAMInProgress = false;
+		StandardDialogs.showClientErrorDialog(this, errorNum, errorMessage);
+		return true;
+	}
+
+	@Override
+	public void clientConnectionProgress(int progress) {
+		// do nothing
+	}
+
+	@Override
+	public void clientConnected(VersionInfo clientVersion) {
+		// do nothing
+	}
+
+	@Override
+	public void clientDisconnected() {
+		if (mAttachBAMInProgress)
+			dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
+		if (Logging.DEBUG) Log.d(TAG, "disconnected");
+		mAttachBAMInProgress = false;
+		StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, null,
+				mConnectedClient);
+	}
+
+	@Override
+	public void onClientIsWorking(boolean isWorking) {
+		setProgressBarIndeterminateVisibility(isWorking);
+	}
+
+	@Override
+	public boolean onPollError(int errorNum, int operation,
+			String errorMessage, String param) {
+		if (mAttachBAMInProgress)
+			dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
+		
+		mAttachBAMInProgress = false;
+		StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
+		return true;
+	}
+
+	@Override
+	public boolean onAfterAccountMgrRPC() {
+		if (Logging.DEBUG) Log.d(TAG, "on after account mgr rpc");
+		if (mAttachBAMInProgress) {
+			mAttachBAMInProgress = false;
+			dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
+			// if end
+			finish();
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean currentBAMInfo(AccountMgrInfo accountMgrInfo) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

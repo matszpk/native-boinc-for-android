@@ -21,42 +21,28 @@ package sk.boinc.nativeboinc;
 
 import hal.android.workarounds.FixedProgressDialog;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.ArrayList;
 
-import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.AccountMgrInfo;
-import edu.berkeley.boinc.lite.ProjectConfig;
-import edu.berkeley.boinc.lite.ProjectListEntry;
 
-import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.ModeInfo;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
+import sk.boinc.nativeboinc.clientconnection.PollError;
 import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
 import sk.boinc.nativeboinc.clientconnection.TaskInfo;
 import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
-import sk.boinc.nativeboinc.installer.ClientDistrib;
-import sk.boinc.nativeboinc.installer.InstallerProgressListener;
-import sk.boinc.nativeboinc.installer.InstallerService;
-import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
-import sk.boinc.nativeboinc.installer.ProjectDistrib;
-import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
-import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.service.ConnectionManagerService;
-import sk.boinc.nativeboinc.util.AddProjectResult;
 import sk.boinc.nativeboinc.util.BAMAccount;
 import sk.boinc.nativeboinc.util.ClientId;
-import sk.boinc.nativeboinc.util.HostListDbAdapter;
-import sk.boinc.nativeboinc.util.ProjectItem;
 import sk.boinc.nativeboinc.util.ScreenOrientationHandler;
+import sk.boinc.nativeboinc.util.StandardDialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -85,60 +71,54 @@ import android.widget.Toast;
 
 
 public class ManageClientActivity extends PreferenceActivity implements ClientReplyReceiver,
-		ClientAccountMgrReceiver, ClientProjectReceiver, ClientAllProjectsListReceiver, 
-		InstallerProgressListener, InstallerUpdateListener,
-		NativeBoincStateListener {
+		ClientAccountMgrReceiver {
 	private static final String TAG = "ManageClientActivity";
 
 	private static final int DIALOG_WARN_SHUTDOWN = 0;
 	private static final int DIALOG_RETRIEVAL_PROGRESS = 1;
 	private static final int DIALOG_HOST_INFO = 2;
-	private static final int DIALOG_CLIENT_ERROR = 3;
+	private static final int DIALOG_ATTACH_BAM_PROGRESS = 3;
 
 	private static final int ACTIVITY_SELECT_HOST = 1;
-	private static final int ACTIVITY_EDIT_BAM_INFO = 2;
-	private static final int ACTIVITY_SELECT_PROJECT = 3;
-	private static final int ACTIVITY_ADD_PROJECT = 4;
-
+	
 	private int mConnectProgressIndicator = -1;
 	private boolean mProgressDialogAllowed = false;
 	private ModeInfo mClientMode = null;
 	private HostInfo mHostInfo = null;
 	
-	private int mClientErrorNum = 0;
-	private ArrayList<String> mClientErrorMessages = null;
-	
-	private AccountMgrInfo mBAMInfo = null;
 	private boolean mPeriodicModeRetrievalAllowed = false;
 	
-	private String mProjectUrl = null;
-
 	private ConnectionManagerService mConnectionManager = null;
-	private InstallerService mInstaller = null;
 	private boolean mDelayedObserverRegistration = false;
 	private ClientId mConnectedClient = null;
 	private ClientId mSelectedClient = null;
 	
-	private boolean mShutdownByProjectAttach = false;
-	private boolean mDoUpdateActivity = false;
-	
-	private boolean mDelayedInstallerListenerRegistration = false;
-	private boolean mDelayedRunnerListenerRegistration = false;
-	
-	private ProgressDialog mProgressDialog = null;
+	private boolean mDoGetBAMInfo = false;
+	private AccountMgrInfo mBAMInfo = null;
+	private boolean mSyncingBAMInProgress = false;
 	
 	private ScreenOrientationHandler mScreenOrientation;
 	
-	private class SavedState {
-		public final HostInfo hostInfo;
-
-		public SavedState() {
-			hostInfo = mHostInfo;
+	private static class SavedState {
+		private final HostInfo hostInfo;
+		private final boolean doGetBAMInfo;
+		private final AccountMgrInfo bamInfo;
+		private final boolean syncingBAMInProgress;
+		
+		public SavedState(ManageClientActivity activity) {
+			hostInfo = activity.mHostInfo;
+			doGetBAMInfo = activity.mDoGetBAMInfo;
+			bamInfo = activity.mBAMInfo;
+			syncingBAMInProgress = activity.mSyncingBAMInProgress;
+			
 			if (Logging.DEBUG) Log.d(TAG, "saved: hostInfo=" + hostInfo);
 		}
 		public void restoreState(ManageClientActivity activity) {
 			activity.mHostInfo = hostInfo;
 			if (Logging.DEBUG) Log.d(TAG, "restored: mHostInfo=" + activity.mHostInfo);
+			activity.mDoGetBAMInfo = doGetBAMInfo;
+			activity.mBAMInfo = bamInfo;
+			activity.mSyncingBAMInProgress = syncingBAMInProgress;
 		}
 	}
 
@@ -156,6 +136,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 				// Now the service is available, so connection can proceed
 				connectOrReconnect();
 			}
+			
+			updateActivityState();
 		}
 
 		@Override
@@ -167,82 +149,26 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 			// We also reset client reference to prevent mess
 			mConnectedClient = null;
 			mSelectedClient = null;
+			if (mSyncingBAMInProgress)
+				dismissDialog(DIALOG_ATTACH_BAM_PROGRESS);
+			mDoGetBAMInfo = false;
+			mSyncingBAMInProgress = false;
+			setProgressBarIndeterminateVisibility(false);
 		}
 	};
 	
-	private ServiceConnection mInstallerServiceConnection = new ServiceConnection() {
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			mInstaller = ((InstallerService.LocalBinder)service).getService();
-			if (Logging.DEBUG) Log.d(TAG, "installer.onServiceConnected()");
-			if (mDelayedInstallerListenerRegistration) {
-				mInstaller.addInstallerListener(ManageClientActivity.this);
-				mDelayedInstallerListenerRegistration = false;
-			}
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			mInstaller = null;
-			if (Logging.DEBUG) Log.d(TAG, "installer.onServiceDisconnected()");
-		}
-	};
-	
-	private NativeBoincService mRunner = null;
-	
-	private ServiceConnection mRunnerServiceConnection = new ServiceConnection() {
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			mRunner = ((NativeBoincService.LocalBinder)service).getService();
-			if (mDelayedRunnerListenerRegistration) {
-				mRunner.addNativeBoincListener(ManageClientActivity.this);
-				mDelayedRunnerListenerRegistration = false;
-			}
-			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceConnected()");
-		}
-		
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			mRunner = null;
-			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceDisconnected()");
-		}
-	};
-
 	private void doBindService() {
 		if (Logging.DEBUG) Log.d(TAG, "doBindService()");
 		bindService(new Intent(ManageClientActivity.this, ConnectionManagerService.class),
 				mServiceConnection, Context.BIND_AUTO_CREATE);
 	}
 	
-	private void doBindInstallerService() {
-		if (Logging.DEBUG) Log.d(TAG, "doBindService()");
-		bindService(new Intent(ManageClientActivity.this, InstallerService.class),
-				mInstallerServiceConnection, Context.BIND_AUTO_CREATE);
-	}
-	
-	private void doBindRunnerService() {
-		bindService(new Intent(ManageClientActivity.this, NativeBoincService.class),
-				mRunnerServiceConnection, Context.BIND_AUTO_CREATE);
-	}
-
 	private void doUnbindService() {
 		if (Logging.DEBUG) Log.d(TAG, "doUnbindService()");
 		unbindService(mServiceConnection);
 		mConnectionManager = null;
 	}
 	
-	private void doUnbindInstallerService() {
-		if (Logging.DEBUG) Log.d(TAG, "doUnbindInstallerService()");
-		unbindService(mInstallerServiceConnection);
-		mInstaller = null;
-	}
-
-	private void doUnbindRunnerService() {
-		unbindService(mRunnerServiceConnection);
-		mRunner = null;
-	}
-	
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// The super-class PreferenceActivity calls setContentView()
@@ -254,9 +180,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		mScreenOrientation = new ScreenOrientationHandler(this);
 		
 		doBindService();
-		doBindInstallerService();
-		doBindRunnerService();
-
+	
 		// Initializes the preference activity.
 		addPreferencesFromResource(R.xml.manage_client);
 
@@ -278,7 +202,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		pref = findPreference("synchronizeWithBAM");
 		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			public boolean onPreferenceClick(Preference preference) {
-				boincGetBAMInfo();
+				mConnectionManager.getBAMInfo();
+				mDoGetBAMInfo = true;
 				return true;
 			}
 		});
@@ -296,10 +221,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		pref = findPreference("addProject");
 		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			public boolean onPreferenceClick(Preference preference) {
-				if (isNativeConnected()) {
-					mInstaller.updateProjectDistribList();
-				} else
-					boincGetAllProjectsList();
+				startActivity(new Intent(ManageClientActivity.this, ProjectListActivity.class));
 				return true;
 			}
 		});
@@ -361,7 +283,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		pref = findPreference("shutDownClient");
 		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			public boolean onPreferenceClick(Preference preference) {
-				if (!isNativeConnected())
+				if (!mConnectionManager.isNativeConnected())
 					showDialog(DIALOG_WARN_SHUTDOWN);
 				else {
 					new AlertDialog.Builder(ManageClientActivity.this)
@@ -382,30 +304,48 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 			}
 		});
 		
-		// on change access password
-		pref = findPreference("changeAccessPassword");
-		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			public boolean onPreferenceClick(Preference preference) {
-				startActivity(new Intent(ManageClientActivity.this, AccessPasswordActivity.class));
-				return true;
-			}
-		});
-		
-		pref = findPreference("updateBinaries");
-		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				mDoUpdateActivity = true;	// do update activity
-				mConnectionManager.updateProjects(ManageClientActivity.this);
-				return true;
-			}
-		});
-		
 		// Restore state on configuration change (if applicable)
 		final SavedState savedState = (SavedState)getLastNonConfigurationInstance();
 		if (savedState != null) {
 			// Yes, we have the saved state, this is activity re-creation after configuration change
 			savedState.restoreState(this);
+		}
+	}
+	
+	private void updateActivityState() {
+		if (mConnectionManager != null && mConnectionManager.isWorking())
+			setProgressBarIndeterminateVisibility(true);
+		else
+			setProgressBarIndeterminateVisibility(false);
+		
+		if (mConnectionManager == null)
+			return;
+		
+		ClientError error = mConnectionManager.getPendingClientError();
+		// get error for account mgr operations 
+		PollError pollError = mConnectionManager.getPendingPollError("");
+		if (error != null) {
+			clientError(error.errorNum, error.message);
+			return;
+		} else if (pollError != null) {
+			onPollError(pollError.errorNum, pollError.operation,
+					pollError.message, pollError.param);
+			return;
+		} else if (mConnectedClient == null) {
+			clientDisconnected(); // if disconnected
+			return;
+		}
+		
+		// check pending of account mgr
+		if (mDoGetBAMInfo) {
+			AccountMgrInfo bamInfo = mConnectionManager.getPendingBAMInfo();
+			if (bamInfo != null)
+				currentBAMInfo(bamInfo);
+		}
+		
+		if (mSyncingBAMInProgress) {
+			if (!mConnectionManager.isBAMBeingSynchronized())
+				onAfterAccountMgrRPC();
 		}
 	}
 
@@ -431,8 +371,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		}
 		// Display currently connected host (or "No host connected")
 		refreshClientName();
-		refreshAccessPasswordOption();
-
+		
 		// Progress dialog is allowed since now
 		mProgressDialogAllowed = true;
 
@@ -466,15 +405,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 			}
 		}
 		
-		if (mRunner != null)
-			mRunner.addNativeBoincListener(this);
-		else
-			mDelayedRunnerListenerRegistration = true;
-		
-		if (mInstaller != null)
-			mInstaller.addInstallerListener(this);
-		else
-			mDelayedInstallerListenerRegistration = true;
+		updateActivityState();
 	}
 
 	@Override
@@ -483,7 +414,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		// No more repeated displays
 		mPeriodicModeRetrievalAllowed = false;
 		mProgressDialogAllowed = false;
-		dismissProgressDialog();
+		dismissProgressDialogs();
 		// Do not receive notifications about state and data availability, as we are not front activity now
 		// We will change that when we resume again
 		if (mConnectionManager != null) {
@@ -497,14 +428,6 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		mDelayedObserverRegistration = false;
 		// If we did not perform deferred connect so far, we needn't do that anymore
 		mSelectedClient = null;
-		
-		if (mInstaller != null)
-			mInstaller.removeInstallerListener(this);
-		if (mRunner != null)
-			mRunner.removeNativeBoincListener(this);
-		
-		mDelayedInstallerListenerRegistration = false;
-		mDelayedRunnerListenerRegistration = false;
 	}
 
 	@Override
@@ -512,33 +435,31 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		if (Logging.DEBUG) Log.d(TAG, "onDestroy()");
 		mScreenOrientation = null;
 		doUnbindService();
-		doUnbindInstallerService();
-		doUnbindRunnerService();
 		super.onDestroy();
 	}
 	
 	@Override
-	public void onBackPressed() {
-		if (Logging.DEBUG) Log.d(TAG, "Cancel installer operation");
-		mInstaller.cancelAll();
-		mShutdownByProjectAttach = false;
-	}
-
-	@Override
 	public Object onRetainNonConfigurationInstance() {
-		final SavedState savedState = new SavedState();
-		return savedState;
+		return new SavedState(this);
 	}
 
 	@Override
-	protected Dialog onCreateDialog(int id) {
+	protected Dialog onCreateDialog(int dialogId, Bundle args) {
+		Dialog dialog = StandardDialogs.onCreateDialog(this, dialogId, args);
+		if (dialog != null)
+			return dialog;
+		
 		ProgressDialog progressDialog;
-		switch (id) {
-		case DIALOG_WARN_SHUTDOWN:
+		switch (dialogId) {
+		case DIALOG_WARN_SHUTDOWN: {
+			int messageId = R.string.warnShutdownText;
+			if (mConnectionManager.isNativeConnected()) // if native
+				messageId = R.string.shutdownAskText;
+				
         	return new AlertDialog.Builder(this)
         		.setIcon(android.R.drawable.ic_dialog_alert)
         		.setTitle(R.string.warning)
-        		.setMessage(R.string.warnShutdownText)
+        		.setMessage(messageId)
         		.setPositiveButton(R.string.shutdown,
         			new DialogInterface.OnClickListener() {
         				public void onClick(DialogInterface dialog, int whichButton) {
@@ -547,6 +468,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
         			})
         		.setNegativeButton(R.string.cancel, null)
         		.create();
+		}
 		case DIALOG_RETRIEVAL_PROGRESS:
 			if ( (mConnectProgressIndicator == -1) || !mProgressDialogAllowed ) {
 				return null;
@@ -564,6 +486,11 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 				}
 			});
 			return progressDialog;
+		case DIALOG_ATTACH_BAM_PROGRESS:
+			progressDialog = new FixedProgressDialog(this);
+			progressDialog.setIndeterminate(true);
+			progressDialog.setCancelable(true);
+			return progressDialog;
 		case DIALOG_HOST_INFO:
 			return new AlertDialog.Builder(this)
 				.setIcon(android.R.drawable.ic_dialog_info)
@@ -578,28 +505,17 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 					}
 				})
 				.create();
-		case DIALOG_CLIENT_ERROR:
-			return new AlertDialog.Builder(this)
-				.setIcon(android.R.drawable.ic_dialog_alert)
-				.setTitle(R.string.clientError)
-				.setView(LayoutInflater.from(this).inflate(R.layout.dialog, null))
-				.setNegativeButton(R.string.ok, null)
-				.setOnCancelListener(new OnCancelListener() {
-					@Override
-					public void onCancel(DialogInterface dialog) {
-						// We don't need data anymore - allow them to be garbage collected
-						mClientErrorMessages = null;
-					}
-				})
-				.create();
 		}
 		return null;
 	}
 
 	@Override
-	protected void onPrepareDialog(int id, Dialog dialog) {
-		switch (id) {
-		case DIALOG_RETRIEVAL_PROGRESS:
+	protected void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
+		if (StandardDialogs.onPrepareDialog(this, dialogId, dialog, args))
+			return;
+		
+		switch (dialogId) {
+		case DIALOG_RETRIEVAL_PROGRESS: {
 			ProgressDialog pd = (ProgressDialog)dialog;
 			switch (mConnectProgressIndicator) {
 			case PROGRESS_CONNECTING:
@@ -615,24 +531,16 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 				if (Logging.ERROR) Log.e(TAG, "Unhandled progress indicator: " + mConnectProgressIndicator);
 			}
 			break;
-		case DIALOG_HOST_INFO: {
+		}
+		case DIALOG_ATTACH_BAM_PROGRESS: {
+			ProgressDialog pd = (ProgressDialog)dialog;
+			pd.setMessage(getString(R.string.synchronizingBAM));
+			break;
+		}
+		case DIALOG_HOST_INFO:
 			TextView text = (TextView)dialog.findViewById(R.id.dialogText);
 			text.setText(Html.fromHtml(mHostInfo.htmlText));
 			break;
-		}
-		case DIALOG_CLIENT_ERROR: {
-			TextView text = (TextView)dialog.findViewById(R.id.dialogText);
-			StringBuilder sB = new StringBuilder();
-			sB.append(getString(R.string.clientErrorNum));
-			sB.append(mClientErrorNum);
-			sB.append("\n");
-			for (String msg: mClientErrorMessages) {
-				sB.append(msg);
-				sB.append("\n");
-			}
-			text.setText(sB.toString());
-			break;
-		}
 		}
 	}
 
@@ -669,70 +577,9 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (Logging.DEBUG) Log.d(TAG, "onActivityResult()");
-		switch (requestCode) {
-		case ACTIVITY_SELECT_HOST:
-			if (resultCode == RESULT_OK) {
-				// Finished successfully - selected the host to which we should connect
-				mSelectedClient = data.getParcelableExtra(ClientId.TAG);
-			} 
-			break;
-		case ACTIVITY_EDIT_BAM_INFO:
-			if (resultCode == RESULT_OK) {
-				BAMAccount bamAccount = data.getParcelableExtra(BAMAccount.TAG);
-				/* attach to BAM manager */
-				boincAttachToBAM(bamAccount.getName(), bamAccount.getUrl(),
-						bamAccount.getPassword());
-			}
-			break;
-		case ACTIVITY_SELECT_PROJECT:
-			if (resultCode == RESULT_OK) {
-				ProjectItem project = data.getParcelableExtra(ProjectItem.TAG);
-				/* contact with project */
-				mProjectUrl = project.getUrl();
-				boincProjectConfig(project.getUrl());
-			}
-			break;
-		case ACTIVITY_ADD_PROJECT:
-			if (resultCode == RESULT_OK) {
-				AddProjectResult result = data.getParcelableExtra(AddProjectResult.TAG);
-				// adding project
-				if (result.isCreateAccount()) {
-					boincCreateAccount(result.getName(), result.getEmail(), result.getPassword());
-				} else {	// lookup account
-					boincLookupAccount(result.getEmail(), result.getPassword());
-				}
-			}
-		default:
-			break;
-		}
-	}
-	
-	private void cancelOnError() {
-		if (mProgressDialog != null) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-		setProgressBarIndeterminateVisibility(false);
-		mShutdownByProjectAttach = false;
-		
-		if (!mRunner.isRun())
-			mRunner.startClient(false);
-	}
-
-	private void showErrorDialog(String message) {
-		new AlertDialog.Builder(this).setTitle(getString(R.string.error))
-			.setMessage(message)
-			.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					cancelOnError();
-				}
-			}).setOnCancelListener(new DialogInterface.OnCancelListener() {
-				@Override
-				public void onCancel(DialogInterface dialog) {
-					cancelOnError();
-				}
-			}).create().show();
+		if (requestCode == ACTIVITY_SELECT_HOST && resultCode == RESULT_OK) 
+			// Finished successfully - selected the host to which we should connect
+			mSelectedClient = data.getParcelableExtra(ClientId.TAG);
 	}
 
 	@Override
@@ -745,7 +592,6 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 			if (clientId != null) {
 				mConnectedClient = mConnectionManager.getClientId();
 				refreshClientName();
-				refreshAccessPasswordOption();
 			}
 			setProgressBarIndeterminateVisibility(true);
 			// No break here, we drop to next case (dialog update)
@@ -771,7 +617,6 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		setProgressBarIndeterminateVisibility(false);
 		mConnectedClient = mConnectionManager.getClientId();
 		refreshClientName();
-		refreshAccessPasswordOption();
 		if (mConnectedClient != null) {
 			// Connected client is retrieved
 			if (Logging.DEBUG) Log.d(TAG, "Client " + mConnectedClient.getNickname() + " is connected");
@@ -797,11 +642,12 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 				mConnectedClient.getNickname() : "<not connected>" ) + " is disconnected");
 		mConnectedClient = null;
 		refreshClientName();
-		refreshAccessPasswordOption();
 		mClientMode = null;
 		refreshClientMode();
 		setProgressBarIndeterminateVisibility(false);
-		dismissProgressDialog();
+		dismissProgressDialogs();
+		mDoGetBAMInfo = false;
+		mSyncingBAMInProgress = false;
 		if (mSelectedClient != null) {
 			// Connection to another client is deferred, we proceed with it now
 			boincConnect();
@@ -809,11 +655,37 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	}
 	
 	@Override
+	public boolean onAfterAccountMgrRPC() {
+		dismissProgressDialogs();
+		mSyncingBAMInProgress = false;
+		return true;
+	}
+
+	@Override
+	public boolean onPollError(int errorNum, int operation, String errorMessage, String param) {
+		setProgressBarIndeterminateVisibility(false);
+		dismissProgressDialogs();
+		mDoGetBAMInfo = false;
+		mSyncingBAMInProgress = false;
+		StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
+		return true;
+	}
+
+	@Override
+	public boolean clientError(int errorNum, String message) {
+		setProgressBarIndeterminateVisibility(false);
+		dismissProgressDialogs();
+		mDoGetBAMInfo = false;
+		mSyncingBAMInProgress = false;
+		StandardDialogs.showClientErrorDialog(this, errorNum, message);
+		return true;
+	}
+	
+	@Override
 	public boolean updatedClientMode(ModeInfo modeInfo) {
 		if (Logging.DEBUG) Log.d(TAG, "Client run/network mode info updated, refreshing view");
 		mClientMode = modeInfo;
 		refreshClientMode();
-		dismissProgressDialog();
 		return mPeriodicModeRetrievalAllowed;
 	}
 
@@ -821,7 +693,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	public boolean updatedHostInfo(HostInfo hostInfo) {
 		if (Logging.DEBUG) Log.d(TAG, "Host info received, displaying");
 		mHostInfo = hostInfo;
-		dismissProgressDialog();
+		dismissProgressDialogs();
 		if (mHostInfo != null) {
 			showDialog(DIALOG_HOST_INFO);
 		}
@@ -829,69 +701,23 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	}
 	
 	@Override
-	public boolean currentBAMInfo(AccountMgrInfo accountMgrInfo) {
+	public boolean currentBAMInfo(AccountMgrInfo bamInfo) {
 		if (Logging.DEBUG) Log.d(TAG, "BAM info received, using");
-		mBAMInfo = accountMgrInfo;
-		if (mBAMInfo.acct_mgr_url.length() == 0) {
+		mDoGetBAMInfo = false;
+		if (bamInfo.acct_mgr_url.length() == 0) {
 			// view dialog
-			startActivityForResult(new Intent(this, EditBAMActivity.class), ACTIVITY_EDIT_BAM_INFO);
-		} else if (!mBAMInfo.have_credentials) {
+			startActivity(new Intent(this, EditBAMActivity.class));
+		} else if (!bamInfo.have_credentials) {
 			// view dialog with data
 			Intent intent = new Intent(this, EditBAMActivity.class);
-			intent.putExtra(BAMAccount.TAG, new BAMAccount(mBAMInfo.acct_mgr_name, "", ""));
-			startActivityForResult(intent, ACTIVITY_EDIT_BAM_INFO);
+			intent.putExtra(BAMAccount.TAG, new BAMAccount(bamInfo.acct_mgr_name, "", ""));
+			startActivity(intent);
 		} else {
-			boincSynchronizeWithBAM();
+			mSyncingBAMInProgress = true;
+			showDialog(DIALOG_ATTACH_BAM_PROGRESS);
+			mConnectionManager.synchronizeWithBAM();
 		}
-		return false;
-	}
-	
-	@Override
-	public boolean currentAllProjectsList(ArrayList<ProjectListEntry> allProjects) {
-		ProjectItem[] projectItems = new ProjectItem[allProjects.size()];
-		for (int i = 0; i < allProjects.size(); i++) {
-			ProjectListEntry entry = allProjects.get(i);
-			projectItems[i] = new ProjectItem(entry.name, entry.url);
-		}
-		
-		Arrays.sort(projectItems, new Comparator<ProjectItem>() {
-			@Override
-			public int compare(ProjectItem item1 , ProjectItem item2) {
-				return item1.getName().compareTo(item2.getName());
-			}
-		});
-		
-		Intent intent = new Intent(this, ProjectListActivity.class);
-		intent.putExtra(ProjectItem.TAG, projectItems);
-		intent.putExtra(ProjectListActivity.TAG_OTHER_PROJECT_OPTION, true);
-		startActivityForResult(intent, ACTIVITY_SELECT_PROJECT);
-		return false;
-	}
-	
-	@Override
-	public boolean currentAuthCode(String projectUrl, String authCode) {
-		boincProjectAttach(mProjectUrl, authCode, "");
-		return false;
-	}
-	
-	@Override
-	public boolean currentProjectConfig(ProjectConfig projectConfig) {
-		// start AddProject dialog
-		Intent intent = new Intent(this, AddProjectActivity.class);
-		//intent.putExtra(ProjectConfigOptions.TAG, new ProjectConfigOptions(projectConfig));
-		startActivityForResult(intent, ACTIVITY_ADD_PROJECT);
-		return false;
-	}
-	
-	@Override
-	public boolean onAfterProjectAttach(String projectUrl) {
-		if (isNativeConnected()) {
-			mShutdownByProjectAttach = true;
-			mInstaller.synchronizeInstalledProjects();
-			if (mShutdownByProjectAttach)
-				mRunner.shutdownClient();
-		}
-		return false;
+		return true;
 	}
 	
 	@Override
@@ -899,27 +725,10 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		// Never requested, nothing to do
 		return false;
 	}
-
+	
 	@Override
 	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
-		if (mDoUpdateActivity) {
-			// run update activity
-			Intent intent = new Intent(this, UpdateActivity.class);
-			
-			int length = projects.size();
-			/* prepare project urls list */
-			String[] projectUrls = new String[length];
-			for (int i = 0; i < length; i++)
-				projectUrls[i] = projects.get(i).masterUrl;
-			
-			mRunner.removeNativeBoincListener(this);
-			mInstaller.removeInstallerListener(this);
-			doUnbindInstallerService();
-			doUnbindRunnerService();
-			intent.putExtra(UpdateActivity.ATTACHED_PROJECT_URLS_TAG, projectUrls);
-			startActivity(intent);
-			mDoUpdateActivity = false;
-		}
+		// Never requested, nothing to do
 		return false;
 	}
 
@@ -934,131 +743,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		// Never requested, nothing to do
 		return false;
 	}
-	
-	/*
-	 * InstallerListener methods
-	 */
-	@Override
-	public void onOperation(String distribName, String opDescription) {
-		setProgressBarIndeterminateVisibility(true);
-		Toast.makeText(this, opDescription, Toast.LENGTH_SHORT).show();
-	}
-	
-	@Override
-	public void onOperationProgress(String distribName, String opDescription, int progress) {
-		if (mProgressDialog == null) {
-			mProgressDialog = new ProgressDialog(this);
-			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		    mProgressDialog.setMessage(opDescription);
-		    mProgressDialog.setMax(10000);
-		    mProgressDialog.setProgress(0);
-		    mProgressDialog.setCancelable(true);
-		    mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-				@Override
-				public void onCancel(DialogInterface dialog) {
-					mInstaller.cancelAll();
-					finish();
-				}
-			});
-		    mProgressDialog.show();
-		}
-		setProgressBarIndeterminateVisibility(true);
-		mProgressDialog.setProgress(progress);
-		if (progress == 10000) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-	}
-	
-	@Override
-	public void onOperationError(String distribName, String errorMessage) {
-		showErrorDialog(errorMessage);
-	}
-	
-	@Override
-	public void onOperationCancel(String distribName) {
-		Toast.makeText(this, R.string.operationCancelled, Toast.LENGTH_LONG).show();
-		if (mProgressDialog != null) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-		setProgressBarIndeterminateVisibility(false);
-	}
-	
-	@Override
-	public void onOperationFinish(String distribName) {
-		if (mProgressDialog != null) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-		setProgressBarIndeterminateVisibility(false);
 		
-		if (mShutdownByProjectAttach) {
-			mRunner.startClient(false); // restart native client
-		}
-	}
-
-	@Override
-	public void currentProjectDistribList(ArrayList<ProjectDistrib> projectDistribs) {
-		ProjectItem[] projectItems = new ProjectItem[projectDistribs.size()];
-		
-		/* prepare list */
-		for (int i = 0; i < projectDistribs.size(); i++) {
-			ProjectDistrib distrib = projectDistribs.get(i);
-			projectItems[i] = new ProjectItem(distrib.projectName, distrib.projectUrl,
-					distrib.version);
-		}
-		
-		Intent intent = new Intent(this, ProjectListActivity.class);
-		intent.putExtra(ProjectItem.TAG, projectItems);
-		intent.putExtra(ProjectListActivity.TAG_OTHER_PROJECT_OPTION, false);
-		startActivityForResult(intent, ACTIVITY_SELECT_PROJECT);
-	}
-	
-	@Override
-	public void currentClientDistrib(ClientDistrib clientDistrib) {
-		// do nothing
-	}
-	
-	/* native boinc listener */
-	public void onClientStateChanged(boolean isRun) {
-		if (isRun) {
-			if(mShutdownByProjectAttach) {
-				/* reconnect with native client */
-				mShutdownByProjectAttach = false;
-				HostListDbAdapter dbHelper = new HostListDbAdapter(this);
-				dbHelper.open();
-				mSelectedClient = dbHelper.fetchHost("nativeboinc");
-				dbHelper.close();
-				if (mSelectedClient != null)
-					boincConnect();
-			}
-		} else {
-			if (Logging.DEBUG) Log.d(TAG, "onclientStateChanged() - shutdownByProjectAttach:" +
-					mShutdownByProjectAttach);
-			if (mShutdownByProjectAttach) {
-				/* get updated projects for installation */
-				mInstaller.installProjectApplicationsAutomatically(null, mProjectUrl);
-			}
-		}
-	}
-	
-	public void onClientFirstStart() {
-		// do nothing
-	}
-	
-	public void onAfterClientFirstKill() {
-		// do nothing
-	}
-	
-	public void onNativeBoincError(String message) {
-		showErrorDialog(message);
-	}
-	
-	public void onClientConfigured() {
-		// do nothing
-	}
-
 	private void refreshClientName() {
 		Preference pref = findPreference("selectedHost");
 		if (mConnectedClient != null) {
@@ -1072,11 +757,6 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		}
 	}
 	
-	private void refreshAccessPasswordOption() {
-		Preference pref = findPreference("changeAccessPassword");
-		pref.setEnabled(isNativeConnected());
-	}
-
 	private void refreshClientMode() {
 		if ( (mConnectedClient != null) && (mClientMode != null) ) {
 			// 1. The run-mode of currently connected client
@@ -1156,11 +836,13 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		}
 	}
 
-	private void dismissProgressDialog() {
+	private void dismissProgressDialogs() {
 		if (mConnectProgressIndicator != -1) {
 			dismissDialog(DIALOG_RETRIEVAL_PROGRESS);
 			mConnectProgressIndicator = -1;
 		}
+		if (mSyncingBAMInProgress)
+			dismissDialog(DIALOG_ATTACH_BAM_PROGRESS);
 	}
 
 	private void boincConnect() {
@@ -1205,66 +887,12 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		}
 	}
 	
-	private boolean isNativeConnected() {
-		if (mConnectedClient == null)
-			return false;
-		String clientAddress = mConnectedClient.getAddress();
-		return clientAddress.equals("127.0.0.1") || clientAddress.equals("localhost");
-	}
-	
 	/* used by synchronizeWithBAM */
-	private void boincGetBAMInfo() {
-		mConnectionManager.getBAMInfo(this);
-	}
-	
-	private void boincAttachToBAM(String name, String url, String password) {
-		mConnectionManager.attachToBAM(this, name, url, password);
-		Toast.makeText(this, getString(R.string.clientSyncBAMNotify), Toast.LENGTH_LONG).show();
-	}
-	
-	private void boincSynchronizeWithBAM() {
-		mConnectionManager.synchronizeWithBAM(this);
-		Toast.makeText(this, getString(R.string.clientSyncBAMNotify), Toast.LENGTH_LONG).show();
-	}
-	
 	private void boincStopUsingBAM() {
-		mConnectionManager.stopUsingBAM(this);
+		mConnectionManager.stopUsingBAM();
 		Toast.makeText(this, getString(R.string.clientStopBAMNotify), Toast.LENGTH_LONG).show();
 	}
 	
-	private void boincGetAllProjectsList() {
-		mConnectionManager.getAllProjectsList(this);
-	}
-	
-	private void boincProjectConfig(String url) {
-		mConnectionManager.getProjectConfig(url);
-		Toast.makeText(this, getString(R.string.clientProjectConfig), Toast.LENGTH_LONG).show();
-	}
-
-	private void boincCreateAccount(String name, String email, String password) {
-		AccountIn accountIn = new AccountIn();
-		accountIn.url = mProjectUrl;
-		accountIn.user_name = name;
-		accountIn.email_addr = email;
-		accountIn.passwd = password;
-		mConnectionManager.createAccount(accountIn);
-		Toast.makeText(this, getString(R.string.clientCreatingAccount), Toast.LENGTH_LONG).show();
-	}
-	
-	private void boincLookupAccount(String email, String password) {
-		AccountIn accountIn = new AccountIn();
-		accountIn.url = mProjectUrl;
-		accountIn.email_addr = email;
-		accountIn.passwd = password;
-		mConnectionManager.lookupAccount(accountIn);
-		Toast.makeText(this, getString(R.string.clientLookingUpAccount), Toast.LENGTH_LONG).show();
-	}
-	
-	private void boincProjectAttach(String url, String authCode, String projectName) {
-		mConnectionManager.projectAttach(url, authCode, projectName);
-		Toast.makeText(this, getString(R.string.clientAttachingToProject), Toast.LENGTH_LONG).show();
-	}
-
 	private void boincChangeRunMode(int mode) {
 		mConnectionManager.setRunMode(this, mode);
 	}
@@ -1289,20 +917,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	}
 
 	@Override
-	public boolean onAfterAccountMgrRPC() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean onPollError(int errorNum, int operation, String errorMessage, String param) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void clientError(int err_num, String message) {
-		// TODO Auto-generated method stub
-		
+	public void onClientIsWorking(boolean isWorking) {
+		setProgressBarIndeterminateVisibility(isWorking);
 	}
 }

@@ -99,7 +99,7 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 	}
 	
 	@Override
-	public void onNativeBoincError(String message) {
+	public void onNativeBoincClientError(String message) {
 		// nothing
 	}
 
@@ -148,17 +148,22 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 		default: // do nothinh		
 		}
 	}
+	
+	
 
 	@Override
-	public void onClientStateChanged(boolean isRun) {
-		if (isRun) {
-			// register listener
-			if (!mRegisteredAsMonitorListener) {
-				if (Logging.DEBUG) Log.i(TAG, "Registering monitor listener");
-				mNativeBoincService.addMonitorListener(this);
-				mRegisteredAsMonitorListener = true;
-			}
+	public void onClientStart() {
+		// register listener
+		if (!mRegisteredAsMonitorListener) {
+			if (Logging.DEBUG) Log.i(TAG, "Registering monitor listener");
+			mNativeBoincService.addMonitorListener(this);
+			mRegisteredAsMonitorListener = true;
 		}
+	}
+	
+	@Override
+	public void onClientStop(int exitCode, boolean stoppedByManager) {
+		// do nothing
 	}
 
 	@Override
@@ -167,5 +172,11 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 		if (key.equals(PreferenceName.POWER_SAVING)) {
 			updatePowerSaving(sharedPreferences.getBoolean(PreferenceName.POWER_SAVING, false)); 
 		}
+	}
+
+	@Override
+	public void onChangeRunnerIsWorking(boolean isWorking) {
+		// TODO Auto-generated method stub
+		
 	}
 }

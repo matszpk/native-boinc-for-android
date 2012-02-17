@@ -30,12 +30,11 @@ import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -59,7 +58,7 @@ public class HostListActivity extends ListActivity {
 		public HostListAdapter(Context context, Cursor c) {
 			super(context, c);
 		}
-
+		
 		@Override
 		public void bindView(View view, Context context, Cursor cursor) {
 			TextView text1 = (TextView)view.findViewById(android.R.id.text1);
@@ -84,6 +83,23 @@ public class HostListActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 		mScreenOrientation = new ScreenOrientationHandler(this);
 		setContentView(R.layout.host_list);
+		
+		Button backButton = (Button)findViewById(R.id.back);
+		backButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				finish();
+			}
+		});
+		
+		Button addNewHostButton = (Button)findViewById(R.id.newAddHost);
+		addNewHostButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				addHost();
+			}
+		});
+		
 		registerForContextMenu(getListView());
 		mDbHelper = new HostListDbAdapter(this);
 		mDbHelper.open();
@@ -107,24 +123,6 @@ public class HostListActivity extends ListActivity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.host_list_menu, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()) {
-		case R.id.menuAddHost:
-			addHost();
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		
@@ -132,7 +130,7 @@ public class HostListActivity extends ListActivity {
 		Cursor c = mHostCursor;
 		c.moveToPosition(position);
 		ClientId clientId = new ClientId(c);
-		if (clientId.getAddress().equals("localhost") || clientId.getAddress().equals("127.0.0.1"))
+		if (clientId.isNativeClient())
 			return; // if nativeboinc
 		
 		menu.setHeaderTitle(R.string.hostOperation);

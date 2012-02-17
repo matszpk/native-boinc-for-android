@@ -68,11 +68,11 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 	private ArrayList<MessageInfo> mMessages = new ArrayList<MessageInfo>();
 
 
-	private class SavedState {
+	private static class SavedState {
 		private final ArrayList<MessageInfo> messages;
 
-		public SavedState() {
-			messages = mMessages;
+		public SavedState(MessagesActivity activity) {
+			messages = activity.mMessages;
 			if (Logging.DEBUG) Log.d(TAG, "saved: messages.size()=" + messages.size());
 		}
 		public void restoreState(MessagesActivity activity) {
@@ -240,8 +240,7 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		final SavedState savedState = new SavedState();
-		return savedState;
+		return new SavedState(this);
 	}
 
 	@Override
@@ -252,33 +251,6 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 		}
 		return super.onKeyDown(keyCode, event);
 	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.refresh_menu, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		super.onPrepareOptionsMenu(menu);
-		MenuItem item = menu.findItem(R.id.menuRefresh);
-		item.setVisible(mConnectedClient != null);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menuRefresh:
-			mConnectionManager.updateMessages(this);
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
 
 	@Override
 	public void clientConnectionProgress(int progress) {
@@ -304,6 +276,12 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 		mMessages.clear();
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
+	}
+	
+	@Override
+	public boolean clientError(int err_num, String message) {
+		// do not consume
+		return false;
 	}
 
 	@Override
@@ -370,9 +348,8 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 	}
 
 	@Override
-	public void clientError(int err_num, String message) {
+	public void onClientIsWorking(boolean isWorking) {
 		// TODO Auto-generated method stub
 		
 	}
-
 }

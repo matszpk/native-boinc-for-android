@@ -21,7 +21,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE    := chmod
-LOCAL_SRC_FILES := chmod.c
+LOCAL_MODULE    := nativeboinc_utils
+LOCAL_SRC_FILES := chmod.c putils.c
 
 include $(BUILD_SHARED_LIBRARY)

@@ -133,4 +133,8 @@ public class ClientId implements Parcelable {
 		mPort = port;
 		mPassword = password;
 	}
+	
+	public boolean isNativeClient() {
+		return mAddress.equals("127.0.0.1") || mAddress.equals("localhost");
+	}
 }

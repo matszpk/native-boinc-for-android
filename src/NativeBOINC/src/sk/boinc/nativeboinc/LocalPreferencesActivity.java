@@ -405,7 +405,13 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	}
 
 	@Override
-	public void clientError(int err_num, String message) {
+	public boolean clientError(int err_num, String message) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public void onClientIsWorking(boolean isWorking) {
 		// TODO Auto-generated method stub
 		
 	}

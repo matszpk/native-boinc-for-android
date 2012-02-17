@@ -24,6 +24,7 @@ import java.util.Date;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincReplyListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -47,7 +48,7 @@ import android.widget.TextView;
  * @author mat
  *
  */
-public class ScreenLockActivity extends Activity implements NativeBoincReplyListener {
+public class ScreenLockActivity extends Activity implements NativeBoincReplyListener, NativeBoincStateListener {
 	private static final String TAG = "ScreenLockActivity";
 	
 	private int mUpdatePeriod;
@@ -204,7 +205,7 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 	}
 
 	@Override
-	public void onNativeBoincError(String message) {
+	public void onNativeBoincClientError(String message) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -229,5 +230,27 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 				mIfProgressUpdated = true;
 			}
 		});
+	}
+
+	@Override
+	public void onNativeBoincServiceError(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onChangeRunnerIsWorking(boolean isWorking) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onClientStart() {
+	}
+
+	@Override
+	public void onClientStop(int exitCode, boolean stoppedByManager) {
+		// TODO Auto-generated method stub
+		
 	}
 }

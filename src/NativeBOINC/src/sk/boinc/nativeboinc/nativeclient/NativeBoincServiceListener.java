@@ -17,12 +17,12 @@
  * 
  */
 
-package sk.boinc.nativeboinc.installer;
+package sk.boinc.nativeboinc.nativeclient;
 
 /**
  * @author mat
  *
  */
-public interface CancelObserver {
-	public abstract boolean isCancelled();
+public interface NativeBoincServiceListener extends AbstractNativeBoincListener {
+	public abstract void onNativeBoincServiceError(String message);
 }

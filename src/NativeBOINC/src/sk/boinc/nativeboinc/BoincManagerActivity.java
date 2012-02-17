@@ -23,6 +23,7 @@ import hal.android.workarounds.FixedProgressDialog;
 
 import java.util.ArrayList;
 
+import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;
@@ -41,6 +42,7 @@ import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.HostListDbAdapter;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.ScreenOrientationHandler;
+import sk.boinc.nativeboinc.util.StandardDialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -53,7 +55,6 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -78,9 +79,6 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 	private static final String TAG = "BoincManagerActivity";
 
 	private static final int DIALOG_CONNECT_PROGRESS = 1;
-	private static final int DIALOG_NETWORK_DOWN     = 2;
-	private static final int DIALOG_ABOUT            = 3;
-	private static final int DIALOG_LICENSE          = 4;
 	private static final int DIALOG_UPGRADE_INFO        = 5;
 
 	private static final int ACTIVITY_SELECT_HOST   = 1;
@@ -107,16 +105,21 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 	private boolean mInitialDataAvailable = false;
 
 	private boolean mClientStartFromMenu = false;
-	private boolean mClientShutdownFromMenu = false;
 	
-	private class SavedState {
+	private boolean mIsInstallerRan = false;
+	
+	private static class SavedState {
+		private final boolean isInstallerRan;
 		private final boolean initialDataAvailable;
 		private final int connectProgressIndicator;
+		private final boolean clientStartFromMenu;
 
-		public SavedState() {
-			initialDataAvailable = mInitialDataAvailable;
+		public SavedState(BoincManagerActivity activity) {
+			isInstallerRan = activity.mIsInstallerRan;
+			initialDataAvailable = activity.mInitialDataAvailable;
+			clientStartFromMenu = activity.mClientStartFromMenu;
 			if (Logging.DEBUG) Log.d(TAG, "saved: initialDataAvailable=" + initialDataAvailable);
-			connectProgressIndicator = mConnectProgressIndicator;
+			connectProgressIndicator = activity.mConnectProgressIndicator;
 			if (Logging.DEBUG) Log.d(TAG, "saved: connectProgressIndicator=" + connectProgressIndicator);
 		}
 		public void restoreState(BoincManagerActivity activity) {
@@ -125,6 +128,8 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			activity.mConnectProgressIndicator = connectProgressIndicator;
 			if (Logging.DEBUG) Log.d(TAG, "restored: mConnectProgressIndicator=" +
 					activity.mConnectProgressIndicator);
+			activity.mIsInstallerRan = isInstallerRan;
+			activity.mClientStartFromMenu = clientStartFromMenu;
 		}
 	}
 
@@ -152,6 +157,8 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 					connectOrReconnect();
 				}
 			}
+			/* display error if pending */
+			updateActivityState();
 		}
 
 		@Override
@@ -163,39 +170,30 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			// We also reset client reference to prevent mess
 			mConnectedClient = null;
 			mSelectedClient = null;
+			setProgressBarIndeterminateVisibility(false);
 		}
 	};
 	
-	private InstallerService mInstaller = null;
-	
-	private ServiceConnection mInstallerServiceConnection = new ServiceConnection() {
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			mInstaller = ((InstallerService.LocalBinder)service).getService();
-			if (Logging.DEBUG) Log.d(TAG, "installer.onServiceConnected()");
-			
-			HostListDbAdapter dbHelper = new HostListDbAdapter(BoincManagerActivity.this);
-			dbHelper.open();
-			// check nativeboinc entry
-			ClientId clientId = dbHelper.fetchHost("nativeboinc");
-			dbHelper.close();
-			
+	private void checkToRunInstaller() {
+		HostListDbAdapter dbHelper = new HostListDbAdapter(BoincManagerActivity.this);
+		dbHelper.open();
+		// check nativeboinc entry
+		ClientId clientId = dbHelper.fetchHost("nativeboinc");
+		dbHelper.close();
+		
+		if (!mIsInstallerRan) {
 			if (mApp.isInstallerRun()) {
 				// open again installer activity
+				mIsInstallerRan = true;
 				mApp.runInstallerActivity(BoincManagerActivity.this);
-			} else if ((!mInstaller.isClientInstalled() || clientId == null)) {
+			} else if ((!InstallerService.isClientInstalled(this) || clientId == null)) {
 				// run installation wizard
+				mIsInstallerRan = true;
 				startActivity(new Intent(BoincManagerActivity.this,
 						InstallStep1Activity.class));
 			}
 		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			mInstaller = null;
-			if (Logging.DEBUG) Log.d(TAG, "installer.onServiceDisconnected()");
-		}
-	};
+	}
 	
 	private NativeBoincService mRunner = null;
 	
@@ -205,6 +203,8 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			mRunner = ((NativeBoincService.LocalBinder)service).getService();
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceConnected()");
 			mRunner.addNativeBoincListener(BoincManagerActivity.this);
+			
+			updateActivityState();
 		}
 		
 		@Override
@@ -219,12 +219,6 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 				mServiceConnection, Context.BIND_AUTO_CREATE);
 	}
 	
-	private void doBindInstallerService() {
-		if (Logging.DEBUG) Log.d(TAG, "doBindInstallerService()");
-		bindService(new Intent(BoincManagerActivity.this, InstallerService.class),
-				mInstallerServiceConnection, Context.BIND_AUTO_CREATE);
-	}
-
 	private void doBindRunnerService() {
 		bindService(new Intent(BoincManagerActivity.this, NativeBoincService.class),
 				mRunnerServiceConnection, Context.BIND_AUTO_CREATE);
@@ -236,17 +230,14 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		mConnectionManager = null;
 	}
 	
-	private void doUnbindInstallerService() {
-		if (Logging.DEBUG) Log.d(TAG, "doUnbindInstallerService()");
-		unbindService(mInstallerServiceConnection);
-		mInstaller = null;
-	}
-	
 	private void doUnbindRunnerService() {
+		if (Logging.DEBUG) Log.d(TAG, "doUnbindRunnerService()");
+		if (mRunner != null)
+			mRunner.removeNativeBoincListener(this);
 		unbindService(mRunnerServiceConnection);
 		mRunner = null;
 	}
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -262,8 +253,14 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
 		mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, BoincManagerApplication.GLOBAL_ID);
 
+		final SavedState savedState = (SavedState)getLastNonConfigurationInstance();
+		// Restore state on configuration change (if applicable)
+		if (savedState != null) {
+			// Yes, we have the saved state, this is activity re-creation after configuration change
+			savedState.restoreState(this);
+		}
+		
 		doBindService();
-		doBindInstallerService();
 		doBindRunnerService();
 
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -303,13 +300,71 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		int lastActiveTab = globalPrefs.getInt(PreferenceName.LAST_ACTIVE_TAB, 1);
 		tabHost.setCurrentTab(lastActiveTab);
 
-		// Restore state on configuration change (if applicable)
-		final SavedState savedState = (SavedState)getLastNonConfigurationInstance();
-		if (savedState != null) {
-			// Yes, we have the saved state, this is activity re-creation after configuration change
-			savedState.restoreState(this);
-		}
-		else {
+		/*
+		 * adds on click listeners. clicking on tab causes refreshing content
+		 */
+		getTabWidget().getChildAt(0).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.d(TAG, "Click tab: 0");
+				TabHost tabHost = getTabHost();
+				if (tabHost.getCurrentTab() == 0) {
+					if (Logging.DEBUG) Log.d(TAG, "Update projects");
+					if (mConnectedClient != null)
+						mConnectionManager.updateProjects((ClientReplyReceiver)getCurrentActivity());
+				} else
+					getTabHost().setCurrentTab(0);
+			}
+		});
+		getTabWidget().getChildAt(1).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.d(TAG, "Click tab: 1");
+				TabHost tabHost = getTabHost();
+				if (tabHost.getCurrentTab() == 1) {
+					if (Logging.DEBUG) Log.d(TAG, "Update tasks");
+					if (mConnectedClient != null)
+						mConnectionManager.updateTasks((ClientReplyReceiver)getCurrentActivity());
+				} else
+					getTabHost().setCurrentTab(1);
+			}
+		});
+		getTabWidget().getChildAt(2).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.d(TAG, "Click tab: 2");
+				TabHost tabHost = getTabHost();
+				if (tabHost.getCurrentTab() == 2) {
+					if (Logging.DEBUG) Log.d(TAG, "Update transfers");
+					if (mConnectedClient != null)
+						mConnectionManager.updateTransfers((ClientReplyReceiver)getCurrentActivity());
+				} else
+					getTabHost().setCurrentTab(2);
+			}
+		});
+		getTabWidget().getChildAt(3).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.d(TAG, "Click tab: 3");
+				TabHost tabHost = getTabHost();
+				if (tabHost.getCurrentTab() == 3) {
+					if (Logging.DEBUG) Log.d(TAG, "Update messages");
+					if (mConnectedClient != null)
+						mConnectionManager.updateMessages((ClientReplyReceiver)getCurrentActivity());
+				} else
+					getTabHost().setCurrentTab(3);
+			}
+		});
+		
+		getTabHost().setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+			
+			@Override
+			public void onTabChanged(String tabId) {
+				Log.d(TAG, "Change tab: "+ tabId);
+			}
+		});
+		
+		if (savedState == null) {
 			// Just normal start
 			String autoConnectHost = globalPrefs.getString(PreferenceName.AUTO_CONNECT_HOST, null);
 			if (((autoConnectHost != null) && globalPrefs.getBoolean(PreferenceName.AUTO_CONNECT, false)) ||
@@ -329,8 +384,36 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 					Log.i("ClientSelection", "Nothing selected");
 			}
 		}
+		
+		/* check whether installer should be run (if should be, then run) */
+		checkToRunInstaller();
 	}
 
+	private void updateActivityState() {
+		// display/hide progress
+		boolean connectionManagerIsWorking = mConnectionManager != null &&
+				mConnectionManager.isWorking();
+		boolean runnerIsWorking = mRunner != null &&
+				mRunner.serviceIsWorking();
+		
+		
+		if (connectionManagerIsWorking || runnerIsWorking)
+			setProgressBarIndeterminateVisibility(true);
+		else
+			setProgressBarIndeterminateVisibility(false);
+		
+		/* display error if pending */
+		if (mRunner != null && mConnectionManager != null) {
+			ClientError clientError = mConnectionManager.getPendingClientError();
+			if (clientError != null) {
+				if (!mConnectionManager.isNativeConnected() || !mRunner.ifStoppedByManager())
+					StandardDialogs.showClientErrorDialog(this, clientError.errorNum,
+							clientError.message);
+				return;
+			}
+		}
+	}
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -356,13 +439,13 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		// Update name of connected client (or show "not connected")
 		updateTitle();
 		// Show Information about upgrade, if applicable
-		if (mJustUpgraded) {
+		/*if (mJustUpgraded) {
 			mJustUpgraded = false; // Do not show again
 			mProgressDialogAllowed = false;
 			// Now show the dialog about upgrade
 			showDialog(DIALOG_UPGRADE_INFO);
 		}
-		else {
+		else*/ {
 			// Progress dialog is allowed since now
 			mProgressDialogAllowed = true;
 		}
@@ -389,10 +472,6 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			showProgressDialog(PROGRESS_INITIAL_DATA);
 		}
 		
-		if (mInstaller == null) {
-			if (Logging.DEBUG) Log.d(TAG, "onResume() - installer not present");
-			doBindInstallerService();
-		}
 		if (mRunner == null) {
 			if (Logging.DEBUG) Log.d(TAG, "onResume() - runner not present");
 			doBindRunnerService();
@@ -400,6 +479,9 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			if (Logging.DEBUG) Log.d(TAG, "reregister runner listener");
 			mRunner.addNativeBoincListener(this);
 		}
+		
+		// update activity state
+		updateActivityState();
 	}
 
 	@Override
@@ -450,16 +532,11 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			mConnectionManager.unregisterStatusObserver(this);
 			mConnectedClient = null;
 		}
-		if (mInstaller != null) {
-			//mInstaller.removeInstallerListener(this);
-			mInstaller = null;
-		}
 		if (mRunner != null) {
 			mRunner.removeNativeBoincListener(this);
 			mRunner = null;
 		}
 		doUnbindService();
-		doUnbindInstallerService();
 		doUnbindRunnerService();
 		if (mWakeLock.isHeld()) {
 			// We locked the screen previously - release it, as we are closing now
@@ -472,8 +549,7 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		final SavedState savedState = new SavedState();
-		return savedState;
+		return new SavedState(this);
 	}
 
 	@Override
@@ -540,7 +616,6 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 	    		.setPositiveButton(R.string.shutdown,
 	    			new DialogInterface.OnClickListener() {
 	    				public void onClick(DialogInterface dialog, int whichButton) {
-	    					mClientShutdownFromMenu = true;
 	    					mRunner.shutdownClient();
 	    				}
 	    			})
@@ -568,16 +643,20 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 	}
 
 	@Override
-	protected Dialog onCreateDialog(int id) {
+	protected Dialog onCreateDialog(int dialogId, Bundle args) {
+		Dialog dialog = StandardDialogs.onCreateDialog(this, dialogId, args);
+		if (dialog != null)
+			return dialog;
+		
 		View v;
 		TextView text;
-		switch (id) {
+		switch (dialogId) {
 		case DIALOG_CONNECT_PROGRESS:
 			if (Logging.DEBUG) Log.d(TAG, "onCreateDialog(DIALOG_CONNECT_PROGRESS)");
-			ProgressDialog dialog = new FixedProgressDialog(this);
-            dialog.setIndeterminate(true);
-			dialog.setCancelable(true);
-			dialog.setOnCancelListener(new OnCancelListener() {
+			ProgressDialog progressDialog = new FixedProgressDialog(this);
+            progressDialog.setIndeterminate(true);
+			progressDialog.setCancelable(true);
+			progressDialog.setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dialog) {
 					// Connecting canceled
@@ -586,57 +665,7 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 					boincDisconnect();
 				}
 			});
-            return dialog;
-		case DIALOG_NETWORK_DOWN:
-			v = LayoutInflater.from(this).inflate(R.layout.dialog, null);
-			text = (TextView)v.findViewById(R.id.dialogText);
-			text.setText(R.string.networkUnavailable);
-        	return new AlertDialog.Builder(this)
-        		.setIcon(android.R.drawable.ic_dialog_alert)
-        		.setTitle(R.string.error)
-        		.setView(v)
-        		.setNegativeButton(R.string.close, null)
-        		.create();
-		case DIALOG_ABOUT:
-			v = LayoutInflater.from(this).inflate(R.layout.dialog, null);
-			text = (TextView)v.findViewById(R.id.dialogText);
-			mApp.setAboutText(text);
-			return new AlertDialog.Builder(this)
-				.setIcon(android.R.drawable.ic_dialog_info)
-				.setTitle(R.string.aboutTitle)
-				.setView(v)
-				.setPositiveButton(R.string.homepage,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int whichButton) {
-							Uri uri = Uri.parse(getString(R.string.aboutHomepageUrl));
-							startActivity(new Intent(Intent.ACTION_VIEW, uri));
-						}
-					})
-				.setNeutralButton(R.string.license,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int whichButton) {
-							showDialog(DIALOG_LICENSE);
-						}
-					})
-        		.setNegativeButton(R.string.dismiss, null)
-        		.create();
-		case DIALOG_LICENSE:
-			v = LayoutInflater.from(this).inflate(R.layout.dialog, null);
-			text = (TextView)v.findViewById(R.id.dialogText);
-			mApp.setLicenseText(text);
-			return new AlertDialog.Builder(this)
-				.setIcon(android.R.drawable.ic_dialog_info)
-				.setTitle(R.string.license)
-				.setView(v)
-				.setPositiveButton(R.string.sources, 
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int whichButton) {
-							Uri uri = Uri.parse(getString(R.string.aboutHomepageUrl));
-							startActivity(new Intent(Intent.ACTION_VIEW, uri));
-						}
-					})
-        		.setNegativeButton(R.string.dismiss, null)
-        		.create();
+            return progressDialog;
 		case DIALOG_UPGRADE_INFO:
 			v = LayoutInflater.from(this).inflate(R.layout.dialog, null);
 			text = (TextView)v.findViewById(R.id.dialogText);
@@ -667,8 +696,11 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 	}
 
 	@Override
-	protected void onPrepareDialog(int id, Dialog dialog) {
-		switch (id) {
+	protected void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
+		if (StandardDialogs.onPrepareDialog(this, dialogId, dialog, args))
+			return;
+		
+		switch (dialogId) {
 		case DIALOG_CONNECT_PROGRESS:
 			ProgressDialog pd = (ProgressDialog)dialog;
 			switch (mConnectProgressIndicator) {
@@ -728,7 +760,6 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			if (clientId != null) {
 				setTitle(clientId.getNickname());
 			}
-			setProgressBarIndeterminateVisibility(true);
 			// No break here, we drop to next case (dialog update)
 		case PROGRESS_CONNECTING:
 		case PROGRESS_AUTHORIZATION_PENDING:
@@ -737,10 +768,8 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			showProgressDialog(progress);
 			break;
 		case PROGRESS_XFER_STARTED:
-			setProgressBarIndeterminateVisibility(true);
 			break;
 		case PROGRESS_XFER_FINISHED:
-			setProgressBarIndeterminateVisibility(false);
 			break;
 		default:
 			if (Logging.ERROR) Log.e(TAG, "Unhandled progress indicator: " + progress);
@@ -749,7 +778,6 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 
 	@Override
 	public void clientConnected(VersionInfo clientVersion) {
-		setProgressBarIndeterminateVisibility(false);
 		mConnectedClient = mConnectionManager.getClientId();
 		mConnectedClientVersion = clientVersion;
 		if (mConnectedClient != null) {
@@ -771,16 +799,36 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 				( (mConnectedClient != null) ?
 						mConnectedClient.getNickname() : "<not connected>" ) +
 						" is disconnected");
+		ClientId prevConnectedClient = mConnectedClient;
 		mConnectedClient = null;
 		mConnectedClientVersion = null;
 		mInitialDataAvailable = false;
 		updateTitle();
-		setProgressBarIndeterminateVisibility(false);
 		dismissProgressDialog();
 		if (mSelectedClient != null) {
 			// Connection to another client is deferred, we proceed with it now
 			boincConnect();
+		} else 
+			StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, mRunner,
+					prevConnectedClient);
+	}
+	
+
+	@Override
+	public boolean clientError(int errorNum, String message) {
+		if (mConnectionManager.isNativeConnected() && !mRunner.ifStoppedByManager()) {
+			StandardDialogs.showClientErrorDialog(this, errorNum, message);
+			return true;
 		}
+		return false;
+	}
+	
+	@Override
+	public void onClientIsWorking(boolean isWorking) {
+		if ((mRunner != null && mRunner.serviceIsWorking()) || isWorking)
+			setProgressBarIndeterminateVisibility(true);
+		else if ((mRunner == null || !mRunner.serviceIsWorking()) && !isWorking)
+			setProgressBarIndeterminateVisibility(false);
 	}
 	
 	@Override
@@ -826,33 +874,39 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		return false;
 	}
 
-
-	public void onClientStateChanged(boolean isRun) {
-		if (isRun) {
-			if (mClientStartFromMenu) {
-				mClientStartFromMenu = false;
-				HostListDbAdapter dbHelper = new HostListDbAdapter(this);
-				dbHelper.open();
-				mSelectedClient = dbHelper.fetchHost("nativeboinc");
-				dbHelper.close();
-				if (mSelectedClient != null)
-					boincConnect();
-			}
-		} else {
-			if (mClientShutdownFromMenu) {
-				mClientShutdownFromMenu = false;
-				if (mConnectedClient != null && 
-						(mConnectedClient.getAddress().equals("127.0.0.1") ||
-								mConnectedClient.getAddress().equals("localhost")))
-					boincDisconnect();
-			}
+	@Override
+	public void onClientStart() {
+		if (mClientStartFromMenu) {
+			mClientStartFromMenu = false;
+			HostListDbAdapter dbHelper = new HostListDbAdapter(this);
+			dbHelper.open();
+			mSelectedClient = dbHelper.fetchHost("nativeboinc");
+			dbHelper.close();
+			if (mSelectedClient != null)
+				boincConnect();
 		}
 	}
 	
 	@Override
-	public void onNativeBoincError(String message) {
+	public void onClientStop(int exitCode, boolean stoppedByManager) {
+		if (mRunner.ifStoppedByManager()) {
+			if (mConnectedClient != null && mConnectedClient.isNativeClient())
+				boincDisconnect();
+		}
+	}
+	
+	@Override
+	public void onNativeBoincClientError(String message) {
 		mClientStartFromMenu = false;
-		mClientShutdownFromMenu = false;
+		StandardDialogs.showErrorDialog(this, message);
+	}
+	
+	@Override
+	public void onChangeRunnerIsWorking(boolean isWorking) {
+		if ((mConnectionManager != null && mConnectionManager.isWorking()) || isWorking)
+			setProgressBarIndeterminateVisibility(true);
+		else if ((mConnectionManager == null || !mConnectionManager.isWorking()) && !isWorking)
+			setProgressBarIndeterminateVisibility(false);
 	}
 	
 	private void updateTitle() {
@@ -942,11 +996,5 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		mConnectionManager.updateTransfers(null);
 		mConnectionManager.updateMessages(null);
 		mInitialDataRetrievalStarted = true;
-	}
-
-	@Override
-	public void clientError(int err_num, String message) {
-		// TODO Auto-generated method stub
-		
 	}
 }

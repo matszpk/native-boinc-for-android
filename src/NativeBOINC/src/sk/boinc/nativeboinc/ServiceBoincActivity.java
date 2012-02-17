@@ -78,10 +78,15 @@ public class ServiceBoincActivity extends AbstractBoincActivity {
 			// running in the same process...
 			if (Logging.WARNING) Log.w(TAG, "onServiceDisconnected()");
 			// We also reset client reference to prevent mess
+			onConnectionManagerDisconnected();
 		}
 	};
 	
 	protected void onConnectionManagerConnected() {
+		// do nothing
+	}
+	
+	protected void onConnectionManagerDisconnected() {
 		// do nothing
 	}
 	
@@ -103,10 +108,15 @@ public class ServiceBoincActivity extends AbstractBoincActivity {
 		public void onServiceDisconnected(ComponentName name) {
 			mInstaller = null;
 			if (Logging.DEBUG) Log.d(TAG, "installer.onServiceDisconnected()");
+			onInstallerDisconnected();
 		}
 	};
 	
 	protected void onInstallerConnected() {
+		// do nothing
+	}
+	
+	protected void onInstallerDisconnected() {
 		// do nothing
 	}
 	
@@ -128,6 +138,7 @@ public class ServiceBoincActivity extends AbstractBoincActivity {
 		public void onServiceDisconnected(ComponentName name) {
 			mRunner = null;
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceDisconnected()");
+			onRunnerDisconnected();
 		}
 	};
 	
@@ -135,6 +146,9 @@ public class ServiceBoincActivity extends AbstractBoincActivity {
 		// do nothing
 	}
 	
+	protected void onRunnerDisconnected() {
+		// do nothing
+	}
 	
 	protected void doBindConnectionManagerService() {
 		bindService(new Intent(this, ConnectionManagerService.class),

@@ -59,7 +59,8 @@ import android.widget.Toast;
  * <li>provides basic information about application
  * </ul>
  */
-public class BoincManagerApplication extends Application implements NativeBoincStateListener, NativeBoincReplyListener {
+public class BoincManagerApplication extends Application implements NativeBoincStateListener,
+	NativeBoincReplyListener {
 	private static final String TAG = "BoincManagerApplication";
 
 	public static final String GLOBAL_ID = "sk.boinc.androboinc";
@@ -85,14 +86,27 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	
 	private int mWidgetUpdatePeriod = 0;
 	
+	private NotificationController mNotificationController = null;
+	
+	private boolean mDoStartClientAfterBind = false;
+	
 	private ServiceConnection mRunnerServiceConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			mRunner = ((NativeBoincService.LocalBinder)service).getService();
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceConnected()");
+			// service automatically adds application object to listeners
 			mRunner.addNativeBoincListener(BoincManagerApplication.this);
-			
-			mRunner.killZombieClient();
+			if (!mRunner.isRun()) {
+				if (mDoStartClientAfterBind && !mRunner.isRun()) {
+					if (Logging.DEBUG) Log.d(TAG, "Start client after bind runner");
+					mDoStartClientAfterBind = false;
+					mRunner.startClient(false);
+				}
+			} else {
+				// trigger listener
+				onClientStart();
+			}
 		}
 		
 		@Override
@@ -107,6 +121,18 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 				mRunnerServiceConnection, Context.BIND_AUTO_CREATE);
 	}
 	
+	private void doUnbindRunnerService() {
+		if (Logging.DEBUG) Log.d(TAG, "Undind runner service");
+		unbindService(mRunnerServiceConnection);
+		mRunner.removeNativeBoincListener(this);
+		mRunner = null;
+	}
+	
+	public void bindRunnerService() {
+		if (mRunner == null)
+			doBindRunnerService();
+	}
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -114,10 +140,13 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		PreferenceManager.setDefaultValues(this, R.xml.manage_client, false);
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 		
-		doBindRunnerService();
+		NativeBoincService.killZombieClient(BoincManagerApplication.this);
+		
+		mNotificationController = new NotificationController(this);
 		
 		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		mWidgetUpdatePeriod = Integer.parseInt(globalPrefs.getString(PreferenceName.WIDGET_UPDATE, "10"))*1000;
+		mInstallerStage = globalPrefs.getInt(PreferenceName.INSTALLER_STAGE, INSTALLER_NO_STAGE);
 	}
 
 	@Override
@@ -259,10 +288,29 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	
 	public void setInstallerStage(int stage) {
 		mInstallerStage = stage;
+		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		int installerStageToSave = mInstallerStage;
+		/* fix stage for restarted manager */
+		if (mInstallerStage == INSTALLER_CLIENT_INSTALLING_STAGE)
+			installerStageToSave = INSTALLER_CLIENT_STAGE;
+		else if (mInstallerStage == INSTALLER_PROJECT_INSTALLING_STAGE)
+			installerStageToSave = INSTALLER_PROJECT_STAGE;
+		
+		globalPrefs.edit().putInt(PreferenceName.INSTALLER_STAGE, installerStageToSave).commit();
+	}
+	
+	public void backToPreviousInstallerStage() {
+		if (mInstallerStage == INSTALLER_CLIENT_INSTALLING_STAGE)
+			mInstallerStage = INSTALLER_CLIENT_STAGE;
+		else if (mInstallerStage == INSTALLER_PROJECT_INSTALLING_STAGE)
+			mInstallerStage = INSTALLER_PROJECT_STAGE;
 	}
 	
 	public void unsetInstallerStage() {
 		mInstallerStage = INSTALLER_NO_STAGE;
+		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		globalPrefs.edit().putInt(PreferenceName.INSTALLER_STAGE, mInstallerStage).commit();
 	}
 	
 	public void runInstallerActivity(Context context) {
@@ -280,27 +328,50 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		}
 	}
 	
+	/****
+	 * runner support - 
+	 * */
+	
+	public void bindRunnerAndStart() {
+		mDoStartClientAfterBind = true;
+		doBindRunnerService();
+	}
+	
 	public NativeBoincService getRunnerService() {
 		return mRunner;
 	}
 
 	@Override
-	public void onClientStateChanged(boolean isRun) {
-		if (isRun) {
-			Toast.makeText(this, R.string.nativeClientStart, Toast.LENGTH_SHORT).show();
-		} else {
-			Toast.makeText(this, R.string.nativeClientShutdown, Toast.LENGTH_SHORT).show();
-		}
+	public void onClientStart() {
 		Intent intent = new Intent(NativeBoincWidgetProvider.NATIVE_BOINC_WIDGET_UPDATE);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		try {
 			pendingIntent.send();
 		} catch (Exception ex) { }
 	}
+	
+	@Override
+	public void onClientStop(int exitCode, boolean stoppedByManager) {
+		Intent intent = new Intent(NativeBoincWidgetProvider.NATIVE_BOINC_WIDGET_UPDATE);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		try {
+			pendingIntent.send();
+		} catch (Exception ex) { }
+		
+		// unbind service
+		doUnbindRunnerService();
+	}
 
 	@Override
-	public void onNativeBoincError(String message) {
-		// Do nothing
+	public void onNativeBoincClientError(String message) {
+		doUnbindRunnerService();
+		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+	}
+	
+
+	@Override
+	public void onNativeBoincServiceError(String message) {
+		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 	}
 	
 	/**
@@ -330,5 +401,18 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 			if (Logging.DEBUG) Log.d(TAG, "Send update intent");
 			pendingIntent.send();
 		} catch (Exception ex) { }
+	}
+	
+	/*
+	 * notifications controller
+	 */
+	public NotificationController getNotificationController() {
+		return mNotificationController;
+	}
+
+	@Override
+	public void onChangeRunnerIsWorking(boolean isWorking) {
+		// TODO Auto-generated method stub
+		
 	}
 }

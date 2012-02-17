@@ -24,41 +24,7 @@
   	android:layout_height="wrap_content"
 	android:orientation="vertical"
 	android:padding="10dip">
-	<TextView
-		android:layout_width="fill_parent"
-  		android:layout_height="wrap_content"
-  		android:textSize="18dip"
-  		android:textStyle="bold"
-  		android:paddingBottom="10dip"
-  		android:text="@string/installWelcome" />
-  	<TextView
-		android:layout_width="fill_parent"
-  		android:layout_height="wrap_content"
-  		android:textSize="14dip"
-  		android:text="@string/installClientInstall" />
-  	<RelativeLayout
-  		android:layout_width="fill_parent"
-	  	android:layout_height="wrap_content"
-	  	android:paddingTop="10dip"
-  		android:paddingBottom="10dip">
-	  	<TextView android:id="@+id/versionToInstall"
-	  		android:layout_width="wrap_content"
-	  		android:layout_height="wrap_content"
-	  		android:textSize="14dip"
-	  		android:layout_centerVertical="true"
-	  		android:layout_alignParentTop="false"
-	  		android:layout_alignParentRight="false"
-	  		android:text="@string/versionToInstall" />
-	  	<Button android:id="@+id/clientInfo"
-	  		android:layout_width="wrap_content"
-	  		android:layout_height="wrap_content"
-	  		android:textSize="14dip"
-	  		android:enabled="false"
-	  		android:layout_alignParentTop="true"
-	  		android:layout_alignParentRight="true"
-	  		android:text="@string/info" />
-  	</RelativeLayout>
-  	<ScrollView
+	<ScrollView
   		android:layout_width="fill_parent"
   		android:layout_height="wrap_content"
   		android:layout_weight="1">
@@ -67,6 +33,40 @@
 		  	android:layout_width="fill_parent"
 		  	android:layout_height="fill_parent">
 		  	<TextView
+				android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:textSize="18dip"
+		  		android:textStyle="bold"
+		  		android:paddingBottom="10dip"
+		  		android:text="@string/installWelcome" />
+		  	<TextView
+				android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:textSize="14dip"
+		  		android:text="@string/installClientInstall" />
+		  	<RelativeLayout
+		  		android:layout_width="fill_parent"
+			  	android:layout_height="wrap_content"
+			  	android:paddingTop="10dip"
+		  		android:paddingBottom="10dip">
+			  	<TextView android:id="@+id/versionToInstall"
+			  		android:layout_width="wrap_content"
+			  		android:layout_height="wrap_content"
+			  		android:textSize="14dip"
+			  		android:layout_centerVertical="true"
+			  		android:layout_alignParentTop="false"
+			  		android:layout_alignParentRight="false"
+			  		android:text="@string/versionToInstall" />
+			  	<Button android:id="@+id/clientInfo"
+			  		android:layout_width="wrap_content"
+			  		android:layout_height="wrap_content"
+			  		android:textSize="14dip"
+			  		android:enabled="false"
+			  		android:layout_alignParentTop="true"
+			  		android:layout_alignParentRight="true"
+			  		android:text="@string/info" />
+		  	</RelativeLayout>
+  		  	<TextView
 		  		android:layout_width="fill_parent"
 		  		android:layout_height="wrap_content"
 		  		android:textSize="14dip"

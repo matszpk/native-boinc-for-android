@@ -2,18 +2,21 @@
 NativeBOINC 0.4 TODO
 ---------------------------------
 
-  * wprowadzić proces instalacji w oddzielnym wątku z komunikacją po stronie UI
-  * zrobić obsługę zmiany orientacji dla wszystkich aktywności (poza ScreenLock i ShutddownActivity)
-  * usunąć pojawiąjące/znikające (podczas instalacji i update) toasty i zamienic je dialogami.
-(zrobione w kliencie)
+/ * wprowadzić proces instalacji w oddzielnym wątku z komunikacją po stronie UI
+/ * zrobić obsługę zmiany orientacji dla wszystkich aktywności (poza ScreenLock i ShutddownActivity)
+    (zrobione dla instalatora, ManagerActivity, EditBAMActivity)
+
+/ * usunąć pojawiąjące/znikające (podczas instalacji i update) toasty i zamienic je dialogami.
 / * usunąć zabijanie klienta podczas instalacji/update'a  aplikacji (wprowadzic specjalny
     mechanizm instalacji/update'a aplikacji w kliencie)
-  * dodać powiadomienia (o właczeniu/wyłączeniu klienta)
+    (zrobione dla instalatora)
+    
+/ * dodać powiadomienia (o właczeniu/wyłączeniu klienta)
   * dodać ikonę do powiadomien (opcja) o postępie.
   * usunąć problem nie łączenia sie z klientem przy wybieraniu managera z widgeta
   * dodać logo aktywności instalatora i do okna dialogowego o programie
-  * przewijanie uwag w pierwszym kroku instalatora
-  * dodać info o oryginalnym AndroBOINC
+/ * przewijanie uwag w pierwszym kroku instalatora
+/ * dodać info o oryginalnym AndroBOINC
   * dodać opcje zmiany listy hostów z którymi może się połączyć klient
   * dodać możliwość określenia nazwy hosta (dla klienta).
 
@@ -24,10 +27,10 @@ NativeBOINC 0.4 TODO
   * zrobić powiadamianie o aktualizacjach binariów
   * zmienic menu w glownym oknie managera (ma miec wiecej opcji)
 / * zapobiegać uśpieniu podczas robienia benchmarka.
-  * poprawic teksty przy instalacji (np.: przy drugim ekranie)
-  * wprowadzić różne komunikaty o przerwaniu pracy (np: zakmknięcu przez usera,
+/ * poprawic teksty przy instalacji (np.: przy drugim ekranie)
+/ * wprowadzić różne komunikaty o przerwaniu pracy (np: zakmknięcu przez usera,
     niespodziewanym zamknięciu, zamknięciu przez z innego urzadzenia) w ScreenLockActivity i 
-    jako notification
+    jako notification (notification)
   * dodać opcje instalacji z karty SD (przy pierwszym uruchomieniu i update'u)
   * zrobic automatyczną instalację po odpaleniu widgeta (dodać okno z pytaniem).
   * zrobic automatyczną instalacje aplikacji po update z BAM'a (za zgodą user'a)

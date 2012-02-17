@@ -101,7 +101,9 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 			if (Logging.DEBUG) Log.d(TAG, "Widget on prepare update from receive");
 			
 			final NativeBoincService runner = appContext.getRunnerService();
-			runner.getGlobalProgress(appContext);
+			
+			if (runner != null)
+				runner.getGlobalProgress(appContext);
 			
 		} else if (inputIntent.getAction().equals(NATIVE_BOINC_WIDGET_UPDATE)) {
 			if (Logging.DEBUG) Log.d(TAG, "Widget on update from receive");
@@ -127,7 +129,7 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 			/* update progress bar */
 			final NativeBoincService runner = appContext.getRunnerService();
 			double progress = inputIntent.getDoubleExtra(BoincManagerApplication.UPDATE_PROGRESS, -1.0);
-			boolean isRun = runner.isRun();
+			boolean isRun = runner != null && runner.isRun();
 			
 			if (progress >= 0.0) {
 				views.setViewVisibility(R.id.widgetProgress, View.VISIBLE);
@@ -170,14 +172,18 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 			if (Logging.DEBUG) Log.d(TAG, "Client start/stop from widget receive");
 			
 			final NativeBoincService runner = appContext.getRunnerService();
-			if (runner.isRun()) {
-				Intent intent = new Intent(appContext, ShutdownDialogActivity.class);
-				PendingIntent pendingIntent = PendingIntent.getActivity(appContext, 0, intent, 0);
-				try {
-					pendingIntent.send();
-				} catch(CanceledException ex) { }
-			} else
-				runner.startClient(false);
+			if (runner != null) {
+				if (runner.isRun()) {
+					Intent intent = new Intent(appContext, ShutdownDialogActivity.class);
+					PendingIntent pendingIntent = PendingIntent.getActivity(appContext, 0, intent, 0);
+					try {
+						pendingIntent.send();
+					} catch(CanceledException ex) { }
+				} else
+					runner.startClient(false);
+			} else {
+				appContext.bindRunnerAndStart();
+			}
 		}
 	}
 }

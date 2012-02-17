@@ -25,8 +25,9 @@
 	android:layout_height="fill_parent">
 	<ListView
 		android:id="@android:id/list"
-		android:layout_width="wrap_content"
+		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
+		android:layout_weight="1"
 		android:hapticFeedbackEnabled="true" />
 	<!-- For case of empty list the following layout will apply -->
 	<RelativeLayout android:id="@android:id/empty"
@@ -51,6 +52,21 @@
         	android:text="@string/selectHostNoneAvailable"
 			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right"
+		android:paddingTop="10dip">
+		<Button android:id="@+id/back"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/back" />
+		<Button android:id="@+id/newAddHost" 
+		    android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/hostAddNew" />
+	</LinearLayout>
 <!--	<View-->
 <!--		android:layout_width="fill_parent"-->
 <!--		android:layout_height="1dip"-->

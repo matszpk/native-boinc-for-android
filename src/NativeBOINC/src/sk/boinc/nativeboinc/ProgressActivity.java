@@ -52,8 +52,6 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	
 	private ProgressItem[] mCurrentProgress;
 	
-	public final static String ARG_GOTO_ACTIVITY = "GoTo";
-	
 	private class ProgressCancelOnClickListener implements View.OnClickListener {
 
 		private String mDistribName;
@@ -83,45 +81,56 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	private Map<String, ProgressCancelOnClickListener> mCurrentCancelClickListeners =
 			new HashMap<String, ProgressCancelOnClickListener>();
 	
+	private static class ItemViewTag {
+		public final TextView progressInfo;
+		public final ProgressBar progressBar;
+		public final Button cancelButton;
+		
+		public ItemViewTag(View view) {
+			progressInfo = (TextView)view.findViewById(R.id.progressInfo);
+			progressBar = (ProgressBar)view.findViewById(R.id.progressBar);
+			cancelButton = (Button)view.findViewById(R.id.progressCancel);
+		}
+	}
+	
 	/* we update item outside adapter, because this notifyDataChanged makes some problems
 	 * with cancel clicking */
 	private void updateCreatedItemView(View view, int position) {
-		TextView progressInfo = (TextView)view.findViewById(R.id.progressInfo);
-		ProgressBar progress = (ProgressBar)view.findViewById(R.id.progressBar);
-		Button cancelButton = (Button)view.findViewById(R.id.progressCancel);
+		ItemViewTag tag = (ItemViewTag)view.getTag();
+		if (tag == null) {
+			tag = new ItemViewTag(view);
+			view.setTag(tag);
+		}
 		
 		final ProgressItem item = mCurrentProgress[position];
 		
-		if (Logging.DEBUG) Log.d(TAG, "toAdapterView:"+item.name+""+item.opDesc+":"+
-				item.progress+":"+item.state);
-		
 		switch(item.state) {
 		case ProgressItem.STATE_IN_PROGRESS:
-			progressInfo.setText(item.name + ": " + item.opDesc);
+			tag.progressInfo.setText(item.name + ": " + item.opDesc);
 			break;
 		case ProgressItem.STATE_CANCELLED:
-			progressInfo.setText(item.name + ": " + getString(R.string.operationCancelled));
+			tag.progressInfo.setText(item.name + ": " + getString(R.string.operationCancelled));
 			break;
 		case ProgressItem.STATE_ERROR_OCCURRED:
-			progressInfo.setText(item.name + ": " + item.opDesc);
+			tag.progressInfo.setText(item.name + ": " + item.opDesc);
 			break;
 		case ProgressItem.STATE_FINISHED:
-			progressInfo.setText(item.name + ": " + getString(R.string.operationFinished));
+			tag.progressInfo.setText(item.name + ": " + getString(R.string.operationFinished));
 			break;
 		}
 		
 		if (item.state == ProgressItem.STATE_IN_PROGRESS) {
 			if (item.progress >= 0) {
-				progress.setIndeterminate(false);
-				progress.setProgress(item.progress);
+				tag.progressBar.setIndeterminate(false);
+				tag.progressBar.setProgress(item.progress);
 			} else
-				progress.setIndeterminate(true);
+				tag.progressBar.setIndeterminate(true);
 		} else
-			progress.setVisibility(View.GONE);
+			tag.progressBar.setVisibility(View.GONE);
 		
 		// disable button if end
 		if (item.state != ProgressItem.STATE_IN_PROGRESS)
-			cancelButton.setEnabled(false);
+			tag.cancelButton.setEnabled(false);
 	}
 	
 	private class ProgressItemAdapter extends BaseAdapter {
@@ -184,15 +193,18 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	
 	private int mInstallerStage = -1;
 	
+	private NotificationController mNotificationController = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		
+		mApp = (BoincManagerApplication) getApplication();
+		mNotificationController = mApp.getNotificationController();
+		
 		setUpService(false, false, false, false, true, true);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.install_progress);
-		
-		mApp = (BoincManagerApplication) getApplication();
 		
 		mProgressItemAdapter = new ProgressItemAdapter(this);
 		
@@ -212,15 +224,10 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 			mNextButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					mInstaller.removeAllNotInProgress();
+					mNotificationController.removeAllNotInProgress();
 					finish();
 					
-					if (mInstallerStage == BoincManagerApplication.INSTALLER_CLIENT_INSTALLING_STAGE ||
-							mInstallerStage == BoincManagerApplication.INSTALLER_PROJECT_STAGE)
-						startActivity(new Intent(ProgressActivity.this, InstallStep2Activity.class));
-					else if (mInstallerStage == BoincManagerApplication.INSTALLER_PROJECT_INSTALLING_STAGE ||
-							mInstallerStage == BoincManagerApplication.INSTALLER_FINISH_STAGE)
-						startActivity(new Intent(ProgressActivity.this, InstallFinishActivity.class));
+					toNextInstallerStep();
 				}
 			});
 		}
@@ -271,21 +278,20 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 
 	private void ifNothingInBackground() {
 		if (areAllTasksNotRan()) {
-			setProgressBarIndeterminateVisibility(false);
 			if (mInstallerStage != BoincManagerApplication.INSTALLER_NO_STAGE) {
 				if (areAllTasksFinishedSuccessfully())
 					mNextButton.setEnabled(true);
 			}
 			
 			mProgressText.setText(getString(R.string.noInstallOpsText));
-		} else {
-			setProgressBarIndeterminateVisibility(true);
+		} else
 			mProgressText.setText(getString(R.string.installProgressText));
-		}
 	}
 	
 	private void getProgressFromInstaller() {
 		if (mInstaller != null) {
+			setProgressBarIndeterminateVisibility(mInstaller.isWorking());
+			
 			mCurrentProgress = mInstaller.getCurrentlyInstalledBinaries();
 			if (mCurrentProgress == null)
 				return; // nothing
@@ -304,13 +310,6 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	}
 	
 	@Override
-	protected void onStart() {
-		super.onStart();
-		
-		getProgressFromInstaller();
-	}
-	
-	@Override
 	protected void onResume() {
 		super.onResume();
 		
@@ -319,8 +318,21 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	
 	@Override
 	public void onBackPressed() {
-		mInstaller.removeAllNotInProgress();
+		mNotificationController.removeAllNotInProgress();
 		finish();
+		if (mApp.isInstallerRun() && areAllTasksFinishedSuccessfully())
+			// if all tasks finished successfully go to next
+			toNextInstallerStep();
+	}
+	
+	/* go to next activity in installation wizard */
+	private void toNextInstallerStep() {
+		if (mInstallerStage == BoincManagerApplication.INSTALLER_CLIENT_INSTALLING_STAGE ||
+				mInstallerStage == BoincManagerApplication.INSTALLER_PROJECT_STAGE)
+			startActivity(new Intent(ProgressActivity.this, InstallStep2Activity.class));
+		else if (mInstallerStage == BoincManagerApplication.INSTALLER_PROJECT_INSTALLING_STAGE ||
+				mInstallerStage == BoincManagerApplication.INSTALLER_FINISH_STAGE)
+			startActivity(new Intent(ProgressActivity.this, InstallFinishActivity.class));
 	}
 	
 	private Comparator<ProgressItem> mProgressCompatator = new Comparator<ProgressItem>() {
@@ -336,8 +348,13 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	};
 	
 	@Override
-	public void onInstallerConnected() {
+	protected void onInstallerConnected() {
 		getProgressFromInstaller();
+	}
+	
+	@Override
+	protected void onInstallerDisconnected() {
+		setProgressBarIndeterminateVisibility(false);
 	}
 
 	private int addNewProgressItem(String distribName) {
@@ -393,7 +410,6 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	
 	@Override
 	public void onOperation(String distribName, String opDescription) {
-		setProgressBarIndeterminateVisibility(true);
 		int position = getProgressItem(distribName);
 		if (position == -1)
 			return;
@@ -409,7 +425,6 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 
 	@Override
 	public void onOperationProgress(String distribName, String opDescription, int progressValue) {
-		setProgressBarIndeterminateVisibility(true);
 		int position = getProgressItem(distribName);
 		if (position == -1)
 			return;
@@ -459,6 +474,7 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 
 	@Override
 	public void onOperationFinish(String distribName) {
+		if (Logging.DEBUG) Log.d(TAG, "On operation finish:"+distribName);
 		int position = getProgressItem(distribName);
 		if (position == -1)
 			return;
@@ -472,5 +488,10 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 		
 		updateItemView(position);
 		ifNothingInBackground();
+	}
+
+	@Override
+	public void onInstallerWorking(boolean isWorking) {
+		setProgressBarIndeterminateVisibility(isWorking);
 	}
 }

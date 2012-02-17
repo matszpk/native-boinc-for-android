@@ -20,19 +20,20 @@
 package sk.boinc.nativeboinc;
 
 
+import hal.android.workarounds.FixedProgressDialog;
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.ProjectConfig;
 import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.PollError;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.ProjectItem;
 import sk.boinc.nativeboinc.util.StandardDialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Intent;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -55,11 +56,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	private static final String TAG = "AddProjectActivity";
 		
 	private final static int DIALOG_TERMS_OF_USE = 1;
-	
-	private static final String STATE_PROJECT_CONFIG_PROGRESS_STATE = "ProjectConfigProgressState";
-	private static final String STATE_TOU_DISPLAYED = "TOUDisplayed";
-	private static final String STATE_MIN_PASSWORD_LENGTH = "MinPasswordLength";
-	private static final String STATE_ADDING_PROJECT_IN_PROGRESS = "AddingProjectInProgress";
+	private final static int DIALOG_ADD_PROJECT_PROGRESS = 2;
 	
 	private BoincManagerApplication mApp = null;
 	
@@ -82,6 +79,30 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	private int mProjectConfigProgressState = ProgressState.NOT_RUN;
 	private boolean mAddingProjectInProgress = false;
 	
+	private ClientId mConnectedClient = null;
+	
+	private static class SavedState {
+	
+		private final int mProjectConfigProgressState;
+		private final boolean mAddingProjectInProgress;
+		private final boolean mTermOfUseDisplayed;
+		private final int mMinPasswordLength;
+		
+		public SavedState(AddProjectActivity activity) {
+			mProjectConfigProgressState = activity.mProjectConfigProgressState;
+			mAddingProjectInProgress = activity.mAddingProjectInProgress;
+			mTermOfUseDisplayed = activity.mTermOfUseDisplayed;
+			mMinPasswordLength = activity.mMinPasswordLength;
+		}
+		
+		public void restore(AddProjectActivity activity) {
+			activity.mProjectConfigProgressState = mProjectConfigProgressState;
+			activity.mAddingProjectInProgress = mAddingProjectInProgress;
+			activity.mTermOfUseDisplayed = mTermOfUseDisplayed;
+			activity.mMinPasswordLength = mMinPasswordLength;
+		}
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -90,13 +111,9 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		mApp = (BoincManagerApplication)getApplication();
 		
-		if (savedInstanceState != null) {
-			mProjectConfigProgressState = savedInstanceState
-					.getInt(STATE_PROJECT_CONFIG_PROGRESS_STATE);
-			mTermOfUseDisplayed = savedInstanceState.getBoolean(STATE_TOU_DISPLAYED);
-			mMinPasswordLength = savedInstanceState.getInt(STATE_MIN_PASSWORD_LENGTH);
-			mAddingProjectInProgress = savedInstanceState.getBoolean(STATE_ADDING_PROJECT_IN_PROGRESS);
-		}
+		SavedState savedState = (SavedState)getLastNonConfigurationInstance();
+		if (savedState != null)
+			savedState.restore(this);
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.add_project);
@@ -131,12 +148,6 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		mConfirmButton = (Button)findViewById(R.id.addProjectOk);
 		
-		if (mProjectConfigProgressState == ProgressState.IN_PROGRESS ||
-				mAddingProjectInProgress)
-			setProgressBarIndeterminateVisibility(true);
-		if (mProjectConfigProgressState == ProgressState.FINISHED)
-			afterInitProjectConfig();
-		
 		RadioGroup viewMode = (RadioGroup)findViewById(R.id.addProjectViewMode);
 		if (mAccountCreationDisabled) {
 			/* hide radiobuttons for modes */
@@ -161,6 +172,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		Button cancelButton = (Button)findViewById(R.id.addProjectCancel);
 		cancelButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
+				setResult(RESULT_CANCELED);
 				finish();
 			}
 		});
@@ -178,8 +190,10 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 					accountIn.passwd = mPassword.getText().toString();
 					
 					mAddingProjectInProgress = true;
-					if (mConnectionManager != null)
+					if (mConnectionManager != null) {
 						mConnectionManager.addProject(accountIn, mDoAccountCreation);
+						showDialog(DIALOG_ADD_PROJECT_PROGRESS);
+					}
 				}
 			}
 		});
@@ -189,24 +203,23 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	protected void onResume() {
 		super.onResume();
 		
-		updateProgressState();
+		if (mConnectionManager != null) {
+			mConnectedClient = mConnectionManager.getClientId();
+			Log.d(TAG, "onResume");
+			updateActivityState();
+		}
 	}
 	
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		outState.putInt(STATE_PROJECT_CONFIG_PROGRESS_STATE, mProjectConfigProgressState);
-		outState.putBoolean(STATE_ADDING_PROJECT_IN_PROGRESS, mAddingProjectInProgress);
-		outState.putBoolean(STATE_TOU_DISPLAYED, mTermOfUseDisplayed);
-		outState.putInt(STATE_MIN_PASSWORD_LENGTH, mMinPasswordLength);
-		super.onSaveInstanceState(outState);
+	public Object onRetainNonConfigurationInstance() {
+		return new SavedState(this);
 	}
-
+	
 	private void afterLoadingProjectConfig(ProjectConfig projectConfig) {
 		if (Logging.DEBUG) Log.d(TAG, "After Loading Project config");
 		mProjectConfigProgressState = ProgressState.FINISHED;
 		mMinPasswordLength = projectConfig.min_passwd_length;
 		mTermsOfUse = projectConfig.terms_of_use;
-		setProgressBarIndeterminateVisibility(false);
 		
 		afterInitProjectConfig();
 	}
@@ -219,27 +232,38 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			showDialog(DIALOG_TERMS_OF_USE);
 	}
 	
-	private void updateProgressState() {
-		if (mProjectConfigProgressState == ProgressState.IN_PROGRESS|| mAddingProjectInProgress) {
+	private void updateActivityState() {
+		setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
+		
+		if (mProjectConfigProgressState == ProgressState.IN_PROGRESS || mAddingProjectInProgress) {
 			PollError error = mConnectionManager.getPendingPollError(mProjectItem.getUrl());
 			
-			if (error != null)
+			if (error != null) {
 				handlePollError(error.param, error.errorNum, error.operation, error.message);
-			return;
+				return;
+			} else if (mConnectedClient == null) {
+				clientDisconnected(); // if disconnected
+				return;
+			}
 		}
 		
 		if (mProjectConfigProgressState != ProgressState.FINISHED) {
-			ProjectConfig projectConfig = mConnectionManager
-					.getPendingProjectConfig(mProjectItem.getUrl());
-			
-			if (projectConfig == null) { // should be fetched
-				if (mProjectConfigProgressState == ProgressState.NOT_RUN) {
-					if (Logging.DEBUG) Log.d(TAG, "get project config from client");
-					mConnectionManager.getProjectConfig(mProjectItem.getUrl());
-					mProjectConfigProgressState = ProgressState.IN_PROGRESS;
-				}
-			} else
-				afterLoadingProjectConfig(projectConfig);
+			if (mProjectConfigProgressState == ProgressState.NOT_RUN) {
+				if (Logging.DEBUG) Log.d(TAG, "get project config from client");
+				mConnectionManager.getProjectConfig(mProjectItem.getUrl());
+				mProjectConfigProgressState = ProgressState.IN_PROGRESS;
+			} else if (mProjectConfigProgressState == ProgressState.IN_PROGRESS) {
+				ProjectConfig projectConfig = mConnectionManager
+						.getPendingProjectConfig(mProjectItem.getUrl());
+				// if in still progress
+				if (projectConfig != null) // still in progress
+					afterLoadingProjectConfig(projectConfig);
+			}
+			// if failed
+		} else {
+			// successfuly loaded
+			Log.d(TAG, "Successfully loaded projectconfig");
+			afterInitProjectConfig();
 		}
 		
 		if (mAddingProjectInProgress) {
@@ -252,7 +276,15 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	
 	@Override
 	protected void onConnectionManagerConnected() {
-		updateProgressState();
+		mConnectedClient = mConnectionManager.getClientId();
+		Log.d(TAG, "onConnManagerConnected");
+		updateActivityState();
+	}
+	
+	@Override
+	protected void onConnectionManagerDisconnected() {
+		mConnectedClient = null;
+		setProgressBarIndeterminateVisibility(false);
 	}
 	
 	@Override
@@ -263,8 +295,9 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		View v;
 		TextView text;
-		
-		if (dialogId == DIALOG_TERMS_OF_USE) {
+		FixedProgressDialog progressDialog = null;
+		switch (dialogId) {
+		case DIALOG_TERMS_OF_USE:
 			mTermOfUseDisplayed = true; // displayed
 			
 			v = LayoutInflater.from(this).inflate(R.layout.dialog, null);
@@ -276,13 +309,24 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 				.setView(v)
 	    		.setNegativeButton(R.string.dismiss, null)
 	    		.create();
+		case DIALOG_ADD_PROJECT_PROGRESS:
+			progressDialog = new FixedProgressDialog(this);
+			progressDialog.setIndeterminate(true);
+			progressDialog.setCancelable(true);
+			return progressDialog;
 		}
 		return null;
 	}
 	
 	@Override
 	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
-		StandardDialogs.onPrepareDialog(this, dialogId, dialog, args);
+		if (StandardDialogs.onPrepareDialog(this, dialogId, dialog, args))
+			return;
+		
+		if (dialogId == DIALOG_ADD_PROJECT_PROGRESS) {
+			ProgressDialog progressDialog = (ProgressDialog)dialog;
+			progressDialog.setMessage(getString(R.string.addingProject));
+		}
 	}
 	
 	private void updateViewMode() {
@@ -311,9 +355,10 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	
 	private void handlePollError(String projectUrl, int errorNum, int operation,
 			String errorMessage) {
-		setProgressBarIndeterminateVisibility(false);
 		// getProjectConfig - set as finished - prevents repeating operation
 		mProjectConfigProgressState = ProgressState.FINISHED;
+		if (mAddingProjectInProgress)
+			dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
 		mAddingProjectInProgress = false;
 		
 		StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, projectUrl);
@@ -328,28 +373,27 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 
 	@Override
 	public void clientConnectionProgress(int progress) {
-		if (progress != ClientReceiver.PROGRESS_XFER_FINISHED)
-			setProgressBarIndeterminateVisibility(true);
-		else // if finished
-			setProgressBarIndeterminateVisibility(false);
 	}
 
 	@Override
 	public void clientConnected(VersionInfo clientVersion) {
-		// TODO Auto-generated method stub
+		mConnectedClient = mConnectionManager.getClientId();
 	}
 
 	@Override
 	public void clientDisconnected() {
 		if (Logging.WARNING) Log.w(TAG, "Client disconnected");
 		
-		setProgressBarIndeterminateVisibility(false);
 		// getProjectConfig - set as finished - prevents repeating operation
-		mProjectConfigProgressState = ProgressState.FINISHED;
+		mProjectConfigProgressState = ProgressState.FAILED;
+		if (mAddingProjectInProgress)
+			dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
 		mAddingProjectInProgress = false;
 		
-		setProgressBarIndeterminateVisibility(false);
-		StandardDialogs.showErrorDialog(this, getString(R.string.clientDisconnected));
+		StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, mRunner,
+				mConnectedClient);
+		
+		mConnectedClient = null;
 	}
 
 	@Override
@@ -366,17 +410,20 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 
 	private void afterProjectAdding(String projectUrl) {
 		if (Logging.DEBUG) Log.d(TAG, "After Project adding");
-		setProgressBarIndeterminateVisibility(false);
+		if (mAddingProjectInProgress)
+			dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
 		mAddingProjectInProgress = false;
 		
 		if (mConnectionManager.isNativeConnected()) { // go to progress activity
 			// awaiting for application installation
 			if (mApp.isInstallerRun())
 				mApp.setInstallerStage(BoincManagerApplication.INSTALLER_PROJECT_INSTALLING_STAGE);
+			setResult(RESULT_OK);
+			finish(); // go to project list activity
+		} else {
+			setResult(RESULT_OK);
 			finish();
-			startActivity(new Intent(this, ProgressActivity.class));
-		} else
-			finish();
+		}
 	}
 	
 	@Override
@@ -386,12 +433,20 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	}
 
 	@Override
-	public void clientError(int errorNum, String errorMessage) {
-		setProgressBarIndeterminateVisibility(false);
+	public boolean clientError(int errorNum, String errorMessage) {
 		// getProjectConfig - set as finished - prevents repeating operation
-		mProjectConfigProgressState = ProgressState.FINISHED;
+		mProjectConfigProgressState = ProgressState.FAILED;
+		
+		if (mAddingProjectInProgress)
+			dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
 		mAddingProjectInProgress = false;
 		
 		StandardDialogs.showClientErrorDialog(this, errorNum, errorMessage);
+		return true;
+	}
+
+	@Override
+	public void onClientIsWorking(boolean isWorking) {
+		setProgressBarIndeterminateVisibility(isWorking);
 	}
 }

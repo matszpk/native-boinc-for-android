@@ -27,6 +27,6 @@ import edu.berkeley.boinc.lite.Result;
  * @author mat
  *
  */
-public interface NativeBoincResultsListener extends AbstractNativeBoincListener {
+public interface NativeBoincResultsListener extends NativeBoincServiceListener {
 	public abstract void getResults(ArrayList<Result> results);
 }

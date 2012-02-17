@@ -58,7 +58,8 @@ public class MonitorThread extends Thread {
 		}
 		
 		public void onMonitorEvent(ClientEvent event) {
-			for (MonitorListener callback: mListeners)
+			MonitorListener[] listeners = mListeners.toArray(new MonitorListener[0]);
+			for (MonitorListener callback: listeners)
 				callback.onMonitorEvent(event);
 		}
 		
@@ -71,7 +72,6 @@ public class MonitorThread extends Thread {
 	}
 	
 	private ListenerHandler mListenerHandler = null;
-	private List<MonitorListener> mListeners = null;
 	
 	public static ListenerHandler createListenerHandler() {
 		return new ListenerHandler();
@@ -81,7 +81,6 @@ public class MonitorThread extends Thread {
 	public MonitorThread(final ListenerHandler listenerHandler, final String authCode) {
 		mAuthCode = authCode;
 		mListenerHandler = listenerHandler;
-		mListeners = listenerHandler.mListeners;
 	}
 	
 	/**

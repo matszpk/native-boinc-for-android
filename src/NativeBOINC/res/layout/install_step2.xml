@@ -5,35 +5,45 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:padding="10dp">
-    <TextView
-		android:layout_width="fill_parent"
+    <ScrollView
+        android:layout_width="fill_parent"
   		android:layout_height="wrap_content"
-  		android:textSize="14dip"
-  		android:text="@string/installSuccessfully" />
-  	<TextView
-		android:layout_width="fill_parent"
-  		android:layout_height="wrap_content"
-  		android:textSize="14dip"
-  		android:paddingTop="10dip"
-  		android:text="@string/installNetworkAccess1" />
-  	<TextView
-		android:layout_width="fill_parent"
-  		android:layout_height="wrap_content"
-  		android:textSize="14dip"
-  		android:paddingTop="10dip"
-  		android:text="@string/installNetworkAccess2" />
-  	<TextView
-		android:layout_width="fill_parent"
-  		android:layout_height="wrap_content"
-  		android:textSize="14dip"
-  		android:paddingTop="10dip"
-  		android:text="@string/installAddProject" />
-  	<TextView
-		android:layout_width="fill_parent"
-  		android:layout_height="wrap_content"
-  		android:textSize="14dip"
-  		android:paddingTop="10dip"
-  		android:text="@string/installFinishedBenchmark" />
+  		android:layout_weight="1">
+  		<LinearLayout 
+  			android:orientation="vertical"
+		  	android:layout_width="fill_parent"
+		  	android:layout_height="fill_parent">
+		    <TextView
+				android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:textSize="14dip"
+		  		android:text="@string/installSuccessfully" />
+		  	<TextView
+				android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:textSize="14dip"
+		  		android:paddingTop="10dip"
+		  		android:text="@string/installNetworkAccess1" />
+		  	<TextView
+				android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:textSize="14dip"
+		  		android:paddingTop="10dip"
+		  		android:text="@string/installNetworkAccess2" />
+		  	<TextView
+				android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:textSize="14dip"
+		  		android:paddingTop="10dip"
+		  		android:text="@string/installAddProject" />
+		  	<TextView
+				android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:textSize="14dip"
+		  		android:paddingTop="10dip"
+		  		android:text="@string/installFinishedBenchmark" />
+		</LinearLayout>
+	</ScrollView>
   	<LinearLayout
 		android:orientation="horizontal"
 		android:layout_width="wrap_content"

@@ -84,11 +84,11 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	private int mPosition = 0;
 
 
-	private class SavedState {
+	private static class SavedState {
 		private final ArrayList<TransferInfo> transfers;
 
-		public SavedState() {
-			transfers = mTransfers;
+		public SavedState(TransfersActivity activity) {
+			transfers = activity.mTransfers;
 			if (Logging.DEBUG) Log.d(TAG, "saved: transfers.size()=" + transfers.size());
 		}
 		public void restoreState(TransfersActivity activity) {
@@ -288,8 +288,7 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		final SavedState savedState = new SavedState();
-		return savedState;
+		return new SavedState(this);
 	}
 
 	@Override
@@ -299,32 +298,6 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 			return parent.onKeyDown(keyCode, event);
 		}
 		return super.onKeyDown(keyCode, event);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.refresh_menu, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		super.onPrepareOptionsMenu(menu);
-		MenuItem item = menu.findItem(R.id.menuRefresh);
-		item.setVisible(mConnectedClient != null);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menuRefresh:
-			mConnectionManager.updateTransfers(this);
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -440,6 +413,12 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
 	}
+	
+	@Override
+	public boolean clientError(int err_num, String message) {
+		// do not consume
+		return false;
+	}
 
 	@Override
 	public boolean updatedClientMode(ModeInfo modeInfo) {
@@ -505,7 +484,7 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	}
 
 	@Override
-	public void clientError(int err_num, String message) {
+	public void onClientIsWorking(boolean isWorking) {
 		// TODO Auto-generated method stub
 		
 	}

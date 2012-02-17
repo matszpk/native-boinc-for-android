@@ -54,6 +54,10 @@
 			android:label="@string/menuManage"
 			android:launchMode="singleTop" />
 
+		<activity android:name=".NativeClientActivity"
+			android:label="@string/menuNativeClient"
+			android:launchMode="singleTop" />
+		
 		<activity android:name=".AppPreferencesActivity"
 			android:label="@string/menuPreferences"
 			android:launchMode="singleTop" />
@@ -87,15 +91,15 @@
 			android:launchMode="singleTop" />
 		
 		<activity android:name=".InstallStep1Activity"
-			android:launchMode="singleTask"
+			android:launchMode="singleTop"
 			android:label="@string/installWizard" />
 			
 		<activity android:name=".InstallStep2Activity"
-			android:launchMode="singleTask"
+			android:launchMode="singleTop"
 			android:label="@string/installWizard" />
 		
 		<activity android:name=".InstallFinishActivity"
-			android:launchMode="singleTask"
+			android:launchMode="singleTop"
 			android:label="@string/installWizard" />
 		
 		<activity android:name=".ProgressActivity"

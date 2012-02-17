@@ -112,11 +112,6 @@
 			android:title="@string/prefAboutTitle"
 			android:persistent="false" />
 		<Preference
-			android:key="installedBinaries"
-			android:title="@string/prefBinariesInfoTitle"
-			android:summary="@string/prefBinariesInfoSummary"
-			android:persistent="false" />
-		<Preference
 			android:key="changeLog"
 			android:title="@string/changelog"
 			android:summary="@string/prefChangelogSummary"

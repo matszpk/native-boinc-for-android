@@ -66,7 +66,7 @@ public class Downloader {
 	
 	private static final int BUFFER_SIZE = 4096;
 	
-	private static final int NOTIFY_PERIOD = 200;
+	private static final int NOTIFY_PERIOD = 400;
 	
 	public Downloader(Context context, InstallerService.ListenerHandler listenerHandler) {
 		mContext = context;
@@ -77,8 +77,10 @@ public class Downloader {
 		return mPgpKeyContent;
 	}
 	
-	public void downloadPGPKey(final String distribName, final String projectUrl,
-			final CancelObserver cancelObserver) throws InstallationException {
+	public void downloadPGPKey(final String distribName, final String projectUrl)
+			throws InstallationException {
+		
+		Thread currentThread = Thread.currentThread();
 		
 		notifyOperation(distribName, projectUrl, mContext.getString(R.string.downloadPGPKey));
 		
@@ -94,7 +96,7 @@ public class Downloader {
 		for (String keyserver: pgpKeyservers) {
 			if (Logging.DEBUG) Log.d(TAG, "Use PGP keyserver " + keyserver);
 			
-			if (cancelObserver.isCancelled())
+			if (currentThread.isInterrupted())
 				return;
 			
 			try {
@@ -167,12 +169,13 @@ public class Downloader {
 	public static final int VERIFICATION_CANCELLED = 4;
 	
 	public int verifyFile(File file, String urlString, boolean withProgress,
-			final String distribName, final String projectUrl,
-			final CancelObserver cancelObserver) throws InstallationException {
+			final String distribName, final String projectUrl) throws InstallationException {
 		if (Logging.DEBUG) Log.d(TAG, "verifying file "+urlString);
 		FileInputStream pgpStream = null;
 		
-		if (cancelObserver.isCancelled())	// if cancelled
+		Thread currentThread = Thread.currentThread();
+		
+		if (currentThread.isInterrupted())	// if cancelled
 			return VERIFICATION_CANCELLED;
 		
 		try {
@@ -182,7 +185,7 @@ public class Downloader {
 					if (mContext.getFileStreamPath("pgpkey.pgp").exists())
 						pgpStream = mContext.openFileInput("pgpkey.pgp");
 					else	// download from keyserver
-						downloadPGPKey(distribName, projectUrl, cancelObserver);
+						downloadPGPKey(distribName, projectUrl);
 				}
 				
 				if (mPgpKeyContent == null) {
@@ -208,7 +211,7 @@ public class Downloader {
 			} catch(IOException ex) { }
 		}
 		
-		if (cancelObserver.isCancelled())
+		if (currentThread.isInterrupted())
 			return VERIFICATION_CANCELLED;
 		
 		byte[] signContent = null;
@@ -240,7 +243,7 @@ public class Downloader {
 			} catch(IOException ex) { }
 		}
 		
-		if (cancelObserver.isCancelled())
+		if (currentThread.isInterrupted())
 			return VERIFICATION_CANCELLED;
 		
 		String opDesc = mContext.getString(R.string.verifySignature);
@@ -280,19 +283,21 @@ public class Downloader {
 	            signature.update((byte)ch);
 	            readed++;
 	            
-	            if(cancelObserver.isCancelled())	// do cancel
+	            if(currentThread.isInterrupted())	// do cancel
 	            	return VERIFICATION_CANCELLED;
 	            
-	            if (withProgress && (readed & 4095) == 0) {
+	            if (withProgress && (readed & 8191) == 0) {
 	            	long newTime = System.currentTimeMillis(); 
 	            	if (newTime-time > NOTIFY_PERIOD) {
 	            		notifyProgress(distribName, projectUrl, opDesc,
 	            				(int)((double)readed*10000.0/(double)length));
 	            		time = newTime;
 	            	}
-	            	try {
+	            	/*try {
 						Thread.sleep(40);
-					} catch(InterruptedException ex) { }
+					} catch(InterruptedException ex) {
+						return VERIFICATION_CANCELLED;
+					}*/
 	            }
 	        }
 	        
@@ -318,8 +323,9 @@ public class Downloader {
 	
 	public void downloadFile(String urlString, String outFilename, final String opDesc,
 			final String messageError, final boolean withProgress, final String distribName,
-			final String projectUrl, final CancelObserver cancelObserver)
-					throws InstallationException {
+			final String projectUrl) throws InstallationException {
+		
+		Thread currentThread = Thread.currentThread();
 		
 		if (Logging.DEBUG) Log.d(TAG, "downloading file "+urlString);
 		
@@ -348,7 +354,7 @@ public class Downloader {
 					if (readed == -1)
 						break;
 					
-					if (cancelObserver.isCancelled())
+					if (currentThread.isInterrupted())
 						break;	// if canceled
 					
 					outStream.write(buffer, 0, readed);
@@ -362,9 +368,12 @@ public class Downloader {
 							currentTime = newTime;
 						}
 					}
-					try {
-						Thread.sleep(40);
-					} catch(InterruptedException ex) { }
+					/*try {
+						Thread.sleep(80);
+					} catch(InterruptedException ex) {
+						currentThread.interrupt();
+						return;
+					}*/
 				}
 				
 				notifyProgress(distribName, projectUrl, opDesc, 10000);

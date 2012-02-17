@@ -97,6 +97,7 @@
 	<string name="menuPreferences">Preferences</string>
 	<string name="menuReconnect">Reconnect</string>
 	<string name="menuRefresh">Refresh</string>
+	<string name="menuNativeClient">Native client</string>
 
 	<!-- About -->
 	<string name="aboutTitle">Basic Information</string>
@@ -110,7 +111,7 @@
 		\n
 		Thanks for:\n
 		Troll81 - for logo design.\n
-		Boinc@Poland - for support.\n
+		BOINC@Poland - for support.\n
 	</string>
 
 	<!-- Preferences -->
@@ -239,6 +240,9 @@
 	<string name="clientAttachingToProject">Attaching to project</string>
 	<string name="warnShutdownText">The connected core client will be shut down. This manager cannot start the client afterwards.</string>
 	
+	<!--  progress dialog messages -->
+	<string name="synchronizingBAM">Synchronizing BAM...</string>
+	
 	<string name="shutdownAskText">Do you want to shutdown native client?</string>
 	
 	<!-- HostList Activity -->
@@ -259,6 +263,7 @@
 	<string name="otherProjectDetails">Choose other project</string>
 	<string name="projectsFromClient">Show projects from client</string>
 	<string name="projectsFromClientDetails">Show projects list from BOINC client</string>
+	<string name="projectListHelp">To get info about project please longer tap entry.</string>
 
 	<string name="projectUrl">Enter project URL</string>
 		
@@ -274,6 +279,7 @@
 	<string name="editBAMUrl">URL</string>
 	<string name="editBAMPassword">Password</string>
 	<string name="editBAMDefaultUrl">http://bam.boincstats.com/</string>
+	<string name="attachBAMInProgress">Attaching to BAM in progress...</string>
 
 	<!-- Add Project dialog  -->
 	<string name="addProject">Add project</string>
@@ -284,6 +290,7 @@
 	<string name="addProjectPassword">Password</string>
 	<string name="addProjectMinPassword">Min. password length</string>
 	<string name="termsOfUse">Terms of use</string>
+	<string name="addingProject">Adding project...</string>
 
 	<!-- Install Wizard Activity -->
 	<string name="installWizard">Installation Wizard</string>
@@ -303,12 +310,15 @@
 	    Application kills all clients at start up.</string>
 	<string name="installAttention3">BOINC client will be working in background. Please use \'Shutdown\' option to shutdown client.</string>
 	
-	<string name="installNetworkAccess1">Boinc client allows to you connect with it through network with using Boinc Manager.</string>
+	<string name="installNetworkAccess1">BOINC client allows to you connect with it through network with using BOINC Manager.</string>
 	<string name="installNetworkAccess2">To get access password and remote access options please select on main
 	    screen in menu \'Manage client\'->\'Network access\'.</string>
 
-	<string name="installClientNotifyBegin">Installing boinc client</string>
+	<string name="installClientNotifyBegin">Installing BOINC client</string>
+	<string name="installClientNotifyFinish">BOINC client was installed</string>
 	<string name="installProjectNotifyBegin">Installing applications for </string>
+	<string name="installProjectBegin">Installing applications</string>
+	<string name="installProjectNotifyFinish">Applications was installed</string>
 
 	<!-- Change password activity -->
 	<string name="changeAccessPassword">Change access password</string>
@@ -443,8 +453,29 @@
 	
 	<string name="nativeClientConfigured">Native client has been configured</string>
 	
+	<string name="nativeClientStarting">Starting up native client</string>
 	<string name="nativeClientStart">Native client started up</string>
-	<string name="nativeClientShutdown">Native client stopped</string>
+	<string name="nativeClientStopping">Stopping native client</string>
+	<string name="nativeClientShutdown">Native client was stopped</string>
+	
+	<string name="nativeClientWorking">Native client is working</string>
+	
+	<!-- boinc Exit code text -->
+	<string name="nativeClientWaitFailed">Naitve client was loosed (but working)!</string>
+	<string name="nativeClientNormalExitWithCode">Native client was exited with code</string>
+	<string name="nativeClientSignaled">Native client was exited by signal</string>
+	<string name="nativeClientStoppedByForeign">Native client was stopped by foreign application!</string>
+	<string name="nativeClientStopUnknownReason">Unknown reason why Native client stops</string>
+	
+	<!-- native client events -->
+	<string name="eventAttachedProject">New project was attached</string>
+	<string name="eventAttachedProjectMessage">Project from %s was attached</string>
+	<string name="eventDetachedProject">Project was detached</string>
+	<string name="eventDetachedProjectMessage">Project from %s was detached</string>
+	<string name="eventBencharkRun">Benchmark was ran</string>
+	<string name="eventBencharkFinished">Benchmark was finished</string>
+	<string name="eventSuspendAll">All tasks were suspended</string>
+	<string name="eventRunTasks">Tasks were resumed</string>
 	
 	<string name="appListDownload">Downloading project applications list</string>
 	<string name="clientListDownload">Downloading client list</string>

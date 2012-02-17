@@ -41,4 +41,6 @@ public interface PreferenceName {
 	
 	/* for client */
 	public static final String CLIENT_VERSION = "clientVersion";
+	/* installation */
+	public static final String INSTALLER_STAGE = "installerStage";
 }

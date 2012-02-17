@@ -60,37 +60,11 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 	private static final int DIALOG_ABOUT               = 2;
 	private static final int DIALOG_LICENSE             = 3;
 	private static final int DIALOG_CHANGELOG           = 4;
-	private static final int DIALOG_INSTALLED_BINS      = 5;
 
 	private BoincManagerApplication mApp;
 	private ScreenOrientationHandler mScreenOrientation;
 	private StringBuilder mAuxString = new StringBuilder();
 
-	private InstallerService mInstaller = null;
-	
-	private ServiceConnection mInstallerServiceConnection = new ServiceConnection() {
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			mInstaller = ((InstallerService.LocalBinder)service).getService();
-		}
-		
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			mInstaller = null;
-			if (Logging.DEBUG) Log.d(TAG, "installer.onServiceDisconnected()");
-		}
-	};
-	
-	private void doBindInstallerService() {
-		bindService(new Intent(AppPreferencesActivity.this, InstallerService.class),
-				mInstallerServiceConnection, Context.BIND_AUTO_CREATE);
-	}
-	
-	private void doUnbindInstallerService() {
-		unbindService(mInstallerServiceConnection);
-		mInstaller = null;
-	}
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -103,8 +77,6 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 		// Initializes the preference activity.
 		addPreferencesFromResource(R.xml.preferences);
 
-		doBindInstallerService();
-		
 		ListPreference listPref;
 		CheckBoxPreference cbPref;
 		Preference pref;
@@ -263,16 +235,6 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 			}
 		});
 		
-		// display installed binaries
-		pref = findPreference("installedBinaries");
-		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				showDialog(DIALOG_INSTALLED_BINS);
-				return true;
-			}
-		});
-
 		// Display Changelog
 		pref = findPreference("changeLog");
 		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -368,12 +330,6 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		
-		if (mInstaller != null) {
-			mInstaller = null;
-		}
-		
-		doUnbindInstallerService();
 		mScreenOrientation = null;
 	}
 
@@ -502,20 +458,6 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 			return new AlertDialog.Builder(this)
 				.setIcon(android.R.drawable.ic_dialog_info)
 				.setTitle(R.string.changelog)
-				.setView(v)
-				.setNegativeButton(R.string.dismiss, null)
-        		.create();
-		case DIALOG_INSTALLED_BINS:
-			v = LayoutInflater.from(this).inflate(R.layout.list_dialog, null);
-			list = (ListView)v.findViewById(R.id.dialogList);
-			
-			/* remove detached projects from installed projects */
-			mInstaller.synchronizeInstalledProjects();
-			
-			list.setAdapter(new InstalledBinsAdapter(this, mInstaller.getInstalledBinaries()));
-			return new AlertDialog.Builder(this)
-				.setIcon(android.R.drawable.ic_dialog_info)
-				.setTitle(R.string.installedBinaries)
 				.setView(v)
 				.setNegativeButton(R.string.dismiss, null)
         		.create();

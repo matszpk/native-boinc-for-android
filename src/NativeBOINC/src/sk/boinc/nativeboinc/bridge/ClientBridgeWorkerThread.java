@@ -125,6 +125,12 @@ public class ClientBridgeWorkerThread extends Thread {
 		mHandler.disconnect();
 		// Triggers for worker thread will be internally arranged by mHandler
 	}
+	
+	public boolean isWorking() {
+		if (mHandler != null)
+			return mHandler.isWorking();
+		return false;
+	}
 
 	public void cancelPendingUpdates(final ClientReplyReceiver callback) {
 		// Run immediately NOW (from UI thread)
@@ -194,48 +200,48 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
-	public void getBAMInfo(final ClientAccountMgrReceiver callback) {
+	public void getBAMInfo() {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.getBAMInfo(callback);
+				mHandler.getBAMInfo();
 			}
 		});
 	}
 	
-	public void attachToBAM(final ClientAccountMgrReceiver callback, final String name, final String url, final String password) {
+	public void attachToBAM(final String name, final String url, final String password) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.attachToBAM(callback, name, url, password);
+				mHandler.attachToBAM(name, url, password);
 			}
 		});
 	}
 	
-	public void synchronizeWithBAM(final ClientAccountMgrReceiver callback) {
+	public void synchronizeWithBAM() {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.synchronizeWithBAM(callback);
+				mHandler.synchronizeWithBAM();
 			}
 		});
 	}
 	
-	public void stopUsingBAM(final ClientReplyReceiver callback) {
+	public void stopUsingBAM() {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.stopUsingBAM(callback);
+				mHandler.stopUsingBAM();
 			}
 		});
 	}
 	
-	public void getAllProjectsList(final ClientAllProjectsListReceiver callback) {
+	public void getAllProjectsList() {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.getAllProjectsList(callback);
+				mHandler.getAllProjectsList();
 			}
 		});
 	}

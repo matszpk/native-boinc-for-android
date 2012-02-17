@@ -27,18 +27,31 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+import sk.boinc.nativeboinc.BoincManagerActivity;
 import sk.boinc.nativeboinc.BoincManagerApplication;
+import sk.boinc.nativeboinc.NotificationController;
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.installer.ClientDistrib;
+import sk.boinc.nativeboinc.installer.InstallerProgressListener;
+import sk.boinc.nativeboinc.installer.InstallerService;
+import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
+import sk.boinc.nativeboinc.installer.ProjectDistrib;
+import sk.boinc.nativeboinc.util.NotificationId;
 import sk.boinc.nativeboinc.util.PreferenceName;
+import sk.boinc.nativeboinc.util.ProcessUtils;
 
 import edu.berkeley.boinc.lite.Result;
+import edu.berkeley.boinc.nativeboinc.ClientEvent;
 import edu.berkeley.boinc.nativeboinc.ExtendedRpcClient;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.ConditionVariable;
@@ -53,7 +66,8 @@ import android.util.Log;
  * @author mat
  *
  */
-public class NativeBoincService extends Service {
+public class NativeBoincService extends Service implements MonitorListener,
+		InstallerProgressListener, InstallerUpdateListener {
 	private final static String TAG = "NativeBoincService";
 
 	public class LocalBinder extends Binder {
@@ -99,19 +113,45 @@ public class NativeBoincService extends Service {
 	
 	private String mPendingError = null;
 	
+	private boolean mPreviousStateOfIsWorking = false;
+	private boolean mIsWorking = false;
+	
 	public class ListenerHandler extends Handler {
-		public void onClientStateChanged(boolean isRun) {
-			for (AbstractNativeBoincListener listener: mListeners)
+
+		public void onClientStart() {
+			// notify user
+			startServiceInForeground();
+			mNotificationController.removeClientNotification();
+			
+			AbstractNativeBoincListener[] listeners = mListeners.toArray(
+					new AbstractNativeBoincListener[0]);
+			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincStateListener)
-					((NativeBoincStateListener)listener).onClientStateChanged(isRun);
+					((NativeBoincStateListener)listener).onClientStart();
+		}
+		
+		public void onClientStop(int exitCode, boolean stoppedByManager) {
+			// notify user
+			stopServiceInForeground();
+			mNotificationController.notifyClientEvent(getString(R.string.nativeClientShutdown),
+					ExitCode.getExitCodeMessage(NativeBoincService.this,
+							exitCode, stoppedByManager));
+			
+			AbstractNativeBoincListener[] listeners = mListeners.toArray(
+					new AbstractNativeBoincListener[0]);
+			for (AbstractNativeBoincListener listener: listeners)
+				if (listener instanceof NativeBoincStateListener)
+					((NativeBoincStateListener)listener).onClientStop(exitCode, stoppedByManager);
 		}
 
 		public void onNativeBoincError(String message) {
 			boolean called = false;
 			
-			for (AbstractNativeBoincListener listener: mListeners)
+			AbstractNativeBoincListener[] listeners = mListeners.toArray(
+					new AbstractNativeBoincListener[0]);
+			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincStateListener) {
-					((NativeBoincStateListener)listener).onNativeBoincError(message);
+					((NativeBoincStateListener)listener).onNativeBoincClientError(message);
 					called = true;
 				}
 			
@@ -126,10 +166,13 @@ public class NativeBoincService extends Service {
 		public void nativeBoincServiceError(String message) {
 			boolean called = false;
 			
-			for (AbstractNativeBoincListener listener: mListeners) {
-				listener.onNativeBoincError(message);
-				called = true;
-			}
+			AbstractNativeBoincListener[] listeners = mListeners.toArray(
+					new AbstractNativeBoincListener[0]);
+			for (AbstractNativeBoincListener listener: listeners)
+				if (listener instanceof NativeBoincServiceListener) {
+					((NativeBoincServiceListener)listener).onNativeBoincServiceError(message);
+					called = true;
+				}
 			
 			synchronized(NativeBoincService.this) {
 				if (!called)
@@ -148,18 +191,33 @@ public class NativeBoincService extends Service {
 			if (mListeners.contains(callback))
 				callback.getResults(results);
 		}
+		
 		public void updatedProjectApps(String projectUrl) {
-			for (AbstractNativeBoincListener listener: mListeners)
+			AbstractNativeBoincListener[] listeners = mListeners.toArray(
+					new AbstractNativeBoincListener[0]);
+			
+			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincUpdateListener)
 					((NativeBoincUpdateListener)listener).updatedProjectApps(projectUrl);
+		}
+		
+		public void notifyChangeIsWorking(boolean isWorking) {
+			AbstractNativeBoincListener[] listeners = mListeners.toArray(
+					new AbstractNativeBoincListener[0]);
+			
+			for (AbstractNativeBoincListener listener: listeners)
+				listener.onChangeRunnerIsWorking(isWorking);
 		}
 	}
 	
 	private ListenerHandler mListenerHandler = null;
 	private MonitorThread.ListenerHandler mMonitorListenerHandler;
 	
+	private NotificationController mNotificationController = null;
+	
 	@Override
 	public IBinder onBind(Intent intent) {
+		if (Logging.DEBUG) Log.d(TAG, "OnBind");
 		startService(new Intent(this, NativeBoincService.class));
 		return mBinder;
 	}
@@ -167,30 +225,75 @@ public class NativeBoincService extends Service {
 	private WakeLock mDimWakeLock = null;
 	private WakeLock mPartialWakeLock = null;
 	
+	private BoincManagerApplication mApp = null;
+	
 	@Override
 	public void onCreate() {
+		if (Logging.DEBUG) Log.d(TAG, "onCreate");
 		PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+		
+		mApp = (BoincManagerApplication)getApplication();
+		mNotificationController = mApp.getNotificationController();
+		
 		mDimWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, BoincManagerApplication.GLOBAL_ID);
 		mPartialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, BoincManagerApplication.GLOBAL_ID);
 		mListenerHandler = new ListenerHandler();
 		
 		mMonitorListenerHandler = MonitorThread.createListenerHandler();
+		
+		addMonitorListener(this);
+	}
+	
+	private Runnable mRunnerStopper = null;
+	
+	private static final int DELAYED_DESTROY_INTERVAL = 4000;
+	
+	@Override
+	public void onRebind(Intent intent) {
+		if (mListenerHandler != null && mRunnerStopper != null) {
+			if (Logging.DEBUG) Log.d(TAG, "Rebind");
+			mListenerHandler.removeCallbacks(mRunnerStopper);
+			mRunnerStopper = null;
+		}
 	}
 	
 	@Override
+	public boolean onUnbind(Intent intent) {
+		if (mNativeBoincThread == null) {
+			if (Logging.DEBUG) Log.d(TAG, "nativeboincthread is null");
+			mRunnerStopper = new Runnable() {
+				@Override
+				public void run() {
+					
+					if (Logging.DEBUG) Log.d(TAG, "Stop NativeBoincService");
+					mRunnerStopper = null;
+					stopSelf();
+				}
+			};
+			mListenerHandler.postDelayed(mRunnerStopper, DELAYED_DESTROY_INTERVAL);
+		}
+		return true;
+	}
+	@Override
 	public void onDestroy() {
-		mWorkerThread.shutdownClient();
+		if (Logging.DEBUG) Log.d(TAG, "onDestroy");
+		if (isRun()) {
+			mWorkerThread.shutdownClient();
+			
+			try { // waits 5 seconds
+				Thread.sleep(5000);
+			} catch(InterruptedException ex) { }
+			
+			killAllNativeBoincs(this);
+			killAllBoincZombies();
+		}
 		
-		try { // waits 5 seconds
-			Thread.sleep(5000);
-		} catch(InterruptedException ex) { }
-		
-		killNativeBoinc();
-		killAllBoincZombies();
-		
-		mWorkerThread.stopThread();
-		mWakeLockHolder.destroy();
-		mMonitorThread.quitFromThread();
+		if (mWorkerThread != null)
+			mWorkerThread.stopThread();
+		if (mWakeLockHolder != null)
+			mWakeLockHolder.destroy();
+		if (mMonitorThread != null)
+			mMonitorThread.quitFromThread();
 		
 		mListeners.clear();
 		if (mDimWakeLock.isHeld()) {
@@ -203,24 +306,62 @@ public class NativeBoincService extends Service {
 			mPartialWakeLock.release();
 		}
 		mPartialWakeLock = null;
+		
+		mNotificationController = null;
 	}
 	
 	private List<AbstractNativeBoincListener> mListeners = new ArrayList<AbstractNativeBoincListener>();
 	
 	private NativeBoincWorkerThread mWorkerThread = null;
-	
 	private MonitorThread mMonitorThread = null;
 	
-	private static String[] getEnvArray() {
-		Map<String, String> envMap = System.getenv();
-		String[] envArray = new String[envMap.size()];
+	private boolean mShutdownCommandWasPerformed = false;
+	
+	private Notification mServiceNotification = null;
+	
+	/*
+	 * notifications
+	 */
+	private void startServiceInForeground() {
+		String message = getString(R.string.nativeClientWorking);
 		
-		{
-			int i = 0;
-			for (Map.Entry<String, String> envVar: envMap.entrySet())
-				envArray[i++] = envVar.getKey()+"="+envVar.getValue();
+		Intent intent = new Intent(this, BoincManagerActivity.class);
+		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+		
+		if (mServiceNotification == null) {
+			mServiceNotification = new Notification(R.drawable.nativeboinc_alpha, message,
+					System.currentTimeMillis());
+		} else {
+			mServiceNotification.when = System.currentTimeMillis();
 		}
-		return envArray;
+		mServiceNotification.setLatestEventInfo(getApplicationContext(),
+				message, message, pendingIntent);
+		
+		startForeground(NotificationId.NATIVE_BOINC_SERVICE, mServiceNotification);
+	}
+	
+	private void stopServiceInForeground() {
+		stopForeground(true);
+	}
+	
+	/* kill processes routines */
+	private static void killBoincProcesses(List<String> pidStrings) {
+		for (String pid: pidStrings) {
+			android.os.Process.sendSignal(Integer.parseInt(pid), 2);
+			try {
+				Thread.sleep(100);	// 0.4 second
+			} catch (InterruptedException e) { }
+			android.os.Process.sendSignal(Integer.parseInt(pid), 2);
+			try {
+				Thread.sleep(100);	// 0.4 second
+			} catch (InterruptedException e) { }
+			android.os.Process.sendSignal(Integer.parseInt(pid), 2);
+			try {
+				Thread.sleep(400);	// 0.4 second
+			} catch (InterruptedException e) { }
+			/* fallback killing (by using SIGKILL signal) */
+			android.os.Process.sendSignal(Integer.parseInt(pid), 9);
+		}
 	}
 	
 	private static void killProcesses(List<String> pidStrings) {
@@ -234,9 +375,9 @@ public class NativeBoincService extends Service {
 		}
 	}
 	
-	private void killNativeBoinc() {
-		String nativeBoincPath = NativeBoincService.this.getFileStreamPath("boinc_client")
-			.getAbsolutePath();
+	private static void killAllNativeBoincs(Context context) {
+		Log.d(TAG, "Kill all native boincs");
+		String nativeBoincPath = context.getFileStreamPath("boinc_client").getAbsolutePath();
 		File procDir = new File("/proc/");
 		/* scan /proc directory */
 		List<String> pids = new ArrayList<String>();
@@ -273,10 +414,10 @@ public class NativeBoincService extends Service {
 		}
 		
 		/* do kill processes */
-		killProcesses(pids);
+		killBoincProcesses(pids);
 	}
 	
-	private void killAllBoincZombies() {
+	private static void killAllBoincZombies() {
 		File procDir = new File("/proc/");
 		List<String> pids = new ArrayList<String>();
 		BufferedReader cmdLineReader = null;
@@ -353,6 +494,7 @@ public class NativeBoincService extends Service {
 		
 		private boolean mIsRun = false;
 		private boolean mSecondStart = false; 
+		private int mBoincPid = -1;
 		
 		public NativeBoincThread(boolean secondStart) {
 			this.mSecondStart = secondStart;
@@ -365,27 +507,25 @@ public class NativeBoincService extends Service {
 			
 			boolean usePartial = globalPrefs.getBoolean(PreferenceName.POWER_SAVING, false);
 			
-			String[] envArray = getEnvArray();
+			mShutdownCommandWasPerformed = false;
 			
-			Process process = null;
-			try {
-				if (Logging.DEBUG) Log.d(TAG, "Running boinc_client program");
-				/* run native boinc client */
-				process = Runtime.getRuntime().exec(new String[] {
-						NativeBoincService.this.getFileStreamPath("boinc_client").getAbsolutePath(),
-						"--allow_remote_gui_rpc" }, envArray,
-						NativeBoincService.this.getFileStreamPath("boinc"));
-			} catch(IOException ex) {
-				if (Logging.ERROR) Log.d(TAG, "Running boinc_client failed");
-				notifyClientStateChanged(false);
+			String programName = NativeBoincService.this.getFileStreamPath("boinc_client")
+					.getAbsolutePath();
+			
+			mBoincPid = ProcessUtils.exec(programName,
+					NativeBoincService.this.getFileStreamPath("boinc").getAbsolutePath(),
+					new String[] { "--allow_remote_gui_rpc" });
+			
+			if (mBoincPid == -1) {
+				if (Logging.ERROR) Log.e(TAG, "Running boinc_client failed");
 				mIsRun = false;
-				notifyClientError(NativeBoincService.this.getString(R.string.runNativeClientError));
 				mNativeBoincThread = null;
+				notifyClientError(NativeBoincService.this.getString(R.string.runNativeClientError));
 				return;
 			}
 			
 			try {
-				Thread.sleep(200); // sleep 0.2 seconds
+				Thread.sleep(300); // sleep 0.3 seconds
 			} catch(InterruptedException ex) { }
 			/* open client */
 			if (Logging.DEBUG) Log.d(TAG, "Connecting with native client");
@@ -398,7 +538,7 @@ public class NativeBoincService extends Service {
 					break;
 				} else {
 					try {
-						Thread.sleep(200); // sleep 0.2 seconds
+						Thread.sleep(300); // sleep 0.2 seconds
 					} catch(InterruptedException ex) { }
 				}
 			}
@@ -406,39 +546,53 @@ public class NativeBoincService extends Service {
 			if (!isRpcOpened) {
 				if (Logging.ERROR) Log.e(TAG, "Connecting with native client failed");
 				mIsRun = false;
+				mNativeBoincThread = null;
 				notifyClientError(getString(R.string.connectNativeClientError));
-				killAllBoincZombies();
 				killNativeBoinc();
-				mNativeBoincThread = null;
-				return;
-			}
-			/* authorize access */
-			try {
-				if (rpcClient != null && !rpcClient.authorize(getAccessPassword())) {
-					if (Logging.ERROR) Log.e(TAG, "Authorizing with native client failed");
-					mIsRun = false;
-					notifyClientError(getString(R.string.nativeAuthorizeError));
-					killAllBoincZombies();
-					killNativeBoinc();
-					mNativeBoincThread = null;
-					return;
-				}
-			} catch(IOException ex) {
-				if (Logging.ERROR) Log.e(TAG, "Authorizing with native client failed");
-				mIsRun = false;
-				notifyClientError(getString(R.string.getAccessPasswordError));
-				rpcClient.close();
 				killAllBoincZombies();
-				killNativeBoinc();
-				mNativeBoincThread = null;
 				return;
 			}
 			
+			/* authorize access */
+			String password = null;
+			try {
+				password = getAccessPassword();
+			} catch(IOException ex) {
+				if (Logging.ERROR) Log.e(TAG, "Authorizing with native client failed");
+				mIsRun = false;
+				mNativeBoincThread = null;
+				notifyClientError(getString(R.string.getAccessPasswordError));
+				rpcClient.close();
+				killNativeBoinc();
+				killAllBoincZombies();
+				return;
+			}
+			boolean isAuthorized = false;
+			for (int i = 0; i < 3; i++) {
+				if (Logging.DEBUG) Log.d(TAG, "Try to authorize with password:" + password);
+				if (rpcClient.authorize(password)) {
+					isAuthorized = true;
+					break;
+				}
+			}
+			if (!isAuthorized) {
+				if (Logging.ERROR) Log.e(TAG, "Authorizing with native client failed");
+				mIsRun = false;
+				mNativeBoincThread = null;
+				notifyClientError(getString(R.string.nativeAuthorizeError));
+				killNativeBoinc();
+				killAllBoincZombies();
+				return;
+			} 
+			
 			if (Logging.DEBUG) Log.d(TAG, "Acquire wake lock");
-			if (!usePartial)
-				mDimWakeLock.acquire();	// screen lock
-			else
-				mPartialWakeLock.acquire();	// partial lock
+			if (!usePartial) {
+				if (mDimWakeLock != null)
+					mDimWakeLock.acquire();	// screen lock
+			} else {
+				if (mPartialWakeLock != null)
+					mPartialWakeLock.acquire();	// partial lock
+			}
 			
 			String monitorAuthCode = null;
 			// authorize monitor
@@ -481,32 +635,41 @@ public class NativeBoincService extends Service {
 			}
 			
 			mIsRun = true;
-			notifyClientStateChanged(true);
+			notifyClientStart();
+			
+			int exitCode = 0;
 			
 			try { /* waiting to quit */
 				if (Logging.DEBUG) Log.d(TAG, "Waiting for boinc_client");
-				process.waitFor();
+				exitCode = ProcessUtils.waitForProcess(mBoincPid);
 			} catch(InterruptedException ex) {
 			}
 			
 			rpcClient = null;
 			
 			if (Logging.DEBUG) Log.d(TAG, "boinc_client has been finished");
-			process.destroy();
 			
 			killNativeBoinc();
-			killAllBoincZombies();	// kill all zombies
+			killAllBoincZombies();
 			
 			if (Logging.DEBUG) Log.d(TAG, "Release wake lock");
-			if (mDimWakeLock.isHeld())
+			if (mDimWakeLock != null && mDimWakeLock.isHeld())
 				mDimWakeLock.release();	// screen unlock
-			if (mPartialWakeLock.isHeld())
+			if (mPartialWakeLock != null && mPartialWakeLock.isHeld())
 				mPartialWakeLock.release();	// screen unlock
 			
-			notifyClientStateChanged(false);
 			mIsRun = false;
-			
 			mNativeBoincThread = null;
+			notifyClientStop(exitCode, mShutdownCommandWasPerformed);
+		}
+		
+		public void killNativeBoinc() {
+			android.os.Process.sendSignal(mBoincPid, 2);
+			try {
+				Thread.sleep(400);	// 0.4 second
+			} catch (InterruptedException e) { }
+			/* fallback killing (by using SIGKILL signal) */
+			android.os.Process.sendSignal(mBoincPid, 9);
 		}
 	};
 	
@@ -539,11 +702,11 @@ public class NativeBoincService extends Service {
 	private NativeKillerThread mNativeKillerThread = null;
 	private WakeLockHolder mWakeLockHolder = null;
 	
-	public void addNativeBoincListener(AbstractNativeBoincListener listener) {
+	public synchronized void addNativeBoincListener(AbstractNativeBoincListener listener) {
 		mListeners.add(listener);
 	}
 	
-	public void removeNativeBoincListener(AbstractNativeBoincListener listener) {
+	public synchronized void removeNativeBoincListener(AbstractNativeBoincListener listener) {
 		mListeners.remove(listener);
 	}
 	
@@ -561,26 +724,45 @@ public class NativeBoincService extends Service {
 	public boolean firstStartClient() {
 		if (Logging.DEBUG) Log.d(TAG, "Starting FirstStartThread");
 		
-		String[] envArray = getEnvArray();
+		//String[] envArray = getEnvArray();
 		
-		try {
-			if (Logging.DEBUG) Log.d(TAG, "Running boinc_client program");
-			/* run native boinc client */
-			Runtime.getRuntime().exec(new String[] {
-					NativeBoincService.this.getFileStreamPath("boinc_client").getAbsolutePath() },
-					envArray, NativeBoincService.this.getFileStreamPath("boinc"));
-		} catch(IOException ex) {
-			if (Logging.ERROR) Log.d(TAG, "First running boinc_client failed");
-			mNativeBoincThread = null;
+		int boincPid = -1;
+		
+		String programName = NativeBoincService.this.getFileStreamPath("boinc_client")
+				.getAbsolutePath();
+		
+		boincPid = ProcessUtils.exec(programName,
+				NativeBoincService.this.getFileStreamPath("boinc").getAbsolutePath(),
+				new String[] { "--allow_remote_gui_rpc" });
+		
+		Log.d(TAG, "First start client, pid:"+boincPid);
+		
+		if (boincPid == -1) {
+			if (Logging.ERROR) Log.d(TAG, "Running boinc_client failed");
 			return false;
 		}
 		
 		/* waiting and killing */
 		try {
-			Thread.sleep(300); // sleep 0.3 seconds
+			Thread.sleep(500); // sleep 0.5 seconds
 		} catch(InterruptedException ex) { }
 		/* killing boinc client */
-		killNativeBoinc();
+		
+		android.os.Process.sendSignal(boincPid, 2);
+		try {
+			Thread.sleep(100);	// 0.1 second
+		} catch (InterruptedException e) { }
+		android.os.Process.sendSignal(boincPid, 2);
+		try {
+			Thread.sleep(100);	// 0.1 second
+		} catch (InterruptedException e) { }
+		android.os.Process.sendSignal(boincPid, 2);
+		try {
+			Thread.sleep(400);	// 0.4 second
+		} catch (InterruptedException e) { }
+		/* fallback killing (by using SIGKILL signal) */
+		android.os.Process.sendSignal(boincPid, 9);
+		
 		return true;
 	}
 	
@@ -597,6 +779,16 @@ public class NativeBoincService extends Service {
 	public void startClient(boolean secondStart) {
 		if (Logging.DEBUG) Log.d(TAG, "Starting NativeBoincThread");
 		if (mNativeBoincThread == null) {
+			
+			String text = getString(R.string.nativeClientStarting);
+			mNotificationController.notifyClientEvent(text, text);
+			
+			// inform that, service is working
+			mIsWorking = true;
+			notifyChangeIsWorking();
+			
+			mApp.bindRunnerService();
+			
 			mNativeBoincThread = new NativeBoincThread(secondStart);
 			mNativeBoincThread.start();
 			mWakeLockHolder = new WakeLockHolder(this, mPartialWakeLock, mDimWakeLock);
@@ -609,11 +801,26 @@ public class NativeBoincService extends Service {
 	public void shutdownClient() {
 		if (Logging.DEBUG) Log.d(TAG, "Shutting down native client");
 		if (mNativeBoincThread != null) {
+			mShutdownCommandWasPerformed = true;
 			/* start killer */
+			String text = getString(R.string.nativeClientStopping);
+			mNotificationController.notifyClientEvent(text, text);
+			// inform that, service is working
+			mIsWorking = true;
+			notifyChangeIsWorking();
+			
 			mNativeKillerThread = new NativeKillerThread();
 			mNativeKillerThread.start();
 			mWorkerThread.shutdownClient();
 		}
+	}
+	
+	public boolean ifStoppedByManager() {
+		return mShutdownCommandWasPerformed;
+	}
+	
+	public boolean serviceIsWorking() {
+		return mIsWorking;
 	}
 	
 	public boolean isRun() {
@@ -663,47 +870,80 @@ public class NativeBoincService extends Service {
 	}
 	
 	/* fallback kill zombies */
-	public void killZombieClient() {
-		killNativeBoinc();
+	public static void killZombieClient(Context context) {
+		killAllNativeBoincs(context);
 		killAllBoincZombies();
 	}
 	
 	/* notifying methods */
-	private synchronized void notifyClientStateChanged(final boolean isRun) {
+	private synchronized void notifyClientStart() {
+		// inform that, service finished work
+		mIsWorking = false;
+		notifyChangeIsWorking();
+		
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				if (!isRun) {	// if stopped
-					mNativeBoincThread = null;
-					if (mNativeKillerThread != null) {
-						mNativeKillerThread.disableKiller();
-						mNativeKillerThread = null;
-					}
-					if (mWakeLockHolder != null) {
-						mWakeLockHolder.destroy();
-						mWakeLockHolder = null;
-					}
-					if (mWorkerThread != null) {
-						mWorkerThread.stopThread();
-						mWorkerThread = null;
-					}
-					if (mMonitorThread != null) {
-						mMonitorThread.quitFromThread();
-						mMonitorThread = null;
-					}
+				mListenerHandler.onClientStart();
+			}
+		});
+	}
+	
+	private synchronized void notifyClientStop(final int exitCode, final boolean stoppedByManager) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mNativeBoincThread = null;
+				if (mNativeKillerThread != null) {
+					mNativeKillerThread.disableKiller();
+					mNativeKillerThread = null;
 				}
-				mListenerHandler.onClientStateChanged(isRun);
+				if (mWakeLockHolder != null) {
+					mWakeLockHolder.destroy();
+					mWakeLockHolder = null;
+				}
+				if (mWorkerThread != null) {
+					mWorkerThread.stopThread();
+					mWorkerThread = null;
+				}
+				if (mMonitorThread != null) {
+					mMonitorThread.quitFromThread();
+					mMonitorThread = null;
+				}
+				// inform that, service finisged work
+				mIsWorking = false;
+				notifyChangeIsWorking();
+				
+				mListenerHandler.onClientStop(exitCode, stoppedByManager);
 			}
 		});
 	}
 	
 	private synchronized void notifyClientError(final String message) {
+		// inform that, service finished work
+		mIsWorking = false;
+		notifyChangeIsWorking();
+		
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
 				mListenerHandler.onNativeBoincError(message);
 			}
 		});
+	}
+	
+	private synchronized void notifyChangeIsWorking() {
+		final boolean currentIsWorking = mIsWorking;
+		if (mPreviousStateOfIsWorking != currentIsWorking) {
+			if (Logging.DEBUG) Log.d(TAG, "Change is working:"+currentIsWorking);
+			mPreviousStateOfIsWorking = currentIsWorking;
+			mListenerHandler.post(new Runnable() {
+				@Override
+				public void run() {
+					mListenerHandler.notifyChangeIsWorking(currentIsWorking);
+				}
+			});
+		}
 	}
 	
 	/**
@@ -732,5 +972,213 @@ public class NativeBoincService extends Service {
 			if (writer != null)
 				writer.close();
 		}
+	}
+	
+	/**
+	 * add project handling, queues and installer service bounding
+	 */
+	
+	/**
+	 * contains project urls
+	 */
+	private ArrayList<String> mPendingProjectAppsToInstall = new ArrayList<String>();
+	/**
+	 * contains project names (not projectUrls)
+	 */
+	private ArrayList<String> mInstalledProjectApps = new ArrayList<String>();
+
+	private InstallerService mInstaller = null;
+	
+	private ServiceConnection mInstallerConn = new ServiceConnection() {
+		
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			Log.d(TAG, "Installer is unbounded");
+			mInstaller.removeInstallerListener(NativeBoincService.this);
+			mInstaller = null;
+		}
+		
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			Log.d(TAG, "Installer is bounded");
+			mInstaller = ((InstallerService.LocalBinder)service).getService();
+			mInstaller.addInstallerListener(NativeBoincService.this);
+			// update installed distrib list before installing applications (IMPORTANT)
+			mInstaller.synchronizeInstalledProjects();
+			
+			mInstallerInBounding = false;
+			
+			// do install
+			synchronized(mPendingProjectAppsToInstall) {
+				for (String projectUrl: mPendingProjectAppsToInstall)
+					installProjectApplication(projectUrl);
+				mPendingProjectAppsToInstall.clear();
+			}
+		}
+	};
+	
+	private boolean mInstallerInBounding = false;
+	private boolean mIfProjectDistribsListUpdated = false;
+	
+	/**
+	 * real project installtion routine
+	 * @param projectUrl
+	 */
+	private void installProjectApplication(String projectUrl) {
+		String projectName = mInstaller.resolveProjectName(projectUrl);
+		
+		if (projectName == null) {	// do nothing if not found
+			if (!mIfProjectDistribsListUpdated) { // if not updated before
+				// add to pending tasks
+				synchronized (mPendingProjectAppsToInstall) {
+					mPendingProjectAppsToInstall.add(projectUrl);
+				}
+				// try to update project list
+				mInstaller.updateProjectDistribList();
+			} else {
+				// simply finish task
+				finishProjectApplicationInstallation(projectName);
+			}
+			return;
+		}
+		
+		synchronized (mInstalledProjectApps) {
+			mInstalledProjectApps.add(projectName);
+		}
+		mInstaller.installProjectApplicationsAutomatically(projectName, projectUrl);
+	}
+	
+	private void startInstallProjectApplication(String projectUrl) {
+		if (mInstaller == null) {
+			Log.d(TAG, "Installer service not bound");
+			/* if not initialized */
+			synchronized(mPendingProjectAppsToInstall) {
+				mPendingProjectAppsToInstall.add(projectUrl);
+			}
+			
+			if (!mInstallerInBounding) {
+				/* if already bounding */
+				mInstallerInBounding = true;
+				bindService(new Intent(this, InstallerService.class), mInstallerConn, BIND_AUTO_CREATE);
+			}
+		} else
+			installProjectApplication(projectUrl);
+	}
+
+	@Override
+	public void onMonitorEvent(ClientEvent event) {
+		String title = null;
+		switch(event.type) {
+		case ClientEvent.EVENT_ATTACHED_PROJECT:
+			mNotificationController.notifyClientEvent(getString(R.string.eventAttachedProject), 
+					String.format(getString(R.string.eventAttachedProjectMessage),
+							event.projectUrl));
+			
+			startInstallProjectApplication(event.projectUrl);
+			break;
+		case ClientEvent.EVENT_DETACHED_PROJECT:
+			mNotificationController.notifyClientEvent(getString(R.string.eventDetachedProject), 
+					String.format(getString(R.string.eventDetachedProjectMessage),
+							event.projectUrl));
+			break;
+		case ClientEvent.EVENT_RUN_BENCHMARK:
+			title = getString(R.string.eventBencharkRun);
+			mNotificationController.notifyClientEvent(title, title);
+			break;
+		case ClientEvent.EVENT_FINISH_BENCHMARK:
+			title = getString(R.string.eventBencharkFinished);
+			mNotificationController.notifyClientEvent(title, title);
+			break;
+		case ClientEvent.EVENT_SUSPEND_ALL_TASKS:
+			title = getString(R.string.eventSuspendAll);
+			mNotificationController.notifyClientEvent(title, title);
+			break;
+		case ClientEvent.EVENT_RUN_TASKS:
+			title = getString(R.string.eventRunTasks);
+			mNotificationController.notifyClientEvent(title, title);
+			break;
+		}
+	}
+	
+	private void finishProjectApplicationInstallation(String projectName) {
+		boolean ifLast = false;
+		synchronized (mInstalledProjectApps) {
+			mInstalledProjectApps.remove(projectName);
+			ifLast = mInstalledProjectApps.isEmpty();
+		}
+
+		if (ifLast)
+			unboundInstallService();
+	}
+	
+	private void unboundInstallService() {
+		mIfProjectDistribsListUpdated = false;	// reset this indicator
+		/* do unbound installer service */
+		Log.d(TAG, "Unbound installer service");
+		unbindService(mInstallerConn);
+		mInstaller.removeInstallerListener(this);
+		mInstaller = null;
+	}
+
+	@Override
+	public void onOperation(String distribName, String opDescription) {
+		// do nothing, ignore
+	}
+
+	@Override
+	public void onOperationProgress(String distribName, String opDescription,
+			int progress) {
+		// do nothing
+	}
+
+	@Override
+	public void onOperationError(String distribName, String errorMessage) {
+		if (distribName == null || distribName.length() == 0) {
+			// is not distrib (updating project distrib list simply failed)
+			synchronized (mPendingProjectAppsToInstall) {
+				mPendingProjectAppsToInstall.clear();
+			}
+			
+			boolean ifLast = false; 
+			synchronized (mInstalledProjectApps) {
+				ifLast = mInstalledProjectApps.isEmpty();
+			}
+			if (ifLast)
+				unboundInstallService();
+		}
+		finishProjectApplicationInstallation(distribName);
+	}
+
+	@Override
+	public void onOperationCancel(String distribName) {
+		finishProjectApplicationInstallation(distribName);
+	}
+
+	@Override
+	public void onOperationFinish(String distribName) {
+		finishProjectApplicationInstallation(distribName);
+	}
+
+	@Override
+	public void currentProjectDistribList(ArrayList<ProjectDistrib> projectDistribs) {
+		// TODO Auto-generated method stub
+		mIfProjectDistribsListUpdated = true;
+		// try again
+		synchronized(mPendingProjectAppsToInstall) {
+			for (String projectUrl: mPendingProjectAppsToInstall)
+				installProjectApplication(projectUrl);
+			mPendingProjectAppsToInstall.clear();
+		}
+	}
+
+	@Override
+	public void currentClientDistrib(ClientDistrib clientDistrib) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onInstallerWorking(boolean isWorking) {
+		// TODO Auto-generated method stub
+		
 	}
 }

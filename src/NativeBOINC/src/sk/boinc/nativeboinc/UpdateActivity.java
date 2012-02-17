@@ -174,23 +174,26 @@ public class UpdateActivity extends ServiceBoincActivity implements NativeBoincS
 	}
 
 	@Override
-	public void onClientStateChanged(boolean isRun) {
+	public void onClientStart() {
 		if (mUpdateStarts) {
-			if (isRun) {
-				HostListDbAdapter dbHelper = new HostListDbAdapter(this);
-				dbHelper.open();
-				ClientId clientId = dbHelper.fetchHost("nativeboinc");
-				dbHelper.close();
-				if (clientId != null) {
-					try {
-						mConnectionManager.connect(clientId, false);
-					} catch(NoConnectivityException ex) { }
-				}
-				finish();
-			} else {	// do reinstall
-				mCurrentlyInstalledItem = 0;
-				reinstallNextItem();
+			HostListDbAdapter dbHelper = new HostListDbAdapter(this);
+			dbHelper.open();
+			ClientId clientId = dbHelper.fetchHost("nativeboinc");
+			dbHelper.close();
+			if (clientId != null) {
+				try {
+					mConnectionManager.connect(clientId, false);
+				} catch(NoConnectivityException ex) { }
 			}
+			finish();
+		}
+	}
+	
+	@Override
+	public void onClientStop(int exitCode, boolean stoppedByManager) {
+		if (mUpdateStarts) {
+			mCurrentlyInstalledItem = 0;
+			reinstallNextItem();
 		}
 	}
 	
@@ -238,7 +241,7 @@ public class UpdateActivity extends ServiceBoincActivity implements NativeBoincS
 	}
 	
 	@Override
-	public void onNativeBoincError(String message) {
+	public void onNativeBoincClientError(String message) {
 		showErrorDialog(message);
 	}
 
@@ -316,5 +319,15 @@ public class UpdateActivity extends ServiceBoincActivity implements NativeBoincS
 	@Override
 	public void currentClientDistrib(ClientDistrib clientDistrib) {
 		mInstaller.updateProjectDistribList();
+	}
+
+	@Override
+	public void onInstallerWorking(boolean isWorking) {
+	}
+
+	@Override
+	public void onChangeRunnerIsWorking(boolean isWorking) {
+		// TODO Auto-generated method stub
+		
 	}
 }

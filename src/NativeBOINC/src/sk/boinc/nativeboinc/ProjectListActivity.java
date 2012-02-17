@@ -24,13 +24,17 @@ import java.util.ArrayList;
 import edu.berkeley.boinc.lite.ProjectListEntry;
 
 import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
+import sk.boinc.nativeboinc.installer.InstallError;
 import sk.boinc.nativeboinc.installer.InstallerProgressListener;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
+import sk.boinc.nativeboinc.util.ClientId;
+import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.ProjectItem;
 import sk.boinc.nativeboinc.util.StandardDialogs;
 import android.app.AlertDialog;
@@ -62,11 +66,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	private static final int DIALOG_ENTER_URL = 1;
 	private static final int DIALOG_PROJECT_INFO = 2;
 	
-	public static final String TAG_OTHER_PROJECT_OPTION = "OtherProjectOption";
-	public static final String TAG_FROM_INSTALLER = "FromInstaller";
-	
-	private static final String STATE_PROJECTS_LIST = "ProjectsList";
-	private static final String STATE_PROJECT_DISTRIBS = "ProjectDistribs";
+	public static final int ACTIVITY_ADD_PROJECT = 1;
 	
 	private static final String ARG_DISTRIB_NAME = "DistribName";
 	private static final String ARG_DISTRIB_DESC = "DistribDesc";
@@ -74,8 +74,29 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	
 	private ArrayList<ProjectItem> mProjectsList = null;
 	private ArrayList<ProjectDistrib> mProjectDistribs = null;
-	private boolean mOtherProjectOption = true;
 	private boolean mGetFromInstaller = false;
+	private int mDataDownloadProgressState = ProgressState.NOT_RUN;
+	
+	private ClientId mConnectedClient = null;
+	
+	private static class SavedState {
+		private final ArrayList<ProjectItem> mProjectsList;
+		private final ArrayList<ProjectDistrib> mProjectDistribs;
+		
+		private int mDataDownloadProgressState;
+		
+		public SavedState(ProjectListActivity activity) {
+			mProjectDistribs = activity.mProjectDistribs;
+			mProjectsList = activity.mProjectsList;
+			mDataDownloadProgressState = activity.mDataDownloadProgressState; 
+		}
+		
+		public void restore(ProjectListActivity activity) {
+			activity.mProjectDistribs = mProjectDistribs;
+			activity.mProjectsList = mProjectsList;
+			activity.mDataDownloadProgressState = mDataDownloadProgressState;
+		}
+	}
 	
 	private class ProjectsListAdapter extends BaseAdapter {
 		private Context mContext;
@@ -86,7 +107,9 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		
 		@Override
 		public int getCount() {
-			return (mOtherProjectOption) ? mProjectsList.size()+1 : mProjectsList.size();
+			if (mProjectsList == null)
+				return 0;
+			return mProjectsList.size();
 		}
 
 		@Override
@@ -111,50 +134,11 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			
 			TextView text1 = (TextView)view.findViewById(android.R.id.text1);
 			TextView text2 = (TextView)view.findViewById(android.R.id.text2);
-			if (pos < mProjectsList.size()) {
-				ProjectItem projectEntry = mProjectsList.get(pos);
-				text1.setText(projectEntry.getName());
-				text2.setText(projectEntry.getUrl());
-			} else if (pos == mProjectsList.size()) {
-				text1.setText(getString(R.string.otherProject));
-				text2.setText(getString(R.string.otherProjectDetails));
-			}
+			ProjectItem projectEntry = mProjectsList.get(pos);
+			text1.setText(projectEntry.getName());
+			text2.setText(projectEntry.getUrl());
 			return view;
 		}
-	}
-	
-	private class InfoClickListener implements View.OnClickListener {
-
-		private int mDistribIndex = 0;
-		
-		public InfoClickListener(int distribIndex) {
-			mDistribIndex = distribIndex;
-		}
-		
-		@Override
-		public void onClick(View v) {
-			Bundle args = new Bundle();
-			
-			if (mProjectDistribs == null)
-				return;
-			
-			ProjectDistrib distrib = mProjectDistribs.get(mDistribIndex);
-			
-			args.putString(ARG_DISTRIB_NAME, distrib.projectName + " " + distrib.version);
-			args.putString(ARG_DISTRIB_DESC, distrib.description);
-			args.putString(ARG_DISTRIB_CHANGES, distrib.changes);
-			showDialog(DIALOG_PROJECT_INFO, args);
-		}
-	}
-	
-	private InfoClickListener[] mInfoClickListeners = null;
-	
-	/* initializes click listeners */
-	private void initInfoClickListeners() {
-		int count = mProjectDistribs.size();
-		mInfoClickListeners = new InfoClickListener[count];
-		for (int i = 0; i < count; i++)
-			mInfoClickListeners[i] = new InfoClickListener(i);
 	}
 	
 	private class ProjectDistribsAdapter extends BaseAdapter {
@@ -167,8 +151,8 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		@Override
 		public int getCount() {
 			if (mProjectDistribs == null)
-				return (mOtherProjectOption) ? 1 : 0;
-			return (mOtherProjectOption) ? mProjectDistribs.size()+1 : mProjectDistribs.size();
+				return 0;
+			return mProjectDistribs.size();
 		}
 
 		@Override
@@ -189,12 +173,11 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			if (view == null) {
 				LayoutInflater inflater = (LayoutInflater)mContext
 						.getSystemService(LAYOUT_INFLATER_SERVICE);
-				view = inflater.inflate(R.layout.distrib_list_item, null);
+				view = inflater.inflate(android.R.layout.simple_list_item_2, null);
 			}
 			
 			TextView text1 = (TextView)view.findViewById(android.R.id.text1);
 			TextView text2 = (TextView)view.findViewById(android.R.id.text2);
-			Button infoButton = (Button)view.findViewById(R.id.info);
 			
 			if (pos < mProjectDistribs.size()) {
 				ProjectDistrib projectDistrib = mProjectDistribs.get(pos);
@@ -204,9 +187,6 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 				text1.setText(getString(R.string.otherProject));
 				text2.setText(getString(R.string.otherProjectDetails));
 			}
-			
-			if (mInfoClickListeners != null)
-				infoButton.setOnClickListener(mInfoClickListeners[pos]);
 			
 			return view;
 		}
@@ -221,38 +201,57 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	public void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		
-		if (savedInstanceState != null) {
-			mProjectDistribs = savedInstanceState.getParcelableArrayList(STATE_PROJECT_DISTRIBS);
-			mProjectsList = savedInstanceState.getParcelableArrayList(STATE_PROJECTS_LIST);
-		}
-		
-		Intent intent = getIntent();
-		mOtherProjectOption = intent.getBooleanExtra(TAG_OTHER_PROJECT_OPTION, true);
-		mGetFromInstaller = intent.getBooleanExtra(TAG_FROM_INSTALLER, false);
+		final SavedState savedState = (SavedState)getLastNonConfigurationInstance();
+		if (savedState != null)
+			savedState.restore(this);
 		
 		setUpService(true, true, false, false, true, true);
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.project_list);
 		
-		
 		mListView = (ListView)findViewById(android.R.id.list);
 		mListEmptyText = (TextView)findViewById(android.R.id.empty);
 		
-		
-		if (!mGetFromInstaller)
-			mListAdapter = new ProjectsListAdapter(this);
-		else
-			mListAdapter = new ProjectDistribsAdapter(this);
-		
-		mListView.setAdapter(mListAdapter);
-		
-		if (savedInstanceState != null) {
-			if (mProjectDistribs != null || mProjectsList != null) {
-				if (Logging.DEBUG) Log.d(TAG, "From save instance");
-				updateDataSet();
+		Button cancelButton = (Button)findViewById(R.id.cancel);
+		cancelButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				finish();
 			}
-		}
+		});
+		
+		Button otherProjectButton = (Button)findViewById(R.id.otherProject);
+		otherProjectButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showDialog(DIALOG_ENTER_URL);
+			}
+		});
+		
+		mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position,
+					long id) {
+				Log.d(TAG, "Long click in "+ position);
+				if (!mGetFromInstaller) // if not installer
+					return false;
+				
+				Bundle args = new Bundle();
+				
+				if (mProjectDistribs == null)
+					return false;
+				
+				ProjectDistrib distrib = mProjectDistribs.get(position);
+				
+				args.putString(ARG_DISTRIB_NAME, distrib.projectName + " " + distrib.version);
+				args.putString(ARG_DISTRIB_DESC, distrib.description);
+				args.putString(ARG_DISTRIB_CHANGES, distrib.changes);
+				showDialog(DIALOG_PROJECT_INFO, args);
+				return true;
+			}
+		});
 		
 		mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
@@ -264,10 +263,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 						ProjectItem entry = mProjectsList.get(position);
 						intent.putExtra(ProjectItem.TAG, entry);
 						
-						finish();
-						startActivity(intent);	// add project activity
-					} else if (position == mProjectsList.size()) {
-						showDialog(DIALOG_ENTER_URL);
+						startActivityForResult(intent, ACTIVITY_ADD_PROJECT);	// add project activity
 					}
 				} else { // if from installer
 					if (position < mProjectDistribs.size()) {
@@ -276,12 +272,9 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 						ProjectItem projectItem = new ProjectItem(distrib.projectName,
 								distrib.projectUrl, distrib.version);
 						intent.putExtra(ProjectItem.TAG, projectItem);
-						finish();
 						
 						// reseting all pendings
-						startActivity(intent);	// add project activity
-					} else if (position == mProjectDistribs.size()) {
-						showDialog(DIALOG_ENTER_URL);
+						startActivityForResult(intent, ACTIVITY_ADD_PROJECT);	// add project activity
 					}
 				}
 			}
@@ -292,43 +285,150 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	protected void onResume() {
 		super.onResume();
 		
-		if (mProjectDistribs == null && mGetFromInstaller && mInstaller != null) {
-			if (Logging.DEBUG) Log.d(TAG, "List from installer");
-			mInstaller.updateProjectDistribList();
-		}
-		if (mProjectsList == null && !mGetFromInstaller && mConnectionManager != null) {
-			if (Logging.DEBUG) Log.d(TAG, "List from boinc client");
-			mConnectionManager.getAllProjectsList(this);
+		if (mConnectionManager != null)
+			mConnectedClient = mConnectionManager.getClientId();
+		
+		updateActivityState();
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == ACTIVITY_ADD_PROJECT) {
+			if (resultCode == RESULT_OK) {
+				if (mConnectionManager.isNativeConnected()) { // if native client
+					finish(); // if ok then go to progress activity
+					startActivity(new Intent(this, ProgressActivity.class));
+				} else // if normal client
+					finish();
+			}
 		}
 	}
 	
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		if (mProjectsList != null)
-			outState.putParcelableArrayList(STATE_PROJECTS_LIST, mProjectsList);
-		if (mProjectDistribs != null)
-			outState.putParcelableArrayList(STATE_PROJECT_DISTRIBS, mProjectDistribs);
-		super.onSaveInstanceState(outState);
+	public Object onRetainNonConfigurationInstance() {
+		return new SavedState(this);
+	}
+	
+	private void updateActivityState() {
+		// if disconnected
+		if (mDataDownloadProgressState == ProgressState.IN_PROGRESS && mConnectedClient == null) {
+			clientDisconnected();
+			return;
+		}
+		
+		if (mGetFromInstaller) {
+			// from installer
+			if (mInstaller == null)
+				return;
+			
+			setProgressBarIndeterminateVisibility(mInstaller.isWorking());
+			
+			if (mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
+				InstallError installError = mInstaller.getPendingError();
+				if (installError != null) {
+					handleInstallError(installError.distribName, installError.errorMessage);
+					return;
+				}
+			}
+			
+			if (mConnectedClient == null)
+				return;	// do not continue 
+			
+			if (mProjectDistribs == null) {
+				if (mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
+					if (Logging.DEBUG) Log.d(TAG, "get List from installer");
+					mProjectDistribs = mInstaller.getPendingNewProjectDistribList();
+					if (mProjectDistribs != null) {
+						mDataDownloadProgressState = ProgressState.FINISHED;
+						updateDataSet();
+					}
+					
+				} else if (mDataDownloadProgressState == ProgressState.NOT_RUN) {
+					if (Logging.DEBUG) Log.d(TAG, "Download List");
+					mDataDownloadProgressState = ProgressState.IN_PROGRESS;
+					mInstaller.updateProjectDistribList();
+				}
+				// if finished but failed
+			} else {
+				updateDataSet();
+			}
+		} else {
+			// from boinc client
+			if (mConnectionManager == null)
+				return;
+			
+			setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
+			
+			ClientError clientError = mConnectionManager.getPendingClientError();
+			if (clientError != null && mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
+				handleClientError(clientError.errorNum, clientError.message);
+				return;
+			}
+			
+			if (mProjectsList == null) {
+				if (mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
+					if (Logging.DEBUG) Log.d(TAG, "Fetch List from boinc clmient");
+					ArrayList<ProjectListEntry> allProjects = mConnectionManager
+							.getPendingAllProjectsList();
+					
+					if (allProjects != null) {
+						mDataDownloadProgressState = ProgressState.FINISHED;
+						setProjectsList(allProjects);
+						updateDataSet();
+					}
+					
+				} else if (mDataDownloadProgressState == ProgressState.NOT_RUN) {
+					if (Logging.DEBUG) Log.d(TAG, "List from boinc client");
+					mDataDownloadProgressState = ProgressState.IN_PROGRESS;
+					mConnectionManager.getAllProjectsList();
+				}
+				// if finished but failed
+			} else
+				updateDataSet();
+		}
 	}
 	
 	@Override
 	protected void onConnectionManagerConnected() {
-		if (!mGetFromInstaller) {
-			if (mProjectsList == null) {
-				if (Logging.DEBUG) Log.d(TAG, "List from boinc client");
-				mConnectionManager.getAllProjectsList(this);
+		mConnectedClient = mConnectionManager.getClientId();
+		if (mConnectedClient != null) {
+			mGetFromInstaller = mConnectedClient.isNativeClient();
+			
+			if (mGetFromInstaller) {
+				// show project list help
+				TextView projectListHelp = (TextView)findViewById(R.id.projectListHelp);
+				projectListHelp.setVisibility(View.VISIBLE);
+				// hide buttons if obsolete
+				findViewById(R.id.bottomButtons).setVisibility(View.GONE);
 			}
+			
+			// attach adapter
+			if (!mGetFromInstaller)
+				mListAdapter = new ProjectsListAdapter(this);
+			else
+				mListAdapter = new ProjectDistribsAdapter(this);
+			
+			mListView.setAdapter(mListAdapter);
 		}
+		// update activity state: errors and progress
+		updateActivityState();
+	}
+	
+	@Override
+	protected void onConnectionManagerDisconnected() {
+		mConnectedClient = null;
+		setProgressBarIndeterminateVisibility(false);
 	}
 	
 	@Override
 	protected void onInstallerConnected() {
-		if (mGetFromInstaller) {
-			if (mProjectDistribs == null) {
-				if (Logging.DEBUG) Log.d(TAG, "List from installer");
-				mInstaller.updateProjectDistribList();
-			}
-		}
+		if (mConnectedClient != null)
+			updateActivityState();
+	}
+	
+	@Override
+	protected void onInstallerDisconnected() {
+		setProgressBarIndeterminateVisibility(false);
 	}
 	
 	private void updateDataSet() {
@@ -346,9 +446,6 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			mListView.setVisibility(View.VISIBLE);
 			mListEmptyText.setVisibility(View.GONE);
 		}
-		
-		if (mGetFromInstaller) // initializes info click listeners
-			initInfoClickListeners();
 		
 		mListAdapter.notifyDataSetChanged();
 	}
@@ -421,9 +518,12 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 
 	@Override
 	public void currentProjectDistribList(ArrayList<ProjectDistrib> projectDistribs) {
-		mProjectDistribs = projectDistribs;
-		updateDataSet();
-		setProgressBarIndeterminateVisibility(false);
+		if (mGetFromInstaller) {
+			mProjectDistribs = projectDistribs;
+			mDataDownloadProgressState = ProgressState.FINISHED;
+			
+			updateDataSet();
+		}
 	}
 
 	@Override
@@ -432,66 +532,100 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 
 	@Override
 	public void onOperation(String distribName, String opDescription) {
-		setProgressBarIndeterminateVisibility(true);
 	}
 
 	@Override
 	public void onOperationProgress(String distribName, String opDescription,
 			int progress) {
-		setProgressBarIndeterminateVisibility(true);
 	}
-
-	@Override
-	public void onOperationError(String distribName, String errorMessage) {
-		setProgressBarIndeterminateVisibility(false);
+	
+	private void handleInstallError(String distribName, String errorMessage) {
+		mDataDownloadProgressState = ProgressState.FAILED;
+		
 		StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
 	}
 
 	@Override
+	public void onOperationError(String distribName, String errorMessage) {
+		if (distribName != null && distribName.length() != 0)
+			return;
+		
+		if (mGetFromInstaller)
+			handleInstallError(distribName, errorMessage);
+	}
+
+	@Override
 	public void onOperationCancel(String distribName) {
-		setProgressBarIndeterminateVisibility(false);
 	}
 
 	@Override
 	public void onOperationFinish(String distribName) {
-		setProgressBarIndeterminateVisibility(false);
 	}
 
 	@Override
 	public void clientConnectionProgress(int progress) {
-		if (progress == ClientReplyReceiver.PROGRESS_XFER_FINISHED)
-			setProgressBarIndeterminateVisibility(false);
-		else
-			setProgressBarIndeterminateVisibility(true);
 	}
 
 	@Override
 	public void clientConnected(VersionInfo clientVersion) {
-		// TODO Auto-generated method stub
+		mConnectedClient = mConnectionManager.getClientId();
 	}
 
 	@Override
 	public void clientDisconnected() {
-		if (Logging.WARNING) Log.w(TAG, "Client disconnected");
-		setProgressBarIndeterminateVisibility(false);
-
-		StandardDialogs.showErrorDialog(this, getString(R.string.clientDisconnected));
+		if (!mGetFromInstaller) {
+			if (Logging.WARNING) Log.w(TAG, "Client disconnected");
+			mDataDownloadProgressState = ProgressState.FAILED;
+			
+			StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, mRunner,
+					mConnectedClient);
+		
+			mConnectedClient = null;
+		}
+	}
+	
+	private void setProjectsList(ArrayList<ProjectListEntry> allProjects) {
+		mProjectsList = new ArrayList<ProjectItem>();
+		for (ProjectListEntry entry: allProjects)
+			mProjectsList.add(new ProjectItem(entry.name, entry.url));
 	}
 
 	@Override
 	public boolean currentAllProjectsList(ArrayList<ProjectListEntry> allProjects) {
-		if (Logging.DEBUG) Log.d(TAG, "currentAllProjectsList notify:"+allProjects.size());
-		setProgressBarIndeterminateVisibility(false);
-		mProjectsList = new ArrayList<ProjectItem>();
-		for (ProjectListEntry entry: allProjects)
-			mProjectsList.add(new ProjectItem(entry.name, entry.url));
-		updateDataSet();
+		if (!mGetFromInstaller) {
+			if (Logging.DEBUG) Log.d(TAG, "currentAllProjectsList notify:"+allProjects.size());
+			
+			mDataDownloadProgressState = ProgressState.FINISHED;
+			
+			setProjectsList(allProjects);
+			updateDataSet();
+		}
 		return true;
+	}
+	
+	private void handleClientError(int errorNum, String message) {
+		mDataDownloadProgressState = ProgressState.FAILED;
+	
+		StandardDialogs.showClientErrorDialog(this, errorNum, message);
 	}
 
 	@Override
-	public void clientError(int errorNum, String message) {
-		setProgressBarIndeterminateVisibility(false);
-		StandardDialogs.showClientErrorDialog(this, errorNum, message);
-	}	
+	public boolean clientError(int errorNum, String message) {
+		if (!mGetFromInstaller) {
+			handleClientError(errorNum, message);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void onInstallerWorking(boolean isWorking) {
+		setProgressBarIndeterminateVisibility(isWorking);
+	}
+
+	@Override
+	public void onClientIsWorking(boolean isWorking) {
+		// TODO Auto-generated method stub
+		setProgressBarIndeterminateVisibility(isWorking);
+	}
 }

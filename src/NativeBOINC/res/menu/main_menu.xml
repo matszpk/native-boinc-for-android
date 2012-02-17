@@ -37,6 +37,10 @@
 		android:icon="@android:drawable/ic_menu_preferences"
 		android:title="@string/menuPreferences"/>
 	<item
+		android:id="@+id/menuNativeClient"
+		android:icon="@drawable/nativeboinc_alpha"
+		android:title="@string/menuNativeClient"/>
+	<item
 		android:id="@+id/menuConnect"
 		android:icon="@drawable/ic_menu_goto"
 		android:title="@string/menuConnect"/>

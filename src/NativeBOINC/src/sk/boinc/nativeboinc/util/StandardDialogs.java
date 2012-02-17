@@ -20,6 +20,8 @@
 package sk.boinc.nativeboinc.util;
 
 import sk.boinc.nativeboinc.R;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
+import sk.boinc.nativeboinc.service.ConnectionManagerService;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -34,16 +36,19 @@ import android.widget.TextView;
 public class StandardDialogs {
 	public final static int DIALOG_ERROR = 12345;
 	
+	private final static String ARG_TITLE = "Title";
 	private final static String ARG_ERROR = "Error";
 	
 	public final static Dialog onCreateDialog(Activity activity, int dialogId, Bundle args) {
-		if (dialogId == DIALOG_ERROR)
+		if (dialogId == DIALOG_ERROR) {
+			String title = args.getString(ARG_TITLE);
 			return new AlertDialog.Builder(activity)
 				.setIcon(android.R.drawable.ic_dialog_alert)
-				.setTitle(R.string.installError)
+				.setTitle(title)
 				.setView(LayoutInflater.from(activity).inflate(R.layout.dialog, null))
 				.setNegativeButton(R.string.ok, null)
 				.create();
+		}
 		return null;
 	}
 	
@@ -61,6 +66,7 @@ public class StandardDialogs {
 			String errorMessage, String param) {
 		Bundle args = new Bundle();
 		
+		args.putString(ARG_TITLE, activity.getString(R.string.error));
 		String opName = activity.getResources().getStringArray(R.array.pollOps)[operation];
 		
 		String mainText = null;
@@ -81,6 +87,8 @@ public class StandardDialogs {
 	public static void showClientErrorDialog(Activity activity, int errorNum, String errorMessage) {
 		Bundle args = new Bundle();
 		
+		args.putString(ARG_TITLE, activity.getString(R.string.clientError));
+		
 		if (errorNum != 0)
 			args.putString(ARG_ERROR, errorMessage + " " +
 					String.format(activity.getString(R.string.errorNumFormat), errorNum));
@@ -94,14 +102,39 @@ public class StandardDialogs {
 			String errorMessage) {
 		Bundle args = new Bundle();
 		
-		args.putString(ARG_ERROR, distribName + ": " + errorMessage);
+		args.putString(ARG_TITLE, activity.getString(R.string.installError));
+		if (distribName != null && distribName.length() == 0)
+			args.putString(ARG_ERROR, distribName + ": " + errorMessage);
+		else
+			args.putString(ARG_ERROR, errorMessage);
 		
 		activity.showDialog(DIALOG_ERROR, args);
 	}
 	
 	public static void showErrorDialog(Activity activity,String errorMessage) {
 		Bundle args = new Bundle();
+		args.putString(ARG_TITLE, activity.getString(R.string.error));
 		args.putString(ARG_ERROR, errorMessage);
 		activity.showDialog(DIALOG_ERROR, args);
+	}
+	
+	public static void tryShowDisconnectedErrorDialog(Activity activity, 
+			ConnectionManagerService connectionManager, NativeBoincService runner,
+			ClientId clientId) {
+		
+		if (clientId != null) {
+			boolean isNativeClient = clientId.isNativeClient();
+			 // if not disconnected by manager and
+			if ((connectionManager == null || !connectionManager.isDisconnectedByManager()) &&
+					// if not native client or
+				(!isNativeClient ||
+						// if not stopped by manager
+						(runner == null || !runner.ifStoppedByManager()))) { // show dial
+				Bundle args = new Bundle();
+				args.putString(ARG_TITLE, activity.getString(R.string.error));
+				args.putString(ARG_ERROR, activity.getString(R.string.clientDisconnected));
+				activity.showDialog(DIALOG_ERROR, args);
+			}
+		}
 	}
 }

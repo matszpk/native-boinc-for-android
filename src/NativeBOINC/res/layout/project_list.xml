@@ -22,11 +22,21 @@
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
-  android:layout_height="fill_parent">
+  android:layout_height="fill_parent"
+  android:orientation="vertical">
+  <TextView android:id="@+id/projectListHelp"
+  		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+   	    android:layout_marginLeft="6dip"
+       	android:layout_marginTop="6dip"
+       	android:visibility="gone"
+       	android:text="@string/projectListHelp" />
   <ListView
 		android:id="@android:id/list"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" />
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:visibility="gone"
+		android:layout_weight="1" />
   <TextView
   		android:id="@android:id/empty"
   		android:layout_width="fill_parent"
@@ -34,5 +44,24 @@
    	    android:layout_marginLeft="6dip"
        	android:layout_marginTop="6dip"
        	android:text="@string/noProjects"
+       	android:visibility="gone"
 		android:textAppearance="?android:attr/textAppearanceLarge" />
+  <LinearLayout android:id="@+id/bottomButtons"
+		android:orientation="horizontal"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right"
+		android:paddingTop="10dip">
+		<Button android:id="@+id/cancel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/cancel" />
+		<Button android:id="@+id/otherProject" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="10dip"
+			android:paddingLeft="20dip"
+			android:paddingRight="20dip"
+			android:text="@string/otherProject" />
+	</LinearLayout>
 </LinearLayout>

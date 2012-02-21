@@ -29,7 +29,6 @@ import java.util.TreeMap;
 import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.R;
-import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
@@ -89,7 +88,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 	private boolean mPreviousStateOfIsWorking = false;
 	private boolean mHandlerIsWorking = false;
 	
-	private Set<ClientReplyReceiver> mUpdateCancel = new HashSet<ClientReplyReceiver>();
+	private Object mUpdateCancelSync = new Object();
+	private int mUpdateCancelMask = 0;
 
 	private VersionInfo mClientVersion = null;
 	private Map<String, ProjectInfo> mProjects = new HashMap<String, ProjectInfo>();
@@ -101,6 +101,9 @@ public class ClientBridgeWorkerHandler extends Handler {
 	private SortedMap<Integer, MessageInfo> mMessages = new TreeMap<Integer, MessageInfo>();
 	private boolean mInitialStateRetrieved = false;
 
+	private boolean mHaveAti = false;
+	private boolean mHaveCuda = false;
+	
 	public ClientBridgeWorkerHandler(ClientBridge.ReplyHandler replyHandler,
 			final Context context, final NetStats netStats) {
 		mReplyHandler = replyHandler;
@@ -278,11 +281,11 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 
-	public void cancelPendingUpdates(final ClientReplyReceiver callback) {
+	public void cancelPendingUpdates(final int refreshType) {
 		// This is run in UI thread - immediately add callback to list,
 		// so worker thread will not run update for this callback afterwards 
-		synchronized (mUpdateCancel) {
-			mUpdateCancel.add(callback);
+		synchronized (mUpdateCancelSync) {
+			mUpdateCancelMask |= 1<<refreshType;
 		}
 		// Put removal of callback at the end of queue. So only currently pending
 		// updates (these already in queue) will be canceled. Any later updates
@@ -290,8 +293,9 @@ public class ClientBridgeWorkerHandler extends Handler {
 		this.post(new Runnable() {
 			@Override
 			public void run() {
-				synchronized (mUpdateCancel) {
-					mUpdateCancel.remove(callback);
+				synchronized (mUpdateCancelSync) {
+					// remove
+					mUpdateCancelMask &= ~(1<<refreshType);
 				}
 			}
 		});
@@ -299,8 +303,9 @@ public class ClientBridgeWorkerHandler extends Handler {
 
 	public void updateClientMode(final ClientReceiver callback) {
 		if (mDisconnecting) return;  // already in disconnect phase
-		synchronized (mUpdateCancel) {
-			if (mUpdateCancel.contains(callback)) {
+		synchronized (mUpdateCancelSync) {
+			
+			if ((mUpdateCancelMask & (1<<AutoRefresh.CLIENT_MODE)) != 0) {
 				// This update was canceled meanwhile
 				if (Logging.DEBUG) Log.d(TAG, "Canceled updateClientMode(" + callback.toString() + ")");
 				return;
@@ -323,15 +328,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(false);
 	}
 
-	public void updateHostInfo(final ClientReplyReceiver callback) {
+	public void updateHostInfo() {
 		if (mDisconnecting) return;  // already in disconnect phase
-		synchronized (mUpdateCancel) {
-			if (mUpdateCancel.contains(callback)) {
-				// This update was canceled meanwhile
-				if (Logging.DEBUG) Log.d(TAG, "Canceled updateHostInfo(" + callback.toString() + ")");
-				return;
-			}
-		}
 		changeIsHandlerWorking(true);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		edu.berkeley.boinc.lite.HostInfo boincHostInfo = mRpcClient.getHostInfo();
@@ -344,17 +342,17 @@ public class ClientBridgeWorkerHandler extends Handler {
 		}
 		final HostInfo hostInfo = HostInfoCreator.create(boincHostInfo, mFormatter);
 		// Finally, send reply back to the calling thread (that is UI thread)
-		updatedHostInfo(callback, hostInfo);
+		updatedHostInfo(hostInfo);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 		changeIsHandlerWorking(false);
 	}
 
-	public void updateProjects(final ClientReplyReceiver callback) {
+	public void updateProjects() {
 		if (mDisconnecting) return;  // already in disconnect phase
-		synchronized (mUpdateCancel) {
-			if (mUpdateCancel.contains(callback)) {
+		synchronized (mUpdateCancelSync) {
+			if ((mUpdateCancelMask & (1<<AutoRefresh.PROJECTS)) != 0) {
 				// This update was canceled meanwhile
-				if (Logging.DEBUG) Log.d(TAG, "Canceled updateProjects(" + callback.toString() + ")");
+				if (Logging.DEBUG) Log.d(TAG, "Canceled updateProjects()");
 				return;
 			}
 		}
@@ -368,21 +366,32 @@ public class ClientBridgeWorkerHandler extends Handler {
 			changeIsHandlerWorking(false);
 			return;
 		}
+		/* disk usage */
+		if (!mRpcClient.getDiskUsage(projects)) {
+			/* if failed */
+			if (Logging.INFO) Log.i(TAG, "RPC failed in getDiskUsage()");
+			notifyError(0, mContext.getString(R.string.boincOperationError));
+			rpcFailed();
+			changeIsHandlerWorking(false);
+			return;
+		}
+		
 		dataSetProjects(projects);
-		updatedProjects(callback, getProjects());
+		updatedProjects(getProjects());
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 		changeIsHandlerWorking(false);
 	}
 
-	public void updateTasks(final ClientReplyReceiver callback) {
+	public void updateTasks() {
 		if (mDisconnecting) return;  // already in disconnect phase
-		synchronized (mUpdateCancel) {
-			if (mUpdateCancel.contains(callback)) {
+		synchronized (mUpdateCancelSync) {
+			if ((mUpdateCancelMask & (1<<AutoRefresh.TASKS)) != 0) {
 				// This update was canceled meanwhile
-				if (Logging.DEBUG) Log.d(TAG, "Canceled updateTasks(" + callback.toString() + ")");
+				if (Logging.DEBUG) Log.d(TAG, "Canceled updateTasks()");
 				return;
 			}
 		}
+		if (Logging.DEBUG) Log.d(TAG, "run updateTasks()");
 		changeIsHandlerWorking(true);
 		
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
@@ -396,6 +405,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		else {
 			// First try to get only results
 			results = mRpcClient.getResults();
+			
 			if (results == null) {
 				if (Logging.INFO) Log.i(TAG, "RPC failed in updateTasks()");
 				notifyError(0, mContext.getString(R.string.boincOperationError));
@@ -414,17 +424,18 @@ public class ClientBridgeWorkerHandler extends Handler {
 			// We will retrieve complete state now
 			updateState();
 		}
-		updatedTasks(callback, getTasks());
+		
+		updatedTasks(getTasks());
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 		changeIsHandlerWorking(false);
 	}
 
-	public void updateTransfers(final ClientReplyReceiver callback) {
+	public void updateTransfers() {
 		if (mDisconnecting) return;  // already in disconnect phase
-		synchronized (mUpdateCancel) {
-			if (mUpdateCancel.contains(callback)) {
+		synchronized (mUpdateCancelSync) {
+			if ((mUpdateCancelMask & (1<<AutoRefresh.TRANSFERS)) != 0) {
 				// This update was canceled meanwhile
-				if (Logging.DEBUG) Log.d(TAG, "Canceled updateTransfers(" + callback.toString() + ")");
+				if (Logging.DEBUG) Log.d(TAG, "Canceled updateTransfers()");
 				return;
 			}
 		}
@@ -439,17 +450,17 @@ public class ClientBridgeWorkerHandler extends Handler {
 			return;
 		}
 		dataSetTransfers(transfers);
-		updatedTransfers(callback, getTransfers());
+		updatedTransfers(getTransfers());
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 		changeIsHandlerWorking(false);
 	}
 
-	public void updateMessages(final ClientReplyReceiver callback) {
+	public void updateMessages() {
 		if (mDisconnecting) return;  // already in disconnect phase
-		synchronized (mUpdateCancel) {
-			if (mUpdateCancel.contains(callback)) {
+		synchronized (mUpdateCancelSync) {
+			if ((mUpdateCancelMask & (1<<AutoRefresh.MESSAGES)) != 0) {
 				// This update was canceled meanwhile
-				if (Logging.DEBUG) Log.d(TAG, "Canceled updateMessages(" + callback.toString() + ")");
+				if (Logging.DEBUG) Log.d(TAG, "Canceled updateMessages()");
 				return;
 			}
 		}
@@ -483,7 +494,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			return;
 		}
 		dataUpdateMessages(messages);
-		updatedMessages(callback, getMessages());
+		updatedMessages(getMessages());
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 		changeIsHandlerWorking(false);
 	}
@@ -628,8 +639,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 		
 		long startTime = SystemClock.elapsedRealtime();
 		synchronized(this) {
-		mAccountMgrRPCCall = new AccountMgrRPCCall(operation, name, url, password,
-				useConfigFile, infoMsg, startTime);
+			mAccountMgrRPCCall = new AccountMgrRPCCall(operation, name, url, password,
+					useConfigFile, infoMsg, startTime);
 		}
 		postDelayed(mAccountMgrRPCPoller, 1000);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_POLL);
@@ -823,7 +834,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 						clearCreateAccountCall();
 					} else {
 						// if success
-						currentAuthCode(mLookupAccountCall.accountIn.url, accountOut.authenticator);
+						currentAuthCode(mCreateAccountCall.accountIn.url, accountOut.authenticator);
 						clearCreateAccountCall();
 					}
 				}
@@ -922,7 +933,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 					if (reply.error_num != RpcClient.SUCCESS) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
 						notifyPollError(reply.error_num, PollOp.POLL_PROJECT_ATTACH,
-								null, mCreateAccountCall.accountIn.url);
+								null, mProjectAttachCall.url);
 						clearProjectAttachCall();
 					} else {
 						// if success
@@ -1063,7 +1074,20 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(false);
 	}
 	
-	public void getGlobalPrefsWorking(ClientPreferencesReceiver callback) {
+	/**
+	 * cancel all poll operations
+	 */
+	public synchronized void cancelPollOperations() {
+		mAccountMgrRPCCall = null;
+		mCreateAccountCall = null;
+		mLookupAccountCall = null;
+		mProjectAttachCall = null;
+		mGetProjectConfigCall = null;
+		notifyChangeOfIsWorking();
+		notifyCancelPollOperations();
+	}
+	
+	public void getGlobalPrefsWorking() {
 		if (mDisconnecting) return;  // already in disconnect phase
 		changeIsHandlerWorking(true);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
@@ -1076,12 +1100,12 @@ public class ClientBridgeWorkerHandler extends Handler {
 			changeIsHandlerWorking(false);
 			return;
 		}
-		currentGlobalPreferences(callback, globalPrefs);
+		currentGlobalPreferences(globalPrefs);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 		changeIsHandlerWorking(false);
 	}
 	
-	public void setGlobalPrefsOverride(ClientPreferencesReceiver callback, String globalPrefs) {
+	public void setGlobalPrefsOverride(String globalPrefs) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		changeIsHandlerWorking(true);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
@@ -1104,14 +1128,11 @@ public class ClientBridgeWorkerHandler extends Handler {
 			changeIsHandlerWorking(false);
 			return;
 		} 
-		notifyGlobalPrefsChanged(callback);
-		// Regardless of success we run update of client mode
-		// If there is problem with socket, it will be handled there
-		updateClientMode(callback);
+		notifyGlobalPrefsChanged();
 		changeIsHandlerWorking(false);
 	}
 	
-	public void setGlobalPrefsOverrideStruct(ClientPreferencesReceiver callback, GlobalPreferences globalPrefs) {
+	public void setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		changeIsHandlerWorking(true);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
@@ -1134,10 +1155,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			changeIsHandlerWorking(false);
 			return;
 		} 
-		notifyGlobalPrefsChanged(callback);
-		// Regardless of success we run update of client mode
-		// If there is problem with socket, it will be handled there
-		updateClientMode(callback);
+		notifyGlobalPrefsChanged();
 		changeIsHandlerWorking(false);
 	}
 	
@@ -1163,10 +1181,10 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		mRpcClient.setRunMode(mode, 0);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
+		changeIsHandlerWorking(false);
 		// Regardless of success we run update of client mode
 		// If there is problem with socket, it will be handled there
 		updateClientMode(callback);
-		changeIsHandlerWorking(false);
 	}
 
 	public void setNetworkMode(final ClientReplyReceiver callback, int mode) {
@@ -1175,10 +1193,10 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		mRpcClient.setNetworkMode(mode, 0);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
+		changeIsHandlerWorking(false);
 		// Regardless of success we run update of client mode
 		// If there is problem with socket, it will be handled there
 		updateClientMode(callback);
-		changeIsHandlerWorking(false);
 	}
 
 	public void shutdownCore() {
@@ -1247,7 +1265,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 		// Regardless of success we run update of projects
 		// If there is problem with socket, it will be handled there
-		updateProjects(callback);
+		updateProjects();
 		changeIsHandlerWorking(false);
 	}
 
@@ -1260,7 +1278,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 		// Regardless of success we run update of tasks
 		// If there is problem with socket, it will be handled there
-		updateTasks(callback);
+		updateTasks();
 		changeIsHandlerWorking(false);
 	}
 
@@ -1273,7 +1291,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 		// Regardless of success we run update of transfers
 		// If there is problem with socket, it will be handled there
-		updateTransfers(callback);
+		updateTransfers();
 		changeIsHandlerWorking(false);
 	}
 
@@ -1344,12 +1362,12 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 
-	private synchronized void updatedHostInfo(final ClientReplyReceiver callback, final HostInfo hostInfo) {
+	private synchronized void updatedHostInfo(final HostInfo hostInfo) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.updatedHostInfo(callback, hostInfo);
+				mReplyHandler.updatedHostInfo(hostInfo);
 			}
 		});
 	}
@@ -1394,23 +1412,22 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 	
-	private synchronized void currentGlobalPreferences(final ClientPreferencesReceiver callback,
-			final GlobalPreferences globalPrefs) {
+	private synchronized void currentGlobalPreferences(final GlobalPreferences globalPrefs) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.currentGlobalPreferences(callback, globalPrefs);
+				mReplyHandler.currentGlobalPreferences(globalPrefs);
 			}
 		});
 	}
 	
-	private synchronized void notifyGlobalPrefsChanged(final ClientPreferencesReceiver callback) {
+	private synchronized void notifyGlobalPrefsChanged() {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.onGlobalPreferencesChanged(callback);
+				mReplyHandler.onGlobalPreferencesChanged();
 			}
 		});
 	}
@@ -1435,45 +1452,42 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 
-	private synchronized void updatedProjects(final ClientReplyReceiver callback,
-			final ArrayList<ProjectInfo> projects) {
+	private synchronized void updatedProjects(final ArrayList<ProjectInfo> projects) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.updatedProjects(callback, projects);
+				mReplyHandler.updatedProjects(projects);
 			}
 		});
 	}
 
-	private synchronized void updatedTasks(final ClientReplyReceiver callback, final ArrayList<TaskInfo> tasks) {
+	private synchronized void updatedTasks(final ArrayList<TaskInfo> tasks) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.updatedTasks(callback, tasks);
+				mReplyHandler.updatedTasks(tasks);
 			}
 		});
 	}
 
-	private synchronized void updatedTransfers(final ClientReplyReceiver callback,
-			final ArrayList<TransferInfo> transfers) {
+	private synchronized void updatedTransfers(final ArrayList<TransferInfo> transfers) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.updatedTransfers(callback, transfers);
+				mReplyHandler.updatedTransfers(transfers);
 			}
 		});
 	}
 
-	private synchronized void updatedMessages(final ClientReplyReceiver callback,
-			final ArrayList<MessageInfo> messages) {
+	private synchronized void updatedMessages(final ArrayList<MessageInfo> messages) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.updatedMessages(callback, messages);
+				mReplyHandler.updatedMessages(messages);
 			}
 		});
 	}
@@ -1491,6 +1505,16 @@ public class ClientBridgeWorkerHandler extends Handler {
 			});
 		}
 	}
+	
+	private synchronized void notifyCancelPollOperations() {
+		mReplyHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				if (mReplyHandler != null)
+					mReplyHandler.cancelPollOperations();
+			}
+		});
+	}
 
 	private void updateState() {
 		if (mDisconnecting) return;  // Started disconnect phase, don't bother with further data retrieval
@@ -1501,6 +1525,9 @@ public class ClientBridgeWorkerHandler extends Handler {
 			return;
 		}
 		if (mDisconnecting) return;  // already in disconnect phase
+		mHaveCuda = ccState.have_cuda;
+		mHaveAti = ccState.have_ati;
+		
 		dataSetProjects(ccState.projects);
 		dataSetApps(ccState.apps);
 		if (mDisconnecting) return;  // already in disconnect phase
@@ -1521,17 +1548,20 @@ public class ClientBridgeWorkerHandler extends Handler {
 			// but they report version in state
 			mClientVersion = VersionInfoCreator.create(ccState.version_info);
 		}
+		mHaveCuda = ccState.have_cuda;
+		mHaveAti = ccState.have_ati;
+		
 		dataSetProjects(ccState.projects);
-		updatedProjects(null, getProjects());
+		updatedProjects(getProjects());
 		dataSetApps(ccState.apps);
 		if (mDisconnecting) return;  // already in disconnect phase
 		dataSetTasks(ccState.workunits, ccState.results);
-		updatedTasks(null, getTasks());
+		updatedTasks(getTasks());
 		// Retrieve also transfers. Most of time empty anyway, so it runs fast
-		updateTransfers(null);
+		updateTransfers();
 		if (mDisconnecting) return;  // already in disconnect phase
 		// Messages are useful in most of cases, so we start to retrieve them automatically as well
-		updateMessages(null);
+		updateMessages();
 		mInitialStateRetrieved = true;
 	}
 
@@ -1549,7 +1579,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 		pi = projects.iterator();
 		while (pi.hasNext()) {
 			Project prj = pi.next();
-			ProjectInfo project = ProjectInfoCreator.create(prj, totalResources, mFormatter);
+			ProjectInfo project = ProjectInfoCreator.create(prj, totalResources, mHaveAti, mHaveCuda,
+					mFormatter);
 			mProjects.put(prj.master_url, project);
 		}
 		if (Logging.DEBUG) Log.d(TAG, "dataSetProjects(): End update");

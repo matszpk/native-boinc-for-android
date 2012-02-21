@@ -38,7 +38,7 @@
 		android:title="@string/menuPreferences"/>
 	<item
 		android:id="@+id/menuNativeClient"
-		android:icon="@drawable/nativeboinc_alpha"
+		android:icon="@drawable/ic_menu_boinc"
 		android:title="@string/menuNativeClient"/>
 	<item
 		android:id="@+id/menuConnect"

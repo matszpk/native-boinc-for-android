@@ -557,6 +557,23 @@ public class RpcClient {
 			return null;
 		}
 	}
+	
+	/**
+	 * Performs get_disk_usage RPC towards boinc client
+	 * 
+	 * @param projects - list of already fetched projects
+	 * @return list of disk usage for all projects
+	 */
+	public boolean getDiskUsage(ArrayList<Project> projects) {
+		mLastErrorMessage = null;
+		try {
+			sendRequest("<get_disk_usage/>\n");
+			return DiskUsageParser.parse(receiveReply(), projects);
+		} catch(IOException e) {
+			if (Logging.WARNING) Log.w(TAG, "error in getDiskUsage()", e);
+			return false;
+		}
+	}
 
 	/**
 	 * Performs get_results RPC towards BOINC client (only active results)
@@ -1008,7 +1025,9 @@ public class RpcClient {
 			mRequest.append(globalPrefs.daily_xfer_limit_mb);
 			mRequest.append("</daily_xfer_limit_mb>\n  <daily_xfer_period_days>");
 			mRequest.append(globalPrefs.daily_xfer_period_days);
-			mRequest.append("</daily_xfer_period_days>\n</global_preferences>\n</set_global_prefs_override>\n");
+			mRequest.append("</daily_xfer_period_days>\n  <run_if_battery_nl_than>");
+			mRequest.append(globalPrefs.run_if_battery_nl_than);
+			mRequest.append("</run_if_battery_nl_than>\n</global_preferences>\n</set_global_prefs_override>\n");
 			
 			sendRequest(mRequest.toString());
 			receiveReply();

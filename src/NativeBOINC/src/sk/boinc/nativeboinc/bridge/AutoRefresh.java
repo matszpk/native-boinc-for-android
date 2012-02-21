@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
 import sk.boinc.nativeboinc.debug.Logging;
@@ -87,16 +88,16 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 					mClientRequests.updateClientMode(request.callback);
 					break;
 				case PROJECTS:
-					mClientRequests.updateProjects(request.callback);
+					mClientRequests.updateProjects();
 					break;
 				case TASKS:
-					mClientRequests.updateTasks(request.callback);
+					mClientRequests.updateTasks();
 					break;
 				case TRANSFERS:
-					mClientRequests.updateTransfers(request.callback);
+					mClientRequests.updateTransfers();
 					break;
 				case MESSAGES:
-					mClientRequests.updateMessages(request.callback);
+					mClientRequests.updateMessages();
 					break;						
 				default:
 					if (Logging.ERROR) Log.e(TAG, "Unhandled request type: " + request.requestType);
@@ -178,6 +179,10 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 			removeAutomaticRefresh(request);
 		}
 		mScheduledUpdates.add(request);
+		
+		if (callback instanceof AutoRefreshListener) // send notify about starting refresh
+			((AutoRefreshListener)callback).onStartAutoRefresh(requestType);
+		
 		mHandler.sendMessageDelayed(mHandler.obtainMessage(RUN_UPDATE, request), (mAutoRefresh * 1000));
 		if (Logging.DEBUG) Log.d(TAG, "Scheduled automatic refresh for (" + request.callback.toString() + "," + request.requestType + ")");
 	}
@@ -194,6 +199,20 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 			}
 		}
 	}
+	
+	public void unscheduleAutomaticRefresh(final int refreshType) {
+		Iterator<UpdateRequest> it = mScheduledUpdates.iterator();
+		while (it.hasNext()) {
+			// Found pending auto-update; remove its schedule now
+			UpdateRequest req = it.next();
+			if (req.requestType == refreshType) {
+				mHandler.removeMessages(RUN_UPDATE, req);
+				mScheduledUpdates.remove(req);
+				if (Logging.DEBUG) Log.d(TAG, "unscheduleAutomaticRefresh(): Removed schedule for entry (" + req.callback.toString() + "," + req.requestType + ")");
+			}
+		}
+	}
+
 
 	private void removeAutomaticRefresh(UpdateRequest request) {
 		Iterator<UpdateRequest> it = mScheduledUpdates.iterator();

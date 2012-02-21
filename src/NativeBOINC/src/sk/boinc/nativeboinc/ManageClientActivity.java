@@ -84,6 +84,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	private int mConnectProgressIndicator = -1;
 	private boolean mProgressDialogAllowed = false;
 	private ModeInfo mClientMode = null;
+	private boolean mDoUpdateHostInfo = false;
 	private HostInfo mHostInfo = null;
 	
 	private boolean mPeriodicModeRetrievalAllowed = false;
@@ -100,12 +101,14 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	private ScreenOrientationHandler mScreenOrientation;
 	
 	private static class SavedState {
+		private final boolean doUpdateHostInfo;
 		private final HostInfo hostInfo;
 		private final boolean doGetBAMInfo;
 		private final AccountMgrInfo bamInfo;
 		private final boolean syncingBAMInProgress;
 		
 		public SavedState(ManageClientActivity activity) {
+			doUpdateHostInfo = activity.mDoUpdateHostInfo;
 			hostInfo = activity.mHostInfo;
 			doGetBAMInfo = activity.mDoGetBAMInfo;
 			bamInfo = activity.mBAMInfo;
@@ -114,6 +117,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 			if (Logging.DEBUG) Log.d(TAG, "saved: hostInfo=" + hostInfo);
 		}
 		public void restoreState(ManageClientActivity activity) {
+			activity.mDoUpdateHostInfo = doUpdateHostInfo;
 			activity.mHostInfo = hostInfo;
 			if (Logging.DEBUG) Log.d(TAG, "restored: mHostInfo=" + activity.mHostInfo);
 			activity.mDoGetBAMInfo = doGetBAMInfo;
@@ -343,6 +347,14 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 				currentBAMInfo(bamInfo);
 		}
 		
+		if (mDoUpdateHostInfo) {
+			HostInfo hostInfo = mConnectionManager.getPendingHostInfo();
+			if (hostInfo != null)
+				updatedHostInfo(hostInfo);
+			else // otherwise show dialog
+				showProgressDialog(PROGRESS_INITIAL_DATA);
+		}
+		
 		if (mSyncingBAMInProgress) {
 			if (!mConnectionManager.isBAMBeingSynchronized())
 				onAfterAccountMgrRPC();
@@ -441,6 +453,13 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		return new SavedState(this);
+	}
+	
+	@Override
+	public void onBackPressed() {
+		if (mConnectionManager != null)
+			mConnectionManager.cancelPollOperations();
+		finish();
 	}
 
 	@Override
@@ -564,7 +583,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		case R.id.menuHostInfo:
 			// Request fresh host-info from client in any case
 			showProgressDialog(PROGRESS_INITIAL_DATA);
-			mConnectionManager.updateHostInfo(this);
+			mDoUpdateHostInfo = true;
+			mConnectionManager.updateHostInfo();
 			break;
 		case R.id.menuDisconnect:
 			// Disconnect from currently connected client
@@ -593,7 +613,6 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 				mConnectedClient = mConnectionManager.getClientId();
 				refreshClientName();
 			}
-			setProgressBarIndeterminateVisibility(true);
 			// No break here, we drop to next case (dialog update)
 		case PROGRESS_CONNECTING:
 		case PROGRESS_AUTHORIZATION_PENDING:
@@ -602,10 +621,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 			showProgressDialog(progress);
 			break;
 		case PROGRESS_XFER_STARTED:
-			setProgressBarIndeterminateVisibility(true);
 			break;
 		case PROGRESS_XFER_FINISHED:
-			setProgressBarIndeterminateVisibility(false);
 			break;
 		default:
 			if (Logging.ERROR) Log.e(TAG, "Unhandled progress indicator: " + progress);
@@ -647,6 +664,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		setProgressBarIndeterminateVisibility(false);
 		dismissProgressDialogs();
 		mDoGetBAMInfo = false;
+		mDoUpdateHostInfo = false;
 		mSyncingBAMInProgress = false;
 		if (mSelectedClient != null) {
 			// Connection to another client is deferred, we proceed with it now
@@ -676,6 +694,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		setProgressBarIndeterminateVisibility(false);
 		dismissProgressDialogs();
 		mDoGetBAMInfo = false;
+		mDoUpdateHostInfo = false;
 		mSyncingBAMInProgress = false;
 		StandardDialogs.showClientErrorDialog(this, errorNum, message);
 		return true;
@@ -692,6 +711,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	@Override
 	public boolean updatedHostInfo(HostInfo hostInfo) {
 		if (Logging.DEBUG) Log.d(TAG, "Host info received, displaying");
+		mDoUpdateHostInfo = false;
 		mHostInfo = hostInfo;
 		dismissProgressDialogs();
 		if (mHostInfo != null) {

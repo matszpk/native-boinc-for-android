@@ -42,6 +42,8 @@ public class HostInfoCreator {
 						hostInfo.p_model,
 						hostInfo.p_features)
 				);
+		if (hostInfo.virtualbox_version != null)
+			sb.append(resources.getString(R.string.hostInfoVB, hostInfo.virtualbox_version));
 		sb.append(
 				resources.getString(R.string.hostInfoPart2,
 						String.format("%.2f", hostInfo.p_fpops/1000000),

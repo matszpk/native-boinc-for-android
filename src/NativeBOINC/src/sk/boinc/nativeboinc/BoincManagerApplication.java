@@ -290,6 +290,8 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		mInstallerStage = stage;
 		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		
+		if (Logging.DEBUG) Log.d(TAG, "Set installer stage:"+stage);
+		
 		int installerStageToSave = mInstallerStage;
 		/* fix stage for restarted manager */
 		if (mInstallerStage == INSTALLER_CLIENT_INSTALLING_STAGE)

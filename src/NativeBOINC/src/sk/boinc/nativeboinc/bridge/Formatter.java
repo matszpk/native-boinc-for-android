@@ -76,6 +76,8 @@ public class Formatter {
 	}
 
 	public final String formatSize(long size) {
+		if (size < 0)
+			return mResources.getString(R.string.unknown);
 		if (size > 1000000000L) {
 			// Gigabytes
 			return String.format("%.1f %s", ((float)size/1000000000.0F), mResources.getString(R.string.unitGB));
@@ -95,6 +97,8 @@ public class Formatter {
 	}
 
 	public final String formatBinSize(long size) {
+		if (size < 0)
+			return mResources.getString(R.string.unknown);
 		if (size > 1073741824L) {
 			// Gibibytes
 			return String.format("%.1f %s", ((float)size/1073741824.0F), mResources.getString(R.string.unitGiB));
@@ -126,5 +130,13 @@ public class Formatter {
 			// Bytes
 			return String.format("%.1f %s", speed, mResources.getString(R.string.unitBps));
 		}
+	}
+	
+	public final String formatDefault(String string) {
+		return (string.equals("")) ? mResources.getString(R.string.defaultText) : string;
+	}
+	
+	public final String formatGFlops(double flops) {
+		return String.format("%.0f %s", flops*1e-9, mResources.getString(R.string.gflops));
 	}
 }

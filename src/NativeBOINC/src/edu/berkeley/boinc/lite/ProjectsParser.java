@@ -148,6 +148,9 @@ public class ProjectsParser extends BaseParser {
 					else if (localName.equalsIgnoreCase("hostid")) {
 						mProject.hostid = Integer.parseInt(mCurrentElement.toString());
 					}
+					else if (localName.equalsIgnoreCase("host_venue")) {
+						mProject.venue = mCurrentElement.toString();
+					}
 					else if (localName.equalsIgnoreCase("user_total_credit")) {
 						mProject.user_total_credit = Double.parseDouble(mCurrentElement.toString());
 					}
@@ -159,9 +162,6 @@ public class ProjectsParser extends BaseParser {
 					}
 					else if (localName.equalsIgnoreCase("host_expavg_credit")) {
 						mProject.host_expavg_credit = Double.parseDouble(mCurrentElement.toString());
-					}
-					else if (localName.equalsIgnoreCase("disk_usage")) {
-						mProject.disk_usage = Double.parseDouble(mCurrentElement.toString());
 					}
 					else if (localName.equalsIgnoreCase("nrpc_failures")) {
 						mProject.nrpc_failures = Integer.parseInt(mCurrentElement.toString());

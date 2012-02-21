@@ -61,7 +61,6 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 			mConnectionFailed = savedInstanceState.getBoolean(STATE_CONNECTION_FAILED);
 		
 		mApp = (BoincManagerApplication)getApplication();
-		mApp.setInstallerStage(BoincManagerApplication.INSTALLER_PROJECT_STAGE);
 		
 		setUpService(true, true, true, true, false, false);
 		super.onCreate(savedInstanceState);
@@ -94,6 +93,8 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 	@Override
 	protected void onResume() {
 		super.onResume();
+		
+		if (Logging.DEBUG) Log.d(TAG, "onResume: "+mApp.getInstallerStage());
 		
 		if (!mApp.isInstallerRun()) {
 			// installer finished then close it

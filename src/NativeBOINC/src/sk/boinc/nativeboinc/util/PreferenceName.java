@@ -38,6 +38,8 @@ public interface PreferenceName {
 	public static final String UPGRADE_INFO_SHOWN_VERSION = "upgradeInfoShownVersion";
 	public static final String LAST_ACTIVE_TAB = "lastActiveTab";
 	public static final String LIMIT_MESSAGES = "limitMessages";
+	public static final String NEWS_UPDATE_PERIOD = "newsUpdatePeriod";
+	public static final String VIEW_ITEM_TYPE = "viewItemType";
 	
 	/* for client */
 	public static final String CLIENT_VERSION = "clientVersion";

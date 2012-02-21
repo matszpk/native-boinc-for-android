@@ -19,32 +19,27 @@
 
 package sk.boinc.nativeboinc;
 
-import java.util.ArrayList;
-
+import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
-import sk.boinc.nativeboinc.clientconnection.HostInfo;
-import sk.boinc.nativeboinc.clientconnection.MessageInfo;
-import sk.boinc.nativeboinc.clientconnection.ModeInfo;
-import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
-import sk.boinc.nativeboinc.clientconnection.TaskInfo;
-import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
+import sk.boinc.nativeboinc.util.ClientId;
+import sk.boinc.nativeboinc.util.ProgressState;
+import sk.boinc.nativeboinc.util.StandardDialogs;
 import edu.berkeley.boinc.lite.GlobalPreferences;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TabHost;
 
 /**
  * @author mat
@@ -53,13 +48,17 @@ import android.widget.EditText;
 public class LocalPreferencesActivity extends ServiceBoincActivity implements ClientPreferencesReceiver {
 	private static final String TAG = "LocalPrefsActivity";
 	
-	private boolean mIsGlobalPrefsFetched = false;
+	private ClientId mConnectedClient = null;
+	
+	private int mGlobalPrefsFetchProgress = ProgressState.NOT_RUN;
+	private boolean mGlobalPrefsSavingInProgress = false;
 	
 	private CheckBox mComputeOnBatteries;
 	private CheckBox mComputeInUse;
 	private CheckBox mUseGPUInUse;
 	private EditText mComputeIdleFor;
 	private EditText mComputeUsageLessThan;
+	private EditText mBatteryLevelNL;
 	private EditText mSwitchBetween;
 	private EditText mUseAtMostCPUs;
 	private EditText mUseAtMostCPUTime;
@@ -80,19 +79,70 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	
 	private Button mApply;
 	
+	private static class SavedState {
+		private final int globalPrefsFetchProgress;
+		private final boolean globalPrefsSavingInProgress;
+		
+		public SavedState(LocalPreferencesActivity activity) {
+			globalPrefsFetchProgress = activity.mGlobalPrefsFetchProgress;
+			globalPrefsSavingInProgress = activity.mGlobalPrefsSavingInProgress;
+		}
+		
+		public void restore(LocalPreferencesActivity activity) {
+			activity.mGlobalPrefsFetchProgress = globalPrefsFetchProgress;
+			activity.mGlobalPrefsSavingInProgress = globalPrefsSavingInProgress;
+		}
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		
+		final SavedState savedState = (SavedState)getLastNonConfigurationInstance();
+		if (savedState != null)
+			savedState.restore(this);
+		
 		setUpService(true, true, false, false, false, false);
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.local_prefs);
+		
+		TabHost tabHost = (TabHost)findViewById(android.R.id.tabhost);
+		
+		tabHost.setup();
+		
+		Resources res = getResources();
+		
+		TabHost.TabSpec tabSpec1 = tabHost.newTabSpec("computeOptions");
+		tabSpec1.setContent(R.id.localPrefComputeOptions);
+		tabSpec1.setIndicator(getString(R.string.localPrefComputeOptions),
+				res.getDrawable(R.drawable.ic_tab_compute));
+		tabHost.addTab(tabSpec1);
+		
+		TabHost.TabSpec tabSpec2 = tabHost.newTabSpec("networkUsage");
+		tabSpec2.setContent(R.id.localPrefNetworkOptions);
+		tabSpec2.setIndicator(getString(R.string.localPrefNetworkUsage),
+				res.getDrawable(R.drawable.ic_tab_network));
+		tabHost.addTab(tabSpec2);
+		
+		TabHost.TabSpec tabSpec3 = tabHost.newTabSpec("diskUsage");
+		tabSpec3.setContent(R.id.localPrefDiskOptions);
+		tabSpec3.setIndicator(getString(R.string.localPrefDiskUsage),
+				res.getDrawable(R.drawable.ic_tab_disk));
+		tabHost.addTab(tabSpec3);
+		
+		TabHost.TabSpec tabSpec4 = tabHost.newTabSpec("diskUsage");
+		tabSpec4.setContent(R.id.localPrefMemoryOptions);
+		tabSpec4.setIndicator(getString(R.string.localPrefMemoryUsage),
+				res.getDrawable(R.drawable.ic_tab_memory));
+		tabHost.addTab(tabSpec4);
 		
 		mComputeOnBatteries = (CheckBox)findViewById(R.id.localPrefComputeOnBatteries);
 		mComputeInUse = (CheckBox)findViewById(R.id.localPrefComputeInUse);
 		mUseGPUInUse = (CheckBox)findViewById(R.id.localPrefUseGPUInUse);
 		mComputeIdleFor = (EditText)findViewById(R.id.localPrefComputeIdleFor);
 		mComputeUsageLessThan = (EditText)findViewById(R.id.localPrefComputeUsageLessThan);
+		mBatteryLevelNL = (EditText)findViewById(R.id.localPrefBatteryNL);
 		mSwitchBetween = (EditText)findViewById(R.id.localPrefSwitchBetween);
 		mUseAtMostCPUs = (EditText)findViewById(R.id.localPrefUseAtMostCPUs);
 		mUseAtMostCPUTime = (EditText)findViewById(R.id.localPrefUseAtMostCPUTime);
@@ -125,8 +175,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 			
 			@Override
 			public void onClick(View v) {
-				mConnectionManager.setGlobalPrefsOverride(LocalPreferencesActivity.this,
-						NativeBoincService.INITIAL_BOINC_CONFIG);
+				mConnectionManager.setGlobalPrefsOverride(NativeBoincService.INITIAL_BOINC_CONFIG);
 			}
 		});
 		
@@ -160,6 +209,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		
 		mComputeIdleFor.addTextChangedListener(textWatcher);
 		mComputeUsageLessThan.addTextChangedListener(textWatcher);
+		mBatteryLevelNL.addTextChangedListener(textWatcher);
 		
 		mSwitchBetween.addTextChangedListener(textWatcher);
 		mUseAtMostCPUs.addTextChangedListener(textWatcher);
@@ -181,13 +231,75 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		mUseAtMostMemoryInUse.addTextChangedListener(textWatcher);
 	}
 	
-	@Override
-	protected void onPause() {
-		super.onPause();
+	private void updateActivityState() {
+		// 
+		setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
 		
-		if (mConnectionManager != null)
-			mConnectionManager.unregisterStatusObserver(this);
+		if (mGlobalPrefsFetchProgress == ProgressState.IN_PROGRESS || mGlobalPrefsSavingInProgress) {
+			ClientError error = mConnectionManager.getPendingClientError();
+			
+			if (error != null) {
+				clientError(error.errorNum, error.message);
+				return;
+			} else if (mConnectedClient == null) {
+				clientDisconnected(); // if disconnected
+				return;
+			}
+		}
+		
+		if (mGlobalPrefsFetchProgress != ProgressState.FINISHED) {
+			if (mGlobalPrefsFetchProgress == ProgressState.NOT_RUN) {
+				if (Logging.DEBUG) Log.d(TAG, "get project config from client");
+				mConnectionManager.getGlobalPrefsWorking();
+				mGlobalPrefsFetchProgress = ProgressState.IN_PROGRESS;
+			} else if (mGlobalPrefsFetchProgress == ProgressState.IN_PROGRESS) {
+				GlobalPreferences globalPrefs = mConnectionManager.getPendingGlobalPrefsWorking();
+
+				if (globalPrefs != null) {	// if finished
+					mGlobalPrefsFetchProgress = ProgressState.FINISHED;
+					updatePreferences(globalPrefs);
+				}
+			}
+			// if failed
+		}
+		
+		if (mGlobalPrefsSavingInProgress) {
+			if (!mConnectionManager.isGlobalPrefsBeingOverriden()) {
+				// its finally overriden
+				onGlobalPreferencesChanged();
+			}
+		}
 	}
+	
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		return new SavedState(this);
+	}
+	
+	@Override
+	protected void onConnectionManagerConnected() {
+		mConnectedClient = mConnectionManager.getClientId();
+		
+		updateActivityState();
+	}
+	
+	@Override
+	protected void onConnectionManagerDisconnected() {
+		mConnectedClient = null;
+	}
+	
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		if (mConnectionManager != null) {
+			mConnectedClient = mConnectionManager.getClientId();
+			
+			updateActivityState();
+		}
+	}
+	
 	
 	private void setApplyButtonState() {
 		try {
@@ -199,6 +311,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 					mSwitchBetween.getText().toString());
 			double max_ncpus_pct = Double.parseDouble(mUseAtMostCPUs.getText().toString());
 			double cpu_usage_limit = Double.parseDouble(mUseAtMostCPUTime.getText().toString());
+			double battery_level_nl = Double.parseDouble(mBatteryLevelNL.getText().toString());
 			
 			double max_bytes_sec_down = Double.parseDouble(mMaxDownloadRate.getText().toString());
 			double max_bytes_sec_up = Double.parseDouble(mMaxUploadRate.getText().toString());
@@ -218,6 +331,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 					mUseAtMostMemoryInIdle.getText().toString());
 			
 			if (idle_time_to_run < 0.0 || suspend_cpu_usage > 100.0 || suspend_cpu_usage < 0.0 ||
+					battery_level_nl < 0.0 || battery_level_nl > 100.0 ||
 					cpu_scheduling_period_minutes < 0.0 || max_ncpus_pct > 100.0 || max_ncpus_pct < 0.0 ||
 					cpu_usage_limit > 100.0 || cpu_usage_limit < 0.0 ||
 					max_bytes_sec_down < 0.0 || max_bytes_sec_up < 0.0 || daily_xfer_limit_mb < 0.0 ||
@@ -247,6 +361,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		
 		mComputeIdleFor.setText(Double.toString(globalPrefs.idle_time_to_run));
 		mComputeUsageLessThan.setText(Double.toString(globalPrefs.suspend_cpu_usage));
+		mBatteryLevelNL.setText(Double.toString(globalPrefs.run_if_battery_nl_than));
 		
 		mSwitchBetween.setText(Double.toString(globalPrefs.cpu_scheduling_period_minutes));
 		mUseAtMostCPUs.setText(Double.toString(globalPrefs.max_ncpus_pct));
@@ -281,6 +396,8 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 			globalPrefs.idle_time_to_run = Double.parseDouble(mComputeIdleFor.getText().toString());
 			globalPrefs.suspend_cpu_usage = Double.parseDouble(
 					mComputeUsageLessThan.getText().toString());
+			globalPrefs.run_if_battery_nl_than = Double.parseDouble(
+					mBatteryLevelNL.getText().toString());
 			
 			globalPrefs.cpu_scheduling_period_minutes = Double.parseDouble(
 					mSwitchBetween.getText().toString());
@@ -310,109 +427,50 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		} catch(NumberFormatException ex) {
 			return;	// do nothing
 		}
-		mConnectionManager.setGlobalPrefsOverrideStruct(this, globalPrefs);
+		mConnectionManager.setGlobalPrefsOverrideStruct(globalPrefs);
 	}
 	
 	@Override
 	public void clientConnectionProgress(int progress) {
 		// do nothing
-		switch (progress) {
-		case PROGRESS_XFER_STARTED:
-			setProgressBarIndeterminateVisibility(true);
-			break;
-		case PROGRESS_XFER_FINISHED:
-			setProgressBarIndeterminateVisibility(false);
-			break;
-		default:
-			if (Logging.ERROR) Log.e(TAG, "Unhandled progress indicator: " + progress);
-		}
 	}
 
 	@Override
 	public void clientConnected(VersionInfo clientVersion) {
-		// do nothing
+		mConnectedClient = mConnectionManager.getClientId();
 	}
 
 	@Override
 	public void clientDisconnected() {
-		// do nothing
+		mGlobalPrefsFetchProgress = ProgressState.FAILED;
+		StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, null, mConnectedClient);
 	}
 	
-	private void showErrorDialog(String message) {
-		new AlertDialog.Builder(this).setTitle(getString(R.string.error))
-			.setMessage(message)
-			.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					finish();
-				}
-			}).setOnCancelListener(new DialogInterface.OnCancelListener() {
-				@Override
-				public void onCancel(DialogInterface dialog) {
-					finish();
-				}
-			}).create().show();
-	}
-
-	@Override
-	public boolean updatedClientMode(ModeInfo modeInfo) {
-		// do nothing
-		return false;
-	}
-
-	@Override
-	public boolean updatedHostInfo(HostInfo hostInfo) {
-		// do nothing
-		return false;
-	}
-
-	@Override
-	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
-		// do nothing
-		return false;
-	}
-
-	@Override
-	public boolean updatedTasks(ArrayList<TaskInfo> tasks) {
-		// do nothing
-		return false;
-	}
-
-	@Override
-	public boolean updatedTransfers(ArrayList<TransferInfo> transfers) {
-		// do nothing
-		return false;
-	}
-
-	@Override
-	public boolean updatedMessages(ArrayList<MessageInfo> messages) {
-		// do nothing
-		return false;
-	}
-
 	@Override
 	public void currentGlobalPreferences(GlobalPreferences globalPrefs) {
-		if (!mIsGlobalPrefsFetched) {
-			mIsGlobalPrefsFetched = true;
-			updatePreferences(globalPrefs);
-		}
+		mGlobalPrefsFetchProgress = ProgressState.FINISHED;
+		
+		updatePreferences(globalPrefs);
 	}
 	
 	@Override
 	public void onGlobalPreferencesChanged() {
+		mGlobalPrefsSavingInProgress = false;
 		// finish
 		finish();
 	}
 
 	@Override
-	public boolean clientError(int err_num, String message) {
-		// TODO Auto-generated method stub
+	public boolean clientError(int errorNum, String errorMessage) {
+		mGlobalPrefsFetchProgress = ProgressState.FAILED;
+		mGlobalPrefsSavingInProgress = false;
+		
+		StandardDialogs.showClientErrorDialog(this, errorNum, errorMessage);
 		return true;
 	}
 
 	@Override
 	public void onClientIsWorking(boolean isWorking) {
-		// TODO Auto-generated method stub
-		
+		setProgressBarIndeterminateVisibility(isWorking);
 	}
 }

@@ -23,4 +23,8 @@ public class Workunit {
 	public String name = "";
 	public String app_name = "";
 	public int version_num;
+	public double rsc_fpops_est;
+    public double rsc_fpops_bound;
+    public double rsc_memory_bound;
+    public double rsc_disk_bound;
 }

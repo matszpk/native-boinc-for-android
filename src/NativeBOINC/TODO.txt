@@ -69,3 +69,6 @@ Tablety:
 
 następne wersje:
 * dodać obsługę screensavera.
+
+client: bugs
+* usuń problem z pierwszymi WU po instalacji projektu. (text busy).

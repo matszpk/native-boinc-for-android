@@ -74,12 +74,32 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	private ConcurrentMap<String, PollError> mPollErrorsMap = new ConcurrentHashMap<String, PollError>();
 	private ClientError mPendingClientError = null;
+	private Object mPendingClientErrorSync = new Object(); // syncer
 	
 	private ArrayList<ProjectListEntry> mPendingAllProjectsList = null;
+	private Object mPendingAllProjectsListSync = new Object(); // syncer
 	
-	private AccountMgrInfo mAccountMgrInfo = null;
+	private AccountMgrInfo mPendingAccountMgrInfo = null;
+	private Object mPendingAccountMgrInfoSync = new Object(); // syncer
 	
 	private boolean mBAMBeingSynchronized = false;
+	
+	private GlobalPreferences mPendingGlobalPrefs = null;
+	private Object mPendingGlobalPrefsSync = new Object(); // syncer
+	
+	private boolean mGlobalPrefsBeingOverriden = false;
+	private HostInfo mPendingHostInfo = null;
+	private Object mPendingHostInfoSync = new Object();  // syncer
+	
+	/* data updates */
+	private ArrayList<ProjectInfo> mPendingProjects = null;
+	private Object mPendingProjectsSync = new Object();
+	private ArrayList<TaskInfo> mPendingTasks = null;
+	private Object mPendingTasksSync = new Object();
+	private ArrayList<TransferInfo> mPendingTransfers = null;
+	private Object mPendingTransfersSync = new Object();
+	private ArrayList<MessageInfo> mPendingMessages = null;
+	private Object mPendingMessagesSync = new Object();
 	
 	public class ReplyHandler extends Handler {
 		private static final String TAG = "ClientBridge.ReplyHandler";
@@ -124,7 +144,7 @@ public class ClientBridge implements ClientRequestHandler {
 					called = true;
 			}
 			
-			synchronized(ClientBridge.this) {
+			synchronized(mPendingClientErrorSync) {
 				if (!called)
 					mPendingClientError = new ClientError(errorNum, errorMessage);
 				else	// if error already handled 
@@ -211,17 +231,21 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 		}
 
-		public void updatedHostInfo(final ClientReplyReceiver callback, final HostInfo hostInfo) {
-			// First, check whether callback is still present in observers
-			if (mObservers.contains(callback)) {
-				// Yes, observer is still present, so we can call it back with data
-				callback.updatedHostInfo(hostInfo);
+		public void updatedHostInfo(final HostInfo hostInfo) {
+			synchronized(mPendingHostInfoSync) {
+				mPendingHostInfo = hostInfo;
+			}
+			
+			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			for (ClientReceiver observer: observers) {
+				if (observer instanceof ClientReplyReceiver)
+					((ClientReplyReceiver)observer).updatedHostInfo(hostInfo);
 			}
 		}
 		
 		public void currentBAMInfo(final AccountMgrInfo bamInfo) {
-			synchronized(ClientBridge.this) {
-				mAccountMgrInfo = bamInfo;
+			synchronized(mPendingAccountMgrInfoSync) {
+				mPendingAccountMgrInfo = bamInfo;
 			}
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
@@ -232,7 +256,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 		
 		public void currentAllProjectsList(final ArrayList<ProjectListEntry> projects) {
-			synchronized(ClientBridge.this) {
+			synchronized(mPendingAllProjectsListSync) {
 				mPendingAllProjectsList = projects;
 			}
 			
@@ -265,12 +289,16 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 		}
 		
-		public void currentGlobalPreferences(final ClientPreferencesReceiver callback,
-				final GlobalPreferences globalPrefs) {
+		public void currentGlobalPreferences(final GlobalPreferences globalPrefs) {
+			synchronized(mPendingGlobalPrefsSync) {
+				mPendingGlobalPrefs = globalPrefs;
+			}
+			
 			// First, check whether callback is still present in observers
-			if (mObservers.contains(callback)) {
-				// Yes, observer is still present, so we can call it back with data
-				callback.currentGlobalPreferences(globalPrefs);
+			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			for (ClientReceiver observer: observers) {
+				if (observer instanceof ClientPreferencesReceiver)
+					((ClientPreferencesReceiver)observer).currentGlobalPreferences(globalPrefs);
 			}
 		}
 		
@@ -295,95 +323,80 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 		}
 		
-		public void onGlobalPreferencesChanged(final ClientPreferencesReceiver callback) {
-			// First, check whether callback is still present in observers
-			if (mObservers.contains(callback)) {
-				// Yes, observer is still present, so we can call it back with data
-				callback.onGlobalPreferencesChanged();
+		public void onGlobalPreferencesChanged() {
+			mGlobalPrefsBeingOverriden = false; // if finished
+			
+			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			for (ClientReceiver observer: observers) {
+				if (observer instanceof ClientPreferencesReceiver)
+					((ClientPreferencesReceiver)observer).onGlobalPreferencesChanged();
 			}
 		}
 
-		public void updatedProjects(final ClientReplyReceiver callback, final ArrayList <ProjectInfo> projects) {
-			if (callback == null) {
-				// No specific callback - broadcast to all observers
-				// This is used for early notification after connect
-				
-				ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
-				for (ClientReceiver observer: observers) {
-					if (observer instanceof ClientReplyReceiver)
-						((ClientReplyReceiver)observer).updatedProjects(projects);
-				}
-				return;
+		public void updatedProjects(final ArrayList <ProjectInfo> projects) {
+			synchronized(mPendingProjectsSync) {
+				mPendingProjects = projects;
 			}
-			// Check whether callback is still present in observers
-			if (mObservers.contains(callback)) {
-				// Yes, observer is still present, so we can call it back with data
-				boolean periodicAllowed = callback.updatedProjects(projects);
-				if (periodicAllowed) {
-					mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.PROJECTS);
+			
+			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			for (ClientReceiver observer: observers) {
+				if (observer instanceof ClientReplyReceiver) {
+					ClientReplyReceiver callback = (ClientReplyReceiver)observer;
+					
+					boolean periodicAllowed = callback.updatedProjects(projects);
+					if (periodicAllowed)
+						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.PROJECTS);
 				}
 			}
 		}
 
-		public void updatedTasks(final ClientReplyReceiver callback, final ArrayList <TaskInfo> tasks) {
-			if (callback == null) {
-				// No specific callback - broadcast to all observers
-				// This is used for early notification after connect
-				ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
-				for (ClientReceiver observer: observers) {
-					if (observer instanceof ClientReplyReceiver)
-						((ClientReplyReceiver)observer).updatedTasks(tasks);
-				}
-				return;
+		public void updatedTasks(final ArrayList <TaskInfo> tasks) {
+			synchronized(mPendingTasksSync) {
+				mPendingTasks = tasks;
 			}
-			// Check whether callback is still present in observers
-			if (mObservers.contains(callback)) {
-				// Yes, observer is still present, so we can call it back with data
-				boolean periodicAllowed = callback.updatedTasks(tasks);
-				if (periodicAllowed) {
-					mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.TASKS);
+			
+			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			for (ClientReceiver observer: observers) {
+				if (observer instanceof ClientReplyReceiver) {
+					ClientReplyReceiver callback = (ClientReplyReceiver)observer;
+					
+					boolean periodicAllowed = callback.updatedTasks(tasks);
+					if (periodicAllowed)
+						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.TASKS);
 				}
 			}
 		}
 
-		public void updatedTransfers(final ClientReplyReceiver callback, final ArrayList <TransferInfo> transfers) {
-			if (callback == null) {
-				// No specific callback - broadcast to all observers
-				// This is used for early notification after connect
-				ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
-				for (ClientReceiver observer: observers) {
-					if (observer instanceof ClientReplyReceiver)
-						((ClientReplyReceiver)observer).updatedTransfers(transfers);
-				}
-				return;
+		public void updatedTransfers(final ArrayList <TransferInfo> transfers) {
+			synchronized(mPendingTransfersSync) {
+				mPendingTransfers = transfers;
 			}
-			// Check whether callback is still present in observers
-			if (mObservers.contains(callback)) {
-				// Yes, observer is still present, so we can call it back with data
-				boolean periodicAllowed = callback.updatedTransfers(transfers);
-				if (periodicAllowed) {
-					mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.TRANSFERS);
+			
+			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			for (ClientReceiver observer: observers) {
+				if (observer instanceof ClientReplyReceiver) {
+					ClientReplyReceiver callback = (ClientReplyReceiver)observer;
+					
+					boolean periodicAllowed = callback.updatedTransfers(transfers);
+					if (periodicAllowed)
+						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.TRANSFERS);
 				}
 			}
 		}
 
-		public void updatedMessages(final ClientReplyReceiver callback, final ArrayList <MessageInfo> messages) {
-			if (callback == null) {
-				// No specific callback - broadcast to all observers
-				// This is used for early notification after connect
-				ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
-				for (ClientReceiver observer: observers) {
-					if (observer instanceof ClientReplyReceiver)
-						((ClientReplyReceiver)observer).updatedMessages(messages);
-				}
-				return;
+		public void updatedMessages(final ArrayList <MessageInfo> messages) {
+			synchronized(mPendingMessagesSync) {
+				mPendingMessages = messages;
 			}
-			// Check whether callback is still present in observers
-			if (mObservers.contains(callback)) {
-				// Yes, observer is still present, so we can call it back with data
-				boolean periodicAllowed = callback.updatedMessages(messages);
-				if (periodicAllowed) {
-					mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.MESSAGES);
+			
+			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			for (ClientReceiver observer: observers) {
+				if (observer instanceof ClientReplyReceiver) {
+					ClientReplyReceiver callback = (ClientReplyReceiver)observer;
+					
+					boolean periodicAllowed = callback.updatedMessages(messages);
+					if (periodicAllowed)
+						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.MESSAGES);
 				}
 			}
 		}
@@ -392,6 +405,21 @@ public class ClientBridge implements ClientRequestHandler {
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers)
 				observer.onClientIsWorking(isWorking);
+		}
+		
+		/*
+		 * cancel poll operations
+		 */
+		public void cancelPollOperations() {
+			Log.d(TAG, "on cancel poll operations");
+			synchronized(mPendingAccountMgrInfoSync) {
+				mPendingAccountMgrInfo = null;
+			}
+			// clear 'add project' operations
+			mJoinedAddProjectsMap.clear();
+			// clear project config temp results
+			mPendingProjectConfigs.clear();
+			mBAMBeingSynchronized = false;
 		}
 	}
 
@@ -498,50 +526,121 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 
 	@Override
-	public void updateHostInfo(final ClientReplyReceiver callback) {
+	public void updateHostInfo() {
 		if (mRemoteClient == null) return; // not connected
-		mWorker.updateHostInfo(callback);
+		synchronized(mPendingHostInfoSync) {
+			mPendingHostInfo = null;
+		}
+		mWorker.updateHostInfo();
+	}
+	
+	@Override
+	public HostInfo getPendingHostInfo() {
+		if (mRemoteClient == null) return null; // not connected
+		synchronized(mPendingHostInfoSync) {
+			HostInfo pending = mPendingHostInfo;
+			mPendingHostInfo = null;
+			return pending;
+		}
 	}
 
 	@Override
-	public void updateProjects(final ClientReplyReceiver callback) {
+	public void updateProjects() {
 		if (mRemoteClient == null) return; // not connected
-		mWorker.updateProjects(callback);
+		synchronized(mPendingProjectsSync) {
+			mPendingProjects = null;
+		}
+		mWorker.updateProjects();
+	}
+	
+	@Override
+	public ArrayList<ProjectInfo> getPendingProjects() {
+		if (mRemoteClient == null) return null; // not connected
+		synchronized(mPendingProjectsSync) {
+			ArrayList<ProjectInfo> pending = mPendingProjects;
+			mPendingProjects = null;
+			return pending;
+		}
 	}
 
 	@Override
-	public void updateTasks(final ClientReplyReceiver callback) {
+	public void updateTasks() {
 		if (mRemoteClient == null) return; // not connected
-		mWorker.updateTasks(callback);
+		synchronized(mPendingTasksSync) {
+			mPendingTasks = null;
+		}
+		mWorker.updateTasks();
+	}
+	
+	@Override
+	public ArrayList<TaskInfo> getPendingTasks() {
+		if (mRemoteClient == null) return null; // not connected
+		synchronized(mPendingTasksSync) {
+			ArrayList<TaskInfo> pending = mPendingTasks;
+			mPendingTasks = null;
+			return pending;
+		}
 	}
 
 	@Override
-	public void updateTransfers(final ClientReplyReceiver callback) {
+	public void updateTransfers() {
 		if (mRemoteClient == null) return; // not connected
-		mWorker.updateTransfers(callback);
+		synchronized(mPendingTransfersSync) {
+			mPendingTransfers = null;
+		}
+		mWorker.updateTransfers();
+	}
+	
+	@Override
+	public ArrayList<TransferInfo> getPendingTransfers() {
+		if (mRemoteClient == null) return null; // not connected
+		synchronized(mPendingTransfersSync) {
+			ArrayList<TransferInfo> pending = mPendingTransfers;
+			mPendingTransfers = null;
+			return pending;
+		}
 	}
 
 	@Override
-	public void updateMessages(final ClientReplyReceiver callback) {
+	public void updateMessages() {
 		if (mRemoteClient == null) return; // not connected
-		mWorker.updateMessages(callback);
+		synchronized(mPendingMessagesSync) {
+			mPendingMessages = null;
+		}
+		mWorker.updateMessages();
+	}
+	
+	@Override
+	public ArrayList<MessageInfo> getPendingMessages() {
+		if (mRemoteClient == null) return null; // not connected
+		synchronized(mPendingMessagesSync) {
+			ArrayList<MessageInfo> pending = mPendingMessages;
+			mPendingMessages = null;
+			return pending;
+		}
+	}
+	
+	@Override
+	public void addToScheduledUpdates(ClientReplyReceiver callback, int refreshType) {
+		if (mRemoteClient == null) return; // not connected
+		mAutoRefresh.scheduleAutomaticRefresh(callback, refreshType);
 	}
 
 	@Override
-	public void cancelScheduledUpdates(ClientReplyReceiver callback) {
+	public void cancelScheduledUpdates(int refreshType) {
 		if (mRemoteClient == null) return; // not connected
 		// Cancel pending updates in worker thread
-		mWorker.cancelPendingUpdates(callback);
+		mWorker.cancelPendingUpdates(refreshType);
 		// Remove scheduled auto-refresh (if any)
-		if (mAutoRefresh!=null && callback != null)
-			mAutoRefresh.unscheduleAutomaticRefresh(callback);
+		if (mAutoRefresh!=null)
+			mAutoRefresh.unscheduleAutomaticRefresh(refreshType);
 	}
 
 	@Override
 	public void getBAMInfo() {
 		if (mRemoteClient == null) return; // not connected
-		synchronized(this) {
-			mAccountMgrInfo = null;
+		synchronized(mPendingAccountMgrInfoSync) {
+			mPendingAccountMgrInfo = null;
 		}
 		mWorker.getBAMInfo();
 	}
@@ -549,9 +648,9 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public AccountMgrInfo getPendingBAMInfo() {
 		if (mRemoteClient == null) return null; // not connected
-		synchronized(this) {
-			AccountMgrInfo toReturn = mAccountMgrInfo;
-			mAccountMgrInfo = null;
+		synchronized(mPendingAccountMgrInfoSync) {
+			AccountMgrInfo toReturn = mPendingAccountMgrInfo;
+			mPendingAccountMgrInfo = null;
 			return toReturn;
 		}
 	}
@@ -585,7 +684,7 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public void getAllProjectsList() {
 		if (mRemoteClient == null) return; // not connected
-		synchronized (this) {
+		synchronized (mPendingAllProjectsListSync) {
 			mPendingAllProjectsList = null;
 		}
 		mWorker.getAllProjectsList();
@@ -594,7 +693,7 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public ArrayList<ProjectListEntry> getPendingAllProjectsList() {
 		if (mRemoteClient == null) return null; // not connected
-		synchronized(this) {
+		synchronized(mPendingAllProjectsListSync) {
 			ArrayList<ProjectListEntry> pending = mPendingAllProjectsList;
 			mPendingAllProjectsList = null;
 			return pending;
@@ -655,11 +754,18 @@ public class ClientBridge implements ClientRequestHandler {
 		if (mRemoteClient == null)
 			return null;
 		
-		synchronized(this) {
+		synchronized(mPendingClientErrorSync) {
 			ClientError clientError = mPendingClientError;
 			mPendingClientError = null;
 			return clientError;
 		}
+	}
+	
+	@Override
+	public void cancelPollOperations() {
+		if (mRemoteClient == null)
+			return;
+		mWorker.cancelPollOperations();
 	}
 	
 	@Override
@@ -672,21 +778,42 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 	
 	@Override
-	public void getGlobalPrefsWorking(ClientPreferencesReceiver callback) {
+	public void getGlobalPrefsWorking() {
 		if (mRemoteClient == null) return; // not connected
-		mWorker.getGlobalPrefsWorking(callback);
+		synchronized(mPendingGlobalPrefsSync) {
+			mPendingGlobalPrefs = null;
+		}
+		mWorker.getGlobalPrefsWorking();
 	}
 	
 	@Override
-	public void setGlobalPrefsOverride(ClientPreferencesReceiver callback, String globalPrefs) {
-		if (mRemoteClient == null) return; // not connected
-		mWorker.setGlobalPrefsOverride(callback, globalPrefs);
+	public GlobalPreferences getPendingGlobalPrefsWorking() {
+		if (mRemoteClient == null) return null; // not connected
+		synchronized(mPendingGlobalPrefsSync) {
+			GlobalPreferences pending = mPendingGlobalPrefs;
+			mPendingGlobalPrefs = null;
+			return pending;
+		}
 	}
 	
 	@Override
-	public void setGlobalPrefsOverrideStruct(ClientPreferencesReceiver callback, GlobalPreferences globalPrefs) {
+	public void setGlobalPrefsOverride(String globalPrefs) {
 		if (mRemoteClient == null) return; // not connected
-		mWorker.setGlobalPrefsOverrideStruct(callback, globalPrefs);
+		mGlobalPrefsBeingOverriden = true;
+		mWorker.setGlobalPrefsOverride(globalPrefs);
+	}
+	
+	@Override
+	public void setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs) {
+		if (mRemoteClient == null) return; // not connected
+		mGlobalPrefsBeingOverriden = true;
+		mWorker.setGlobalPrefsOverrideStruct(globalPrefs);
+	}
+	
+	@Override
+	public boolean isGlobalPrefsBeingOverriden() {
+		if (mRemoteClient == null) return false;
+		return mGlobalPrefsBeingOverriden;
 	}
 	
 	@Override

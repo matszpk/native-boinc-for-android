@@ -1266,16 +1266,22 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mDistribManager.addOrUpdateDistrib(appsInstaller.mProjectDistrib, appsInstaller.mFileList);
 		
 		notifyFinish(appsInstaller.mProjectDistrib.projectName, projectUrl);
+		
+		mProjectAppsInstallers.remove(projectUrl);
+		notifyChangeOfIsWorking();
 	}
 	
 	@Override
-	public void updateProjectAppsError(String projectUrl) {
+	public synchronized void updateProjectAppsError(String projectUrl) {
 		ProjectAppsInstaller appsInstaller = mProjectAppsInstallers.remove(projectUrl);
 		if (Logging.DEBUG) Log.d(TAG, "After update on client side error: "+
 				appsInstaller.mProjectDistrib.projectName);
 		
 		notifyError(appsInstaller.mProjectDistrib.projectName, projectUrl,
 				mContext.getString(R.string.updateProjectAppError));
+		
+		mProjectAppsInstallers.remove(projectUrl);
+		notifyChangeOfIsWorking();
 	}
 
 	@Override

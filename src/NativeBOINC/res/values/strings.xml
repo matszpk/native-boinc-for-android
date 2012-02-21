@@ -61,6 +61,7 @@
 	<string name="warning">Warning</string>
 	<string name="now">Now</string>
 	<string name="battery">Battery</string>
+	<string name="defaultText">Default</string>
 	
 	<string name="installedBinaries">Installed binaries</string>
 
@@ -75,6 +76,7 @@
 	<string name="unitBps">B/s</string>
 	<string name="unitKBps">KB/s</string>
 	<string name="unitMBps">MB/s</string>
+	<string name="gflops">GFLOPS</string>
 
 	<!-- Main Activity -->
 	<string name="temp_info">Press Menu button</string>
@@ -151,12 +153,16 @@
 	<string name="prefAboutTitle">About this application</string>
 	<string name="prefChangelogSummary">History of changes</string>
 	<string name="prefLicenseSummary">Text of license</string>
-	<string name="prefBinariesInfoTitle">Installed binaries</string>
-	<string name="prefBinariesInfoSummary">Show installed binaries list</string>
-
+	<string name="prefNewsUpdatePeriodTitle">News periodic update</string>
+	<string name="prefNewsUpdatePeriodSummary">Update news every</string>
+	<string name="prefViewItemTypeTitle">View item type</string>
+	<string name="prefViewItemTypeSummary">View item type as</string>
+	
 	<!--  Local Preferences -->
 	<string name="localPreferences">Local preferences</string>
-	<string name="localPrefComputingAllowed">Computing allowed</string>
+	
+	<string name="localPrefComputeOptions">Computing</string>
+	
 	<string name="localPrefComputeOnBatteries">While device is on batteries</string>
 	<string name="localPrefComputeInUse">While device is in use</string>
 	<string name="localPrefUseGPUInUse">Use GPU while device is in use</string>
@@ -164,12 +170,14 @@
 	<string name="minutes">min</string>
 	<string name="localPrefComputeUsageLessThan">While processor usage is less than</string>
 	<string name="percent">%</string>
-	<string name="localPrefComputeOtherOptions">Other options for computing</string>
 	<string name="localPrefSwitchBetween">Switch between applications every</string>
+	<string name="localPrefBatteryNL">While battery charge level not less than</string>
 	<string name="localPrefUseAtMost">Use at most</string>
 	<string name="localPrefPercentCPUTime">% CPU time</string>
 	<string name="localPrefPercentCPUs">% of the processors</string>
-	<string name="localPrefNetworkUsage">Network usage</string>
+	
+	<string name="localPrefNetworkUsage">Network</string>
+	
 	<string name="localPrefMaxDownloadRate">Maximum download rate</string>
 	<string name="localPrefMaxUploadRate">Maximum upload rate</string>
 	<string name="localPrefConnectAboutEvery">Connect about every</string>
@@ -179,12 +187,16 @@
 	<string name="localPrefmBytesEvery">MB every</string>
 	<string name="days">days</string>
 	<string name="localPrefSkipImageVerify">Skip image verification</string>
-	<string name="localPrefDiskUsage">Disk usage</string>
+	
+	<string name="localPrefDiskUsage">Disk</string>
+	
 	<string name="localPrefLeaveAtLeast">Leave at least</string>
 	<string name="localPrefGBDisk">GB disk space</string>
 	<string name="localPrefGBDiskFree">GB disk space free</string>
 	<string name="localPrefPercentTotalDisk">% total disk free</string>
-	<string name="localPrefMemoryUsage">Memory usage</string>
+	
+	<string name="localPrefMemoryUsage">Memory</string>
+	
 	<string name="localPrefMemoryWhenInUse">% when device is in use</string>
 	<string name="localPrefMemoryWhenInIdle">% when device is in idle</string>
 	<string name="localPrefCheckpointToDisk">Checkpoint to disk at most every</string>
@@ -239,6 +251,24 @@
 	<string name="clientLookingUpAccount">Looking up user account</string>
 	<string name="clientAttachingToProject">Attaching to project</string>
 	<string name="warnShutdownText">The connected core client will be shut down. This manager cannot start the client afterwards.</string>
+	
+	<!--  nativeboinc activity -->
+	<string name="nativeInstalledBinariesTitle">Installed binaries</string>
+	<string name="nativeInstalledBinariesSummary">List of installed binaries</string>
+	<string name="nativeHostnameTitle">Set up hostname</string>
+	<string name="nativeHostnameSummary">Set up new hostname for client</string>
+	<string name="nativeRemoteAccessTitle">Allow remote access</string>
+	<string name="nativeRemoteAccessSummary">Allow remote access for other managers</string>
+	<string name="nativeAccessPasswordTitle">Access password</string>
+	<string name="nativeAccessPasswordSummary">Access for BOINC managers</string>
+	<string name="nativeUpdateBinariesTitle">Update binaries</string>
+	<string name="nativeUpdateBinariesSummary">Update binaries</string>
+	<string name="nativeDumpInstallationTitle">Dump BOINC files</string>
+	<string name="nativeDumpInstallationSummary">Dump into SDCard whole BOINC installation</string>
+	<string name="nativeUpdateFromSDCardTitle">Update from SDCard</string>
+	<string name="nativeUpdateFromSDCardSummary">Update client and project apps from SDCard</string>
+	<string name="nativeReinstallTitle">Reinstall client</string>
+	<string name="nativeReinstallSummary">Reinstall BOINC client</string>
 	
 	<!--  progress dialog messages -->
 	<string name="synchronizingBAM">Synchronizing BAM...</string>
@@ -362,7 +392,27 @@
 		&lt;b>Host credit:&lt;/b> %6$.2f&lt;br>\n
 		&lt;b>Host RAC:&lt;/b> %7$.2f&lt;br>\n
 		&lt;b>Resource share:&lt;/b> %8$s&lt;br>\n
-		&lt;b>Status:&lt;/b> %9$s
+		&lt;b>Disk usage:&lt;/b> %9$s&lt;br>\n
+		&lt;b>Host Id:&lt;/b> %10$d&lt;br>\n
+		&lt;b>Host location:&lt;/b> %11$s&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoNormal">
+	    &lt;b>CPU scheduling priority:&lt;/b> %1$.2f&lt;br>\n
+		&lt;b>CPU work fetch priority:&lt;/b> %2$.2f&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoATI">
+	    &lt;b>ATI scheduling priority:&lt;/b> %1$.2f&lt;br>\n
+		&lt;b>ATI work fetch priority:&lt;/b> %2$.2f&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoNVIDIA">
+	    &lt;b>nVidia scheduling priority:&lt;/b> %1$.2f&lt;br>\n
+		&lt;b>nVidia work fetch priority:&lt;/b> %2$.2f&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoNormalEnd">
+		&lt;b>Duration correction factor:&lt;/b> %1$.4f&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoEnd">
+	    &lt;b>Status:&lt;/b> %1$s
 	</string>
 	
 	<!-- Update activity -->
@@ -383,16 +433,25 @@
 		&lt;b>Task:&lt;/b> %1$s&lt;br>\n
 		&lt;b>Project:&lt;/b> %2$s&lt;br>\n
 		&lt;b>Application:&lt;/b> %3$s&lt;br>\n
-		&lt;b>Progress:&lt;/b> %4$s&lt;br>\n
-		&lt;b>Elapsed time:&lt;/b> %5$s&lt;br>\n
-		&lt;b>To completion:&lt;/b> %6$s&lt;br>\n
-		&lt;b>Report deadline:&lt;/b> %7$s&lt;br>\n
+		&lt;b>Received:&lt;/b> %4$s&lt;br>\n
+		&lt;b>Progress:&lt;/b> %5$s&lt;br>\n
+		&lt;b>Elapsed time:&lt;/b> %6$s&lt;br>\n
+		&lt;b>To completion:&lt;/b> %7$s&lt;br>\n
+		&lt;b>Report deadline:&lt;/b> %8$s&lt;br>\n
+		&lt;b>Estimated task size:&lt;/b> %9$s&lt;br>\n
+		&lt;b>Max RAM usage:&lt;/b> %10$s&lt;br>\n
 	</string>
 	<string name="taskDetailedInfoRun">
 		&lt;b>Virtual memory size:&lt;/b> %1$s&lt;br>\n
 		&lt;b>Working set size:&lt;/b> %2$s&lt;br>\n
 		&lt;b>CPU time:&lt;/b> %3$s&lt;br>\n
 		&lt;b>Last checkpoint (CPU time):&lt;/b> %4$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoRunPid">
+		&lt;b>Process ID:&lt;/b> %1$d&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoRunDir">
+	    &lt;b>Directory:&lt;/b> %1$s&lt;br>\n
 	</string>
 	<string name="taskDetailedInfoRes">
 		&lt;b>Resources:&lt;/b> %1$s&lt;br>\n
@@ -532,6 +591,9 @@
 		&lt;b>Vendor:&lt;/b> %7$s&lt;br />
 		&lt;b>Model:&lt;/b> %8$s&lt;br />
 		&lt;b>Features:&lt;/b> %9$s&lt;br />
+	</string>
+	<string name="hostInfoVB">
+	    &lt;b>VirtualBox version:&lt;/b> %1$s&lt;br />
 	</string>
 	<string name="hostInfoPart2">
 		&lt;b>MFLOPS:&lt;/b> %1$s&lt;br />

@@ -45,7 +45,7 @@ public class Result {
 	public boolean active_task;
 	public int     active_task_state;
 	public int     app_version_num;
-	public int     slot;
+	public int     slot = -1;
 	public int     pid;
 	public double  checkpoint_cpu_time;
 	public double  current_cpu_time;

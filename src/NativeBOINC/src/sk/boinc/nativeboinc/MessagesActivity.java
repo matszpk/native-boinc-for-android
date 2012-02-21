@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.ArrayList;
 
+import sk.boinc.nativeboinc.bridge.AutoRefresh;
+import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;
@@ -43,12 +45,10 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -56,7 +56,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 
-public class MessagesActivity extends ListActivity implements ClientReplyReceiver {
+public class MessagesActivity extends ListActivity implements ClientReplyReceiver,
+		AutoRefreshListener {
 	private static final String TAG = "MessagesActivity";
 
 	private ScreenOrientationHandler mScreenOrientation;
@@ -67,17 +68,27 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 
 	private ArrayList<MessageInfo> mMessages = new ArrayList<MessageInfo>();
 
-
+	private static final long UPDATES_ON_RESUMES_PERIOD = 4000; 
+	
+	private boolean mUpdateMessagesInProgress = false;
+	private long mLastUpdateTime = -1;
+	
 	private static class SavedState {
 		private final ArrayList<MessageInfo> messages;
+		private final boolean updateMessagesInProgress;
+		private final long lastUpdateTime;
 
 		public SavedState(MessagesActivity activity) {
 			messages = activity.mMessages;
 			if (Logging.DEBUG) Log.d(TAG, "saved: messages.size()=" + messages.size());
+			updateMessagesInProgress = activity.mUpdateMessagesInProgress;
+			lastUpdateTime = activity.mLastUpdateTime;
 		}
 		public void restoreState(MessagesActivity activity) {
 			activity.mMessages = messages;
 			if (Logging.DEBUG) Log.d(TAG, "restored: mMessages.size()=" + activity.mMessages.size());
+			activity.mUpdateMessagesInProgress = updateMessagesInProgress;
+			activity.mLastUpdateTime = lastUpdateTime;
 		}
 	}
 
@@ -202,8 +213,27 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 		if (mConnectedClient != null) {
 			// We are connected right now, request fresh data
 			if (Logging.DEBUG) Log.d(TAG, "onResume() - Starting refresh of data");
-			mConnectionManager.updateMessages(this);
+			mConnectionManager.updateMessages();
 		}
+		
+		Log.d(TAG, "onUpdaMessagesprogress:"+mUpdateMessagesInProgress);
+		if (mConnectedClient != null) {
+			if (mUpdateMessagesInProgress) {
+				ArrayList<MessageInfo> messages = mConnectionManager.getPendingMessages();
+				if (messages != null) // if already updated
+					updatedMessages(messages);
+				
+				mConnectionManager.addToScheduledUpdates(this, AutoRefresh.MESSAGES);
+			} else { // if after update
+				if (Logging.DEBUG) Log.d(TAG, "do update messages");
+				if (SystemClock.elapsedRealtime()-mLastUpdateTime >= UPDATES_ON_RESUMES_PERIOD)
+					// if later than 4 seconds
+					mConnectionManager.updateMessages();
+				else // only add auto updates
+					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.MESSAGES);
+			}
+		}
+		
 		mViewUpdatesAllowed = true;
 		if (mViewDirty) {
 			// There were some updates received while we were not visible
@@ -223,7 +253,7 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 		mViewUpdatesAllowed = false;
 		// Also remove possibly scheduled automatic updates
 		if (mConnectionManager != null) {
-			mConnectionManager.cancelScheduledUpdates(this);
+			mConnectionManager.cancelScheduledUpdates(AutoRefresh.MESSAGES);
 		}
 	}
 
@@ -264,7 +294,15 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 			// Connected client is retrieved
 			if (Logging.DEBUG) Log.d(TAG, "Client is connected");
 			if (mRequestUpdates) {
-				mConnectionManager.updateMessages(this);
+				mConnectionManager.updateMessages();
+				if (!mUpdateMessagesInProgress) {
+					if (Logging.DEBUG) Log.d(TAG, "do update messages");
+					mUpdateMessagesInProgress = true;
+					mConnectionManager.updateMessages();
+				} else {
+					if (Logging.DEBUG) Log.d(TAG, "do add to scheduled updates");
+					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.MESSAGES);
+				}
 			}
 		}
 	}
@@ -273,6 +311,7 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 	public void clientDisconnected() {
 		if (Logging.DEBUG) Log.d(TAG, "Client is disconnected");
 		mConnectedClient = null;
+		mUpdateMessagesInProgress = false;
 		mMessages.clear();
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
@@ -281,6 +320,7 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 	@Override
 	public boolean clientError(int err_num, String message) {
 		// do not consume
+		mUpdateMessagesInProgress = false;
 		return false;
 	}
 
@@ -316,6 +356,8 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 
 	@Override
 	public boolean updatedMessages(ArrayList<MessageInfo> messages) {
+		mUpdateMessagesInProgress = false;
+		mLastUpdateTime = SystemClock.elapsedRealtime();
 		if (mMessages.size() != messages.size()) {
 			// Number of messages has changed (increased)
 			// This is the only case when we need an update, because content of messages
@@ -351,5 +393,11 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 	public void onClientIsWorking(boolean isWorking) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public void onStartAutoRefresh(int requestType) {
+		if (requestType == AutoRefresh.MESSAGES) // in progress
+			mUpdateMessagesInProgress = true;
 	}
 }

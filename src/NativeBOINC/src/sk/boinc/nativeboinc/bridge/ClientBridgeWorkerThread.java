@@ -21,10 +21,6 @@ package sk.boinc.nativeboinc.bridge;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.GlobalPreferences;
-import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.debug.Logging;
@@ -132,10 +128,10 @@ public class ClientBridgeWorkerThread extends Thread {
 		return false;
 	}
 
-	public void cancelPendingUpdates(final ClientReplyReceiver callback) {
+	public void cancelPendingUpdates(int refreshType) {
 		// Run immediately NOW (from UI thread)
-		if (mHandler != null && callback != null)
-			mHandler.cancelPendingUpdates(callback);
+		if (mHandler != null)
+			mHandler.cancelPendingUpdates(refreshType);
 		else
 			if (Logging.WARNING) Log.w(TAG, "warning: NPE");
 	}
@@ -150,52 +146,52 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 
-	public void updateHostInfo(final ClientReplyReceiver callback) {
+	public void updateHostInfo() {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateHostInfo(callback);
+				mHandler.updateHostInfo();
 			}
 		});
 	}
 
-	public void updateProjects(final ClientReplyReceiver callback) {
+	public void updateProjects() {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateProjects(callback);
+				mHandler.updateProjects();
 			}
 		});
 	}
 
-	public void updateTasks(final ClientReplyReceiver callback) {
+	public void updateTasks() {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateTasks(callback);
+				mHandler.updateTasks();
 			}
 		});
 	}
 
-	public void updateTransfers(final ClientReplyReceiver callback) {
+	public void updateTransfers() {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateTransfers(callback);
+				mHandler.updateTransfers();
 			}
 		});
 	}
 
-	public void updateMessages(final ClientReplyReceiver callback) {
+	public void updateMessages() {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateMessages(callback);
+				mHandler.updateMessages();
 			}
 		});
 	}
@@ -282,29 +278,38 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
-	public void getGlobalPrefsWorking(final ClientPreferencesReceiver callback) {
+	public void cancelPollOperations() {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.getGlobalPrefsWorking(callback);
+				mHandler.cancelPollOperations();
 			}
 		});
 	}
 	
-	public void setGlobalPrefsOverride(final ClientPreferencesReceiver callback, final String globalPrefs) {
+	public void getGlobalPrefsWorking() {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.setGlobalPrefsOverride(callback, globalPrefs);
+				mHandler.getGlobalPrefsWorking();
 			}
 		});
 	}
 	
-	public void setGlobalPrefsOverrideStruct(final ClientPreferencesReceiver callback, final GlobalPreferences globalPrefs) {
+	public void setGlobalPrefsOverride(final String globalPrefs) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.setGlobalPrefsOverrideStruct(callback, globalPrefs);
+				mHandler.setGlobalPrefsOverride(globalPrefs);
+			}
+		});
+	}
+	
+	public void setGlobalPrefsOverrideStruct(final GlobalPreferences globalPrefs) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.setGlobalPrefsOverrideStruct(globalPrefs);
 			}
 		});
 	}

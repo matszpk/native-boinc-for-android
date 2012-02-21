@@ -41,4 +41,17 @@ public class ProjectInfo {
 	public double host_rac;     // Project.host_expavg_credit
 	public String share;        // Project.resource_share converted to percentage
 	public String status;       // Combined Project.suspended_via_gui & Project.dont_request_more_work converted to string
+	public String disk_usage;   // disk usage
+	public int hostid;
+	public String venue;		// host location (project.venue
+	public boolean non_cpu_intensive;
+	public boolean have_ati;	// have ATI GPU (from ccstate)
+	public boolean have_cuda;	// have NVIDIA GPU (from ccstate)
+	public double cpu_short_term_debt;
+	public double cpu_long_term_debt;
+	public double ati_short_term_debt;
+	public double ati_debt;
+	public double cuda_short_term_debt;
+	public double cuda_debt;
+	public double duration_correction_factor;
 }

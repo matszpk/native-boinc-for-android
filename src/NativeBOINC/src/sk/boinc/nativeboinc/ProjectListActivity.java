@@ -20,12 +20,13 @@
 package sk.boinc.nativeboinc;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import edu.berkeley.boinc.lite.ProjectListEntry;
 
 import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientError;
-import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
@@ -78,10 +79,13 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	private int mDataDownloadProgressState = ProgressState.NOT_RUN;
 	
 	private ClientId mConnectedClient = null;
+	/* if add project finish successfully */
+	private boolean mEarlyAddProjectGoodFinish = false;
 	
 	private static class SavedState {
 		private final ArrayList<ProjectItem> mProjectsList;
 		private final ArrayList<ProjectDistrib> mProjectDistribs;
+		private final boolean mEarlyAddProjectGoodFinish;
 		
 		private int mDataDownloadProgressState;
 		
@@ -89,12 +93,14 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			mProjectDistribs = activity.mProjectDistribs;
 			mProjectsList = activity.mProjectsList;
 			mDataDownloadProgressState = activity.mDataDownloadProgressState; 
+			mEarlyAddProjectGoodFinish = activity.mEarlyAddProjectGoodFinish;
 		}
 		
 		public void restore(ProjectListActivity activity) {
 			activity.mProjectDistribs = mProjectDistribs;
 			activity.mProjectsList = mProjectsList;
 			activity.mDataDownloadProgressState = mDataDownloadProgressState;
+			activity.mEarlyAddProjectGoodFinish = mEarlyAddProjectGoodFinish;
 		}
 	}
 	
@@ -291,15 +297,26 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		updateActivityState();
 	}
 	
+	/**
+	 * call when add project activity finished successfully
+	 */
+	private void onAddProjectActivityGoodFinish() {
+		mEarlyAddProjectGoodFinish = false;
+		if (mConnectionManager.isNativeConnected()) { // if native client
+			finish(); // if ok then go to progress activity
+			startActivity(new Intent(this, ProgressActivity.class));
+		} else // if normal client
+			finish();
+	}
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == ACTIVITY_ADD_PROJECT) {
 			if (resultCode == RESULT_OK) {
-				if (mConnectionManager.isNativeConnected()) { // if native client
-					finish(); // if ok then go to progress activity
-					startActivity(new Intent(this, ProgressActivity.class));
-				} else // if normal client
-					finish();
+				if (mConnectionManager != null)
+					onAddProjectActivityGoodFinish();
+				else
+					mEarlyAddProjectGoodFinish = true;
 			}
 		}
 	}
@@ -412,6 +429,11 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		}
 		// update activity state: errors and progress
 		updateActivityState();
+		
+		/* if add project activity finish successfully,
+		 * but connectionmanager not available at moment */
+		if (mEarlyAddProjectGoodFinish) 
+			onAddProjectActivityGoodFinish();
 	}
 	
 	@Override
@@ -584,10 +606,21 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		}
 	}
 	
+	private static class ProjectItemComparator implements Comparator<ProjectItem> {
+
+		@Override
+		public int compare(ProjectItem lhs, ProjectItem rhs) {
+			return lhs.getName().compareTo(rhs.getName());
+		}
+		
+	}
+	
 	private void setProjectsList(ArrayList<ProjectListEntry> allProjects) {
 		mProjectsList = new ArrayList<ProjectItem>();
 		for (ProjectListEntry entry: allProjects)
 			mProjectsList.add(new ProjectItem(entry.name, entry.url));
+		
+		Collections.sort(mProjectsList, new ProjectItemComparator());
 	}
 
 	@Override

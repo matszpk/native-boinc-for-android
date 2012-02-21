@@ -120,7 +120,10 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		mProjectItem = (ProjectItem)getIntent().getParcelableExtra(ProjectItem.TAG);
 		
-		setTitle(getString(R.string.addProject) + " " + mProjectItem.getName());
+		if (mProjectItem.getName().length() != 0)
+			setTitle(getString(R.string.addProject) + " " + mProjectItem.getName());
+		else
+			setTitle(getString(R.string.addProject) + " " + mProjectItem.getUrl());
 		
 		mNicknameLayout = (LinearLayout)findViewById(R.id.addProjectNameLayout);
 		mNickname = (EditText)findViewById(R.id.addProjectName);
@@ -172,8 +175,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		Button cancelButton = (Button)findViewById(R.id.addProjectCancel);
 		cancelButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
-				setResult(RESULT_CANCELED);
-				finish();
+				onBackPressed();
 			}
 		});
 		
@@ -208,6 +210,14 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			Log.d(TAG, "onResume");
 			updateActivityState();
 		}
+	}
+	
+	@Override
+	public void onBackPressed() {
+		if (mConnectionManager != null)
+			mConnectionManager.cancelPollOperations();
+		setResult(RESULT_CANCELED);
+		finish();
 	}
 	
 	@Override
@@ -255,8 +265,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			} else if (mProjectConfigProgressState == ProgressState.IN_PROGRESS) {
 				ProjectConfig projectConfig = mConnectionManager
 						.getPendingProjectConfig(mProjectItem.getUrl());
-				// if in still progress
-				if (projectConfig != null) // still in progress
+				if (projectConfig != null) // if finish
 					afterLoadingProjectConfig(projectConfig);
 			}
 			// if failed

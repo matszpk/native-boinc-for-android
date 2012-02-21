@@ -112,6 +112,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 	private LocalBinder mBinder = new LocalBinder();
 	
 	private String mPendingError = null;
+	private Object mPendingErrorSync = new Object(); // syncer
 	
 	private boolean mPreviousStateOfIsWorking = false;
 	private boolean mIsWorking = false;
@@ -155,7 +156,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 					called = true;
 				}
 			
-			synchronized(NativeBoincService.this) {
+			synchronized(mPendingErrorSync) {
 				if (!called)
 					mPendingError = message;
 				else	// if already handled
@@ -174,7 +175,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 					called = true;
 				}
 			
-			synchronized(NativeBoincService.this) {
+			synchronized(mPendingErrorSync) {
 				if (!called)
 					mPendingError = message;
 				else	// if already handled
@@ -766,10 +767,12 @@ public class NativeBoincService extends Service implements MonitorListener,
 		return true;
 	}
 	
-	public synchronized String getPendingErrorMessage() {
-		String current = mPendingError;
-		mPendingError = null;
-		return current;
+	public String getPendingErrorMessage() {
+		synchronized(mPendingErrorSync) {
+			String current = mPendingError;
+			mPendingError = null;
+			return current;
+		}
 	}
 	
 	/**
@@ -1071,15 +1074,13 @@ public class NativeBoincService extends Service implements MonitorListener,
 		switch(event.type) {
 		case ClientEvent.EVENT_ATTACHED_PROJECT:
 			mNotificationController.notifyClientEvent(getString(R.string.eventAttachedProject), 
-					String.format(getString(R.string.eventAttachedProjectMessage),
-							event.projectUrl));
+					getString(R.string.eventAttachedProjectMessage, event.projectUrl));
 			
 			startInstallProjectApplication(event.projectUrl);
 			break;
 		case ClientEvent.EVENT_DETACHED_PROJECT:
 			mNotificationController.notifyClientEvent(getString(R.string.eventDetachedProject), 
-					String.format(getString(R.string.eventDetachedProjectMessage),
-							event.projectUrl));
+					getString(R.string.eventDetachedProjectMessage, event.projectUrl));
 			break;
 		case ClientEvent.EVENT_RUN_BENCHMARK:
 			title = getString(R.string.eventBencharkRun);

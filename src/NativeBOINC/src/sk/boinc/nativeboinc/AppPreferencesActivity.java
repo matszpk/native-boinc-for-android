@@ -20,24 +20,18 @@
 package sk.boinc.nativeboinc;
 
 import sk.boinc.nativeboinc.debug.Logging;
-import sk.boinc.nativeboinc.installer.InstalledBinary;
-import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.util.NetStatsStorage;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.ScreenOrientationHandler;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -47,10 +41,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.CheckBox;
-import android.widget.ListView;
 import android.widget.TextView;
 
 public class AppPreferencesActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
@@ -115,6 +106,19 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 			}
 		});
 		
+		// view item type
+		listPref = (ListPreference)findPreference(PreferenceName.VIEW_ITEM_TYPE);
+		listPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+			@Override
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
+				ListPreference listPref = (ListPreference)preference;
+				int idx = listPref.findIndexOfValue((String)newValue);
+				CharSequence[] allDesc = listPref.getEntries();
+				listPref.setSummary(getString(R.string.prefViewItemTypeSummary) + " " + allDesc[idx]);
+				return true;
+			}
+		});
+		
 		// Widget Update period
 		listPref = (ListPreference)findPreference(PreferenceName.WIDGET_UPDATE);
 		listPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -124,6 +128,19 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 				int idx = listPref.findIndexOfValue((String)newValue);
 				CharSequence[] allDesc = listPref.getEntries();
 				listPref.setSummary(getString(R.string.prefWidgetUpdateIntervalSummary) + " " + allDesc[idx]);
+				return true;
+			}
+		});
+		
+		// News Update period
+		listPref = (ListPreference)findPreference(PreferenceName.NEWS_UPDATE_PERIOD);
+		listPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+			@Override
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
+				ListPreference listPref = (ListPreference)preference;
+				int idx = listPref.findIndexOfValue((String)newValue);
+				CharSequence[] allDesc = listPref.getEntries();
+				listPref.setSummary(getString(R.string.prefNewsUpdatePeriodSummary) + " " + allDesc[idx]);
 				return true;
 			}
 		});
@@ -275,10 +292,20 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 		auiIdx = listPref.findIndexOfValue(listPref.getValue());
 		listPref.setSummary(getString(R.string.prefScreenLockUpdateIntervalSummary) + " " + listPref.getEntry());
 		
+		// view time type
+		listPref = (ListPreference)findPreference(PreferenceName.VIEW_ITEM_TYPE);
+		auiIdx = listPref.findIndexOfValue(listPref.getValue());
+		listPref.setSummary(getString(R.string.prefViewItemTypeSummary) + " " + listPref.getEntry());
+		
 		// widget refresh
 		listPref = (ListPreference)findPreference(PreferenceName.WIDGET_UPDATE);
 		auiIdx = listPref.findIndexOfValue(listPref.getValue());
 		listPref.setSummary(getString(R.string.prefWidgetUpdateIntervalSummary) + " " + listPref.getEntry());
+		
+		// new update
+		listPref = (ListPreference)findPreference(PreferenceName.NEWS_UPDATE_PERIOD);
+		auiIdx = listPref.findIndexOfValue(listPref.getValue());
+		listPref.setSummary(getString(R.string.prefNewsUpdatePeriodSummary) + " " + listPref.getEntry());
 		
 		// Automatic refresh interval for WiFi
 		listPref = (ListPreference)findPreference(PreferenceName.AUTO_UPDATE_WIFI);
@@ -340,52 +367,11 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 		if (Logging.DEBUG) Log.d(TAG, "onConfigurationChanged(), newConfig=" + newConfig.toString());
 		mScreenOrientation.setOrientation();
 	}
-
-	private class InstalledBinsAdapter extends BaseAdapter {
-
-		private Context mContext;
-		private InstalledBinary[] mInstalledBins = null;
 		
-		public InstalledBinsAdapter(Context context, InstalledBinary[] installedBins) {
-			mContext = context;
-			mInstalledBins = installedBins;
-		}
-		
-		@Override
-		public int getCount() {
-			return mInstalledBins.length;
-		}
-
-		@Override
-		public Object getItem(int position) {
-			return mInstalledBins[position];
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View inView, ViewGroup parent) {
-			View view = inView;
-			if (view == null) {
-				LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
-				view = inflater.inflate(android.R.layout.simple_list_item_1, null);
-			}
-			TextView text1 = (TextView)view.findViewById(android.R.id.text1);
-			InstalledBinary binInfo = mInstalledBins[position];
-			text1.setText(binInfo.name + " " + binInfo.version);
-			return view;
-		}
-		
-	}
-	
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		View v;
 		TextView text;
-		ListView list;
 		switch (id) {
 		case DIALOG_NETSTATS_DISCLAIMER:
 			v = LayoutInflater.from(this).inflate(R.layout.opt_out_dialog, null);

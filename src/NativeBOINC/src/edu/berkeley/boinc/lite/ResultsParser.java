@@ -140,6 +140,36 @@ public class ResultsParser extends BaseParser {
 						else if (localName.equalsIgnoreCase("working_set_size_smoothed")) {
 							mResult.working_set_size_smoothed = Double.parseDouble(mCurrentElement.toString());
 						}
+						else if (localName.equalsIgnoreCase("estimated_cpu_time_remaining")) {
+							mResult.estimated_cpu_time_remaining = Double.parseDouble(mCurrentElement.toString());
+						}
+						else if (localName.equalsIgnoreCase("supports_graphics")) {
+							mResult.supports_graphics = !mCurrentElement.toString().equals("0");
+						}
+						else if (localName.equalsIgnoreCase("graphic_mode_acked")) {
+							mResult.graphics_mode_acked = Integer.parseInt(mCurrentElement.toString());
+						}
+						else if (localName.equalsIgnoreCase("too_large")) {
+							mResult.too_large = !mCurrentElement.toString().equals("0");
+						}
+						else if (localName.equalsIgnoreCase("needs_shmem")) {
+							mResult.needs_shmem = !mCurrentElement.toString().equals("0");
+						}
+						else if (localName.equalsIgnoreCase("edf_scheduled")) {
+							mResult.edf_scheduled = !mCurrentElement.toString().equals("0");
+						}
+						else if (localName.equalsIgnoreCase("pid")) {
+							mResult.pid = Integer.parseInt(mCurrentElement.toString());
+						}
+						else if (localName.equalsIgnoreCase("slot")) {
+							mResult.slot = Integer.parseInt(mCurrentElement.toString());
+						}
+						else if (localName.equalsIgnoreCase("graphics_exec_path")) {
+							mResult.graphics_exec_path = mCurrentElement.toString();
+						}
+						else if (localName.equalsIgnoreCase("slot_path")) {
+							mResult.slot_path = mCurrentElement.toString();
+						}
 					}
 					else {
 					// Not in <active_task>

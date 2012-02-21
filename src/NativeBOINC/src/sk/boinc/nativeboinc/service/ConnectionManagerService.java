@@ -33,12 +33,16 @@ import edu.berkeley.boinc.lite.ProjectListEntry;
 import sk.boinc.nativeboinc.bridge.ClientBridge;
 import sk.boinc.nativeboinc.bridge.ClientBridgeCallback;
 import sk.boinc.nativeboinc.clientconnection.ClientError;
-import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
+import sk.boinc.nativeboinc.clientconnection.HostInfo;
+import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
 import sk.boinc.nativeboinc.clientconnection.PollError;
+import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
+import sk.boinc.nativeboinc.clientconnection.TaskInfo;
+import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.ClientId;
 import android.app.Service;
@@ -317,44 +321,85 @@ public class ConnectionManagerService extends Service implements
 	}
 
 	@Override
-	public void updateHostInfo(ClientReplyReceiver callback) {
+	public void updateHostInfo() {
 		if (mClientBridge != null) {
-			mClientBridge.updateHostInfo(callback);
+			mClientBridge.updateHostInfo();
+		}
+	}
+	
+	@Override
+	public HostInfo getPendingHostInfo() {
+		if (mClientBridge != null)
+			return mClientBridge.getPendingHostInfo();
+		return null;
+	}
+
+	@Override
+	public void updateProjects() {
+		if (mClientBridge != null) {
+			mClientBridge.updateProjects();
+		}
+	}
+	
+	@Override
+	public ArrayList<ProjectInfo> getPendingProjects() {
+		if (mClientBridge != null)
+			return mClientBridge.getPendingProjects();
+		return null;
+	}
+
+	@Override
+	public void updateTasks() {
+		if (mClientBridge != null) {
+			mClientBridge.updateTasks();
+		}
+	}
+	
+	@Override
+	public ArrayList<TaskInfo> getPendingTasks() {
+		if (mClientBridge != null)
+			return mClientBridge.getPendingTasks();
+		return null;
+	}
+
+	@Override
+	public void updateTransfers() {
+		if (mClientBridge != null) {
+			mClientBridge.updateTransfers();
 		}
 	}
 
 	@Override
-	public void updateProjects(ClientReplyReceiver callback) {
+	public ArrayList<TransferInfo> getPendingTransfers() {
+		if (mClientBridge != null)
+			return mClientBridge.getPendingTransfers();
+		return null;
+	}
+	
+	@Override
+	public void updateMessages() {
 		if (mClientBridge != null) {
-			mClientBridge.updateProjects(callback);
+			mClientBridge.updateMessages();
 		}
 	}
-
+	
 	@Override
-	public void updateTasks(ClientReplyReceiver callback) {
-		if (mClientBridge != null) {
-			mClientBridge.updateTasks(callback);
-		}
+	public ArrayList<MessageInfo> getPendingMessages() {
+		if (mClientBridge != null)
+			return mClientBridge.getPendingMessages();
+		return null;
 	}
-
+	
 	@Override
-	public void updateTransfers(ClientReplyReceiver callback) {
-		if (mClientBridge != null) {
-			mClientBridge.updateTransfers(callback);
-		}
+	public void addToScheduledUpdates(ClientReplyReceiver callback, int refreshType) {
+		if (mClientBridge != null)
+			mClientBridge.addToScheduledUpdates(callback, refreshType);
 	}
-
+	
 	@Override
-	public void updateMessages(ClientReplyReceiver callback) {
+	public void cancelScheduledUpdates(int refreshType) {
 		if (mClientBridge != null) {
-			mClientBridge.updateMessages(callback);
-		}
-	}
-
-	@Override
-	public void cancelScheduledUpdates(ClientReplyReceiver callback) {
-		if (mClientBridge != null) {
-			mClientBridge.cancelScheduledUpdates(callback);
+			mClientBridge.cancelScheduledUpdates(refreshType);
 		}
 	}
 
@@ -468,6 +513,15 @@ public class ConnectionManagerService extends Service implements
 		return null;
 	}
 	
+	/*
+	 * cancels all poll operations
+	 */
+	@Override
+	public void cancelPollOperations() {
+		if (mClientBridge != null)
+			mClientBridge.cancelPollOperations();
+	}
+	
 	@Override
 	public ClientError getPendingClientError() {
 		if (mClientBridge != null) {
@@ -488,23 +542,38 @@ public class ConnectionManagerService extends Service implements
 	}
 	
 	@Override
-	public void getGlobalPrefsWorking(ClientPreferencesReceiver callback) {
+	public void getGlobalPrefsWorking() {
 		if (mClientBridge != null) {
-			mClientBridge.getGlobalPrefsWorking(callback);
+			mClientBridge.getGlobalPrefsWorking();
 		}
 	}
 	
 	@Override
-	public void setGlobalPrefsOverride(ClientPreferencesReceiver callback, String globalPrefs) {
+	public GlobalPreferences getPendingGlobalPrefsWorking() {
+		if (mClientBridge != null)
+			return mClientBridge.getPendingGlobalPrefsWorking();
+		return null;
+	}
+	
+	@Override
+	public void setGlobalPrefsOverride(String globalPrefs) {
 		if (mClientBridge != null) {
-			mClientBridge.setGlobalPrefsOverride(callback, globalPrefs);
+			mClientBridge.setGlobalPrefsOverride(globalPrefs);
 		}
 	}
 	
-	public void setGlobalPrefsOverrideStruct(ClientPreferencesReceiver callback, GlobalPreferences globalPrefs) {
+	@Override
+	public void setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs) {
 		if (mClientBridge != null) {
-			mClientBridge.setGlobalPrefsOverrideStruct(callback, globalPrefs);
+			mClientBridge.setGlobalPrefsOverrideStruct(globalPrefs);
 		}
+	}
+	
+	@Override
+	public boolean isGlobalPrefsBeingOverriden() {
+		if (mClientBridge != null)
+			return mClientBridge.isGlobalPrefsBeingOverriden();
+		return false;
 	}
 	
 	@Override

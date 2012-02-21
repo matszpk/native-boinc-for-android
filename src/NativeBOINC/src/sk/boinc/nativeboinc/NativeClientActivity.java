@@ -11,4 +11,5 @@ import android.preference.PreferenceActivity;
  */
 public class NativeClientActivity extends PreferenceActivity {
 
+	private static final String TAG = "NativeClientActivity";
 }

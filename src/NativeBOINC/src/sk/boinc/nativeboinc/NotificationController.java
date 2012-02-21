@@ -40,7 +40,7 @@ import android.widget.RemoteViews;
  */
 public class NotificationController {
 
-	private static final String TAG = "NotificationsController";
+	//private static final String TAG = "NotificationsController";
 	
 	private NotificationManager mNotificationManager = null;
 	

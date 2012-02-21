@@ -29,4 +29,6 @@ public class CcState {
 	public ArrayList<AppVersion> app_versions = new ArrayList<AppVersion>();
 	public ArrayList<Workunit> workunits = new ArrayList<Workunit>();
 	public ArrayList<Result> results = new ArrayList<Result>();
+	public boolean have_ati;
+	public boolean have_cuda;
 }

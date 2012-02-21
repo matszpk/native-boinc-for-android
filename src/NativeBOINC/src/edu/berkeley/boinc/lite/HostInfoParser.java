@@ -150,6 +150,9 @@ public class HostInfoParser extends BaseParser {
 					else if (localName.equalsIgnoreCase("os_version")) {
 						mHostInfo.os_version = mCurrentElement.toString();
 					}
+					else if (localName.equalsIgnoreCase("virtualbox_version")) {
+						mHostInfo.virtualbox_version = mCurrentElement.toString();
+					}
 				}
 			}
 		}

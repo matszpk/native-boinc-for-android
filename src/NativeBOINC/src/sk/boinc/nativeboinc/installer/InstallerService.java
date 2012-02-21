@@ -60,7 +60,9 @@ public class InstallerService extends Service {
 	private NotificationController mNotificationController = null;
 	
 	private ArrayList<ProjectDistrib> mPendingNewProjectDistribs = null;
+	private Object mPendingNewProjectDistribsSync = new Object(); // syncer
 	private ClientDistrib mPendingClientDistrib = null;
+	private Object mPendingClientDistribSync = new Object();
 	
 	public class LocalBinder extends Binder {
 		public InstallerService getService() {
@@ -162,6 +164,7 @@ public class InstallerService extends Service {
 	}
 	
 	private InstallError mPendingInstallError = null;
+	private Object mPendingInstallErrorSync = new Object();
 	
 	/**
 	 * listener handler - 
@@ -229,7 +232,7 @@ public class InstallerService extends Service {
 					called = true;
 				}
 			
-			synchronized(InstallerService.this) {
+			synchronized(mPendingInstallErrorSync) {
 				if (!called)
 					mPendingInstallError = new InstallError(distribName, projectUrl, errorMessage);
 				else // if already handled
@@ -287,7 +290,7 @@ public class InstallerService extends Service {
 		}
 		
 		public void currentProjectDistribList(ArrayList<ProjectDistrib> projectDistribs) {
-			synchronized(InstallerService.this) {
+			synchronized(mPendingNewProjectDistribsSync) {
 				mPendingNewProjectDistribs = projectDistribs;
 			}
 			
@@ -297,7 +300,7 @@ public class InstallerService extends Service {
 		}
 		
 		public void currentClientDistrib(ClientDistrib clientDistrib) {
-			synchronized(InstallerService.this) {
+			synchronized(mPendingClientDistribSync) {
 				mPendingClientDistrib = clientDistrib;
 			}
 			
@@ -364,25 +367,29 @@ public class InstallerService extends Service {
 	
 	/* update client distrib info */
 	public void updateClientDistrib() {
-		synchronized(this) {
+		synchronized(mPendingClientDistribSync) {
 			mPendingClientDistrib = null;
 		}
 		mInstallerThread.updateClientDistrib();
 	}
 	
-	public synchronized ClientDistrib getPendingClientDistrib() {
-		ClientDistrib pending = mPendingClientDistrib;
-		mPendingClientDistrib = null;
-		return pending;
+	public ClientDistrib getPendingClientDistrib() {
+		synchronized(mPendingClientDistribSync) {
+			ClientDistrib pending = mPendingClientDistrib;
+			mPendingClientDistrib = null;
+			return pending;
+		}
 	}
 	/**
 	 * get pending install error
 	 * @return pending install error
 	 */
-	public synchronized InstallError getPendingError() {
-		InstallError installError = mPendingInstallError;
-		mPendingInstallError = null;
-		return installError;
+	public InstallError getPendingError() {
+		synchronized (mPendingInstallErrorSync) {
+			InstallError installError = mPendingInstallError;
+			mPendingInstallError = null;
+			return installError;
+		}
 	}
 	
 	/**
@@ -409,16 +416,18 @@ public class InstallerService extends Service {
 	}
 	
 	public void updateProjectDistribList() {
-		synchronized(this) {
+		synchronized(mPendingNewProjectDistribsSync) {
 			mPendingNewProjectDistribs = null;
 		}
 		mInstallerThread.updateProjectDistribList();
 	}
 	
-	public synchronized ArrayList<ProjectDistrib> getPendingNewProjectDistribList() {
-		ArrayList<ProjectDistrib> pending = mPendingNewProjectDistribs;
-		mPendingNewProjectDistribs = null;
-		return pending;
+	public ArrayList<ProjectDistrib> getPendingNewProjectDistribList() {
+		synchronized(mPendingNewProjectDistribsSync) {
+			ArrayList<ProjectDistrib> pending = mPendingNewProjectDistribs;
+			mPendingNewProjectDistribs = null;
+			return pending;
+		}
 	}
 	
 	/* remove detached projects from installed projects */

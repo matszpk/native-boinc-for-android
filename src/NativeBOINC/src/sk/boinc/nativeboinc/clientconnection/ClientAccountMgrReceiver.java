@@ -20,7 +20,6 @@
 package sk.boinc.nativeboinc.clientconnection;
 
 import edu.berkeley.boinc.lite.AccountMgrInfo;
-import edu.berkeley.boinc.lite.ProjectConfig;
 
 /**
  * @author mat

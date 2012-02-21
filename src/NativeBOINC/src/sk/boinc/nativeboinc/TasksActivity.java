@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.ArrayList;
 
+import sk.boinc.nativeboinc.bridge.AutoRefresh;
+import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
 import sk.boinc.nativeboinc.clientconnection.ClientOp;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
@@ -48,14 +50,13 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,7 +68,7 @@ import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 
-public class TasksActivity extends ListActivity implements ClientReplyReceiver {
+public class TasksActivity extends ListActivity implements ClientReplyReceiver, AutoRefreshListener {
 	private static final String TAG = "TasksActivity";
 
 	private static final int DIALOG_DETAILS = 1;
@@ -88,20 +89,38 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 	private boolean mViewDirty = false;
 
 	private ArrayList<TaskInfo> mTasks = new ArrayList<TaskInfo>();
+	private boolean mShowDetailsDialog = false;
 	private int mPosition = 0;
 
+	private static final long UPDATES_ON_RESUMES_PERIOD = 4000; 
+	
+	private boolean mUpdateTasksInProgress = false;
+	private long mLastUpdateTime = -1;
+	
 	private StringBuilder mSb = new StringBuilder(SB_INIT_CAPACITY);
 
 	private static class SavedState {
 		private final ArrayList<TaskInfo> tasks;
+		private final int position;
+		private final boolean showDetailsDialog;
+		private final boolean updateTasksInProgress;
+		private final long lastUpdateTime;
 
 		public SavedState(TasksActivity activity) {
 			tasks = activity.mTasks;
 			if (Logging.DEBUG) Log.d(TAG, "saved: tasks.size()=" + tasks.size());
+			position = activity.mPosition;
+			showDetailsDialog = activity.mShowDetailsDialog;
+			updateTasksInProgress = activity.mUpdateTasksInProgress;
+			lastUpdateTime = activity.mLastUpdateTime;
 		}
 		public void restoreState(TasksActivity activity) {
 			activity.mTasks = tasks;
 			if (Logging.DEBUG) Log.d(TAG, "restored: mTasks.size()=" + activity.mTasks.size());
+			activity.mPosition = position;
+			activity.mShowDetailsDialog = showDetailsDialog;
+			activity.mUpdateTasksInProgress = updateTasksInProgress;
+			activity.mLastUpdateTime = lastUpdateTime;
 		}
 	}
 
@@ -256,6 +275,7 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 		setListAdapter(new TaskListAdapter(this));
 		registerForContextMenu(getListView());
 		mScreenOrientation = new ScreenOrientationHandler(this);
+		
 		doBindService();
 		// Restore state on configuration change (if applicable)
 		final SavedState savedState = (SavedState)getLastNonConfigurationInstance();
@@ -274,10 +294,23 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 		super.onResume();
 		mScreenOrientation.setOrientation();
 		mRequestUpdates = true;
+		
+		Log.d(TAG, "onUpdataskprogress:"+mUpdateTasksInProgress);
 		if (mConnectedClient != null) {
-			// We are connected right now, request fresh data
-			if (Logging.DEBUG) Log.d(TAG, "onResume() - Starting refresh of data");
-			mConnectionManager.updateTasks(this);
+			if (mUpdateTasksInProgress) {
+				ArrayList<TaskInfo> tasks = mConnectionManager.getPendingTasks();
+				if (tasks != null) // if already updated
+					updatedTasks(tasks);
+				
+				mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TASKS);
+			} else { // if after update
+				if (Logging.DEBUG) Log.d(TAG, "do update tasks");
+				if (SystemClock.elapsedRealtime()-mLastUpdateTime >= UPDATES_ON_RESUMES_PERIOD)
+					// if later than 4 seconds
+					mConnectionManager.updateTasks();
+				else // only add auto updates
+					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TASKS);
+			}
 		}
 		mViewUpdatesAllowed = true;
 		if (mViewDirty) {
@@ -287,6 +320,14 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 			mViewDirty = false;
 			if (Logging.DEBUG) Log.d(TAG, "Delayed refresh of view was done now");
+		}
+		if (mShowDetailsDialog) {
+			if (mTasks != null && !mTasks.isEmpty()) {
+				showDialog(DIALOG_DETAILS);
+			} else {
+				if (Logging.DEBUG) Log.d(TAG, "If failed to recreate details");
+				mShowDetailsDialog = false;
+			}
 		}
 	}
 
@@ -298,7 +339,7 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 		mViewUpdatesAllowed = false;
 		// Also remove possibly scheduled automatic updates
 		if (mConnectionManager != null) {
-			mConnectionManager.cancelScheduledUpdates(this);
+			mConnectionManager.cancelScheduledUpdates(AutoRefresh.TASKS);
 		}
 	}
 
@@ -327,6 +368,11 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 		return super.onKeyDown(keyCode, event);
 	}
 
+	private void onDismissDetailsDialog() {
+		if (Logging.DEBUG) Log.d(TAG, "On dismiss details");
+		mShowDetailsDialog = false;
+	}
+	
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
@@ -334,7 +380,18 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 			return new AlertDialog.Builder(this)
 				.setIcon(android.R.drawable.ic_dialog_info)
 				.setView(LayoutInflater.from(this).inflate(R.layout.dialog, null))
-				.setNegativeButton(R.string.ok, null)
+				.setNegativeButton(R.string.ok, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						onDismissDetailsDialog();
+					}
+				})
+				.setOnCancelListener(new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						onDismissDetailsDialog();
+					}
+				})
 				.create();
 		case DIALOG_WARN_ABORT:
 	    	return new AlertDialog.Builder(this)
@@ -373,6 +430,7 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		mPosition = position;
+		mShowDetailsDialog = true;
 		showDialog(DIALOG_DETAILS);
 	}
 
@@ -436,7 +494,14 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 			if (Logging.DEBUG) Log.d(TAG, "Client is connected");
 			if (mRequestUpdates) {
 				// Request fresh data
-				mConnectionManager.updateTasks(this);
+				if (!mUpdateTasksInProgress) {
+					if (Logging.DEBUG) Log.d(TAG, "do update tasks");
+					mUpdateTasksInProgress = true;
+					mConnectionManager.updateTasks();
+				} else {
+					if (Logging.DEBUG) Log.d(TAG, "do add to scheduled updates");
+					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TASKS);
+				}
 			}
 		}
 	}
@@ -445,6 +510,7 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 	public void clientDisconnected() {
 		if (Logging.DEBUG) Log.d(TAG, "Client is disconnected");
 		mConnectedClient = null;
+		mUpdateTasksInProgress = false;
 		mTasks.clear();
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
@@ -453,6 +519,7 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 	@Override
 	public boolean clientError(int err_num, String message) {
 		// do not consume
+		mUpdateTasksInProgress = false;
 		return false;
 	}
 
@@ -477,6 +544,8 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 	@Override
 	public boolean updatedTasks(ArrayList<TaskInfo> tasks) {
 		mTasks = tasks;
+		mUpdateTasksInProgress = false;
+		mLastUpdateTime = SystemClock.elapsedRealtime();
 		if (mViewUpdatesAllowed) {
 			// We are visible, update the view with fresh data
 			if (Logging.DEBUG) Log.d(TAG, "Tasks are updated, refreshing view");
@@ -554,16 +623,25 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 				TextUtils.htmlEncode(task.taskName),
 				TextUtils.htmlEncode(task.project),
 				TextUtils.htmlEncode(task.application),
+				task.received_time,
 				task.progress,
 				task.elapsed,
 				task.toCompletion,
-				task.deadline));
+				task.deadline,
+				task.rsc_fpops_est,
+				task.rsc_memory_bound));
 		if (task.virtMemSize != null) {
 			mSb.append(getString(R.string.taskDetailedInfoRun, 
 					task.virtMemSize,
 					task.workSetSize,
 					task.cpuTime,
 					task.chckpntTime));
+			if (task.pid != 0)
+				mSb.append(getString(R.string.taskDetailedInfoRunPid,
+						task.pid));
+			if (task.directory != null)
+				mSb.append(getString(R.string.taskDetailedInfoRunDir,
+						task.directory));
 		}
 		if (task.resources != null) {
 			mSb.append(getString(R.string.taskDetailedInfoRes, task.resources));
@@ -577,5 +655,11 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver {
 	public void onClientIsWorking(boolean isWorking) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void onStartAutoRefresh(int requestType) {
+		if (requestType == AutoRefresh.TASKS) // in progress
+			mUpdateTasksInProgress = true;
 	}
 }

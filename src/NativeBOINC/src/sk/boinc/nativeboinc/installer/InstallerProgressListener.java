@@ -19,8 +19,6 @@
 
 package sk.boinc.nativeboinc.installer;
 
-import java.util.Vector;
-
 /**
  * @author mat
  *

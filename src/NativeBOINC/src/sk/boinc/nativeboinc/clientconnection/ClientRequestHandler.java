@@ -40,12 +40,23 @@ public interface ClientRequestHandler {
 	public abstract boolean isWorking();
 	
 	public abstract void updateClientMode(ClientReceiver callback);
-	public abstract void updateHostInfo(ClientReplyReceiver callback);
-	public abstract void updateProjects(ClientReplyReceiver callback);
-	public abstract void updateTasks(ClientReplyReceiver callback);
-	public abstract void updateTransfers(ClientReplyReceiver callback);
-	public abstract void updateMessages(ClientReplyReceiver callback);
-	public abstract void cancelScheduledUpdates(ClientReplyReceiver callback);
+	public abstract void updateHostInfo();
+	public abstract HostInfo getPendingHostInfo();
+	
+	public abstract void updateProjects();
+	public abstract ArrayList<ProjectInfo> getPendingProjects();
+	
+	public abstract void updateTasks();
+	public abstract ArrayList<TaskInfo> getPendingTasks();
+	
+	public abstract void updateTransfers();
+	public abstract ArrayList<TransferInfo> getPendingTransfers();
+	
+	public abstract void updateMessages();
+	public abstract ArrayList<MessageInfo> getPendingMessages();
+	
+	public abstract void addToScheduledUpdates(ClientReplyReceiver callback, int refreshType); 
+	public abstract void cancelScheduledUpdates(int refreshType);
 
 	public abstract ClientError getPendingClientError();
 	public abstract PollError getPendingPollError(String projectUrl);
@@ -69,10 +80,13 @@ public interface ClientRequestHandler {
 	public abstract ProjectConfig getPendingProjectConfig(String projectUrl);
 	public abstract void addProject(AccountIn accountIn, boolean create);
 	public abstract boolean isProjectBeingAdded(String projectUrl);
+	public abstract void cancelPollOperations();
 	
-	public abstract void getGlobalPrefsWorking(ClientPreferencesReceiver callback);
-	public abstract void setGlobalPrefsOverrideStruct(ClientPreferencesReceiver callback, GlobalPreferences globalPrefs);
-	public abstract void setGlobalPrefsOverride(ClientPreferencesReceiver callback, String globalPrefs);
+	public abstract void getGlobalPrefsWorking();
+	public abstract GlobalPreferences getPendingGlobalPrefsWorking();
+	public abstract void setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs);
+	public abstract void setGlobalPrefsOverride(String globalPrefs);
+	public abstract boolean isGlobalPrefsBeingOverriden();
 	
 	public abstract void runBenchmarks();
 	public abstract void setRunMode(ClientReplyReceiver callback, int mode);

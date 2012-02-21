@@ -53,4 +53,9 @@ public class TaskInfo {
 	public String chckpntTime;  // Result.checkpoint_cpu_time converted to time-string (can be null)
 	public String resources;    // Result.resources (can be null)
 	public String state;        // Result.state combined with Result.active_task_state converted to string
+	public int pid;				// result.pid (process id of task)
+	public String received_time;		// Result.received
+	public String rsc_fpops_est;	// Result.rsc_fpops_est converted to string
+	public String rsc_memory_bound; 	// Result.rsc_memory_bound converted to string
+	public String directory;
 }

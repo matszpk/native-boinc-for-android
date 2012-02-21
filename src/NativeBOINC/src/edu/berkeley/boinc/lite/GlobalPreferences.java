@@ -53,4 +53,5 @@ public class GlobalPreferences {
 	public double cpu_usage_limit;
 	public double daily_xfer_limit_mb;
 	public int daily_xfer_period_days;
+	public double run_if_battery_nl_than;
 }

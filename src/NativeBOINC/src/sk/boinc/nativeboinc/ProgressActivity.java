@@ -187,7 +187,9 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	private ListView mProgressList;
 	private ProgressItemAdapter mProgressItemAdapter;
 	
+	private Button mCancelAll = null;
 	private Button mNextButton = null;
+	private Button mBackButton = null;
 	
 	private TextView mProgressText = null;
 	
@@ -211,8 +213,8 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 		mProgressList = (ListView)findViewById(R.id.installProgressList);
 		mProgressList.setAdapter(mProgressItemAdapter);
 		
-		Button cancelAll = (Button)findViewById(R.id.progressCancelAll);
-		Button back = (Button)findViewById(R.id.progressBack);
+		mCancelAll = (Button)findViewById(R.id.progressCancelAll);
+		mBackButton = (Button)findViewById(R.id.progressBack);
 		mNextButton = (Button)findViewById(R.id.progressNext);
 		mProgressText = (TextView)findViewById(R.id.installProgressText);
 		
@@ -232,7 +234,7 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 			});
 		}
 		
-		cancelAll.setOnClickListener(new View.OnClickListener() {
+		mCancelAll.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (mInstaller != null)
@@ -240,7 +242,7 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 			}
 		});
 		
-		back.setOnClickListener(new View.OnClickListener() {
+		mBackButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				ProgressActivity.this.onBackPressed();
@@ -279,8 +281,12 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	private void ifNothingInBackground() {
 		if (areAllTasksNotRan()) {
 			if (mInstallerStage != BoincManagerApplication.INSTALLER_NO_STAGE) {
-				if (areAllTasksFinishedSuccessfully())
+				if (areAllTasksFinishedSuccessfully()) {
+					if (mApp.isInstallerRun()) // if installer
+						mBackButton.setEnabled(false);
+					mCancelAll.setEnabled(false);
 					mNextButton.setEnabled(true);
+				}
 			}
 			
 			mProgressText.setText(getString(R.string.noInstallOpsText));
@@ -492,6 +498,7 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 
 	@Override
 	public void onInstallerWorking(boolean isWorking) {
+		if (Logging.DEBUG) Log.d(TAG, "Change is working");
 		setProgressBarIndeterminateVisibility(isWorking);
 	}
 }

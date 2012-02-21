@@ -21,6 +21,8 @@ package sk.boinc.nativeboinc;
 
 import java.util.ArrayList;
 
+import sk.boinc.nativeboinc.bridge.AutoRefresh;
+import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
 import sk.boinc.nativeboinc.clientconnection.ClientOp;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
@@ -45,14 +47,13 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,7 +65,8 @@ import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 
-public class TransfersActivity extends ListActivity implements ClientReplyReceiver {
+public class TransfersActivity extends ListActivity implements ClientReplyReceiver,
+		AutoRefreshListener {
 	private static final String TAG = "TransfersActivity";
 
 	private static final int DIALOG_DETAILS = 1;
@@ -82,18 +84,35 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 
 	private ArrayList<TransferInfo> mTransfers = new ArrayList<TransferInfo>();
 	private int mPosition = 0;
-
-
+	private boolean mShowDetailsDialog = false;
+	
+	private static final long UPDATES_ON_RESUMES_PERIOD = 4000; 
+	
+	private boolean mUpdateTransfersInProgress = false;
+	private long mLastUpdateTime = -1;
+	
 	private static class SavedState {
 		private final ArrayList<TransferInfo> transfers;
+		private final int position;
+		private final boolean showDetailsDialog;
+		private final boolean updateTransfersInProgress;
+		private final long lastUpdateTime;
 
 		public SavedState(TransfersActivity activity) {
 			transfers = activity.mTransfers;
 			if (Logging.DEBUG) Log.d(TAG, "saved: transfers.size()=" + transfers.size());
+			position = activity.mPosition;
+			showDetailsDialog = activity.mShowDetailsDialog;
+			updateTransfersInProgress = activity.mUpdateTransfersInProgress;
+			lastUpdateTime = activity.mLastUpdateTime;
 		}
 		public void restoreState(TransfersActivity activity) {
 			activity.mTransfers = transfers;
 			if (Logging.DEBUG) Log.d(TAG, "restored: mTransfers.size()=" + activity.mTransfers.size());
+			activity.mPosition = position;
+			activity.mShowDetailsDialog = showDetailsDialog;
+			activity.mUpdateTransfersInProgress = updateTransfersInProgress;
+			activity.mLastUpdateTime = lastUpdateTime;
 		}
 	}
 
@@ -247,10 +266,23 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 		super.onResume();
 		mScreenOrientation.setOrientation();
 		mRequestUpdates = true;
+		
+		Log.d(TAG, "onUpdaTransfersprogress:"+mUpdateTransfersInProgress);
 		if (mConnectedClient != null) {
-			// We are connected right now, request fresh data
-			if (Logging.DEBUG) Log.d(TAG, "onResume() - Starting refresh of data");
-			mConnectionManager.updateTransfers(this);
+			if (mUpdateTransfersInProgress) {
+				ArrayList<TransferInfo> transfers = mConnectionManager.getPendingTransfers();
+				if (transfers != null) // if already updated
+					updatedTransfers(transfers);
+				
+				mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TRANSFERS);
+			} else { // if after update
+				if (Logging.DEBUG) Log.d(TAG, "do update transfers");
+				if (SystemClock.elapsedRealtime()-mLastUpdateTime >= UPDATES_ON_RESUMES_PERIOD)
+					// if later than 4 seconds
+					mConnectionManager.updateTransfers();
+				else // only add auto updates
+					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TRANSFERS);
+			}
 		}
 		mViewUpdatesAllowed = true;
 		if (mViewDirty) {
@@ -260,6 +292,15 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 			mViewDirty = false;
 			if (Logging.DEBUG) Log.d(TAG, "Delayed refresh of view was done now");
+		}
+		
+		if (mShowDetailsDialog) {
+			if (mTransfers != null && !mTransfers.isEmpty()) {
+				showDialog(DIALOG_DETAILS);
+			} else {
+				if (Logging.DEBUG) Log.d(TAG, "If failed to recreate details");
+				mShowDetailsDialog = false;
+			}
 		}
 	}
 
@@ -271,7 +312,7 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 		mViewUpdatesAllowed = false;
 		// Also remove possibly scheduled automatic updates
 		if (mConnectionManager != null) {
-			mConnectionManager.cancelScheduledUpdates(this);
+			mConnectionManager.cancelScheduledUpdates(AutoRefresh.TRANSFERS);
 		}
 	}
 
@@ -299,6 +340,11 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 		}
 		return super.onKeyDown(keyCode, event);
 	}
+	
+	private void onDismissDetailsDialog() {
+		if (Logging.DEBUG) Log.d(TAG, "On dismiss details");
+		mShowDetailsDialog = false;
+	}
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
@@ -307,7 +353,18 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 			return new AlertDialog.Builder(this)
 				.setIcon(android.R.drawable.ic_dialog_info)
 				.setView(LayoutInflater.from(this).inflate(R.layout.dialog, null))
-				.setNegativeButton(R.string.ok, null)
+				.setNegativeButton(R.string.ok, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						onDismissDetailsDialog();
+					}
+				})
+				.setOnCancelListener(new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						onDismissDetailsDialog();
+					}
+				})
 				.create();
 		case DIALOG_WARN_ABORT:
 	    	return new AlertDialog.Builder(this)
@@ -346,6 +403,7 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		mPosition = position;
+		mShowDetailsDialog = true;
 		showDialog(DIALOG_DETAILS);
 	}
 
@@ -400,7 +458,15 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 			if (Logging.DEBUG) Log.d(TAG, "Client is connected");
 			if (mRequestUpdates) {
 				// Request fresh data
-				mConnectionManager.updateTransfers(this);
+				mConnectionManager.updateTransfers();
+				if (!mUpdateTransfersInProgress) {
+					if (Logging.DEBUG) Log.d(TAG, "do update transfers");
+					mUpdateTransfersInProgress = true;
+					mConnectionManager.updateTransfers();
+				} else {
+					if (Logging.DEBUG) Log.d(TAG, "do add to scheduled updates");
+					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TRANSFERS);
+				}
 			}
 		}
 	}
@@ -409,6 +475,7 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	public void clientDisconnected() {
 		if (Logging.DEBUG) Log.d(TAG, "Client is disconnected");
 		mConnectedClient = null;
+		mUpdateTransfersInProgress = false;
 		mTransfers.clear();
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
@@ -417,6 +484,7 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	@Override
 	public boolean clientError(int err_num, String message) {
 		// do not consume
+		mUpdateTransfersInProgress = false;
 		return false;
 	}
 
@@ -447,6 +515,8 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	@Override
 	public boolean updatedTransfers(ArrayList<TransferInfo> transfers) {
 		mTransfers = transfers;
+		mUpdateTransfersInProgress = false;
+		mLastUpdateTime = SystemClock.elapsedRealtime();
 		if (mViewUpdatesAllowed) {
 			// We are visible, update the view with fresh data
 			if (Logging.DEBUG) Log.d(TAG, "Transfers are updated, refreshing view");
@@ -487,5 +557,11 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	public void onClientIsWorking(boolean isWorking) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public void onStartAutoRefresh(int requestType) {
+		if (requestType == AutoRefresh.TRANSFERS) // in progress
+			mUpdateTransfersInProgress = true;
 	}
 }

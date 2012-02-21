@@ -103,6 +103,18 @@ public class WorkunitsParser extends BaseParser {
 					else if (localName.equalsIgnoreCase("version_num")) {
 						mWorkunit.version_num = Integer.parseInt(mCurrentElement.toString());
 					}
+					else if (localName.equalsIgnoreCase("rsc_fpops_est")) {
+						mWorkunit.rsc_fpops_est = Double.parseDouble(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("rsc_fpops_bound")) {
+						mWorkunit.rsc_fpops_bound = Double.parseDouble(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("rsc_memory_bound")) {
+						mWorkunit.rsc_memory_bound = Double.parseDouble(mCurrentElement.toString());
+					}
+					else if (localName.equalsIgnoreCase("rsc_disk_bound")) {
+						mWorkunit.rsc_disk_bound = Double.parseDouble(mCurrentElement.toString());
+					}
 				}
 			}
 		}

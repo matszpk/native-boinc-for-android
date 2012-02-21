@@ -47,4 +47,5 @@ public class HostInfo {
 	public double d_free;
 	public String os_name;
 	public String os_version;
+	public String virtualbox_version = null;
 }

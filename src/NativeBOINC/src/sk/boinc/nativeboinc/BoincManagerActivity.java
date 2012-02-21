@@ -308,12 +308,12 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			public void onClick(View v) {
 				Log.d(TAG, "Click tab: 0");
 				TabHost tabHost = getTabHost();
-				if (tabHost.getCurrentTab() == 0) {
-					if (Logging.DEBUG) Log.d(TAG, "Update projects");
-					if (mConnectedClient != null)
-						mConnectionManager.updateProjects((ClientReplyReceiver)getCurrentActivity());
-				} else
+				if (tabHost.getCurrentTab() != 0)
 					getTabHost().setCurrentTab(0);
+				
+				if (Logging.DEBUG) Log.d(TAG, "Update projects");
+				if (mConnectedClient != null)
+					mConnectionManager.updateProjects();
 			}
 		});
 		getTabWidget().getChildAt(1).setOnClickListener(new View.OnClickListener() {
@@ -321,12 +321,12 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			public void onClick(View v) {
 				Log.d(TAG, "Click tab: 1");
 				TabHost tabHost = getTabHost();
-				if (tabHost.getCurrentTab() == 1) {
-					if (Logging.DEBUG) Log.d(TAG, "Update tasks");
-					if (mConnectedClient != null)
-						mConnectionManager.updateTasks((ClientReplyReceiver)getCurrentActivity());
-				} else
+				if (tabHost.getCurrentTab() != 1)
 					getTabHost().setCurrentTab(1);
+				
+				if (Logging.DEBUG) Log.d(TAG, "Update tasks");
+				if (mConnectedClient != null)
+					mConnectionManager.updateTasks();
 			}
 		});
 		getTabWidget().getChildAt(2).setOnClickListener(new View.OnClickListener() {
@@ -334,12 +334,12 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			public void onClick(View v) {
 				Log.d(TAG, "Click tab: 2");
 				TabHost tabHost = getTabHost();
-				if (tabHost.getCurrentTab() == 2) {
-					if (Logging.DEBUG) Log.d(TAG, "Update transfers");
-					if (mConnectedClient != null)
-						mConnectionManager.updateTransfers((ClientReplyReceiver)getCurrentActivity());
-				} else
+				if (tabHost.getCurrentTab() != 2)
 					getTabHost().setCurrentTab(2);
+				
+				if (Logging.DEBUG) Log.d(TAG, "Update transfers");
+				if (mConnectedClient != null)
+					mConnectionManager.updateTransfers();
 			}
 		});
 		getTabWidget().getChildAt(3).setOnClickListener(new View.OnClickListener() {
@@ -347,12 +347,12 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			public void onClick(View v) {
 				Log.d(TAG, "Click tab: 3");
 				TabHost tabHost = getTabHost();
-				if (tabHost.getCurrentTab() == 3) {
-					if (Logging.DEBUG) Log.d(TAG, "Update messages");
-					if (mConnectedClient != null)
-						mConnectionManager.updateMessages((ClientReplyReceiver)getCurrentActivity());
-				} else
+				if (tabHost.getCurrentTab() != 3)
 					getTabHost().setCurrentTab(3);
+				
+				if (Logging.DEBUG) Log.d(TAG, "Update messages");
+				if (mConnectedClient != null)
+					mConnectionManager.updateMessages();
 			}
 		});
 		
@@ -992,9 +992,9 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 
 	private void retrieveInitialData() {
 		if (Logging.DEBUG) Log.d(TAG, "Explicit initial data retrieval starting");
-		mConnectionManager.updateTasks(null); // will get whole state
-		mConnectionManager.updateTransfers(null);
-		mConnectionManager.updateMessages(null);
+		mConnectionManager.updateTasks(); // will get whole state
+		mConnectionManager.updateTransfers();
+		mConnectionManager.updateMessages();
 		mInitialDataRetrievalStarted = true;
 	}
 }

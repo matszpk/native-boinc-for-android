@@ -26,7 +26,8 @@ import edu.berkeley.boinc.lite.Project;
 
 
 public class ProjectInfoCreator {
-	public static ProjectInfo create(final Project prj, float totalResources, final Formatter formatter) {
+	public static ProjectInfo create(final Project prj, float totalResources,
+			boolean haveAti, boolean haveCuda, final Formatter formatter) {
 		Resources resources = formatter.getResources();
 		ProjectInfo pi = new ProjectInfo();
 		pi.masterUrl = prj.master_url;
@@ -40,6 +41,27 @@ public class ProjectInfoCreator {
 		float pctShare = prj.resource_share/totalResources*100;
 		pi.resShare = (int)(pctShare*10.0);
 		pi.share = String.format("%.0f (%.2f%%)", prj.resource_share, pctShare);
+		//pi.disk_usage = formatter.formatBinSize((long)prj.disk_usage);
+		pi.hostid = prj.hostid;
+		pi.venue = formatter.formatDefault(prj.venue);
+		pi.non_cpu_intensive = prj.non_cpu_intensive;
+		pi.cpu_short_term_debt = prj.cpu_short_term_debt;
+		pi.cpu_long_term_debt = prj.cpu_long_term_debt;
+		pi.disk_usage = formatter.formatBinSize((long)prj.disk_usage);
+		pi.duration_correction_factor = prj.duration_correction_factor;
+		
+		pi.have_ati = haveAti;
+		pi.have_cuda = haveCuda;
+		
+		if (haveAti) {
+			pi.ati_short_term_debt = prj.ati_short_term_debt;
+			pi.ati_debt = prj.ati_debt;
+		}
+		if (haveCuda) {
+			pi.cuda_short_term_debt = prj.cuda_short_term_debt;
+			pi.cuda_debt = prj.cuda_debt;
+		}
+		
 		StringBuilder sb = formatter.getStringBuilder();
 		pi.statusId = 0; // 0 = active
 		if (prj.suspended_via_gui) {

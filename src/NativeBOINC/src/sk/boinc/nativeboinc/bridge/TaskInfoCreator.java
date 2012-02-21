@@ -47,6 +47,9 @@ public class TaskInfoCreator {
 		sb.append(".");
 		sb.append(appVersion%100);
 		ti.application = sb.toString();
+		ti.pid = result.pid;
+		ti.rsc_fpops_est = formatter.formatGFlops(workunit.rsc_fpops_est);
+		ti.rsc_memory_bound = formatter.formatBinSize((long)workunit.rsc_memory_bound);
 		update(ti, result, formatter);
 		return ti;
 	}
@@ -132,12 +135,17 @@ public class TaskInfoCreator {
 			ti.toCompletion = resources.getString(R.string.now);
 		ti.deadline = formatter.formatDate(result.report_deadline);
 		ti.deadlineNum = result.report_deadline;
+		ti.received_time = formatter.formatDate(result.received_time);
 		//if (result.fraction_done > 0.0) {
 		// Task is running/preempted, probably using some resources
 		ti.virtMemSize = formatter.formatBinSize((long)result.swap_size);
 		ti.workSetSize = formatter.formatSize((long)result.working_set_size_smoothed);
 		ti.cpuTime = Formatter.formatElapsedTime((long)result.current_cpu_time);
 		ti.chckpntTime = Formatter.formatElapsedTime((long)result.checkpoint_cpu_time);
+		if (result.slot >= 0)
+			ti.directory = "slots/"+result.slot;
+		else
+			ti.directory = null;
 		//}
 		ti.resources = result.resources;
 	}

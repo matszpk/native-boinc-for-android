@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.ArrayList;
 
+import sk.boinc.nativeboinc.bridge.AutoRefresh;
+import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
 import sk.boinc.nativeboinc.clientconnection.ClientOp;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
@@ -42,18 +44,18 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,7 +67,8 @@ import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 
-public class ProjectsActivity extends ListActivity implements ClientReplyReceiver {
+public class ProjectsActivity extends ListActivity implements ClientReplyReceiver,
+		AutoRefreshListener {
 	private static final String TAG = "ProjectsActivity";
 
 	private static final int DIALOG_DETAILS = 1;
@@ -86,17 +89,37 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 
 	private ArrayList<ProjectInfo> mProjs = new ArrayList<ProjectInfo>();
 	private int mPosition = 0;
-
+	private boolean mShowDetailsDialog = false;
+	
+	private static final long UPDATES_ON_RESUMES_PERIOD = 4000; 
+	
+	private boolean mUpdateProjectsInProgress = false;
+	private long mLastUpdateTime = -1;
+	
+	private StringBuilder mSb = new StringBuilder();
+	
 	private static class SavedState {
 		private final ArrayList<ProjectInfo> projs;
+		private final int position;
+		private final boolean showDetailsDialog;
+		private final boolean updateProjectsInProgress;
+		private final long lastUpdateTime;
 
 		public SavedState(ProjectsActivity activity) {
 			projs = activity.mProjs;
 			if (Logging.DEBUG) Log.d(TAG, "saved: projs.size()=" + projs.size());
+			position = activity.mPosition;
+			showDetailsDialog = activity.mShowDetailsDialog;
+			updateProjectsInProgress = activity.mUpdateProjectsInProgress;
+			lastUpdateTime = activity.mLastUpdateTime;
 		}
 		public void restoreState(ProjectsActivity activity) {
 			activity.mProjs = projs;
 			if (Logging.DEBUG) Log.d(TAG, "restored: mProjs.size()=" + activity.mProjs.size());
+			activity.mPosition = position;
+			activity.mShowDetailsDialog = showDetailsDialog;
+			activity.mUpdateProjectsInProgress = updateProjectsInProgress;
+			activity.mLastUpdateTime = lastUpdateTime;
 		}
 	}
 
@@ -233,11 +256,24 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 		super.onResume();
 		mScreenOrientation.setOrientation();
 		mRequestUpdates = true;
+		
 		if (mConnectedClient != null) {
-			// We are connected right now, request fresh data
-			if (Logging.DEBUG) Log.d(TAG, "onResume() - Starting refresh of data");
-			mConnectionManager.updateProjects(this);
+			if (mUpdateProjectsInProgress) {
+				ArrayList<ProjectInfo> projects = mConnectionManager.getPendingProjects();
+				if (projects != null) // if already updated
+					updatedProjects(projects);
+				
+				mConnectionManager.addToScheduledUpdates(this, AutoRefresh.PROJECTS);
+			} else { // if after update
+				if (Logging.DEBUG) Log.d(TAG, "do update projects");
+				if (SystemClock.elapsedRealtime()-mLastUpdateTime >= UPDATES_ON_RESUMES_PERIOD)
+					// if later than 4 seconds
+					mConnectionManager.updateProjects();
+				else // only add auto updates
+					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.PROJECTS);
+			}
 		}
+		
 		mViewUpdatesAllowed = true;
 		if (mViewDirty) {
 			// There were some updates received while we were not visible
@@ -246,6 +282,15 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 			mViewDirty = false;
 			if (Logging.DEBUG) Log.d(TAG, "Delayed refresh of view was done now");
+		}
+		
+		if (mShowDetailsDialog) {
+			if (mProjs != null && !mProjs.isEmpty()) {
+				showDialog(DIALOG_DETAILS);
+			} else {
+				if (Logging.DEBUG) Log.d(TAG, "If failed to recreate details");
+				mShowDetailsDialog = false;
+			}
 		}
 	}
 
@@ -257,7 +302,7 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 		mViewUpdatesAllowed = false;
 		// Also remove possibly scheduled automatic updates
 		if (mConnectionManager != null) {
-			mConnectionManager.cancelScheduledUpdates(this);
+			mConnectionManager.cancelScheduledUpdates(AutoRefresh.PROJECTS);
 		}
 	}
 
@@ -286,6 +331,11 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 		return super.onKeyDown(keyCode, event);
 	}
 
+	private void onDismissDetailsDialog() {
+		if (Logging.DEBUG) Log.d(TAG, "On dismiss details");
+		mShowDetailsDialog = false;
+	}
+	
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
@@ -294,7 +344,18 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 			return new AlertDialog.Builder(this)
 				.setIcon(android.R.drawable.ic_dialog_info)
 				.setView(LayoutInflater.from(this).inflate(R.layout.dialog, null))
-				.setNegativeButton(R.string.ok, null)
+				.setNegativeButton(R.string.ok, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						onDismissDetailsDialog();
+					}
+				})
+				.setOnCancelListener(new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						onDismissDetailsDialog();
+					}
+				})
 				.create();
 		}
 		return null;
@@ -313,6 +374,7 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		mPosition = position;
+		mShowDetailsDialog = true;
 		showDialog(DIALOG_DETAILS);
 	}
 
@@ -387,7 +449,14 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 			// Connected client is retrieved
 			if (Logging.DEBUG) Log.d(TAG, "Client is connected");
 			if (mRequestUpdates) {
-				mConnectionManager.updateProjects(this);
+				if (!mUpdateProjectsInProgress) {
+					if (Logging.DEBUG) Log.d(TAG, "do update projects");
+					mUpdateProjectsInProgress = true;
+					mConnectionManager.updateProjects();
+				} else {
+					if (Logging.DEBUG) Log.d(TAG, "do add to scheduled updates");
+					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.PROJECTS);
+				}
 			}
 		}
 	}
@@ -396,6 +465,7 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 	public void clientDisconnected() {
 		if (Logging.DEBUG) Log.d(TAG, "Client is disconnected");
 		mConnectedClient = null;
+		mUpdateProjectsInProgress = false;
 		mProjs.clear();
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
@@ -405,6 +475,7 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 	@Override
 	public boolean clientError(int err_num, String message) {
 		// do not consume
+		mUpdateProjectsInProgress = false;
 		return false;
 	}
 
@@ -423,6 +494,8 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 	@Override
 	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
 		mProjs = projects;
+		mUpdateProjectsInProgress = false;
+		mLastUpdateTime = SystemClock.elapsedRealtime();
 		if (mViewUpdatesAllowed) {
 			// We are visible, update the view with fresh data
 			if (Logging.DEBUG) Log.d(TAG, "Projects are updated, refreshing view");
@@ -430,7 +503,7 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		}
 		else {
-			// We are not visible, do not perform costly tasks now
+			// We are not visible, do not perform costly projects now
 			if (Logging.DEBUG) Log.d(TAG, "Projects are updated, but view refresh is delayed");
 			mViewDirty = true;
 		}
@@ -468,7 +541,8 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 
 	private String prepareProjectDetails(int position) {
 		ProjectInfo proj = mProjs.get(position);
-		return getString(R.string.projectDetailedInfo, 
+		mSb.setLength(0);
+		mSb.append(getString(R.string.projectDetailedInfo, 
 				TextUtils.htmlEncode(proj.project),
 				TextUtils.htmlEncode(proj.account),
 				TextUtils.htmlEncode(proj.team),
@@ -477,12 +551,39 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 				proj.host_credit, 
 				proj.host_rac,
 				proj.share,
-				proj.status);
+				proj.disk_usage,
+				proj.hostid,
+				proj.venue,
+				proj.status));
+		if (!proj.non_cpu_intensive) {
+			mSb.append(getString(R.string.projectDetailedInfoNormal,
+					proj.cpu_short_term_debt,
+					proj.cpu_long_term_debt));
+			if (proj.have_ati)
+				mSb.append(getString(R.string.projectDetailedInfoATI,
+						proj.ati_short_term_debt,
+						proj.ati_debt));
+			if (proj.have_cuda)
+				mSb.append(getString(R.string.projectDetailedInfoNVIDIA,
+						proj.cuda_short_term_debt,
+						proj.cuda_debt));
+			mSb.append(getString(R.string.projectDetailedInfoNormalEnd,
+					proj.duration_correction_factor));
+		}
+		mSb.append(getString(R.string.projectDetailedInfoEnd,
+				proj.status));
+		return mSb.toString();
 	}
 
 	@Override
 	public void onClientIsWorking(boolean isWorking) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void onStartAutoRefresh(int requestType) {
+		if (requestType == AutoRefresh.PROJECTS) // in progress
+			mUpdateProjectsInProgress = true;
 	}
 }

@@ -133,6 +133,8 @@ public class GlobalPreferencesParser extends BaseParser {
 						mPreferences.daily_xfer_limit_mb = Double.parseDouble(mCurrentElement.toString());
 					} else if (localName.equalsIgnoreCase("daily_xfer_period_days")) {
 						mPreferences.daily_xfer_period_days = Integer.parseInt(mCurrentElement.toString());
+					} else if (localName.equalsIgnoreCase("run_if_battery_nl_than")) {
+						mPreferences.run_if_battery_nl_than = Double.parseDouble(mCurrentElement.toString());
 					}
 				}
 			}

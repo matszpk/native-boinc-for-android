@@ -25,7 +25,7 @@ import edu.berkeley.boinc.lite.GlobalPreferences;
  * @author mat
  *
  */
-public interface ClientPreferencesReceiver extends ClientReplyReceiver {
+public interface ClientPreferencesReceiver extends ClientReceiver {
 	public abstract void currentGlobalPreferences(GlobalPreferences globalPrefs);
 	public abstract void onGlobalPreferencesChanged();
 }

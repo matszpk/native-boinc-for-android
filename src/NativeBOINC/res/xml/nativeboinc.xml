@@ -1,4 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+/* 
+ * NativeBOINC - Native BOINC Client with Manager
+ * Copyright (C) 2011, Mateusz Szpakowski
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+-->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    
+    <PreferenceCategory android:title="@string/nativeBoincNetwork">
+        <EditTextPreference
+			android:key="nativeHostname"
+			android:title="@string/nativeHostnameTitle"
+			android:summary="@string/nativeHostnameSummaryNone"
+			android:defaultValue=""
+			android:persistent="false" />
+        <CheckBoxPreference 
+            android:key="nativeRemoteAccess"
+            android:title="@string/nativeRemoteAccessTitle"
+            android:summaryOff="@string/nativeRemoteAccessSummaryOff"
+            android:summaryOn="@string/nativeRemoteAccessSummaryOn"
+            android:defaultValue="true"
+            android:persistent="true" />
+        <EditTextPreference
+            android:key="nativeAccessPassword"
+			android:title="@string/nativeAccessPasswordTitle"
+			android:summary="@string/nativeAccessPasswordSummary"
+			android:inputType="textPassword"
+			android:defaultValue=""
+			android:persistent="false" />
+        <Preference
+            android:key="nativeAccessList"
+            android:title="@string/nativeAccessListTitle"
+            android:summary="@string/nativeAccessListSummary" 
+            android:persistent="false"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/nativeBoincInstallation">
+        <Preference
+            android:key="nativeInstalledBinaries"
+            android:title="@string/nativeInstalledBinariesTitle"
+            android:summary="@string/nativeInstalledBinariesSummary" 
+            android:persistent="false" />
+       	<Preference
+       	    android:key="nativeUpdateBinaries"
+       	    android:title="@string/nativeUpdateBinariesTitle"
+       	    android:summary="@string/nativeUpdateBinariesSummary"
+       	    android:persistent="false" />
+       	<Preference
+       	    android:key="nativeDumpBoincDir"
+       	    android:title="@string/nativeDumpBoincDirTitle"
+       	    android:summary="@string/nativeDumpBoincDirSummary"
+       	    android:persistent="false" />
+       	<Preference
+       	    android:key="nativeClearBoincDir"
+       	    android:title="@string/nativeClearBoincDirTitle"
+       	    android:summary="@string/nativeClearBoincDirSummary"
+       	    android:persistent="false" />
+    </PreferenceCategory>
 </PreferenceScreen>

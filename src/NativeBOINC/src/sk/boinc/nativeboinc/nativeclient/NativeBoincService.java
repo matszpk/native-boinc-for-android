@@ -19,12 +19,7 @@
 
 package sk.boinc.nativeboinc.nativeclient;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +33,8 @@ import sk.boinc.nativeboinc.installer.InstallerProgressListener;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
+import sk.boinc.nativeboinc.util.ClientId;
+import sk.boinc.nativeboinc.util.HostListDbAdapter;
 import sk.boinc.nativeboinc.util.NotificationId;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.ProcessUtils;
@@ -75,39 +72,6 @@ public class NativeBoincService extends Service implements MonitorListener,
 			return NativeBoincService.this;
 		}
 	}
-	
-	public static final String INITIAL_BOINC_CONFIG = "<global_preferences>\n" +
-		"<run_on_batteries>1</run_on_batteries>\n" +
-		"<run_if_user_active>1</run_if_user_active>\n" +
-		"<run_gpu_if_user_active>0</run_gpu_if_user_active>\n" +
-		"<idle_time_to_run>30.000000</idle_time_to_run>\n" +
-		"<suspend_cpu_usage>0.000000</suspend_cpu_usage>\n" +
-		"<start_hour>0.000000</start_hour>\n" +
-		"<end_hour>0.000000</end_hour>\n" +
-		"<net_start_hour>0.000000</net_start_hour>\n" +
-		"<net_end_hour>0.000000</net_end_hour>\n" +
-		"<leave_apps_in_memory>0</leave_apps_in_memory>\n" +
-		"<confirm_before_connecting>1</confirm_before_connecting>\n" +
-		"<hangup_if_dialed>0</hangup_if_dialed>\n" +
-		"<dont_verify_images>0</dont_verify_images>\n" +
-		"<work_buf_min_days>0.100000</work_buf_min_days>\n" +
-		"<work_buf_additional_days>0.250000</work_buf_additional_days>\n" +
-		"<max_ncpus_pct>100.000000</max_ncpus_pct>\n" +
-		"<cpu_scheduling_period_minutes>60.000000</cpu_scheduling_period_minutes>\n" +
-		"<disk_interval>60.000000</disk_interval>\n" +
-		"<disk_max_used_gb>10.000000</disk_max_used_gb>\n" +
-		"<disk_max_used_pct>100.000000</disk_max_used_pct>\n" +
-		"<disk_min_free_gb>0.000000</disk_min_free_gb>\n" +
-		"<vm_max_used_pct>100.000000</vm_max_used_pct>\n" +
-		"<ram_max_used_busy_pct>50.000000</ram_max_used_busy_pct>\n" +
-		"<ram_max_used_idle_pct>90.000000</ram_max_used_idle_pct>\n" +
-		"<max_bytes_sec_up>0.000000</max_bytes_sec_up>\n" +
-		"<max_bytes_sec_down>0.000000</max_bytes_sec_down>\n" +
-		"<cpu_usage_limit>100.000000</cpu_usage_limit>\n" +
-		"<daily_xfer_limit_mb>0.000000</daily_xfer_limit_mb>\n" +
-		"<daily_xfer_period_days>0</daily_xfer_period_days>\n" +
-		"<run_if_battery_nl_than>10</run_if_battery_nl_than>\n" +
-		"</global_preferences>";
 	
 	private LocalBinder mBinder = new LocalBinder();
 	
@@ -285,8 +249,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 				Thread.sleep(5000);
 			} catch(InterruptedException ex) { }
 			
-			killAllNativeBoincs(this);
-			killAllBoincZombies();
+			NativeBoincUtils.killAllNativeBoincs(this);
+			NativeBoincUtils.killAllBoincZombies();
 		}
 		
 		if (mWorkerThread != null)
@@ -320,6 +284,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 	
 	private Notification mServiceNotification = null;
 	
+	private boolean mDoRestart = false;
+	
 	/*
 	 * notifications
 	 */
@@ -327,7 +293,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 		String message = getString(R.string.nativeClientWorking);
 		
 		Intent intent = new Intent(this, BoincManagerActivity.class);
-		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+		intent.putExtra(BoincManagerActivity.PARAM_CONNECT_NATIVE_CLIENT, true);
+		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
+				PendingIntent.FLAG_UPDATE_CURRENT);
 		
 		if (mServiceNotification == null) {
 			mServiceNotification = new Notification(R.drawable.nativeboinc_alpha, message,
@@ -343,151 +311,6 @@ public class NativeBoincService extends Service implements MonitorListener,
 	
 	private void stopServiceInForeground() {
 		stopForeground(true);
-	}
-	
-	/* kill processes routines */
-	private static void killBoincProcesses(List<String> pidStrings) {
-		for (String pid: pidStrings) {
-			android.os.Process.sendSignal(Integer.parseInt(pid), 2);
-			try {
-				Thread.sleep(100);	// 0.4 second
-			} catch (InterruptedException e) { }
-			android.os.Process.sendSignal(Integer.parseInt(pid), 2);
-			try {
-				Thread.sleep(100);	// 0.4 second
-			} catch (InterruptedException e) { }
-			android.os.Process.sendSignal(Integer.parseInt(pid), 2);
-			try {
-				Thread.sleep(400);	// 0.4 second
-			} catch (InterruptedException e) { }
-			/* fallback killing (by using SIGKILL signal) */
-			android.os.Process.sendSignal(Integer.parseInt(pid), 9);
-		}
-	}
-	
-	private static void killProcesses(List<String> pidStrings) {
-		for (String pid: pidStrings) {
-			android.os.Process.sendSignal(Integer.parseInt(pid), 2);
-			try {
-				Thread.sleep(400);	// 0.4 second
-			} catch (InterruptedException e) { }
-			/* fallback killing (by using SIGKILL signal) */
-			android.os.Process.sendSignal(Integer.parseInt(pid), 9);
-		}
-	}
-	
-	private static void killAllNativeBoincs(Context context) {
-		Log.d(TAG, "Kill all native boincs");
-		String nativeBoincPath = context.getFileStreamPath("boinc_client").getAbsolutePath();
-		File procDir = new File("/proc/");
-		/* scan /proc directory */
-		List<String> pids = new ArrayList<String>();
-		BufferedReader cmdLineReader = null;
-		
-		for (File dir: procDir.listFiles()) {
-			String dirName = dir.getName();
-			if (!dir.isDirectory())
-				continue;
-			/* if process directory */
-			boolean isNumber = true;
-			for (int i = 0; i < dirName.length(); i++)
-				if (!Character.isDigit(dirName.charAt(i))) {
-					isNumber = false;
-					break;
-				}
-			if (!isNumber)
-				continue;
-			
-			try {
-				cmdLineReader = new BufferedReader(new FileReader(
-						new File(dir.getAbsolutePath()+"/cmdline")));
-				
-				String cmdLine = cmdLineReader.readLine();
-				if (cmdLine != null && cmdLine.startsWith(nativeBoincPath)) /* is found */
-					pids.add(dirName);				
-			} catch (IOException ex) {
-				continue;
-			} finally {
-				try {
-					cmdLineReader.close();
-				} catch(IOException ex) { }
-			}
-		}
-		
-		/* do kill processes */
-		killBoincProcesses(pids);
-	}
-	
-	private static void killAllBoincZombies() {
-		File procDir = new File("/proc/");
-		List<String> pids = new ArrayList<String>();
-		BufferedReader cmdLineReader = null;
-		
-		String uid = Integer.toString(android.os.Process.myUid());
-		String myPid = Integer.toString(android.os.Process.myPid());
-		
-		for (File dir: procDir.listFiles()) {
-			String dirName = dir.getName();
-			
-			if (!dir.isDirectory())
-				continue;
-			/* if process directory */
-			boolean isNumber = true;
-			for (int i = 0; i < dirName.length(); i++)
-				if (!Character.isDigit(dirName.charAt(i))) {
-					isNumber = false;
-					break;
-				}
-			if (!isNumber)
-				continue;
-			
-			if (dirName.equals(myPid)) // if my pid
-				continue;
-			
-			try {
-				cmdLineReader = new BufferedReader(new FileReader(
-						new File(dir.getAbsolutePath()+"/status")));
-				
-				while (true) {
-					String line = cmdLineReader.readLine();
-					if (line == null)
-						break;
-					
-					if (line.startsWith("Uid:")) {
-						// extract first number
-						int i = 4;
-						int start = 0, end = 4;
-						int length = line.length();
-						for (i = 4; i < length; i++)
-							if (Character.isDigit(line.charAt(i)))	// skip all spaces
-								break;
-						// if digit
-						if (Character.isDigit(line.charAt(i))) {
-							start = i;
-							for (; i < length; i++)
-								if (!Character.isDigit(line.charAt(i)))
-									break;
-							end = i;
-						}
-						String processUid = line.substring(start, end);
-						if (uid.equals(processUid)) { // if uid matches
-							pids.add(dirName);
-						}
-						break;
-					}
-				}
-			} catch(IOException ex) {
-				continue;
-			} finally {
-				try {
-					if (cmdLineReader != null)
-						cmdLineReader.close();
-				} catch(IOException ex) { }
-			}
-		}
-		
-		// kill processes
-		killProcesses(pids);
 	}
 		
 	private class NativeBoincThread extends Thread {
@@ -513,9 +336,17 @@ public class NativeBoincService extends Service implements MonitorListener,
 			String programName = NativeBoincService.this.getFileStreamPath("boinc_client")
 					.getAbsolutePath();
 			
+			String[] boincArgs = new String[0];
+			
+			boolean allowRemoteAccess = globalPrefs.getBoolean(PreferenceName.NATIVE_REMOTE_ACCESS, true);
+			
+			/* choose boinc arguments (depends on AllowRemoteAccess option) */
+			if (allowRemoteAccess)
+				boincArgs = new String[] { "--allow_remote_gui_rpc" };
+			
 			mBoincPid = ProcessUtils.exec(programName,
 					NativeBoincService.this.getFileStreamPath("boinc").getAbsolutePath(),
-					new String[] { "--allow_remote_gui_rpc" });
+					boincArgs);
 			
 			if (mBoincPid == -1) {
 				if (Logging.ERROR) Log.e(TAG, "Running boinc_client failed");
@@ -550,14 +381,14 @@ public class NativeBoincService extends Service implements MonitorListener,
 				mNativeBoincThread = null;
 				notifyClientError(getString(R.string.connectNativeClientError));
 				killNativeBoinc();
-				killAllBoincZombies();
+				NativeBoincUtils.killAllBoincZombies();
 				return;
 			}
 			
 			/* authorize access */
 			String password = null;
 			try {
-				password = getAccessPassword();
+				password = NativeBoincUtils.getAccessPassword(NativeBoincService.this);
 			} catch(IOException ex) {
 				if (Logging.ERROR) Log.e(TAG, "Authorizing with native client failed");
 				mIsRun = false;
@@ -565,7 +396,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 				notifyClientError(getString(R.string.getAccessPasswordError));
 				rpcClient.close();
 				killNativeBoinc();
-				killAllBoincZombies();
+				NativeBoincUtils.killAllBoincZombies();
 				return;
 			}
 			boolean isAuthorized = false;
@@ -582,7 +413,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 				mNativeBoincThread = null;
 				notifyClientError(getString(R.string.nativeAuthorizeError));
 				killNativeBoinc();
-				killAllBoincZombies();
+				NativeBoincUtils.killAllBoincZombies();
 				return;
 			} 
 			
@@ -629,7 +460,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 			// configure client
 			if (mSecondStart) {
 				if (Logging.DEBUG) Log.d(TAG, "Configure native client");
-				if (!rpcClient.setGlobalPrefsOverride(NativeBoincService.INITIAL_BOINC_CONFIG))
+				if (!rpcClient.setGlobalPrefsOverride(NativeBoincUtils.INITIAL_BOINC_CONFIG))
 					notifyClientError(NativeBoincService.this.getString(R.string.nativeClientConfigError));
 				else if (!rpcClient.readGlobalPrefsOverride())
 					notifyClientError(NativeBoincService.this.getString(R.string.nativeClientConfigError));
@@ -651,7 +482,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 			if (Logging.DEBUG) Log.d(TAG, "boinc_client has been finished");
 			
 			killNativeBoinc();
-			killAllBoincZombies();
+			NativeBoincUtils.killAllBoincZombies();
 			
 			if (Logging.DEBUG) Log.d(TAG, "Release wake lock");
 			if (mDimWakeLock != null && mDimWakeLock.isHeld())
@@ -722,18 +553,17 @@ public class NativeBoincService extends Service implements MonitorListener,
 	/**
 	 * first starting up client (ruunning in current thread)
 	 */
-	public boolean firstStartClient() {
+	public static boolean firstStartClient(Context context) {
 		if (Logging.DEBUG) Log.d(TAG, "Starting FirstStartThread");
 		
 		//String[] envArray = getEnvArray();
 		
 		int boincPid = -1;
 		
-		String programName = NativeBoincService.this.getFileStreamPath("boinc_client")
-				.getAbsolutePath();
+		String programName = context.getFileStreamPath("boinc_client").getAbsolutePath();
 		
 		boincPid = ProcessUtils.exec(programName,
-				NativeBoincService.this.getFileStreamPath("boinc").getAbsolutePath(),
+				context.getFileStreamPath("boinc").getAbsolutePath(),
 				new String[] { "--allow_remote_gui_rpc" });
 		
 		Log.d(TAG, "First start client, pid:"+boincPid);
@@ -792,6 +622,19 @@ public class NativeBoincService extends Service implements MonitorListener,
 			
 			mApp.bindRunnerService();
 			
+			/// update native client id (in host db)
+			HostListDbAdapter dbAdapter = new HostListDbAdapter(this);
+			try {
+				dbAdapter.open();
+				ClientId clientId = dbAdapter.fetchHost("nativeboinc");
+				String password = NativeBoincUtils.getAccessPassword(this);
+				clientId.setPassword(password);
+				dbAdapter.updateHost(clientId);
+			} catch(IOException ex) {
+			} finally {
+				dbAdapter.close();
+			}
+			
 			mNativeBoincThread = new NativeBoincThread(secondStart);
 			mNativeBoincThread.start();
 			mWakeLockHolder = new WakeLockHolder(this, mPartialWakeLock, mDimWakeLock);
@@ -815,6 +658,21 @@ public class NativeBoincService extends Service implements MonitorListener,
 			mNativeKillerThread = new NativeKillerThread();
 			mNativeKillerThread.start();
 			mWorkerThread.shutdownClient();
+		}
+	}
+	
+	/**
+	 * restarts native client
+	 * @return
+	 */
+	public void restartClient() {
+		if (mNativeBoincThread == null) {
+			// normal start
+			startClient(false); 
+		} else {
+			// restart (shutdown and start)
+			mDoRestart = true;
+			shutdownClient();
 		}
 	}
 	
@@ -872,12 +730,6 @@ public class NativeBoincService extends Service implements MonitorListener,
 			mWorkerThread.updateProjectApps(projectUrl);
 	}
 	
-	/* fallback kill zombies */
-	public static void killZombieClient(Context context) {
-		killAllNativeBoincs(context);
-		killAllBoincZombies();
-	}
-	
 	/* notifying methods */
 	private synchronized void notifyClientStart() {
 		// inform that, service finished work
@@ -913,11 +765,17 @@ public class NativeBoincService extends Service implements MonitorListener,
 					mMonitorThread.quitFromThread();
 					mMonitorThread = null;
 				}
-				// inform that, service finisged work
+				// inform that, service finished work
 				mIsWorking = false;
 				notifyChangeIsWorking();
 				
 				mListenerHandler.onClientStop(exitCode, stoppedByManager);
+				
+				if (mDoRestart) {
+					if (Logging.DEBUG) Log.d(TAG, "After shutdown, start native client");
+					mDoRestart = false;
+					startClient(false);
+				}
 			}
 		});
 	}
@@ -946,34 +804,6 @@ public class NativeBoincService extends Service implements MonitorListener,
 					mListenerHandler.notifyChangeIsWorking(currentIsWorking);
 				}
 			});
-		}
-	}
-	
-	/**
-	 * reads access password (from gui_rpc_auth.cfg)
-	 * @return access password
-	 * @throws IOException
-	 */
-	public String getAccessPassword() throws IOException {
-		BufferedReader inReader = null;
-		try {
-			inReader = new BufferedReader(new FileReader(
-					getFilesDir().getAbsolutePath()+"/boinc/gui_rpc_auth.cfg"));
-			return inReader.readLine();
-		} finally {
-			if (inReader != null)
-				inReader.close();
-		}
-	}
-	
-	public void setAccessPassword(String password) throws IOException {
-		OutputStreamWriter writer = null;
-		try {
-			writer = new FileWriter(getFilesDir().getAbsolutePath()+"/boinc/gui_rpc_auth.cfg");
-			writer.write(password);
-		} finally {
-			if (writer != null)
-				writer.close();
 		}
 	}
 	

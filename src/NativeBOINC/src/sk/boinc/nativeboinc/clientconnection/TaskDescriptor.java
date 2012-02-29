@@ -17,27 +17,42 @@
  * 
  */
 
-package sk.boinc.nativeboinc.installer;
+package sk.boinc.nativeboinc.clientconnection;
 
 /**
  * @author mat
  *
  */
-public class InstalledBinary {
-	public String name;
-	public String version;
-	public String description;
-	public String changes;
+public class TaskDescriptor {
+	public String projectUrl;
+	public String taskName;
 	
-	public InstalledBinary(String name, String version, String description, String changes) {
-		this.name = name;
-		this.version = version;
-		this.description = description;
-		this.changes = changes;
+	public TaskDescriptor(String projectUrl, String taskName) {
+		this.projectUrl = projectUrl;
+		this.taskName = taskName;
 	}
 	
 	@Override
 	public String toString() {
-		return name + " " + version;
+		return "Task:"+projectUrl+":"+taskName;
+	}
+	
+	@Override
+	public boolean equals(Object object) {
+		if (this == object)
+			return true;
+		if (object == null)
+			return false;
+		if (object instanceof TaskDescriptor) {
+			TaskDescriptor taskDesc = (TaskDescriptor)object;
+			return this.projectUrl.equals(taskDesc.projectUrl) &&
+					this.taskName.equals(taskDesc.taskName);
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return projectUrl.hashCode() ^ taskName.hashCode();
 	}
 }

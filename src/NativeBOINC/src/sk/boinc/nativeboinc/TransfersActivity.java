@@ -20,6 +20,7 @@
 package sk.boinc.nativeboinc;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import sk.boinc.nativeboinc.bridge.AutoRefresh;
 import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
@@ -30,6 +31,7 @@ import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.ModeInfo;
 import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
 import sk.boinc.nativeboinc.clientconnection.TaskInfo;
+import sk.boinc.nativeboinc.clientconnection.TransferDescriptor;
 import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
@@ -59,6 +61,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -75,6 +78,8 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	private static final int RETRY = 1;
 	private static final int ABORT = 2;
 	private static final int PROPERTIES = 3;
+	private static final int SELECT_ALL = 4;
+	private static final int UNSELECT_ALL = 5;
 
 	private ScreenOrientationHandler mScreenOrientation;
 
@@ -83,8 +88,12 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	private boolean mViewDirty = false;
 
 	private ArrayList<TransferInfo> mTransfers = new ArrayList<TransferInfo>();
-	private int mPosition = 0;
+	private ArrayList<TransferInfo> mPendingTransfers = new ArrayList<TransferInfo>();
+	private HashSet<TransferDescriptor> mSelectedTransfers = new HashSet<TransferDescriptor>();
+	//private int mPosition = 0;
+	private TransferInfo mChoosenTransfer = null;
 	private boolean mShowDetailsDialog = false;
+	private boolean mShowWarnAbortDialog = false;
 	
 	private static final long UPDATES_ON_RESUMES_PERIOD = 4000; 
 	
@@ -93,29 +102,62 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	
 	private static class SavedState {
 		private final ArrayList<TransferInfo> transfers;
-		private final int position;
+		private final ArrayList<TransferInfo> pendingTransfers;
+		private final HashSet<TransferDescriptor> selectedTransfers;
+		private TransferInfo choosenTransfer;
 		private final boolean showDetailsDialog;
+		private final boolean showWarnAbortDialog;
 		private final boolean updateTransfersInProgress;
 		private final long lastUpdateTime;
 
 		public SavedState(TransfersActivity activity) {
 			transfers = activity.mTransfers;
 			if (Logging.DEBUG) Log.d(TAG, "saved: transfers.size()=" + transfers.size());
-			position = activity.mPosition;
+			pendingTransfers = activity.mPendingTransfers;
+			selectedTransfers = activity.mSelectedTransfers;
+			choosenTransfer = activity.mChoosenTransfer;
 			showDetailsDialog = activity.mShowDetailsDialog;
+			showWarnAbortDialog = activity.mShowWarnAbortDialog;
 			updateTransfersInProgress = activity.mUpdateTransfersInProgress;
 			lastUpdateTime = activity.mLastUpdateTime;
 		}
 		public void restoreState(TransfersActivity activity) {
 			activity.mTransfers = transfers;
 			if (Logging.DEBUG) Log.d(TAG, "restored: mTransfers.size()=" + activity.mTransfers.size());
-			activity.mPosition = position;
+			activity.mPendingTransfers = pendingTransfers;
+			activity.mSelectedTransfers = selectedTransfers;
+			activity.mChoosenTransfer = choosenTransfer;
 			activity.mShowDetailsDialog = showDetailsDialog;
 			activity.mUpdateTransfersInProgress = updateTransfersInProgress;
+			activity.mShowWarnAbortDialog = showWarnAbortDialog;
 			activity.mLastUpdateTime = lastUpdateTime;
 		}
 	}
-
+	
+	private class TransferOnClickListener implements View.OnClickListener {
+		private int mItemPosition;
+		
+		public TransferOnClickListener(int position) {
+			mItemPosition = position;
+		}
+		
+		public void setItemPosition(int position) {
+			mItemPosition = position;
+		}
+		
+		@Override
+		public void onClick(View view) {
+			TransferInfo transfer = mTransfers.get(mItemPosition);
+			if (Logging.DEBUG) Log.d(TAG, "Transfer "+transfer.fileName+" change checked:"+mItemPosition);
+			
+			TransferDescriptor txDesc = new TransferDescriptor(transfer.projectUrl, transfer.fileName);
+			if (mSelectedTransfers.contains(txDesc)) // remove
+				mSelectedTransfers.remove(txDesc);
+			else // add to selected
+				mSelectedTransfers.add(txDesc);
+		}
+	}
+	
 	private class TransferListAdapter extends BaseAdapter {
 		private Context mContext;
 
@@ -159,6 +201,20 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 				layout = convertView;
 			}
 			TransferInfo transfer = mTransfers.get(position);
+			
+			CheckBox checkBox = (CheckBox)layout.findViewById(R.id.check);
+			checkBox.setChecked(mSelectedTransfers.contains(
+					new TransferDescriptor(transfer.projectUrl, transfer.fileName)));
+			
+			TransferOnClickListener clickListener = (TransferOnClickListener)layout.getTag();
+			if (clickListener == null) {
+				clickListener = new TransferOnClickListener(position);
+				layout.setTag(clickListener);
+			} else {
+				clickListener.setItemPosition(position);
+			}
+			checkBox.setOnClickListener(clickListener);
+			
 			TextView tv;
 			tv = (TextView)layout.findViewById(R.id.transferFileName);
 			tv.setText(transfer.fileName);
@@ -288,18 +344,27 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 		if (mViewDirty) {
 			// There were some updates received while we were not visible
 			// The data are stored, but view is not updated yet; Do it now
-			sortTransfers();
+			//sortTransfers();
+			mTransfers = mPendingTransfers; 
 			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 			mViewDirty = false;
 			if (Logging.DEBUG) Log.d(TAG, "Delayed refresh of view was done now");
 		}
 		
 		if (mShowDetailsDialog) {
-			if (mTransfers != null && !mTransfers.isEmpty()) {
+			if (mChoosenTransfer != null) {
 				showDialog(DIALOG_DETAILS);
 			} else {
 				if (Logging.DEBUG) Log.d(TAG, "If failed to recreate details");
 				mShowDetailsDialog = false;
+			}
+		}
+		if (mShowWarnAbortDialog) {
+			if (mChoosenTransfer != null) {
+				showDialog(DIALOG_WARN_ABORT);
+			} else {
+				if (Logging.DEBUG) Log.d(TAG, "If failed to recreate warn abort");
+				mShowWarnAbortDialog = false;
 			}
 		}
 	}
@@ -346,6 +411,11 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 		mShowDetailsDialog = false;
 	}
 
+	private void onDismissWarnAbortDialog() {
+		if (Logging.DEBUG) Log.d(TAG, "On dismiss warn abort");
+		mShowWarnAbortDialog = false;
+	}
+	
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
@@ -374,11 +444,28 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	    		.setPositiveButton(R.string.transferAbort,
 	    			new DialogInterface.OnClickListener() {
 	    				public void onClick(DialogInterface dialog, int whichButton) {
-	    					TransferInfo transfer = (TransferInfo)getListAdapter().getItem(mPosition);
-	    					mConnectionManager.transferOperation(TransfersActivity.this, ClientOp.TRANSFER_ABORT, transfer.projectUrl, transfer.fileName);
+	    					onDismissWarnAbortDialog();
+	    					
+	    					if (mSelectedTransfers.isEmpty()) {
+	    						mConnectionManager.transferOperation(ClientOp.TRANSFER_ABORT, mChoosenTransfer.projectUrl,
+	    								mChoosenTransfer.fileName);
+	    					} else
+	    						mConnectionManager.transfersOperation(ClientOp.TRANSFER_ABORT,
+	    								mSelectedTransfers.toArray(new TransferDescriptor[0]));
 	    				}
 	    			})
-	    		.setNegativeButton(R.string.cancel, null)
+	    		.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						onDismissWarnAbortDialog();
+					}
+				})
+				.setOnCancelListener(new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						onDismissWarnAbortDialog();
+					}
+				})
 	    		.create();
 		}
 		return null;
@@ -390,19 +477,21 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 		switch (id) {
 		case DIALOG_DETAILS:
 			text = (TextView)dialog.findViewById(R.id.dialogText);
-			text.setText(Html.fromHtml(prepareTransferDetails(mPosition)));
+			text.setText(Html.fromHtml(prepareTransferDetails(mChoosenTransfer)));
 			break;
 		case DIALOG_WARN_ABORT:
 			text = (TextView)dialog.findViewById(R.id.dialogText);
-			TransferInfo transfer = (TransferInfo)getListAdapter().getItem(mPosition);
-			text.setText(getString(R.string.warnAbortTransfer, transfer.fileName));
+			if (mSelectedTransfers.isEmpty())
+				text.setText(getString(R.string.warnAbortTransfer, mChoosenTransfer.fileName));
+			else
+				text.setText(getString(R.string.warnAbortTransfers));
 			break;
 		}
 	}
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		mPosition = position;
+		mChoosenTransfer = (TransferInfo)getListAdapter().getItem(position);
 		mShowDetailsDialog = true;
 		showDialog(DIALOG_DETAILS);
 	}
@@ -413,13 +502,25 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
 		TransferInfo transfer = (TransferInfo)getListAdapter().getItem(info.position);
 		menu.setHeaderTitle(R.string.taskCtxMenuTitle);
-		if ((transfer.stateControl & (TransferInfo.ABORTED|TransferInfo.FAILED)) == 0) {
-			// Not aborted
-			menu.add(0, ABORT, 0, R.string.transferAbort);
-			if ((transfer.stateControl & (TransferInfo.RUNNING)) == 0) {
-				// Not running now
-				menu.add(0, RETRY, 0, R.string.transferRetry);
+		
+		if (mSelectedTransfers.size() != mTransfers.size())
+			menu.add(0, SELECT_ALL, 0, R.string.selectAll);
+		
+		if (!mSelectedTransfers.isEmpty())
+			menu.add(0, UNSELECT_ALL, 0, R.string.unselectAll);
+		
+		if (mSelectedTransfers.isEmpty()) {
+			if ((transfer.stateControl & (TransferInfo.ABORTED|TransferInfo.FAILED)) == 0) {
+				// Not aborted
+				menu.add(0, ABORT, 0, R.string.transferAbort);
+				if ((transfer.stateControl & (TransferInfo.RUNNING)) == 0) {
+					// Not running now
+					menu.add(0, RETRY, 0, R.string.transferRetry);
+				}
 			}
+		} else {
+			menu.add(0, ABORT, 0, R.string.transferAbort);
+			menu.add(0, RETRY, 0, R.string.transferRetry);
 		}
 		menu.add(0, PROPERTIES, 0, R.string.transferProperties);
 	}
@@ -430,15 +531,28 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 		TransferInfo transfer = (TransferInfo)getListAdapter().getItem(info.position);
 		switch(item.getItemId()) {
 		case PROPERTIES:
-			mPosition = info.position;
+			mChoosenTransfer = transfer;
 			showDialog(DIALOG_DETAILS);
 			return true;
 		case RETRY:
-			mConnectionManager.transferOperation(this, ClientOp.TRANSFER_RETRY, transfer.projectUrl, transfer.fileName);
+			if (mSelectedTransfers.isEmpty())
+				mConnectionManager.transferOperation(ClientOp.TRANSFER_RETRY, transfer.projectUrl, transfer.fileName);
+			else
+				mConnectionManager.transfersOperation(ClientOp.TRANSFER_RETRY,
+						mSelectedTransfers.toArray(new TransferDescriptor[0]));
 			return true;
 		case ABORT:
-			mPosition = info.position;
+			mChoosenTransfer = transfer;
 			showDialog(DIALOG_WARN_ABORT);
+			return true;
+		case SELECT_ALL:
+			for (TransferInfo tx: mTransfers)
+				mSelectedTransfers.add(new TransferDescriptor(tx.projectUrl, tx.fileName));
+			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
+			return true;
+		case UNSELECT_ALL:
+			mSelectedTransfers.clear();
+			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 			return true;
 		}
 		return super.onContextItemSelected(item);
@@ -477,6 +591,7 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 		mConnectedClient = null;
 		mUpdateTransfersInProgress = false;
 		mTransfers.clear();
+		updateSelectedTransfers();
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
 	}
@@ -514,13 +629,17 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 
 	@Override
 	public boolean updatedTransfers(ArrayList<TransferInfo> transfers) {
-		mTransfers = transfers;
+		mPendingTransfers = transfers;
 		mUpdateTransfersInProgress = false;
 		mLastUpdateTime = SystemClock.elapsedRealtime();
+		
+		sortTransfers();
+		updateSelectedTransfers();
+		
 		if (mViewUpdatesAllowed) {
 			// We are visible, update the view with fresh data
 			if (Logging.DEBUG) Log.d(TAG, "Transfers are updated, refreshing view");
-			sortTransfers();
+			mTransfers = mPendingTransfers;
 			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		}
 		else {
@@ -540,9 +659,16 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	private void sortTransfers() {
 		// TODO: No sort at the moment
 	}
+	
+	private void updateSelectedTransfers() {
+		ArrayList<TransferDescriptor> toRetain = new ArrayList<TransferDescriptor>();
+		for (TransferInfo txInfo: mPendingTransfers)
+			toRetain.add(new TransferDescriptor(txInfo.projectUrl, txInfo.fileName));
+		mSelectedTransfers.retainAll(toRetain);
+		//if (Logging.DEBUG) Log.d(TAG, "update selected transfers:"+mSelectedTransfers);
+	}
 
-	private String prepareTransferDetails(int position) {
-		TransferInfo transfer = mTransfers.get(position);
+	private String prepareTransferDetails(TransferInfo transfer) {
 		return getString(R.string.transferDetailedInfo, 
 				TextUtils.htmlEncode(transfer.fileName),
 				TextUtils.htmlEncode(transfer.project),

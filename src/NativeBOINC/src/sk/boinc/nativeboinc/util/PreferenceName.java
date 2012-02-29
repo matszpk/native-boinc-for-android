@@ -39,10 +39,18 @@ public interface PreferenceName {
 	public static final String LAST_ACTIVE_TAB = "lastActiveTab";
 	public static final String LIMIT_MESSAGES = "limitMessages";
 	public static final String NEWS_UPDATE_PERIOD = "newsUpdatePeriod";
-	public static final String VIEW_ITEM_TYPE = "viewItemType";
 	
 	/* for client */
 	public static final String CLIENT_VERSION = "clientVersion";
 	/* installation */
 	public static final String INSTALLER_STAGE = "installerStage";
+	
+	/* native client */
+	public static final String NATIVE_HOSTNAME = "nativeHostname";
+	public static final String NATIVE_REMOTE_ACCESS = "nativeRemoteAccess";
+	public static final String NATIVE_ACCESS_PASSWORD = "nativeAccessPassword";
+	public static final String NATIVE_HOST_LIST = "nativeAccessList";
+	public static final String NATIVE_INSTALLED_BINARIES = "nativeInstalledBinaries";
+	public static final String NATIVE_UPDATE_BINARIES = "nativeUpdateBinaries";
+	public static final String NATIVE_DUMP_BOINC_DIR = "nativeDumpBoincDir";
 }

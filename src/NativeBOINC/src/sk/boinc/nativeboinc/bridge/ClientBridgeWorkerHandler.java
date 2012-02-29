@@ -19,6 +19,7 @@
 
 package sk.boinc.nativeboinc.bridge;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,7 +37,9 @@ import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.ModeInfo;
 import sk.boinc.nativeboinc.clientconnection.PollOp;
 import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
+import sk.boinc.nativeboinc.clientconnection.TaskDescriptor;
 import sk.boinc.nativeboinc.clientconnection.TaskInfo;
+import sk.boinc.nativeboinc.clientconnection.TransferDescriptor;
 import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Debugging;
@@ -301,13 +304,13 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 
-	public void updateClientMode(final ClientReceiver callback) {
+	public void updateClientMode() {
 		if (mDisconnecting) return;  // already in disconnect phase
 		synchronized (mUpdateCancelSync) {
 			
 			if ((mUpdateCancelMask & (1<<AutoRefresh.CLIENT_MODE)) != 0) {
 				// This update was canceled meanwhile
-				if (Logging.DEBUG) Log.d(TAG, "Canceled updateClientMode(" + callback.toString() + ")");
+				if (Logging.DEBUG) Log.d(TAG, "Canceled updateClientMode()");
 				return;
 			}
 		}
@@ -323,7 +326,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		}
 		final ModeInfo clientMode = ModeInfoCreator.create(ccStatus);
 		// Finally, send reply back to the calling thread (that is UI thread)
-		updatedClientMode(callback, clientMode);
+		updatedClientMode(clientMode);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 		changeIsHandlerWorking(false);
 	}
@@ -1184,7 +1187,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(false);
 		// Regardless of success we run update of client mode
 		// If there is problem with socket, it will be handled there
-		updateClientMode(callback);
+		updateClientMode();
 	}
 
 	public void setNetworkMode(final ClientReplyReceiver callback, int mode) {
@@ -1196,7 +1199,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(false);
 		// Regardless of success we run update of client mode
 		// If there is problem with socket, it will be handled there
-		updateClientMode(callback);
+		updateClientMode();
 	}
 
 	public void shutdownCore() {
@@ -1257,7 +1260,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(false);
 	}
 
-	public void projectOperation(final ClientReplyReceiver callback, int operation, String projectUrl) {
+	public void projectOperation(int operation, String projectUrl) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		changeIsHandlerWorking(true);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
@@ -1268,9 +1271,21 @@ public class ClientBridgeWorkerHandler extends Handler {
 		updateProjects();
 		changeIsHandlerWorking(false);
 	}
+	
+	public void projectsOperation(int operation, String[] projectUrls) {
+		if (mDisconnecting) return;  // already in disconnect phase
+		changeIsHandlerWorking(true);
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
+		for (String projectUrl: projectUrls)
+			mRpcClient.projectOp(operation, projectUrl);
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
+		// Regardless of success we run update of projects
+		// If there is problem with socket, it will be handled there
+		updateProjects();
+		changeIsHandlerWorking(false);
+	}
 
-	public void taskOperation(final ClientReplyReceiver callback, int operation, String projectUrl,
-			String taskName) {
+	public void taskOperation(int operation, String projectUrl, String taskName) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		changeIsHandlerWorking(true);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
@@ -1281,13 +1296,38 @@ public class ClientBridgeWorkerHandler extends Handler {
 		updateTasks();
 		changeIsHandlerWorking(false);
 	}
+	
+	public void tasksOperation(int operation, TaskDescriptor[] tasks) {
+		if (mDisconnecting) return;  // already in disconnect phase
+		changeIsHandlerWorking(true);
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
+		for (TaskDescriptor task: tasks)
+			mRpcClient.resultOp(operation, task.projectUrl, task.taskName);
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
+		// Regardless of success we run update of tasks
+		// If there is problem with socket, it will be handled there
+		updateTasks();
+		changeIsHandlerWorking(false);
+	}
 
-	public void transferOperation(final ClientReplyReceiver callback, int operation,
-			String projectUrl, String fileName) {
+	public void transferOperation(int operation, String projectUrl, String fileName) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		changeIsHandlerWorking(true);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
 		mRpcClient.transferOp(operation, projectUrl, fileName);
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
+		// Regardless of success we run update of transfers
+		// If there is problem with socket, it will be handled there
+		updateTransfers();
+		changeIsHandlerWorking(false);
+	}
+	
+	public void transfersOperation(int operation, TransferDescriptor[] transfers) {
+		if (mDisconnecting) return;  // already in disconnect phase
+		changeIsHandlerWorking(true);
+		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_STARTED);
+		for (TransferDescriptor transfer: transfers)
+			mRpcClient.transferOp(operation, transfer.projectUrl, transfer.fileName);
 		notifyProgress(ClientReplyReceiver.PROGRESS_XFER_FINISHED);
 		// Regardless of success we run update of transfers
 		// If there is problem with socket, it will be handled there
@@ -1352,12 +1392,12 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 
-	private synchronized void updatedClientMode(final ClientReceiver callback, final ModeInfo clientMode) {
+	private synchronized void updatedClientMode(final ModeInfo clientMode) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.updatedClientMode(callback, clientMode);
+				mReplyHandler.updatedClientMode(clientMode);
 			}
 		});
 	}

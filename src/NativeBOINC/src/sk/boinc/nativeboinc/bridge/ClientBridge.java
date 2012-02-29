@@ -19,6 +19,7 @@
 
 package sk.boinc.nativeboinc.bridge;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.ArrayList;
@@ -46,7 +47,9 @@ import sk.boinc.nativeboinc.clientconnection.ModeInfo;
 import sk.boinc.nativeboinc.clientconnection.PollError;
 import sk.boinc.nativeboinc.clientconnection.PollOp;
 import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
+import sk.boinc.nativeboinc.clientconnection.TaskDescriptor;
 import sk.boinc.nativeboinc.clientconnection.TaskInfo;
+import sk.boinc.nativeboinc.clientconnection.TransferDescriptor;
 import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
@@ -209,24 +212,15 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 
-		public void updatedClientMode(final ClientReceiver callback, final ModeInfo modeInfo) {
-			if (callback == null) {
-				// No specific callback - broadcast to all observers
-				// This is used for early notification after connect
-				ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
-				for (ClientReceiver observer: observers) {
-					if (observer instanceof ClientReplyReceiver)
-						((ClientReplyReceiver)observer).updatedClientMode(modeInfo);
-				}
-				return;
-			}
-			// Check whether callback is still present in observers
-			if (mObservers.contains(callback) && callback instanceof ClientReplyReceiver) {
-				// Observer is still present, so we can call it back with data
-				boolean periodicAllowed = ((ClientReplyReceiver)callback).updatedClientMode(modeInfo);
-				if (periodicAllowed) {
-					mAutoRefresh.scheduleAutomaticRefresh(
-							(ClientReplyReceiver)callback, AutoRefresh.CLIENT_MODE);
+		public void updatedClientMode(final ModeInfo modeInfo) {
+			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			for (ClientReceiver observer: observers) {
+				if (observer instanceof ClientReplyReceiver) {
+					ClientReplyReceiver callback = (ClientReplyReceiver)observer;
+					
+					boolean periodicAllowed = callback.updatedClientMode(modeInfo);
+					if (periodicAllowed)
+						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.CLIENT_MODE);
 				}
 			}
 		}
@@ -520,9 +514,9 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 
 	@Override
-	public void updateClientMode(final ClientReceiver callback) {
+	public void updateClientMode() {
 		if (mRemoteClient == null) return; // not connected
-		mWorker.updateClientMode(callback);
+		mWorker.updateClientMode();
 	}
 
 	@Override
@@ -847,20 +841,38 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 
 	@Override
-	public void projectOperation(final ClientReplyReceiver callback, final int operation, final String projectUrl) {
+	public void projectOperation(final int operation, final String projectUrl) {
 		if (mRemoteClient == null) return; // not connected
-		mWorker.projectOperation(callback, operation, projectUrl);
+		mWorker.projectOperation(operation, projectUrl);
+	}
+	
+	@Override
+	public void projectsOperation(final int operation, final String[] projectUrls) {
+		if (mRemoteClient == null) return; // not connected
+		mWorker.projectsOperation(operation, projectUrls);
 	}
 
 	@Override
-	public void taskOperation(final ClientReplyReceiver callback, final int operation, final String projectUrl, final String taskName) {
+	public void taskOperation(final int operation, final String projectUrl, final String taskName) {
 		if (mRemoteClient == null) return; // not connected
-		mWorker.taskOperation(callback, operation, projectUrl, taskName);
+		mWorker.taskOperation(operation, projectUrl, taskName);
+	}
+	
+	@Override
+	public void tasksOperation(final int operation, final TaskDescriptor[] tasks) {
+		if (mRemoteClient == null) return; // not connected
+		mWorker.tasksOperation(operation, tasks);
 	}
 
 	@Override
-	public void transferOperation(final ClientReplyReceiver callback, final int operation, final String projectUrl, final String fileName) {
+	public void transferOperation(final int operation, final String projectUrl, final String fileName) {
 		if (mRemoteClient == null) return; // not connected
-		mWorker.transferOperation(callback, operation, projectUrl, fileName);
+		mWorker.transferOperation(operation, projectUrl, fileName);
+	}
+	
+	@Override
+	public void transfersOperation(final int operation, final TransferDescriptor[] transfers) {
+		if (mRemoteClient == null) return; // not connected
+		mWorker.transfersOperation(operation, transfers);
 	}
 }

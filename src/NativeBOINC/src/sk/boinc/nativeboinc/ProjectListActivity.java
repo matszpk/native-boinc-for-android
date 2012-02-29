@@ -44,6 +44,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,13 +66,8 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	private static final String TAG = "ProjectListActivity";
 	
 	private static final int DIALOG_ENTER_URL = 1;
-	private static final int DIALOG_PROJECT_INFO = 2;
 	
 	public static final int ACTIVITY_ADD_PROJECT = 1;
-	
-	private static final String ARG_DISTRIB_NAME = "DistribName";
-	private static final String ARG_DISTRIB_DESC = "DistribDesc";
-	private static final String ARG_DISTRIB_CHANGES = "DistribChanges";
 	
 	private ArrayList<ProjectItem> mProjectsList = null;
 	private ArrayList<ProjectDistrib> mProjectDistribs = null;
@@ -244,17 +240,14 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 				if (!mGetFromInstaller) // if not installer
 					return false;
 				
-				Bundle args = new Bundle();
-				
 				if (mProjectDistribs == null)
 					return false;
 				
 				ProjectDistrib distrib = mProjectDistribs.get(position);
 				
-				args.putString(ARG_DISTRIB_NAME, distrib.projectName + " " + distrib.version);
-				args.putString(ARG_DISTRIB_DESC, distrib.description);
-				args.putString(ARG_DISTRIB_CHANGES, distrib.changes);
-				showDialog(DIALOG_PROJECT_INFO, args);
+				StandardDialogs.showDistribInfoDialog(ProjectListActivity.this,
+						distrib.projectName, distrib.version,
+						distrib.description, distrib.changes);
 				return true;
 			}
 		});
@@ -478,11 +471,10 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		if (dialog != null)
 			return dialog;
 		
-		switch(dialogId) {
-		case DIALOG_ENTER_URL:
-		{
-			View view = LayoutInflater.from(this).inflate(R.layout.project_url, null);
-			final EditText urlEdit = (EditText)view.findViewById(R.id.projectUrlUrl);
+		if (dialogId==DIALOG_ENTER_URL) {
+			View view = LayoutInflater.from(this).inflate(R.layout.dialog_edit, null);
+			final EditText urlEdit = (EditText)view.findViewById(android.R.id.edit);
+			urlEdit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
 			return new AlertDialog.Builder(this)
 				.setIcon(android.R.drawable.ic_input_get)
 				.setTitle(R.string.projectUrl)
@@ -496,46 +488,15 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 						startActivity(intent);	// add project activity
 					}
 				})
-				.setNegativeButton(R.string.cancel, new Dialog.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-					}
-				})
+				.setNegativeButton(R.string.cancel, null)
 				.create();
-		}
-		case DIALOG_PROJECT_INFO:
-		{
-			LayoutInflater inflater = LayoutInflater.from(this);
-			View view = inflater.inflate(R.layout.distrib_info, null);
-			
-			return new AlertDialog.Builder(this)
-				.setIcon(android.R.drawable.ic_dialog_info)
-				.setNegativeButton(R.string.dismiss, null)
-				.setTitle(R.string.clientInfo)
-				.setView(view)
-				.create();
-		}
 		}
 		return null;
 	}
 	
 	@Override
 	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
-		if (StandardDialogs.onPrepareDialog(this, dialogId, dialog, args))
-			return;
-		
-		if (dialogId == DIALOG_PROJECT_INFO) {
-			TextView distribVersion = (TextView)dialog.findViewById(R.id.distribVersion);
-			TextView distribDesc = (TextView)dialog.findViewById(R.id.distribDesc);
-			TextView distribChanges = (TextView)dialog.findViewById(R.id.distribChanges);
-			
-			/* setup client info texts */
-			distribVersion.setText(args.getString(ARG_DISTRIB_NAME));
-			distribDesc.setText(getString(R.string.description)+":\n"+
-					args.getString(ARG_DISTRIB_DESC));
-			distribChanges.setText(getString(R.string.changes)+":\n"+
-					args.getString(ARG_DISTRIB_CHANGES));
-		}
+		StandardDialogs.onPrepareDialog(this, dialogId, dialog, args);
 	}
 
 	@Override

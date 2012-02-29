@@ -79,10 +79,15 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 	private static final String TAG = "BoincManagerActivity";
 
 	private static final int DIALOG_CONNECT_PROGRESS = 1;
-	private static final int DIALOG_UPGRADE_INFO        = 5;
+	private static final int DIALOG_UPGRADE_INFO     = 5;
+	private static final int DIALOG_SHUTDOWN         = 2;
+	private static final int DIALOG_RESTART_PROGRESS = 3;
 
 	private static final int ACTIVITY_SELECT_HOST   = 1;
 	private static final int ACTIVITY_MANAGE_CLIENT = 2;
+	private static final int ACTIVITY_NATIVE_CLIENT = 3;
+	
+	public static final String PARAM_CONNECT_NATIVE_CLIENT = "ConnectNative";
 
 	private static final int BACK_PRESS_PERIOD = 5;
 
@@ -104,23 +109,34 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 	private boolean mInitialDataRetrievalStarted = false;
 	private boolean mInitialDataAvailable = false;
 
-	private boolean mClientStartFromMenu = false;
+	private boolean mDoConnectNativeClient = false;
+	
+	private boolean mConnectClientAfterRestart = false;
+	private boolean mConnectClientAfterStart = false;
 	
 	private boolean mIsInstallerRan = false;
+	
+	private boolean mShowShutdownDialog = false;
 	
 	private static class SavedState {
 		private final boolean isInstallerRan;
 		private final boolean initialDataAvailable;
 		private final int connectProgressIndicator;
-		private final boolean clientStartFromMenu;
+		private final boolean connectClientAfterStart;
+		private final boolean connectClientAfterRestart;
+		private final boolean doConnectNativeClient;
+		private final boolean showShutdownDialog;
 
 		public SavedState(BoincManagerActivity activity) {
 			isInstallerRan = activity.mIsInstallerRan;
 			initialDataAvailable = activity.mInitialDataAvailable;
-			clientStartFromMenu = activity.mClientStartFromMenu;
+			connectClientAfterStart = activity.mConnectClientAfterStart;
+			connectClientAfterRestart = activity.mConnectClientAfterRestart;
 			if (Logging.DEBUG) Log.d(TAG, "saved: initialDataAvailable=" + initialDataAvailable);
 			connectProgressIndicator = activity.mConnectProgressIndicator;
 			if (Logging.DEBUG) Log.d(TAG, "saved: connectProgressIndicator=" + connectProgressIndicator);
+			doConnectNativeClient = activity.mDoConnectNativeClient;
+			showShutdownDialog = activity.mShowShutdownDialog;
 		}
 		public void restoreState(BoincManagerActivity activity) {
 			activity.mInitialDataAvailable = initialDataAvailable;
@@ -129,7 +145,10 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			if (Logging.DEBUG) Log.d(TAG, "restored: mConnectProgressIndicator=" +
 					activity.mConnectProgressIndicator);
 			activity.mIsInstallerRan = isInstallerRan;
-			activity.mClientStartFromMenu = clientStartFromMenu;
+			activity.mConnectClientAfterStart = connectClientAfterStart;
+			activity.mConnectClientAfterRestart = connectClientAfterRestart;
+			activity.mDoConnectNativeClient = doConnectNativeClient;
+			activity.mShowShutdownDialog = showShutdownDialog;
 		}
 	}
 
@@ -202,9 +221,8 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			mRunner = ((NativeBoincService.LocalBinder)service).getService();
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceConnected()");
-			mRunner.addNativeBoincListener(BoincManagerActivity.this);
 			
-			updateActivityState();
+			onRunnerStart();
 		}
 		
 		@Override
@@ -258,7 +276,11 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		if (savedState != null) {
 			// Yes, we have the saved state, this is activity re-creation after configuration change
 			savedState.restoreState(this);
-		}
+		} else // restore from intent extra
+			mDoConnectNativeClient = getIntent().getBooleanExtra(PARAM_CONNECT_NATIVE_CLIENT, false);
+		
+		
+		if (Logging.DEBUG) Log.d(TAG, "doOpenNativeClient:"+mDoConnectNativeClient);
 		
 		doBindService();
 		doBindRunnerService();
@@ -368,8 +390,10 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			// Just normal start
 			String autoConnectHost = globalPrefs.getString(PreferenceName.AUTO_CONNECT_HOST, null);
 			if (((autoConnectHost != null) && globalPrefs.getBoolean(PreferenceName.AUTO_CONNECT, false)) ||
-					(autoConnectHost == null)) {
-				if (autoConnectHost == null)	// use nativeboinc as autoconnect
+					(autoConnectHost == null) || mDoConnectNativeClient) {
+				// if no autoConnect host and if doConnectNativeClient (should open native client)
+				if (Logging.DEBUG) Log.d(TAG, "doOpenNativeClient 2:"+mDoConnectNativeClient);
+				if (autoConnectHost == null || mDoConnectNativeClient)	// use nativeboinc as autoconnect
 					autoConnectHost = "nativeboinc";
 				// We should auto-connect to recently connected host
 				HostListDbAdapter dbHelper = new HostListDbAdapter(this);
@@ -396,11 +420,16 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		boolean runnerIsWorking = mRunner != null &&
 				mRunner.serviceIsWorking();
 		
-		
 		if (connectionManagerIsWorking || runnerIsWorking)
 			setProgressBarIndeterminateVisibility(true);
 		else
 			setProgressBarIndeterminateVisibility(false);
+		
+		if (mShowShutdownDialog && mRunner != null && !mRunner.isRun()) {
+			// dismiss dialog
+			mShowShutdownDialog = false;
+			dismissDialog(DIALOG_SHUTDOWN);
+		}
 		
 		/* display error if pending */
 		if (mRunner != null && mConnectionManager != null) {
@@ -412,6 +441,44 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 				return;
 			}
 		}
+	}
+	
+	private void onRunnerStart() {
+		if (Logging.DEBUG) Log.d(TAG, "reregister runner listener");
+		mRunner.addNativeBoincListener(this);
+		if (!mConnectClientAfterRestart || mConnectClientAfterStart) { 
+			// if not connected after restart or is second phase
+			if (mRunner.isRun())
+				onClientStart();	// if client start
+			
+			if (mSelectedClient != null) {
+				// We just returned from activity which selected client to connect to
+				if (mConnectionManager != null) {
+					// Service is bound, we can use it
+					connectOrReconnect();
+				}
+				else {
+					// Service not bound at the moment (too slow start? or disconnected itself?)
+					// We trigger re-bind again (does not hurt if it's duplicate)
+					if (Logging.DEBUG) Log.d(TAG,
+							"onResume() - Client selected, but service not yet available => binding again");
+					doBindService();
+				}
+			}
+			else if (mInitialDataRetrievalStarted) {
+				// We started retrieval of important data, which will take some time
+				// We display progress dialog about it
+				showProgressDialog(PROGRESS_INITIAL_DATA);
+			}
+		} else {
+			if (mConnectionManager != null)
+				doBindService();
+			if (Logging.DEBUG) Log.d(TAG, "Clearly, after restart");
+			// treat restart as start now! (second phase)
+			mConnectClientAfterStart = true;
+		}
+		// update activity state
+		updateActivityState();
 	}
 	
 	@Override
@@ -452,36 +519,12 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		// If applicable (e.g scheduled), connect to the host
 		// Even in case that ChangeLog is being shown on upgrade, connect will still be done,
 		// but progress dialog is suppressed (will be enabled on dismiss of ChangeLog dialog)
-		if (mSelectedClient != null) {
-			// We just returned from activity which selected client to connect to
-			if (mConnectionManager != null) {
-				// Service is bound, we can use it
-				connectOrReconnect();
-			}
-			else {
-				// Service not bound at the moment (too slow start? or disconnected itself?)
-				// We trigger re-bind again (does not hurt if it's duplicate)
-				if (Logging.DEBUG) Log.d(TAG,
-						"onResume() - Client selected, but service not yet available => binding again");
-				doBindService();
-			}
-		}
-		else if (mInitialDataRetrievalStarted) {
-			// We started retrieval of important data, which will take some time
-			// We display progress dialog about it
-			showProgressDialog(PROGRESS_INITIAL_DATA);
-		}
 		
 		if (mRunner == null) {
 			if (Logging.DEBUG) Log.d(TAG, "onResume() - runner not present");
 			doBindRunnerService();
-		} else {
-			if (Logging.DEBUG) Log.d(TAG, "reregister runner listener");
-			mRunner.addNativeBoincListener(this);
-		}
-		
-		// update activity state
-		updateActivityState();
+		} else // when runner starts
+			onRunnerStart();
 	}
 
 	@Override
@@ -490,7 +533,12 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		if (Logging.DEBUG) Log.d(TAG, "onPause()");
 		mProgressDialogAllowed = false;
 		// If we did not perform deferred connect so far, we needn't do that anymore
-		mSelectedClient = null;
+		if (mSelectedClient != null) {
+			if (!mSelectedClient.isNativeClient() ||
+					(!mConnectClientAfterRestart && !mConnectClientAfterStart))
+				// only when is native client is not started by manager
+				mSelectedClient = null;
+		}
 		if (Logging.DEBUG) Log.d(TAG, "unregister runner listener");
 		if (mRunner != null)
 			mRunner.removeNativeBoincListener(this);
@@ -595,36 +643,40 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		item = menu.findItem(R.id.menuDisconnect);
 		item.setVisible(mConnectedClient != null);
 		item = menu.findItem(R.id.menuStartUp);
-		item.setVisible(!mRunner.isRun());
+		if (mRunner != null)
+			item.setVisible(!mRunner.isRun());
+		else
+			item.setVisible(false);
 		item = menu.findItem(R.id.menuShutdown);
-		item.setVisible(mRunner.isRun());
+		if (mRunner != null)
+			item.setVisible(mRunner.isRun());
+		else
+			item.setVisible(false);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.menuStartUp:
-			mClientStartFromMenu = true;
+		case R.id.menuStartUp: {
+			mConnectClientAfterStart = true;
+			HostListDbAdapter dbHelper = new HostListDbAdapter(this);
+			dbHelper.open();
+			mSelectedClient = dbHelper.fetchHost("nativeboinc");
+			dbHelper.close();
 			mRunner.startClient(false);
 			return true;
+		}
 		case R.id.menuShutdown:
-			new AlertDialog.Builder(this)
-	    		.setIcon(android.R.drawable.ic_dialog_alert)
-	    		.setTitle(R.string.warning)
-	    		.setMessage(R.string.shutdownAskText)
-	    		.setPositiveButton(R.string.shutdown,
-	    			new DialogInterface.OnClickListener() {
-	    				public void onClick(DialogInterface dialog, int whichButton) {
-	    					mRunner.shutdownClient();
-	    				}
-	    			})
-	    		.setNegativeButton(R.string.cancel, null)
-	    		.create().show();
+			mShowShutdownDialog = true;
+			showDialog(DIALOG_SHUTDOWN);
 			return true;
 		case R.id.menuManage:
 			// Launch new activity
 			startActivityForResult(new Intent(this, ManageClientActivity.class), ACTIVITY_MANAGE_CLIENT);
+			return true;
+		case R.id.menuNativeClient:
+			startActivityForResult(new Intent(this, NativeClientActivity.class), ACTIVITY_NATIVE_CLIENT);
 			return true;
 		case R.id.menuPreferences:
 			// Launch new activity for adjusting the preferences
@@ -691,6 +743,41 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 					}
 				})
         		.create();
+		case DIALOG_SHUTDOWN:
+			if (mRunner != null && !mRunner.isRun()) {
+				mShowShutdownDialog = false;
+				return null;
+			}
+			return new AlertDialog.Builder(this)
+	    		.setIcon(android.R.drawable.ic_dialog_alert)
+	    		.setTitle(R.string.warning)
+	    		.setMessage(R.string.shutdownAskText)
+	    		.setPositiveButton(R.string.shutdown,
+	    			new DialogInterface.OnClickListener() {
+	    				public void onClick(DialogInterface dialog, int whichButton) {
+	    					mShowShutdownDialog = false;
+	    					mRunner.shutdownClient();
+	    				}
+	    			})
+	    		.setNegativeButton(R.string.cancel,
+	    			new DialogInterface.OnClickListener() {
+	    				public void onClick(DialogInterface dialog, int whichButton) {
+	    					mShowShutdownDialog = false;
+	    				}
+	    			})
+	    		.setOnCancelListener(new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						mShowShutdownDialog = false;
+					}
+				})
+	    		.create();
+		case DIALOG_RESTART_PROGRESS: {
+			progressDialog = new FixedProgressDialog(this);
+			progressDialog.setIndeterminate(true);
+			progressDialog.setCancelable(true);
+			return progressDialog;
+		}
 		}
 		return null;
 	}
@@ -718,6 +805,10 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 				if (Logging.ERROR) Log.e(TAG, "Unhandled progress indicator: " + mConnectProgressIndicator);
 			}
 			break;
+		case DIALOG_RESTART_PROGRESS:
+			pd = (ProgressDialog)dialog;
+			pd.setMessage(getString(R.string.clientRestarting));
+			break;
 		}
 	}
 		
@@ -744,6 +835,16 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 				// This is very early stage, tabs (hopefully) did not request own data yet
 			}
 			break;
+		case ACTIVITY_NATIVE_CLIENT:
+			if (data != null && data.getBooleanExtra(NativeClientActivity.RESULT_DATA_RESTARTED, false)) {
+				if (Logging.DEBUG) Log.d(TAG, "Native client restarted, do connect");
+				mConnectClientAfterRestart = true;
+				HostListDbAdapter dbHelper = new HostListDbAdapter(this);
+				dbHelper.open();
+				mSelectedClient = dbHelper.fetchHost("nativeboinc");
+				dbHelper.close();
+				showDialog(DIALOG_RESTART_PROGRESS);
+			}
 		default:
 			break;
 		}
@@ -781,10 +882,21 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		mConnectedClient = mConnectionManager.getClientId();
 		mConnectedClientVersion = clientVersion;
 		if (mConnectedClient != null) {
-			// Connected client is retrieved
-			if (Logging.DEBUG) Log.d(TAG, "Client " + mConnectedClient.getNickname() + " is connected");
-			updateTitle();
-			mSelectedClient = null; // For case of auto-connect on startup while service is already connected
+			if (mDoConnectNativeClient) {
+				if (!mConnectedClient.isNativeClient()) {
+					// do connect to native client
+					boincConnect();
+				} else {
+					// if already connected
+					mSelectedClient = null;
+					mDoConnectNativeClient = false;
+				}
+			} else {
+				// Connected client is retrieved
+				if (Logging.DEBUG) Log.d(TAG, "Client " + mConnectedClient.getNickname() + " is connected");
+				updateTitle();
+				mSelectedClient = null; // For case of auto-connect on startup while service is already connected
+			}
 		}
 		else {
 			// Received connected notification, but client is unknown!
@@ -799,6 +911,7 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 				( (mConnectedClient != null) ?
 						mConnectedClient.getNickname() : "<not connected>" ) +
 						" is disconnected");
+		mDoConnectNativeClient = false;
 		ClientId prevConnectedClient = mConnectedClient;
 		mConnectedClient = null;
 		mConnectedClientVersion = null;
@@ -807,7 +920,9 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		dismissProgressDialog();
 		if (mSelectedClient != null) {
 			// Connection to another client is deferred, we proceed with it now
-			boincConnect();
+			if (!mConnectClientAfterRestart)
+				// connect when not after restart
+				boincConnect();
 		} else 
 			StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, mRunner,
 					prevConnectedClient);
@@ -876,12 +991,14 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 
 	@Override
 	public void onClientStart() {
-		if (mClientStartFromMenu) {
-			mClientStartFromMenu = false;
-			HostListDbAdapter dbHelper = new HostListDbAdapter(this);
-			dbHelper.open();
-			mSelectedClient = dbHelper.fetchHost("nativeboinc");
-			dbHelper.close();
+		if (mConnectClientAfterStart || mConnectClientAfterRestart) {
+			if (Logging.DEBUG) Log.d(TAG, "on client start: after start");
+			if (mConnectClientAfterRestart) // after restarting
+				dismissDialog(DIALOG_RESTART_PROGRESS);
+			
+			mConnectClientAfterStart = false;
+			mConnectClientAfterRestart = false;
+			
 			if (mSelectedClient != null)
 				boincConnect();
 		}
@@ -897,7 +1014,8 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 	
 	@Override
 	public void onNativeBoincClientError(String message) {
-		mClientStartFromMenu = false;
+		mConnectClientAfterStart = false;
+		mConnectClientAfterRestart = false;
 		StandardDialogs.showErrorDialog(this, message);
 	}
 	
@@ -950,6 +1068,11 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 
 	private void boincConnect() {
 		try {
+			if (mConnectionManager == null) {
+				doBindService();
+				return;
+			}
+			if (Logging.DEBUG) Log.d(TAG, "boinc connect");
 			mConnectionManager.connect(mSelectedClient, true);
 			mSelectedClient = null;
 			mInitialDataAvailable = true; // Not really, but data will be available on connected notification

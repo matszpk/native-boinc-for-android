@@ -23,6 +23,7 @@ package sk.boinc.nativeboinc;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import sk.boinc.nativeboinc.bridge.AutoRefresh;
 import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
@@ -32,6 +33,7 @@ import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.ModeInfo;
 import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
+import sk.boinc.nativeboinc.clientconnection.TaskDescriptor;
 import sk.boinc.nativeboinc.clientconnection.TaskInfo;
 import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
@@ -62,6 +64,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -78,6 +81,8 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver, 
 	private static final int RESUME = 2;
 	private static final int ABORT = 3;
 	private static final int PROPERTIES = 4;
+	private static final int SELECT_ALL = 5;
+	private static final int UNSELECT_ALL = 6;
 
 	private static final int SB_INIT_CAPACITY = 256;
 
@@ -89,8 +94,11 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver, 
 	private boolean mViewDirty = false;
 
 	private ArrayList<TaskInfo> mTasks = new ArrayList<TaskInfo>();
+	private ArrayList<TaskInfo> mPendingTasks = new ArrayList<TaskInfo>();
+	private HashSet<TaskDescriptor> mSelectedTasks = new HashSet<TaskDescriptor>();
 	private boolean mShowDetailsDialog = false;
-	private int mPosition = 0;
+	private boolean mShowWarnAbortDialog = false;
+	private TaskInfo mChoosenTask = null; 
 
 	private static final long UPDATES_ON_RESUMES_PERIOD = 4000; 
 	
@@ -101,29 +109,64 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver, 
 
 	private static class SavedState {
 		private final ArrayList<TaskInfo> tasks;
-		private final int position;
+		private final ArrayList<TaskInfo> pendingTasks;
+		private final HashSet<TaskDescriptor> selectedTasks;
+		private final TaskInfo choosenTask;
 		private final boolean showDetailsDialog;
+		private final boolean showWarnAbortDialog;
 		private final boolean updateTasksInProgress;
 		private final long lastUpdateTime;
 
 		public SavedState(TasksActivity activity) {
 			tasks = activity.mTasks;
 			if (Logging.DEBUG) Log.d(TAG, "saved: tasks.size()=" + tasks.size());
-			position = activity.mPosition;
+			pendingTasks = activity.mPendingTasks;
+			selectedTasks = activity.mSelectedTasks;
+			//position = activity.mPosition;
+			choosenTask = activity.mChoosenTask;
 			showDetailsDialog = activity.mShowDetailsDialog;
+			showWarnAbortDialog = activity.mShowWarnAbortDialog;
 			updateTasksInProgress = activity.mUpdateTasksInProgress;
 			lastUpdateTime = activity.mLastUpdateTime;
 		}
 		public void restoreState(TasksActivity activity) {
 			activity.mTasks = tasks;
 			if (Logging.DEBUG) Log.d(TAG, "restored: mTasks.size()=" + activity.mTasks.size());
-			activity.mPosition = position;
+			activity.mPendingTasks = pendingTasks;
+			activity.mSelectedTasks = selectedTasks;
+			//activity.mPosition = position;
+			activity.mChoosenTask = choosenTask;
 			activity.mShowDetailsDialog = showDetailsDialog;
+			activity.mShowWarnAbortDialog = showWarnAbortDialog;
 			activity.mUpdateTasksInProgress = updateTasksInProgress;
 			activity.mLastUpdateTime = lastUpdateTime;
 		}
 	}
-
+	
+	private class TaskOnClickListener implements View.OnClickListener {
+		private int mItemPosition;
+		
+		public TaskOnClickListener(int position) {
+			mItemPosition = position;
+		}
+		
+		public void setItemPosition(int position) {
+			mItemPosition = position;
+		}
+		
+		@Override
+		public void onClick(View view) {
+			TaskInfo task = mTasks.get(mItemPosition);
+			if (Logging.DEBUG) Log.d(TAG, "Task "+task.taskName+" change checked:"+mItemPosition);
+			
+			TaskDescriptor taskDesc = new TaskDescriptor(task.projectUrl, task.taskName);
+			if (mSelectedTasks.contains(taskDesc)) // remove
+				mSelectedTasks.remove(taskDesc);
+			else // add to selected
+				mSelectedTasks.add(taskDesc);
+		}
+	}
+	
 	private class TaskListAdapter extends BaseAdapter {
 		private Context mContext;
 
@@ -166,7 +209,21 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver, 
 			else {
 				layout = convertView;
 			}
+			
 			TaskInfo task = mTasks.get(position);
+			
+			CheckBox checkBox = (CheckBox)layout.findViewById(R.id.check);
+			checkBox.setChecked(mSelectedTasks.contains(new TaskDescriptor(task.projectUrl, task.taskName)));
+			
+			TaskOnClickListener clickListener = (TaskOnClickListener)layout.getTag();
+			if (clickListener == null) {
+				clickListener = new TaskOnClickListener(position);
+				layout.setTag(clickListener);
+			} else {
+				clickListener.setItemPosition(position);
+			}
+			checkBox.setOnClickListener(clickListener);
+			
 			TextView tv;
 			tv = (TextView)layout.findViewById(R.id.taskAppName);
 			tv.setText(task.application);
@@ -304,29 +361,39 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver, 
 				
 				mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TASKS);
 			} else { // if after update
-				if (Logging.DEBUG) Log.d(TAG, "do update tasks");
-				if (SystemClock.elapsedRealtime()-mLastUpdateTime >= UPDATES_ON_RESUMES_PERIOD)
+				if (SystemClock.elapsedRealtime()-mLastUpdateTime >= UPDATES_ON_RESUMES_PERIOD) {
 					// if later than 4 seconds
+					if (Logging.DEBUG) Log.d(TAG, "do update tasks");
 					mConnectionManager.updateTasks();
-				else // only add auto updates
+				} else { // only add auto updates
+					if (Logging.DEBUG) Log.d(TAG, "do add to schedule update tasks");
 					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TASKS);
+				}
 			}
 		}
 		mViewUpdatesAllowed = true;
 		if (mViewDirty) {
 			// There were some updates received while we were not visible
 			// The data are stored, but view is not updated yet; Do it now
-			sortTasks();
+			mTasks = mPendingTasks;
 			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 			mViewDirty = false;
 			if (Logging.DEBUG) Log.d(TAG, "Delayed refresh of view was done now");
 		}
 		if (mShowDetailsDialog) {
-			if (mTasks != null && !mTasks.isEmpty()) {
+			if (mChoosenTask != null) {
 				showDialog(DIALOG_DETAILS);
 			} else {
 				if (Logging.DEBUG) Log.d(TAG, "If failed to recreate details");
 				mShowDetailsDialog = false;
+			}
+		}
+		if (mShowWarnAbortDialog) {
+			if (mChoosenTask != null) {
+				showDialog(DIALOG_WARN_ABORT);
+			} else {
+				if (Logging.DEBUG) Log.d(TAG, "If failed to recreate warn abort");
+				mShowWarnAbortDialog = false;
 			}
 		}
 	}
@@ -373,6 +440,11 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver, 
 		mShowDetailsDialog = false;
 	}
 	
+	private void onDismissWarnAbortDialog() {
+		if (Logging.DEBUG) Log.d(TAG, "On dismiss warn abort");
+		mShowWarnAbortDialog = false;
+	}
+	
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
@@ -401,11 +473,30 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver, 
 	    		.setPositiveButton(R.string.taskAbort,
 	    			new DialogInterface.OnClickListener() {
 	    				public void onClick(DialogInterface dialog, int whichButton) {
-	    					TaskInfo task = (TaskInfo)getListAdapter().getItem(mPosition);
-	    					mConnectionManager.taskOperation(TasksActivity.this, ClientOp.TASK_ABORT, task.projectUrl, task.taskName);
+	    					//TaskInfo task = (TaskInfo)getListAdapter().getItem(mPosition);
+	    					
+	    					onDismissWarnAbortDialog();
+	    					
+	    					if (mSelectedTasks.isEmpty()) {
+		    					mConnectionManager.taskOperation(ClientOp.TASK_ABORT,
+		    							mChoosenTask.projectUrl, mChoosenTask.taskName);
+	    					} else
+	    						mConnectionManager.tasksOperation(ClientOp.TASK_ABORT,
+	    								mSelectedTasks.toArray(new TaskDescriptor[0]));
 	    				}
 	    			})
-	    		.setNegativeButton(R.string.cancel, null)
+	    		.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						onDismissWarnAbortDialog();
+					}
+				})
+				.setOnCancelListener(new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						onDismissWarnAbortDialog();
+					}
+				})
 	    		.create();
 		}
 		return null;
@@ -417,19 +508,21 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver, 
 		switch (id) {
 		case DIALOG_DETAILS:
 			text = (TextView)dialog.findViewById(R.id.dialogText);
-			text.setText(Html.fromHtml(prepareTaskDetails(mPosition)));
+			text.setText(Html.fromHtml(prepareTaskDetails(mChoosenTask)));
 			break;
 		case DIALOG_WARN_ABORT:
 			text = (TextView)dialog.findViewById(R.id.dialogText);
-			TaskInfo task = (TaskInfo)getListAdapter().getItem(mPosition);
-			text.setText(getString(R.string.warnAbortTask, task.taskName));
+			if (mSelectedTasks.isEmpty())
+				text.setText(getString(R.string.warnAbortTask, mChoosenTask.taskName));
+			else
+				text.setText(getString(R.string.warnAbortTasks));
 			break;
 		}
 	}
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		mPosition = position;
+		mChoosenTask = (TaskInfo)getListAdapter().getItem(position);
 		mShowDetailsDialog = true;
 		showDialog(DIALOG_DETAILS);
 	}
@@ -440,16 +533,30 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver, 
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
 		TaskInfo task = (TaskInfo)getListAdapter().getItem(info.position);
 		menu.setHeaderTitle(R.string.taskCtxMenuTitle);
-		if (task.stateControl == TaskInfo.SUSPENDED) {
-			// project is suspended
+		if (mSelectedTasks.size() != mTasks.size())
+			menu.add(0, SELECT_ALL, 0, R.string.selectAll);
+		
+		if (!mSelectedTasks.isEmpty())
+			menu.add(0, UNSELECT_ALL, 0, R.string.unselectAll);
+		
+		if (mSelectedTasks.isEmpty()) {
+			// only one task
+			if (task.stateControl == TaskInfo.SUSPENDED) {
+				// project is suspended
+				menu.add(0, RESUME, 0, R.string.taskResume);
+			}
+			else {
+				// not suspended
+				menu.add(0, SUSPEND, 0, R.string.taskSuspend);
+			}
+			if (task.stateControl != TaskInfo.ABORTED) {
+				// Not aborted
+				menu.add(0, ABORT, 0, R.string.taskAbort);
+			}
+		} else {
+			// selected tasks
 			menu.add(0, RESUME, 0, R.string.taskResume);
-		}
-		else {
-			// not suspended
 			menu.add(0, SUSPEND, 0, R.string.taskSuspend);
-		}
-		if (task.stateControl != TaskInfo.ABORTED) {
-			// Not aborted
 			menu.add(0, ABORT, 0, R.string.taskAbort);
 		}
 		menu.add(0, PROPERTIES, 0, R.string.taskProperties);
@@ -461,20 +568,36 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver, 
 		TaskInfo task = (TaskInfo)getListAdapter().getItem(info.position);
 		switch(item.getItemId()) {
 		case PROPERTIES:
-			mPosition = info.position;
+			mChoosenTask = task;
 			showDialog(DIALOG_DETAILS);
 			return true;
 		case SUSPEND:
-
-			mConnectionManager.taskOperation(this, ClientOp.TASK_SUSPEND, task.projectUrl, task.taskName);
+			if (mSelectedTasks.isEmpty())
+				mConnectionManager.taskOperation(ClientOp.TASK_SUSPEND, task.projectUrl, task.taskName);
+			else
+				mConnectionManager.tasksOperation(ClientOp.TASK_SUSPEND,
+						mSelectedTasks.toArray(new TaskDescriptor[0]));
 			return true;
 		case RESUME:
-
-			mConnectionManager.taskOperation(this, ClientOp.TASK_RESUME, task.projectUrl, task.taskName);
+			if (mSelectedTasks.isEmpty())
+				mConnectionManager.taskOperation(ClientOp.TASK_RESUME, task.projectUrl, task.taskName);
+			else
+				mConnectionManager.tasksOperation(ClientOp.TASK_RESUME,
+						mSelectedTasks.toArray(new TaskDescriptor[0]));
 			return true;
 		case ABORT:
-			mPosition = info.position;
+			mChoosenTask = task;
+			mShowWarnAbortDialog = true;
 			showDialog(DIALOG_WARN_ABORT);
+			return true;
+		case SELECT_ALL:
+			for (TaskInfo thisTask: mTasks)
+				mSelectedTasks.add(new TaskDescriptor(thisTask.projectUrl, thisTask.taskName));
+			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
+			return true;
+		case UNSELECT_ALL:
+			mSelectedTasks.clear();
+			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 			return true;
 		}
 		return super.onContextItemSelected(item);
@@ -512,6 +635,7 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver, 
 		mConnectedClient = null;
 		mUpdateTasksInProgress = false;
 		mTasks.clear();
+		updateSelectedTasks();
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
 	}
@@ -543,13 +667,17 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver, 
 
 	@Override
 	public boolean updatedTasks(ArrayList<TaskInfo> tasks) {
-		mTasks = tasks;
+		mPendingTasks = tasks;
 		mUpdateTasksInProgress = false;
 		mLastUpdateTime = SystemClock.elapsedRealtime();
+		
+		sortTasks();
+		updateSelectedTasks();
+		
 		if (mViewUpdatesAllowed) {
 			// We are visible, update the view with fresh data
+			mTasks = mPendingTasks;
 			if (Logging.DEBUG) Log.d(TAG, "Tasks are updated, refreshing view");
-			sortTasks();
 			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		}
 		else {
@@ -613,11 +741,19 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver, 
 				return object1.taskName.compareToIgnoreCase(object2.taskName);
 			}
 		};
-		Collections.sort(mTasks, comparator);
+		Collections.sort(mPendingTasks, comparator);
+	}
+	
+	private void updateSelectedTasks() {
+		ArrayList<TaskDescriptor> toRetain = new ArrayList<TaskDescriptor>();
+		for (TaskInfo taskInfo: mPendingTasks)
+			toRetain.add(new TaskDescriptor(taskInfo.projectUrl, taskInfo.taskName));
+		mSelectedTasks.retainAll(toRetain);
+		//if (Logging.DEBUG) Log.d(TAG, "update selected tasks:"+mSelectedTasks);
 	}
 
-	private String prepareTaskDetails(int position) {
-		TaskInfo task = mTasks.get(position);
+	private String prepareTaskDetails(TaskInfo task) {
+		//TaskInfo task = mTasks.get(position);
 		mSb.setLength(0);
 		mSb.append(getString(R.string.taskDetailedInfoCommon, 
 				TextUtils.htmlEncode(task.taskName),
@@ -659,6 +795,7 @@ public class TasksActivity extends ListActivity implements ClientReplyReceiver, 
 
 	@Override
 	public void onStartAutoRefresh(int requestType) {
+		Log.d(TAG, "on start auto refresh");
 		if (requestType == AutoRefresh.TASKS) // in progress
 			mUpdateTasksInProgress = true;
 	}

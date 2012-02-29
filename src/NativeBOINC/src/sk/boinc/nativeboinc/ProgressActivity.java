@@ -69,6 +69,8 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 			
 			if (mDistribName.equals(InstallerService.BOINC_CLIENT_ITEM_NAME))
 				mInstaller.cancelClientInstallation();
+			else if (mDistribName.equals(InstallerService.BOINC_DUMP_ITEM_NAME))
+				mInstaller.cancelDumpFiles();
 			else {
 				if (mProjectUrl == null || mProjectUrl.length()==0)
 					return;
@@ -284,11 +286,11 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 				if (areAllTasksFinishedSuccessfully()) {
 					if (mApp.isInstallerRun()) // if installer
 						mBackButton.setEnabled(false);
-					mCancelAll.setEnabled(false);
 					mNextButton.setEnabled(true);
 				}
 			}
 			
+			mCancelAll.setEnabled(false);
 			mProgressText.setText(getString(R.string.noInstallOpsText));
 		} else
 			mProgressText.setText(getString(R.string.installProgressText));

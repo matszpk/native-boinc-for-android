@@ -98,6 +98,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 	private AccountMgrInfo mBAMInfo = null;
 	private boolean mSyncingBAMInProgress = false;
 	
+	private boolean mShowShutdownDialog = false;
+	
 	private ScreenOrientationHandler mScreenOrientation;
 	
 	private static class SavedState {
@@ -106,6 +108,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		private final boolean doGetBAMInfo;
 		private final AccountMgrInfo bamInfo;
 		private final boolean syncingBAMInProgress;
+		private final boolean showShutdownDialog;
 		
 		public SavedState(ManageClientActivity activity) {
 			doUpdateHostInfo = activity.mDoUpdateHostInfo;
@@ -113,8 +116,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 			doGetBAMInfo = activity.mDoGetBAMInfo;
 			bamInfo = activity.mBAMInfo;
 			syncingBAMInProgress = activity.mSyncingBAMInProgress;
+			showShutdownDialog = activity.mShowShutdownDialog;
 			
-			if (Logging.DEBUG) Log.d(TAG, "saved: hostInfo=" + hostInfo);
 		}
 		public void restoreState(ManageClientActivity activity) {
 			activity.mDoUpdateHostInfo = doUpdateHostInfo;
@@ -123,6 +126,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 			activity.mDoGetBAMInfo = doGetBAMInfo;
 			activity.mBAMInfo = bamInfo;
 			activity.mSyncingBAMInProgress = syncingBAMInProgress;
+			activity.mShowShutdownDialog = showShutdownDialog;
 		}
 	}
 
@@ -287,23 +291,10 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		pref = findPreference("shutDownClient");
 		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			public boolean onPreferenceClick(Preference preference) {
-				if (!mConnectionManager.isNativeConnected())
-					showDialog(DIALOG_WARN_SHUTDOWN);
-				else {
-					new AlertDialog.Builder(ManageClientActivity.this)
-		    		.setIcon(android.R.drawable.ic_dialog_alert)
-		    		.setTitle(R.string.warning)
-		    		.setMessage(R.string.shutdownAskText)
-		    		.setPositiveButton(R.string.shutdown,
-		    			new DialogInterface.OnClickListener() {
-		    				public void onClick(DialogInterface dialog, int whichButton) {
-		    					boincShutdownClient();
-		    				}
-		    			})
-		    		.setNegativeButton(R.string.cancel, null)
-		    		.create().show();
-					
-				}
+				mShowShutdownDialog = true;
+				Bundle args = new Bundle(); 
+				args.putBoolean("IsNative", mConnectionManager.isNativeConnected());
+				showDialog(DIALOG_WARN_SHUTDOWN, args);
 				return true;
 			}
 		});
@@ -408,7 +399,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 				// Maybe the old one we have is correct, but we are not sure - so we disable it for now
 				// The values are still visible, but they are grayed out
 				refreshClientModePending();
-				mConnectionManager.updateClientMode(this);
+				mConnectionManager.updateClientMode();
 			}
 			else {
 				// We are not connected - update display accordingly
@@ -471,8 +462,13 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		ProgressDialog progressDialog;
 		switch (dialogId) {
 		case DIALOG_WARN_SHUTDOWN: {
+			if (mShowShutdownDialog &&  mConnectionManager != null && mConnectedClient == null) {
+				mShowShutdownDialog = false;
+				return null; // do not create
+			}
+			
 			int messageId = R.string.warnShutdownText;
-			if (mConnectionManager.isNativeConnected()) // if native
+			if (args.getBoolean("IsNative")) // if native
 				messageId = R.string.shutdownAskText;
 				
         	return new AlertDialog.Builder(this)
@@ -482,10 +478,23 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
         		.setPositiveButton(R.string.shutdown,
         			new DialogInterface.OnClickListener() {
         				public void onClick(DialogInterface dialog, int whichButton) {
+        					mShowShutdownDialog = false;
         					boincShutdownClient();
         				}
         			})
-        		.setNegativeButton(R.string.cancel, null)
+        		.setNegativeButton(R.string.cancel,
+    				new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							mShowShutdownDialog = false;
+						}
+					})
+				.setOnCancelListener(new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						mShowShutdownDialog = false;
+					}
+				})
         		.create();
 		}
 		case DIALOG_RETRIEVAL_PROGRESS:
@@ -645,7 +654,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 				// We will update the dialog text now
 				showProgressDialog(PROGRESS_INITIAL_DATA);
 			}
-			mConnectionManager.updateClientMode(this);
+			mConnectionManager.updateClientMode();
 		}
 		else {
 			// Received connected notification, but client is unknown!
@@ -666,6 +675,10 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		mDoGetBAMInfo = false;
 		mDoUpdateHostInfo = false;
 		mSyncingBAMInProgress = false;
+		if (mShowShutdownDialog) {
+			mShowShutdownDialog = false;
+			dismissDialog(DIALOG_WARN_SHUTDOWN);
+		}
 		if (mSelectedClient != null) {
 			// Connection to another client is deferred, we proceed with it now
 			boincConnect();

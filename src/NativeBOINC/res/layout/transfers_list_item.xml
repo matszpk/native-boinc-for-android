@@ -26,6 +26,12 @@
 	android:layout_height="wrap_content"
 	android:minHeight="?android:attr/listPreferredItemHeight">
 
+    <CheckBox 
+        android:id="@+id/check"
+        android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:focusable="false" />
 	<!-- File name -->
 	<TextView
 		android:id="@+id/transferFileName"
@@ -36,6 +42,7 @@
 		android:layout_marginTop="6dip"
 		android:lines="1"
 		android:text="File A"
+		android:layout_toRightOf="@+id/check"
 		android:textAppearance="?android:attr/textAppearanceMedium" />
 
 	<!-- Transfer size -->
@@ -118,7 +125,7 @@
 		android:layout_height="wrap_content"
 		android:layout_toLeftOf="@+id/transferProgress"
 		android:layout_below="@+id/transferProjectName"
-		android:layout_alignLeft="@+id/transferFileName"
+		android:layout_alignLeft="@+id/check"
 		android:layout_marginTop="3dip"
 		android:layout_marginRight="5dip"
 		android:gravity="right"

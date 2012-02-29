@@ -20,15 +20,24 @@
  */
  -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:orientation="vertical"
-	android:padding="10dip">
-	<EditText
-		android:orientation="horizontal"
-		android:layout_width="fill_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:paddingTop="2dip"
+    android:paddingBottom="2dip"
+    android:orientation="horizontal" >
+    
+    <CheckBox android:id="@android:id/checkbox"
+        android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:id="@+id/projectUrlUrl" 
-		android:background="@android:drawable/editbox_background"
-		android:inputType="textUri" />
+		android:layout_marginLeft="6dip"
+		android:layout_gravity="center_vertical"
+		android:focusable="false" />
+    <TextView android:id="@android:id/text1"
+        android:layout_width="0dip"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		android:layout_gravity="center_vertical"
+		android:layout_marginLeft="6dip"
+		android:textAppearance="?android:attr/textAppearanceLarge" 
+		android:text="text1" />
 </LinearLayout>

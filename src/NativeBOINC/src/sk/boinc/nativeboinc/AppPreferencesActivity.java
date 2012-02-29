@@ -106,19 +106,6 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 			}
 		});
 		
-		// view item type
-		listPref = (ListPreference)findPreference(PreferenceName.VIEW_ITEM_TYPE);
-		listPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				ListPreference listPref = (ListPreference)preference;
-				int idx = listPref.findIndexOfValue((String)newValue);
-				CharSequence[] allDesc = listPref.getEntries();
-				listPref.setSummary(getString(R.string.prefViewItemTypeSummary) + " " + allDesc[idx]);
-				return true;
-			}
-		});
-		
 		// Widget Update period
 		listPref = (ListPreference)findPreference(PreferenceName.WIDGET_UPDATE);
 		listPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -291,11 +278,6 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 		listPref = (ListPreference)findPreference(PreferenceName.SCREEN_LOCK_UPDATE);
 		auiIdx = listPref.findIndexOfValue(listPref.getValue());
 		listPref.setSummary(getString(R.string.prefScreenLockUpdateIntervalSummary) + " " + listPref.getEntry());
-		
-		// view time type
-		listPref = (ListPreference)findPreference(PreferenceName.VIEW_ITEM_TYPE);
-		auiIdx = listPref.findIndexOfValue(listPref.getValue());
-		listPref.setSummary(getString(R.string.prefViewItemTypeSummary) + " " + listPref.getEntry());
 		
 		// widget refresh
 		listPref = (ListPreference)findPreference(PreferenceName.WIDGET_UPDATE);

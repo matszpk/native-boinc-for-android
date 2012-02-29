@@ -18,11 +18,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
--->
-<appwidget-provider
-  	xmlns:android="http://schemas.android.com/apk/res/android"
-  	android:minWidth="146dp"
-  	android:minHeight="72dp"
-  	android:updatePeriodMillis="0"
-  	android:initialLayout="@layout/widget">
-</appwidget-provider>
+ -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:padding="10dip">
+	<EditText
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:id="@android:id/edit" 
+		android:background="@android:drawable/editbox_background" />
+</LinearLayout>

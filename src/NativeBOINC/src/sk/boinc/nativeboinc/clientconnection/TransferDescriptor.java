@@ -16,28 +16,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
-
-package sk.boinc.nativeboinc.installer;
+package sk.boinc.nativeboinc.clientconnection;
 
 /**
  * @author mat
  *
  */
-public class InstalledBinary {
-	public String name;
-	public String version;
-	public String description;
-	public String changes;
+public class TransferDescriptor {
+	public String projectUrl;
+	public String fileName;
 	
-	public InstalledBinary(String name, String version, String description, String changes) {
-		this.name = name;
-		this.version = version;
-		this.description = description;
-		this.changes = changes;
+	public TransferDescriptor(String projectUrl, String fileName) {
+		this.projectUrl = projectUrl;
+		this.fileName = fileName;
 	}
 	
 	@Override
 	public String toString() {
-		return name + " " + version;
+		return "Transfer:"+projectUrl+":"+fileName;
+	}
+	
+	@Override
+	public boolean equals(Object object) {
+		if (this == object)
+			return true;
+		if (object == null)
+			return false;
+		if (object instanceof TransferDescriptor) {
+			TransferDescriptor transferDesc = (TransferDescriptor)object;
+			return this.projectUrl.equals(transferDesc.projectUrl) &&
+					this.fileName.equals(transferDesc.fileName);
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return projectUrl.hashCode() ^ fileName.hashCode();
 	}
 }

@@ -23,7 +23,7 @@ import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
-import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.StandardDialogs;
@@ -175,7 +175,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 			
 			@Override
 			public void onClick(View v) {
-				mConnectionManager.setGlobalPrefsOverride(NativeBoincService.INITIAL_BOINC_CONFIG);
+				mConnectionManager.setGlobalPrefsOverride(NativeBoincUtils.INITIAL_BOINC_CONFIG);
 			}
 		});
 		

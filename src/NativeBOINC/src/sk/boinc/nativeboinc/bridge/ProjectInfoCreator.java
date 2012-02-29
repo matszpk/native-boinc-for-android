@@ -50,6 +50,7 @@ public class ProjectInfoCreator {
 		pi.disk_usage = formatter.formatBinSize((long)prj.disk_usage);
 		pi.duration_correction_factor = prj.duration_correction_factor;
 		
+		pi.non_cpu_intensive = prj.non_cpu_intensive;
 		pi.have_ati = haveAti;
 		pi.have_cuda = haveCuda;
 		

@@ -22,6 +22,7 @@ package sk.boinc.nativeboinc;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import sk.boinc.nativeboinc.bridge.AutoRefresh;
 import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
@@ -61,6 +62,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -72,6 +74,7 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 	private static final String TAG = "ProjectsActivity";
 
 	private static final int DIALOG_DETAILS = 1;
+	private static final int DIALOG_WARN_DETACH = 2;
 
 	private static final int SUSPEND = 1;
 	private static final int RESUME = 2;
@@ -80,6 +83,8 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 	private static final int UPDATE = 5;
 	private static final int PROPERTIES = 6;
 	private static final int DETACH = 7;
+	private static final int SELECT_ALL = 8;
+	private static final int UNSELECT_ALL = 9;
 
 	private ScreenOrientationHandler mScreenOrientation;
 
@@ -88,8 +93,12 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 	private boolean mViewDirty = false;
 
 	private ArrayList<ProjectInfo> mProjs = new ArrayList<ProjectInfo>();
-	private int mPosition = 0;
+	private ArrayList<ProjectInfo> mPendingProjs = new ArrayList<ProjectInfo>();
+	private HashSet<String> mSelectedProjects = new HashSet<String>();
+	//private int mPosition = 0;
+	private ProjectInfo mChoosenProject = null;
 	private boolean mShowDetailsDialog = false;
+	private boolean mShowWarnDetachDialog = false;
 	
 	private static final long UPDATES_ON_RESUMES_PERIOD = 4000; 
 	
@@ -100,30 +109,61 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 	
 	private static class SavedState {
 		private final ArrayList<ProjectInfo> projs;
-		private final int position;
+		private final ArrayList<ProjectInfo> pendingProjs;
+		private final HashSet<String> selectedProjects;
+		private final ProjectInfo choosenProject;
 		private final boolean showDetailsDialog;
+		private final boolean showWarnDetachDialog;
 		private final boolean updateProjectsInProgress;
 		private final long lastUpdateTime;
 
 		public SavedState(ProjectsActivity activity) {
 			projs = activity.mProjs;
 			if (Logging.DEBUG) Log.d(TAG, "saved: projs.size()=" + projs.size());
-			position = activity.mPosition;
+			pendingProjs = activity.mPendingProjs;
+			selectedProjects = activity.mSelectedProjects;
+			choosenProject = activity.mChoosenProject;
 			showDetailsDialog = activity.mShowDetailsDialog;
+			showWarnDetachDialog = activity.mShowWarnDetachDialog;
 			updateProjectsInProgress = activity.mUpdateProjectsInProgress;
 			lastUpdateTime = activity.mLastUpdateTime;
 		}
 		public void restoreState(ProjectsActivity activity) {
 			activity.mProjs = projs;
 			if (Logging.DEBUG) Log.d(TAG, "restored: mProjs.size()=" + activity.mProjs.size());
-			activity.mPosition = position;
+			activity.mPendingProjs = pendingProjs;
+			activity.mSelectedProjects = selectedProjects;
+			activity.mChoosenProject = choosenProject;
 			activity.mShowDetailsDialog = showDetailsDialog;
+			activity.mShowWarnDetachDialog = showWarnDetachDialog;
 			activity.mUpdateProjectsInProgress = updateProjectsInProgress;
 			activity.mLastUpdateTime = lastUpdateTime;
 		}
 	}
 
-
+	private class ProjectOnClickListener implements View.OnClickListener {
+		private int mItemPosition;
+		
+		public ProjectOnClickListener(int position) {
+			mItemPosition = position;
+		}
+		
+		public void setItemPosition(int position) {
+			mItemPosition = position;
+		}
+		
+		@Override
+		public void onClick(View view) {
+			ProjectInfo project = mProjs.get(mItemPosition);
+			if (Logging.DEBUG) Log.d(TAG, "Project "+project.masterUrl+" change checked:"+mItemPosition);
+			
+			if (mSelectedProjects.contains(project.masterUrl)) // remove
+				mSelectedProjects.remove(project.masterUrl);
+			else // add to selected
+				mSelectedProjects.add(project.masterUrl);
+		}
+	}
+	
 	private class ProjectListAdapter extends BaseAdapter {
 		private Context mContext;
 
@@ -167,6 +207,19 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 				layout = convertView;
 			}
 			ProjectInfo proj = mProjs.get(position);
+			
+			CheckBox checkBox = (CheckBox)layout.findViewById(R.id.check);
+			checkBox.setChecked(mSelectedProjects.contains(proj.masterUrl));
+			
+			ProjectOnClickListener clickListener = (ProjectOnClickListener)layout.getTag();
+			if (clickListener == null) {
+				clickListener = new ProjectOnClickListener(position);
+				layout.setTag(clickListener);
+			} else {
+				clickListener.setItemPosition(position);
+			}
+			checkBox.setOnClickListener(clickListener);
+			
 			TextView title = (TextView)layout.findViewById(R.id.projectName);
 			title.setText(proj.project);
 			ProgressBar shareActive = (ProgressBar)layout.findViewById(R.id.projectShareActive);
@@ -278,18 +331,27 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 		if (mViewDirty) {
 			// There were some updates received while we were not visible
 			// The data are stored, but view is not updated yet; Do it now
-			sortProjects();
+			mProjs = mPendingProjs;
 			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 			mViewDirty = false;
 			if (Logging.DEBUG) Log.d(TAG, "Delayed refresh of view was done now");
 		}
 		
 		if (mShowDetailsDialog) {
-			if (mProjs != null && !mProjs.isEmpty()) {
+			if (mChoosenProject != null) {
 				showDialog(DIALOG_DETAILS);
 			} else {
 				if (Logging.DEBUG) Log.d(TAG, "If failed to recreate details");
 				mShowDetailsDialog = false;
+			}
+		}
+		
+		if (mShowWarnDetachDialog) {
+			if (mChoosenProject != null) {
+				showDialog(DIALOG_WARN_DETACH);
+			} else {
+				if (Logging.DEBUG) Log.d(TAG, "If failed to recreate warns dialog");
+				mShowWarnDetachDialog = false;
 			}
 		}
 	}
@@ -336,6 +398,11 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 		mShowDetailsDialog = false;
 	}
 	
+	private void onDismissWarnDetachDialog() {
+		if (Logging.DEBUG) Log.d(TAG, "On dismiss warn detach");
+		mShowWarnDetachDialog = false;
+	}
+	
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
@@ -357,6 +424,37 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 					}
 				})
 				.create();
+		case DIALOG_WARN_DETACH:
+			return new AlertDialog.Builder(this)
+	    		.setIcon(android.R.drawable.ic_dialog_alert)
+	    		.setTitle(R.string.warning)
+				.setView(LayoutInflater.from(this).inflate(R.layout.dialog, null))
+	    		.setPositiveButton(R.string.projectDetach,
+	    			new DialogInterface.OnClickListener() {
+	    				public void onClick(DialogInterface dialog, int whichButton) {
+	    					onDismissWarnDetachDialog();
+	    					
+	    					if (mSelectedProjects.isEmpty()) {
+		    					mConnectionManager.projectOperation(ClientOp.PROJECT_DETACH,
+		    							mChoosenProject.masterUrl);
+	    					} else
+	    						mConnectionManager.projectsOperation(ClientOp.PROJECT_DETACH,
+	    								mSelectedProjects.toArray(new String[0]));
+	    				}
+	    			})
+	    		.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						onDismissWarnDetachDialog();
+					}
+				})
+				.setOnCancelListener(new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						onDismissWarnDetachDialog();
+					}
+				})
+	    		.create();
 		}
 		return null;
 	}
@@ -366,14 +464,23 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 		switch (id) {
 		case DIALOG_DETAILS:
 			TextView text = (TextView)dialog.findViewById(R.id.dialogText);
-			text.setText(Html.fromHtml(prepareProjectDetails(mPosition)));
+			text.setText(Html.fromHtml(prepareProjectDetails(mChoosenProject)));
+			break;
+		case DIALOG_WARN_DETACH:
+			text = (TextView)dialog.findViewById(R.id.dialogText);
+			String projName = (mChoosenProject.project != null) ? mChoosenProject.project :
+				mChoosenProject.masterUrl;
+			if (mSelectedProjects.isEmpty())
+				text.setText(getString(R.string.warnDetachProject, projName));
+			else
+				text.setText(getString(R.string.warnDetachProjects));
 			break;
 		}
 	}
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		mPosition = position;
+		mChoosenProject = (ProjectInfo)getListAdapter().getItem(position);
 		mShowDetailsDialog = true;
 		showDialog(DIALOG_DETAILS);
 	}
@@ -384,22 +491,37 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
 		ProjectInfo proj = (ProjectInfo)getListAdapter().getItem(info.position);
 		menu.setHeaderTitle(R.string.projectCtxMenuTitle);
+		
+		if (mSelectedProjects.size() != mProjs.size())
+			menu.add(0, SELECT_ALL, 0, R.string.selectAll);
+		
+		if (!mSelectedProjects.isEmpty())
+			menu.add(0, UNSELECT_ALL, 0, R.string.unselectAll);
+		
 		menu.add(0, UPDATE, 0, R.string.projectUpdate);
-		if ((proj.statusId & ProjectInfo.SUSPENDED) == ProjectInfo.SUSPENDED) {
-			// project is suspended
+		if (mSelectedProjects.isEmpty()) {
+			if ((proj.statusId & ProjectInfo.SUSPENDED) == ProjectInfo.SUSPENDED) {
+				// project is suspended
+				menu.add(0, RESUME, 0, R.string.projectResume);
+			}
+			else {
+				// not suspended
+				menu.add(0, SUSPEND, 0, R.string.projectSuspend);
+			}
+			menu.add(0, DETACH, 0, R.string.projectDetach);
+			if ((proj.statusId & ProjectInfo.NNW) == ProjectInfo.NNW) {
+				// No-New-Work is currently set
+				menu.add(0, ANW, 0, R.string.projectANW);
+			}
+			else {
+				// New work is allowed
+				menu.add(0, NNW, 0, R.string.projectNNW);
+			}
+		} else {
 			menu.add(0, RESUME, 0, R.string.projectResume);
-		}
-		else {
-			// not suspended
 			menu.add(0, SUSPEND, 0, R.string.projectSuspend);
-		}
-		menu.add(0, DETACH, 0, R.string.projectDetach);
-		if ((proj.statusId & ProjectInfo.NNW) == ProjectInfo.NNW) {
-			// No-New-Work is currently set
+			menu.add(0, DETACH, 0, R.string.projectDetach);
 			menu.add(0, ANW, 0, R.string.projectANW);
-		}
-		else {
-			// New work is allowed
 			menu.add(0, NNW, 0, R.string.projectNNW);
 		}
 		menu.add(0, PROPERTIES, 0, R.string.projectProperties);
@@ -411,26 +533,57 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 		ProjectInfo proj = (ProjectInfo)getListAdapter().getItem(info.position);
 		switch(item.getItemId()) {
 		case PROPERTIES:
-			mPosition = info.position;
+			mChoosenProject = proj;
 			showDialog(DIALOG_DETAILS);
 			return true;
 		case UPDATE:
-			mConnectionManager.projectOperation(this, ClientOp.PROJECT_UPDATE, proj.masterUrl);
+			if (mSelectedProjects.isEmpty())
+				mConnectionManager.projectOperation(ClientOp.PROJECT_UPDATE, proj.masterUrl);
+			else
+				mConnectionManager.projectsOperation(ClientOp.PROJECT_UPDATE,
+						mSelectedProjects.toArray(new String[0]));
 			return true;
 		case SUSPEND:
-			mConnectionManager.projectOperation(this, ClientOp.PROJECT_SUSPEND, proj.masterUrl);
+			if (mSelectedProjects.isEmpty())
+				mConnectionManager.projectOperation(ClientOp.PROJECT_SUSPEND, proj.masterUrl);
+			else
+				mConnectionManager.projectsOperation(ClientOp.PROJECT_SUSPEND,
+						mSelectedProjects.toArray(new String[0]));
 			return true;
 		case RESUME:
-			mConnectionManager.projectOperation(this, ClientOp.PROJECT_RESUME, proj.masterUrl);
+			if (mSelectedProjects.isEmpty())
+				mConnectionManager.projectOperation(ClientOp.PROJECT_RESUME, proj.masterUrl);
+			else
+				mConnectionManager.projectsOperation(ClientOp.PROJECT_RESUME,
+						mSelectedProjects.toArray(new String[0]));
 			return true;
 		case NNW:
-			mConnectionManager.projectOperation(this, ClientOp.PROJECT_NNW, proj.masterUrl);
+			if (mSelectedProjects.isEmpty())
+				mConnectionManager.projectOperation(ClientOp.PROJECT_NNW, proj.masterUrl);
+			else
+				mConnectionManager.projectsOperation(ClientOp.PROJECT_NNW,
+						mSelectedProjects.toArray(new String[0]));
 			return true;
 		case ANW:
-			mConnectionManager.projectOperation(this, ClientOp.PROJECT_ANW, proj.masterUrl);
+			if (mSelectedProjects.isEmpty())
+				mConnectionManager.projectOperation(ClientOp.PROJECT_ANW, proj.masterUrl);
+			else
+				mConnectionManager.projectsOperation(ClientOp.PROJECT_ANW,
+						mSelectedProjects.toArray(new String[0]));
 			return true;
 		case DETACH:
-			mConnectionManager.projectOperation(this, ClientOp.PROJECT_DETACH, proj.masterUrl);
+			mChoosenProject = proj;
+			mShowWarnDetachDialog = true;
+			showDialog(DIALOG_WARN_DETACH);
+			return true;
+		case SELECT_ALL:
+			for (ProjectInfo thisProj: mProjs)
+				mSelectedProjects.add(thisProj.masterUrl);
+			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
+			return true;
+		case UNSELECT_ALL:
+			mSelectedProjects.clear();
+			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 			return true;
 		}
 		return super.onContextItemSelected(item);
@@ -467,6 +620,7 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 		mConnectedClient = null;
 		mUpdateProjectsInProgress = false;
 		mProjs.clear();
+		updateSelectedProjects();
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
 	}
@@ -493,13 +647,18 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 
 	@Override
 	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
-		mProjs = projects;
+		mPendingProjs = projects;
 		mUpdateProjectsInProgress = false;
 		mLastUpdateTime = SystemClock.elapsedRealtime();
+		
+		sortProjects();
+		updateSelectedProjects();
+		
 		if (mViewUpdatesAllowed) {
 			// We are visible, update the view with fresh data
 			if (Logging.DEBUG) Log.d(TAG, "Projects are updated, refreshing view");
-			sortProjects();
+			
+			mProjs = mPendingProjs;
 			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		}
 		else {
@@ -536,16 +695,24 @@ public class ProjectsActivity extends ListActivity implements ClientReplyReceive
 				return object1.project.compareToIgnoreCase(object2.project);
 			}
 		};
-		Collections.sort(mProjs, comparator);
+		Collections.sort(mPendingProjs, comparator);
+	}
+	
+	private void updateSelectedProjects() {
+		ArrayList<String> toRetain = new ArrayList<String>();
+		for (ProjectInfo projInfo: mPendingProjs)
+			toRetain.add(projInfo.masterUrl);
+		mSelectedProjects.retainAll(toRetain);
+		if (Logging.DEBUG) Log.d(TAG, "update selected projects:"+mSelectedProjects);
 	}
 
-	private String prepareProjectDetails(int position) {
-		ProjectInfo proj = mProjs.get(position);
+	private String prepareProjectDetails(ProjectInfo proj) {
 		mSb.setLength(0);
 		mSb.append(getString(R.string.projectDetailedInfo, 
 				TextUtils.htmlEncode(proj.project),
 				TextUtils.htmlEncode(proj.account),
 				TextUtils.htmlEncode(proj.team),
+				proj.non_cpu_intensive ? getString(R.string.yesText) : getString(R.string.noText),
 				proj.user_credit, 
 				proj.user_rac, 
 				proj.host_credit, 

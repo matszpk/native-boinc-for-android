@@ -82,10 +82,14 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 			if (mScheduledUpdates.remove(request)) {
 				// So far so good, update was still scheduled
 				if (Logging.DEBUG) Log.d(TAG, "triggering automatic update (" + request.callback.toString() + "," + request.requestType + ")");
+				
+				if (request.callback instanceof AutoRefreshListener) // send notify about starting refresh
+					((AutoRefreshListener)request.callback).onStartAutoRefresh(request.requestType);
+				
 				// We run required update
 				switch (request.requestType) {
 				case CLIENT_MODE:
-					mClientRequests.updateClientMode(request.callback);
+					mClientRequests.updateClientMode();
 					break;
 				case PROJECTS:
 					mClientRequests.updateProjects();
@@ -179,9 +183,6 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 			removeAutomaticRefresh(request);
 		}
 		mScheduledUpdates.add(request);
-		
-		if (callback instanceof AutoRefreshListener) // send notify about starting refresh
-			((AutoRefreshListener)callback).onStartAutoRefresh(requestType);
 		
 		mHandler.sendMessageDelayed(mHandler.obtainMessage(RUN_UPDATE, request), (mAutoRefresh * 1000));
 		if (Logging.DEBUG) Log.d(TAG, "Scheduled automatic refresh for (" + request.callback.toString() + "," + request.requestType + ")");

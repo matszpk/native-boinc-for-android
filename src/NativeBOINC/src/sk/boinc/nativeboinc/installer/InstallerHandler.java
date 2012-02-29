@@ -47,6 +47,7 @@ import sk.boinc.nativeboinc.nativeclient.MonitorListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUpdateListener;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
 import sk.boinc.nativeboinc.util.Chmod;
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.HostListDbAdapter;
@@ -56,6 +57,7 @@ import sk.boinc.nativeboinc.util.VersionUtil;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -76,6 +78,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	private InstalledDistribManager mDistribManager = null;
 	private ArrayList<ProjectDistrib> mProjectDistribs = null;
 	private ClientDistrib mClientDistrib = null;
+	
+	private InstallationOps mInstallOps = null; 
 	
 	private static final int NOTIFY_PERIOD = 200; /* milliseconds */
 	
@@ -102,6 +106,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		
 		mDownloader = new Downloader(context, listenerHandler);
+		mInstallOps = new InstallationOps(context, listenerHandler);
 		mListenerHandler = listenerHandler;
 		mDistribManager = new InstalledDistribManager(context);
 		mDistribManager.load();
@@ -402,7 +407,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			    	notifyOperation(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
 			    			mContext.getString(R.string.nativeClientFirstStart));
 			    	
-				    if (!mRunner.firstStartClient()) {
+				    if (!NativeBoincService.firstStartClient(mContext)) {
+				    	if (Logging.DEBUG) Log.d(TAG, "first start client error");
 				    	notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
 				    			mContext.getString(R.string.nativeClientFirstStartError));
 				    	return;
@@ -435,11 +441,14 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				    	if (Logging.DEBUG) Log.d(TAG, "Adding nativeboinc to hostlist");
 					    	
 				    	try {
-				    		String accessPassword = mRunner.getAccessPassword();
+				    		String accessPassword = NativeBoincUtils.getAccessPassword(mContext);
 				    		dbAdapter = new HostListDbAdapter(mContext);
 				    		dbAdapter.open();
 				    		dbAdapter.addHost(new ClientId(0, "nativeboinc", "127.0.0.1",
-				    				31416, accessPassword));		    		
+				    				31416, accessPassword));
+				    		
+				    		// change hostname
+				    		NativeBoincUtils.setHostname(mContext, Build.PRODUCT);
 				    	} catch(IOException ex) {
 				    		notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
 				    				mContext.getString(R.string.getAccessPasswordError));
@@ -455,6 +464,11 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			    }
 			    
 			    notifyFinish(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
+			} catch(Exception ex) {
+				if (Logging.ERROR) Log.e(TAG, "on client install finishing:"+
+							ex.getClass().getCanonicalName()+":"+ex.getMessage());
+				notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
+	    				mContext.getString(R.string.unexpectedError)+": "+ex.getMessage());
 			} finally {
 				if (Logging.DEBUG) Log.d(TAG, "Release semaphore mDelayedClientShutdownSem");
 				mDelayedClientShutdownSem.release();
@@ -805,6 +819,11 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				if (Logging.DEBUG) Log.d(TAG, "Run update_apps on boinc_client for "+
 							mProjectDistrib.projectName);
 				mRunner.updateProjectApps(mProjectDistrib.projectUrl);
+			}	catch(Exception ex) {
+				if (Logging.ERROR) Log.e(TAG, "on project install finishing:"+
+						ex.getClass().getCanonicalName()+":"+ex.getMessage());
+				notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
+	    				mContext.getString(R.string.unexpectedError)+": "+ex.getMessage());
 			} finally {
 				// notify change of is working
 				notifyChangeOfIsWorking();
@@ -1023,6 +1042,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	
 	public synchronized void cancelAll() {
 		cancelClientInstallation();
+		cancelDumpFiles();
 		for (ProjectAppsInstaller appInstaller: mProjectAppsInstallers.values())
 			appInstaller.getFuture().cancel(true);
 		mProjectAppsInstallers.clear();
@@ -1033,6 +1053,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			mClientInstallerFuture.cancel(true);
 		mClientInstallerFuture = null;
 		mClientInstaller = null;
+	}
+	
+	public synchronized void cancelDumpFiles() {
+		mInstallOps.cancelDumpFiles();
 	}
 	
 	public synchronized boolean isWorking() {
@@ -1169,6 +1193,21 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			}
 		});
 		return array;
+	}
+	
+	/**
+	 * dump boinc files (installation) to directory
+	 */
+	public void dumpBoincFiles(String directory) {
+		mHandlerIsWorking = true;
+		notifyChangeOfIsWorking();
+		
+		try {
+			mInstallOps.dumpBoincFiles(directory);
+		} finally {
+			mHandlerIsWorking = false;
+			notifyChangeOfIsWorking();
+		}
 	}
 	
 	/*

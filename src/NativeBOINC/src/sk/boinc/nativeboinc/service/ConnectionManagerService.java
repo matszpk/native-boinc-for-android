@@ -20,6 +20,7 @@
 package sk.boinc.nativeboinc.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -41,7 +42,9 @@ import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
 import sk.boinc.nativeboinc.clientconnection.PollError;
 import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
+import sk.boinc.nativeboinc.clientconnection.TaskDescriptor;
 import sk.boinc.nativeboinc.clientconnection.TaskInfo;
+import sk.boinc.nativeboinc.clientconnection.TransferDescriptor;
 import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.ClientId;
@@ -314,9 +317,9 @@ public class ConnectionManagerService extends Service implements
 	}
 
 	@Override
-	public void updateClientMode(ClientReceiver callback) {
+	public void updateClientMode() {
 		if (mClientBridge != null) {
-			mClientBridge.updateClientMode(callback);
+			mClientBridge.updateClientMode();
 		}
 	}
 
@@ -612,23 +615,44 @@ public class ConnectionManagerService extends Service implements
 	}
 
 	@Override
-	public void projectOperation(ClientReplyReceiver callback, int operation, String projectUrl) {
+	public void projectOperation(int operation, String projectUrl) {
 		if (mClientBridge != null) {
-			mClientBridge.projectOperation(callback, operation, projectUrl);
+			mClientBridge.projectOperation(operation, projectUrl);
+		}
+	}
+	
+	@Override
+	public void projectsOperation(int operation, String[] projectUrls) {
+		if (mClientBridge != null) {
+			mClientBridge.projectsOperation(operation, projectUrls);
 		}
 	}
 
 	@Override
-	public void taskOperation(ClientReplyReceiver callback, int operation, String projectUrl, String taskName) {
+	public void taskOperation(int operation, String projectUrl, String taskName) {
 		if (mClientBridge != null) {
-			mClientBridge.taskOperation(callback, operation, projectUrl, taskName);
+			mClientBridge.taskOperation(operation, projectUrl, taskName);
+		}
+	}
+	
+	@Override
+	public void tasksOperation(int operation, TaskDescriptor[] tasks) {
+		if (mClientBridge != null) {
+			mClientBridge.tasksOperation(operation, tasks);
 		}
 	}
 
 	@Override
-	public void transferOperation(ClientReplyReceiver callback, int operation, String projectUrl, String fileName) {
+	public void transferOperation(int operation, String projectUrl, String fileName) {
 		if (mClientBridge != null) {
-			mClientBridge.transferOperation(callback, operation, projectUrl, fileName);
+			mClientBridge.transferOperation(operation, projectUrl, fileName);
+		}
+	}
+	
+	@Override
+	public void transfersOperation(int operation, TransferDescriptor[] transfers) {
+		if (mClientBridge != null) {
+			mClientBridge.transfersOperation(operation, transfers);
 		}
 	}
 }

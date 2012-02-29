@@ -25,16 +25,15 @@ import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
 import sk.boinc.nativeboinc.installer.InstallError;
 import sk.boinc.nativeboinc.installer.InstallerProgressListener;
+import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
 import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.StandardDialogs;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -51,8 +50,6 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 	private TextView mVersionToInstall = null;
 
 	private BoincManagerApplication mApp = null;
-
-	private final static int DIALOG_INFO = 1;
 	
 	// if true, then client distrib shouldnot be updated
 	private ClientDistrib mClientDistrib = null;
@@ -117,7 +114,9 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 		mInfoButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				showDialog(DIALOG_INFO);
+				StandardDialogs.showDistribInfoDialog(InstallStep1Activity.this,
+						InstallerService.BOINC_CLIENT_ITEM_NAME, mClientDistrib.version,
+						mClientDistrib.description, mClientDistrib.changes);
 			}
 		});
 	}
@@ -178,45 +177,12 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 	
 	@Override
 	public Dialog onCreateDialog(int dialogId, Bundle args) {
-		Dialog dialog = StandardDialogs.onCreateDialog(this, dialogId, args);
-		if (dialog != null)
-			return dialog;
-		
-		if (dialogId == DIALOG_INFO) {
-			if (mClientDistrib == null)
-				return null;
-			LayoutInflater inflater = LayoutInflater.from(this);
-			View view = inflater.inflate(R.layout.distrib_info, null);
-
-			return new AlertDialog.Builder(this)
-					.setIcon(android.R.drawable.ic_dialog_info)
-					.setNegativeButton(R.string.dismiss, null)
-					.setTitle(R.string.clientInfo).setView(view).create();
-		}
-		return null;
+		return StandardDialogs.onCreateDialog(this, dialogId, args);
 	}
 
 	@Override
 	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
-		if (StandardDialogs.onPrepareDialog(this, dialogId, dialog, args))
-			return;
-		
-		if (dialogId == DIALOG_INFO) {
-			TextView clientVersion = (TextView) dialog
-					.findViewById(R.id.distribVersion);
-			TextView clientDesc = (TextView) dialog
-					.findViewById(R.id.distribDesc);
-			TextView clientChanges = (TextView) dialog
-					.findViewById(R.id.distribChanges);
-
-			/* setup client info texts */
-			clientVersion.setText(getString(R.string.clientVersion) + ": "
-					+ mClientDistrib.version);
-			clientDesc.setText(getString(R.string.description) + ":\n"
-					+ mClientDistrib.description);
-			clientChanges.setText(getString(R.string.changes) + ":\n"
-					+ mClientDistrib.changes);
-		}
+		StandardDialogs.onPrepareDialog(this, dialogId, dialog, args);
 	}
 
 	@Override

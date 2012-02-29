@@ -63,6 +63,7 @@ public class NotificationController {
 	}
 	
 	private DistribNotification mClientInstallNotification = null;
+	private DistribNotification mDumpFilesNotification = null;
 	
 	private Map<String, DistribNotification> mProjectInstallNotifications =
 			new HashMap<String, DistribNotification>();
@@ -201,8 +202,6 @@ public class NotificationController {
 	}
 	
 	public synchronized void notifyInstallClientFinish(String description) {
-		//String notifyText = mAppContext.getString(R.string.installClientNotifyFinish);
-		
 		Notification notification = getClientNotification().notification;
 		
 		notification.tickerText = description;
@@ -212,8 +211,70 @@ public class NotificationController {
 		mNotificationManager.notify(NotificationId.INSTALL_BOINC_CLIENT, notification);
 	}
 	
+	/**
+	 * dump boinc files: notifications handling
+	 */
+	private DistribNotification getDumpFilesNotification() {
+		if (mDumpFilesNotification != null) {
+			mDumpFilesNotification.notification.when = System.currentTimeMillis();
+			return mDumpFilesNotification;
+		}
+		
+		Intent intent = new Intent(mAppContext, ProgressActivity.class);
+		
+		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 0);
+		RemoteViews contentView = new RemoteViews(mAppContext.getPackageName(),
+				R.layout.install_notification);
+		
+		Notification notification = new Notification(R.drawable.nativeboinc_alpha,
+				mAppContext.getString(R.string.dumpBoincBegin),
+				System.currentTimeMillis());
+		mDumpFilesNotification = new DistribNotification(NotificationId.INSTALL_DUMP_FILES,
+				notification, contentView);
+		
+		notification.contentIntent = pendingIntent;
+		
+		return mDumpFilesNotification;
+	}
+	
+	public synchronized void notifyDumpFilesOperation(String notifyText) {
+		DistribNotification dumpNotification = getDumpFilesNotification();
+		
+		dumpNotification.notification.contentView = dumpNotification.contentView;
+		dumpNotification.contentView.setProgressBar(R.id.operationProgress,
+				10000, 0, true);
+		dumpNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
+		
+		mNotificationManager.notify(NotificationId.INSTALL_DUMP_FILES,
+				dumpNotification.notification);
+	}
+	
+	public synchronized void notifyDumpFilesProgress(String filePath, int progress) {
+		String notifyText = mAppContext.getString(R.string.dumpBoincProgress, filePath);
+		
+		DistribNotification dumpNotification = getDumpFilesNotification();
+		
+		dumpNotification.notification.contentView = dumpNotification.contentView;
+		dumpNotification.contentView.setProgressBar(R.id.operationProgress,
+				10000, progress, false);
+		dumpNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
+		
+		mNotificationManager.notify(NotificationId.INSTALL_DUMP_FILES,
+				dumpNotification.notification);
+	}
+	
+	public synchronized void notifyDumpFilesFinish(String description) {
+		Notification notification = getDumpFilesNotification().notification;
+		
+		notification.tickerText = description;
+		notification.setLatestEventInfo(mAppContext, description, description,
+				notification.contentIntent);
+		
+		mNotificationManager.notify(NotificationId.INSTALL_DUMP_FILES, notification);
+	}
+	
 	/***
-	 * create new or reuse existing notification for client
+	 * create new or reuse existing notification for project distrib
 	 */
 	private DistribNotification getProjectNotification(String projectName) {
 		DistribNotification distribNotification = mProjectInstallNotifications.get(projectName);
@@ -288,7 +349,6 @@ public class NotificationController {
 		DistribNotification notification = getProjectNotification(projectName);
 		
 		String notifyText = projectName + ": " + description;
-					mAppContext.getString(R.string.installProjectNotifyFinish);
 		
 		notification.notification.tickerText = notifyText;
 		notification.notification.setLatestEventInfo(mAppContext, notifyText, notifyText,
@@ -332,7 +392,9 @@ public class NotificationController {
 	 */
 	public void notifyClientEvent(String title, String message) {
 		Intent intent = new Intent(mAppContext, BoincManagerActivity.class);
-		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 0);
+		intent.putExtra(BoincManagerActivity.PARAM_CONNECT_NATIVE_CLIENT, true);
+		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 
+				PendingIntent.FLAG_UPDATE_CURRENT);
 		
 		if (mClientEventNotification == null) {
 			mClientEventNotification = new Notification(R.drawable.nativeboinc_alpha,
@@ -352,4 +414,76 @@ public class NotificationController {
 		mNotificationManager.cancel(NotificationId.BOINC_CLIENT_EVENT);
 	}
 	
+	/**
+	 * handling events on installer operations
+	 */
+	
+	public void handleOnOperation(String distribName, String projectUrl, String opDescription) {
+		updateDistribInstallProgress(distribName, projectUrl, opDescription, -1, ProgressItem.STATE_IN_PROGRESS);
+		
+		if (distribName.equals(InstallerService.BOINC_CLIENT_ITEM_NAME))
+			notifyInstallClientOperation(opDescription);
+		else if (distribName.equals(InstallerService.BOINC_DUMP_ITEM_NAME))
+			// opDescription - file path
+			notifyDumpFilesOperation(opDescription);
+		// ignore non distrib notifications
+		else if (distribName.length()!=0)
+			notifyInstallProjectAppsOperation(distribName, opDescription);
+	}
+	
+	public void handleOnOperationProgress(String distribName, String projectUrl,
+			String opDescription,int progress) {
+		updateDistribInstallProgress(distribName, projectUrl, opDescription, progress,
+				ProgressItem.STATE_IN_PROGRESS);
+		
+		if (distribName.equals(InstallerService.BOINC_CLIENT_ITEM_NAME))
+			notifyInstallClientProgress(opDescription, progress);
+		else if (distribName.equals(InstallerService.BOINC_DUMP_ITEM_NAME))
+			// opDescription - file path
+			notifyDumpFilesProgress(opDescription, progress);
+		// ignore non distrib notifications
+		else if (distribName.length()!=0)
+			notifyInstallProjectAppsProgress(distribName, opDescription, progress);
+	}
+	
+	public void handleOnOperationError(String distribName, String projectUrl, String errorMessage) {
+		updateDistribInstallProgress(distribName, projectUrl, errorMessage, -1,
+				ProgressItem.STATE_ERROR_OCCURRED);
+		
+		if (distribName.equals(InstallerService.BOINC_CLIENT_ITEM_NAME))
+			notifyInstallClientFinish(errorMessage);
+		else if (distribName.equals(InstallerService.BOINC_DUMP_ITEM_NAME))
+			notifyDumpFilesFinish(errorMessage);
+		// ignore non distrib notifications
+		else if (distribName.length()!=0)
+			notifyInstallProjectAppsFinish(distribName, errorMessage);
+	}
+	
+	public void handleOnOperationCancel(String distribName, String projectUrl) {
+		updateDistribInstallProgress(distribName, projectUrl, null, -1, ProgressItem.STATE_CANCELLED);
+
+		if (distribName.equals(InstallerService.BOINC_CLIENT_ITEM_NAME))
+			notifyInstallClientFinish(InstallerService.BOINC_CLIENT_ITEM_NAME + ": "+
+						mAppContext.getString(R.string.operationCancelled));
+		else if (distribName.equals(InstallerService.BOINC_DUMP_ITEM_NAME))
+			notifyDumpFilesFinish(InstallerService.BOINC_DUMP_ITEM_NAME+ ": "+
+						mAppContext.getString(R.string.operationCancelled));
+		// ignore non distrib notifications
+		else if (distribName.length()!=0)
+			notifyInstallProjectAppsFinish(distribName, mAppContext.getString(R.string.operationCancelled));
+	}
+	
+	public void handleOnOperationFinish(String distribName, String projectUrl) {
+		updateDistribInstallProgress(distribName, projectUrl, null, -1, ProgressItem.STATE_FINISHED);
+		
+		// notifications
+		if (distribName.equals(InstallerService.BOINC_CLIENT_ITEM_NAME))
+			notifyInstallClientFinish(mAppContext.getString(R.string.installClientNotifyFinish));
+		else if (distribName.equals(InstallerService.BOINC_DUMP_ITEM_NAME))
+			notifyDumpFilesFinish(mAppContext.getString(R.string.dumpBoincFinish));
+		// ignore non distrib notifications
+		else if (distribName.length()!=0)
+			notifyInstallProjectAppsFinish(distribName,
+					mAppContext.getString(R.string.installProjectNotifyFinish));
+	}
 }

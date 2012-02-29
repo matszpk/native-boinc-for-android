@@ -30,6 +30,7 @@ import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincReplyListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.widget.NativeBoincWidgetProvider;
 import android.app.Application;
@@ -140,7 +141,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		PreferenceManager.setDefaultValues(this, R.xml.manage_client, false);
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 		
-		NativeBoincService.killZombieClient(BoincManagerApplication.this);
+		NativeBoincUtils.killZombieClient(BoincManagerApplication.this);
 		
 		mNotificationController = new NotificationController(this);
 		

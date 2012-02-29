@@ -50,6 +50,7 @@ public class InstallerService extends Service {
 	private static final String TAG = "InstallerService";
 	
 	public static final String BOINC_CLIENT_ITEM_NAME = "BOINC client";
+	public static final String BOINC_DUMP_ITEM_NAME = "BOINC Dump Files";
 	
 	private InstallerThread mInstallerThread = null;
 	private InstallerHandler mInstallerHandler = null;
@@ -172,16 +173,9 @@ public class InstallerService extends Service {
 	 *
 	 */
 	public class ListenerHandler extends Handler {
+		
 		public void onOperation(String distribName, String projectUrl, String opDescription) {
-			mNotificationController.updateDistribInstallProgress(
-					distribName, projectUrl, opDescription, -1, ProgressItem.STATE_IN_PROGRESS);
-			
-			if (distribName.equals(BOINC_CLIENT_ITEM_NAME))
-				mNotificationController.notifyInstallClientOperation(opDescription);
-			// ignore non distrib notifications
-			else if (distribName.length()!=0)
-				mNotificationController.notifyInstallProjectAppsOperation(
-						distribName, opDescription);
+			mNotificationController.handleOnOperation(distribName, projectUrl, opDescription);
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners)
@@ -191,16 +185,8 @@ public class InstallerService extends Service {
 		
 		public void onOperationProgress(String distribName, String projectUrl,
 				String opDescription,int progress) {
-			
-			mNotificationController.updateDistribInstallProgress(distribName, projectUrl,
-					opDescription, progress, ProgressItem.STATE_IN_PROGRESS);
-			
-			if (distribName.equals(BOINC_CLIENT_ITEM_NAME))
-				mNotificationController.notifyInstallClientProgress(opDescription, progress);
-			// ignore non distrib notifications
-			else if (distribName.length()!=0)
-				mNotificationController.notifyInstallProjectAppsProgress(distribName,
-						opDescription, progress);
+			mNotificationController.handleOnOperationProgress(distribName, projectUrl,
+					opDescription, progress);
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners)
@@ -213,14 +199,7 @@ public class InstallerService extends Service {
 			if (mApp.isInstallerRun())
 				mApp.backToPreviousInstallerStage();
 			
-			mNotificationController.updateDistribInstallProgress(distribName, projectUrl,
-					errorMessage, -1, ProgressItem.STATE_ERROR_OCCURRED);
-			
-			if (distribName.equals(BOINC_CLIENT_ITEM_NAME))
-				mNotificationController.notifyInstallClientFinish(errorMessage);
-			// ignore non distrib notifications
-			else if (distribName.length()!=0)
-				mNotificationController.notifyInstallProjectAppsFinish(distribName, errorMessage);
+			mNotificationController.handleOnOperationError(distribName, projectUrl, errorMessage);
 			
 			boolean called = false;
 			
@@ -244,17 +223,8 @@ public class InstallerService extends Service {
 			if (mApp.isInstallerRun())
 				mApp.backToPreviousInstallerStage();
 			
-			mNotificationController.updateDistribInstallProgress(distribName, projectUrl,
-					null, -1, ProgressItem.STATE_CANCELLED);
-
-			if (distribName.equals(BOINC_CLIENT_ITEM_NAME))
-				mNotificationController.notifyInstallClientFinish(
-						getString(R.string.operationCancelled));
-			// ignore non distrib notifications
-			else if (distribName.length()!=0)
-				mNotificationController.notifyInstallProjectAppsFinish(distribName,
-						getString(R.string.operationCancelled));
-			
+			mNotificationController.handleOnOperationCancel(distribName, projectUrl);
+						
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners)
 				if (listener instanceof InstallerProgressListener)
@@ -263,25 +233,15 @@ public class InstallerService extends Service {
 		
 		public void onOperationFinish(String distribName, String projectUrl) {
 			/* to next insraller stage */
+			if (Logging.DEBUG) Log.d(TAG, "Finish operation:"+distribName);
+			
 			int installerStage = mApp.getInstallerStage(); 
 			if (installerStage == BoincManagerApplication.INSTALLER_CLIENT_INSTALLING_STAGE)
 				mApp.setInstallerStage(BoincManagerApplication.INSTALLER_PROJECT_STAGE);
 			else if (installerStage == BoincManagerApplication.INSTALLER_PROJECT_INSTALLING_STAGE)
 				mApp.setInstallerStage(BoincManagerApplication.INSTALLER_FINISH_STAGE);
-			
-			if (Logging.DEBUG) Log.d(TAG, "Finish operation:"+distribName);
-			
-			mNotificationController.updateDistribInstallProgress(distribName, projectUrl,
-					null, -1, ProgressItem.STATE_FINISHED);
-			
-			// notifications
-			if (distribName.equals(BOINC_CLIENT_ITEM_NAME))
-				mNotificationController.notifyInstallClientFinish(
-						getString(R.string.installClientNotifyFinish));
-			// ignore non distrib notifications
-			else if (distribName.length()!=0)
-				mNotificationController.notifyInstallProjectAppsFinish(distribName,
-						getString(R.string.installProjectNotifyFinish));
+		
+			mNotificationController.handleOnOperationFinish(distribName, projectUrl);
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners)
@@ -447,6 +407,10 @@ public class InstallerService extends Service {
 		mInstallerHandler.cancelProjectAppsInstallation(projectUrl);
 	}
 	
+	public void cancelDumpFiles() {
+		mInstallerHandler.cancelDumpFiles();
+	}
+	
 	/**
 	 * Check whether client is installed
 	 * @return
@@ -492,6 +456,16 @@ public class InstallerService extends Service {
 	public UpdateItem[] getBinariesToUpdateOrInstall(String[] attachedProjectUrls) {
 		return mInstallerHandler.getBinariesToUpdateOrInstall(attachedProjectUrls);
 	}
+	
+	/**
+	 * dump boinc files
+	 * @return
+	 */
+	
+	public void dumpBoincFiles(String directory) {
+		mInstallerThread.dumpBoincFiles(directory); 
+	}
+	
 	
 	public boolean isWorking() {
 		return mInstallerHandler.isWorking();

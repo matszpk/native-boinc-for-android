@@ -90,7 +90,13 @@ public class ClientId implements Parcelable {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (!(o instanceof ClientId)) return false;
-		return (o.hashCode() == this.hashCode());
+		
+		ClientId clientId = (ClientId)o;
+		
+		return (this.mAddress.equals(clientId.mAddress) &&
+				(this.mPort == clientId.mPort) &&
+				(this.mPassword == clientId.mPassword));
+		//return (o.hashCode() == this.hashCode());
 	}
 
 	@Override

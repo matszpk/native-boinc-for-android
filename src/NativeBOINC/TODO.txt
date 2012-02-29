@@ -17,8 +17,8 @@ NativeBOINC 0.4 TODO
   * dodać logo aktywności instalatora i do okna dialogowego o programie
 / * przewijanie uwag w pierwszym kroku instalatora
 / * dodać info o oryginalnym AndroBOINC
-  * dodać opcje zmiany listy hostów z którymi może się połączyć klient
-  * dodać możliwość określenia nazwy hosta (dla klienta).
+/ * dodać opcje zmiany listy hostów z którymi może się połączyć klient
+/ * dodać możliwość określenia nazwy hosta (dla klienta).
 
 / * zrobic asynchroniczne sprawdzanie postępu (getProgress) dla widgeta i screenlock
   * zrobic obslugę GPGPU w formie oddzielnej aplikacji (opcjonalne)
@@ -41,19 +41,14 @@ NativeBOINC 0.4 TODO
 /  * dodać do natywnego klienta zatrzymywania zadań gdy bateria ma mniej niż X% naladowania
 /  - dodac do opcji local preferences (wazne)
     * Developer tools *
-  * dać mozliwość instalacji róznych wersji (Developer Mode)
-  * dodac opcje developer mode w głownym menu managera
-  * dodać możliwość wyboru Developer Mode przy instalacji
-  * dodać activity o developer tools (ma miec developer mode)
+  * dać mozliwość instalacji róznych wersji (opcja update apps)
 (na razie jest tylko w klience)
 / * dodac opcje debugowania natywnego klienta i aplikacji (logi itp).
-  * opcjonalnie opcje standalone run dla aplikacji
   * dodac opcje kopiowania katalogu na sdcard
-   * Developer tools *
-  * wykorzystać niepobierane (obecnie) pola z protokołu boinc
+/ * wykorzystać niepobierane (obecnie) pola z protokołu boinc
 / * poprawić sprawdzanie instalacji (czy zainstalowany).
-  * dodać opisy binariów
-  * dodać opis klienta przed i po zainstalowaniu
+/ * dodać opisy binariów (w managerze jest juz)
+/ * dodać opis klienta przed i po zainstalowaniu
   * dodać okno opisu aplikacji dla projektu (przy wyborze projektu)
   * zmienic wygląd paska w ScreenLockActivity
   * dodać wyłączanie na podstawie temp baterii (do managera)

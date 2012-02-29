@@ -63,6 +63,17 @@
 	<string name="battery">Battery</string>
 	<string name="defaultText">Default</string>
 	
+	<string name="restart">Restart</string>
+	<string name="clientRestarting">Client restarting...</string>
+	
+	<string name="selectAll">Select all</string>
+	<string name="unselectAll">Unselect all</string>
+	
+	<string name="yesText">Yes</string>
+	<string name="noText">No</string>
+	
+	<string name="orText">or</string>
+	
 	<string name="installedBinaries">Installed binaries</string>
 
 	<!-- Units -->
@@ -252,23 +263,48 @@
 	<string name="clientAttachingToProject">Attaching to project</string>
 	<string name="warnShutdownText">The connected core client will be shut down. This manager cannot start the client afterwards.</string>
 	
-	<!--  nativeboinc activity -->
+	<!--  NativeClient activity -->
+	<string name="nativeBoincNetwork">Network options</string>
+	
+	<string name="nativeHostnameTitle">Set up hostname</string>
+	<string name="nativeHostnameSummaryNone">Retrieved from network system</string>
+	<string name="nativeHostnameSummaryCurrent">Current hostname</string>
+	<string name="nativeRemoteAccessTitle">Allow remote access</string>
+	<string name="nativeRemoteAccessSummaryOn">Allow remote access for other hosts</string>
+	<string name="nativeRemoteAccessSummaryOff">Disallow remote access for other hosts</string>
+	<string name="nativeAccessPasswordTitle">Access password</string>
+	<string name="nativeAccessPasswordSummary">Password:</string>
+	<string name="nativeAccessListTitle">Access host list</string>
+	<string name="nativeAccessListSummary">List of hosts whose have access to BOINC client</string>
+	
+	<string name="nativeBoincInstallation">Installation options</string>
+	
 	<string name="nativeInstalledBinariesTitle">Installed binaries</string>
 	<string name="nativeInstalledBinariesSummary">List of installed binaries</string>
-	<string name="nativeHostnameTitle">Set up hostname</string>
-	<string name="nativeHostnameSummary">Set up new hostname for client</string>
-	<string name="nativeRemoteAccessTitle">Allow remote access</string>
-	<string name="nativeRemoteAccessSummary">Allow remote access for other managers</string>
-	<string name="nativeAccessPasswordTitle">Access password</string>
-	<string name="nativeAccessPasswordSummary">Access for BOINC managers</string>
 	<string name="nativeUpdateBinariesTitle">Update binaries</string>
-	<string name="nativeUpdateBinariesSummary">Update binaries</string>
-	<string name="nativeDumpInstallationTitle">Dump BOINC files</string>
-	<string name="nativeDumpInstallationSummary">Dump into SDCard whole BOINC installation</string>
+	<string name="nativeUpdateBinariesSummary">Update client and apps binaries</string>
+	<string name="nativeDumpBoincDirTitle">Dump BOINC files</string>
+	<string name="nativeDumpBoincDirSummary">Dump whole BOINC directory into SDCard</string>
 	<string name="nativeUpdateFromSDCardTitle">Update from SDCard</string>
 	<string name="nativeUpdateFromSDCardSummary">Update client and project apps from SDCard</string>
-	<string name="nativeReinstallTitle">Reinstall client</string>
-	<string name="nativeReinstallSummary">Reinstall BOINC client</string>
+	<string name="nativeClearBoincDirTitle">Clear BOINC directory</string>
+	<string name="nativeClearBoincDirSummary">Clear whole BOINC directory</string>
+	
+	<string name="applyAfterRestart">Changes to be applied after restart. Do you want to restart client now?</string>
+	
+	<!-- dump boinc files -->
+	<string name="enterDumpDir">Enter dump directory</string>
+	
+	<string name="dumpBoincBegin">Begin dumping BOINC files</string>
+	<string name="dumpBoincProgress">Dumping BOINC files</string>
+	<string name="dumpBoincFinish">Dumping BOINC files finished</string>
+	<string name="dumpBoincError">Error during dumping: %s</string>
+	
+	<!-- access host list activity -->
+	<string name="accessHostList">Access host list</string>
+	<string name="addHost">Add host</string>
+	<string name="remoteHostsLoadError">Unable to load remote hosts list</string>
+	<string name="remoteHostsSaveError">Unable to save remote hosts list</string>
 	
 	<!--  progress dialog messages -->
 	<string name="synchronizingBAM">Synchronizing BAM...</string>
@@ -279,7 +315,7 @@
 	<string name="selectHost">Select host</string>
 	<string name="hostAddNew">Add new host</string>
 	<string name="hostEdit">Edit host</string>
-	<string name="hostDelete">Delete host</string>
+	<string name="hostDelete">Delete host(s)</string>
 	<string name="hostSetDefault">Set default host</string>
 	<string name="noHostDefined">No host defined</string>
 	<string name="hostNone">No host</string>
@@ -341,20 +377,22 @@
 	<string name="installAttention3">BOINC client will be working in background. Please use \'Shutdown\' option to shutdown client.</string>
 	
 	<string name="installNetworkAccess1">BOINC client allows to you connect with it through network with using BOINC Manager.</string>
-	<string name="installNetworkAccess2">To get access password and remote access options please select on main
-	    screen in menu \'Manage client\'->\'Network access\'.</string>
-
+	
 	<string name="installClientNotifyBegin">Installing BOINC client</string>
 	<string name="installClientNotifyFinish">BOINC client was installed</string>
 	<string name="installProjectNotifyBegin">Installing applications for </string>
 	<string name="installProjectBegin">Installing applications</string>
 	<string name="installProjectNotifyFinish">Applications was installed</string>
 
+	<string name="youCanChange">Now, you can change:</string>
+	
 	<!-- Change password activity -->
-	<string name="changeAccessPassword">Change access password</string>
+	<string name="accessPassword">Access password</string>
+	<string name="hostname">Hostname</string>
 
 	<!--  info ..... -->
 	<string name="clientInfo">Client informations</string>
+	<string name="appInfo">Application informations</string>
 	<string name="clientVersion">Client version</string>
 	<string name="description">Description</string>
 	<string name="changes">Changes</string>
@@ -382,19 +420,24 @@
 	<string name="projectStatusActive">Active</string>
 	<string name="projectStatusSuspended">Suspended by user</string>
 	<string name="projectStatusNNW">Won\'t get new tasks</string>
+	
+	<string name="warnDetachProject">Are you sure want to detach project (%1$s)?</string>
+	<string name="warnDetachProjects">Are you sure want to detach selected projects?</string>
+	
 	<string name="projectCredits">Total:%1$.0f RAC:%2$.0f Host:%3$.0f HostRAC:%4$.0f</string>
 	<string name="projectDetailedInfo">
 		&lt;b>Project:&lt;/b> %1$s&lt;br>\n
 		&lt;b>Account:&lt;/b> %2$s&lt;br>\n
 		&lt;b>Team:&lt;/b> %3$s&lt;br>\n
-		&lt;b>User credit:&lt;/b> %4$.2f&lt;br>\n
-		&lt;b>User RAC:&lt;/b> %5$.2f&lt;br>\n
-		&lt;b>Host credit:&lt;/b> %6$.2f&lt;br>\n
-		&lt;b>Host RAC:&lt;/b> %7$.2f&lt;br>\n
-		&lt;b>Resource share:&lt;/b> %8$s&lt;br>\n
-		&lt;b>Disk usage:&lt;/b> %9$s&lt;br>\n
-		&lt;b>Host Id:&lt;/b> %10$d&lt;br>\n
-		&lt;b>Host location:&lt;/b> %11$s&lt;br>\n
+		&lt;b>Non cpu intensive:&lt;/b> %4$s&lt;br>\n
+		&lt;b>User credit:&lt;/b> %5$.2f&lt;br>\n
+		&lt;b>User RAC:&lt;/b> %6$.2f&lt;br>\n
+		&lt;b>Host credit:&lt;/b> %7$.2f&lt;br>\n
+		&lt;b>Host RAC:&lt;/b> %8$.2f&lt;br>\n
+		&lt;b>Resource share:&lt;/b> %9$s&lt;br>\n
+		&lt;b>Disk usage:&lt;/b> %10$s&lt;br>\n
+		&lt;b>Host Id:&lt;/b> %11$d&lt;br>\n
+		&lt;b>Host location:&lt;/b> %12$s&lt;br>\n
 	</string>
 	<string name="projectDetailedInfoNormal">
 	    &lt;b>CPU scheduling priority:&lt;/b> %1$.2f&lt;br>\n
@@ -429,6 +472,7 @@
 	<string name="taskAbort">Abort</string>
 	<string name="taskProperties">Properties</string>
 	<string name="warnAbortTask">Are you sure you want to abort this task (%1$s)?</string>
+	<string name="warnAbortTasks">Are you sure you want to abort selected tasks?</string>
 	<string name="taskDetailedInfoCommon">
 		&lt;b>Task:&lt;/b> %1$s&lt;br>\n
 		&lt;b>Project:&lt;/b> %2$s&lt;br>\n
@@ -473,6 +517,7 @@
 	<string name="uploading">Uploading</string>
 	<string name="uploadPending">Upload pending</string>
 	<string name="warnAbortTransfer">Are you sure you want to abort transfer of this file (%1$s)?</string>
+	<string name="warnAbortTransfers">Are you sure you want to abort transfer of selected files?</string>
 	<string name="transferDetailedInfo">
 		&lt;b>File:&lt;/b> %1$s&lt;br>\n
 		&lt;b>Project:&lt;/b> %2$s&lt;br>\n
@@ -577,6 +622,8 @@
 	<string name="updateClientModeError">Error happens during updating client mode</string>
 	<string name="boincOperationError">Error happens during BOINC operation</string>
 	<string name="boincPollError">Error happens during BOINC polling operation</string>
+	
+	<string name="unexpectedError">Unexpected error</string>
 	
 	<string name="errorNumFormat">(error: %d)</string>
 	

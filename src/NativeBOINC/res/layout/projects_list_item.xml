@@ -27,6 +27,12 @@
 	android:layout_height="wrap_content"
 	android:minHeight="?android:attr/listPreferredItemHeight">
 
+    <CheckBox 
+        android:id="@+id/check"
+        android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:focusable="false" />
 	<!-- Project name -->
 	<TextView
 		android:id="@+id/projectName"
@@ -36,6 +42,7 @@
 		android:layout_marginTop="6dip"
 		android:lines="1"
 		android:text="ProjectX@Home"
+		android:layout_toRightOf="@+id/check"
 		android:textAppearance="?android:attr/textAppearanceLarge" />
 
 	<!-- ProgressBar showing the resource share. Workaround to support color switching is used. -->

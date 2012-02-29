@@ -42,13 +42,6 @@
 			android:summaryOn="@string/prefAutoConnectEnabled"
 			android:defaultValue="false"
 			android:persistent="true" />
-		<ListPreference 
-		    android:key="viewItemType"
-		    android:title="@string/prefViewItemTypeTitle"
-		    android:entries="@array/prefViewItemTypes"
-		    android:entryValues="@array/prefViewItemTypeValues"
-		    android:defaultValue="0"
-		    android:persistent="true" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefCategoryNativeBoinc">
 		<CheckBoxPreference 

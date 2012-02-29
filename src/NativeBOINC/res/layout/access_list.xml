@@ -19,49 +19,36 @@
  * 
  */
  -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:orientation="vertical"
-	android:padding="10dip">
-	<TextView
-	  		android:id="@+id/currentAccessPassword"
-			android:layout_width="fill_parent"
-	  		android:layout_height="wrap_content"
-	  		android:textSize="14dip"
-	  		android:text="xxxx" />
-	<LinearLayout android:orientation="horizontal"
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="10dip" >
+    <ListView
+		android:id="@android:id/list"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:paddingTop="10dip">
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content" 
-			android:text="xxxx"
-			android:paddingRight="5dip" />
-		<EditText
-			android:id="@+id/accessPassword"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:background="@android:drawable/editbox_background"
-			android:inputType="textPassword" />
-	</LinearLayout>
-	<LinearLayout android:orientation="horizontal"
+		android:layout_weight="1" />
+    <LinearLayout
+		android:orientation="horizontal"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="right">
-		<Button
-			android:id="@+id/accessPasswordCancel" 
+		android:layout_gravity="right"
+		android:paddingTop="10dip">
+		<Button android:id="@+id/cancel"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/cancel" />
-		<Button
-			android:id="@+id/accessPasswordOk" 
+		<Button android:id="@+id/addHost" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/addHost" />
+		<Button android:id="@+id/ok" 
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginLeft="10dip"
 			android:paddingLeft="20dip"
 			android:paddingRight="20dip"
 			android:text="@string/ok" />
-    </LinearLayout>
+	</LinearLayout>
 </LinearLayout>

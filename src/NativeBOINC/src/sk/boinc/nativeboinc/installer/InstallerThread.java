@@ -133,4 +133,13 @@ public class InstallerThread extends Thread {
 			}
 		});
 	}
+	
+	public void dumpBoincFiles(final String directory) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.dumpBoincFiles(directory);
+			}
+		});
+	}
 }

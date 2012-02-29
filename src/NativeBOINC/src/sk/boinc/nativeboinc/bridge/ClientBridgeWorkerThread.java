@@ -19,10 +19,14 @@
 
 package sk.boinc.nativeboinc.bridge;
 
+import java.util.Collection;
+
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.GlobalPreferences;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
+import sk.boinc.nativeboinc.clientconnection.TaskDescriptor;
+import sk.boinc.nativeboinc.clientconnection.TransferDescriptor;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.debug.NetStats;
 import sk.boinc.nativeboinc.util.ClientId;
@@ -136,12 +140,12 @@ public class ClientBridgeWorkerThread extends Thread {
 			if (Logging.WARNING) Log.w(TAG, "warning: NPE");
 	}
 
-	public void updateClientMode(final ClientReceiver callback) {
+	public void updateClientMode() {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateClientMode(callback);
+				mHandler.updateClientMode();
 			}
 		});
 	}
@@ -364,32 +368,62 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 
-	public void projectOperation(final ClientReplyReceiver callback, final int operation, final String projectUrl) {
+	public void projectOperation(final int operation, final String projectUrl) {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.projectOperation(callback, operation, projectUrl);
+				mHandler.projectOperation(operation, projectUrl);
+			}
+		});
+	}
+	
+	public void projectsOperation(final int operation, final String[] projectUrls) {
+		// Execute in worker thread
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.projectsOperation(operation, projectUrls);
 			}
 		});
 	}
 
-	public void taskOperation(final ClientReplyReceiver callback, final int operation, final String projectUrl, final String taskName) {
+	public void taskOperation(final int operation, final String projectUrl, final String taskName) {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.taskOperation(callback, operation, projectUrl, taskName);
+				mHandler.taskOperation(operation, projectUrl, taskName);
+			}
+		});
+	}
+	
+	public void tasksOperation(final int operation, final TaskDescriptor[] tasks) {
+		// Execute in worker thread
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.tasksOperation(operation, tasks);
 			}
 		});
 	}
 
-	public void transferOperation(final ClientReplyReceiver callback, final int operation, final String projectUrl, final String fileName) {
+	public void transferOperation(final int operation, final String projectUrl, final String fileName) {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.transferOperation(callback, operation, projectUrl, fileName);
+				mHandler.transferOperation(operation, projectUrl, fileName);
+			}
+		});
+	}
+	
+	public void transfersOperation(final int operation, final TransferDescriptor[] transfers) {
+		// Execute in worker thread
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.transfersOperation(operation, transfers);
 			}
 		});
 	}

@@ -20,6 +20,7 @@
 package sk.boinc.nativeboinc.clientconnection;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.AccountMgrInfo;
@@ -39,7 +40,7 @@ public interface ClientRequestHandler {
 
 	public abstract boolean isWorking();
 	
-	public abstract void updateClientMode(ClientReceiver callback);
+	public abstract void updateClientMode();
 	public abstract void updateHostInfo();
 	public abstract HostInfo getPendingHostInfo();
 	
@@ -93,7 +94,11 @@ public interface ClientRequestHandler {
 	public abstract void setNetworkMode(ClientReplyReceiver callback, int mode);
 	public abstract void shutdownCore();
 	public abstract void doNetworkCommunication();
-	public abstract void projectOperation(ClientReplyReceiver callback, int operation, String projectUrl);
-	public abstract void taskOperation(ClientReplyReceiver callback, int operation, String projectUrl, String taskName);
-	public abstract void transferOperation(ClientReplyReceiver callback, int operation, String projectUrl, String fileName);
+	
+	public abstract void projectOperation(int operation, String projectUrl);
+	public abstract void projectsOperation(int operation, String[] projectUrls);
+	public abstract void taskOperation(int operation, String projectUrl, String taskName);
+	public abstract void tasksOperation(int operation, TaskDescriptor[] tasks);
+	public abstract void transferOperation(int operation, String projectUrl, String fileName);
+	public abstract void transfersOperation(int operation, TransferDescriptor[] transfers);
 }

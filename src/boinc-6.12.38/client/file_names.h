@@ -98,5 +98,6 @@ extern void send_log_after(const char* filename, double t, MIOFILE& mf);
 #define TIME_STATS_LOG              "time_stats_log"
 #define MESSAGES_FILE               "messages.log"
 #define UPDATES_DIR                 "updates"
+#define HOSTNAME_FILE               "hostname.cfg"
 
 #endif

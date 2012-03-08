@@ -117,6 +117,10 @@ int MONITOR_INSTANCE::init(bool lasttime) {
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = inet_addr("127.0.0.1"); // only localhost
     
+    /* reusing tcp address */
+    int one = 1;
+    setsockopt(lsock, SOL_SOCKET, SO_REUSEADDR, (char*)&one, 4);
+    
     retval = bind(lsock, (struct sockaddr*)&addr,sizeof(addr));
     if (retval) {
 #ifndef _WIN32

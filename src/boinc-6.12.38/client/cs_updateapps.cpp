@@ -40,7 +40,11 @@ void CLIENT_STATE::init_update_project_apps(PROJECT* project) {
     /* initializes pending_to_exit counter */
     for (size_t i=0; i<active_tasks.active_tasks.size(); i++) {
         ACTIVE_TASK* atp = active_tasks.active_tasks[i];
-        if (!atp->runnable()) continue;
+        int task_state = atp->task_state();
+        if (task_state != PROCESS_EXECUTING && task_state != PROCESS_SUSPENDED) continue;
+        if (task_state == PROCESS_SUSPENDED &&
+            !(atp->checkpoint_cpu_time && !global_prefs.leave_apps_in_memory))
+            continue;
         if (project != atp->result->project) continue;
         project->pending_to_exit++;
     }
@@ -134,7 +138,7 @@ int CLIENT_STATE::do_update_project_apps() {
         
         // update state
         p->suspended_during_update = false;
-        
+        p->after_update_dtime = now;
         check_no_apps(p);
         
         p->anonymous_platform = true;
@@ -303,6 +307,7 @@ int CLIENT_STATE::update_app_info(PROJECT* p, FILE* in, vector<FILE_INFO*>& oldf
                 delete fip;
                 continue;
             }
+            fip->set_permissions(); // set permissions for file
             fip->status = FILE_PRESENT;
             newfis.push_back(fip);
             continue;

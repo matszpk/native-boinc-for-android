@@ -66,11 +66,27 @@ int HOST_INFO::get_local_network_info() {
     // it seems like we should use getdomainname() instead of gethostname(),
     // but on FC6 it returns "(none)".
     //
+#ifdef ANDROID
+    FILE* file = fopen(HOSTNAME_FILE,"rb");
+    if (file != NULL) {
+        // if file exists, determine hostname from content of file
+        fgets(domain_name, 256, file);
+        fclose(file);
+    } else {
+        if (gethostname(domain_name, 256)) {
+            return ERR_GETHOSTBYNAME;
+        }
+        int retval = resolve_hostname(domain_name, s);
+        if (retval) return retval;
+    }
+#else
     if (gethostname(domain_name, 256)) {
         return ERR_GETHOSTBYNAME;
     }
     int retval = resolve_hostname(domain_name, s);
     if (retval) return retval;
+#endif
+
 #ifdef _WIN32
     sockaddr_in* sin = (sockaddr_in*)&s;
     strlcpy(ip_addr, inet_ntoa(sin->sin_addr), sizeof(ip_addr));

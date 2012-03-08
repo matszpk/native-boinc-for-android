@@ -833,8 +833,11 @@ bool CLIENT_STATE::poll_slow_events() {
     if (!tasks_suspended) {
         POLL_ACTION(schedule_cpus, schedule_cpus          );
         tasks_restarted = true;
-    } else
-        dont_preempt_suspended_in_projects();
+    } else {
+        // waiting for benchmark finish
+        if ((suspend_reason & SUSPEND_REASON_BENCHMARKS) == 0)
+            dont_preempt_suspended_in_projects();
+    }
     
     POLL_ACTION(do_update_project_apps, do_update_project_apps);
     if (!network_suspended) {

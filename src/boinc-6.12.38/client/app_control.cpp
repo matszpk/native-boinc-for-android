@@ -176,10 +176,13 @@ static void kill_app_process(int pid) {
     TerminateProcess(h, 1);
     CloseHandle(h);
 #else
+    if (log_flags.update_apps_debug)
+        msg_printf(NULL, MSG_INFO, "[update_apps] killer:%d", pid);
 #ifdef SANDBOX
     kill_via_switcher(pid);
 #endif
-    kill(pid, SIGKILL);
+    if (pid != 0 && pid != -1)
+        kill(pid, SIGKILL);
 #endif
 }
 
@@ -199,6 +202,8 @@ int ACTIVE_TASK::kill_task(bool restart) {
     get_descendants(pid, pids);
     pids.push_back(pid);
     for (unsigned int i=0; i<pids.size(); i++) {
+        if (pids[i] < 0)
+            msg_printf(p, MSG_INTERNAL_ERROR, "Bad pid for wu:%s",wup->name);
         kill_app_process(pids[i]);
     }
     cleanup_task();
@@ -215,7 +220,10 @@ int ACTIVE_TASK::kill_task(bool restart) {
         if (log_flags.update_apps_debug)
             msg_printf(p, MSG_INFO, "[update_apps] Killing app for update: %d",
                                 p->pending_to_exit);
-        p->pending_to_exit--;
+        if (p->pending_to_exit==0)
+                msg_printf(NULL, MSG_INTERNAL_ERROR, "Error on pending_to_exit:0");
+        else
+            p->pending_to_exit--;
     }
     return 0;
 }
@@ -615,7 +623,10 @@ bool ACTIVE_TASK_SET::check_app_exited() {
                     if (log_flags.update_apps_debug)
                         msg_printf(p, MSG_INFO, "[update_apps] Exited app for update: %d",
                                             p->pending_to_exit);
-                    p->pending_to_exit--;
+                    if (p->pending_to_exit==0)
+                        msg_printf(NULL, MSG_INTERNAL_ERROR, "Error on pending_to_exit:0");
+                    else
+                        p->pending_to_exit--;
                 }
                 atp->handle_exited_app(exit_code);
             }
@@ -661,7 +672,10 @@ bool ACTIVE_TASK_SET::check_app_exited() {
             if (log_flags.update_apps_debug)
                 msg_printf(p, MSG_INFO, "[update_apps] Exited app for update: %d",
                                     p->pending_to_exit);
-            p->pending_to_exit--;
+            if (p->pending_to_exit==0)
+                msg_printf(NULL, MSG_INTERNAL_ERROR, "Error on pending_to_exit:0");
+            else
+                p->pending_to_exit--;
         }
         atp->handle_exited_app(stat);
         found = true;

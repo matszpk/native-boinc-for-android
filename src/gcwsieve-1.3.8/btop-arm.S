@@ -30,6 +30,10 @@ btop_arm:
                 ldr r5,.LGOT1+4
                 ldr r4,[r4,r5]
                 ldrd r6,[r4]            // save onep
+                /*
+                 * WARNING: this factor (adds r6,r6,#XX) is very important.
+                 * shouldnt lesser than 11. This factor amortizes partial results
+                 */
                 adds r6,r6,#14          // with factor
                 adc r7,r7,#0
                 strd r6,[sp]

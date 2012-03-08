@@ -1765,7 +1765,27 @@ bool CLIENT_STATE::enforce_run_list(vector<RESULT*>& run_list) {
                                p->pending_to_exit);
                 }
                 preempt_type = REMOVE_ALWAYS;
-                atp->preempt(preempt_type);
+                
+                switch (atp->task_state()) {
+                case PROCESS_EXECUTING:
+                    if (log_flags.update_apps_debug)
+                        msg_printf(p, MSG_INFO, "[update_apps] preempt wu:%s:%d", atp->wup->name,
+                            PROCESS_EXECUTING);
+                    atp->preempt(preempt_type);
+                    break;
+                case PROCESS_SUSPENDED:
+                    // Handle the case where user changes prefs from
+                    // "leave in memory" to "remove from memory";
+                    // need to quit suspended tasks.
+                    //
+                    if (atp->checkpoint_cpu_time && !global_prefs.leave_apps_in_memory) {
+                        if (log_flags.update_apps_debug)
+                            msg_printf(p, MSG_INFO, "[update_apps] preempt wu:%s:%d", atp->wup->name,
+                                PROCESS_SUSPENDED);
+                        atp->preempt(REMOVE_ALWAYS);
+                    }
+                    break;
+                }
             }
             else { // normal operation
                 switch (atp->task_state()) {
@@ -1818,6 +1838,7 @@ bool CLIENT_STATE::enforce_run_list(vector<RESULT*>& run_list) {
     }
 
     bool coproc_start_deferred = false;
+    bool during_update = false;
     for (i=0; i<active_tasks.active_tasks.size(); i++) {
         atp = active_tasks.active_tasks[i];
         if (atp->next_scheduler_state != CPU_SCHED_SCHEDULED) continue;
@@ -1833,6 +1854,16 @@ bool CLIENT_STATE::enforce_run_list(vector<RESULT*>& run_list) {
             }
             action = true;
 
+            PROJECT* p = atp->result->project;
+            /* do not run tasks during updating, and
+             * if too early to run after update (less than 4 seconds) */
+            if (p->suspended_during_update || dtime()-p->after_update_dtime<4.0) {
+                if (log_flags.update_apps_debug)
+                    msg_printf(p, MSG_INFO, "[update_apps] prevents running wu:%s",atp->wup->name);
+                during_update = true;
+                continue;
+            }
+            
             bool first_time;
             // GPU tasks can get suspended before they're ever run,
             // so the only safe way of telling whether this is the
@@ -1898,13 +1929,13 @@ bool CLIENT_STATE::enforce_run_list(vector<RESULT*>& run_list) {
     if (log_flags.cpu_sched_debug) {
         msg_printf(0, MSG_INFO, "[cpu_sched] enforce_schedule: end");
     }
-    if (coproc_start_deferred) {
-        if (log_flags.cpu_sched_debug) {
+    if (coproc_start_deferred || during_update) {
+        if (log_flags.cpu_sched_debug || log_flags.update_apps_debug) {
             msg_printf(0, MSG_INFO,
                 "[cpu_sched] coproc quit pending, deferring start"
             );
         }
-        request_schedule_cpus("coproc quit retry");
+        request_schedule_cpus("coproc quit retry|during update");
     }
     return action;
 }

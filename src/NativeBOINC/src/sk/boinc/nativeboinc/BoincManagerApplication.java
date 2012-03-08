@@ -62,6 +62,7 @@ import android.widget.Toast;
  */
 public class BoincManagerApplication extends Application implements NativeBoincStateListener,
 	NativeBoincReplyListener {
+	
 	private static final String TAG = "BoincManagerApplication";
 
 	public static final String GLOBAL_ID = "sk.boinc.androboinc";
@@ -252,6 +253,16 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		mStringBuilder.append("<html>\n<body>\n");
 		mStringBuilder.append(trans2);
 		mStringBuilder.append("\n</body>\n</html>");
+		text.setText(Html.fromHtml(mStringBuilder.toString()));
+	}
+	
+	public void setHtmlText(TextView text, String header, String content) {
+		mStringBuilder.setLength(0);
+		mStringBuilder.append("<html><body>");
+		mStringBuilder.append(header);
+		mStringBuilder.append(":");
+		mStringBuilder.append(content);
+		mStringBuilder.append("</body></html>");
 		text.setText(Html.fromHtml(mStringBuilder.toString()));
 	}
 

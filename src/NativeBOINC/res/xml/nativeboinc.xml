@@ -59,14 +59,26 @@
        	    android:summary="@string/nativeUpdateBinariesSummary"
        	    android:persistent="false" />
        	<Preference
+       	    android:key="nativeUpdateFromSDCard"
+       	    android:title="@string/nativeUpdateFromSDCardTitle"
+       	    android:summary="@string/nativeUpdateFromSDCardSummary"
+       	    android:persistent="false" />
+       	<Preference
+       	    android:key="nativeReinstall"
+       	    android:title="@string/nativeReinstallTitle"
+       	    android:summary="@string/nativeReinstallSummary"
+       	    android:persistent="false" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/nativeBoincDiagnostics">
+        <Preference
        	    android:key="nativeDumpBoincDir"
        	    android:title="@string/nativeDumpBoincDirTitle"
        	    android:summary="@string/nativeDumpBoincDirSummary"
        	    android:persistent="false" />
-       	<Preference
-       	    android:key="nativeClearBoincDir"
-       	    android:title="@string/nativeClearBoincDirTitle"
-       	    android:summary="@string/nativeClearBoincDirSummary"
+        <Preference
+       	    android:key="nativeShowLogs"
+       	    android:title="@string/nativeShowLogsTitle"
+       	    android:summary="@string/nativeShowLogsSummary"
        	    android:persistent="false" />
     </PreferenceCategory>
 </PreferenceScreen>

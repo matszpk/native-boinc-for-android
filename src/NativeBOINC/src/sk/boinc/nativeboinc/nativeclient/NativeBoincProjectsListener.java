@@ -17,13 +17,16 @@
  * 
  */
 
-package sk.boinc.nativeboinc.installer;
+package sk.boinc.nativeboinc.nativeclient;
+
+import java.util.ArrayList;
+
+import edu.berkeley.boinc.lite.Project;
 
 /**
  * @author mat
  *
  */
-public interface AbstractInstallerListener {
-	public abstract void onChangeInstallerIsWorking(boolean isWorking);
-	public abstract void onOperationError(String distribName, String errorMessage);
+public interface NativeBoincProjectsListener extends NativeBoincServiceListener {
+	public abstract void getProjects(ArrayList<Project> projects);
 }

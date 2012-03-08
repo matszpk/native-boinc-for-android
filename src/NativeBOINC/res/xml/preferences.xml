@@ -65,13 +65,6 @@
 			android:entryValues="@array/prefWidgetUpdateValues"
 			android:defaultValue="10"
 			android:persistent="true" />
-		<ListPreference
-		    android:key="newsUpdatePeriod"
-		    android:title="@string/prefNewsUpdatePeriodTitle"
-		    android:entries="@array/newsUpdatePeriods"
-		    android:entryValues="@array/newsUpdatePeriodValues"
-		    android:defaultValue="12"
-			android:persistent="true" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefCategoryNetworkBW">
 		<ListPreference

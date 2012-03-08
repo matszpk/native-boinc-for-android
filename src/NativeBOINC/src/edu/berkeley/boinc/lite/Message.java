@@ -20,6 +20,12 @@
 package edu.berkeley.boinc.lite;
 
 public class Message {
+	public static final int MSG_INFO =1;
+	public static final int MSG_USER_ALERT = 2;
+	public static final int MSG_INTERNAL_ERROR = 3;
+	// internally used by client
+	public static final int MSG_SCHEDULER_ALERT = 4;
+	
 	public String project = "";
 	public int    priority;
 	public int    seqno;

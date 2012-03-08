@@ -16,14 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
+package sk.boinc.nativeboinc.util;
 
-package sk.boinc.nativeboinc.installer;
+import java.io.File;
 
 /**
  * @author mat
  *
  */
-public interface AbstractInstallerListener {
-	public abstract void onChangeInstallerIsWorking(boolean isWorking);
-	public abstract void onOperationError(String distribName, String errorMessage);
+public class RuntimeUtils {
+
+	public static int getRealCPUCount() {
+		int cpusCount = Runtime.getRuntime().availableProcessors();
+		
+		for (int i = 0; i < 17; i++) {
+			File cpuFile = new File("/sys/devices/system/cpu/cpu"+i);
+			if (!cpuFile.exists())
+				return Math.max(cpusCount, i);
+		}
+		
+		return Math.max(cpusCount, 17);
+	}
 }

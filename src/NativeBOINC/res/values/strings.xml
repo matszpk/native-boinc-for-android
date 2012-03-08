@@ -64,14 +64,13 @@
 	<string name="defaultText">Default</string>
 	
 	<string name="restart">Restart</string>
-	<string name="clientRestarting">Client restarting...</string>
+	<string name="clientRestarting">Restarting native client...</string>
 	
 	<string name="selectAll">Select all</string>
 	<string name="unselectAll">Unselect all</string>
 	
 	<string name="yesText">Yes</string>
 	<string name="noText">No</string>
-	
 	<string name="orText">or</string>
 	
 	<string name="installedBinaries">Installed binaries</string>
@@ -283,12 +282,19 @@
 	<string name="nativeInstalledBinariesSummary">List of installed binaries</string>
 	<string name="nativeUpdateBinariesTitle">Update binaries</string>
 	<string name="nativeUpdateBinariesSummary">Update client and apps binaries</string>
-	<string name="nativeDumpBoincDirTitle">Dump BOINC files</string>
-	<string name="nativeDumpBoincDirSummary">Dump whole BOINC directory into SDCard</string>
 	<string name="nativeUpdateFromSDCardTitle">Update from SDCard</string>
 	<string name="nativeUpdateFromSDCardSummary">Update client and project apps from SDCard</string>
-	<string name="nativeClearBoincDirTitle">Clear BOINC directory</string>
-	<string name="nativeClearBoincDirSummary">Clear whole BOINC directory</string>
+	<string name="nativeReinstallTitle">Reinstall BOINC</string>
+	<string name="nativeReinstallSummary">Make BOINC reinstallation</string>
+	
+	<string name="nativeBoincDiagnostics">Diagnostics options</string>
+	
+	<string name="nativeDumpBoincDirTitle">Dump BOINC files</string>
+	<string name="nativeDumpBoincDirSummary">Dump whole BOINC directory into SDCard</string>
+	<string name="nativeShowLogsTitle">Show logs</string>
+	<string name="nativeShowLogsSummary">Show last logs from BOINC client</string>
+	
+	<string name="nativeBoincLogs">BOINC last logs</string>
 	
 	<string name="applyAfterRestart">Changes to be applied after restart. Do you want to restart client now?</string>
 	
@@ -299,6 +305,11 @@
 	<string name="dumpBoincProgress">Dumping BOINC files</string>
 	<string name="dumpBoincFinish">Dumping BOINC files finished</string>
 	<string name="dumpBoincError">Error during dumping: %s</string>
+	
+	<!-- reinstall boinc -->
+	<string name="reinstallFinish">Reinstallation finished</string>
+	<string name="reinstallQuestion">Reinstallation removes whole BOINC directory (including projects). Do you really want to reinstall BOINC?</string>
+	<string name="waitingForShutdown">Waiting for shutdown</string>
 	
 	<!-- access host list activity -->
 	<string name="accessHostList">Access host list</string>
@@ -404,9 +415,11 @@
 	<!-- install sources -->
 	<string name="PGPKey">CAD10E7D</string>
 	<!-- <string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>-->
-	<string name="installClientSourceUrl">http://192.168.1.3:8080/examples/boinc_client/</string>
+	<!-- <string name="installClientSourceUrl">http://192.168.1.3:8080/examples/boinc_client/</string>-->
+	<string name="installClientSourceUrl">http://192.168.1.3:8080/examples/new/boinc_client/</string>
 	<!-- <string name="installAppsSourceUrl">http://krzyszp.info/matszpk/boinc_apps/</string>-->
-	<string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/boinc_apps/</string>
+	<!-- <string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/boinc_apps/</string>-->
+	<string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/new/boinc_apps/</string>
 	
 	<!-- ProjectsActivity -->
 	<string name="projectCtxMenuTitle">Commands</string>
@@ -457,6 +470,9 @@
 	<string name="projectDetailedInfoEnd">
 	    &lt;b>Status:&lt;/b> %1$s
 	</string>
+	
+	<!--  messages activity -->
+	<string name="messageFilters">Message filters</string>
 	
 	<!-- Update activity -->
 	<string name="updateBinaries">Update binaries</string>
@@ -554,6 +570,7 @@
 	<string name="nativeClientFirstStart">First start native client</string>
 	<string name="nativeClientFirstStartError">First start native client failed</string>
 	<string name="nativeClientFirstKill">First kill native client</string>
+	<string name="nativeClientAwaitForShutdown">Awaiting for shutdown</string>
 	
 	<string name="nativeClientConfigured">Native client has been configured</string>
 	
@@ -610,6 +627,7 @@
 	
 	<string name="nativeClientConfigError">Unable to configure native client</string>
 	<string name="nativeClientResultsError">Unable to get results from native client</string>
+	<string name="nativeClientProjectsError">Unable to get projects from native client</string>
 	
 	<string name="appListDownloadError">Unable to download project applications list</string>
 	<string name="appListParseError">Unable to parse project applications list</string>

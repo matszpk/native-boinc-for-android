@@ -111,22 +111,6 @@
 		<item>Waiting to run</item>  <!-- 9 PROCESS_SUSPENDED (we've sent it a "suspend" message)        -->
 	</string-array>
 
-	<!-- news update periods -->
-	<string-array name="newsUpdatePeriods">
-	    <item>12 hour</item>
-	    <item>1 day</item>
-	    <item>2 days</item>
-	    <item>4 days</item>
-	    <item>1 week</item>
-	</string-array>
-	<string-array name="newsUpdatePeriodValues">
-	    <item>12</item>
-	    <item>24</item>
-	    <item>48</item>
-	    <item>96</item>
-	    <item>168</item>
-	</string-array>
-	
 	<string-array name="PGPkeyservers">
 	    <item>keyserver.stack.nl</item>
 	    <item>subkeys.pgp.net</item>
@@ -140,5 +124,19 @@
 	    <item>Create project account</item>
 	    <item>Project attach</item>
 	    <item>Get project config</item>
+	</string-array>
+	
+	<string-array name="messageFilterLabels">
+	    <item>Filter: Unknown</item>
+	    <item>Filter: Info</item>
+	    <item>Filter: User alert</item>
+	    <item>Filter: Internal error</item>
+	</string-array>
+	
+	<string-array name="messageFilterMenuItems">
+	    <item>Unknown</item>
+	    <item>Info</item>
+	    <item>User alert</item>
+	    <item>Internal error</item>
 	</string-array>
 </resources>

@@ -9,12 +9,9 @@ NativeBOINC 0.4 TODO
 / * usunąć pojawiąjące/znikające (podczas instalacji i update) toasty i zamienic je dialogami.
 / * usunąć zabijanie klienta podczas instalacji/update'a  aplikacji (wprowadzic specjalny
     mechanizm instalacji/update'a aplikacji w kliencie)
-    (zrobione dla instalatora)
     
 / * dodać powiadomienia (o właczeniu/wyłączeniu klienta)
-  * dodać ikonę do powiadomien (opcja) o postępie.
   * usunąć problem nie łączenia sie z klientem przy wybieraniu managera z widgeta
-  * dodać logo aktywności instalatora i do okna dialogowego o programie
 / * przewijanie uwag w pierwszym kroku instalatora
 / * dodać info o oryginalnym AndroBOINC
 / * dodać opcje zmiany listy hostów z którymi może się połączyć klient
@@ -24,8 +21,8 @@ NativeBOINC 0.4 TODO
   * zrobic obslugę GPGPU w formie oddzielnej aplikacji (opcjonalne)
   * dodać zakładkę (lub odpowiednik) dla Notices
   * dodać obsługę priorytetów dla zadań (opcjonalne)
-  * zrobić powiadamianie o aktualizacjach binariów
-  * zmienic menu w glownym oknie managera (ma miec wiecej opcji)
+/ * zrobić powiadamianie o aktualizacjach binariów
+/ * zmienic menu w glownym oknie managera (ma miec wiecej opcji)
 / * zapobiegać uśpieniu podczas robienia benchmarka.
 / * poprawic teksty przy instalacji (np.: przy drugim ekranie)
 / * wprowadzić różne komunikaty o przerwaniu pracy (np: zakmknięcu przez usera,
@@ -44,12 +41,12 @@ NativeBOINC 0.4 TODO
   * dać mozliwość instalacji róznych wersji (opcja update apps)
 (na razie jest tylko w klience)
 / * dodac opcje debugowania natywnego klienta i aplikacji (logi itp).
-  * dodac opcje kopiowania katalogu na sdcard
+/ * dodac opcje kopiowania katalogu na sdcard
 / * wykorzystać niepobierane (obecnie) pola z protokołu boinc
 / * poprawić sprawdzanie instalacji (czy zainstalowany).
 / * dodać opisy binariów (w managerze jest juz)
 / * dodać opis klienta przed i po zainstalowaniu
-  * dodać okno opisu aplikacji dla projektu (przy wyborze projektu)
+/ * dodać okno opisu aplikacji dla projektu (przy wyborze projektu)
   * zmienic wygląd paska w ScreenLockActivity
   * dodać wyłączanie na podstawie temp baterii (do managera)
 

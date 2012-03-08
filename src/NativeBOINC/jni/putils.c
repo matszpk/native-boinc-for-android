@@ -17,6 +17,8 @@
  *
  */
 
+#include <stdio.h>
+#include <time.h>
 #include <errno.h>
 #include <unistd.h>
 #include <sys/wait.h>
@@ -56,8 +58,12 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_exec(JNIEnv* 
 
 JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_waitForProcess(JNIEnv* env,
 		jclass thiz, jint pid) {
+	FILE* file;
 	int status = 0;
 	if (waitpid(pid, &status, 0) == -1) {
+		/*file = fopen("/mnt/sdcard/nbaaa","wb");
+		fprintf(file,"%d:Bububub:%d",time(NULL),errno);
+		fclose(file);*/
 		if (errno == EINTR) {
 			jclass intrclazz = (*env)->FindClass(env, "java/lang/InterruptedException");
 			(*env)->ThrowNew(env, intrclazz, "waitpid interrupted");
@@ -65,8 +71,9 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_waitForProces
 		return -1;
 	}
 
-
-
+	/*file = fopen("/mnt/sdcard/nbaaa","wb");
+	fprintf(file,"%d:Blab:%d",time(NULL),status);
+	fclose(file);*/
 	if (WIFEXITED(status))
 		return NORMAL_EXIT | (WEXITSTATUS(status)&0xff);
 	else if (WIFSIGNALED(status))

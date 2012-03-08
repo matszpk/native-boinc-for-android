@@ -105,6 +105,7 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 		}
 		
 		final ProgressItem item = mCurrentProgress[position];
+		if (Logging.DEBUG) Log.d(TAG, "position:"+position+",name:"+item.name+"state:"+item.state);
 		
 		switch(item.state) {
 		case ProgressItem.STATE_IN_PROGRESS:
@@ -122,6 +123,7 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 		}
 		
 		if (item.state == ProgressItem.STATE_IN_PROGRESS) {
+			tag.progressBar.setVisibility(View.VISIBLE);
 			if (item.progress >= 0) {
 				tag.progressBar.setIndeterminate(false);
 				tag.progressBar.setProgress(item.progress);
@@ -131,8 +133,7 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 			tag.progressBar.setVisibility(View.GONE);
 		
 		// disable button if end
-		if (item.state != ProgressItem.STATE_IN_PROGRESS)
-			tag.cancelButton.setEnabled(false);
+		tag.cancelButton.setEnabled(item.state == ProgressItem.STATE_IN_PROGRESS);
 	}
 	
 	private class ProgressItemAdapter extends BaseAdapter {
@@ -175,8 +176,8 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 					
 			ProgressCancelOnClickListener listener = mCurrentCancelClickListeners.get(item.name);
 			// if new view created and listener not null then install listener
-			if (convertView == null && listener != null) {
-				if (Logging.DEBUG) Log.d(TAG, "Install cancel item listener");
+			if (listener != null) {
+				if (Logging.DEBUG) Log.d(TAG, "Install cancel item listener:"+item.name);
 				cancelButton.setOnClickListener(listener);
 			}
 			
@@ -230,7 +231,6 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 				public void onClick(View v) {
 					mNotificationController.removeAllNotInProgress();
 					finish();
-					
 					toNextInstallerStep();
 				}
 			});
@@ -300,9 +300,9 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 		if (mInstaller != null) {
 			setProgressBarIndeterminateVisibility(mInstaller.isWorking());
 			
-			mCurrentProgress = mInstaller.getCurrentlyInstalledBinaries();
+			mCurrentProgress = mInstaller.getProgressItems();
 			if (mCurrentProgress == null)
-				return; // nothing
+				mCurrentProgress = new ProgressItem[0];
 			Arrays.sort(mCurrentProgress, mProgressCompatator);
 			/* we update data with using adapter */
 			mCurrentCancelClickListeners.clear();
@@ -366,7 +366,7 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	}
 
 	private int addNewProgressItem(String distribName) {
-		ProgressItem progress = mInstaller.getCurrentStatusForDistribInstall(distribName);
+		ProgressItem progress = mInstaller.getProgressItem(distribName);
 		if (progress == null) // if not found
 			return -1;
 		
@@ -499,7 +499,7 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	}
 
 	@Override
-	public void onInstallerWorking(boolean isWorking) {
+	public void onChangeInstallerIsWorking(boolean isWorking) {
 		if (Logging.DEBUG) Log.d(TAG, "Change is working");
 		setProgressBarIndeterminateVisibility(isWorking);
 	}

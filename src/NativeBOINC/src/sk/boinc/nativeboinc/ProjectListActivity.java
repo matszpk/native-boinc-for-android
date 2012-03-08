@@ -38,6 +38,7 @@ import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.ProjectItem;
 import sk.boinc.nativeboinc.util.StandardDialogs;
+import sk.boinc.nativeboinc.util.UpdateItem;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -219,7 +220,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		cancelButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				finish();
+				onBackPressed();
 			}
 		});
 		
@@ -288,6 +289,13 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			mConnectedClient = mConnectionManager.getClientId();
 		
 		updateActivityState();
+	}
+	
+	@Override
+	public void onBackPressed() {
+		if (mInstaller != null)
+			mInstaller.cancelOperation();
+		finish();
 	}
 	
 	/**
@@ -613,7 +621,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	}
 
 	@Override
-	public void onInstallerWorking(boolean isWorking) {
+	public void onChangeInstallerIsWorking(boolean isWorking) {
 		setProgressBarIndeterminateVisibility(isWorking);
 	}
 
@@ -621,5 +629,11 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	public void onClientIsWorking(boolean isWorking) {
 		// TODO Auto-generated method stub
 		setProgressBarIndeterminateVisibility(isWorking);
+	}
+
+	@Override
+	public void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
+		// TODO Auto-generated method stub
+		
 	}
 }

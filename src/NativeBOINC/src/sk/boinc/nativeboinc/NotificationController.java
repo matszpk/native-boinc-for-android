@@ -65,6 +65,8 @@ public class NotificationController {
 	private DistribNotification mClientInstallNotification = null;
 	private DistribNotification mDumpFilesNotification = null;
 	
+	private DistribNotification mReinstallNotification = null;
+	
 	private Map<String, DistribNotification> mProjectInstallNotifications =
 			new HashMap<String, DistribNotification>();
 	
@@ -273,6 +275,53 @@ public class NotificationController {
 		mNotificationManager.notify(NotificationId.INSTALL_DUMP_FILES, notification);
 	}
 	
+	/**
+	 * routines for reinstall notifications
+	 */
+	
+	private DistribNotification getReinstallNotification() {
+		if (mReinstallNotification != null) {
+			mReinstallNotification.notification.when = System.currentTimeMillis();
+			return mReinstallNotification;
+		}
+		
+		Intent intent = new Intent(mAppContext, ProgressActivity.class);
+		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 0);
+		
+		Notification notification = new Notification(R.drawable.nativeboinc_alpha,
+				mAppContext.getString(R.string.nativeReinstallTitle),
+				System.currentTimeMillis());
+		notification.contentIntent = pendingIntent;
+		RemoteViews contentView = new RemoteViews(mAppContext.getPackageName(),
+				R.layout.install_notification);
+		
+		mReinstallNotification = new DistribNotification(NotificationId.INSTALL_REINSTALL,
+				notification, contentView);
+		
+		return mReinstallNotification;
+	}
+	
+	public void notifyReinstallBoincOperation(String notifyText) {
+		DistribNotification reinstallNotification = getReinstallNotification();
+		
+		reinstallNotification.notification.contentView = reinstallNotification.contentView;
+		reinstallNotification.contentView.setProgressBar(R.id.operationProgress, 10000, 0, true);
+		reinstallNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
+		
+		mNotificationManager.notify(NotificationId.INSTALL_REINSTALL,
+				reinstallNotification.notification);
+	}
+	
+	public synchronized void notifyReinstallFinish(String description) {
+		Notification notification = getReinstallNotification().notification;
+		
+		notification.tickerText = description;
+		notification.setLatestEventInfo(mAppContext, description, description,
+				notification.contentIntent);
+		
+		mNotificationManager.notify(NotificationId.INSTALL_REINSTALL, notification);
+	}
+	
 	/***
 	 * create new or reuse existing notification for project distrib
 	 */
@@ -360,7 +409,7 @@ public class NotificationController {
 	 * get current status methods
 	 */
 	
-	public synchronized ProgressItem[] getCurrentlyInstalledBinaries() {
+	public synchronized ProgressItem[] getProgressItems() {
 		if (mDistribInstallProgresses.isEmpty())
 			return null;
 		
@@ -377,7 +426,7 @@ public class NotificationController {
 	}
 	
 	/* get current status */
-	public synchronized ProgressItem getCurrentStatusForDistribInstall(String distribName) {
+	public synchronized ProgressItem getProgressItem(String distribName) {
 		ProgressItem progress = mDistribInstallProgresses.get(distribName);
 		if (progress == null)
 			return null;
@@ -424,8 +473,9 @@ public class NotificationController {
 		if (distribName.equals(InstallerService.BOINC_CLIENT_ITEM_NAME))
 			notifyInstallClientOperation(opDescription);
 		else if (distribName.equals(InstallerService.BOINC_DUMP_ITEM_NAME))
-			// opDescription - file path
 			notifyDumpFilesOperation(opDescription);
+		else if (distribName.equals(InstallerService.BOINC_REINSTALL_ITEM_NAME))
+			notifyReinstallBoincOperation(opDescription);
 		// ignore non distrib notifications
 		else if (distribName.length()!=0)
 			notifyInstallProjectAppsOperation(distribName, opDescription);
@@ -439,7 +489,6 @@ public class NotificationController {
 		if (distribName.equals(InstallerService.BOINC_CLIENT_ITEM_NAME))
 			notifyInstallClientProgress(opDescription, progress);
 		else if (distribName.equals(InstallerService.BOINC_DUMP_ITEM_NAME))
-			// opDescription - file path
 			notifyDumpFilesProgress(opDescription, progress);
 		// ignore non distrib notifications
 		else if (distribName.length()!=0)
@@ -454,6 +503,8 @@ public class NotificationController {
 			notifyInstallClientFinish(errorMessage);
 		else if (distribName.equals(InstallerService.BOINC_DUMP_ITEM_NAME))
 			notifyDumpFilesFinish(errorMessage);
+		else if (distribName.equals(InstallerService.BOINC_REINSTALL_ITEM_NAME))
+			notifyReinstallFinish(errorMessage);
 		// ignore non distrib notifications
 		else if (distribName.length()!=0)
 			notifyInstallProjectAppsFinish(distribName, errorMessage);
@@ -468,6 +519,9 @@ public class NotificationController {
 		else if (distribName.equals(InstallerService.BOINC_DUMP_ITEM_NAME))
 			notifyDumpFilesFinish(InstallerService.BOINC_DUMP_ITEM_NAME+ ": "+
 						mAppContext.getString(R.string.operationCancelled));
+		else if (distribName.equals(InstallerService.BOINC_REINSTALL_ITEM_NAME))
+			notifyReinstallFinish(InstallerService.BOINC_REINSTALL_ITEM_NAME+ ": "+
+						mAppContext.getString(R.string.operationCancelled));
 		// ignore non distrib notifications
 		else if (distribName.length()!=0)
 			notifyInstallProjectAppsFinish(distribName, mAppContext.getString(R.string.operationCancelled));
@@ -481,6 +535,8 @@ public class NotificationController {
 			notifyInstallClientFinish(mAppContext.getString(R.string.installClientNotifyFinish));
 		else if (distribName.equals(InstallerService.BOINC_DUMP_ITEM_NAME))
 			notifyDumpFilesFinish(mAppContext.getString(R.string.dumpBoincFinish));
+		else if (distribName.equals(InstallerService.BOINC_REINSTALL_ITEM_NAME))
+			notifyReinstallFinish(mAppContext.getString(R.string.reinstallFinish));
 		// ignore non distrib notifications
 		else if (distribName.length()!=0)
 			notifyInstallProjectAppsFinish(distribName,

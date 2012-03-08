@@ -20,12 +20,14 @@
 package sk.boinc.nativeboinc.installer;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.NotificationController;
-import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.util.ProgressItem;
@@ -51,6 +53,7 @@ public class InstallerService extends Service {
 	
 	public static final String BOINC_CLIENT_ITEM_NAME = "BOINC client";
 	public static final String BOINC_DUMP_ITEM_NAME = "BOINC Dump Files";
+	public static final String BOINC_REINSTALL_ITEM_NAME = "BOINC Reinstall";
 	
 	private InstallerThread mInstallerThread = null;
 	private InstallerHandler mInstallerHandler = null;
@@ -64,6 +67,9 @@ public class InstallerService extends Service {
 	private Object mPendingNewProjectDistribsSync = new Object(); // syncer
 	private ClientDistrib mPendingClientDistrib = null;
 	private Object mPendingClientDistribSync = new Object();
+	
+	private UpdateItem[] mPendingUpdateItems = null;
+	private Object mPendingUpdateItemsSync = new Object();
 	
 	public class LocalBinder extends Binder {
 		public InstallerService getService() {
@@ -206,8 +212,7 @@ public class InstallerService extends Service {
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners)
 				if (listener instanceof InstallerProgressListener) {
-					((InstallerProgressListener)listener).onOperationError(
-							distribName, errorMessage);
+					listener.onOperationError(distribName, errorMessage);
 					called = true;
 				}
 			
@@ -254,7 +259,8 @@ public class InstallerService extends Service {
 				mPendingNewProjectDistribs = projectDistribs;
 			}
 			
-			for (AbstractInstallerListener listener: mListeners)
+			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			for (AbstractInstallerListener listener: listeners)
 				if (listener instanceof InstallerUpdateListener)
 					((InstallerUpdateListener)listener).currentProjectDistribList(projectDistribs);
 		}
@@ -264,14 +270,27 @@ public class InstallerService extends Service {
 				mPendingClientDistrib = clientDistrib;
 			}
 			
-			for (AbstractInstallerListener listener: mListeners)
+			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			for (AbstractInstallerListener listener: listeners)
 				if (listener instanceof InstallerUpdateListener)
 					((InstallerUpdateListener)listener).currentClientDistrib(clientDistrib);
 		}
 		
+		public void notifyBinariesToInstallOrUpdate(UpdateItem[] updateItems) {
+			synchronized(mPendingUpdateItemsSync) {
+				mPendingUpdateItems = updateItems;
+			}
+			
+			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			
+			for (AbstractInstallerListener listener: listeners)
+				if (listener instanceof InstallerUpdateListener)
+					((InstallerUpdateListener)listener).binariesToUpdateOrInstall(updateItems);
+		}
+		
 		public void onChangeIsWorking(boolean isWorking) {
 			for (AbstractInstallerListener listener: mListeners)
-				listener.onInstallerWorking(isWorking);
+				listener.onChangeInstallerIsWorking(isWorking);
 		}
 	}
 	
@@ -411,6 +430,10 @@ public class InstallerService extends Service {
 		mInstallerHandler.cancelDumpFiles();
 	}
 	
+	public void cancelOperation() {
+		mInstallerHandler.cancelOperation(mInstallerThread);
+	}
+	
 	/**
 	 * Check whether client is installed
 	 * @return
@@ -441,6 +464,33 @@ public class InstallerService extends Service {
 		return true;
 	}
 	
+	public static String getBoincLogs(Context context) {
+		StringBuilder sB = new StringBuilder();
+		
+		InputStreamReader reader = null;
+		try {
+			String messagesFilePath = context.getFilesDir()+"/boinc/messages.log";
+			reader = new InputStreamReader(new FileInputStream(messagesFilePath), "UTF-8");
+			
+			char[] buffer = new char[4096];
+			
+			while (true) {
+				int readed = reader.read(buffer);
+				if (readed == -1)
+					break; // if end
+				sB.append(buffer, 0, readed);
+			}
+		} catch(IOException ex) {
+			return null; // cant read
+		} finally {
+			try {
+				if (reader != null)
+					reader.close();
+			} catch(IOException ex) { }
+		}
+		return sB.toString();
+	}
+	
 	/**
 	 * 
 	 * @return installed binaries info
@@ -453,34 +503,44 @@ public class InstallerService extends Service {
 	 * @param attachProjectUrls attached projects urls list
 	 * @return update items
 	 */
-	public UpdateItem[] getBinariesToUpdateOrInstall(String[] attachedProjectUrls) {
-		return mInstallerHandler.getBinariesToUpdateOrInstall(attachedProjectUrls);
+	public void getBinariesToUpdateOrInstall() {
+		mInstallerThread.getBinariesToUpdateOrInstall();
+	}
+	
+	public UpdateItem[] getPendingBinariesToUpdateOrInstall() {
+		synchronized(mPendingUpdateItemsSync) {
+			UpdateItem[] pending = mPendingUpdateItems;
+			mPendingUpdateItems = null;
+			return pending;
+		}
 	}
 	
 	/**
 	 * dump boinc files
 	 * @return
 	 */
-	
 	public void dumpBoincFiles(String directory) {
 		mInstallerThread.dumpBoincFiles(directory); 
 	}
 	
+	public void reinstallBoinc() {
+		mInstallerThread.reinstallBoinc();
+	}
 	
 	public boolean isWorking() {
 		return mInstallerHandler.isWorking();
 	}
 	
 	/**
-	 * get currently installed distrib (progresses)
+	 * get progress item
 	 * @return distrib progresses (not sorted)
 	 */
-	public synchronized ProgressItem[] getCurrentlyInstalledBinaries() {
-		return mNotificationController.getCurrentlyInstalledBinaries();
+	public synchronized ProgressItem[] getProgressItems() {
+		return mNotificationController.getProgressItems();
 	}
 	
 	/* get current status */
-	public synchronized ProgressItem getCurrentStatusForDistribInstall(String distribName) {
-		return mNotificationController.getCurrentStatusForDistribInstall(distribName);
+	public synchronized ProgressItem getProgressItem(String distribName) {
+		return mNotificationController.getProgressItem(distribName);
 	}
 }

@@ -24,12 +24,12 @@ import java.util.ArrayList;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
 import sk.boinc.nativeboinc.installer.InstallError;
-import sk.boinc.nativeboinc.installer.InstallerProgressListener;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
 import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.StandardDialogs;
+import sk.boinc.nativeboinc.util.UpdateItem;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -43,8 +43,7 @@ import android.widget.TextView;
  * @author mat
  * 
  */
-public class InstallStep1Activity extends ServiceBoincActivity implements
-		InstallerProgressListener, InstallerUpdateListener {
+public class InstallStep1Activity extends ServiceBoincActivity implements InstallerUpdateListener {
 	private final static String TAG = "InstallStep1Activity";
 
 	private TextView mVersionToInstall = null;
@@ -107,7 +106,7 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 		cancelButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				finish();
+				onBackPressed();
 			}
 		});
 
@@ -126,6 +125,13 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 		super.onResume();
 		if (mInstaller != null)
 			updateActivityState();
+	}
+	
+	@Override
+	public void onBackPressed() {
+		if (mInstaller != null)
+			mInstaller.cancelOperation();
+		finish();
 	}
 	
 	@Override
@@ -185,16 +191,6 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 		StandardDialogs.onPrepareDialog(this, dialogId, dialog, args);
 	}
 
-	@Override
-	public void onOperation(String distribName, String opDescription) {
-	}
-
-	@Override
-	public void onOperationProgress(String distribName, String opDescription,
-			int progress) {
-		// if progress
-	}
-
 	private void handleInstallError(String distribName, String errorMessage) {
 		mClientDistribProgressState = ProgressState.FAILED;
 		StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
@@ -203,15 +199,6 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 	@Override
 	public void onOperationError(String distribName, String errorMessage) {
 		handleInstallError(distribName, errorMessage);
-	}
-
-	@Override
-	public void onOperationCancel(String distribName) {
-		mClientDistribProgressState = ProgressState.FAILED;
-	}
-
-	@Override
-	public void onOperationFinish(String distribName) {
 	}
 
 	@Override
@@ -237,7 +224,13 @@ public class InstallStep1Activity extends ServiceBoincActivity implements
 	}
 
 	@Override
-	public void onInstallerWorking(boolean isWorking) {
+	public void onChangeInstallerIsWorking(boolean isWorking) {
 		setProgressBarIndeterminateVisibility(isWorking);
+	}
+
+	@Override
+	public void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
+		// TODO Auto-generated method stub
+		
 	}
 }

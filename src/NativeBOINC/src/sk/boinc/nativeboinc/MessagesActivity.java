@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.ArrayList;
 
+import edu.berkeley.boinc.lite.Message;
+
 import sk.boinc.nativeboinc.bridge.AutoRefresh;
 import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
 import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
@@ -36,6 +38,7 @@ import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.service.ConnectionManagerService;
 import sk.boinc.nativeboinc.util.ClientId;
+import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.ScreenOrientationHandler;
 import android.app.Activity;
 import android.app.ListActivity;
@@ -43,14 +46,19 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -66,6 +74,7 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 	private boolean mViewUpdatesAllowed = false;
 	private boolean mViewDirty = false;
 
+	private ArrayList<MessageInfo> mUnfilteredMessages = new ArrayList<MessageInfo>();
 	private ArrayList<MessageInfo> mMessages = new ArrayList<MessageInfo>();
 
 	private static final long UPDATES_ON_RESUMES_PERIOD = 4000; 
@@ -73,22 +82,28 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 	private boolean mUpdateMessagesInProgress = false;
 	private long mLastUpdateTime = -1;
 	
+	private int mFilterType = Message.MSG_INFO;
+	
 	private static class SavedState {
+		private final ArrayList<MessageInfo> unfilteredMessages;
 		private final ArrayList<MessageInfo> messages;
 		private final boolean updateMessagesInProgress;
 		private final long lastUpdateTime;
+		private final int filterType;
 
 		public SavedState(MessagesActivity activity) {
+			unfilteredMessages = activity.mUnfilteredMessages;
 			messages = activity.mMessages;
-			if (Logging.DEBUG) Log.d(TAG, "saved: messages.size()=" + messages.size());
 			updateMessagesInProgress = activity.mUpdateMessagesInProgress;
 			lastUpdateTime = activity.mLastUpdateTime;
+			filterType = activity.mFilterType;
 		}
 		public void restoreState(MessagesActivity activity) {
+			activity.mUnfilteredMessages = unfilteredMessages;
 			activity.mMessages = messages;
-			if (Logging.DEBUG) Log.d(TAG, "restored: mMessages.size()=" + activity.mMessages.size());
 			activity.mUpdateMessagesInProgress = updateMessagesInProgress;
 			activity.mLastUpdateTime = lastUpdateTime;
+			activity.mFilterType = filterType;
 		}
 	}
 
@@ -184,9 +199,25 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 	}
 
 
+	private TextView mFilterTypeText = null;
+	private String[] mFilterLabelsArray = null;
+	private String[] mFilterMenuItemsArray = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.messages);
+		
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		mFilterType = sharedPrefs.getInt(PreferenceName.LAST_MESSAGES_FILTER, Message.MSG_INFO);
+		mFilterLabelsArray = getResources().getStringArray(R.array.messageFilterLabels);
+		mFilterMenuItemsArray = getResources().getStringArray(R.array.messageFilterMenuItems);
+		
+		mFilterTypeText = (TextView)findViewById(R.id.filterText);
+		
+		registerForContextMenu(getListView());
+		registerForContextMenu(findViewById(R.id.emptyContent));
+		
 		setListAdapter(new MessageListAdapter(this));
 		mScreenOrientation = new ScreenOrientationHandler(this);
 		doBindService();
@@ -204,10 +235,21 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 		lv.setStackFromBottom(true);
 		lv.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
 	}
+	
+	private void updateFilterType() {
+		int filterType = mFilterType;
+		if (filterType < 0 || filterType > 3)
+			filterType = 0;
+		mFilterTypeText.setText(mFilterLabelsArray[filterType]);
+		filterMessages();
+		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
+	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+		updateFilterType();
+		
 		mScreenOrientation.setOrientation();
 		mRequestUpdates = true;
 		if (mConnectedClient != null) {
@@ -239,6 +281,7 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 			// There were some updates received while we were not visible
 			// The data are stored, but view is not updated yet; Do it now
 			sortMessages();
+			filterMessages();
 			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 			mViewDirty = false;
 			if (Logging.DEBUG) Log.d(TAG, "Delayed refresh of view was done now");
@@ -271,6 +314,26 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		return new SavedState(this);
+	}
+	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
+		menu.setHeaderTitle(R.string.messageFilters);
+		for (int i = 1; i <= Message.MSG_INTERNAL_ERROR; i++) {
+			MenuItem item = menu.add(0, i, 0, mFilterMenuItemsArray[i]);
+			item.setCheckable(true);
+			item.setChecked(i == mFilterType);
+		}
+	}
+	
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		mFilterType = item.getItemId();
+		updateFilterType();
+		
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		sharedPrefs.edit().putInt(PreferenceName.LAST_MESSAGES_FILTER, mFilterType).commit();
+		return true;
 	}
 
 	@Override
@@ -312,6 +375,7 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 		if (Logging.DEBUG) Log.d(TAG, "Client is disconnected");
 		mConnectedClient = null;
 		mUpdateMessagesInProgress = false;
+		mUnfilteredMessages.clear();
 		mMessages.clear();
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
@@ -358,15 +422,17 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 	public boolean updatedMessages(ArrayList<MessageInfo> messages) {
 		mUpdateMessagesInProgress = false;
 		mLastUpdateTime = SystemClock.elapsedRealtime();
-		if (mMessages.size() != messages.size()) {
+		if (mUnfilteredMessages.size() != messages.size()) {
 			// Number of messages has changed (increased)
 			// This is the only case when we need an update, because content of messages
 			// never changes, only fresh arrived messages are added to list
-			mMessages = messages;
+			mUnfilteredMessages = messages;
+			filterMessages();
 			if (mViewUpdatesAllowed) {
 				// We are visible, update the view with fresh data
 				if (Logging.DEBUG) Log.d(TAG, "Messages are updated, refreshing view");
 				sortMessages();
+				filterMessages();
 				((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 			}
 			else {
@@ -386,9 +452,16 @@ public class MessagesActivity extends ListActivity implements ClientReplyReceive
 				return object1.seqNo - object2.seqNo;
 			}
 		};
-		Collections.sort(mMessages, comparator);
+		Collections.sort(mUnfilteredMessages, comparator);
 	}
-
+	
+	private void filterMessages() {
+		mMessages.clear();
+		for (MessageInfo msgInfo: mUnfilteredMessages)
+			if (msgInfo.priority >= mFilterType || msgInfo.priority == 0)
+				mMessages.add(msgInfo);
+	}
+	
 	@Override
 	public void onClientIsWorking(boolean isWorking) {
 		// TODO Auto-generated method stub

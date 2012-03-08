@@ -79,9 +79,11 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 	private static final String TAG = "BoincManagerActivity";
 
 	private static final int DIALOG_CONNECT_PROGRESS = 1;
-	private static final int DIALOG_UPGRADE_INFO     = 5;
 	private static final int DIALOG_SHUTDOWN         = 2;
 	private static final int DIALOG_RESTART_PROGRESS = 3;
+	private static final int DIALOG_START_PROGRESS   = 4;
+	private static final int DIALOG_UPGRADE_INFO     = 5;
+	private static final int DIALOG_SHUTDOWN_PROGRESS   = 6;
 
 	private static final int ACTIVITY_SELECT_HOST   = 1;
 	private static final int ACTIVITY_MANAGE_CLIENT = 2;
@@ -115,8 +117,10 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 	private boolean mConnectClientAfterStart = false;
 	
 	private boolean mIsInstallerRan = false;
-	
 	private boolean mShowShutdownDialog = false;
+	
+	// true when 'Shutdown' option selected and shutdown confirmed
+	private boolean mStoppedInMainActivity = false;
 	
 	private static class SavedState {
 		private final boolean isInstallerRan;
@@ -126,6 +130,7 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		private final boolean connectClientAfterRestart;
 		private final boolean doConnectNativeClient;
 		private final boolean showShutdownDialog;
+		private final boolean stoppedInMainActivity;
 
 		public SavedState(BoincManagerActivity activity) {
 			isInstallerRan = activity.mIsInstallerRan;
@@ -137,6 +142,7 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			if (Logging.DEBUG) Log.d(TAG, "saved: connectProgressIndicator=" + connectProgressIndicator);
 			doConnectNativeClient = activity.mDoConnectNativeClient;
 			showShutdownDialog = activity.mShowShutdownDialog;
+			stoppedInMainActivity = activity.mStoppedInMainActivity;
 		}
 		public void restoreState(BoincManagerActivity activity) {
 			activity.mInitialDataAvailable = initialDataAvailable;
@@ -149,6 +155,7 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			activity.mConnectClientAfterRestart = connectClientAfterRestart;
 			activity.mDoConnectNativeClient = doConnectNativeClient;
 			activity.mShowShutdownDialog = showShutdownDialog;
+			activity.mStoppedInMainActivity = stoppedInMainActivity;
 		}
 	}
 
@@ -440,6 +447,11 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 							clientError.message);
 				return;
 			}
+			
+			if (mStoppedInMainActivity && !mRunner.isRun()) {
+				mStoppedInMainActivity = false;
+				dismissDialog(DIALOG_SHUTDOWN_PROGRESS);
+			}
 		}
 	}
 	
@@ -664,6 +676,7 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			dbHelper.open();
 			mSelectedClient = dbHelper.fetchHost("nativeboinc");
 			dbHelper.close();
+			showDialog(DIALOG_START_PROGRESS);
 			mRunner.startClient(false);
 			return true;
 		}
@@ -756,6 +769,8 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 	    			new DialogInterface.OnClickListener() {
 	    				public void onClick(DialogInterface dialog, int whichButton) {
 	    					mShowShutdownDialog = false;
+	    					showDialog(DIALOG_SHUTDOWN_PROGRESS);
+	    					mStoppedInMainActivity = true;
 	    					mRunner.shutdownClient();
 	    				}
 	    			})
@@ -772,6 +787,8 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 					}
 				})
 	    		.create();
+		case DIALOG_START_PROGRESS:
+		case DIALOG_SHUTDOWN_PROGRESS:
 		case DIALOG_RESTART_PROGRESS: {
 			progressDialog = new FixedProgressDialog(this);
 			progressDialog.setIndeterminate(true);
@@ -805,9 +822,17 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 				if (Logging.ERROR) Log.e(TAG, "Unhandled progress indicator: " + mConnectProgressIndicator);
 			}
 			break;
+		case DIALOG_START_PROGRESS:
+			pd = (ProgressDialog)dialog;
+			pd.setMessage(getString(R.string.nativeClientStarting));
+			break;
 		case DIALOG_RESTART_PROGRESS:
 			pd = (ProgressDialog)dialog;
 			pd.setMessage(getString(R.string.clientRestarting));
+			break;
+		case DIALOG_SHUTDOWN_PROGRESS:
+			pd = (ProgressDialog)dialog;
+			pd.setMessage(getString(R.string.nativeClientStopping));
 			break;
 		}
 	}
@@ -995,6 +1020,8 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			if (Logging.DEBUG) Log.d(TAG, "on client start: after start");
 			if (mConnectClientAfterRestart) // after restarting
 				dismissDialog(DIALOG_RESTART_PROGRESS);
+			else // if normal start
+				dismissDialog(DIALOG_START_PROGRESS);
 			
 			mConnectClientAfterStart = false;
 			mConnectClientAfterRestart = false;
@@ -1010,10 +1037,21 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			if (mConnectedClient != null && mConnectedClient.isNativeClient())
 				boincDisconnect();
 		}
+		
+		if (mStoppedInMainActivity) {
+			mStoppedInMainActivity = false;
+			dismissDialog(DIALOG_SHUTDOWN_PROGRESS);
+		}
 	}
 	
 	@Override
 	public void onNativeBoincClientError(String message) {
+		if (mConnectClientAfterRestart) // after restarting
+			dismissDialog(DIALOG_RESTART_PROGRESS);
+		else // if normal start
+			dismissDialog(DIALOG_START_PROGRESS);
+		
+		mStoppedInMainActivity = false;
 		mConnectClientAfterStart = false;
 		mConnectClientAfterRestart = false;
 		StandardDialogs.showErrorDialog(this, message);

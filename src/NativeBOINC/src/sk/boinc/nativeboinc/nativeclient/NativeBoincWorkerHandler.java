@@ -23,6 +23,7 @@ import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
+import edu.berkeley.boinc.lite.Project;
 import edu.berkeley.boinc.lite.Result;
 import edu.berkeley.boinc.lite.RpcClient;
 import edu.berkeley.boinc.nativeboinc.ExtendedRpcClient;
@@ -103,6 +104,25 @@ public class NativeBoincWorkerHandler extends Handler {
 		notifyResults(callback, results);
 	}
 	
+	/**
+	 * get projects
+	 * 
+	 */
+	public void getProjects(NativeBoincProjectsListener callback) {
+		if (Logging.DEBUG) Log.d(TAG, "Get projects from native client");
+		
+		if (mRpcClient == null) {
+			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientProjectsError));
+			return;
+		}
+		ArrayList<Project> projects = mRpcClient.getProjectStatus();
+		if (projects == null) {
+			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientProjectsError));
+			return;
+		}
+		notifyProjects(callback, projects);
+	}
+	
 	private boolean mUpdatingPollerIsRun = false;
 	private ArrayList<String> mUpdatingProjects = new ArrayList<String>();
 	
@@ -143,10 +163,15 @@ public class NativeBoincWorkerHandler extends Handler {
 			if (count != 0) { // do next update
 				if (Logging.DEBUG) Log.d(TAG, "polling update_apps");
 				postDelayed(mUpdatingPoller, 1000);
-			}
+			} else
+				mUpdatingPollerIsRun = false;
 		}
 	};
 	
+	/**
+	 * update project apps
+	 * @param projectUrl
+	 */
 	public void updateProjectApps(String projectUrl) {
 		if (Logging.DEBUG) Log.d(TAG, "Update projects apps");
 		
@@ -168,6 +193,7 @@ public class NativeBoincWorkerHandler extends Handler {
 			postDelayed(mUpdatingPoller, 1000);
 		}
 	}
+	
 	
 	/**
 	 * shutdowns client
@@ -210,7 +236,18 @@ public class NativeBoincWorkerHandler extends Handler {
 		});
 	}
 	
+	private synchronized void notifyProjects(final NativeBoincProjectsListener callback,
+			final ArrayList<Project> projects) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.getProjects(callback, projects);
+			}
+		});
+	}
+	
 	private synchronized void notifyUpdatedProject(final String projectUrl) {
+		if (Logging.DEBUG) Log.d(TAG, "Notify updated project:"+projectUrl);
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {

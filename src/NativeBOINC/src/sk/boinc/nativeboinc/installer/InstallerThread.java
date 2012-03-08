@@ -93,7 +93,7 @@ public class InstallerThread extends Thread {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateClientDistrib();
+				mHandler.updateClientDistrib(true);
 			}
 		});
 	}
@@ -125,11 +125,20 @@ public class InstallerThread extends Thread {
 		});
 	}
 	
+	public void getBinariesToUpdateOrInstall() {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.getBinariesToUpdateOrInstall();
+			}
+		});
+	}
+	
 	public void updateProjectDistribList() {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateProjectDistribList();
+				mHandler.updateProjectDistribList(true);
 			}
 		});
 	}
@@ -139,6 +148,15 @@ public class InstallerThread extends Thread {
 			@Override
 			public void run() {
 				mHandler.dumpBoincFiles(directory);
+			}
+		});
+	}
+	
+	public void reinstallBoinc() {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.reinstallBoinc();
 			}
 		});
 	}

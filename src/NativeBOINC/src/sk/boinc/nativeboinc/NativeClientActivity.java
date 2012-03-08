@@ -28,7 +28,6 @@ import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.ScreenOrientationHandler;
-import sk.boinc.nativeboinc.util.StandardDialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ComponentName;
@@ -63,6 +62,7 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	
 	private static final int DIALOG_APPLY_AFTER_RESTART = 1;
 	private static final int DIALOG_ENTER_DUMP_DIRECTORY = 2;
+	private static final int DIALOG_REINSTALL_QUESTION = 3;
 	
 	/* information for main activity (for reconnect) */
 	public static final String RESULT_DATA_RESTARTED = "Restarted";
@@ -77,7 +77,7 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	
 	private boolean mDoRestart = false;
 	private boolean mAllowRemoteHosts;
-	private boolean mAllowRemoteHostsDetermined =false;
+	private boolean mAllowRemoteHostsDetermined = false;
 	
 	private ServiceConnection mInstallerConnection = new ServiceConnection() {
 
@@ -270,6 +270,36 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 				return true;
 			}
 		});
+		
+		/* reinstall boinc */
+		pref = (Preference)findPreference(PreferenceName.NATIVE_REINSTALL);
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				showDialog(DIALOG_REINSTALL_QUESTION);
+				return true;
+			}
+		});
+		
+		/* update binaries preference */
+		pref = (Preference)findPreference(PreferenceName.NATIVE_UPDATE_BINARIES);
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				startActivity(new Intent(NativeClientActivity.this, UpdateActivity.class));
+				return true;
+			}
+		});
+		
+		/* show logs preference */
+		pref = (Preference)findPreference(PreferenceName.NATIVE_SHOW_LOGS);
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				startActivity(new Intent(NativeClientActivity.this, BoincLogsActivity.class));
+				return true;
+			}
+		});
 	}
 	
 	@Override
@@ -431,6 +461,20 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 				})
 				.create();
 		}
+		case DIALOG_REINSTALL_QUESTION:
+			return new AlertDialog.Builder(this)
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setTitle(R.string.warning)
+				.setMessage(R.string.reinstallQuestion)
+				.setPositiveButton(R.string.yesText, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						mInstaller.reinstallBoinc();
+						startActivity(new Intent(NativeClientActivity.this, ProgressActivity.class)); 
+					}
+				})
+				.setNegativeButton(R.string.noText, null)
+				.create();
 		}
 		return null;
 	}
@@ -467,10 +511,16 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	}
 
 	@Override
-	public void onInstallerWorking(boolean isWorking) {
+	public void onChangeInstallerIsWorking(boolean isWorking) {
 		if ((mRunner != null && mRunner.serviceIsWorking()) || isWorking)
 			setProgressBarIndeterminateVisibility(true);
 		else if ((mRunner == null || !mRunner.serviceIsWorking()) && !isWorking)
 			setProgressBarIndeterminateVisibility(false);
+	}
+
+	@Override
+	public void onOperationError(String distribName, String errorMessage) {
+		// TODO Auto-generated method stub
+		
 	}
 }

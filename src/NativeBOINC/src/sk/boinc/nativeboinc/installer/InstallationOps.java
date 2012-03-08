@@ -23,25 +23,41 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.Semaphore;
 
 import sk.boinc.nativeboinc.R;
+import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
+import sk.boinc.nativeboinc.util.ClientId;
+import sk.boinc.nativeboinc.util.HostListDbAdapter;
+import sk.boinc.nativeboinc.util.PreferenceName;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
 /**
  * @author mat
  *
  */
 public class InstallationOps {
+	
+	private static final String TAG = "InstallationOps";
 
 	private Context mContext = null;
 	
 	private InstallerService.ListenerHandler mListenerHandler = null;
 	
 	private static final int NOTIFY_PERIOD = 400;
+	private static final int BUFFER_SIZE = 4096;
 	
 	private String mExternalPath = null; 
+	
+	private NativeBoincService mRunner = null;
 	
 	public InstallationOps(Context context, InstallerService.ListenerHandler listenerHandler) {
 		mContext = context;
@@ -49,7 +65,9 @@ public class InstallationOps {
 		mExternalPath = Environment.getExternalStorageDirectory().toString();
 	}
 	
-	private static final int BUFFER_SIZE = 4096;
+	public void setRunnerService(NativeBoincService service) {
+		mRunner = service;
+	}
 	
 	private long calculateDirectorySize(File dir) {
 		int length = 0;
@@ -70,6 +88,7 @@ public class InstallationOps {
 	private long mPreviousNotifyTime;
 	
 	private boolean mDoCancelDumpFiles = false;
+	private boolean mDoCancelReinstall = false;
 	
 	private long copyDirectory(File inDir, File outDir, String path, long copied, long inputSize)
 			throws IOException {
@@ -148,6 +167,8 @@ public class InstallationOps {
 				outPath = mExternalPath+"/"+directory;
 		}
 		
+		if (Logging.DEBUG) Log.d(TAG, "DumpBoinc: OutPath:"+outPath);
+		
 		File fileDir = new File(outPath);
 		if (!fileDir.exists()) // create directory before 
 			fileDir.mkdirs();
@@ -189,17 +210,115 @@ public class InstallationOps {
 				deleteDirectory(file);
 			else
 				file.delete();
+			
+			if (mDoCancelReinstall)
+				return;
 		}
+	}
+	
+	private Semaphore mShutdownClientSem = new Semaphore(1);
+	
+	public void notifyShutdownClient() {
+		mShutdownClientSem.release();
 	}
 	
 	/**
 	 * clean boinc files (directory),
 	 */
-	public void clearBoincFiles() {
+	public void reinstallBoinc() {
+		mDoCancelReinstall = false;
+		
+		if (mRunner.isRun()) {
+			notifyReinstallOperation(mContext.getString(R.string.waitingForShutdown));
+			
+			mShutdownClientSem.tryAcquire();
+			
+			mRunner.shutdownClient();
+			// awaiting for shutdown
+			try {
+				mShutdownClientSem.acquire();
+			} catch(InterruptedException ex) {
+				notifyReinstallCancel();
+				mDoCancelReinstall = false;
+				return;
+			} finally {
+				mShutdownClientSem.release();
+			}
+		}
+		
 		deleteDirectory(mContext.getFileStreamPath("boinc"));
+		
+		if (mDoCancelReinstall) {
+			notifyReinstallCancel();
+			mDoCancelReinstall = false;
+			return;
+		}
+		
 		// now reinitialize boinc directory (first start and other operation) */
+		try {
+			notifyReinstallOperation(mContext.getString(R.string.nativeClientFirstStart));
+			
+			if (!NativeBoincService.firstStartClient(mContext)) {
+				notifyReinstallError(mContext.getString(R.string.nativeClientFirstStartError));
+		    	return;
+		    }
+			notifyReinstallOperation(mContext.getString(R.string.nativeClientFirstKill));
+			
+			if (mDoCancelReinstall) {
+				notifyReinstallCancel();
+				return;
+			}
+			
+			if (Logging.DEBUG) Log.d(TAG, "Adding nativeboinc to hostlist");
+			// add nativeboinc to client list
+	    	HostListDbAdapter dbAdapter = null;
+	    		
+	    	try {
+	    		// set up waiting for benchmark 
+	    		SharedPreferences sharedPrefs = PreferenceManager
+	    				.getDefaultSharedPreferences(mContext);
+				sharedPrefs.edit().putBoolean(PreferenceName.WAITING_FOR_BENCHMARK, true)
+						.commit();
+				
+	    		String accessPassword = NativeBoincUtils.getAccessPassword(mContext);
+	    		dbAdapter = new HostListDbAdapter(mContext);
+	    		dbAdapter.open();
+	    		dbAdapter.addHost(new ClientId(0, "nativeboinc", "127.0.0.1",
+	    				31416, accessPassword));
+	    		
+	    		// change hostname
+	    		NativeBoincUtils.setHostname(mContext, Build.PRODUCT);
+	    	} catch(IOException ex) {
+	    		notifyReinstallError(mContext.getString(R.string.getAccessPasswordError));
+	    	} finally {
+	    		if (dbAdapter != null)
+	    			dbAdapter.close();
+	    	}
+	    	
+	    	if (mDoCancelReinstall) {
+				notifyReinstallCancel();
+				return;
+			}
+			
+    		mRunner.startClient(true);
+	    	notifyReinstallFinish();
+		} catch(Exception ex) {
+			if (Logging.ERROR) Log.e(TAG, "on client install finishing:"+
+					ex.getClass().getCanonicalName()+":"+ex.getMessage());
+			notifyReinstallError(mContext.getString(R.string.unexpectedError)+": "+ex.getMessage());
+		} finally {
+			mDoCancelReinstall = false;
+		}
 	}
 	
+	public void cancelReinstall() {
+		mDoCancelReinstall = true;
+	}
+	
+	
+	/**
+	 * Dump boinc files notify routines
+	 */
 	private synchronized void notifyDumpBegin() {
 		mListenerHandler.post(new Runnable() {
 			@Override
@@ -244,6 +363,47 @@ public class InstallationOps {
 			@Override
 			public void run() {
 				mListenerHandler.onOperationFinish(InstallerService.BOINC_DUMP_ITEM_NAME, "");
+			}
+		});
+	}
+	
+	/**
+	 * Reinstall boinc notifying routines
+	 */
+	private synchronized void notifyReinstallOperation(final String opDescription) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.onOperation(InstallerService.BOINC_REINSTALL_ITEM_NAME, "",
+						opDescription);
+			}
+		});
+	}
+	
+	private synchronized void notifyReinstallCancel() {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.onOperationCancel(InstallerService.BOINC_REINSTALL_ITEM_NAME, "");
+			}
+		});
+	}
+	
+	private synchronized void notifyReinstallError(final String error) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.onOperationError(InstallerService.BOINC_REINSTALL_ITEM_NAME, "",
+						mContext.getString(R.string.dumpBoincError, error));
+			}
+		});
+	}
+	
+	private synchronized void notifyReinstallFinish() {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.onOperationFinish(InstallerService.BOINC_REINSTALL_ITEM_NAME, "");
 			}
 		});
 	}

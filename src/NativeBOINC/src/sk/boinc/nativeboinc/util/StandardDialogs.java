@@ -19,6 +19,7 @@
 
 package sk.boinc.nativeboinc.util;
 
+import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
@@ -119,9 +120,10 @@ public class StandardDialogs {
 			else // if project info
 				distribVersion.setText(name + " " + version);
 			
-			distribDesc.setText(activity.getString(R.string.description)+":\n"+
+			BoincManagerApplication app = (BoincManagerApplication)activity.getApplication();
+			app.setHtmlText(distribDesc, activity.getString(R.string.description), 
 					args.getString(ARG_DISTRIB_DESC));
-			distribChanges.setText(activity.getString(R.string.changes)+":\n"+
+			app.setHtmlText(distribChanges, activity.getString(R.string.changes), 
 					args.getString(ARG_DISTRIB_CHANGES));
 			return true;
 		}

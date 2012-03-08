@@ -13,6 +13,6 @@ public class ProcessUtils {
 	public native static int waitForProcess(int pid) throws InterruptedException;
 	
 	static {
-        System.loadLibrary("nativeboinc_utils");
-    }
+		System.loadLibrary("nativeboinc_utils");
+	}
 }

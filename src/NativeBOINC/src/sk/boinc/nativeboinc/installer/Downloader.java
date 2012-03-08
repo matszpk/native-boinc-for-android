@@ -189,6 +189,9 @@ public class Downloader {
 				}
 				
 				if (mPgpKeyContent == null) {
+					if (pgpStream == null) // cancelled
+						return VERIFICATION_CANCELLED;
+					
 					byte[] content = new byte[4096];
 					int readed = pgpStream.read(content);
 					if (readed >= 4096) {
@@ -309,6 +312,7 @@ public class Downloader {
 	        else
 	        	return VERIFICATION_FAILED;
 		} catch(InterruptedIOException ex) {
+			if (Logging.DEBUG) Log.d(TAG, "verif cancelled");
 			return VERIFICATION_CANCELLED;
 		} catch (Exception ex) {
 			notifyError(distribName, projectUrl, mContext.getString(R.string.verifySignatureError));
@@ -369,7 +373,7 @@ public class Downloader {
 						}
 					}
 					/*try {
-						Thread.sleep(80);
+						Thread.sleep(60);
 					} catch(InterruptedException ex) {
 						currentThread.interrupt();
 						return;

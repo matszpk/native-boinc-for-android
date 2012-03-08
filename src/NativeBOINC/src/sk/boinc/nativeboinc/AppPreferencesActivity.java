@@ -119,19 +119,6 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 			}
 		});
 		
-		// News Update period
-		listPref = (ListPreference)findPreference(PreferenceName.NEWS_UPDATE_PERIOD);
-		listPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				ListPreference listPref = (ListPreference)preference;
-				int idx = listPref.findIndexOfValue((String)newValue);
-				CharSequence[] allDesc = listPref.getEntries();
-				listPref.setSummary(getString(R.string.prefNewsUpdatePeriodSummary) + " " + allDesc[idx]);
-				return true;
-			}
-		});
-		
 		// Keep screen on:
 		// This preference does not need special handling here.
 		// Data in XML file will manage all needed handling.
@@ -284,11 +271,6 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 		auiIdx = listPref.findIndexOfValue(listPref.getValue());
 		listPref.setSummary(getString(R.string.prefWidgetUpdateIntervalSummary) + " " + listPref.getEntry());
 		
-		// new update
-		listPref = (ListPreference)findPreference(PreferenceName.NEWS_UPDATE_PERIOD);
-		auiIdx = listPref.findIndexOfValue(listPref.getValue());
-		listPref.setSummary(getString(R.string.prefNewsUpdatePeriodSummary) + " " + listPref.getEntry());
-		
 		// Automatic refresh interval for WiFi
 		listPref = (ListPreference)findPreference(PreferenceName.AUTO_UPDATE_WIFI);
 		auiIdx = listPref.findIndexOfValue(listPref.getValue());
@@ -400,7 +382,7 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 							startActivity(new Intent(Intent.ACTION_VIEW, uri));
 						}
 					})
-        		.setNegativeButton(R.string.dismiss, null)
+				.setNegativeButton(R.string.dismiss, null)
         		.create();
 		case DIALOG_LICENSE:
 			v = LayoutInflater.from(this).inflate(R.layout.dialog, null);

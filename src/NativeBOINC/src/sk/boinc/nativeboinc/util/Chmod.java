@@ -11,6 +11,6 @@ public class Chmod {
 	public static final native boolean chmod(String path, int mode);
 	
 	static {
-        System.loadLibrary("nativeboinc_utils");
-    }
+		System.loadLibrary("nativeboinc_utils");
+	}
 }

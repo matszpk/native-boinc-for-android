@@ -21,49 +21,92 @@ package sk.boinc.nativeboinc;
 
 import java.util.ArrayList;
 
-import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
+import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
-import sk.boinc.nativeboinc.installer.InstallerProgressListener;
+import sk.boinc.nativeboinc.installer.InstallError;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
-import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
-import sk.boinc.nativeboinc.util.ClientId;
-import sk.boinc.nativeboinc.util.HostListDbAdapter;
+import sk.boinc.nativeboinc.util.ProgressState;
+import sk.boinc.nativeboinc.util.StandardDialogs;
 import sk.boinc.nativeboinc.util.UpdateItem;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.KeyEvent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * @author mat
  *
  */
-public class UpdateActivity extends ServiceBoincActivity implements NativeBoincStateListener,
-		InstallerProgressListener, InstallerUpdateListener {
-	public static final String ATTACHED_PROJECT_URLS_TAG = "AttachedProjectUrlList";
+public class UpdateActivity extends ServiceBoincActivity implements InstallerUpdateListener {
+	
+	private static final String TAG = "UpdateActivity";
 	
 	private TextView mAvailableText;
 	private ListView mBinariesList;
+	private Button mConfirmButton;
 	
 	private UpdateItem[] mUpdateItems = null;
-	private String[] mAttachedProjectUrls = null;
-	private int mCurrentlyInstalledItem = 0;
-	private boolean mUpdateStarts = false;
 	
-	private ProgressDialog mProgressDialog = null;
+	private int mGetUpdateItemsProgressState = ProgressState.NOT_RUN;
+
+	private static class SavedState {
+		private final UpdateItem[] updateItems; 
+		private final int getUpdateItemsProgressState;
+		
+		public SavedState(UpdateActivity activity) {
+			getUpdateItemsProgressState = activity.mGetUpdateItemsProgressState;
+			updateItems = activity.mUpdateItems;
+		}
+		
+		public void restore(UpdateActivity activity) {
+			activity.mGetUpdateItemsProgressState = getUpdateItemsProgressState;
+			activity.mUpdateItems = updateItems;
+		}
+	}
+	
+	private void setConfirmButtonEnabled() {
+		if (mUpdateItems == null) {
+			mConfirmButton.setEnabled(false);
+			return;
+		}
+		int count = 0;
+		for (UpdateItem item: mUpdateItems)
+			if (item.checked)
+				count++;
+		
+		mConfirmButton.setEnabled(count != 0);
+	}
+	
+	private class ItemOnClickListener implements View.OnClickListener {
+		private int mPosition;
+		
+		public ItemOnClickListener(int position) {
+			mPosition = position;
+		}
+		
+		public void setUp(int position) {
+			mPosition = position;
+		}
+		
+		@Override
+		public void onClick(View view) {
+			UpdateItem item = mUpdateItems[mPosition];
+			item.checked = !item.checked;
+			setConfirmButtonEnabled();
+		}
+	}
 	
 	private class UpdateListAdapter extends BaseAdapter {
 
@@ -94,65 +137,88 @@ public class UpdateActivity extends ServiceBoincActivity implements NativeBoincS
 		public View getView(final int position, View inView, ViewGroup parent) {
 			View view = inView;
 			if (view == null) {
-				LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
-				view = inflater.inflate(R.layout.update_list_item, null);
+				LayoutInflater inflater = LayoutInflater.from(mContext);
+				view = inflater.inflate(R.layout.checkable_list_item_1, null);
 			}
 			
-			TextView nameText = (TextView)view.findViewById(R.id.updateItemName);
-			final CheckBox checkBox = (CheckBox)view.findViewById(R.id.updateItemCheckbox);
+			TextView nameText = (TextView)view.findViewById(android.R.id.text1);
+			final CheckBox checkBox = (CheckBox)view.findViewById(android.R.id.checkbox);
 			
 			final UpdateItem item = mUpdateItems[position];
 			nameText.setText(item.name + " " + item.version);
 			
 			checkBox.setChecked(item.checked);
-			checkBox.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					item.checked = !item.checked;
-				}
-			});
 			
-			view.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					item.checked = !item.checked;
-					checkBox.setChecked(item.checked);
-				}
-			});
+			ItemOnClickListener itemOnClickListener = (ItemOnClickListener)view.getTag();
+			if (itemOnClickListener == null) {
+				itemOnClickListener = new ItemOnClickListener(position);
+				view.setTag(itemOnClickListener);
+			} else
+				itemOnClickListener.setUp(position);
 			
+			checkBox.setOnClickListener(itemOnClickListener);
 			return view;
 		}
 	}
 	
+	private UpdateListAdapter mUpdateListAdapter = null;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		setUpService(true, false, true, true, true, true);
+		setUpService(false, false, false, false, true, true);
+		
+		final SavedState savedState = (SavedState)getLastNonConfigurationInstance();
+		if (savedState != null)
+			savedState.restore(this);
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.update);
 		
 		mAvailableText = (TextView)findViewById(R.id.updateAvailableText);
 		mBinariesList = (ListView)findViewById(R.id.updateBinariesList);
 		
-		mAttachedProjectUrls = getIntent().getStringArrayExtra(ATTACHED_PROJECT_URLS_TAG);
+		mUpdateListAdapter = new UpdateListAdapter(this);
+		mBinariesList.setAdapter(mUpdateListAdapter);
 		
-		Button confirmButton = (Button)findViewById(R.id.updateOk);
-		confirmButton.setOnClickListener(new View.OnClickListener() {
+		mBinariesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				CheckBox checkBox = (CheckBox)view.findViewById(android.R.id.checkbox);
+				UpdateItem item = mUpdateItems[position];
+				item.checked = !item.checked;
+				checkBox.setChecked(item.checked);
+				setConfirmButtonEnabled();
+			}
+		});
+		
+		mBinariesList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				UpdateItem item = mUpdateItems[position];
+				StandardDialogs.showDistribInfoDialog(UpdateActivity.this, item.name, item.version,
+						item.description, item.changes);
+				return true;
+			}
+		});
+		
+		mConfirmButton = (Button)findViewById(R.id.updateOk);
+		mConfirmButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mBinariesList.setEnabled(false);
-				
-				int count = 0;
-				for (int i = 0; i < mUpdateItems.length; i++)
-					if (mUpdateItems[i].checked)
-						count++;
-				/* do update */
-				if (count != 0) {
-					mUpdateStarts = true;
-					mRunner.shutdownClient();
-				}
-				else
-					UpdateActivity.this.finish();
+				// runs update/installation
+				ArrayList<UpdateItem> selectedUpdateItems = new ArrayList<UpdateItem>();
+				for (UpdateItem item: mUpdateItems)
+					if (item.checked) {
+						selectedUpdateItems.add(item);
+						if (Logging.DEBUG) Log.d(TAG, "Selected item:"+item.name);
+					}
+					
+				mInstaller.reinstallUpdateItems(selectedUpdateItems);
+				finish();
+				startActivity(new Intent(UpdateActivity.this, ProgressActivity.class));
 			}
 		});
 		
@@ -160,174 +226,114 @@ public class UpdateActivity extends ServiceBoincActivity implements NativeBoincS
 		cancelButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				finish();
+				onBackPressed();
 			}
 		});
 	}
 	
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent keyEvent) {
-		if (keyCode == KeyEvent.KEYCODE_BACK && mInstaller != null) {
-			mInstaller.cancelAll();
-		}
-		return super.onKeyDown(keyCode, keyEvent);
+	public void onInstallerConnected() {
+		Log.d(TAG, "onInstallerConnected");
+		updateActivityState();
 	}
-
-	@Override
-	public void onClientStart() {
-		if (mUpdateStarts) {
-			HostListDbAdapter dbHelper = new HostListDbAdapter(this);
-			dbHelper.open();
-			ClientId clientId = dbHelper.fetchHost("nativeboinc");
-			dbHelper.close();
-			if (clientId != null) {
-				try {
-					mConnectionManager.connect(clientId, false);
-				} catch(NoConnectivityException ex) { }
+	
+	private void updateBinariesView() {
+		if (mUpdateItems == null || mUpdateItems.length == 0)
+			mAvailableText.setText(R.string.updateNoNew);
+		else
+			mAvailableText.setText(R.string.updateNewAvailable);
+		
+		mUpdateListAdapter.notifyDataSetChanged();
+	}
+	
+	private void updateActivityState() {
+		// display/hide progress
+		setProgressBarIndeterminateVisibility(mInstaller.isWorking());
+		
+		/* display error if pending */
+		if (mRunner != null && mInstaller != null) {
+			InstallError installError = mInstaller.getPendingError();
+			if (installError != null) {
+				StandardDialogs.showInstallErrorDialog(this, installError.distribName,
+						installError.errorMessage);
+				return;
 			}
-			finish();
 		}
+		
+		/* handle update items operation */
+		if (mUpdateItems == null) {
+			if (mGetUpdateItemsProgressState == ProgressState.IN_PROGRESS) {
+				mUpdateItems = mInstaller.getPendingBinariesToUpdateOrInstall();
+				
+				if (mUpdateItems != null)
+					updateBinariesView();
+					
+			} else if (mGetUpdateItemsProgressState == ProgressState.NOT_RUN) {
+				mGetUpdateItemsProgressState = ProgressState.IN_PROGRESS;
+				mInstaller.getBinariesToUpdateOrInstall();
+			}
+			// if finished but failed
+		} else  // do it
+			updateBinariesView();
 	}
 	
 	@Override
-	public void onClientStop(int exitCode, boolean stoppedByManager) {
-		if (mUpdateStarts) {
-			mCurrentlyInstalledItem = 0;
-			reinstallNextItem();
-		}
+	protected void onResume() {
+		super.onResume();
+		
+		if (mInstaller != null)
+			updateActivityState();
 	}
 	
-	private void reinstallNextItem() {
-		for (; mCurrentlyInstalledItem < mUpdateItems.length; mCurrentlyInstalledItem++)
-			if (mUpdateItems[mCurrentlyInstalledItem].checked)
-				break;	// install this item
-		if (mCurrentlyInstalledItem < mUpdateItems.length) {
-			UpdateItem updateItem = mUpdateItems[mCurrentlyInstalledItem];
-			
-			Toast.makeText(this, getString(R.string.updateUpdating)+" "+updateItem.name,
-					Toast.LENGTH_SHORT);
-			
-			mCurrentlyInstalledItem++;
-			//mInstaller.reinstallUpdateItem(updateItem);
-		} else {	// finish activity
-			mRunner.startClient(false);
-		}
-	}
-
-	private void cancelOnError() {
-		if (mProgressDialog != null) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-		setProgressBarIndeterminateVisibility(false);
-		mRunner.startClient(false);
+	@Override
+	public void onBackPressed() {
+		if (mInstaller != null)
+			mInstaller.cancelOperation();
 		finish();
 	}
 	
-	private void showErrorDialog(String message) {
-		new AlertDialog.Builder(this).setTitle(getString(R.string.error))
-			.setMessage(message)
-			.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					cancelOnError();
-				}
-			}).setOnCancelListener(new DialogInterface.OnCancelListener() {
-				@Override
-				public void onCancel(DialogInterface dialog) {
-					cancelOnError();
-				}
-			}).create().show();
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		return new SavedState(this);
 	}
 	
 	@Override
-	public void onNativeBoincClientError(String message) {
-		showErrorDialog(message);
+	protected Dialog onCreateDialog(int dialogId, Bundle args) {
+		return StandardDialogs.onCreateDialog(this, dialogId, args);
 	}
-
+	
 	@Override
-	public void onOperation(String distribName, String opDescription) {
-		setProgressBarIndeterminateVisibility(true);
-		Toast.makeText(this, opDescription, Toast.LENGTH_SHORT).show();
-	}
-
-	@Override
-	public void onOperationProgress(String distribName, String opDescription, int progress) {
-		if (mProgressDialog == null) {
-			mProgressDialog = new ProgressDialog(this);
-			mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		    mProgressDialog.setMessage(opDescription);
-		    mProgressDialog.setMax(10000);
-		    mProgressDialog.setProgress(0);
-		    mProgressDialog.setCancelable(true);
-		    mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-				@Override
-				public void onCancel(DialogInterface dialog) {
-					mInstaller.cancelAll();
-					finish();
-				}
-			});
-		    mProgressDialog.show();
-		}
-		setProgressBarIndeterminateVisibility(true);
-		mProgressDialog.setProgress(progress);
-		if (progress == 10000) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-	}
-
-	@Override
-	public void onOperationError(String distribName, String errorMessage) {
-		showErrorDialog(errorMessage);
-	}
-
-	@Override
-	public void onOperationCancel(String distribName) {
-		Toast.makeText(this, R.string.operationCancelled, Toast.LENGTH_LONG).show();
-		if (mProgressDialog != null) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-		setProgressBarIndeterminateVisibility(false);
-		mRunner.startClient(false);
-	}
-
-	@Override
-	public void onOperationFinish(String distribName) {
-		if (mProgressDialog != null) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-		setProgressBarIndeterminateVisibility(false);
-		// do next item
-		reinstallNextItem();
+	protected void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
+		StandardDialogs.onPrepareDialog(this, dialogId, dialog, args);
 	}
 
 	@Override
 	public void currentProjectDistribList(ArrayList<ProjectDistrib> projectDistribs) {
-		mUpdateItems = mInstaller.getBinariesToUpdateOrInstall(mAttachedProjectUrls);
-		setProgressBarIndeterminateVisibility(false);
-		/* view items to update */
-		mBinariesList.setAdapter(new UpdateListAdapter(this));
-		if (mUpdateItems.length != 0)
-			mAvailableText.setText(R.string.updateNewAvailable);
-		else
-			mAvailableText.setText(R.string.updateNoNew);
+		// do nothing
 	}
 	
 	@Override
 	public void currentClientDistrib(ClientDistrib clientDistrib) {
-		mInstaller.updateProjectDistribList();
+		// do nothing
+	}
+	
+	@Override
+	public void onChangeInstallerIsWorking(boolean isWorking) {
+		setProgressBarIndeterminateVisibility(isWorking);
 	}
 
 	@Override
-	public void onInstallerWorking(boolean isWorking) {
+	public void onOperationError(String distribName, String errorMessage) {
+		if (mGetUpdateItemsProgressState == ProgressState.IN_PROGRESS) {
+			mGetUpdateItemsProgressState = ProgressState.FAILED;
+			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
+		}
 	}
 
 	@Override
-	public void onChangeRunnerIsWorking(boolean isWorking) {
-		// TODO Auto-generated method stub
-		
+	public void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
+		mUpdateItems = updateItems;
+		mGetUpdateItemsProgressState = ProgressState.FINISHED;
+		updateBinariesView();
 	}
 }
+

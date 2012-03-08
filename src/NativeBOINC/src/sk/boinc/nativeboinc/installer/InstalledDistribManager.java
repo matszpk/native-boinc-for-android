@@ -170,11 +170,11 @@ public class InstalledDistribManager {
 					sB.append(file);
 					sB.append("</file>\n");
 				}
-				sB.append("    <description>");
+				sB.append("    <description><![CDATA[");
 				sB.append(distrib.description);
-				sB.append("</description>\n    <changes>");
+				sB.append("]]></description>\n    <changes><![CDATA[");
 				sB.append(distrib.changes);
-				sB.append("</changes>\n  </project>\n");
+				sB.append("]]></changes>\n  </project>\n");
 				writer.write(sB.toString());
 			}
 			
@@ -193,11 +193,11 @@ public class InstalledDistribManager {
 			writer = new FileWriter(mContext.getFileStreamPath("installed_client.xml"));
 			sB.append("<client>\n  <version>");
 			sB.append(mInstalledClient.version);
-			sB.append("</version>\n  <description>");
+			sB.append("</version>\n  <description><![CDATA[");
 			sB.append(mInstalledClient.description);
-			sB.append("</description>\n  <changes>");
+			sB.append("]]></description>\n  <changes><![CDATA[");
 			sB.append(mInstalledClient.changes);
-			sB.append("</changes>\n</client>\n");
+			sB.append("]]></changes>\n</client>\n");
 			
 			writer.write(sB.toString());
 		} catch(IOException ex) {

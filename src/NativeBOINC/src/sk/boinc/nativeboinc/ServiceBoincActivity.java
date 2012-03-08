@@ -21,6 +21,7 @@ package sk.boinc.nativeboinc;
 
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.installer.AbstractInstallerListener;
 import sk.boinc.nativeboinc.installer.InstallerProgressListener;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.nativeclient.AbstractNativeBoincListener;
@@ -97,7 +98,7 @@ public class ServiceBoincActivity extends AbstractBoincActivity {
 			if (mRegisterInstallerListener && mDelayedInstallerListenerRegistration) {
 				if (Logging.DEBUG) Log.d(TAG, "Delayed register installer listener");
 				
-				mInstaller.addInstallerListener((InstallerProgressListener)ServiceBoincActivity.this);
+				mInstaller.addInstallerListener((AbstractInstallerListener)ServiceBoincActivity.this);
 				mDelayedInstallerListenerRegistration = false;
 				onInstallerConnected();
 			}
@@ -215,7 +216,7 @@ public class ServiceBoincActivity extends AbstractBoincActivity {
 		}
 		if (mInstaller != null && mRegisterInstallerListener) {
 			if (Logging.DEBUG) Log.d(TAG, "Unregister installer listener");
-			mInstaller.removeInstallerListener((InstallerProgressListener)this);
+			mInstaller.removeInstallerListener((AbstractInstallerListener)this);
 			mDelayedInstallerListenerRegistration = false;
 		}
 		if (mRunner != null && mRegisterRunnerListener) {
@@ -239,7 +240,7 @@ public class ServiceBoincActivity extends AbstractBoincActivity {
 		if (mRegisterInstallerListener) {
 			if (mInstaller != null) {
 				if (Logging.DEBUG) Log.d(TAG, "Normal register installer listener");
-				mInstaller.addInstallerListener((InstallerProgressListener)this);
+				mInstaller.addInstallerListener((AbstractInstallerListener)this);
 				mDelayedInstallerListenerRegistration = false;
 			} else
 				mDelayedInstallerListenerRegistration = true;

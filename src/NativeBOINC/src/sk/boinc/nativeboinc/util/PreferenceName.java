@@ -38,12 +38,13 @@ public interface PreferenceName {
 	public static final String UPGRADE_INFO_SHOWN_VERSION = "upgradeInfoShownVersion";
 	public static final String LAST_ACTIVE_TAB = "lastActiveTab";
 	public static final String LIMIT_MESSAGES = "limitMessages";
-	public static final String NEWS_UPDATE_PERIOD = "newsUpdatePeriod";
+	public static final String LAST_MESSAGES_FILTER = "lastMessagesFilter";
 	
 	/* for client */
 	public static final String CLIENT_VERSION = "clientVersion";
 	/* installation */
 	public static final String INSTALLER_STAGE = "installerStage";
+	public static final String WAITING_FOR_BENCHMARK = "waitingForBenchmark";
 	
 	/* native client */
 	public static final String NATIVE_HOSTNAME = "nativeHostname";
@@ -52,5 +53,8 @@ public interface PreferenceName {
 	public static final String NATIVE_HOST_LIST = "nativeAccessList";
 	public static final String NATIVE_INSTALLED_BINARIES = "nativeInstalledBinaries";
 	public static final String NATIVE_UPDATE_BINARIES = "nativeUpdateBinaries";
+	public static final String NATIVE_UPDATE_FROM_SDCARD = "nativeUpdateFromSDCard";
 	public static final String NATIVE_DUMP_BOINC_DIR = "nativeDumpBoincDir";
+	public static final String NATIVE_REINSTALL = "nativeReinstall";
+	public static final String NATIVE_SHOW_LOGS = "nativeShowLogs";
 }

@@ -17,13 +17,34 @@
  * 
  */
 
-package sk.boinc.nativeboinc.installer;
+package sk.boinc.nativeboinc;
+
+import android.app.Activity;
+import android.os.Bundle;
 
 /**
  * @author mat
  *
  */
-public interface AbstractInstallerListener {
-	public abstract void onChangeInstallerIsWorking(boolean isWorking);
-	public abstract void onOperationError(String distribName, String errorMessage);
+public class NoticesActivity extends Activity {
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+	}
+	
+	@Override
+	protected void onResume() {
+		
+	}
+	
+	@Override
+	protected void onPause() {
+		
+	}
+	
+	@Override
+	protected void onDestroy() {
+		
+	}
 }

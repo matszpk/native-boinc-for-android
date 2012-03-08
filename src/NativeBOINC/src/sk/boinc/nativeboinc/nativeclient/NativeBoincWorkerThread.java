@@ -94,6 +94,15 @@ public class NativeBoincWorkerThread extends Thread {
 		});
 	}
 	
+	public void getProjects(final NativeBoincProjectsListener callback) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.getProjects(callback);
+			}
+		});
+	}
+	
 	public void shutdownClient() {
 		mHandler.post(new Runnable() {
 			@Override

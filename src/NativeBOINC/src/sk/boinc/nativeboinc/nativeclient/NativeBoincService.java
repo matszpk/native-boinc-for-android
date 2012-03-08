@@ -38,7 +38,9 @@ import sk.boinc.nativeboinc.util.HostListDbAdapter;
 import sk.boinc.nativeboinc.util.NotificationId;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.ProcessUtils;
+import sk.boinc.nativeboinc.util.UpdateItem;
 
+import edu.berkeley.boinc.lite.Project;
 import edu.berkeley.boinc.lite.Result;
 import edu.berkeley.boinc.nativeboinc.ClientEvent;
 import edu.berkeley.boinc.nativeboinc.ExtendedRpcClient;
@@ -80,7 +82,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 	
 	private boolean mPreviousStateOfIsWorking = false;
 	private boolean mIsWorking = false;
-	
+
 	public class ListenerHandler extends Handler {
 
 		public void onClientStart() {
@@ -155,6 +157,11 @@ public class NativeBoincService extends Service implements MonitorListener,
 		public void getResults(NativeBoincResultsListener callback, ArrayList<Result> results) {
 			if (mListeners.contains(callback))
 				callback.getResults(results);
+		}
+		
+		public void getProjects(NativeBoincProjectsListener callback, ArrayList<Project> projects) {
+			if (mListeners.contains(callback))
+				callback.getProjects(projects);
 		}
 		
 		public void updatedProjectApps(String projectUrl) {
@@ -724,6 +731,12 @@ public class NativeBoincService extends Service implements MonitorListener,
 			mWorkerThread.getResults(callback);
 	}
 	
+	public void getProjects(NativeBoincProjectsListener callback) {
+		if (Logging.DEBUG) Log.d(TAG, "Get projects");
+		if (mWorkerThread != null)
+			mWorkerThread.getProjects(callback);
+	}
+	
 	public void updateProjectApps(String projectUrl) {
 		if (Logging.DEBUG) Log.d(TAG, "update project binaries");
 		if (mWorkerThread != null)
@@ -843,9 +856,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 			
 			// do install
 			synchronized(mPendingProjectAppsToInstall) {
-				for (String projectUrl: mPendingProjectAppsToInstall)
-					installProjectApplication(projectUrl);
+				String[] toInstall = mPendingProjectAppsToInstall.toArray(new String[0]);
 				mPendingProjectAppsToInstall.clear();
+				for (String projectUrl: toInstall)
+					installProjectApplication(projectUrl);
 			}
 		}
 	};
@@ -861,14 +875,17 @@ public class NativeBoincService extends Service implements MonitorListener,
 		String projectName = mInstaller.resolveProjectName(projectUrl);
 		
 		if (projectName == null) {	// do nothing if not found
+			if (Logging.DEBUG) Log.d(TAG, "attached not found in distribs!!!");
 			if (!mIfProjectDistribsListUpdated) { // if not updated before
 				// add to pending tasks
+				if (Logging.DEBUG) Log.d(TAG, "try to update project distribs");
 				synchronized (mPendingProjectAppsToInstall) {
 					mPendingProjectAppsToInstall.add(projectUrl);
 				}
 				// try to update project list
 				mInstaller.updateProjectDistribList();
 			} else {
+				if (Logging.DEBUG) Log.d(TAG, "again not found. to finish");
 				// simply finish task
 				finishProjectApplicationInstallation(projectName);
 			}
@@ -878,6 +895,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 		synchronized (mInstalledProjectApps) {
 			mInstalledProjectApps.add(projectName);
 		}
+		
 		mInstaller.installProjectApplicationsAutomatically(projectName, projectUrl);
 	}
 	
@@ -936,6 +954,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 		synchronized (mInstalledProjectApps) {
 			mInstalledProjectApps.remove(projectName);
 			ifLast = mInstalledProjectApps.isEmpty();
+			if (Logging.DEBUG) Log.d(TAG, "is last:"+ifLast);
 		}
 
 		if (ifLast)
@@ -966,6 +985,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 	public void onOperationError(String distribName, String errorMessage) {
 		if (distribName == null || distribName.length() == 0) {
 			// is not distrib (updating project distrib list simply failed)
+			if (Logging.DEBUG) Log.d(TAG, "on operation failed");
 			synchronized (mPendingProjectAppsToInstall) {
 				mPendingProjectAppsToInstall.clear();
 			}
@@ -992,13 +1012,16 @@ public class NativeBoincService extends Service implements MonitorListener,
 
 	@Override
 	public void currentProjectDistribList(ArrayList<ProjectDistrib> projectDistribs) {
-		// TODO Auto-generated method stub
+		if (Logging.DEBUG) Log.d(TAG, "on currentProjectDistrib"); 
 		mIfProjectDistribsListUpdated = true;
 		// try again
 		synchronized(mPendingProjectAppsToInstall) {
-			for (String projectUrl: mPendingProjectAppsToInstall)
-				installProjectApplication(projectUrl);
+			String[] toInstall = mPendingProjectAppsToInstall.toArray(new String[0]);
 			mPendingProjectAppsToInstall.clear();
+			for (String projectUrl: toInstall) {
+				if (Logging.DEBUG) Log.d(TAG, "after updating:"+projectUrl);
+				installProjectApplication(projectUrl);
+			}
 		}
 	}
 
@@ -1008,7 +1031,13 @@ public class NativeBoincService extends Service implements MonitorListener,
 	}
 
 	@Override
-	public void onInstallerWorking(boolean isWorking) {
+	public void onChangeInstallerIsWorking(boolean isWorking) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
 		// TODO Auto-generated method stub
 		
 	}

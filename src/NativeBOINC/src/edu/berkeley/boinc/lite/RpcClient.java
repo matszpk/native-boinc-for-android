@@ -614,6 +614,26 @@ public class RpcClient {
 			return null;
 		}
 	}
+	/**
+	 * Performs get_notices RPC towards BOINC client
+	 * 
+	 * @return notices
+	 */
+	public ArrayList<Notice> getNotices(int seqNo) {
+		mLastErrorMessage = null;
+		try {
+			mRequest.setLength(0);
+			mRequest.append("<get_notices>\n  <seqno>");
+			mRequest.append(seqNo);
+			mRequest.append("</seqno>\n</get_notices>\n");
+			sendRequest(mRequest.toString());
+			ArrayList<Notice> notices = NoticesReplyParser.parse(receiveReply());
+			return notices;
+		} catch(IOException e) {
+			if (Logging.WARNING) Log.w(TAG, "error in getNotices()", e);
+			return null;
+		}
+	}
 
 	/**
 	 * Performs get_state RPC towards BOINC client

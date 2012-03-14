@@ -21,21 +21,15 @@ package sk.boinc.nativeboinc;
 
 import hal.android.workarounds.FixedProgressDialog;
 
-import java.util.ArrayList;
-
 import edu.berkeley.boinc.lite.AccountMgrInfo;
 
 import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientError;
-import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
-import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.ModeInfo;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
 import sk.boinc.nativeboinc.clientconnection.PollError;
-import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
-import sk.boinc.nativeboinc.clientconnection.TaskInfo;
-import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.service.ConnectionManagerService;
@@ -70,7 +64,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class ManageClientActivity extends PreferenceActivity implements ClientReplyReceiver,
+public class ManageClientActivity extends PreferenceActivity implements ClientManageReceiver,
 		ClientAccountMgrReceiver {
 	private static final String TAG = "ManageClientActivity";
 
@@ -753,30 +747,6 @@ public class ManageClientActivity extends PreferenceActivity implements ClientRe
 		return true;
 	}
 	
-	@Override
-	public boolean updatedMessages(ArrayList<MessageInfo> messages) {
-		// Never requested, nothing to do
-		return false;
-	}
-	
-	@Override
-	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
-		// Never requested, nothing to do
-		return false;
-	}
-
-	@Override
-	public boolean updatedTasks(ArrayList<TaskInfo> tasks) {
-		// Never requested, nothing to do
-		return false;
-	}
-
-	@Override
-	public boolean updatedTransfers(ArrayList<TransferInfo> transfers) {
-		// Never requested, nothing to do
-		return false;
-	}
-		
 	private void refreshClientName() {
 		Preference pref = findPreference("selectedHost");
 		if (mConnectedClient != null) {

@@ -147,7 +147,7 @@ public class NotificationController {
 		RemoteViews contentView = new RemoteViews(mAppContext.getPackageName(),
 				R.layout.install_notification);
 		
-		Notification notification = new Notification(R.drawable.nativeboinc_alpha,
+		Notification notification = new Notification(R.drawable.ic_download,
 				mAppContext.getString(R.string.installClientNotifyBegin),
 				System.currentTimeMillis());
 		mClientInstallNotification = new DistribNotification(NotificationId.INSTALL_BOINC_CLIENT,
@@ -228,7 +228,7 @@ public class NotificationController {
 		RemoteViews contentView = new RemoteViews(mAppContext.getPackageName(),
 				R.layout.install_notification);
 		
-		Notification notification = new Notification(R.drawable.nativeboinc_alpha,
+		Notification notification = new Notification(R.drawable.ic_progress,
 				mAppContext.getString(R.string.dumpBoincBegin),
 				System.currentTimeMillis());
 		mDumpFilesNotification = new DistribNotification(NotificationId.INSTALL_DUMP_FILES,
@@ -288,7 +288,7 @@ public class NotificationController {
 		Intent intent = new Intent(mAppContext, ProgressActivity.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 0);
 		
-		Notification notification = new Notification(R.drawable.nativeboinc_alpha,
+		Notification notification = new Notification(R.drawable.ic_progress,
 				mAppContext.getString(R.string.nativeReinstallTitle),
 				System.currentTimeMillis());
 		notification.contentIntent = pendingIntent;
@@ -345,7 +345,7 @@ public class NotificationController {
 		
 		int notificationId = mCurrentProjectInstallNotificationId.incrementAndGet();
 		
-		Notification notification = new Notification(R.drawable.nativeboinc_alpha,
+		Notification notification = new Notification(R.drawable.ic_download,
 				notifyText, System.currentTimeMillis());
 		distribNotification = new DistribNotification(notificationId,
 				notification, contentView);

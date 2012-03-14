@@ -52,7 +52,7 @@
 			android:textSize="1dip"
 			android:drawableRight="@drawable/nativeboinc_alpha" />
 		<Button
-			android:id="@+id/widgetLock" 
+			android:id="@+id/widgetLock"
 			android:layout_width="0dip"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"

@@ -139,4 +139,22 @@ public class Formatter {
 	public final String formatGFlops(double flops) {
 		return String.format("%.0f %s", flops*1e-9, mResources.getString(R.string.gflops));
 	}
+	
+	public final String toHtmlContent(String htmlContent) {
+		mSb.setLength(0);
+		mSb.append("<html><body>");
+		mSb.append(htmlContent);
+		mSb.append("</body></html>");
+		return mSb.toString();
+	}
+	
+	public final String toHtmlLink(String htmlContent) {
+		mSb.setLength(0);
+		mSb.append("<html><body><a href=\"");
+		mSb.append(htmlContent);
+		mSb.append("\">");
+		mSb.append(htmlContent);
+		mSb.append("</a></body></html>");
+		return mSb.toString();
+	}
 }

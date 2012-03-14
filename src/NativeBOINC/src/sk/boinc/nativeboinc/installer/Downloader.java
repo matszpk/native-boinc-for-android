@@ -39,6 +39,8 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
 import org.bouncycastle.openpgp.PGPObjectFactory;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
@@ -84,7 +86,11 @@ public class Downloader {
 		
 		notifyOperation(distribName, projectUrl, mContext.getString(R.string.downloadPGPKey));
 		
-		DefaultHttpClient client = new DefaultHttpClient();
+		BasicHttpParams params = new BasicHttpParams();
+		HttpConnectionParams.setConnectionTimeout(params, 7000);
+		HttpConnectionParams.setSoTimeout(params, 7000);
+		
+		DefaultHttpClient client = new DefaultHttpClient(params);
 		
 		Reader reader = null;
 		FileOutputStream pgpStream = null;
@@ -344,6 +350,9 @@ public class Downloader {
 			if (!url.getProtocol().equals("ftp")) {
 				/* if http protocol */
 				URLConnection urlConn = url.openConnection();
+				
+				urlConn.setConnectTimeout(7000);
+				urlConn.setReadTimeout(7000);
 				
 				inStream = urlConn.getInputStream();
 				outStream = new FileOutputStream(mContext.getFileStreamPath(outFilename));

@@ -20,7 +20,6 @@
 package sk.boinc.nativeboinc.clientconnection;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.AccountMgrInfo;
@@ -56,7 +55,10 @@ public interface ClientRequestHandler {
 	public abstract void updateMessages();
 	public abstract ArrayList<MessageInfo> getPendingMessages();
 	
-	public abstract void addToScheduledUpdates(ClientReplyReceiver callback, int refreshType); 
+	public abstract void updateNotices();
+	public abstract ArrayList<NoticeInfo> getPendingNotices();
+	
+	public abstract void addToScheduledUpdates(ClientReceiver callback, int refreshType); 
 	public abstract void cancelScheduledUpdates(int refreshType);
 
 	public abstract ClientError getPendingClientError();
@@ -90,8 +92,8 @@ public interface ClientRequestHandler {
 	public abstract boolean isGlobalPrefsBeingOverriden();
 	
 	public abstract void runBenchmarks();
-	public abstract void setRunMode(ClientReplyReceiver callback, int mode);
-	public abstract void setNetworkMode(ClientReplyReceiver callback, int mode);
+	public abstract void setRunMode(ClientManageReceiver callback, int mode);
+	public abstract void setNetworkMode(ClientManageReceiver callback, int mode);
 	public abstract void shutdownCore();
 	public abstract void doNetworkCommunication();
 	

@@ -152,6 +152,27 @@
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
+							android:text="@string/localPrefTempLT" />
+						<EditText 
+							android:id="@+id/localPrefTempLT"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="50dip"
+							android:background="@android:drawable/editbox_background" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:text="@string/degreeC" />
+					</LinearLayout>
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
 							android:text="@string/localPrefUseAtMost" />
 						<EditText 
 							android:id="@+id/localPrefUseAtMostCPUs"

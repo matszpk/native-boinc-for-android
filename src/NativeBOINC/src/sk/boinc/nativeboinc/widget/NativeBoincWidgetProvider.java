@@ -152,8 +152,6 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 			int ids[] = appWidgetManager.getAppWidgetIds(thisAppWidget);
 			appWidgetManager.updateAppWidget(ids, views);
 			
-			// check period value
-			
 			if (appContext.updateWidgetUpdatePeriod()) {
 				// change update period
 				int updatePeriod = appContext.getWigetUpdatePeriod();

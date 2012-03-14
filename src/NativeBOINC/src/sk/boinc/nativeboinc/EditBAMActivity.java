@@ -61,9 +61,13 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 	
 	private static final String STATE_ATTACH_BAM_PROGRESS = "AttachBAMProgress";
 	
+	private BoincManagerApplication mApp = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		
+		mApp = (BoincManagerApplication)getApplication();
 		
 		if (savedInstanceState != null)
 			mAttachBAMInProgress = savedInstanceState.getBoolean(STATE_ATTACH_BAM_PROGRESS);
@@ -270,6 +274,11 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 			dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
 			// if end
 			finish();
+			if (mApp.isInstallerRun()) {
+				mApp.setInstallerStage(BoincManagerApplication.INSTALLER_FINISH_STAGE);
+				// go to install finish activity
+				startActivity(new Intent(this, InstallFinishActivity.class));
+			}
 			return true;
 		}
 		return false;

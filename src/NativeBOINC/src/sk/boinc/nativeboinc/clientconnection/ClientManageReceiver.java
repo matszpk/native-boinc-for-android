@@ -1,6 +1,6 @@
 /* 
- * NativeBOINC - Native BOINC Client with Manager
- * Copyright (C) 2011, Mateusz Szpakowski
+ * AndroBOINC - BOINC Manager for Android
+ * Copyright (C) 2010, Pavol Michalec
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,16 +17,10 @@
  * 
  */
 
-package sk.boinc.nativeboinc.nativeclient;
+package sk.boinc.nativeboinc.clientconnection;
 
-import java.util.ArrayList;
 
-import edu.berkeley.boinc.lite.Result;
-
-/**
- * @author mat
- *
- */
-public interface NativeBoincResultsListener extends NativeBoincServiceListener {
-	public abstract void getResults(ArrayList<Result> results);
+public interface ClientManageReceiver extends ClientReceiver {
+	public abstract boolean updatedClientMode(ModeInfo modeInfo);
+	public abstract boolean updatedHostInfo(HostInfo hostInfo);
 }

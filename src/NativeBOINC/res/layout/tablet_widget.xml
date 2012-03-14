@@ -1,0 +1,1465 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* 
+ * NativeBOINC - Native BOINC Client with Manager
+ * Copyright (C) 2011, Mateusz Szpakowski
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+ -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+	android:background="@drawable/widget_bg"
+    android:orientation="vertical" >
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+    	android:layout_height="0dip"
+    	android:layout_weight="1">
+    	<!-- list view -->
+    	<!-- item 1 -->
+    	<RelativeLayout android:id="@+id/item1"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="wrap_content"
+    	    android:paddingBottom="2dip">
+    	    <TextView
+				android:id="@+id/taskAppName1"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="6dip"
+				android:layout_marginRight="6dip"
+				android:layout_marginTop="6dip"
+				android:lines="1"
+				android:textStyle="bold"
+				android:text="Application A"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Task deadline -->
+			<TextView
+				android:id="@+id/taskDeadline1"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskAppName1"
+				android:layout_alignRight="@+id/taskAppName1"
+				android:gravity="left"
+				android:lines="1"
+				android:text="2012/12/12 12:12:12"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Project name -->
+			<TextView
+				android:id="@+id/taskProjectName1"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskDeadline1"
+				android:layout_alignTop="@+id/taskDeadline1"
+				android:layout_alignLeft="@+id/taskAppName1"
+				android:gravity="left"
+				android:lines="1"
+				android:text="ProjectX@Home"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Progress indicator -->
+			<RelativeLayout	android:id="@+id/taskProgress1"
+				android:layout_width="150dip"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskProjectName1"
+				android:layout_marginTop="3dip"
+				android:layout_centerHorizontal="true">
+				<ProgressBar
+					android:id="@+id/taskProgressRunning1"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_green"
+					android:visibility="invisible"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressSuspended1"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_red"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressWaiting1"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_yellow"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressFinished1"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_blue"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<TextView
+					android:id="@+id/taskProgressText1"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentTop="true"
+					android:layout_centerInParent="true"
+					android:lines="1"
+					android:text="99.999%"
+					android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+			</RelativeLayout>
+		
+			<!-- Elapsed time -->
+			<TextView
+				android:id="@+id/taskElapsed1"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskProgress1"
+				android:layout_below="@+id/taskProjectName1"
+				android:layout_alignLeft="@+id/check"
+				android:layout_marginTop="3dip"
+				android:layout_marginRight="5dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Remaining time -->
+			<TextView
+				android:id="@+id/taskRemaining1"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toRightOf="@+id/taskProgress1"
+				android:layout_alignTop="@+id/taskElapsed1"
+				android:layout_alignRight="@+id/taskAppName1"
+				android:layout_marginLeft="3dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+    	</RelativeLayout>
+    	
+    	<TextView android:id="@+id/separator1"
+    	   	android:layout_width="fill_parent"
+    	   	android:layout_height="1dip"
+    	   	android:background="@android:color/black"/>
+    	
+    	<!-- item 2 -->
+    	<RelativeLayout android:id="@+id/item2"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="wrap_content"
+    	    android:paddingBottom="2dip">
+    	    <TextView
+				android:id="@+id/taskAppName2"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="6dip"
+				android:layout_marginRight="6dip"
+				android:layout_marginTop="6dip"
+				android:lines="1"
+				android:textStyle="bold"
+				android:text="Application A"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Task deadline -->
+			<TextView
+				android:id="@+id/taskDeadline2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskAppName2"
+				android:layout_alignRight="@+id/taskAppName2"
+				android:gravity="left"
+				android:lines="1"
+				android:text="2012/12/12 12:12:12"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Project name -->
+			<TextView
+				android:id="@+id/taskProjectName2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskDeadline2"
+				android:layout_alignTop="@+id/taskDeadline2"
+				android:layout_alignLeft="@+id/taskAppName2"
+				android:gravity="left"
+				android:lines="1"
+				android:text="ProjectX@Home"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Progress indicator -->
+			<RelativeLayout	android:id="@+id/taskProgress2"
+				android:layout_width="150dip"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskProjectName2"
+				android:layout_marginTop="3dip"
+				android:layout_centerHorizontal="true">
+				<ProgressBar
+					android:id="@+id/taskProgressRunning2"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_green"
+					android:visibility="invisible"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressSuspended2"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_red"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressWaiting2"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_yellow"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressFinished2"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_blue"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<TextView
+					android:id="@+id/taskProgressText2"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentTop="true"
+					android:layout_centerInParent="true"
+					android:lines="1"
+					android:text="99.999%"
+					android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+			</RelativeLayout>
+		
+			<!-- Elapsed time -->
+			<TextView
+				android:id="@+id/taskElapsed2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskProgress2"
+				android:layout_below="@+id/taskProjectName2"
+				android:layout_alignLeft="@+id/check"
+				android:layout_marginTop="3dip"
+				android:layout_marginRight="5dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Remaining time -->
+			<TextView
+				android:id="@+id/taskRemaining2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toRightOf="@+id/taskProgress2"
+				android:layout_alignTop="@+id/taskElapsed2"
+				android:layout_alignRight="@+id/taskAppName2"
+				android:layout_marginLeft="3dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+    	</RelativeLayout>
+    	
+    	<TextView android:id="@+id/separator2"
+    	   	android:layout_width="fill_parent"
+    	   	android:layout_height="1dip"
+    	   	android:background="@android:color/black"/>
+    	
+    	<!-- item 3 -->
+    	<RelativeLayout android:id="@+id/item3"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="wrap_content"
+    	    android:paddingBottom="2dip">
+    	    <TextView
+				android:id="@+id/taskAppName3"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="6dip"
+				android:layout_marginRight="6dip"
+				android:layout_marginTop="6dip"
+				android:lines="1"
+				android:textStyle="bold"
+				android:text="Application A"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Task deadline -->
+			<TextView
+				android:id="@+id/taskDeadline3"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskAppName3"
+				android:layout_alignRight="@+id/taskAppName3"
+				android:gravity="left"
+				android:lines="1"
+				android:text="2012/12/12 12:12:12"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Project name -->
+			<TextView
+				android:id="@+id/taskProjectName3"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskDeadline3"
+				android:layout_alignTop="@+id/taskDeadline3"
+				android:layout_alignLeft="@+id/taskAppName3"
+				android:gravity="left"
+				android:lines="1"
+				android:text="ProjectX@Home"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Progress indicator -->
+			<RelativeLayout	android:id="@+id/taskProgress3"
+				android:layout_width="150dip"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskProjectName3"
+				android:layout_marginTop="3dip"
+				android:layout_centerHorizontal="true">
+				<ProgressBar
+					android:id="@+id/taskProgressRunning3"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_green"
+					android:visibility="invisible"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressSuspended3"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_red"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressWaiting3"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_yellow"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressFinished3"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_blue"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<TextView
+					android:id="@+id/taskProgressText3"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentTop="true"
+					android:layout_centerInParent="true"
+					android:lines="1"
+					android:text="99.999%"
+					android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+			</RelativeLayout>
+		
+			<!-- Elapsed time -->
+			<TextView
+				android:id="@+id/taskElapsed3"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskProgress3"
+				android:layout_below="@+id/taskProjectName3"
+				android:layout_alignLeft="@+id/check"
+				android:layout_marginTop="3dip"
+				android:layout_marginRight="5dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Remaining time -->
+			<TextView
+				android:id="@+id/taskRemaining3"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toRightOf="@+id/taskProgress3"
+				android:layout_alignTop="@+id/taskElapsed3"
+				android:layout_alignRight="@+id/taskAppName3"
+				android:layout_marginLeft="3dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+    	</RelativeLayout>
+    	
+    	<TextView android:id="@+id/separator3"
+    	   	android:layout_width="fill_parent"
+    	   	android:layout_height="1dip"
+    	   	android:background="@android:color/black"/>
+    	
+    	<!-- item 4 -->
+    	<RelativeLayout android:id="@+id/item4"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="wrap_content"
+    	    android:paddingBottom="2dip">
+    	    <TextView
+				android:id="@+id/taskAppName4"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="6dip"
+				android:layout_marginRight="6dip"
+				android:layout_marginTop="6dip"
+				android:lines="1"
+				android:textStyle="bold"
+				android:text="Application A"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Task deadline -->
+			<TextView
+				android:id="@+id/taskDeadline4"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskAppName4"
+				android:layout_alignRight="@+id/taskAppName4"
+				android:gravity="left"
+				android:lines="1"
+				android:text="2012/12/12 12:12:12"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Project name -->
+			<TextView
+				android:id="@+id/taskProjectName4"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskDeadline4"
+				android:layout_alignTop="@+id/taskDeadline4"
+				android:layout_alignLeft="@+id/taskAppName4"
+				android:gravity="left"
+				android:lines="1"
+				android:text="ProjectX@Home"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Progress indicator -->
+			<RelativeLayout	android:id="@+id/taskProgress4"
+				android:layout_width="150dip"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskProjectName4"
+				android:layout_marginTop="3dip"
+				android:layout_centerHorizontal="true">
+				<ProgressBar
+					android:id="@+id/taskProgressRunning4"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_green"
+					android:visibility="invisible"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressSuspended4"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_red"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressWaiting4"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_yellow"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressFinished4"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_blue"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<TextView
+					android:id="@+id/taskProgressText4"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentTop="true"
+					android:layout_centerInParent="true"
+					android:lines="1"
+					android:text="99.999%"
+					android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+			</RelativeLayout>
+		
+			<!-- Elapsed time -->
+			<TextView
+				android:id="@+id/taskElapsed4"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskProgress4"
+				android:layout_below="@+id/taskProjectName4"
+				android:layout_alignLeft="@+id/check"
+				android:layout_marginTop="3dip"
+				android:layout_marginRight="5dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Remaining time -->
+			<TextView
+				android:id="@+id/taskRemaining4"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toRightOf="@+id/taskProgress4"
+				android:layout_alignTop="@+id/taskElapsed4"
+				android:layout_alignRight="@+id/taskAppName4"
+				android:layout_marginLeft="3dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+    	</RelativeLayout>
+    	
+    	<TextView android:id="@+id/separator4"
+    	   	android:layout_width="fill_parent"
+    	   	android:layout_height="1dip"
+    	   	android:background="@android:color/black"/>
+    	
+    	<!-- item 5 -->
+    	<RelativeLayout android:id="@+id/item5"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="wrap_content"
+    	    android:paddingBottom="2dip">
+    	    <TextView
+				android:id="@+id/taskAppName5"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="6dip"
+				android:layout_marginRight="6dip"
+				android:layout_marginTop="6dip"
+				android:lines="1"
+				android:textStyle="bold"
+				android:text="Application A"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Task deadline -->
+			<TextView
+				android:id="@+id/taskDeadline5"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskAppName5"
+				android:layout_alignRight="@+id/taskAppName5"
+				android:gravity="left"
+				android:lines="1"
+				android:text="2012/12/12 12:12:12"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Project name -->
+			<TextView
+				android:id="@+id/taskProjectName5"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskDeadline5"
+				android:layout_alignTop="@+id/taskDeadline5"
+				android:layout_alignLeft="@+id/taskAppName5"
+				android:gravity="left"
+				android:lines="1"
+				android:text="ProjectX@Home"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Progress indicator -->
+			<RelativeLayout	android:id="@+id/taskProgress5"
+				android:layout_width="150dip"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskProjectName5"
+				android:layout_marginTop="3dip"
+				android:layout_centerHorizontal="true">
+				<ProgressBar
+					android:id="@+id/taskProgressRunning5"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_green"
+					android:visibility="invisible"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressSuspended5"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_red"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressWaiting5"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_yellow"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressFinished5"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_blue"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<TextView
+					android:id="@+id/taskProgressText5"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentTop="true"
+					android:layout_centerInParent="true"
+					android:lines="1"
+					android:text="99.999%"
+					android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+			</RelativeLayout>
+		
+			<!-- Elapsed time -->
+			<TextView
+				android:id="@+id/taskElapsed5"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskProgress5"
+				android:layout_below="@+id/taskProjectName5"
+				android:layout_alignLeft="@+id/check"
+				android:layout_marginTop="3dip"
+				android:layout_marginRight="5dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Remaining time -->
+			<TextView
+				android:id="@+id/taskRemaining5"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toRightOf="@+id/taskProgress5"
+				android:layout_alignTop="@+id/taskElapsed5"
+				android:layout_alignRight="@+id/taskAppName5"
+				android:layout_marginLeft="3dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+    	</RelativeLayout>
+    	
+    	<TextView android:id="@+id/separator5"
+    	   	android:layout_width="fill_parent"
+    	   	android:layout_height="1dip"
+    	   	android:background="@android:color/black"/>
+    	
+    	<!-- item 6 -->
+    	<RelativeLayout android:id="@+id/item6"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="wrap_content"
+    	    android:paddingBottom="2dip">
+    	    <TextView
+				android:id="@+id/taskAppName6"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="6dip"
+				android:layout_marginRight="6dip"
+				android:layout_marginTop="6dip"
+				android:lines="1"
+				android:textStyle="bold"
+				android:text="Application A"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Task deadline -->
+			<TextView
+				android:id="@+id/taskDeadline6"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskAppName6"
+				android:layout_alignRight="@+id/taskAppName6"
+				android:gravity="left"
+				android:lines="1"
+				android:text="2012/12/12 12:12:12"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Project name -->
+			<TextView
+				android:id="@+id/taskProjectName6"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskDeadline6"
+				android:layout_alignTop="@+id/taskDeadline6"
+				android:layout_alignLeft="@+id/taskAppName6"
+				android:gravity="left"
+				android:lines="1"
+				android:text="ProjectX@Home"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Progress indicator -->
+			<RelativeLayout	android:id="@+id/taskProgress6"
+				android:layout_width="150dip"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskProjectName6"
+				android:layout_marginTop="3dip"
+				android:layout_centerHorizontal="true">
+				<ProgressBar
+					android:id="@+id/taskProgressRunning6"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_green"
+					android:visibility="invisible"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressSuspended6"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_red"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressWaiting6"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_yellow"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressFinished6"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_blue"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<TextView
+					android:id="@+id/taskProgressText6"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentTop="true"
+					android:layout_centerInParent="true"
+					android:lines="1"
+					android:text="99.999%"
+					android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+			</RelativeLayout>
+		
+			<!-- Elapsed time -->
+			<TextView
+				android:id="@+id/taskElapsed6"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskProgress6"
+				android:layout_below="@+id/taskProjectName6"
+				android:layout_alignLeft="@+id/check"
+				android:layout_marginTop="3dip"
+				android:layout_marginRight="5dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Remaining time -->
+			<TextView
+				android:id="@+id/taskRemaining6"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toRightOf="@+id/taskProgress6"
+				android:layout_alignTop="@+id/taskElapsed6"
+				android:layout_alignRight="@+id/taskAppName6"
+				android:layout_marginLeft="3dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+    	</RelativeLayout>
+    	
+    	<TextView android:id="@+id/separator6"
+    	   	android:layout_width="fill_parent"
+    	   	android:layout_height="1dip"
+    	   	android:background="@android:color/black"/>
+    	
+    	<!-- item 7 -->
+    	<RelativeLayout android:id="@+id/item7"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="wrap_content"
+    	    android:paddingBottom="2dip">
+    	    <TextView
+				android:id="@+id/taskAppName7"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="6dip"
+				android:layout_marginRight="6dip"
+				android:layout_marginTop="6dip"
+				android:lines="1"
+				android:textStyle="bold"
+				android:text="Application A"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Task deadline -->
+			<TextView
+				android:id="@+id/taskDeadline7"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskAppName7"
+				android:layout_alignRight="@+id/taskAppName7"
+				android:gravity="left"
+				android:lines="1"
+				android:text="2012/12/12 12:12:12"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Project name -->
+			<TextView
+				android:id="@+id/taskProjectName7"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskDeadline7"
+				android:layout_alignTop="@+id/taskDeadline7"
+				android:layout_alignLeft="@+id/taskAppName7"
+				android:gravity="left"
+				android:lines="1"
+				android:text="ProjectX@Home"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Progress indicator -->
+			<RelativeLayout	android:id="@+id/taskProgress7"
+				android:layout_width="150dip"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskProjectName7"
+				android:layout_marginTop="3dip"
+				android:layout_centerHorizontal="true">
+				<ProgressBar
+					android:id="@+id/taskProgressRunning7"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_green"
+					android:visibility="invisible"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressSuspended7"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_red"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressWaiting7"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_yellow"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressFinished7"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_blue"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<TextView
+					android:id="@+id/taskProgressText7"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentTop="true"
+					android:layout_centerInParent="true"
+					android:lines="1"
+					android:text="99.999%"
+					android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+			</RelativeLayout>
+		
+			<!-- Elapsed time -->
+			<TextView
+				android:id="@+id/taskElapsed7"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskProgress7"
+				android:layout_below="@+id/taskProjectName7"
+				android:layout_alignLeft="@+id/check"
+				android:layout_marginTop="3dip"
+				android:layout_marginRight="5dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Remaining time -->
+			<TextView
+				android:id="@+id/taskRemaining7"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toRightOf="@+id/taskProgress7"
+				android:layout_alignTop="@+id/taskElapsed7"
+				android:layout_alignRight="@+id/taskAppName7"
+				android:layout_marginLeft="3dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+    	</RelativeLayout>
+    	
+    	<TextView android:id="@+id/separator7"
+    	   	android:layout_width="fill_parent"
+    	   	android:layout_height="1dip"
+    	   	android:background="@android:color/black"/>
+    	
+    	<!-- item 8 -->
+    	<RelativeLayout android:id="@+id/item8"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="wrap_content"
+    	    android:paddingBottom="2dip">
+    	    <TextView
+				android:id="@+id/taskAppName8"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="6dip"
+				android:layout_marginRight="6dip"
+				android:layout_marginTop="6dip"
+				android:lines="1"
+				android:textStyle="bold"
+				android:text="Application A"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Task deadline -->
+			<TextView
+				android:id="@+id/taskDeadline8"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskAppName8"
+				android:layout_alignRight="@+id/taskAppName8"
+				android:gravity="left"
+				android:lines="1"
+				android:text="2012/12/12 12:12:12"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Project name -->
+			<TextView
+				android:id="@+id/taskProjectName8"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskDeadline8"
+				android:layout_alignTop="@+id/taskDeadline8"
+				android:layout_alignLeft="@+id/taskAppName8"
+				android:gravity="left"
+				android:lines="1"
+				android:text="ProjectX@Home"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Progress indicator -->
+			<RelativeLayout	android:id="@+id/taskProgress8"
+				android:layout_width="150dip"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskProjectName8"
+				android:layout_marginTop="3dip"
+				android:layout_centerHorizontal="true">
+				<ProgressBar
+					android:id="@+id/taskProgressRunning8"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_green"
+					android:visibility="invisible"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressSuspended8"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_red"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressWaiting8"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_yellow"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressFinished8"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_blue"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<TextView
+					android:id="@+id/taskProgressText8"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentTop="true"
+					android:layout_centerInParent="true"
+					android:lines="1"
+					android:text="99.999%"
+					android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+			</RelativeLayout>
+		
+			<!-- Elapsed time -->
+			<TextView
+				android:id="@+id/taskElapsed8"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskProgress8"
+				android:layout_below="@+id/taskProjectName8"
+				android:layout_alignLeft="@+id/check"
+				android:layout_marginTop="3dip"
+				android:layout_marginRight="5dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Remaining time -->
+			<TextView
+				android:id="@+id/taskRemaining8"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toRightOf="@+id/taskProgress8"
+				android:layout_alignTop="@+id/taskElapsed8"
+				android:layout_alignRight="@+id/taskAppName8"
+				android:layout_marginLeft="3dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+    	</RelativeLayout>
+    	
+    	<TextView android:id="@+id/separator8"
+    	   	android:layout_width="fill_parent"
+    	   	android:layout_height="1dip"
+    	   	android:background="@android:color/black"/>
+    	
+    	<!-- item 9 -->
+    	<RelativeLayout android:id="@+id/item9"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="wrap_content"
+    	    android:paddingBottom="2dip">
+    	    <TextView
+				android:id="@+id/taskAppName9"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="6dip"
+				android:layout_marginRight="6dip"
+				android:layout_marginTop="6dip"
+				android:lines="1"
+				android:textStyle="bold"
+				android:text="Application A"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Task deadline -->
+			<TextView
+				android:id="@+id/taskDeadline9"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskAppName9"
+				android:layout_alignRight="@+id/taskAppName9"
+				android:gravity="left"
+				android:lines="1"
+				android:text="2012/12/12 12:12:12"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Project name -->
+			<TextView
+				android:id="@+id/taskProjectName9"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskDeadline9"
+				android:layout_alignTop="@+id/taskDeadline9"
+				android:layout_alignLeft="@+id/taskAppName9"
+				android:gravity="left"
+				android:lines="1"
+				android:text="ProjectX@Home"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Progress indicator -->
+			<RelativeLayout	android:id="@+id/taskProgress9"
+				android:layout_width="150dip"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskProjectName9"
+				android:layout_marginTop="3dip"
+				android:layout_centerHorizontal="true">
+				<ProgressBar
+					android:id="@+id/taskProgressRunning9"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_green"
+					android:visibility="invisible"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressSuspended9"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_red"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressWaiting9"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_yellow"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressFinished9"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_blue"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<TextView
+					android:id="@+id/taskProgressText9"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentTop="true"
+					android:layout_centerInParent="true"
+					android:lines="1"
+					android:text="99.999%"
+					android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+			</RelativeLayout>
+		
+			<!-- Elapsed time -->
+			<TextView
+				android:id="@+id/taskElapsed9"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskProgress9"
+				android:layout_below="@+id/taskProjectName9"
+				android:layout_alignLeft="@+id/check"
+				android:layout_marginTop="3dip"
+				android:layout_marginRight="5dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Remaining time -->
+			<TextView
+				android:id="@+id/taskRemaining9"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toRightOf="@+id/taskProgress9"
+				android:layout_alignTop="@+id/taskElapsed9"
+				android:layout_alignRight="@+id/taskAppName9"
+				android:layout_marginLeft="3dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+    	</RelativeLayout>
+    	
+    	<TextView android:id="@+id/separator9"
+    	   	android:layout_width="fill_parent"
+    	   	android:layout_height="1dip"
+    	   	android:background="@android:color/black"/>
+    	
+    	<!-- item 10 -->
+    	<RelativeLayout android:id="@+id/item10"
+    	    android:layout_width="fill_parent"
+    	    android:layout_height="wrap_content"
+    	    android:paddingBottom="2dip">
+    	    <TextView
+				android:id="@+id/taskAppName10"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="6dip"
+				android:layout_marginRight="6dip"
+				android:layout_marginTop="6dip"
+				android:lines="1"
+				android:textStyle="bold"
+				android:text="Application A"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Task deadline -->
+			<TextView
+				android:id="@+id/taskDeadline10"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskAppName10"
+				android:layout_alignRight="@+id/taskAppName10"
+				android:gravity="left"
+				android:lines="1"
+				android:text="2012/12/12 12:12:12"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Project name -->
+			<TextView
+				android:id="@+id/taskProjectName10"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskDeadline10"
+				android:layout_alignTop="@+id/taskDeadline10"
+				android:layout_alignLeft="@+id/taskAppName10"
+				android:gravity="left"
+				android:lines="1"
+				android:text="ProjectX@Home"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Progress indicator -->
+			<RelativeLayout	android:id="@+id/taskProgress10"
+				android:layout_width="150dip"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/taskProjectName10"
+				android:layout_marginTop="3dip"
+				android:layout_centerHorizontal="true">
+				<ProgressBar
+					android:id="@+id/taskProgressRunning10"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_green"
+					android:visibility="invisible"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressSuspended10"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_red"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressWaiting10"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_yellow"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<ProgressBar
+					android:id="@+id/taskProgressFinished10"
+					style="?android:attr/progressBarStyleHorizontal"
+					android:layout_width="fill_parent"
+					android:layout_height="wrap_content"
+					android:progressDrawable="@drawable/progress_blue"
+					android:visibility="gone"
+					android:max="1000"
+					android:progress="10"
+					android:secondaryProgress="1000" />
+				<TextView
+					android:id="@+id/taskProgressText10"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentTop="true"
+					android:layout_centerInParent="true"
+					android:lines="1"
+					android:text="99.999%"
+					android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+			</RelativeLayout>
+		
+			<!-- Elapsed time -->
+			<TextView
+				android:id="@+id/taskElapsed10"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toLeftOf="@+id/taskProgress10"
+				android:layout_below="@+id/taskProjectName10"
+				android:layout_alignLeft="@+id/check"
+				android:layout_marginTop="3dip"
+				android:layout_marginRight="5dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		
+			<!-- Remaining time -->
+			<TextView
+				android:id="@+id/taskRemaining10"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toRightOf="@+id/taskProgress10"
+				android:layout_alignTop="@+id/taskElapsed10"
+				android:layout_alignRight="@+id/taskAppName10"
+				android:layout_marginLeft="3dip"
+				android:gravity="right"
+				android:lines="1"
+				android:text="000:00:00"
+				android:textColor="@android:color/black"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+    	</RelativeLayout>
+    	
+    	<TextView android:id="@+id/separator10"
+    	   	android:layout_width="fill_parent"
+    	   	android:layout_height="1dip"
+    	   	android:background="@android:color/black"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:layout_weight="0"
+    	android:gravity="right">
+    	<Button
+			android:id="@+id/widgetStart"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textSize="1dip"
+			android:drawableRight="@android:drawable/ic_media_play" />
+		<Button
+			android:id="@+id/widgetStop"
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			android:textSize="1dip"
+			android:drawableRight="@android:drawable/ic_media_pause" />
+		<Button
+			android:id="@+id/widgetManager"
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			android:textSize="1dip"
+			android:drawableRight="@drawable/nativeboinc_alpha" />
+		<Button
+			android:id="@+id/widgetLock" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textSize="1dip"
+			android:drawableRight="@android:drawable/ic_lock_lock" />
+    </LinearLayout>
+</LinearLayout>

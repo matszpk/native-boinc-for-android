@@ -1,6 +1,6 @@
 /* 
- * AndroBOINC - BOINC Manager for Android
- * Copyright (C) 2010, Pavol Michalec
+ * NativeBOINC - Native BOINC Client with Manager
+ * Copyright (C) 2011, Mateusz Szpakowski
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,15 +19,19 @@
 
 package sk.boinc.nativeboinc.clientconnection;
 
-import java.util.ArrayList;
-
-
-public interface ClientReplyReceiver extends ClientReceiver {
-	public abstract boolean updatedClientMode(ModeInfo modeInfo);
-	public abstract boolean updatedHostInfo(HostInfo hostInfo);
-	
-	public abstract boolean updatedProjects(ArrayList<ProjectInfo> projects);
-	public abstract boolean updatedTasks(ArrayList<TaskInfo> tasks);
-	public abstract boolean updatedTransfers(ArrayList<TransferInfo> transfers);
-	public abstract boolean updatedMessages(ArrayList<MessageInfo> messages);
+/**
+ * @author mat
+ *
+ */
+public class NoticeInfo {
+	public int    seqNo = 0;     // Message.seqno - sequence number of message - unique ID
+	public String title = "";
+	public String title_project = "";
+    public String description = "";
+    public String create_time;
+    public String category = "";
+    public String link = "";
+    public String link_html = "";
+    // URL where original message can be seen, if any
+    public String project_name;
 }

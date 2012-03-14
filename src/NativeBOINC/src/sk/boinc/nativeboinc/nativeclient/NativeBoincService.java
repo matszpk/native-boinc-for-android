@@ -38,6 +38,7 @@ import sk.boinc.nativeboinc.util.HostListDbAdapter;
 import sk.boinc.nativeboinc.util.NotificationId;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.ProcessUtils;
+import sk.boinc.nativeboinc.util.TaskItem;
 import sk.boinc.nativeboinc.util.UpdateItem;
 
 import edu.berkeley.boinc.lite.Project;
@@ -82,7 +83,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 	
 	private boolean mPreviousStateOfIsWorking = false;
 	private boolean mIsWorking = false;
-
+	
 	public class ListenerHandler extends Handler {
 
 		public void onClientStart() {
@@ -100,6 +101,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 		public void onClientStop(int exitCode, boolean stoppedByManager) {
 			// notify user
 			stopServiceInForeground();
+			// save stop reason
 			mNotificationController.notifyClientEvent(getString(R.string.nativeClientShutdown),
 					ExitCode.getExitCodeMessage(NativeBoincService.this,
 							exitCode, stoppedByManager));
@@ -154,9 +156,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 				callback.onProgressChange(progress);
 		}
 		
-		public void getResults(NativeBoincResultsListener callback, ArrayList<Result> results) {
+		public void getTasks(NativeBoincTasksListener callback, ArrayList<TaskItem> tasks) {
 			if (mListeners.contains(callback))
-				callback.getResults(results);
+				callback.getTasks(tasks);
 		}
 		
 		public void getProjects(NativeBoincProjectsListener callback, ArrayList<Project> projects) {
@@ -725,10 +727,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 			mWorkerThread.getGlobalProgress(callback);
 	}
 	
-	public void getResults(NativeBoincResultsListener callback) {
+	public void getTasks(NativeBoincTasksListener callback) {
 		if (Logging.DEBUG) Log.d(TAG, "Get results");
 		if (mWorkerThread != null)
-			mWorkerThread.getResults(callback);
+			mWorkerThread.getTasks(callback);
 	}
 	
 	public void getProjects(NativeBoincProjectsListener callback) {

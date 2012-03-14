@@ -619,7 +619,7 @@ public class RpcClient {
 	 * 
 	 * @return notices
 	 */
-	public ArrayList<Notice> getNotices(int seqNo) {
+	public Notices getNotices(int seqNo) {
 		mLastErrorMessage = null;
 		try {
 			mRequest.setLength(0);
@@ -627,7 +627,7 @@ public class RpcClient {
 			mRequest.append(seqNo);
 			mRequest.append("</seqno>\n</get_notices>\n");
 			sendRequest(mRequest.toString());
-			ArrayList<Notice> notices = NoticesReplyParser.parse(receiveReply());
+			Notices notices = NoticesReplyParser.parse(receiveReply());
 			return notices;
 		} catch(IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in getNotices()", e);
@@ -998,7 +998,7 @@ public class RpcClient {
 		}
 	}
 	
-	public boolean setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs) {
+	public boolean setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs, boolean nativeBoinc) {
 		try {
 			mRequest.setLength(0);
 			mRequest.append("<set_global_prefs_override>\n<global_preferences>\n  <run_on_batteries>");
@@ -1045,9 +1045,15 @@ public class RpcClient {
 			mRequest.append(globalPrefs.daily_xfer_limit_mb);
 			mRequest.append("</daily_xfer_limit_mb>\n  <daily_xfer_period_days>");
 			mRequest.append(globalPrefs.daily_xfer_period_days);
-			mRequest.append("</daily_xfer_period_days>\n  <run_if_battery_nl_than>");
-			mRequest.append(globalPrefs.run_if_battery_nl_than);
-			mRequest.append("</run_if_battery_nl_than>\n</global_preferences>\n</set_global_prefs_override>\n");
+			if (nativeBoinc) {
+				mRequest.append("</daily_xfer_period_days>\n  <run_if_battery_nl_than>");
+				mRequest.append(globalPrefs.run_if_battery_nl_than);
+				mRequest.append("<run_if_battery_nl_than>\n  <run_if_temp_lt_than>");
+				mRequest.append(globalPrefs.run_if_temp_lt_than);
+				mRequest.append("</run_if_temp_lt_than>\n</global_preferences>\n</set_global_prefs_override>\n");
+			} else {
+				mRequest.append("</daily_xfer_period_days>\n</global_preferences>\n</set_global_prefs_override>\n");
+			}
 			
 			sendRequest(mRequest.toString());
 			receiveReply();

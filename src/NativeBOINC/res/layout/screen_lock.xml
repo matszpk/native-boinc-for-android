@@ -23,16 +23,27 @@
 	android:orientation="vertical"
   	android:layout_width="fill_parent"
   	android:layout_height="fill_parent">
-  	<TextView
-  		android:id="@+id/screenLockBarText"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:gravity="right"
-		android:textStyle="bold"
-		android:paddingRight="5dip"
-		android:background="@color/screenLockBar"
+  	<LinearLayout
+  	    android:orientation="horizontal"
+  		android:layout_width="fill_parent"
+  		android:layout_height="wrap_content"
+  		android:background="@color/screenLockBar"
 		android:textColor="@color/screenLockBarText"
-		android:text="Battery: 99%, 13:30:30" />
+		android:paddingRight="5dip"
+		android:gravity="right" >
+  		<ImageView 
+  		    android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/battery"/> 
+	  	<TextView
+	  		android:id="@+id/screenLockBarText"
+			android:layout_width="wrap_content"
+			android:layout_height="fill_parent"
+			android:gravity="right|center_vertical"
+			android:textStyle="bold"
+			android:textColor="@color/screenLockBarText"
+			android:text="99%, 13:30:30" />
+	</LinearLayout>
   	<ImageView
   		android:layout_width="fill_parent"
   		android:layout_height="wrap_content"

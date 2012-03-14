@@ -64,14 +64,16 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 	/* next step id's (used after restarting client) */
 	private static final int NEXT_STEP_NOTHING = 0;
 	private static final int NEXT_STEP_PROJECT_LIST = 1;
-	private static final int NEXT_STEP_FINISH = 2;
+	private static final int NEXT_STEP_EDIT_BAM = 2;
+	private static final int NEXT_STEP_FINISH = 3;
 	
 	private static final int NO_RESTART = 0;
 	private static final int DO_RESTART = 1;
 	private static final int RESTARTING = 2;
 	private static final int RESTARTED = 3;
 	
-	private Button mNextButton = null;
+	private Button mAddProjectButton = null;
+	private Button mSyncBAMButton = null;
 	
 	private boolean mConnectionFailed = false;
 	private ClientId mConnectedClient = null;
@@ -128,7 +130,8 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 		});
 		
 		/* bottom buttons */
-		mNextButton = (Button)findViewById(R.id.installNext);
+		mAddProjectButton = (Button)findViewById(R.id.addProject);
+		mSyncBAMButton = (Button)findViewById(R.id.syncBAM);
 		Button cancelButton = (Button)findViewById(R.id.installCancel);
 		
 		cancelButton.setOnClickListener(new View.OnClickListener() {
@@ -138,7 +141,7 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 			}
 		});
 		
-		mNextButton.setOnClickListener(new View.OnClickListener() {
+		mAddProjectButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (mDoRestart == NO_RESTART)
@@ -147,6 +150,21 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 					if (Logging.DEBUG) Log.d(TAG, "next and restart");
 					mDoRestart = RESTARTING;
 					mNextInstallStep = NEXT_STEP_PROJECT_LIST;
+					showDialog(DIALOG_RESTART_PROGRESS);
+					mRunner.restartClient();
+				}
+			}
+		});
+		
+		mSyncBAMButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (mDoRestart == NO_RESTART)
+					startActivity(new Intent(InstallStep2Activity.this, EditBAMActivity.class));
+				else if (mDoRestart == DO_RESTART) {
+					if (Logging.DEBUG) Log.d(TAG, "next and restart");
+					mDoRestart = RESTARTING;
+					mNextInstallStep = NEXT_STEP_EDIT_BAM;
 					showDialog(DIALOG_RESTART_PROGRESS);
 					mRunner.restartClient();
 				}
@@ -346,7 +364,8 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 	public void clientConnected(VersionInfo clientVersion) {
 		// if after connecting
 		setProgressBarIndeterminateVisibility(false);
-		mNextButton.setEnabled(true);
+		mAddProjectButton.setEnabled(true);
+		mSyncBAMButton.setEnabled(true);
 		mConnectedClient = mConnectionManager.getClientId();
 		if (mDoRestart == RESTARTED) {
 			// reset dorestart
@@ -361,6 +380,10 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 				if (Logging.DEBUG) Log.d(TAG, "restart. go to finish");
 				finish();
 				startActivity(new Intent(this, InstallFinishActivity.class));
+				break;
+			case NEXT_STEP_EDIT_BAM:
+				if (Logging.DEBUG) Log.d(TAG, "restart. go to project list");
+				startActivity(new Intent(this, EditBAMActivity.class));
 				break;
 			}
 		}

@@ -25,12 +25,7 @@ import java.util.HashSet;
 import sk.boinc.nativeboinc.bridge.AutoRefresh;
 import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
 import sk.boinc.nativeboinc.clientconnection.ClientOp;
-import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
-import sk.boinc.nativeboinc.clientconnection.HostInfo;
-import sk.boinc.nativeboinc.clientconnection.MessageInfo;
-import sk.boinc.nativeboinc.clientconnection.ModeInfo;
-import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
-import sk.boinc.nativeboinc.clientconnection.TaskInfo;
+import sk.boinc.nativeboinc.clientconnection.ClientUpdateTransfersReceiver;
 import sk.boinc.nativeboinc.clientconnection.TransferDescriptor;
 import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
@@ -68,7 +63,7 @@ import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 
-public class TransfersActivity extends ListActivity implements ClientReplyReceiver,
+public class TransfersActivity extends ListActivity implements ClientUpdateTransfersReceiver,
 		AutoRefreshListener {
 	private static final String TAG = "TransfersActivity";
 
@@ -604,30 +599,6 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 	}
 
 	@Override
-	public boolean updatedClientMode(ModeInfo modeInfo) {
-		// Just ignore
-		return false;
-	}
-
-	@Override
-	public boolean updatedHostInfo(HostInfo hostInfo) {
-		// Just ignore
-		return false;
-	}
-
-	@Override
-	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
-		// Just ignore
-		return false;
-	}
-
-	@Override
-	public boolean updatedTasks(ArrayList<TaskInfo> tasks) {
-		// Just ignore
-		return false;
-	}
-
-	@Override
 	public boolean updatedTransfers(ArrayList<TransferInfo> transfers) {
 		mPendingTransfers = transfers;
 		mUpdateTransfersInProgress = false;
@@ -648,12 +619,6 @@ public class TransfersActivity extends ListActivity implements ClientReplyReceiv
 			mViewDirty = true;
 		}
 		return mRequestUpdates;
-	}
-
-	@Override
-	public boolean updatedMessages(ArrayList<MessageInfo> messages) {
-		// Just ignore
-		return false;
 	}
 
 	private void sortTransfers() {

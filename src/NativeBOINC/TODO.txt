@@ -19,7 +19,7 @@ NativeBOINC 0.4 TODO
 
 / * zrobic asynchroniczne sprawdzanie postępu (getProgress) dla widgeta i screenlock
   * zrobic obslugę GPGPU w formie oddzielnej aplikacji (opcjonalne)
-  * dodać zakładkę (lub odpowiednik) dla Notices
+/ * dodać zakładkę (lub odpowiednik) dla Notices
   * dodać obsługę priorytetów dla zadań (opcjonalne)
 / * zrobić powiadamianie o aktualizacjach binariów
 / * zmienic menu w glownym oknie managera (ma miec wiecej opcji)
@@ -28,17 +28,15 @@ NativeBOINC 0.4 TODO
 / * wprowadzić różne komunikaty o przerwaniu pracy (np: zakmknięcu przez usera,
     niespodziewanym zamknięciu, zamknięciu przez z innego urzadzenia) w ScreenLockActivity i 
     jako notification (notification)
-  * dodać opcje instalacji z karty SD (przy pierwszym uruchomieniu i update'u)
-  * zrobic automatyczną instalację po odpaleniu widgeta (dodać okno z pytaniem).
-  * zrobic automatyczną instalacje aplikacji po update z BAM'a (za zgodą user'a)
+/ * zrobic automatyczną instalacje aplikacji po update z BAM'a
   *- i dodać powiadomienie o tym.
-  * poprawić wygląd widgeta
-  * dodać opcje do local preferences
+/ * poprawić wygląd widgeta
+/ * dodać opcje do local preferences
 (nie przetestowane jeszcze i w klience tylko)
 /  * dodać do natywnego klienta zatrzymywania zadań gdy bateria ma mniej niż X% naladowania
 /  - dodac do opcji local preferences (wazne)
     * Developer tools *
-  * dać mozliwość instalacji róznych wersji (opcja update apps)
+  * dać mozliwość instalacji róznych wersji (opcja update apps) (na póżniej)
 (na razie jest tylko w klience)
 / * dodac opcje debugowania natywnego klienta i aplikacji (logi itp).
 / * dodac opcje kopiowania katalogu na sdcard
@@ -47,15 +45,15 @@ NativeBOINC 0.4 TODO
 / * dodać opisy binariów (w managerze jest juz)
 / * dodać opis klienta przed i po zainstalowaniu
 / * dodać okno opisu aplikacji dla projektu (przy wyborze projektu)
-  * zmienic wygląd paska w ScreenLockActivity
-  * dodać wyłączanie na podstawie temp baterii (do managera)
+/ * zmienic wygląd paska w ScreenLockActivity
+/ * dodać wyłączanie na podstawie temp baterii (do managera) (jeszcze nie przetestowane)
 
 * dostosować do Android 3.0 (opcjonalnie) i 4.0.
 
 Tablety:
 * zrobić layout głównego ekranu dla tabletów (splitview)
 * zrobic layout dla Preferences i ManageClient (wygląd jak w Android 3.0)
-* dodać nowy widget (większy z podglądem zadań)
+/ * dodać nowy widget (większy z podglądem zadań)
 * zrobić ekran instalatora
 * .....
 

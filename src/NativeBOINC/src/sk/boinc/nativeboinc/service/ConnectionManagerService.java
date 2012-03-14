@@ -20,7 +20,6 @@
 package sk.boinc.nativeboinc.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -35,11 +34,12 @@ import sk.boinc.nativeboinc.bridge.ClientBridge;
 import sk.boinc.nativeboinc.bridge.ClientBridgeCallback;
 import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
+import sk.boinc.nativeboinc.clientconnection.NoticeInfo;
 import sk.boinc.nativeboinc.clientconnection.PollError;
 import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
 import sk.boinc.nativeboinc.clientconnection.TaskDescriptor;
@@ -394,7 +394,21 @@ public class ConnectionManagerService extends Service implements
 	}
 	
 	@Override
-	public void addToScheduledUpdates(ClientReplyReceiver callback, int refreshType) {
+	public void updateNotices() {
+		if (mClientBridge != null) {
+			mClientBridge.updateNotices();
+		}
+	}
+	
+	@Override
+	public ArrayList<NoticeInfo> getPendingNotices() {
+		if (mClientBridge != null)
+			return mClientBridge.getPendingNotices();
+		return null;
+	}
+	
+	@Override
+	public void addToScheduledUpdates(ClientReceiver callback, int refreshType) {
 		if (mClientBridge != null)
 			mClientBridge.addToScheduledUpdates(callback, refreshType);
 	}
@@ -587,14 +601,14 @@ public class ConnectionManagerService extends Service implements
 	}
 
 	@Override
-	public void setRunMode(ClientReplyReceiver callback, int mode) {
+	public void setRunMode(ClientManageReceiver callback, int mode) {
 		if (mClientBridge != null) {
 			mClientBridge.setRunMode(callback, mode);
 		}
 	}
 
 	@Override
-	public void setNetworkMode(ClientReplyReceiver callback, int mode) {
+	public void setNetworkMode(ClientManageReceiver callback, int mode) {
 		if (mClientBridge != null) {
 			mClientBridge.setNetworkMode(callback, mode);
 		}

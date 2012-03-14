@@ -18,14 +18,23 @@
  */
 package sk.boinc.nativeboinc.nativeclient;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Set;
 
 import sk.boinc.nativeboinc.R;
+import sk.boinc.nativeboinc.bridge.Formatter;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.util.TaskItem;
+import edu.berkeley.boinc.lite.App;
+import edu.berkeley.boinc.lite.AppVersion;
+import edu.berkeley.boinc.lite.CcState;
 import edu.berkeley.boinc.lite.Project;
 import edu.berkeley.boinc.lite.Result;
 import edu.berkeley.boinc.lite.RpcClient;
+import edu.berkeley.boinc.lite.Workunit;
 import edu.berkeley.boinc.nativeboinc.ExtendedRpcClient;
 import edu.berkeley.boinc.nativeboinc.UpdateProjectAppsReply;
 import android.content.Context;
@@ -43,11 +52,19 @@ public class NativeBoincWorkerHandler extends Handler {
 	private NativeBoincService.ListenerHandler mListenerHandler;
 	private ExtendedRpcClient mRpcClient;
 	
+	private Formatter mFormatter = null;
+	
+	private HashMap<String, App> mApps = new HashMap<String, App>();
+	private HashMap<String, Workunit> mWorkunits = new HashMap<String, Workunit>();
+	private HashMap<String, Project> mProjects = new HashMap<String, Project>();
+	private HashMap<String, TaskItem> mTasks = new HashMap<String, TaskItem>();
+	
 	public NativeBoincWorkerHandler(final Context context, final NativeBoincService.ListenerHandler listenerHandler,
 			ExtendedRpcClient rpcClient) {
 		mContext = context;
 		mListenerHandler = listenerHandler;
 		mRpcClient = rpcClient;
+		mFormatter = new Formatter(context);
 	}
 	
 	/**
@@ -85,11 +102,65 @@ public class NativeBoincWorkerHandler extends Handler {
 		notifyGlobalProgress(callback, globalProgress / taskCount);
 	}
 	
+	private boolean updateState() {
+		CcState ccState = mRpcClient.getState();
+		
+		if (ccState == null)  {
+			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError));
+			return false;
+		}
+		
+		mProjects.clear();
+		for (Project project: ccState.projects)
+			mProjects.put(project.master_url, project);
+		
+		mApps.clear();
+		for (App app: ccState.apps)
+			mApps.put(app.name, app);
+		
+		mWorkunits.clear();
+		for (Workunit workunit: ccState.workunits)
+			mWorkunits.put(workunit.name, workunit);
+		
+		/* update tasks */
+		for (Result result: ccState.results) {
+			Project project = mProjects.get(result.project_url);
+			Workunit workunit = mWorkunits.get(result.wu_name);
+			App app = mApps.get(workunit.app_name);
+			if (project == null || workunit == null || app == null) {
+				if (Logging.WARNING) Log.d(TAG, "Warning datasets are incomplete! skipping result "+
+							result.name);
+				continue;
+			}
+			TaskItem taskItem = new TaskItem(project, workunit, app, result, mFormatter);
+			mTasks.put(result.name, taskItem);
+		}
+		return true;
+	}
+	
+	private boolean updateTasks(ArrayList<Result> results) {
+		Set<String> obsoleteTasks = new HashSet<String>(mTasks.keySet());
+		for (Result result: results) {
+			TaskItem taskItem = mTasks.get(result.name);
+			if (taskItem == null) {
+				obsoleteTasks.add(result.name);
+				return false;
+			}
+			taskItem.update(result, mFormatter);
+			// if updated
+			obsoleteTasks.remove(result.name);
+		}
+		// remove obsolete tasks
+		for (String obsolete: obsoleteTasks)
+			mTasks.remove(obsolete);
+		return true;
+	}
+	
 	/**
-	 * get results
+	 * get tasks
 	 * 
 	 */
-	public void getResults(NativeBoincResultsListener callback) {
+	public void getTasks(NativeBoincTasksListener callback) {
 		if (Logging.DEBUG) Log.d(TAG, "Get results from native client");
 		
 		if (mRpcClient == null) {
@@ -101,7 +172,13 @@ public class NativeBoincWorkerHandler extends Handler {
 			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError));
 			return;
 		}
-		notifyResults(callback, results);
+		// try to update results
+		if (!updateTasks(results)) {
+			// try to update whole ccstate
+			if (!updateState())
+				return;
+		}
+		notifyResults(callback, new ArrayList<TaskItem>(mTasks.values()));
 	}
 	
 	/**
@@ -226,12 +303,12 @@ public class NativeBoincWorkerHandler extends Handler {
 		});
 	}
 	
-	private synchronized void notifyResults(final NativeBoincResultsListener callback,
-			final ArrayList<Result> results) {
+	private synchronized void notifyResults(final NativeBoincTasksListener callback,
+			final ArrayList<TaskItem> tasks) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.getResults(callback, results);
+				mListenerHandler.getTasks(callback, tasks);
 			}
 		});
 	}

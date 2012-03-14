@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+    <item android:drawable="@drawable/nativeboinc_alpha" android:duration="200"/>
+	<item android:drawable="@drawable/nativeboinc_alpha_r2" android:duration="200"/>
+	<item android:drawable="@drawable/nativeboinc_alpha_r3" android:duration="200"/>
+	<item android:drawable="@drawable/nativeboinc_alpha_r4" android:duration="200"/>
+	<item android:drawable="@drawable/nativeboinc_alpha_r5" android:duration="200"/>
+	<item android:drawable="@drawable/nativeboinc_alpha_r6" android:duration="200"/>
+</animation-list>

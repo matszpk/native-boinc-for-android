@@ -22,6 +22,7 @@ package sk.boinc.nativeboinc;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.nativeclient.ExitCode;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincReplyListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
@@ -48,7 +49,8 @@ import android.widget.TextView;
  * @author mat
  *
  */
-public class ScreenLockActivity extends Activity implements NativeBoincReplyListener, NativeBoincStateListener {
+public class ScreenLockActivity extends Activity implements NativeBoincReplyListener,
+		NativeBoincStateListener {
 	private static final String TAG = "ScreenLockActivity";
 	
 	private int mUpdatePeriod;
@@ -68,6 +70,8 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 	private boolean mIfProgressUpdated = false;
 	private boolean mIsFirstUpdate = true;
 	
+	private String mErrorMessage = null;
+	
 	private BroadcastReceiver mBatteryStateReceiver = new BroadcastReceiver() {
 		
 		@Override
@@ -79,7 +83,6 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 	};
 	
 	private Runnable mRefresher = new Runnable() {
-		
 		@Override
 		public void run() {
 			if (!mIsRefreshingOn)
@@ -107,11 +110,9 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 			
 			// bar text
 			if (mBatteryLevel != -1)
-				mBarText.setText(getString(R.string.battery)+": "+mBatteryLevel+
-						mDateFormat.format(new Date()));
+				mBarText.setText(mBatteryLevel + mDateFormat.format(new Date()));
 			else
-				mBarText.setText(getString(R.string.battery)+": ---"+
-						mDateFormat.format(new Date()));
+				mBarText.setText("---" + mDateFormat.format(new Date()));
 			
 			// run again
 			mLockProgress.postDelayed(mRefresher, mUpdatePeriod);
@@ -152,7 +153,8 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 		setContentView(R.layout.screen_lock);
 		
 		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-		mUpdatePeriod = Integer.parseInt(globalPrefs.getString(PreferenceName.SCREEN_LOCK_UPDATE, "10"))*1000;
+		mUpdatePeriod = Integer.parseInt(globalPrefs.getString(
+				PreferenceName.SCREEN_LOCK_UPDATE, "10"))*1000;
 		
 		doBindRunnerService();
 		
@@ -223,8 +225,13 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 				} else {
 					if (mRunner.isRun())
 						mLockText.setText(getString(R.string.lockTasksSuspended));
-					else
-						mLockText.setText(getString(R.string.lockNotRan));
+					else {
+						if (mErrorMessage == null)
+							mLockText.setText(getString(R.string.lockNotRan));
+						else
+							mLockText.setText(mErrorMessage);
+					}
+					
 					mLockProgress.setVisibility(View.GONE);
 				}
 				mIfProgressUpdated = true;
@@ -234,23 +241,27 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 
 	@Override
 	public void onNativeBoincServiceError(String message) {
-		// TODO Auto-generated method stub
-		
+		// trigger progress change
+		mErrorMessage = message;
+		onProgressChange(-1.0);
 	}
 
 	@Override
 	public void onChangeRunnerIsWorking(boolean isWorking) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onClientStart() {
+		mErrorMessage = null;
+		// trigger progress change
+		onProgressChange(0.0);
 	}
 
 	@Override
 	public void onClientStop(int exitCode, boolean stoppedByManager) {
-		// TODO Auto-generated method stub
-		
+		mErrorMessage = ExitCode.getExitCodeMessage(this, exitCode, stoppedByManager);
+		// trigger progress change
+		onProgressChange(-1.0);
 	}
 }

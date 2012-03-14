@@ -59,6 +59,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	private EditText mComputeIdleFor;
 	private EditText mComputeUsageLessThan;
 	private EditText mBatteryLevelNL;
+	private EditText mBatteryTempLT;
 	private EditText mSwitchBetween;
 	private EditText mUseAtMostCPUs;
 	private EditText mUseAtMostCPUTime;
@@ -143,6 +144,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		mComputeIdleFor = (EditText)findViewById(R.id.localPrefComputeIdleFor);
 		mComputeUsageLessThan = (EditText)findViewById(R.id.localPrefComputeUsageLessThan);
 		mBatteryLevelNL = (EditText)findViewById(R.id.localPrefBatteryNL);
+		mBatteryTempLT = (EditText)findViewById(R.id.localPrefTempLT);
 		mSwitchBetween = (EditText)findViewById(R.id.localPrefSwitchBetween);
 		mUseAtMostCPUs = (EditText)findViewById(R.id.localPrefUseAtMostCPUs);
 		mUseAtMostCPUTime = (EditText)findViewById(R.id.localPrefUseAtMostCPUTime);
@@ -210,6 +212,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		mComputeIdleFor.addTextChangedListener(textWatcher);
 		mComputeUsageLessThan.addTextChangedListener(textWatcher);
 		mBatteryLevelNL.addTextChangedListener(textWatcher);
+		mBatteryTempLT.addTextChangedListener(textWatcher);
 		
 		mSwitchBetween.addTextChangedListener(textWatcher);
 		mUseAtMostCPUs.addTextChangedListener(textWatcher);
@@ -312,6 +315,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 			double max_ncpus_pct = Double.parseDouble(mUseAtMostCPUs.getText().toString());
 			double cpu_usage_limit = Double.parseDouble(mUseAtMostCPUTime.getText().toString());
 			double battery_level_nl = Double.parseDouble(mBatteryLevelNL.getText().toString());
+			double battery_temp_lt = Double.parseDouble(mBatteryTempLT.getText().toString());
 			
 			double max_bytes_sec_down = Double.parseDouble(mMaxDownloadRate.getText().toString());
 			double max_bytes_sec_up = Double.parseDouble(mMaxUploadRate.getText().toString());
@@ -331,7 +335,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 					mUseAtMostMemoryInIdle.getText().toString());
 			
 			if (idle_time_to_run < 0.0 || suspend_cpu_usage > 100.0 || suspend_cpu_usage < 0.0 ||
-					battery_level_nl < 0.0 || battery_level_nl > 100.0 ||
+					battery_level_nl < 0.0 || battery_level_nl > 100.0 || battery_temp_lt >= 300.0 ||
 					cpu_scheduling_period_minutes < 0.0 || max_ncpus_pct > 100.0 || max_ncpus_pct < 0.0 ||
 					cpu_usage_limit > 100.0 || cpu_usage_limit < 0.0 ||
 					max_bytes_sec_down < 0.0 || max_bytes_sec_up < 0.0 || daily_xfer_limit_mb < 0.0 ||
@@ -362,6 +366,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		mComputeIdleFor.setText(Double.toString(globalPrefs.idle_time_to_run));
 		mComputeUsageLessThan.setText(Double.toString(globalPrefs.suspend_cpu_usage));
 		mBatteryLevelNL.setText(Double.toString(globalPrefs.run_if_battery_nl_than));
+		mBatteryTempLT.setText(Double.toString(globalPrefs.run_if_temp_lt_than));
 		
 		mSwitchBetween.setText(Double.toString(globalPrefs.cpu_scheduling_period_minutes));
 		mUseAtMostCPUs.setText(Double.toString(globalPrefs.max_ncpus_pct));
@@ -398,6 +403,8 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 					mComputeUsageLessThan.getText().toString());
 			globalPrefs.run_if_battery_nl_than = Double.parseDouble(
 					mBatteryLevelNL.getText().toString());
+			globalPrefs.run_if_temp_lt_than = Double.parseDouble(
+					mBatteryTempLT.getText().toString());
 			
 			globalPrefs.cpu_scheduling_period_minutes = Double.parseDouble(
 					mSwitchBetween.getText().toString());

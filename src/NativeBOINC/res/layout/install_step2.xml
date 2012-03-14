@@ -73,10 +73,15 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/cancel" />
-		<Button android:id="@+id/installNext" 
+	  	<Button android:id="@+id/syncBAM"
+	  	    android:enabled="false"
+		    android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/synchronizeBAM" />
+	  	<Button android:id="@+id/addProject" 
 		    android:enabled="false"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/next" />
+			android:text="@string/addProject" />
 	</LinearLayout>
 </LinearLayout>

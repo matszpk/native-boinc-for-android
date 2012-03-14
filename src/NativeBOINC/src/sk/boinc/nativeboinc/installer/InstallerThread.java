@@ -107,11 +107,29 @@ public class InstallerThread extends Thread {
 		});
 	}
 	
-	public void installBoincApplicationAutomatically(final String projectUrl) {
+	public void updateClientFromSDCard() {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				//mHandler.installClientAutomatically(true);
+			}
+		});
+	}
+	
+	public void installProjectApplicationAutomatically(final String projectUrl) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
 				mHandler.installProjectApplicationsAutomatically(projectUrl);
+			}
+		});
+	}
+	
+	public void updateProjectApplicationFromSDCard(final String projectUrl) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				//mHandler.installProjectApplicationsAutomatically(projectUrl);
 			}
 		});
 	}

@@ -344,6 +344,10 @@ public class InstallerService extends Service {
 		mInstallerThread.installClientAutomatically();
 	}
 	
+	public void updateClientFromSDCard(String directory) {
+		mNotificationController.notifyInstallClientBegin();
+	}
+	
 	/* update client distrib info */
 	public void updateClientDistrib() {
 		synchronized(mPendingClientDistribSync) {
@@ -378,7 +382,11 @@ public class InstallerService extends Service {
 	 */
 	public void installProjectApplicationsAutomatically(String projectName, String projectUrl) {
 		mNotificationController.notifyInstallProjectBegin(projectName);
-		mInstallerThread.installBoincApplicationAutomatically(projectUrl);
+		mInstallerThread.installProjectApplicationAutomatically(projectUrl);
+	}
+	
+	public void updateProjectFromSDCard(String projectName, String directory) {
+		mNotificationController.notifyInstallProjectBegin(projectName);
 	}
 	
 	/**

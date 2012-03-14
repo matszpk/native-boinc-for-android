@@ -112,9 +112,9 @@
 	</string-array>
 
 	<string-array name="PGPkeyservers">
+	    <item>pgp.zdv.uni-mainz.de</item>
 	    <item>keyserver.stack.nl</item>
 	    <item>subkeys.pgp.net</item>
-		<item>pgp.zdv.uni-mainz.de</item>
 	</string-array>
 	
 	<string-array name="pollOps">

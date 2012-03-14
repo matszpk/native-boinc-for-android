@@ -23,16 +23,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincTasksListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincReplyListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
 import sk.boinc.nativeboinc.util.PreferenceName;
+import sk.boinc.nativeboinc.util.TaskItem;
 import sk.boinc.nativeboinc.widget.NativeBoincWidgetProvider;
+import sk.boinc.nativeboinc.widget.TabletWidgetProvider;
 import android.app.Application;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -42,6 +46,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.util.Linkify;
@@ -61,7 +66,7 @@ import android.widget.Toast;
  * </ul>
  */
 public class BoincManagerApplication extends Application implements NativeBoincStateListener,
-	NativeBoincReplyListener {
+	NativeBoincReplyListener, NativeBoincTasksListener {
 	
 	private static final String TAG = "BoincManagerApplication";
 
@@ -75,6 +80,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	private StringBuilder mStringBuilder = new StringBuilder(LICENSE_TEXT_SIZE);
 	
 	public final static String UPDATE_PROGRESS = "UPDATE_PROGRESS";
+	public final static String UPDATE_TASKS = "UPDATE_TASKS";
 	
 	public final static int INSTALLER_NO_STAGE = 0;
 	public final static int INSTALLER_CLIENT_STAGE = 1;
@@ -357,8 +363,15 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 
 	@Override
 	public void onClientStart() {
-		Intent intent = new Intent(NativeBoincWidgetProvider.NATIVE_BOINC_WIDGET_UPDATE);
+		if (Logging.DEBUG) Log.d(TAG, "On client start");
+		Intent intent = new Intent(NativeBoincWidgetProvider.NATIVE_BOINC_WIDGET_PREPARE_UPDATE);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		try {
+			pendingIntent.send();
+		} catch (Exception ex) { }
+		
+		intent = new Intent(TabletWidgetProvider.NATIVE_BOINC_WIDGET_PREPARE_UPDATE);
+		pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		try {
 			pendingIntent.send();
 		} catch (Exception ex) { }
@@ -368,6 +381,13 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	public void onClientStop(int exitCode, boolean stoppedByManager) {
 		Intent intent = new Intent(NativeBoincWidgetProvider.NATIVE_BOINC_WIDGET_UPDATE);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		try {
+			pendingIntent.send();
+		} catch (Exception ex) { }
+		
+		/* tablet widget */
+		intent = new Intent(TabletWidgetProvider.NATIVE_BOINC_WIDGET_UPDATE);
+		pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		try {
 			pendingIntent.send();
 		} catch (Exception ex) { }
@@ -385,7 +405,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 
 	@Override
 	public void onNativeBoincServiceError(String message) {
-		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+		//Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 	}
 	
 	/**
@@ -411,6 +431,23 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		Intent intent = new Intent(NativeBoincWidgetProvider.NATIVE_BOINC_WIDGET_UPDATE);
 		intent.putExtra(UPDATE_PROGRESS, progress);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		try {
+			if (Logging.DEBUG) Log.d(TAG, "Send update intent");
+			pendingIntent.send();
+		} catch (Exception ex) { }
+	}
+	
+	@Override
+	public void getTasks(ArrayList<TaskItem> tasks) {
+		Intent intent = new Intent(TabletWidgetProvider.NATIVE_BOINC_WIDGET_UPDATE);
+		
+		Parcelable[] taskItems = new Parcelable[tasks.size()];
+		for (int i = 0; i < taskItems.length; i++)
+			taskItems[i] = tasks.get(i);
+		intent.putExtra(UPDATE_TASKS, taskItems);
+		
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent,
+				PendingIntent.FLAG_UPDATE_CURRENT);
 		try {
 			if (Logging.DEBUG) Log.d(TAG, "Send update intent");
 			pendingIntent.send();

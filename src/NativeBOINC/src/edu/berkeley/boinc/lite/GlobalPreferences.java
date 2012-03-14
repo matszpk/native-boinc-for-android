@@ -54,4 +54,5 @@ public class GlobalPreferences {
 	public double daily_xfer_limit_mb;
 	public int daily_xfer_period_days;
 	public double run_if_battery_nl_than;
+	public double run_if_temp_lt_than;
 }

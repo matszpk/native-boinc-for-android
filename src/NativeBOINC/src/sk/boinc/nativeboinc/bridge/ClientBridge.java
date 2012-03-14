@@ -19,7 +19,6 @@
 
 package sk.boinc.nativeboinc.bridge;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.ArrayList;
@@ -39,11 +38,17 @@ import sk.boinc.nativeboinc.clientconnection.ClientPollErrorReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
+import sk.boinc.nativeboinc.clientconnection.ClientUpdateMessagesReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientUpdateNoticesReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientUpdateProjectsReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientUpdateTasksReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientUpdateTransfersReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.ModeInfo;
+import sk.boinc.nativeboinc.clientconnection.NoticeInfo;
 import sk.boinc.nativeboinc.clientconnection.PollError;
 import sk.boinc.nativeboinc.clientconnection.PollOp;
 import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
@@ -103,6 +108,8 @@ public class ClientBridge implements ClientRequestHandler {
 	private Object mPendingTransfersSync = new Object();
 	private ArrayList<MessageInfo> mPendingMessages = null;
 	private Object mPendingMessagesSync = new Object();
+	private ArrayList<NoticeInfo> mPendingNotices = null;
+	private Object mPendingNoticesSync = new Object();
 	
 	public class ReplyHandler extends Handler {
 		private static final String TAG = "ClientBridge.ReplyHandler";
@@ -215,8 +222,8 @@ public class ClientBridge implements ClientRequestHandler {
 		public void updatedClientMode(final ModeInfo modeInfo) {
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
-				if (observer instanceof ClientReplyReceiver) {
-					ClientReplyReceiver callback = (ClientReplyReceiver)observer;
+				if (observer instanceof ClientManageReceiver) {
+					ClientManageReceiver callback = (ClientManageReceiver)observer;
 					
 					boolean periodicAllowed = callback.updatedClientMode(modeInfo);
 					if (periodicAllowed)
@@ -232,8 +239,8 @@ public class ClientBridge implements ClientRequestHandler {
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
-				if (observer instanceof ClientReplyReceiver)
-					((ClientReplyReceiver)observer).updatedHostInfo(hostInfo);
+				if (observer instanceof ClientManageReceiver)
+					((ClientManageReceiver)observer).updatedHostInfo(hostInfo);
 			}
 		}
 		
@@ -334,8 +341,8 @@ public class ClientBridge implements ClientRequestHandler {
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
-				if (observer instanceof ClientReplyReceiver) {
-					ClientReplyReceiver callback = (ClientReplyReceiver)observer;
+				if (observer instanceof ClientUpdateProjectsReceiver) {
+					ClientUpdateProjectsReceiver callback = (ClientUpdateProjectsReceiver)observer;
 					
 					boolean periodicAllowed = callback.updatedProjects(projects);
 					if (periodicAllowed)
@@ -351,8 +358,8 @@ public class ClientBridge implements ClientRequestHandler {
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
-				if (observer instanceof ClientReplyReceiver) {
-					ClientReplyReceiver callback = (ClientReplyReceiver)observer;
+				if (observer instanceof ClientUpdateTasksReceiver) {
+					ClientUpdateTasksReceiver callback = (ClientUpdateTasksReceiver)observer;
 					
 					boolean periodicAllowed = callback.updatedTasks(tasks);
 					if (periodicAllowed)
@@ -368,8 +375,8 @@ public class ClientBridge implements ClientRequestHandler {
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
-				if (observer instanceof ClientReplyReceiver) {
-					ClientReplyReceiver callback = (ClientReplyReceiver)observer;
+				if (observer instanceof ClientUpdateTransfersReceiver) {
+					ClientUpdateTransfersReceiver callback = (ClientUpdateTransfersReceiver)observer;
 					
 					boolean periodicAllowed = callback.updatedTransfers(transfers);
 					if (periodicAllowed)
@@ -385,10 +392,27 @@ public class ClientBridge implements ClientRequestHandler {
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
-				if (observer instanceof ClientReplyReceiver) {
-					ClientReplyReceiver callback = (ClientReplyReceiver)observer;
+				if (observer instanceof ClientUpdateMessagesReceiver) {
+					ClientUpdateMessagesReceiver callback = (ClientUpdateMessagesReceiver)observer;
 					
 					boolean periodicAllowed = callback.updatedMessages(messages);
+					if (periodicAllowed)
+						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.MESSAGES);
+				}
+			}
+		}
+		
+		public void updatedNotices(final ArrayList <NoticeInfo> notices) {
+			synchronized(mPendingNoticesSync) {
+				mPendingNotices = notices;
+			}
+			
+			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			for (ClientReceiver observer: observers) {
+				if (observer instanceof ClientUpdateNoticesReceiver) {
+					ClientUpdateNoticesReceiver callback = (ClientUpdateNoticesReceiver)observer;
+					
+					boolean periodicAllowed = callback.updatedNotices(notices);
 					if (periodicAllowed)
 						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.MESSAGES);
 				}
@@ -474,8 +498,8 @@ public class ClientBridge implements ClientRequestHandler {
 		if (mConnected) {
 			// The observer could have automatic refresh pending
 			// Remove it now
-			if (observer instanceof ClientReplyReceiver)
-				mAutoRefresh.unscheduleAutomaticRefresh((ClientReplyReceiver)observer);
+			if (observer instanceof ClientManageReceiver)
+				mAutoRefresh.unscheduleAutomaticRefresh((ClientManageReceiver)observer);
 		}
 		if (Logging.DEBUG) Log.d(TAG, "Detached observer: " + observer.toString());
 	}
@@ -614,8 +638,26 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 	}
 	
+	public void updateNotices() {
+		if (mRemoteClient == null) return; // not connected
+		synchronized(mPendingMessagesSync) {
+			mPendingMessages = null;
+		}
+		mWorker.updateNotices();
+	}
+	
 	@Override
-	public void addToScheduledUpdates(ClientReplyReceiver callback, int refreshType) {
+	public ArrayList<NoticeInfo> getPendingNotices() {
+		if (mRemoteClient == null) return null; // not connected
+		synchronized(mPendingNoticesSync) {
+			ArrayList<NoticeInfo> pending = mPendingNotices;
+			mPendingNotices = null;
+			return pending;
+		}
+	}
+	
+	@Override
+	public void addToScheduledUpdates(ClientReceiver callback, int refreshType) {
 		if (mRemoteClient == null) return; // not connected
 		mAutoRefresh.scheduleAutomaticRefresh(callback, refreshType);
 	}
@@ -801,7 +843,7 @@ public class ClientBridge implements ClientRequestHandler {
 	public void setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs) {
 		if (mRemoteClient == null) return; // not connected
 		mGlobalPrefsBeingOverriden = true;
-		mWorker.setGlobalPrefsOverrideStruct(globalPrefs);
+		mWorker.setGlobalPrefsOverrideStruct(globalPrefs, mRemoteClient.isNativeClient());
 	}
 	
 	@Override
@@ -817,13 +859,13 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 
 	@Override
-	public void setRunMode(final ClientReplyReceiver callback, final int mode) {
+	public void setRunMode(final ClientManageReceiver callback, final int mode) {
 		if (mRemoteClient == null) return; // not connected
 		mWorker.setRunMode(callback, mode);
 	}
 
 	@Override
-	public void setNetworkMode(final ClientReplyReceiver callback, final int mode) {
+	public void setNetworkMode(final ClientManageReceiver callback, final int mode) {
 		if (mRemoteClient == null) return; // not connected
 		mWorker.setNetworkMode(callback, mode);
 	}

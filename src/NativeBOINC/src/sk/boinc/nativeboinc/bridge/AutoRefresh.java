@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
-import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.PreferenceName;
@@ -47,16 +47,17 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 	public final static int TASKS       = 3;
 	public final static int TRANSFERS   = 4;
 	public final static int MESSAGES    = 5;
+	public final static int NOTICES     = 6;
 
 	private final static int RUN_UPDATE = 1;
 
 	private final static int NO_CONNECTIVITY = -1;
 
 	private class UpdateRequest {
-		public final ClientReplyReceiver callback;
+		public final ClientReceiver callback;
 		public final int requestType;
 
-		public UpdateRequest(final ClientReplyReceiver callback, final int requestType) {
+		public UpdateRequest(final ClientReceiver callback, final int requestType) {
 			this.callback = callback;
 			this.requestType = requestType;
 		}
@@ -102,7 +103,10 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 					break;
 				case MESSAGES:
 					mClientRequests.updateMessages();
-					break;						
+					break;
+				case NOTICES:
+					mClientRequests.updateNotices();
+					break;
 				default:
 					if (Logging.ERROR) Log.e(TAG, "Unhandled request type: " + request.requestType);
 				}
@@ -175,7 +179,7 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 		}
 	}
 
-	public void scheduleAutomaticRefresh(final ClientReplyReceiver callback, final int requestType) {
+	public void scheduleAutomaticRefresh(final ClientReceiver callback, final int requestType) {
 		if (mAutoRefresh == 0) return;
 		UpdateRequest request = new UpdateRequest(callback, requestType);
 		if (mScheduledUpdates.contains(request)) {
@@ -188,7 +192,7 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 		if (Logging.DEBUG) Log.d(TAG, "Scheduled automatic refresh for (" + request.callback.toString() + "," + request.requestType + ")");
 	}
 
-	public void unscheduleAutomaticRefresh(final ClientReplyReceiver callback) {
+	public void unscheduleAutomaticRefresh(final ClientReceiver callback) {
 		Iterator<UpdateRequest> it = mScheduledUpdates.iterator();
 		while (it.hasNext()) {
 			// Found pending auto-update; remove its schedule now
@@ -202,10 +206,9 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 	}
 	
 	public void unscheduleAutomaticRefresh(final int refreshType) {
-		Iterator<UpdateRequest> it = mScheduledUpdates.iterator();
-		while (it.hasNext()) {
+		UpdateRequest[] list = mScheduledUpdates.toArray(new UpdateRequest[0]);
+		for (UpdateRequest req: list) {
 			// Found pending auto-update; remove its schedule now
-			UpdateRequest req = it.next();
 			if (req.requestType == refreshType) {
 				mHandler.removeMessages(RUN_UPDATE, req);
 				mScheduledUpdates.remove(req);
@@ -216,11 +219,10 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 
 
 	private void removeAutomaticRefresh(UpdateRequest request) {
-		Iterator<UpdateRequest> it = mScheduledUpdates.iterator();
+		UpdateRequest[] list = mScheduledUpdates.toArray(new UpdateRequest[0]);
 		if (Logging.DEBUG) Log.d(TAG, "mHandler.hasMessages(RUN_UPDATE)=" + mHandler.hasMessages(RUN_UPDATE));
 		if (Logging.DEBUG) Log.d(TAG, "mHandler.hasMessages(RUN_UPDATE, request)=" + mHandler.hasMessages(RUN_UPDATE, request));
-		while (it.hasNext()) {
-			UpdateRequest req = it.next();
+		for (UpdateRequest req: list) {
 			if (req.equals(request)) {
 				// The same request - retrieve the original object, as it was the one
 				// which was used for posting the delayed message

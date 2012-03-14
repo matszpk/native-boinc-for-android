@@ -19,12 +19,10 @@
 
 package sk.boinc.nativeboinc.bridge;
 
-import java.util.Collection;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.GlobalPreferences;
-import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
 import sk.boinc.nativeboinc.clientconnection.TaskDescriptor;
 import sk.boinc.nativeboinc.clientconnection.TransferDescriptor;
 import sk.boinc.nativeboinc.debug.Logging;
@@ -200,6 +198,16 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
+	public void updateNotices() {
+		// Execute in worker thread
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.updateNotices();
+			}
+		});
+	}
+	
 	public void getBAMInfo() {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
@@ -309,11 +317,12 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
-	public void setGlobalPrefsOverrideStruct(final GlobalPreferences globalPrefs) {
+	public void setGlobalPrefsOverrideStruct(final GlobalPreferences globalPrefs,
+			final boolean nativeBoinc) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.setGlobalPrefsOverrideStruct(globalPrefs);
+				mHandler.setGlobalPrefsOverrideStruct(globalPrefs, nativeBoinc);
 			}
 		});
 	}
@@ -328,7 +337,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 
-	public void setRunMode(final ClientReplyReceiver callback, final int mode) {
+	public void setRunMode(final ClientManageReceiver callback, final int mode) {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override
@@ -338,7 +347,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 
-	public void setNetworkMode(final ClientReplyReceiver callback, final int mode) {
+	public void setNetworkMode(final ClientManageReceiver callback, final int mode) {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override

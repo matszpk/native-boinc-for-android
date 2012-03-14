@@ -40,7 +40,8 @@
 		<service android:name=".widget.NativeBoincWidgetService"
 				android:description="@string/widget_service_desc" />
 
-		<receiver android:name=".widget.NativeBoincWidgetProvider">
+		<receiver android:name=".widget.NativeBoincWidgetProvider"
+		    android:label="@string/widget2x1">
 			<intent-filter>
 		        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
 		    	<action android:name="sk.boinc.nativeboinc.widget.WIDGET_UPDATE" />
@@ -51,6 +52,18 @@
 				android:resource="@xml/widget_info" />
 		</receiver>
 
+		<receiver android:name=".widget.TabletWidgetProvider"
+		    android:label="@string/widgetTablet">
+			<intent-filter>
+		        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+		    	<action android:name="sk.boinc.nativeboinc.widget.TABLET_WIDGET_UPDATE" />
+		    	<action android:name="sk.boinc.nativeboinc.widget.TABLET_WIDGET_PREPARE_UPDATE" />
+		    	<action android:name="sk.boinc.nativeboinc.widget.TABLET_CLIENT_START_STOP" />
+		    </intent-filter>
+			<meta-data android:name="android.appwidget.provider"
+				android:resource="@xml/tablet_widget_info" />
+		</receiver>
+		
 		<activity android:name=".ManageClientActivity"
 			android:label="@string/menuManage"
 			android:launchMode="singleTop" />
@@ -90,6 +103,8 @@
 		<activity android:name=".TransfersActivity" />
 
 		<activity android:name=".MessagesActivity" />
+		
+		<activity android:name=".NoticesActivity" />
 		
 		<activity android:name=".EditBAMActivity"
 			android:label="@string/editBAM"

@@ -28,6 +28,10 @@
 	<string name="nboinc_service_desc">Native BOINC client service</string>
 	<string name="widget_service_desc">Native BOINC Widget service</string>
 
+	<!-- widget names -->
+	<string name="widget2x1">NativeBOINC small</string>
+	<string name="widgetTablet">NativeBOINC large</string>
+	
 	<!-- Some common, generic strings -->
 	<string name="back">Back</string>
 	<string name="next">Next</string>
@@ -94,6 +98,7 @@
 	<string name="tasks">Tasks</string>
 	<string name="transfers">Transfers</string>
 	<string name="messages">Messages</string>
+	<string name="notices">Notices</string>
 	<string name="closeWarning">Press Back again (within 5 seconds) to exit</string>
 
 	<!-- Menu items -->
@@ -182,6 +187,8 @@
 	<string name="percent">%</string>
 	<string name="localPrefSwitchBetween">Switch between applications every</string>
 	<string name="localPrefBatteryNL">While battery charge level not less than</string>
+	<string name="localPrefTempLT">While battery temperature less than</string>
+	<string name="degreeC">°C</string>
 	<string name="localPrefUseAtMost">Use at most</string>
 	<string name="localPrefPercentCPUTime">% CPU time</string>
 	<string name="localPrefPercentCPUs">% of the processors</string>
@@ -317,6 +324,7 @@
 	<string name="remoteHostsLoadError">Unable to load remote hosts list</string>
 	<string name="remoteHostsSaveError">Unable to save remote hosts list</string>
 	
+	<string name="synchronizeBAM">Synchronize BAM</string>
 	<!--  progress dialog messages -->
 	<string name="synchronizingBAM">Synchronizing BAM...</string>
 	
@@ -372,10 +380,10 @@
 	<!-- Install Wizard Activity -->
 	<string name="installWizard">Installation Wizard</string>
 	<string name="installWelcome">Welcome to NativeBOINC!</string>
-	<string name="installClientInstall">Please tap \'Next\' button to download and install native BOINC client.</string>
+	<string name="installClientInstall">Please tap \'Next\' button to to download and install native BOINC client.</string>
 	<string name="versionToInstall">Version to install</string>
 	<string name="installSuccessfully">Native BOINC client has been installed successfully!</string>
-	<string name="installAddProject">Please tap \'Next\' button to add first BOINC project.</string>
+	<string name="installAddProject">Please tap \'Add  project\' button to add first BOINC project, or \'Synchronize BAM\' if you want to synchronize client with BAM.</string>
 	<string name="installFinished">Installation have been finished. Please tap \'Finish\' button.</string>
 	<string name="installFinishedBut">Installation have been finished without project attachment. Please tap \'Finish\' button.</string>
 	<string name="installWidgetFinished">Notice: We recommends to use NativeBOINC widget to control native client.</string>

@@ -3,98 +3,154 @@
  */
 package edu.berkeley.boinc.lite;
 
-import java.util.ArrayList;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
-import android.util.Xml;
 
 /**
  * @author mat
  *
  */
-public class NoticesReplyParser extends BaseParser {
+public class NoticesReplyParser {
 	private static final String TAG = "NoticesReplyParser";
 	
-	private ArrayList<Notice> mNotices = new ArrayList<Notice>(1);
-	private Notice mNotice = null;
+	private Notices mNotices = new Notices();
 	
-	public final ArrayList<Notice> getNotices() {
+	public final Notices getNotices() {
 		return mNotices;
 	}
 	
-	public static ArrayList<Notice> parse(String rpcResult) {
+	public static Notices parse(String rpcResult) {
 		try {
 			NoticesReplyParser parser = new NoticesReplyParser();
-			Xml.parse(rpcResult, parser);
+			parser.parseNotices(rpcResult);
 			return parser.getNotices();
 		}
-		catch (SAXException e) {
+		catch (Exception e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
 		}
 	}
 	
-	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
-		if (localName.equalsIgnoreCase("notice")) {
-			mNotice = new Notice();
-		} else {
-			// Another element, hopefully primitive and not constructor
-			// (although unknown constructor does not hurt, because there will be primitive start anyway)
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
-		}
-	}
-	
-	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void parseNotices(String xml) {
+		int pos = 0;
+		int end = xml.length();
+		boolean inNotices = false;
+		
+		int newPos;
+		Notice notice = null;
+		
 		try {
-			if (mNotice != null) {
-				// We are inside <app>
-				if (localName.equalsIgnoreCase("notice")) {
-					if (mNotice.seqno!=-1)
-						mNotices.add(mNotice);
-					else
-						mNotices.clear(); // complete
-					mNotice = null;
-				} else {
-					// Not the closing tag - we decode possible inner tags
-					trimEnd();
-					if (localName.equalsIgnoreCase("seqno")) {
-						mNotice.seqno = Integer.parseInt(mCurrentElement.toString());
-					} else if(localName.equalsIgnoreCase("title")) {
-						mNotice.title = mCurrentElement.toString();
-					} else  if (localName.equalsIgnoreCase("description")) {
-						mNotice.description = mCurrentElement.toString();
-					} else if (localName.equalsIgnoreCase("create_time")) {
-						mNotice.create_time = Double.parseDouble(mCurrentElement.toString());
-					} else if (localName.equalsIgnoreCase("arrival_time")) {
-						mNotice.arrival_time = Double.parseDouble(mCurrentElement.toString());
-					} else if (localName.equalsIgnoreCase("is_private")) {
-						mNotice.is_private = !mCurrentElement.toString().equals("0");
-					} else if (localName.equalsIgnoreCase("category")) {
-						mNotice.category = mCurrentElement.toString();
-					} else if (localName.equalsIgnoreCase("link")) {
-						mNotice.link = mCurrentElement.toString();
-					} else if (localName.equalsIgnoreCase("project_name")) {
-						mNotice.project_name = mCurrentElement.toString();
-					} else if (localName.equalsIgnoreCase("guid")) {
-						mNotice.guid = mCurrentElement.toString();
-					} else if (localName.equalsIgnoreCase("feed_url")) {
-						mNotice.feed_url = mCurrentElement.toString();
+			while (pos < end) {
+				/* skip spaces */
+				while (pos < end) {
+					if (!Character.isSpace(xml.charAt(pos)))
+						break;
+					pos++;
+				}
+				if (!inNotices) {
+					newPos = xml.indexOf("<notices>");
+					if (newPos == -1)
+						throw new RuntimeException("Cant parse notices");
+					pos = newPos + 9;
+					inNotices = true;
+				} else if (inNotices && notice == null && xml.startsWith("<notice>", pos)) {
+					pos += 8;
+					notice = new Notice();
+				} else if (notice != null && xml.startsWith("</notice>", pos)) {
+					if (notice.seqno != -1)
+						mNotices.notices.add(notice);
+					else {
+						mNotices.notices.clear();
+						mNotices.complete = true;
+					}
+					notice = null;
+					pos += 9;
+				} else if (inNotices && xml.startsWith("</notices>", pos)) {
+					break; // end
+				} else if (notice != null) {
+					if (xml.startsWith("<seqno>", pos)) {
+						pos += 7;
+						newPos = xml.indexOf("</seqno>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse notices");
+						notice.seqno = Integer.parseInt(xml.substring(pos, newPos).trim());
+						pos = newPos+8;
+					} else if (xml.startsWith("<title>", pos)) {
+						pos += 7;
+						newPos = xml.indexOf("</title>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse notices");
+						notice.title = xml.substring(pos, newPos).trim();
+						pos = newPos+8;
+					} else if (xml.startsWith("<description><![CDATA[", pos)) {
+						pos += 13 + 9;
+						newPos = xml.indexOf("]]></description>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse notices");
+						notice.description = xml.substring(pos, newPos).trim();
+						pos = newPos+14+3;
+					} else if (xml.startsWith("<create_time>", pos)) {
+						pos += 13;
+						newPos = xml.indexOf("</create_time>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse notices");
+						notice.create_time = Double.parseDouble(xml.substring(pos, newPos).trim());
+						pos = newPos+14;
+					} else if (xml.startsWith("<arrival_time>", pos)) {
+						pos += 14;
+						newPos = xml.indexOf("</arrival_time>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse notices");
+						notice.arrival_time = Double.parseDouble(xml.substring(pos, newPos).trim());
+						pos = newPos+15;
+					} else if (xml.startsWith("<category>", pos)) {
+						pos += 10;
+						newPos = xml.indexOf("</category>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse notices");
+						notice.category = xml.substring(pos, newPos).trim();
+						pos = newPos+11;
+					} else if (xml.startsWith("<link>", pos)) {
+						pos += 6;
+						newPos = xml.indexOf("</link>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse notices");
+						notice.link = xml.substring(pos, newPos).trim();
+						pos = newPos+7;
+					} else if (xml.startsWith("<project_name>", pos)) {
+						pos += 14;
+						newPos = xml.indexOf("</project_name>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse notices");
+						notice.project_name = xml.substring(pos, newPos).trim();
+						pos = newPos+15;
+					} else if (xml.startsWith("<guid>", pos)) {
+						pos += 6;
+						newPos = xml.indexOf("</guid>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse notices");
+						notice.guid = xml.substring(pos, newPos).trim();
+						pos = newPos+7;
+					} else if (xml.startsWith("<feed_url>", pos)) {
+						pos += 10;
+						newPos = xml.indexOf("</feed_url>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse notices");
+						notice.feed_url = xml.substring(pos, newPos).trim();
+						pos = newPos+11;
+					} else if (xml.startsWith("<is_private>", pos)) {
+						pos += 12;
+						newPos = xml.indexOf("</is_private>", pos);
+						if (newPos == -1)
+							throw new RuntimeException("Cant parse notices");
+						notice.is_private = !xml.substring(pos, newPos).trim().equals("0");
+						pos = newPos+13;
 					}
 				}
 			}
 		} catch (NumberFormatException e) {
-			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
+			if (Logging.INFO) Log.i(TAG, "Exception when decoding");
 		}
-		mElementStarted = false;
 	}
 }

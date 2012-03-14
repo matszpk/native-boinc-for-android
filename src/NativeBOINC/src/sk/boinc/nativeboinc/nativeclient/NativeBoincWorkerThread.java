@@ -85,11 +85,11 @@ public class NativeBoincWorkerThread extends Thread {
 		});
 	}
 	
-	public void getResults(final NativeBoincResultsListener callback) {
+	public void getTasks(final NativeBoincTasksListener callback) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.getResults(callback);
+				mHandler.getTasks(callback);
 			}
 		});
 	}

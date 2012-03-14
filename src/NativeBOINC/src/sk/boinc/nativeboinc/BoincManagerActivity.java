@@ -24,11 +24,13 @@ import hal.android.workarounds.FixedProgressDialog;
 import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.clientconnection.ClientError;
-import sk.boinc.nativeboinc.clientconnection.ClientReplyReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientUpdateMessagesReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.ModeInfo;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
+import sk.boinc.nativeboinc.clientconnection.NoticeInfo;
 import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
 import sk.boinc.nativeboinc.clientconnection.TaskInfo;
 import sk.boinc.nativeboinc.clientconnection.TransferInfo;
@@ -74,7 +76,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class BoincManagerActivity extends TabActivity implements ClientReplyReceiver,
+public class BoincManagerActivity extends TabActivity implements ClientUpdateMessagesReceiver,
 		NativeBoincStateListener {
 	private static final String TAG = "BoincManagerActivity";
 
@@ -317,6 +319,11 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		tabHost.addTab(tabHost.newTabSpec("tab_messages")
 				.setIndicator(getString(R.string.messages), res.getDrawable(R.drawable.ic_tab_messages))
 				.setContent(new Intent(this, MessagesActivity.class)));
+		
+		// Tab 5 - Notices
+		tabHost.addTab(tabHost.newTabSpec("tab_notices")
+				.setIndicator(getString(R.string.notices), res.getDrawable(R.drawable.ic_tab_notices))
+				.setContent(new Intent(this, NoticesActivity.class)));
 
 		// Set all tabs one by one, to start all activities now
 		// It is better to receive early updates of data
@@ -324,6 +331,7 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		tabHost.setCurrentTabByTag("tab_tasks");
 		tabHost.setCurrentTabByTag("tab_transfers");
 		tabHost.setCurrentTabByTag("tab_projects");
+		tabHost.setCurrentTabByTag("tab_notices");
 		// Set saved tab (the last selected on previous run) as current
 		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		int lastActiveTab = globalPrefs.getInt(PreferenceName.LAST_ACTIVE_TAB, 1);
@@ -384,6 +392,21 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 					mConnectionManager.updateMessages();
 			}
 		});
+		
+		getTabWidget().getChildAt(4).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.d(TAG, "Click tab: 4");
+				TabHost tabHost = getTabHost();
+				if (tabHost.getCurrentTab() != 4)
+					getTabHost().setCurrentTab(4);
+				
+				if (Logging.DEBUG) Log.d(TAG, "Update notices");
+				if (mConnectedClient != null)
+					mConnectionManager.updateNotices();
+			}
+		});
+		
 		
 		getTabHost().setOnTabChangedListener(new TabHost.OnTabChangeListener() {
 			
@@ -672,10 +695,6 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 		switch (item.getItemId()) {
 		case R.id.menuStartUp: {
 			mConnectClientAfterStart = true;
-			HostListDbAdapter dbHelper = new HostListDbAdapter(this);
-			dbHelper.open();
-			mSelectedClient = dbHelper.fetchHost("nativeboinc");
-			dbHelper.close();
 			showDialog(DIALOG_START_PROGRESS);
 			mRunner.startClient(false);
 			return true;
@@ -971,37 +990,13 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			setProgressBarIndeterminateVisibility(false);
 	}
 	
-	@Override
+	/*@Override
 	public boolean updatedClientMode(ModeInfo modeInfo) {
 		// TODO: Handle client mode
 		// If run mode is suspended, show notification about it (pause symbol?)
 		// In such case also request periodic updates of status
 		return false;
-	}
-
-	@Override
-	public boolean updatedHostInfo(HostInfo hostInfo) {
-		// Never requested, nothing to do
-		return false;
-	}
-	
-	@Override
-	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
-		// Never requested, nothing to do
-		return false;
-	}
-
-	@Override
-	public boolean updatedTasks(ArrayList<TaskInfo> tasks) {
-		// Never requested, nothing to do
-		return false;
-	}
-
-	@Override
-	public boolean updatedTransfers(ArrayList<TransferInfo> transfers) {
-		// Never requested, nothing to do
-		return false;
-	}
+	}*/
 
 	@Override
 	public boolean updatedMessages(ArrayList<MessageInfo> messages) {
@@ -1026,6 +1021,11 @@ public class BoincManagerActivity extends TabActivity implements ClientReplyRece
 			mConnectClientAfterStart = false;
 			mConnectClientAfterRestart = false;
 			
+			HostListDbAdapter dbHelper = new HostListDbAdapter(this);
+			dbHelper.open();
+			mSelectedClient = dbHelper.fetchHost("nativeboinc");
+			dbHelper.close();
+					
 			if (mSelectedClient != null)
 				boincConnect();
 		}

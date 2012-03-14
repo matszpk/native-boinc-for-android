@@ -1,1 +1,10 @@
-NativeBOINC project.
+NativeBOINC for Android project.
+
+This is fully-fledged the natve BOINC client for Android and BOINC Manager (based on AndroBOINC)
+especially designed for working with this version of BOINC client.
+Project applications also available in this repository. We prepared applications for following projects:
+Primegrid - finding prime numbers (gcwsieve application).
+Enigma@Home - polish project maintained by TJM.
+MilkyWay@Home - modeling MilkyWay galaxy (milkyway_separation).
+
+Binaries for this project available at http://krzyszp.info/matszpk/.

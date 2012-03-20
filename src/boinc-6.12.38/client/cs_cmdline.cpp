@@ -93,6 +93,7 @@ static void print_options(char* prog) {
         "    --start_delay X                delay starting apps for X secs\n"
         "    --unsigned_apps_ok             allow unsigned apps (for testing)\n"
         "    --update_prefs <URL>           contact a project to update preferences\n"
+        "    --parent_lifecycle             shutdown when parent has been died\n"
         "    --version                      show version info\n"
         ,
         prog, prog, prog
@@ -239,6 +240,8 @@ void CLIENT_STATE::parse_cmdline(int argc, char** argv) {
         } else if (ARG(update_prefs)) {
             if (i == argc-1) show_options = true;
             else safe_strcpy(update_prefs_url, argv[++i]);
+        } else if(ARG(parent_lifecycle)) {
+            config.parent_lifecycle = true;
         } else if (ARG(version)) {
 #if (defined (__APPLE__) && (defined(__i386__) || defined(__x86_64__)))
             CLIENT_STATE cs;

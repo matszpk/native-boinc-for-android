@@ -719,13 +719,19 @@ bool CLIENT_STATE::poll_slow_events() {
         // pid is 1 if parent has exited
         requested_exit = true;
     }
-
+    
     // Exit if we were launched by Manager and it crashed.
     //
     if (launched_by_manager && (getppid() == 1)) {
         gstate.requested_exit = true;
     }
 #endif
+
+    if (config.parent_lifecycle && (getppid() == 1)) {
+        // do quit when parent has been died
+        msg_printf(NULL, MSG_INFO, "Parent has been died, we automatically quits.");
+        requested_exit = true;
+    }
 
     // active_tasks.get_memory_usage() sets variables needed by 
     // check_suspend_processing(), so it must be called first.

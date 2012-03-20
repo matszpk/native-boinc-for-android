@@ -1,0 +1,43 @@
+--------------------------------------------------------------------------------
+Separation:
+
+  - separation will do a separation after the integration if given an
+    output file. There is also an argument to set the random number seed.
+
+
+--------------------------------------------------------------------------------
+Nbody:
+
+  - Consistent N-body results between different systems require crlibm
+  and SSE2 (at least on x86, not sure about other architectures)
+
+  - Returning nil from makePotential() for N-body will run the
+    simulation without an external potential
+
+Tests can be run by running:
+  $ make test
+
+  However this runs all of the tests, which takes forever. You can run
+  (from the tests directory) some core functionality tests with:
+  $ make check
+
+  Other tests  can be run with a certain number of bodies depending on
+  how long you want to wait with:
+
+  $ make test_${n}
+
+  Currently n = 100, 1024, 10000 are available.
+
+--------------------------------------------------------------------------------
+
+Random notes:
+
+ - All give usage with --help/-? arguments
+
+make nbody_release and make separation_release will produce release
+tarballs if git and xz are installed and found.
+
+- Make sure when building with MSVC to set built to use Multithreaded
+  (/MT) for the builds of the various libraries
+
+

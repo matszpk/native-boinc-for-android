@@ -159,6 +159,8 @@ struct CONFIG {
     bool use_certs_only;
         // overrides use_certs
     bool zero_debts;
+    // new option for native boinc for android
+    bool parent_lifecycle;
 
     CONFIG();
     void clear();

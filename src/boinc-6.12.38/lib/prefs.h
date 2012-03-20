@@ -22,6 +22,8 @@
 #include "miofile.h"
 #include "parse.h"
 
+#define BATT_TEMP_NO_LEVEL (300.0)
+
 // global prefs are maintained as follows:
 // 1) a "global_prefs.xml" file, which stores the "network" prefs;
 //      it's maintained by communication with scheduling servers
@@ -67,6 +69,7 @@ struct GLOBAL_PREFS_MASK {
     bool daily_xfer_limit_mb;
     bool daily_xfer_period_days;
     bool run_if_battery_nl_than; // not lower than
+    double run_if_temp_lt_than;
 
     GLOBAL_PREFS_MASK();
     void clear();
@@ -168,6 +171,7 @@ struct GLOBAL_PREFS {
     double daily_xfer_limit_mb;
     int daily_xfer_period_days;
     double run_if_battery_nl_than;  // not lower than
+    double run_if_temp_lt_than; // run if battery temperature lower than specified
     char source_project[256];
     char source_scheduler[256];
     bool host_specific;

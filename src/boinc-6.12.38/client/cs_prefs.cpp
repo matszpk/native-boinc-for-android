@@ -113,18 +113,26 @@ int CLIENT_STATE::check_suspend_processing() {
         // "run according to prefs" checks:
         //
         bool running_on_batteries = false;
-        if (!global_prefs.run_on_batteries || global_prefs.run_if_battery_nl_than>0.0)
+        if (!global_prefs.run_on_batteries || global_prefs.run_if_battery_nl_than>0.0 ||
+            global_prefs.run_if_temp_lt_than>BATT_TEMP_NO_LEVEL)
             running_on_batteries = host_info.host_is_running_on_batteries();
         
         if (!global_prefs.run_on_batteries && running_on_batteries) {
             return SUSPEND_REASON_BATTERIES;
         }
-        if (global_prefs.run_if_battery_nl_than>0.0 &&
-            running_on_batteries &&
-            host_info.host_battery_level() < global_prefs.run_if_battery_nl_than
+        if (running_on_batteries)
+            if (global_prefs.run_if_battery_nl_than>0.0 &&
+                host_info.host_battery_level() < global_prefs.run_if_battery_nl_than
+            ) {
+                return SUSPEND_REASON_BATTERIES;
+            }
+        
+        if (global_prefs.run_if_temp_lt_than>BATT_TEMP_NO_LEVEL &&
+            host_info.host_battery_temp() >= global_prefs.run_if_temp_lt_than
         ) {
             return SUSPEND_REASON_BATTERIES;
         }
+        
         if (!global_prefs.run_if_user_active && user_active) {
             return SUSPEND_REASON_USER_ACTIVE;
         }

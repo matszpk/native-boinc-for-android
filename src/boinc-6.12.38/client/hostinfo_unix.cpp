@@ -219,6 +219,26 @@ double HOST_INFO::host_battery_level() {
     return (double)capacity;
 }
 
+double HOST_INFO::host_battery_temp() {
+    int present = 0;
+    FILE* f = fopen("/sys/class/power_supply/battery/present","rb");
+    if (f==NULL)    // not found
+        return -10000.0;
+    fscanf(f,"%d",&present);
+    fclose(f);
+    if (present==0)
+        return -10000.0;
+    
+    int temp=0;
+    f = fopen("/sys/class/power_supply/battery/batt_temp","rb");
+    if (f==NULL)    // not found
+        return -10000.0;
+    fscanf(f,"%d",&temp);
+    fclose(f);
+    
+    return ((double)temp)*0.1;
+}
+
 // Returns true if the host is currently running off battery power
 // If you can't figure out, return false
 //

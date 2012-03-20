@@ -307,6 +307,7 @@ void CONFIG::clear() {
     use_certs = false;
     use_certs_only = false;
     zero_debts = false;
+    parent_lifecycle = false;
 }
 
 int CONFIG::parse_options(XML_PARSER& xp) {
@@ -434,6 +435,7 @@ int CONFIG::parse_options(XML_PARSER& xp) {
         if (xp.parse_bool(tag, "use_certs", use_certs)) continue;
         if (xp.parse_bool(tag, "use_certs_only", use_certs_only)) continue;
         if (xp.parse_bool(tag, "zero_debts", zero_debts)) continue;
+        if (xp.parse_bool(tag, "parent_lifecycle", parent_lifecycle)) continue;
 
         msg_printf_notice(NULL, false,
             "http://boinc.berkeley.edu/manager_links.php?target=notice&controlid=config",

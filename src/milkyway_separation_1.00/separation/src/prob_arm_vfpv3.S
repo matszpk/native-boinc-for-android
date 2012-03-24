@@ -2392,7 +2392,7 @@ prob_arm_vfpv3:
                 b .Lexpexceptend
 .Lcomputeexp8:
                 fldd d20,[r8,#16]      // log2
-                fldd d21,[r8,#16]      // log2
+                fldd d21,[r8,#24]      // log2
                 fsitod d19,s23
                 fnmacd d7,d20,d19           // fractional
                 fnmacd d7,d21,d19           // fractional

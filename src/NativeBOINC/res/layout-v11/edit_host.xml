@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
+<!-- 
 /* 
- * NativeBOINC - Native BOINC Client with Manager
- * Copyright (C) 2011, Mateusz Szpakowski
+ * AndroBOINC - BOINC Manager for Android
+ * Copyright (C) 2010, Pavol Michalec
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
- -->
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
 	android:orientation="vertical"
 	android:padding="10dip">
@@ -30,14 +30,13 @@
 		<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" 
-			android:text="@string/editBAMUrl"
+			android:text="@string/editHostNickname"
 			android:textSize="@dimen/labelTextSize"
 			android:paddingRight="5dip" />
 		<EditText
-			android:id="@+id/editBAMUrl" 
+			android:id="@+id/editHostNickname" 
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:background="@android:drawable/editbox_background"
 			android:inputType="textUri" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"
@@ -46,15 +45,33 @@
 		<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" 
-			android:text="@string/editBAMName"
+			android:text="@string/editHostAddress"
 			android:textSize="@dimen/labelTextSize"
 			android:paddingRight="5dip" />
 		<EditText
-			android:id="@+id/editBAMName" 
+			android:id="@+id/editHostAddress" 
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:background="@android:drawable/editbox_background"
 			android:inputType="textUri" />
+	</LinearLayout>
+	<LinearLayout android:orientation="horizontal"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right">
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:text="@string/editHostPort"
+			android:textSize="@dimen/labelTextSize"
+			android:paddingRight="5dip" />
+		<EditText
+			android:id="@+id/editHostPort" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:inputType="number"
+			android:digits="0123456789"
+			android:maxLength="5"
+			android:lines="1" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"
 		android:layout_width="fill_parent"
@@ -62,14 +79,13 @@
 		<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" 
-			android:text="@string/editBAMPassword"
+			android:text="@string/editHostPassword"
 			android:textSize="@dimen/labelTextSize"
 			android:paddingRight="5dip" />
 		<EditText
-			android:id="@+id/editBAMPassword"
+			android:id="@+id/editHostPassword"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:background="@android:drawable/editbox_background"
 			android:inputType="textPassword" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"
@@ -77,12 +93,12 @@
 		android:layout_height="wrap_content"
 		android:layout_gravity="right">
 		<Button
-			android:id="@+id/editBAMCancel" 
+			android:id="@+id/editHostCancel" 
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/cancel" />
 		<Button
-			android:id="@+id/editBAMOk" 
+			android:id="@+id/editHostOk" 
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginLeft="10dip"

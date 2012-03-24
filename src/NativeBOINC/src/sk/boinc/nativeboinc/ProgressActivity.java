@@ -200,6 +200,9 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	
 	private NotificationController mNotificationController = null;
 	
+	private boolean mFirstTestOfTaskRan = true;
+	private boolean mAreAllTaskNotRan = false;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -282,6 +285,9 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 
 	private void ifNothingInBackground() {
 		if (areAllTasksNotRan()) {
+			if (!mFirstTestOfTaskRan && mAreAllTaskNotRan)
+				return; // no changes
+			
 			if (mInstallerStage != BoincManagerApplication.INSTALLER_NO_STAGE) {
 				if (areAllTasksFinishedSuccessfully()) {
 					if (mApp.isInstallerRun()) // if installer
@@ -292,8 +298,25 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 			
 			mCancelAll.setEnabled(false);
 			mProgressText.setText(getString(R.string.noInstallOpsText));
-		} else
+			
+			mAreAllTaskNotRan = true;
+			mFirstTestOfTaskRan = false;
+		} else {
+			if (!mFirstTestOfTaskRan && !mAreAllTaskNotRan)
+				return; // no changes
+			
+			mCancelAll.setEnabled(true);
+			
+			if (mInstallerStage != BoincManagerApplication.INSTALLER_NO_STAGE) {
+				mBackButton.setEnabled(true);
+				mNextButton.setEnabled(false);
+			}
+			
 			mProgressText.setText(getString(R.string.installProgressText));
+			
+			mAreAllTaskNotRan = false;
+			mFirstTestOfTaskRan = false;
+		}
 	}
 	
 	private void getProgressFromInstaller() {
@@ -427,8 +450,9 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 		progress.state = ProgressItem.STATE_IN_PROGRESS;
 		progress.opDesc = opDescription;
 		progress.progress = -1;
-		//mProgressItemAdapter.notifyDataSetChanged();
 		updateItemView(position);
+		
+		ifNothingInBackground();
 	}
 
 	@Override
@@ -442,8 +466,9 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 		progress.state = ProgressItem.STATE_IN_PROGRESS;
 		progress.opDesc = opDescription;
 		progress.progress = progressValue;
-		//mProgressItemAdapter.notifyDataSetChanged();
 		updateItemView(position);
+		
+		ifNothingInBackground();
 	}
 
 	@Override
@@ -457,7 +482,6 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 		progress.state = ProgressItem.STATE_ERROR_OCCURRED;
 		progress.opDesc = errorMessage;
 		progress.progress = -1;
-		//mProgressItemAdapter.notifyDataSetChanged();
 		updateItemView(position);
 		
 		ifNothingInBackground();
@@ -474,7 +498,6 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 		progress.state = ProgressItem.STATE_CANCELLED;
 		progress.opDesc = "";
 		progress.progress = -1;
-		mProgressItemAdapter.notifyDataSetChanged();
 		
 		updateItemView(position);
 		ifNothingInBackground();
@@ -492,7 +515,6 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 		progress.state = ProgressItem.STATE_FINISHED;
 		progress.opDesc = "";
 		progress.progress = -1;
-		mProgressItemAdapter.notifyDataSetChanged();
 		
 		updateItemView(position);
 		ifNothingInBackground();

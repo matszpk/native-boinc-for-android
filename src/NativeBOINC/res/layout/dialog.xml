@@ -28,6 +28,6 @@
 		android:id="@+id/dialogText"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:textSize="12sp"
+		android:textSize="@dimen/itemInfoSize"
 		android:text="Error: No text to display" />
 </ScrollView>

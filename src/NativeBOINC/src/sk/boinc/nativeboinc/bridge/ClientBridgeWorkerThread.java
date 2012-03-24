@@ -322,7 +322,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.setGlobalPrefsOverrideStruct(globalPrefs, nativeBoinc);
+				mHandler.setGlobalPrefsOverrideStruct(globalPrefs);
 			}
 		});
 	}

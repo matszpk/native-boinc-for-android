@@ -19,25 +19,42 @@
  * 
  */
  -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
+<LinearLayout
+  	xmlns:android="http://schemas.android.com/apk/res/android"
+  	android:layout_width="fill_parent"
+  	android:layout_height="wrap_content"
 	android:orientation="vertical"
 	android:padding="10dip">
+	<RadioGroup android:orientation="horizontal"
+		android:id="@+id/addProjectViewMode"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+		<RadioButton
+			android:id="@+id/addProjectCreate"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:text="@string/addProjectCreate"
+			android:checked="true"/>
+		<RadioButton
+			android:id="@+id/addProjectUse"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:text="@string/addProjectUse"/>
+	</RadioGroup>
 	<LinearLayout android:orientation="horizontal"
+		android:id="@+id/addProjectNameLayout"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
 		<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" 
-			android:text="@string/editBAMUrl"
+			android:text="@string/addProjectName"
 			android:textSize="@dimen/labelTextSize"
 			android:paddingRight="5dip" />
 		<EditText
-			android:id="@+id/editBAMUrl" 
+			android:id="@+id/addProjectName" 
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:background="@android:drawable/editbox_background"
 			android:inputType="textUri" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"
@@ -46,15 +63,14 @@
 		<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" 
-			android:text="@string/editBAMName"
+			android:text="@string/addProjectEmail"
 			android:textSize="@dimen/labelTextSize"
 			android:paddingRight="5dip" />
 		<EditText
-			android:id="@+id/editBAMName" 
+			android:id="@+id/addProjectEmail" 
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:background="@android:drawable/editbox_background"
-			android:inputType="textUri" />
+			android:inputType="textEmailAddress" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"
 		android:layout_width="fill_parent"
@@ -62,32 +78,37 @@
 		<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" 
-			android:text="@string/editBAMPassword"
+			android:text="@string/addProjectPassword"
 			android:textSize="@dimen/labelTextSize"
 			android:paddingRight="5dip" />
 		<EditText
-			android:id="@+id/editBAMPassword"
+			android:id="@+id/addProjectPassword"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:background="@android:drawable/editbox_background"
 			android:inputType="textPassword" />
 	</LinearLayout>
+	<TextView
+		android:id="@+id/addProjectMinPasswordLength"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:textSize="@dimen/labelTextSize"
+		android:text="@string/addProjectMinPassword" />
 	<LinearLayout android:orientation="horizontal"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="right">
 		<Button
-			android:id="@+id/editBAMCancel" 
+			android:id="@+id/addProjectCancel" 
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/cancel" />
 		<Button
-			android:id="@+id/editBAMOk" 
+			android:id="@+id/addProjectOk" 
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginLeft="10dip"
 			android:paddingLeft="20dip"
 			android:paddingRight="20dip"
 			android:text="@string/ok" />
-    </LinearLayout>
+	</LinearLayout>
 </LinearLayout>

@@ -27,9 +27,11 @@
 	<item
 		android:id="@+id/menuHostInfo"
 		android:icon="@android:drawable/ic_menu_info_details"
+		android:showAsAction="always|withText"
 		android:title="@string/menuHostInfo"/>
 	<item
 		android:id="@+id/menuDisconnect"
 		android:icon="@android:drawable/ic_menu_close_clear_cancel"
+		android:showAsAction="always|withText"
 		android:title="@string/menuDisconnect"/>
 </menu>

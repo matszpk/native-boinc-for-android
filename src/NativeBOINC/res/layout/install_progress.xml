@@ -28,6 +28,7 @@
   	<TextView android:id="@+id/installProgressText"
   		android:layout_width="fill_parent"
   		android:layout_height="wrap_content"
+  		android:textSize="@dimen/labelTextSize"
   		android:text="@string/noInstallOpsText" />
   	<ListView android:id="@+id/installProgressList"
   		android:layout_width="fill_parent"

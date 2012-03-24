@@ -210,11 +210,10 @@ public class InstallerService extends Service {
 			boolean called = false;
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
-			for (AbstractInstallerListener listener: listeners)
-				if (listener instanceof InstallerProgressListener) {
-					listener.onOperationError(distribName, errorMessage);
-					called = true;
-				}
+			for (AbstractInstallerListener listener: listeners) {
+				listener.onOperationError(distribName, errorMessage);
+				called = true;
+			}
 			
 			synchronized(mPendingInstallErrorSync) {
 				if (!called)

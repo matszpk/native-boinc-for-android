@@ -30,8 +30,8 @@
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
     	android:text="@string/updateNoNew"
-    	android:textSize="16dip"
     	android:textStyle="bold"
+    	android:textSize="@dimen/labelTextSize"
     	android:layout_weight="0" />
     <ListView
     	android:id="@+id/updateBinariesList"

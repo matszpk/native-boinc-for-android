@@ -100,6 +100,8 @@ public class StandardDialogs {
 	public static boolean onPrepareDialog(Activity activity, int dialogId, Dialog dialog,
 			Bundle args) {
 		switch (dialogId) {
+		case DIALOG_CLIENT_ERROR:
+		case DIALOG_INSTALL_ERROR:
 		case DIALOG_ERROR: {
 			TextView textView = (TextView)dialog.findViewById(R.id.dialogText);
 			textView.setText(args.getString(ARG_ERROR));

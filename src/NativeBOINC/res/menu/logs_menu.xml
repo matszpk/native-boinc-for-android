@@ -18,14 +18,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
- -->
-<ListView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/logsList"
-    android:dividerHeight="0dip"
-    android:divider="@null"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:stackFromBottom="true"
-    android:transcriptMode="normal"
-    android:fastScrollEnabled="true">
-</ListView>
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+   <item android:id="@+id/copyText"
+		android:icon="@android:drawable/ic_menu_crop"
+		android:title="@string/copy"
+		android:showAsAction="always|withText"/> 
+   <item android:id="@+id/saveToSDCard"
+		android:icon="@android:drawable/ic_menu_save"
+		android:title="@string/saveToSDCard"
+		android:showAsAction="always|withText"/>
+</menu>

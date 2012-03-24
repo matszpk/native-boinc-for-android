@@ -42,7 +42,6 @@ import sk.boinc.nativeboinc.util.TaskItem;
 import sk.boinc.nativeboinc.util.UpdateItem;
 
 import edu.berkeley.boinc.lite.Project;
-import edu.berkeley.boinc.lite.Result;
 import edu.berkeley.boinc.nativeboinc.ClientEvent;
 import edu.berkeley.boinc.nativeboinc.ExtendedRpcClient;
 import android.app.Notification;
@@ -345,13 +344,13 @@ public class NativeBoincService extends Service implements MonitorListener,
 			String programName = NativeBoincService.this.getFileStreamPath("boinc_client")
 					.getAbsolutePath();
 			
-			String[] boincArgs = new String[0];
+			String[] boincArgs = new String[] { "--parent_lifecycle" };
 			
 			boolean allowRemoteAccess = globalPrefs.getBoolean(PreferenceName.NATIVE_REMOTE_ACCESS, true);
 			
 			/* choose boinc arguments (depends on AllowRemoteAccess option) */
 			if (allowRemoteAccess)
-				boincArgs = new String[] { "--allow_remote_gui_rpc" };
+				boincArgs = new String[] { "--parent_lifecycle", "--allow_remote_gui_rpc" };
 			
 			mBoincPid = ProcessUtils.exec(programName,
 					NativeBoincService.this.getFileStreamPath("boinc").getAbsolutePath(),
@@ -359,14 +358,13 @@ public class NativeBoincService extends Service implements MonitorListener,
 			
 			if (mBoincPid == -1) {
 				if (Logging.ERROR) Log.e(TAG, "Running boinc_client failed");
-				mIsRun = false;
 				mNativeBoincThread = null;
 				notifyClientError(NativeBoincService.this.getString(R.string.runNativeClientError));
 				return;
 			}
 			
 			try {
-				Thread.sleep(300); // sleep 0.3 seconds
+				Thread.sleep(400); // sleep 0.4 seconds
 			} catch(InterruptedException ex) { }
 			/* open client */
 			if (Logging.DEBUG) Log.d(TAG, "Connecting with native client");
@@ -379,14 +377,13 @@ public class NativeBoincService extends Service implements MonitorListener,
 					break;
 				} else {
 					try {
-						Thread.sleep(300); // sleep 0.2 seconds
+						Thread.sleep(300); // sleep 0.3 seconds
 					} catch(InterruptedException ex) { }
 				}
 			}
 			
 			if (!isRpcOpened) {
 				if (Logging.ERROR) Log.e(TAG, "Connecting with native client failed");
-				mIsRun = false;
 				mNativeBoincThread = null;
 				notifyClientError(getString(R.string.connectNativeClientError));
 				killNativeBoinc();
@@ -400,7 +397,6 @@ public class NativeBoincService extends Service implements MonitorListener,
 				password = NativeBoincUtils.getAccessPassword(NativeBoincService.this);
 			} catch(IOException ex) {
 				if (Logging.ERROR) Log.e(TAG, "Authorizing with native client failed");
-				mIsRun = false;
 				mNativeBoincThread = null;
 				notifyClientError(getString(R.string.getAccessPasswordError));
 				rpcClient.close();
@@ -409,7 +405,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 				return;
 			}
 			boolean isAuthorized = false;
-			for (int i = 0; i < 3; i++) {
+			for (int i = 0; i < 4; i++) {
 				if (Logging.DEBUG) Log.d(TAG, "Try to authorize with password:" + password);
 				if (rpcClient.authorize(password)) {
 					isAuthorized = true;
@@ -418,7 +414,6 @@ public class NativeBoincService extends Service implements MonitorListener,
 			}
 			if (!isAuthorized) {
 				if (Logging.ERROR) Log.e(TAG, "Authorizing with native client failed");
-				mIsRun = false;
 				mNativeBoincThread = null;
 				notifyClientError(getString(R.string.nativeAuthorizeError));
 				killNativeBoinc();
@@ -1035,12 +1030,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 	@Override
 	public void onChangeInstallerIsWorking(boolean isWorking) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
 		// TODO Auto-generated method stub
-		
 	}
 }

@@ -66,6 +66,8 @@
 	<string name="now">Now</string>
 	<string name="battery">Battery</string>
 	<string name="defaultText">Default</string>
+	<string name="copy">Copy</string>
+	<string name="saveToSDCard">Save to SDCard</string>
 	
 	<string name="restart">Restart</string>
 	<string name="clientRestarting">Restarting native client...</string>
@@ -330,6 +332,10 @@
 	
 	<string name="shutdownAskText">Do you want to shutdown native client?</string>
 	
+	<!-- logs -->
+	<string name="enterOutputFilePath">Enter output file path</string>
+	<string name="boincLogsSaveError">Unable to save to SDCard BOINC logs</string>
+	
 	<!-- HostList Activity -->
 	<string name="selectHost">Select host</string>
 	<string name="hostAddNew">Add new host</string>
@@ -390,7 +396,6 @@
 	<string name="installFinishedBenchmark">During installing first project, BOINC can run benchmark, which works by 30 seconds.</string>
 
 	<string name="installReadBefore">READ BEFORE INSTALLATION:</string>
-	<string name="installAttention1">Please DO NOT uninstall this application BEFORE shutting down BOINC client!!!</string>
 	<string name="installAttention2">If application closes unexpectedly, please use \'Force close\' and run again.
 	    Application kills all clients at start up.</string>
 	<string name="installAttention3">BOINC client will be working in background. Please use \'Shutdown\' option to shutdown client.</string>
@@ -422,12 +427,12 @@
 	
 	<!-- install sources -->
 	<string name="PGPKey">CAD10E7D</string>
-	<!-- <string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>-->
+	<string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>
 	<!-- <string name="installClientSourceUrl">http://192.168.1.3:8080/examples/boinc_client/</string>-->
-	<string name="installClientSourceUrl">http://192.168.1.3:8080/examples/new/boinc_client/</string>
-	<!-- <string name="installAppsSourceUrl">http://krzyszp.info/matszpk/boinc_apps/</string>-->
+	<!-- <string name="installClientSourceUrl">http://192.168.1.3:8080/examples/new/boinc_client/</string>-->
+	<string name="installAppsSourceUrl">http://krzyszp.info/matszpk/boinc_apps/</string>
 	<!-- <string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/boinc_apps/</string>-->
-	<string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/new/boinc_apps/</string>
+	<!-- <string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/new/boinc_apps/</string>-->
 	
 	<!-- ProjectsActivity -->
 	<string name="projectCtxMenuTitle">Commands</string>

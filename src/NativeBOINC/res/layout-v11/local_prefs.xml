@@ -75,8 +75,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -98,8 +97,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -121,8 +119,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -144,8 +141,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -167,8 +163,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -190,8 +185,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -213,8 +207,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -246,8 +239,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -269,8 +261,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -292,8 +283,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -304,8 +294,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="number"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -327,8 +316,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="number"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -350,8 +338,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="number"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -388,8 +375,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -411,8 +397,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -434,8 +419,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -457,8 +441,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -490,8 +473,7 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -513,18 +495,17 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:inputType="numberDecimal"
-							android:maxWidth="@dimen/localPrefEditSize"
-							android:background="@android:drawable/editbox_background" />
+							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
 							android:text="@string/localPrefMemoryWhenInIdle" />
 					</LinearLayout>
 					<CheckBox
 			  			android:id="@+id/localPrefLeaveApplications"
 			  			android:layout_width="fill_parent"
 			  			android:layout_height="wrap_content"
-			  			android:textSize="@dimen/labelTextSize"
 			  			android:text="@string/localPrefLeaveApplications" />
 			  	</LinearLayout>
 			</ScrollView>

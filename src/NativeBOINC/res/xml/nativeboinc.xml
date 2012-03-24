@@ -60,6 +60,7 @@
        	    android:persistent="false" />
        	<Preference
        	    android:key="nativeUpdateFromSDCard"
+       	    android:enabled="false"
        	    android:title="@string/nativeUpdateFromSDCardTitle"
        	    android:summary="@string/nativeUpdateFromSDCardSummary"
        	    android:persistent="false" />

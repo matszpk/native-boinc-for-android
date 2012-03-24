@@ -37,7 +37,6 @@
 			android:id="@+id/editBAMUrl" 
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:background="@android:drawable/editbox_background"
 			android:inputType="textUri" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"
@@ -53,7 +52,6 @@
 			android:id="@+id/editBAMName" 
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:background="@android:drawable/editbox_background"
 			android:inputType="textUri" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"
@@ -69,7 +67,6 @@
 			android:id="@+id/editBAMPassword"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:background="@android:drawable/editbox_background"
 			android:inputType="textPassword" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"

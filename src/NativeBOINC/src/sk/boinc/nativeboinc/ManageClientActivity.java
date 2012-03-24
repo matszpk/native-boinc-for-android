@@ -46,6 +46,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.DialogInterface.OnCancelListener;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.ListPreference;
@@ -649,6 +650,9 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 				showProgressDialog(PROGRESS_INITIAL_DATA);
 			}
 			mConnectionManager.updateClientMode();
+			
+			if (Build.VERSION.SDK_INT >= 11)
+				invalidateOptionsMenu();
 		}
 		else {
 			// Received connected notification, but client is unknown!
@@ -676,7 +680,9 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		if (mSelectedClient != null) {
 			// Connection to another client is deferred, we proceed with it now
 			boincConnect();
-		}
+		} 
+		if (Build.VERSION.SDK_INT >= 11)
+				invalidateOptionsMenu();
 	}
 	
 	@Override

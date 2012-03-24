@@ -30,6 +30,7 @@
    	    android:layout_marginLeft="6dip"
        	android:layout_marginTop="6dip"
        	android:visibility="gone"
+       	android:textSize="@dimen/labelTextSize"
        	android:text="@string/projectListHelp" />
   <ListView
 		android:id="@android:id/list"

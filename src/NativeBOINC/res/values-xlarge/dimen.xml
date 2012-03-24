@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="localPrefEditSize">160dip</dimen>
+    <dimen name="labelTextSize">18dip</dimen>
+    <dimen name="itemInfoSize">18dip</dimen>
+</resources>

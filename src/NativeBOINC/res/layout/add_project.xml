@@ -49,6 +49,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" 
 			android:text="@string/addProjectName"
+			android:textSize="@dimen/labelTextSize"
 			android:paddingRight="5dip" />
 		<EditText
 			android:id="@+id/addProjectName" 
@@ -64,6 +65,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" 
 			android:text="@string/addProjectEmail"
+			android:textSize="@dimen/labelTextSize"
 			android:paddingRight="5dip" />
 		<EditText
 			android:id="@+id/addProjectEmail" 
@@ -79,6 +81,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" 
 			android:text="@string/addProjectPassword"
+			android:textSize="@dimen/labelTextSize"
 			android:paddingRight="5dip" />
 		<EditText
 			android:id="@+id/addProjectPassword"
@@ -91,8 +94,8 @@
 		android:id="@+id/addProjectMinPasswordLength"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:text="@string/addProjectMinPassword"
-		/>
+		android:textSize="@dimen/labelTextSize"
+		android:text="@string/addProjectMinPassword" />
 	<LinearLayout android:orientation="horizontal"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"

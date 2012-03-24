@@ -29,12 +29,12 @@
 		android:id="@+id/installFinishText"
 		android:layout_width="fill_parent"
   		android:layout_height="wrap_content"
-  		android:textSize="14dip"
+  		android:textSize="@dimen/labelTextSize"
   		android:text="@string/installFinished" />
   	<TextView
 		android:layout_width="fill_parent"
   		android:layout_height="wrap_content"
-  		android:textSize="14dip"
+  		android:textSize="@dimen/labelTextSize"
   		android:paddingTop="10dip"
   		android:text="@string/installWidgetFinished" />
   	<Button android:id="@+id/installFinish"

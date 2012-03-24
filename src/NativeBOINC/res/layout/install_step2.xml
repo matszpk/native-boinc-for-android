@@ -16,18 +16,18 @@
 		    <TextView
 				android:layout_width="fill_parent"
 		  		android:layout_height="wrap_content"
-		  		android:textSize="14dip"
+		  		android:textSize="@dimen/labelTextSize"
 		  		android:text="@string/installSuccessfully" />
 		    <TextView
 				android:layout_width="fill_parent"
 		  		android:layout_height="wrap_content"
-		  		android:textSize="14dip"
+		  		android:textSize="@dimen/labelTextSize"
 		  		android:paddingTop="10dip"
 		  		android:text="@string/installNetworkAccess1" />
 		    <TextView 
 	            android:layout_width="wrap_content"
 	  			android:layout_height="wrap_content"
-	  			android:textSize="14dip"
+	  			android:textSize="@dimen/labelTextSize"
 	  			android:paddingTop="10dip"
 	  			android:paddingBottom="10dip"
 	  			android:text="@string/youCanChange" />
@@ -42,7 +42,7 @@
 		        <TextView 
 		            android:layout_width="wrap_content"
 		  			android:layout_height="wrap_content"
-		  			android:textSize="14dip"
+		  			android:textSize="@dimen/labelTextSize"
 		  			android:text="@string/orText" />
 		        <Button android:id="@+id/changeHostname"
 					android:layout_width="wrap_content"
@@ -52,13 +52,13 @@
 		  	<TextView
 				android:layout_width="fill_parent"
 		  		android:layout_height="wrap_content"
-		  		android:textSize="14dip"
+		  		android:textSize="@dimen/labelTextSize"
 		  		android:paddingTop="10dip"
 		  		android:text="@string/installAddProject" />
 		  	<TextView
 				android:layout_width="fill_parent"
 		  		android:layout_height="wrap_content"
-		  		android:textSize="14dip"
+		  		android:textSize="@dimen/labelTextSize"
 		  		android:paddingTop="10dip"
 		  		android:text="@string/installFinishedBenchmark" />
 		</LinearLayout>

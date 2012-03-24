@@ -251,7 +251,7 @@ public class ConnectionManagerService extends Service implements
 	
 	@Override
 	public void connect(ClientId host, boolean retrieveInitialData) throws NoConnectivityException {
-		if (Logging.DEBUG) Log.d(TAG, "connect() to host " + host.getNickname());
+		if (Logging.DEBUG) Log.d(TAG, "connect() to host " + ((host != null) ? host.getNickname() : "(none)"));
 		
 		mDisconnectedByManager = false;
 		

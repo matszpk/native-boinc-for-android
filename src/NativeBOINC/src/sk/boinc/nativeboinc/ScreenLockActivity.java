@@ -223,7 +223,7 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 					mProgressText.setText(String.format("%.3f%%", progress));
 					mProgressRunning.setProgress((int)(progress*10.0));
 				} else {
-					if (mRunner.isRun())
+					if (mRunner != null && mRunner.isRun())
 						mLockText.setText(getString(R.string.lockTasksSuspended));
 					else {
 						if (mErrorMessage == null)

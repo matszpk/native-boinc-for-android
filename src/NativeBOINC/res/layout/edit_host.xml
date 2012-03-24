@@ -31,6 +31,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" 
 			android:text="@string/editHostNickname"
+			android:textSize="@dimen/labelTextSize"
 			android:paddingRight="5dip" />
 		<EditText
 			android:id="@+id/editHostNickname" 
@@ -46,6 +47,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" 
 			android:text="@string/editHostAddress"
+			android:textSize="@dimen/labelTextSize"
 			android:paddingRight="5dip" />
 		<EditText
 			android:id="@+id/editHostAddress" 
@@ -62,6 +64,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" 
 			android:text="@string/editHostPort"
+			android:textSize="@dimen/labelTextSize"
 			android:paddingRight="5dip" />
 		<EditText
 			android:id="@+id/editHostPort" 
@@ -71,8 +74,7 @@
 			android:inputType="number"
 			android:digits="0123456789"
 			android:maxLength="5"
-			android:lines="1"
-			android:width="70sp" />
+			android:lines="1" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"
 		android:layout_width="fill_parent"
@@ -81,6 +83,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content" 
 			android:text="@string/editHostPassword"
+			android:textSize="@dimen/labelTextSize"
 			android:paddingRight="5dip" />
 		<EditText
 			android:id="@+id/editHostPassword"

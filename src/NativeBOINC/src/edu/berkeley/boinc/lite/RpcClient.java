@@ -998,7 +998,7 @@ public class RpcClient {
 		}
 	}
 	
-	public boolean setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs, boolean nativeBoinc) {
+	public boolean setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs) {
 		try {
 			mRequest.setLength(0);
 			mRequest.append("<set_global_prefs_override>\n<global_preferences>\n  <run_on_batteries>");
@@ -1045,16 +1045,12 @@ public class RpcClient {
 			mRequest.append(globalPrefs.daily_xfer_limit_mb);
 			mRequest.append("</daily_xfer_limit_mb>\n  <daily_xfer_period_days>");
 			mRequest.append(globalPrefs.daily_xfer_period_days);
-			if (nativeBoinc) {
-				mRequest.append("</daily_xfer_period_days>\n  <run_if_battery_nl_than>");
-				mRequest.append(globalPrefs.run_if_battery_nl_than);
-				mRequest.append("<run_if_battery_nl_than>\n  <run_if_temp_lt_than>");
-				mRequest.append(globalPrefs.run_if_temp_lt_than);
-				mRequest.append("</run_if_temp_lt_than>\n</global_preferences>\n</set_global_prefs_override>\n");
-			} else {
-				mRequest.append("</daily_xfer_period_days>\n</global_preferences>\n</set_global_prefs_override>\n");
-			}
-			
+			mRequest.append("</daily_xfer_period_days>\n  <run_if_battery_nl_than>");
+			mRequest.append(globalPrefs.run_if_battery_nl_than);
+			mRequest.append("<run_if_battery_nl_than>\n  <run_if_temp_lt_than>");
+			mRequest.append(globalPrefs.run_if_temp_lt_than);
+			mRequest.append("</run_if_temp_lt_than>\n</global_preferences>\n</set_global_prefs_override>\n");
+		
 			sendRequest(mRequest.toString());
 			receiveReply();
 			return true;

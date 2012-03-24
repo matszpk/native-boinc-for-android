@@ -1171,11 +1171,11 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(false);
 	}
 	
-	public void setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs, boolean nativeBoinc) {
+	public void setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		changeIsHandlerWorking(true);
 		notifyProgress(ClientManageReceiver.PROGRESS_XFER_STARTED);
-		boolean success = mRpcClient.setGlobalPrefsOverrideStruct(globalPrefs, nativeBoinc);
+		boolean success = mRpcClient.setGlobalPrefsOverrideStruct(globalPrefs);
 		notifyProgress(ClientManageReceiver.PROGRESS_XFER_FINISHED);
 		
 		if (!success) {

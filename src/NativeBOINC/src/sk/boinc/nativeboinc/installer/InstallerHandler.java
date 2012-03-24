@@ -518,6 +518,11 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				if (Logging.DEBUG) Log.d(TAG, "Release semaphore mDelayedClientShutdownSem");
 				mDelayedClientShutdownSem.release();
 				// notify that client installer is not working
+				
+				// unlock all locks for project apps installers
+				notifyIfClientUpdatedAndRan();
+				notifyIfBenchmarkFinished();
+				
 				synchronized(this) {
 					mClientShouldBeRun = false;
 					mIsClientBeingInstalled = false;

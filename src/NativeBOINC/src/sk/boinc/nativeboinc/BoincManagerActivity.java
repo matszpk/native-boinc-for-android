@@ -24,16 +24,9 @@ import hal.android.workarounds.FixedProgressDialog;
 import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.clientconnection.ClientError;
-import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientUpdateMessagesReceiver;
-import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;
-import sk.boinc.nativeboinc.clientconnection.ModeInfo;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
-import sk.boinc.nativeboinc.clientconnection.NoticeInfo;
-import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
-import sk.boinc.nativeboinc.clientconnection.TaskInfo;
-import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.InstallerService;
@@ -57,6 +50,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -120,6 +114,11 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 	
 	private boolean mIsInstallerRan = false;
 	private boolean mShowShutdownDialog = false;
+	
+	private boolean mShowStartDialog = true;
+	
+	// used to delayed showing ChangeLog dialog
+	private boolean mInDuringInstallation = false;
 	
 	// true when 'Shutdown' option selected and shutdown confirmed
 	private boolean mStoppedInMainActivity = false;
@@ -541,13 +540,16 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 		// Update name of connected client (or show "not connected")
 		updateTitle();
 		// Show Information about upgrade, if applicable
-		/*if (mJustUpgraded) {
+		mInDuringInstallation = mApp.isInstallerRun() || !InstallerService.isClientInstalled(this);
+		
+		if (Logging.DEBUG) Log.d(TAG, "mInDuringInstallation:"+mInDuringInstallation);
+		if (mJustUpgraded && !mInDuringInstallation) {
 			mJustUpgraded = false; // Do not show again
 			mProgressDialogAllowed = false;
 			// Now show the dialog about upgrade
 			showDialog(DIALOG_UPGRADE_INFO);
 		}
-		else*/ {
+		else {
 			// Progress dialog is allowed since now
 			mProgressDialogAllowed = true;
 		}
@@ -809,6 +811,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 		case DIALOG_START_PROGRESS:
 		case DIALOG_SHUTDOWN_PROGRESS:
 		case DIALOG_RESTART_PROGRESS: {
+			if (dialogId != DIALOG_SHUTDOWN)
+				mShowStartDialog = true;
 			progressDialog = new FixedProgressDialog(this);
 			progressDialog.setIndeterminate(true);
 			progressDialog.setCancelable(true);
@@ -932,6 +936,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 					boincConnect();
 				} else {
 					// if already connected
+					updateTitle();
 					mSelectedClient = null;
 					mDoConnectNativeClient = false;
 				}
@@ -941,6 +946,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 				updateTitle();
 				mSelectedClient = null; // For case of auto-connect on startup while service is already connected
 			}
+			if (Build.VERSION.SDK_INT >= 11)
+				invalidateOptionsMenu();
 		}
 		else {
 			// Received connected notification, but client is unknown!
@@ -967,9 +974,12 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 			if (!mConnectClientAfterRestart)
 				// connect when not after restart
 				boincConnect();
-		} else 
+		} else {
 			StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, mRunner,
 					prevConnectedClient);
+			if (Build.VERSION.SDK_INT >= 11)
+				invalidateOptionsMenu();
+		}
 	}
 	
 
@@ -1028,6 +1038,9 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 					
 			if (mSelectedClient != null)
 				boincConnect();
+			
+			if (Build.VERSION.SDK_INT >= 11)
+				invalidateOptionsMenu();
 		}
 	}
 	
@@ -1042,19 +1055,27 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 			mStoppedInMainActivity = false;
 			dismissDialog(DIALOG_SHUTDOWN_PROGRESS);
 		}
+		
+		if (Build.VERSION.SDK_INT >= 11)
+			invalidateOptionsMenu();
 	}
 	
 	@Override
 	public void onNativeBoincClientError(String message) {
-		if (mConnectClientAfterRestart) // after restarting
-			dismissDialog(DIALOG_RESTART_PROGRESS);
-		else // if normal start
-			dismissDialog(DIALOG_START_PROGRESS);
+		if (mShowStartDialog) {
+			if (mConnectClientAfterRestart) // after restarting
+				dismissDialog(DIALOG_RESTART_PROGRESS);
+			else // if normal start
+				dismissDialog(DIALOG_START_PROGRESS);
+		}
 		
 		mStoppedInMainActivity = false;
 		mConnectClientAfterStart = false;
 		mConnectClientAfterRestart = false;
 		StandardDialogs.showErrorDialog(this, message);
+		
+		if (Build.VERSION.SDK_INT >= 11)
+			invalidateOptionsMenu();
 	}
 	
 	@Override
@@ -1108,6 +1129,10 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 		try {
 			if (mConnectionManager == null) {
 				doBindService();
+				return;
+			}
+			if (mSelectedClient == null) {
+				if (Logging.WARNING) Log.w(TAG, "boinc connect selected client is numm");
 				return;
 			}
 			if (Logging.DEBUG) Log.d(TAG, "boinc connect");

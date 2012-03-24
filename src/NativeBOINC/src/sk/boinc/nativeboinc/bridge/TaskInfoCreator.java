@@ -45,7 +45,8 @@ public class TaskInfoCreator {
 		sb.append(" ");
 		sb.append(appVersion/100);
 		sb.append(".");
-		sb.append(appVersion%100);
+		sb.append((appVersion%100)/10);
+		sb.append(appVersion%10);
 		ti.application = sb.toString();
 		ti.pid = result.pid;
 		ti.rsc_fpops_est = formatter.formatGFlops(workunit.rsc_fpops_est);

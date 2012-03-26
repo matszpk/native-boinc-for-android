@@ -64,7 +64,8 @@ public class TaskItem implements Parcelable {
 		sb.append(" ");
 		sb.append(appVersion/100);
 		sb.append(".");
-		sb.append(appVersion%100);
+		sb.append((appVersion%100)/10);
+		sb.append(appVersion%10);
 		application = sb.toString();
 		update(result, formatter);
 	}

@@ -121,7 +121,8 @@ public class NativeBoincWorkerHandler extends Handler {
 		mWorkunits.clear();
 		for (Workunit workunit: ccState.workunits)
 			mWorkunits.put(workunit.name, workunit);
-		
+				
+		mTasks.clear();
 		/* update tasks */
 		for (Result result: ccState.results) {
 			Project project = mProjects.get(result.project_url);

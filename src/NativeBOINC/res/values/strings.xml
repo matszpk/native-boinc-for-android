@@ -425,15 +425,6 @@
 	<string name="installProgressText">Installer are performing some operations in background.</string>
 	<string name="installingUpdating">Installing/Updating binaries</string>
 	
-	<!-- install sources -->
-	<string name="PGPKey">CAD10E7D</string>
-	<string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>
-	<!-- <string name="installClientSourceUrl">http://192.168.1.3:8080/examples/boinc_client/</string>-->
-	<!-- <string name="installClientSourceUrl">http://192.168.1.3:8080/examples/new/boinc_client/</string>-->
-	<string name="installAppsSourceUrl">http://krzyszp.info/matszpk/boinc_apps/</string>
-	<!-- <string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/boinc_apps/</string>-->
-	<!-- <string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/new/boinc_apps/</string>-->
-	
 	<!-- ProjectsActivity -->
 	<string name="projectCtxMenuTitle">Commands</string>
 	<string name="projectUpdate">Update</string>
@@ -685,4 +676,13 @@
 		&lt;b>Disk free:&lt;/b> %9$s&lt;br />
 	</string>
 
+	<!-- install sources -->
+	<string name="PGPKey">CAD10E7D</string>
+	<string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>
+	<!-- <string name="installClientSourceUrl">http://192.168.1.3:8080/examples/boinc_client/</string>-->
+	<!-- <string name="installClientSourceUrl">http://192.168.1.3:8080/examples/new/boinc_client/</string>-->
+	<string name="installAppsSourceUrl">http://krzyszp.info/matszpk/boinc_apps/</string>
+	<!-- <string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/boinc_apps/</string>-->
+	<!-- <string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/new/boinc_apps/</string>-->
+	
 </resources>

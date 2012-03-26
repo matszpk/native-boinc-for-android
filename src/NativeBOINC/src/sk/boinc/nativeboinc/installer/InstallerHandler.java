@@ -1626,7 +1626,6 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 
 	@Override
 	public void onNativeBoincServiceError(String message) {
-		// TODO Auto-generated method stub
 		// also notify
 		notifyIfClientUpdatedAndRan();
 		if (mDoFetchBinariesToUpdateOrInstall) {

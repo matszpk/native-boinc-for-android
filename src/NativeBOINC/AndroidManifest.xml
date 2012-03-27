@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="sk.boinc.nativeboinc"
-      android:versionCode="14"
-      android:versionName="0.3.5.1a">
+      android:versionCode="15"
+      android:versionName="0.3.6a">
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="11"/>
 
 	<supports-screens
@@ -69,7 +69,7 @@
 			android:launchMode="singleTop" />
 
 		<activity android:name=".NativeClientActivity"
-			android:label="@string/menuNativeClient"
+			android:label="@string/nativeBoincClient"
 			android:launchMode="singleTop" />
 		
 		<activity android:name=".AccessListActivity"
@@ -141,6 +141,10 @@
 		
 		<activity android:name=".UpdateActivity"
 			android:label="@string/updateBinaries"
+			android:launchMode="singleTop" />
+		
+		<activity android:name=".UpdateFromSDCardActivity"
+			android:label="@string/updateFromSDCard"
 			android:launchMode="singleTop" />
 			
 		<activity android:name=".ShutdownDialogActivity"

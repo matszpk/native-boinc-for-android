@@ -343,10 +343,6 @@ public class InstallerService extends Service {
 		mInstallerThread.installClientAutomatically();
 	}
 	
-	public void updateClientFromSDCard(String directory) {
-		mNotificationController.notifyInstallClientBegin();
-	}
-	
 	/* update client distrib info */
 	public void updateClientDistrib() {
 		synchronized(mPendingClientDistribSync) {
@@ -384,10 +380,6 @@ public class InstallerService extends Service {
 		mInstallerThread.installProjectApplicationAutomatically(projectUrl);
 	}
 	
-	public void updateProjectFromSDCard(String projectName, String directory) {
-		mNotificationController.notifyInstallProjectBegin(projectName);
-	}
-	
 	/**
 	 * Reinstalls update item 
 	 */
@@ -399,6 +391,16 @@ public class InstallerService extends Service {
 				mNotificationController.notifyInstallProjectBegin(item.name);
 			
 		mInstallerThread.reinstallUpdateItems(updateItems);
+	}
+	
+	public void updateDistribsFromSDCard(String dirPath, String[] distribNames) {
+		for (String distribName: distribNames)
+			if (distribName.equals(BOINC_CLIENT_ITEM_NAME))
+				mNotificationController.notifyInstallClientBegin();
+			else
+				mNotificationController.notifyInstallProjectBegin(distribName);
+		
+		mInstallerThread.updateDistribsFromSDCard(dirPath, distribNames);
 	}
 	
 	public void updateProjectDistribList() {
@@ -520,6 +522,10 @@ public class InstallerService extends Service {
 			mPendingUpdateItems = null;
 			return pending;
 		}
+	}
+	
+	public String[] getBinariesToUpdateFromSDCard(String path) {
+		return mInstallerHandler.getBinariesToUpdateFromSDCard(path);
 	}
 	
 	/**

@@ -240,10 +240,13 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	private class ClientInstaller implements Runnable {
 		private boolean mStandalone;
 		
+		private String mSDCardPath = null;
+		
 		private boolean mIsRan = false;
 		
-		public ClientInstaller(boolean standalone) {
+		public ClientInstaller(boolean standalone, String sdCardPath) {
 			mStandalone = standalone;
+			mSDCardPath = sdCardPath;
 		}
 		
 		public boolean isRan() {
@@ -283,124 +286,168 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					return;
 				}
 				
-				if (mClientDistrib == null) {
-					notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-							mContext.getString(R.string.clientDistribNotFound));
-					return;
-				}
-			
-				
-				zipFilename = mClientDistrib.filename;
-				if (Logging.INFO) Log.i(TAG, "Use zip "+zipFilename);
-				
-				if (currentThread.isInterrupted()) {
-					notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
-					return;
-				}
-				
 				/* download and unpack */
-				try {
-					String zipUrlString = mContext.getString(R.string.installClientSourceUrl)+zipFilename; 
-					mDownloader.downloadFile(zipUrlString, "boinc_client.zip",
-							mContext.getString(R.string.downloadNativeClient),
-							mContext.getString(R.string.downloadNativeClientError), true,
-							InstallerService.BOINC_CLIENT_ITEM_NAME, "");
+				if (mSDCardPath == null) {
+					if (mClientDistrib == null) {
+						notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
+								mContext.getString(R.string.clientDistribNotFound));
+						return;
+					}
+					
+					zipFilename = mClientDistrib.filename;
+					if (Logging.INFO) Log.i(TAG, "Use zip "+zipFilename);
 					
 					if (currentThread.isInterrupted()) {
-						mContext.deleteFile("boinc_client.zip");
 						notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
 						return;
 					}
 					
-					int status = mDownloader.verifyFile(mContext.getFileStreamPath("boinc_client.zip"),
-							zipUrlString, true, InstallerService.BOINC_CLIENT_ITEM_NAME, "");
-					
-					if (status == Downloader.VERIFICATION_CANCELLED) {
-						mContext.deleteFile("boinc_client.zip");
-						notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
-						return;	// cancelled
-					}
-					if (status == Downloader.VERIFICATION_FAILED) {
-						notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-								mContext.getString(R.string.verifySignatureFailed));
-						return;	// cancelled
-					}
-				} catch(InstallationException ex) {
-					/* remove zip file */
-					mContext.deleteFile("boinc_client.zip");
-					return;
-				}
-				
-				if (currentThread.isInterrupted()) {
-					mContext.deleteFile("boinc_client.zip");
-					notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
-					return;
-				}
-				
-				FileOutputStream outStream = null;
-				InputStream zipStream = null;
-				ZipFile zipFile = null;
-				/* unpack zip file */
-				try {
-					zipFile = new ZipFile(mContext.getFileStreamPath("boinc_client.zip"));
-					ZipEntry zipEntry = zipFile.entries().nextElement();
-					zipStream = zipFile.getInputStream(zipEntry);
-					outStream = mContext.openFileOutput(boincClientFilename, Context.MODE_PRIVATE);
-					
-					long time = System.currentTimeMillis();
-					long length = zipEntry.getSize();
-					int totalReaded = 0;
-					byte[] buffer = new byte[BUFFER_SIZE];
-					/* copying content to file */
-					String opDesc = mContext.getString(R.string.unpackNativeClient);
-					while (true) {
-						int readed = zipStream.read(buffer);
-						if (readed == -1)
-							break;
-						totalReaded += readed;
+					// download from server
+					try {
+						String zipUrlString = mContext.getString(R.string.installClientSourceUrl)+zipFilename; 
+						mDownloader.downloadFile(zipUrlString, "boinc_client.zip",
+								mContext.getString(R.string.downloadNativeClient),
+								mContext.getString(R.string.downloadNativeClientError), true,
+								InstallerService.BOINC_CLIENT_ITEM_NAME, "");
 						
 						if (currentThread.isInterrupted()) {
-							mContext.deleteFile(boincClientFilename);
 							mContext.deleteFile("boinc_client.zip");
 							notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
 							return;
 						}
 						
-						outStream.write(buffer, 0, readed);
-						long newTime = System.currentTimeMillis();
+						int status = mDownloader.verifyFile(mContext.getFileStreamPath("boinc_client.zip"),
+								zipUrlString, true, InstallerService.BOINC_CLIENT_ITEM_NAME, "");
 						
-						if (newTime-time > NOTIFY_PERIOD) {
-							notifyProgress(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-									opDesc, (int)((double)totalReaded*10000.0/(double)length));
-							time = newTime;
+						if (status == Downloader.VERIFICATION_CANCELLED) {
+							mContext.deleteFile("boinc_client.zip");
+							notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
+							return;	// cancelled
 						}
+						if (status == Downloader.VERIFICATION_FAILED) {
+							notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
+									mContext.getString(R.string.verifySignatureFailed));
+							return;	// cancelled
+						}
+					} catch(InstallationException ex) {
+						/* remove zip file */
+						mContext.deleteFile("boinc_client.zip");
+						return;
 					}
-					notifyProgress(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-							opDesc, InstallerProgressListener.FINISH_PROGRESS);
-				} catch(InterruptedIOException ex) {
-					notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
-					mContext.deleteFile(boincClientFilename);
-					return;
-				} catch(IOException ex) {
-					notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-							mContext.getString(R.string.unpackNativeClientError));
-					mContext.deleteFile(boincClientFilename);
-					return;
-				} finally {
-					try {
-						if (zipStream != null)
-							zipStream.close();
-					} catch(IOException ex) { }
-					try {
-						if (zipFile != null)
-							zipFile.close();
-					} catch(IOException ex) { }
-					try {
-						if (outStream != null)
-							outStream.close();
-					} catch(IOException ex) { }
-					/* remove zip file */
+				}
+				
+				if (currentThread.isInterrupted()) {
 					mContext.deleteFile("boinc_client.zip");
+					notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
+					return;
+				}
+				
+				
+				if (mSDCardPath == null || mSDCardPath.endsWith(".zip")) {
+					// unzip if path to zip or zip from server
+					FileOutputStream outStream = null;
+					InputStream zipStream = null;
+					ZipFile zipFile = null;
+					/* unpack zip file */
+					try {
+						if (mSDCardPath == null)
+							zipFile = new ZipFile(mContext.getFileStreamPath("boinc_client.zip"));
+						else // if from sdcard (zip)
+							zipFile = new ZipFile(mSDCardPath);
+						
+						ZipEntry zipEntry = zipFile.entries().nextElement();
+						zipStream = zipFile.getInputStream(zipEntry);
+						outStream = mContext.openFileOutput(boincClientFilename, Context.MODE_PRIVATE);
+						
+						long time = System.currentTimeMillis();
+						long length = zipEntry.getSize();
+						int totalReaded = 0;
+						byte[] buffer = new byte[BUFFER_SIZE];
+						/* copying content to file */
+						String opDesc = mContext.getString(R.string.unpackNativeClient);
+						while (true) {
+							int readed = zipStream.read(buffer);
+							if (readed == -1)
+								break;
+							totalReaded += readed;
+							
+							if (currentThread.isInterrupted()) {
+								mContext.deleteFile(boincClientFilename);
+								mContext.deleteFile("boinc_client.zip");
+								notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
+								return;
+							}
+							
+							outStream.write(buffer, 0, readed);
+							long newTime = System.currentTimeMillis();
+							
+							if (newTime-time > NOTIFY_PERIOD) {
+								notifyProgress(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
+										opDesc, (int)((double)totalReaded*10000.0/(double)length));
+								time = newTime;
+							}
+						}
+						notifyProgress(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
+								opDesc, InstallerProgressListener.FINISH_PROGRESS);
+					} catch(InterruptedIOException ex) {
+						notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
+						mContext.deleteFile(boincClientFilename);
+						return;
+					} catch(IOException ex) {
+						notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
+								mContext.getString(R.string.unpackNativeClientError));
+						mContext.deleteFile(boincClientFilename);
+						return;
+					} finally {
+						try {
+							if (zipStream != null)
+								zipStream.close();
+						} catch(IOException ex) { }
+						try {
+							if (zipFile != null)
+								zipFile.close();
+						} catch(IOException ex) { }
+						try {
+							if (outStream != null)
+								outStream.close();
+						} catch(IOException ex) { }
+						/* remove zip file */
+						if (mSDCardPath == null) // if from server
+							mContext.deleteFile("boinc_client.zip");
+					}
+				} else {
+					// copy to destination
+					FileInputStream inputStream = null;
+					FileOutputStream outputStream = null;
+					
+					try {
+						inputStream = new FileInputStream(mSDCardPath);
+						outputStream = mContext.openFileOutput(boincClientFilename, Context.MODE_PRIVATE);
+						
+						byte[] buffer = new byte[BUFFER_SIZE];
+						
+						while (true) {
+							int readed = inputStream.read(buffer);
+							if (readed == -1)
+								break;
+							outputStream.write(buffer, 0, readed);
+						}
+						
+					} catch(IOException ex) {
+						notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
+								mContext.getString(R.string.copyNativeClientError));
+						return;
+					} finally {
+						try {
+							if (inputStream != null)
+								inputStream.close();
+						} catch(IOException ex) { }
+						
+						try {
+							if (outputStream != null)
+								outputStream.close();
+						} catch(IOException ex) { }
+					}
 				}
 				
 				if (currentThread.isInterrupted()) {
@@ -430,10 +477,11 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			    	boincDir.mkdir();
 			    }
 			    
-			    if (mClientDistrib != null) {
-			    	mDistribManager.setClient(mClientDistrib);
-			    	mDistribManager.save();
-			    }
+			    if (mSDCardPath == null) {
+				    if (mClientDistrib != null)
+			    		mDistribManager.setClient(mClientDistrib);
+			    } else // from SDCard
+		    		mDistribManager.setClientFromSDCard();
 			    
 			    /* running and killing boinc client (run in this client) */
 			    if (!clientToUpdate) {
@@ -541,7 +589,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				mContext.getString(R.string.installClientNotifyBegin));
 		synchronized(this) {
 			mIsClientBeingInstalled = true;
-			mClientInstaller = new ClientInstaller(standalone);
+			mClientInstaller = new ClientInstaller(standalone, null);
 			// notify that client installer is working
 			notifyChangeOfIsWorking();
 			mClientInstallerFuture = mExecutorService.submit(mClientInstaller);
@@ -576,9 +624,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		/* */
 		Thread currentThread = Thread.currentThread();
 		
-		if (currentThread.isInterrupted()) {
+		if (currentThread.isInterrupted())
 			return null;
-		}
 		
 		ArrayList<String> fileList = new ArrayList<String>();
 		FileOutputStream outStream = null;
@@ -683,6 +730,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					mContext.getString(R.string.unpackApplicationError));
 			/* delete files */
 			if (fileList != null) {
+				projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
+				
 				for (String filename: fileList) {
 					projectAppFilePath.append(filename);
 					new File(projectAppFilePath.toString()).delete();
@@ -705,15 +754,23 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			} catch(IOException ex2) { }
 		}
 		
+		return finalOfPuttingProjectApplications(fileList, projectDistrib,
+				projectAppFilePath, projectDirPathLength);
+	}
+	
+	private ArrayList<String> finalOfPuttingProjectApplications(ArrayList<String> fileList,
+			ProjectDistrib projectDistrib, StringBuilder projectAppFilePath, int projectDirPathLength) {
+		Thread currentThread = Thread.currentThread();
+		
 		if (currentThread.isInterrupted()) {
 			notifyCancel(projectDistrib.projectName, projectDistrib.projectUrl);
 			return null;
 		}
-		
+
+		FileInputStream inStream = null;
 		/* change permissions */
 		ArrayList<String> execFilenames = null;
 		try {
-			inStream = null;
 			projectAppFilePath.append("app_info.xml");
 			inStream = new FileInputStream(projectAppFilePath.toString());
 			execFilenames = ExecFilesAppInfoParser.parse(inStream);
@@ -751,10 +808,90 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		return fileList;
 	}
 	
+	private ArrayList<String> copyProjectApplications(ProjectDistrib projectDistrib, String sdCardPath,
+			boolean directInstallation) {
+		Thread currentThread = Thread.currentThread();
+		
+		if (currentThread.isInterrupted())
+			return null;
+		
+		ArrayList<String> fileList = new ArrayList<String>();
+		
+		StringBuilder projectAppFilePath = new StringBuilder();
+		projectAppFilePath.append(mContext.getFilesDir());
+		if (directInstallation)
+			projectAppFilePath.append("/boinc/projects/");
+		else
+			projectAppFilePath.append("/boinc/updates/");
+		
+		projectAppFilePath.append(escapeProjectUrl(projectDistrib.projectUrl));
+		projectAppFilePath.append("/");
+		int projectDirPathLength = projectAppFilePath.length();
+		
+		File updateDir = new File(projectAppFilePath.toString());
+		
+		if (!updateDir.isDirectory())
+			updateDir.mkdirs();
+		
+		File sdCardFile = new File(sdCardPath);
+		for (File file: sdCardFile.listFiles()) {
+			FileInputStream inStream = null;
+			FileOutputStream outStream = null;
+			
+			projectAppFilePath.append(file.getName());
+			fileList.add(file.getName());
+			
+			try {
+				inStream = new FileInputStream(file);
+				outStream = new FileOutputStream(projectAppFilePath.toString());
+				projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
+				
+				byte[] buffer = new byte[BUFFER_SIZE];
+				
+				while(true) {
+					int readed = inStream.read(buffer);
+					if (readed == -1)
+						break;
+					
+					outStream.write(buffer, 0, readed);
+				}
+			} catch (IOException ex) {
+				projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
+				
+				notifyError(projectDistrib.projectName, projectDistrib.projectUrl,
+						mContext.getString(R.string.unpackApplicationError));
+				
+				projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
+				/* delete files */
+				if (fileList != null) {
+					for (String filename: fileList) {
+						projectAppFilePath.append(filename);
+						new File(projectAppFilePath.toString()).delete();
+						projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
+					}
+				}
+				return null;
+			} finally {
+				try {
+					if (inStream != null)
+						inStream.close();
+				} catch(IOException ex) { }
+				try {
+					if (outStream != null)
+						outStream.close();
+				} catch(IOException ex) { }
+			}
+		}
+		
+		return finalOfPuttingProjectApplications(fileList, projectDistrib,
+				projectAppFilePath, projectDirPathLength);
+	}
+	
 	private class ProjectAppsInstaller implements Runnable {
-		private String mZipFilename;
+		private String mInput;
 		private ProjectDistrib mProjectDistrib;
 		private ArrayList<String> mFileList;
+		private boolean mFromSDCard = false;
 		
 		private boolean mIsRan = false;
 		
@@ -766,9 +903,17 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		/* should be released after benchmark */
 		private Semaphore mBenchmarkFinishSem = new Semaphore(1);
 		
-		public ProjectAppsInstaller(String zipFilename, ProjectDistrib projectDistrib) {
-			mZipFilename = zipFilename;
+		/**
+		 * 
+		 * @param input - path zip or directory or zipFileName
+		 * @param projectDistrib
+		 * @param fromSDCard
+		 */
+		public ProjectAppsInstaller(String input, ProjectDistrib projectDistrib,
+				boolean fromSDCard) {
+			mInput = input;
 			mProjectDistrib = projectDistrib;
+			mFromSDCard = fromSDCard;
 			/* acquiring all semaphores */
 			try {
 				mClientUpdatedAndRanSem.acquire();
@@ -823,41 +968,45 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				if (Logging.DEBUG) Log.d(TAG,
 						"after benchmark finish :"+mProjectDistrib.projectUrl);
 				
-				String zipUrl = mContext.getString(R.string.installAppsSourceUrl) + mZipFilename;
+				String zipUrl = mContext.getString(R.string.installAppsSourceUrl) + mInput;
 				/* do download and verify */
-				String outZipFilename = mProjectDistrib.projectName+".zip";
-				try {
-					mDownloader.downloadFile(zipUrl, outZipFilename,
-							mContext.getString(R.string.downloadApplication),
-							mContext.getString(R.string.downloadApplicationError), true,
-							mProjectDistrib.projectName, mProjectDistrib.projectUrl);
-					
-					if (currentThread.isInterrupted()) {
+				String outZipFilename = null;
+				if (!mFromSDCard) {
+					outZipFilename = mProjectDistrib.projectName+".zip";
+					try {
+						mDownloader.downloadFile(zipUrl, outZipFilename,
+								mContext.getString(R.string.downloadApplication),
+								mContext.getString(R.string.downloadApplicationError), true,
+								mProjectDistrib.projectName, mProjectDistrib.projectUrl);
+						
+						if (currentThread.isInterrupted()) {
+							mContext.deleteFile(outZipFilename);
+							notifyCancel(mProjectDistrib.projectName, mProjectDistrib.projectUrl);
+							return;
+						}
+						
+						int status = mDownloader.verifyFile(mContext.getFileStreamPath(outZipFilename),
+								zipUrl, true, mProjectDistrib.projectName, mProjectDistrib.projectUrl);
+						
+						if (status == Downloader.VERIFICATION_CANCELLED) {
+							mContext.deleteFile(outZipFilename);
+							notifyCancel(mProjectDistrib.projectName, mProjectDistrib.projectUrl);
+							return;	// cancelled
+						}
+						if (status == Downloader.VERIFICATION_FAILED) {
+							notifyError(mProjectDistrib.projectName, mProjectDistrib.projectUrl,
+									mContext.getString(R.string.verifySignatureFailed));
+							return;	// cancelled
+						}
+					} catch(InstallationException ex) {
 						mContext.deleteFile(outZipFilename);
-						notifyCancel(mProjectDistrib.projectName, mProjectDistrib.projectUrl);
 						return;
 					}
-					
-					int status = mDownloader.verifyFile(mContext.getFileStreamPath(outZipFilename),
-							zipUrl, true, mProjectDistrib.projectName, mProjectDistrib.projectUrl);
-					
-					if (status == Downloader.VERIFICATION_CANCELLED) {
-						mContext.deleteFile(outZipFilename);
-						notifyCancel(mProjectDistrib.projectName, mProjectDistrib.projectUrl);
-						return;	// cancelled
-					}
-					if (status == Downloader.VERIFICATION_FAILED) {
-						notifyError(mProjectDistrib.projectName, mProjectDistrib.projectUrl,
-								mContext.getString(R.string.verifySignatureFailed));
-						return;	// cancelled
-					}
-				} catch(InstallationException ex) {
-					mContext.deleteFile(outZipFilename);
-					return;
 				}
 				
 				if (currentThread.isInterrupted()) {
-					mContext.deleteFile(outZipFilename);
+					if (outZipFilename != null)
+						mContext.deleteFile(outZipFilename);
 					notifyCancel(mProjectDistrib.projectName, mProjectDistrib.projectUrl);
 					return;
 				}
@@ -868,11 +1017,29 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				boolean directInstallation = !mRunner.isRun() && !mClientShouldBeRun;
 				
 				/* do install in project directory */
-				mFileList = unpackProjectApplications(mProjectDistrib,
-						mContext.getFileStreamPath(outZipFilename).getAbsolutePath(), directInstallation);
+				if (!mFromSDCard) {
+					mFileList = unpackProjectApplications(mProjectDistrib,
+							mContext.getFileStreamPath(outZipFilename).getAbsolutePath(), directInstallation);
+					
+					if (outZipFilename != null)
+						mContext.deleteFile(outZipFilename);
+				} else if (mInput.endsWith(".zip")) {
+					// if zip from sdcard
+					mFileList = unpackProjectApplications(mProjectDistrib, mInput, directInstallation);
+					
+					if (mFileList == null)
+						return;
 				
-				mContext.deleteFile(outZipFilename);
-				
+					if (outZipFilename != null)
+						mContext.deleteFile(outZipFilename);
+				} else {
+					// copy to update apps directory
+					mFileList = copyProjectApplications(mProjectDistrib, mInput, directInstallation);
+					
+					if (mFileList == null)
+						return;
+				}
+					
 				if (currentThread.isInterrupted()) {
 					notifyCancel(mProjectDistrib.projectName, mProjectDistrib.projectUrl);
 					return;
@@ -1007,7 +1174,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		// installBoincApplicationAutomatically(zipFilename, projectDistrib);
 		// run in separate thread
-		final ProjectAppsInstaller appInstaller = new ProjectAppsInstaller(zipFilename, projectDistrib);
+		final ProjectAppsInstaller appInstaller = new ProjectAppsInstaller(zipFilename,
+				projectDistrib, false);
 		// unlock lock for client updating
 		if (!mIsClientBeingInstalled)
 			appInstaller.notifyIfClientUpdatedAndRan();
@@ -1059,7 +1227,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					synchronized(this) {
 						mIsClientBeingInstalled = true;
 						notifyChangeOfIsWorking();
-						mClientInstaller = new ClientInstaller(false);
+						mClientInstaller = new ClientInstaller(false, null);
 						mExecutorService.submit(mClientInstaller);
 					}
 				}
@@ -1081,7 +1249,73 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						mContext.getString(R.string.installProjectBegin));
 				
 				final ProjectAppsInstaller appInstaller =
-						new ProjectAppsInstaller(updateItem.filename, foundDistrib);
+						new ProjectAppsInstaller(updateItem.filename, foundDistrib, false);
+
+				// no await for benchmark
+				appInstaller.notifyIfBenchmarkFinished();
+				
+				synchronized(this) {
+					mProjectAppsInstallers.put(foundDistrib.projectUrl, appInstaller);
+					notifyChangeOfIsWorking();
+					Future<?> future = mExecutorService.submit(appInstaller);
+					appInstaller.setFuture(future);
+				}
+			}
+		}
+		
+		// unlocks project apps installer if client not installed
+		if (!mIsClientBeingInstalled) {
+			if (Logging.DEBUG) Log.d(TAG, "if only project apps will being installed");
+			notifyIfClientUpdatedAndRan();
+		}
+	}
+	
+	public void updateDistribsFromSDCard(String dirPath, String[] distribNames) {
+		/* first, install client */
+		for (String distribName: distribNames)
+			if (distribName.equals(InstallerService.BOINC_CLIENT_ITEM_NAME)) {
+				File clientFile = new File(dirPath+"boinc_client");
+				
+				if (!clientFile.exists()) // if zip
+					clientFile = new File(dirPath+"boinc_client.zip");
+				
+				/* update boinc client */
+				if (!mIsClientBeingInstalled) {
+					notifyOperation(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
+							mContext.getString(R.string.installClientNotifyBegin));
+					synchronized(this) {
+						mIsClientBeingInstalled = true;
+						notifyChangeOfIsWorking();
+						mClientInstaller = new ClientInstaller(false, clientFile.getAbsolutePath());
+						mExecutorService.submit(mClientInstaller);
+					}
+				}
+			}
+		
+		/* next install project applications */
+		for (String distribName: distribNames) {
+			if (!distribName.equals(InstallerService.BOINC_CLIENT_ITEM_NAME)) {
+				/* install */
+				ProjectDistrib foundDistrib = null;
+				for (ProjectDistrib distrib: mProjectDistribs)
+					if (distrib.projectName.equals(distribName)) {
+						foundDistrib = distrib;
+						break;
+					}
+				if (isProjectAppBeingInstalled(foundDistrib.projectUrl))
+					continue;	// if being installed
+				
+				File distribFile = new File(dirPath+distribName);
+				
+				if (!distribFile.exists()) // if zip
+					distribFile = new File(dirPath+distribName+".zip");
+				
+				// run in separate thread
+				notifyOperation(foundDistrib.projectName, foundDistrib.projectUrl,
+						mContext.getString(R.string.installProjectBegin));
+				
+				final ProjectAppsInstaller appInstaller =
+						new ProjectAppsInstaller(distribFile.getAbsolutePath(), foundDistrib, true);
 
 				// no await for benchmark
 				appInstaller.notifyIfBenchmarkFinished();
@@ -1246,10 +1480,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		InstalledClient installedClient = mDistribManager.getInstalledClient();
 		if (clientVersion == null) {
-			if (installedClient.version.length() == 0)	// if empty
+			if (installedClient.version.length() == 0 && !installedClient.fromSDCard)	// if empty
 				return new InstalledBinary[0];
 		}
-		if (installedClient.version.length() == 0) { // if not initialized
+		if (installedClient.version.length() == 0 && !installedClient.fromSDCard) { // if not initialized
 			// update client version from prefs
 			installedClient.version = clientVersion;
 			// update distribs
@@ -1262,12 +1496,12 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		InstalledBinary[] result = new InstalledBinary[installedDistribs.size()+1];
 		
 		result[0] = new InstalledBinary(InstallerService.BOINC_CLIENT_ITEM_NAME, installedClient.version,
-				installedClient.description, installedClient.changes);
+				installedClient.description, installedClient.changes, installedClient.fromSDCard);
 		
 		for (int i = 0; i <installedCount; i++) {
 			InstalledDistrib distrib = installedDistribs.get(i);
 			result[i+1] = new InstalledBinary(distrib.projectName, distrib.version, distrib.description,
-					distrib.changes); 
+					distrib.changes, distrib.fromSDCard); 
 		}
 		
 		/* sort result list */
@@ -1352,7 +1586,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			mDistribManager.save();
 		}
 		
-		if (VersionUtil.compareVersion(mClientDistrib.version, clientVersion) > 0) {
+		/* always update when client from sdcard */
+		if ((installedClient != null && installedClient.fromSDCard) ||
+				VersionUtil.compareVersion(mClientDistrib.version, clientVersion) > 0) {
 			updateItems.add(new UpdateItem(InstallerService.BOINC_CLIENT_ITEM_NAME,
 					mClientDistrib.version, null, mClientDistrib.description,
 					mClientDistrib.changes, false));
@@ -1364,8 +1600,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			ProjectDistrib selected = null;
 			for (ProjectDistrib projectDistrib: mProjectDistribs)
 				if (projectDistrib.projectUrl.equals(installedDistrib.projectUrl) &&
-						/* if version newest than installed */
-						VersionUtil.compareVersion(projectDistrib.version, installedDistrib.version) > 0) {
+						/* if version newest than installed or distrib from sdcard */
+						(installedDistrib.fromSDCard || 
+						 VersionUtil.compareVersion(projectDistrib.version, installedDistrib.version) > 0)) {
 					selected = projectDistrib;
 					break;
 				}
@@ -1415,6 +1652,49 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		mHandlerIsWorking = false;
 		notifyChangeOfIsWorking();
+	}
+	
+	/**
+	 * get list of distrib to update from sdcard
+	 */
+	public String[] getBinariesToUpdateFromSDCard(String path) {
+		File dirFile = new File(path);
+		if (!dirFile.isDirectory())
+			return null;
+		
+		File[] fileList = dirFile.listFiles();
+		if (fileList == null)
+			return null;
+		
+		ArrayList<InstalledDistrib> installedDistribs = mDistribManager.getInstalledDistribs();
+		ArrayList<String> distribsToUpdate = new ArrayList<String>(1);
+		
+		/* for projects */
+		for (File file: fileList) {
+			String distribName;
+			
+			String filename = file.getName();
+			
+			if (filename.equals("boinc_client") || filename.equals("boinc_client.zip")) {
+				// if boinc client
+				distribsToUpdate.add(InstallerService.BOINC_CLIENT_ITEM_NAME);
+				continue;
+			}
+			
+			if (file.isDirectory()) // if directory
+				distribName = filename;
+			else if (filename.endsWith(".zip")) // if zip
+				distribName = filename.substring(0, filename.length() - 4);
+			else // if not determined
+				continue;
+			
+			for (InstalledDistrib distrib: installedDistribs)
+				if (distrib.projectName.equals(distribName)) {
+					distribsToUpdate.add(distribName);
+					break;
+				}
+		}
+		return distribsToUpdate.toArray(new String[0]);
 	}
 	
 	/**
@@ -1556,7 +1836,11 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		if (Logging.DEBUG) Log.d(TAG, "After update on client side: "+
 				appsInstaller.mProjectDistrib.projectName);
 		
-		mDistribManager.addOrUpdateDistrib(appsInstaller.mProjectDistrib, appsInstaller.mFileList);
+		if (!appsInstaller.mFromSDCard)
+			mDistribManager.addOrUpdateDistrib(appsInstaller.mProjectDistrib, appsInstaller.mFileList);
+		else // if from sdcard
+			mDistribManager.addOrUpdateDistribFromSDCard(appsInstaller.mProjectDistrib.projectName,
+					appsInstaller.mProjectDistrib.projectUrl, appsInstaller.mFileList);
 		
 		notifyFinish(appsInstaller.mProjectDistrib.projectName, projectUrl);
 		

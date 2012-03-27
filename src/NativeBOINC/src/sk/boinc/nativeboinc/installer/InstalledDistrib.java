@@ -31,5 +31,6 @@ public class InstalledDistrib {
 	public String version = "";
 	public String description = "";
 	public String changes = "";
+	public boolean fromSDCard = false;
 	public ArrayList<String> files = new ArrayList<String>();
 }

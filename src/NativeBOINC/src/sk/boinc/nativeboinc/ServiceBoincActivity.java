@@ -99,9 +99,9 @@ public class ServiceBoincActivity extends AbstractBoincActivity {
 				
 				mInstaller.addInstallerListener((AbstractInstallerListener)ServiceBoincActivity.this);
 				mDelayedInstallerListenerRegistration = false;
-				onInstallerConnected();
 			}
 			if (Logging.DEBUG) Log.d(TAG, "installer.onServiceConnected()");
+			onInstallerConnected();
 		}
 
 		@Override

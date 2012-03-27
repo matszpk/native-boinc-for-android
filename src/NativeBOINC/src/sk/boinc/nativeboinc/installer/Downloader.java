@@ -148,7 +148,7 @@ public class Downloader {
 			} catch(InterruptedIOException ex) {
 				// if cancelled
 				mContext.deleteFile("pgpkey.pgp");
-				return;
+				continue;
 			} catch(Exception ex) {	/* on error */
 				mContext.deleteFile("pgpkey.pgp");
 				if (Logging.WARNING) Log.w(TAG, "Exception: "+ ex.getMessage() + " for " + keyserver);

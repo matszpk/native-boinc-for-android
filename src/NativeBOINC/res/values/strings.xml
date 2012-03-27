@@ -272,6 +272,7 @@
 	<string name="warnShutdownText">The connected core client will be shut down. This manager cannot start the client afterwards.</string>
 	
 	<!--  NativeClient activity -->
+	<string name="nativeBoincClient">Native BOINC client</string>
 	<string name="nativeBoincNetwork">Network options</string>
 	
 	<string name="nativeHostnameTitle">Set up hostname</string>
@@ -281,7 +282,7 @@
 	<string name="nativeRemoteAccessSummaryOn">Allow remote access for other hosts</string>
 	<string name="nativeRemoteAccessSummaryOff">Disallow remote access for other hosts</string>
 	<string name="nativeAccessPasswordTitle">Access password</string>
-	<string name="nativeAccessPasswordSummary">Password:</string>
+	<string name="nativeAccessPasswordSummary">Change access password for client</string>
 	<string name="nativeAccessListTitle">Access host list</string>
 	<string name="nativeAccessListSummary">List of hosts whose have access to BOINC client</string>
 	
@@ -304,6 +305,9 @@
 	<string name="nativeShowLogsSummary">Show last logs from BOINC client</string>
 	
 	<string name="nativeBoincLogs">BOINC last logs</string>
+	
+	<string name="updateFromSDCard">Update binaries from SDCard</string>
+	<string name="enterUpdateDir">Enter update directory</string>
 	
 	<string name="applyAfterRestart">Changes to be applied after restart. Do you want to restart client now?</string>
 	
@@ -622,6 +626,7 @@
 	<string name="unpackNativeClientError">Unable to unpack native client</string>
 	<string name="unpackApplicationError">Unable to unpack project applications</string>
 	<string name="changePermissionsError">Unable to change permissions</string>
+	<string name="copyNativeClientError">Unable to copy native client</string>
 	
 	<string name="runNativeClientError">Unable to run native client</string>
 	<string name="connectNativeClientError">Unable to connect with native client</string>

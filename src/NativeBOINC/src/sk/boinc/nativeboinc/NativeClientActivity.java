@@ -63,6 +63,7 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	private static final int DIALOG_APPLY_AFTER_RESTART = 1;
 	private static final int DIALOG_ENTER_DUMP_DIRECTORY = 2;
 	private static final int DIALOG_REINSTALL_QUESTION = 3;
+	private static final int DIALOG_ENTER_UPDATE_DIRECTORY = 4;
 	
 	/* information for main activity (for reconnect) */
 	public static final String RESULT_DATA_RESTARTED = "Restarted";
@@ -219,14 +220,12 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 			@Override
 			public boolean onPreferenceChange(Preference preference,
 					Object newValue) {
-				EditTextPreference pref = (EditTextPreference)preference;
 				String oldPassword = null;
 				try {
 					oldPassword = NativeBoincUtils.getAccessPassword(NativeClientActivity.this);
 				} catch(IOException ex) { }
 				
 				String newPassword = (String)newValue;
-				pref.setSummary(getString(R.string.nativeAccessPasswordSummary)+" "+newPassword);
 				
 				if (!newPassword.equals(oldPassword)) { // if not same password
 					Log.d(TAG, "In changing password");
@@ -287,6 +286,16 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 				startActivity(new Intent(NativeClientActivity.this, UpdateActivity.class));
+				return true;
+			}
+		});
+		
+		/* update binaries from sdcard */
+		pref = (Preference)findPreference(PreferenceName.NATIVE_UPDATE_FROM_SDCARD);
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				showDialog(DIALOG_ENTER_UPDATE_DIRECTORY);
 				return true;
 			}
 		});
@@ -356,16 +365,6 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 		else
 			editPref.setSummary(R.string.nativeHostnameSummaryNone);
 		
-		/* update access password */
-		String accessPassword = null;
-		try {
-			accessPassword = NativeBoincUtils.getAccessPassword(this);
-		} catch(IOException ex) { }
-		
-		editPref = (EditTextPreference)findPreference(PreferenceName.NATIVE_ACCESS_PASSWORD);
-		editPref.setText(accessPassword);
-		editPref.setSummary(getString(R.string.nativeAccessPasswordSummary)+" "+accessPassword);
-		
 		/* add listener */
 		if (mRunner != null) {
 			if (Logging.DEBUG) Log.d(TAG, "Normal register runner listener");
@@ -418,9 +417,11 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 				.setPositiveButton(R.string.ok, new Dialog.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						mInstaller.dumpBoincFiles(edit.getText().toString());
-						
-						startActivity(new Intent(NativeClientActivity.this, ProgressActivity.class));
+						String dumpDir = edit.getText().toString();
+						if (!dumpDir.isEmpty()) {
+							mInstaller.dumpBoincFiles(dumpDir);
+							startActivity(new Intent(NativeClientActivity.this, ProgressActivity.class));
+						}
 					}
 				})
 				.setNegativeButton(R.string.cancel, null)
@@ -470,10 +471,35 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						mInstaller.reinstallBoinc();
+						mDoRestart = false;
 						startActivity(new Intent(NativeClientActivity.this, ProgressActivity.class)); 
 					}
 				})
 				.setNegativeButton(R.string.noText, null)
+				.create();
+		case DIALOG_ENTER_UPDATE_DIRECTORY:
+			View view = LayoutInflater.from(this).inflate(R.layout.dialog_edit, null);
+			final EditText edit = (EditText)view.findViewById(android.R.id.edit);
+			edit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+			
+			return new AlertDialog.Builder(this)
+				.setIcon(android.R.drawable.ic_input_get)
+				.setTitle(R.string.enterUpdateDir)
+				.setView(view)
+				.setPositiveButton(R.string.ok, new Dialog.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						String updateDir = edit.getText().toString();
+						
+						if (!updateDir.isEmpty()) {
+							Intent intent = new Intent(NativeClientActivity.this,
+									UpdateFromSDCardActivity.class);
+							intent.putExtra(UpdateFromSDCardActivity.UPDATE_DIR, updateDir);
+							startActivity(intent);
+						}
+					}
+				})
+				.setNegativeButton(R.string.cancel, null)
 				.create();
 		}
 		return null;

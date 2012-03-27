@@ -1,4 +1,9 @@
-Version 0.3.5 (alpha) (2012-03-24)
+Version 0.3.6 (alpha) (2012-03-27)
+- added update from SDCard
+- fixed installer bugs
+- fixed small bugs inside ServiceBoincActivity
+
+Version 0.3.5.1 (alpha) (2012-03-26)
 - fixed tablet widget
 - fixed NPE exception on Notices tab
 

@@ -83,6 +83,8 @@ public class InstalledClientParser extends BaseParser {
 					mClient.description = mCurrentElement.toString();
 				} else if (localName.equalsIgnoreCase("changes")) {
 					mClient.changes = mCurrentElement.toString();
+				} else if (localName.equalsIgnoreCase("fromSDCard")) {
+					mClient.fromSDCard = true;
 				}
 			}
 		}

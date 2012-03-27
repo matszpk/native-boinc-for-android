@@ -52,6 +52,16 @@ public class InstalledDistribManager {
 		mInstalledClient.version = clientDistrib.version;
 		mInstalledClient.description = clientDistrib.description;
 		mInstalledClient.changes = clientDistrib.changes;
+		mInstalledClient.fromSDCard = false;
+		save();
+	}
+	
+	public synchronized void setClientFromSDCard() {
+		mInstalledClient.version = "";
+		mInstalledClient.description = "";
+		mInstalledClient.changes = "";
+		mInstalledClient.fromSDCard = true;
+		save();
 	}
 	
 	public synchronized void addOrUpdateDistrib(ProjectDistrib distrib, ArrayList<String> files) {
@@ -69,6 +79,7 @@ public class InstalledDistribManager {
 			oldDistrib.version = distrib.version;
 			oldDistrib.description = distrib.description;
 			oldDistrib.changes = distrib.changes;
+			oldDistrib.fromSDCard = false;
 			oldDistrib.files = files;
 		} else {	// add
 			InstalledDistrib newDistrib = new InstalledDistrib();
@@ -78,6 +89,40 @@ public class InstalledDistribManager {
 			newDistrib.description = distrib.description;
 			newDistrib.files = files;
 			newDistrib.changes = distrib.changes;
+			newDistrib.fromSDCard = false;
+			mInstalledDistribs.add(newDistrib);
+		}
+		
+		save();
+	}
+	
+	public synchronized void addOrUpdateDistribFromSDCard(String projectName, String projectUrl,
+			ArrayList<String> files) {
+		int index = -1;
+		for (int i = 0; i < mInstalledDistribs.size(); i++)
+			if (mInstalledDistribs.get(i).projectUrl.equals(projectUrl)) {
+				index = i;	// if found
+				break;
+			}
+		
+		if (index != -1) {	// update
+			InstalledDistrib oldDistrib = mInstalledDistribs.get(index);
+			oldDistrib.projectName = projectName;
+			oldDistrib.projectUrl = projectUrl;
+			oldDistrib.version = "";
+			oldDistrib.description = "";
+			oldDistrib.changes = "";
+			oldDistrib.fromSDCard = true;
+			oldDistrib.files = files;
+		} else {
+			InstalledDistrib newDistrib = new InstalledDistrib();
+			newDistrib.projectName = projectName;
+			newDistrib.projectUrl = projectUrl;
+			newDistrib.version = "";
+			newDistrib.description = "";
+			newDistrib.files = files;
+			newDistrib.changes = "";
+			newDistrib.fromSDCard = true;
 			mInstalledDistribs.add(newDistrib);
 		}
 		
@@ -157,6 +202,8 @@ public class InstalledDistribManager {
 			writer.write("<distribs>\n");
 			
 			for (InstalledDistrib distrib: mInstalledDistribs) {
+				if (distrib.files == null)
+					continue;
 				sB.delete(0, sB.length());
 				sB.append("  <project>\n    <name>");
 				sB.append(distrib.projectName);
@@ -174,7 +221,10 @@ public class InstalledDistribManager {
 				sB.append(distrib.description);
 				sB.append("]]></description>\n    <changes><![CDATA[");
 				sB.append(distrib.changes);
-				sB.append("]]></changes>\n  </project>\n");
+				if (distrib.fromSDCard)
+					sB.append("]]></changes>\n    <fromSDCard/>\n  </project>\n");
+				else
+					sB.append("]]></changes>\n  </project>\n");
 				writer.write(sB.toString());
 			}
 			
@@ -197,7 +247,10 @@ public class InstalledDistribManager {
 			sB.append(mInstalledClient.description);
 			sB.append("]]></description>\n  <changes><![CDATA[");
 			sB.append(mInstalledClient.changes);
-			sB.append("]]></changes>\n</client>\n");
+			if (mInstalledClient.fromSDCard)
+				sB.append("]]></changes>\n  <fromSDCard/>\n</client>\n");
+			else
+				sB.append("]]></changes>\n</client>\n");
 			
 			writer.write(sB.toString());
 		} catch(IOException ex) {

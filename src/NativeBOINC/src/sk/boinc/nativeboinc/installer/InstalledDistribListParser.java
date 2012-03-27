@@ -101,6 +101,8 @@ public class InstalledDistribListParser extends BaseParser {
 					mDistrib.description = mCurrentElement.toString();
 				} else if (localName.equalsIgnoreCase("changes")) {
 					mDistrib.changes = mCurrentElement.toString();
+				} else if (localName.equalsIgnoreCase("fromSDCard")) {
+					mDistrib.fromSDCard = true;
 				}
 			}
 		}

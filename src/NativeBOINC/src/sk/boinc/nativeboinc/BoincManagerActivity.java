@@ -115,7 +115,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 	private boolean mIsInstallerRan = false;
 	private boolean mShowShutdownDialog = false;
 	
-	private boolean mShowStartDialog = true;
+	private boolean mShowStartDialog = false;
 	
 	// used to delayed showing ChangeLog dialog
 	private boolean mInDuringInstallation = false;

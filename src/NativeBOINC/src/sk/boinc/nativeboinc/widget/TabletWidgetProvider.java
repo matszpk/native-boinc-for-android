@@ -27,6 +27,7 @@ import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.ScreenLockActivity;
 import sk.boinc.nativeboinc.ShutdownDialogActivity;
+import sk.boinc.nativeboinc.TaskInfoDialogActivity;
 import sk.boinc.nativeboinc.clientconnection.TaskInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
@@ -54,6 +55,7 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 	public static final String NATIVE_BOINC_WIDGET_PREPARE_UPDATE = "sk.boinc.nativeboinc.widget.TABLET_WIDGET_PREPARE_UPDATE";
 	public static final String NATIVE_BOINC_WIDGET_UPDATE = "sk.boinc.nativeboinc.widget.TABLET_WIDGET_UPDATE";
 	public static final String NATIVE_BOINC_CLIENT_START_STOP = "sk.boinc.nativeboinc.widget.TABLET_CLIENT_START_STOP";
+	public static final String NATIVE_BOINC_CLIENT_TASK_INFO = "sk.boinc.nativeboinc.widget.TABLET_CLIENT_TASK_INFO_";
 	
 	@Override
 	public void onEnabled(Context context) {
@@ -138,7 +140,7 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			if (taskItems != null) {
 				// sort task list
 				TaskItem[] sortedTaskItems = sortTaskItems(taskItems);
-				updateTaskViews(views, sortedTaskItems);
+				updateTaskViews(appContext, views, sortedTaskItems);
 			} else
 				hideTaskViews(views);
 			
@@ -184,6 +186,27 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			} else {
 				appContext.bindRunnerAndStart();
 			}
+		} else {
+			StringBuilder sb = new StringBuilder();
+			sb.append(NATIVE_BOINC_CLIENT_TASK_INFO);
+			String action = inputIntent.getAction();
+			TaskItem taskItem = (TaskItem)inputIntent.getParcelableExtra(TaskInfoDialogActivity.ARG_TASK_INFO);
+			
+			for (int i = 0; i < 10; i++) {
+				sb.append(i);
+				if (sb.toString().equals(action)) {
+					Intent intent = new Intent(appContext, TaskInfoDialogActivity.class);
+					intent.putExtra(TaskInfoDialogActivity.ARG_TASK_INFO, taskItem);
+					PendingIntent pendingIntent = PendingIntent.getActivity(appContext, 0, intent,
+							PendingIntent.FLAG_UPDATE_CURRENT);
+					
+					try {
+						pendingIntent.send();
+					} catch(CanceledException ex) { }
+					break;
+				}
+				sb.delete(sb.length()-1, sb.length());
+			}
 		}
 	}
 
@@ -217,23 +240,25 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			@Override
 			public int compare(TaskItem object1, TaskItem object2) {
 				// First criteria - state
-				if ( (cStatePriority[object1.stateControl] - cStatePriority[object2.stateControl]) != 0 ) {
+				if ( (cStatePriority[object1.taskInfo.stateControl] -
+						cStatePriority[object2.taskInfo.stateControl]) != 0 ) {
 					// The priorities for are different - return the order
-					return (cStatePriority[object1.stateControl] - cStatePriority[object2.stateControl]);
+					return (cStatePriority[object1.taskInfo.stateControl] -
+							cStatePriority[object2.taskInfo.stateControl]);
 				}
 				// Otherwise continue with further criteria
 				// The next criteria - deadline
-				int deadlineDiff = (int)(object1.deadlineNum - object2.deadlineNum);
+				int deadlineDiff = (int)(object1.taskInfo.deadlineNum - object2.taskInfo.deadlineNum);
 				if (deadlineDiff != 0) {
 					// not the same deadline
 					return deadlineDiff;
 				}
 				// Last, sort by project name, then by task name
-				int prjComp = object1.project.compareToIgnoreCase(object2.project);
+				int prjComp = object1.taskInfo.project.compareToIgnoreCase(object2.taskInfo.project);
 				if (prjComp != 0) {
 					return prjComp;
 				}
-				return object1.taskName.compareToIgnoreCase(object2.taskName);
+				return object1.taskInfo.taskName.compareToIgnoreCase(object2.taskInfo.taskName);
 			}
 		};
 		Arrays.sort(sorted, comparator);
@@ -318,7 +343,8 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 	
 	private static final int TOTAL_ITEMS = 10;
 	
-	private static void updateTaskViews(RemoteViews views, final TaskItem[] taskItems) {
+	private static void updateTaskViews(BoincManagerApplication appContext, RemoteViews views,
+			final TaskItem[] taskItems) {
 		final int visibleItems = Math.min(TOTAL_ITEMS, taskItems.length);
 		/* set up visibility of items */
 		for (int i = 0; i < visibleItems; i++) {
@@ -331,17 +357,28 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 		}
 		
 		/* update content */
+		StringBuilder sb = new StringBuilder();
+		sb.append(NATIVE_BOINC_CLIENT_TASK_INFO);
+		
 		for (int i = 0; i < visibleItems; i++) {
 			TaskItem item = taskItems[i];
 			
-			views.setTextViewText(sTaskAppNames[i], item.application);
-			views.setTextViewText(sTaskProjectNames[i], item.project);
-			views.setTextViewText(sTaskDeadlines[i], item.deadline);
-			views.setTextViewText(sTaskElapseds[i], item.elapsed);
-			views.setTextViewText(sTaskRemainings[i], item.toCompletion);
-			views.setTextViewText(sTaskProgressTexts[i], item.progress);
+			sb.append(i);
+			Intent intent = new Intent(sb.toString());
+			intent.putExtra(TaskInfoDialogActivity.ARG_TASK_INFO, item);
+			PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, intent,
+					PendingIntent.FLAG_UPDATE_CURRENT);
+			views.setOnClickPendingIntent(sTaskViews[i], pendingIntent);
+			sb.delete(sb.length()-1, sb.length());
 			
-			switch(item.stateControl) {
+			views.setTextViewText(sTaskAppNames[i], item.taskInfo.application);
+			views.setTextViewText(sTaskProjectNames[i], item.taskInfo.project);
+			views.setTextViewText(sTaskDeadlines[i], item.taskInfo.deadline);
+			views.setTextViewText(sTaskElapseds[i], item.taskInfo.elapsed);
+			views.setTextViewText(sTaskRemainings[i], item.taskInfo.toCompletion);
+			views.setTextViewText(sTaskProgressTexts[i], item.taskInfo.progress);
+			
+			switch(item.taskInfo.stateControl) {
 			case TaskInfo.SUSPENDED:
 			case TaskInfo.ABORTED:
 			case TaskInfo.ERROR:
@@ -349,34 +386,34 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 				views.setViewVisibility(sTaskProgressFinisheds[i], View.GONE);
 				views.setViewVisibility(sTaskProgressWaitings[i], View.GONE);
 				views.setViewVisibility(sTaskProgressSuspendeds[i], View.VISIBLE);
-				views.setProgressBar(sTaskProgressSuspendeds[i], 1000, item.progInd, false);
+				views.setProgressBar(sTaskProgressSuspendeds[i], 1000, item.taskInfo.progInd, false);
 				break;
 			case TaskInfo.DOWNLOADING:
 			case TaskInfo.UPLOADING:
 				// Setting progress to 0 will let the secondary progress to display itself (which is always set to 100)
-				item.progInd = 0;
+				item.taskInfo.progInd = 0;
 				// no break, we continue following case (READY_TO_REPORT)
 			case TaskInfo.READY_TO_REPORT:
 				views.setViewVisibility(sTaskProgressRunnings[i], View.GONE);
 				views.setViewVisibility(sTaskProgressSuspendeds[i], View.GONE);
 				views.setViewVisibility(sTaskProgressWaitings[i], View.GONE);
 				views.setViewVisibility(sTaskProgressFinisheds[i], View.VISIBLE);
-				views.setProgressBar(sTaskProgressFinisheds[i], 1000, item.progInd, false);
+				views.setProgressBar(sTaskProgressFinisheds[i], 1000, item.taskInfo.progInd, false);
 				break;
 			case TaskInfo.RUNNING:
 				views.setViewVisibility(sTaskProgressFinisheds[i], View.GONE);
 				views.setViewVisibility(sTaskProgressSuspendeds[i], View.GONE);
 				views.setViewVisibility(sTaskProgressWaitings[i], View.GONE);
 				views.setViewVisibility(sTaskProgressRunnings[i], View.VISIBLE);
-				views.setProgressBar(sTaskProgressRunnings[i], 1000, item.progInd, false);
+				views.setProgressBar(sTaskProgressRunnings[i], 1000, item.taskInfo.progInd, false);
 				break;
 			default:
 				views.setViewVisibility(sTaskProgressFinisheds[i], View.GONE);
 				views.setViewVisibility(sTaskProgressSuspendeds[i], View.GONE);
 				views.setViewVisibility(sTaskProgressRunnings[i], View.GONE);
 				views.setViewVisibility(sTaskProgressWaitings[i], View.VISIBLE);
-				views.setProgressBar(sTaskProgressWaitings[i], 1000, item.progInd, false);
-				if (item.stateControl == TaskInfo.PREEMPTED)  {
+				views.setProgressBar(sTaskProgressWaitings[i], 1000, item.taskInfo.progInd, false);
+				if (item.taskInfo.stateControl == TaskInfo.PREEMPTED)  {
 					// Task already started - set secondary progress to 100
 					// The background of progress-bar will be yellow
 					views.setInt(sTaskProgressWaitings[i], "setSecondaryProgress", 1000);

@@ -103,7 +103,7 @@ public class MonitorThread extends Thread {
 			while (!mDoQuit) {
 				ClientEvent event = clientMonitor.poll();
 				if (event == null)
-					break;
+					continue;
 				
 				/* update current state */
 				switch(event.type) {

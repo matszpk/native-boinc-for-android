@@ -45,8 +45,10 @@ public class ClientMonitor {
 	private Writer mOutput;
 	private boolean mConnected = false;
 	
-	private static final int MAX_BUFFER_SIZE = 1024;
+	private static final int MAX_BUFFER_SIZE = 4096;
 	
+	private int mReadBufferPos = 0;
+	private int mReadBufferReaded = 0;
 	private byte[] mReadBuffer = null;
 	private StringBuilder mReply;
 	
@@ -78,6 +80,8 @@ public class ClientMonitor {
 		
 		if (Logging.DEBUG) Log.d(TAG, "Connected with client monitor. Now authorizing.");
 		
+		mReadBufferPos = 0;
+		mReadBufferReaded = 0;
 		mReadBuffer = new byte[MAX_BUFFER_SIZE];
 		mReply = new StringBuilder();
 		mConnected = true;
@@ -142,21 +146,53 @@ public class ClientMonitor {
 	
 	public ClientEvent poll() throws IOException {
 		mReply.setLength(0);
-		/* reading reply */
-		while (true) {
-			int readed = mInput.read(mReadBuffer);
-			if (readed == -1) {
-				break;
+		
+		if (mReadBufferPos < mReadBufferReaded) {
+			int readPos = mReadBufferPos;
+			for (;readPos < mReadBufferReaded; readPos++)
+				if (mReadBuffer[readPos] == '\003')
+					break;
+			if (readPos != mReadBufferReaded) { // if found
+				/* parse reply */
+				mReply.append(new String(mReadBuffer, mReadBufferPos, readPos-mReadBufferPos));
+				mReadBufferPos = readPos+1;
+				return ClientEventParser.parse(mReply.toString());
+			} else {
+				// shift rest of content
+				System.arraycopy(mReadBuffer, mReadBufferPos, mReadBuffer, 0, mReadBufferReaded-mReadBufferPos);
+				mReadBufferReaded -= mReadBufferPos;
+				mReadBufferPos = 0;
 			}
-			/* if last chunk */
-			mReply.append(new String(mReadBuffer, 0, readed));
-			if (mReadBuffer[readed-1] == '\003') {
-				mReply.setLength(mReply.length()-1);
-				break;
-			}
+		} else { // if out of buffer
+			mReadBufferPos = 0;
+			mReadBufferReaded = 0;
 		}
 		
-		/* parse reply */
-		return ClientEventParser.parse(mReply.toString());
+		/* reading reply */
+		while (true) {
+			int readed = mInput.read(mReadBuffer, mReadBufferReaded, MAX_BUFFER_SIZE-mReadBufferReaded);
+			if (readed != -1) {
+				/* if last chunk */
+				mReadBufferReaded += readed;
+			} else // continue reading
+				continue;
+			
+			int readPos = mReadBufferPos;
+			for (;readPos < mReadBufferReaded; readPos++)
+				if (mReadBuffer[readPos] == '\003')
+					break;
+			if (readPos != mReadBufferReaded) {
+				/* parse reply */
+				mReply.append(new String(mReadBuffer, mReadBufferPos, readPos-mReadBufferPos));
+				mReadBufferPos = readPos+1;
+				return ClientEventParser.parse(mReply.toString());
+			} else if (mReadBufferReaded == MAX_BUFFER_SIZE) { // not handled (longer than 4 kBytes)
+				mReadBufferPos = 0;
+				mReadBufferReaded = 0;
+				return null;
+			} else { // if not found and not buffer overflow: do continue reading
+				mReadBufferPos = mReadBufferReaded;
+			}
+		}
 	}
 }

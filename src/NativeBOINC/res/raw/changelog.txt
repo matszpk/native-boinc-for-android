@@ -1,3 +1,8 @@
+Version 0.3.6.1 (alpha) (2012-03-29)
+- add task info after clicking on task (large widget).  
+- different styles for standalone dialogs (for <3.0 and >3.0)
+- fixed client monitor bugs (problem with reading)
+
 Version 0.3.6 (alpha) (2012-03-27)
 - added update from SDCard
 - fixed installer bugs

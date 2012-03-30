@@ -220,6 +220,7 @@
 	<string name="localPrefMemoryWhenInIdle">% when device is in idle</string>
 	<string name="localPrefCheckpointToDisk">Checkpoint to disk at most every</string>
 	<string name="seconds">sec</string>
+	<string name="localPrefWrong">Wrong value!</string>
 	<string name="localPrefLeaveApplications">Leave applications in memory while suspended</string>
 	<string name="applyDefault">Apply default</string>
 

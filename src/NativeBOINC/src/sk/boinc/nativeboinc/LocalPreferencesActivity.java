@@ -28,6 +28,7 @@ import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.StandardDialogs;
 import edu.berkeley.boinc.lite.GlobalPreferences;
+import edu.berkeley.boinc.lite.Md5;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.Editable;
@@ -95,6 +96,8 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		}
 	}
 	
+	private String mWrongText;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -107,6 +110,8 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.local_prefs);
+		
+		mWrongText = getString(R.string.localPrefWrong);
 		
 		TabHost tabHost = (TabHost)findViewById(android.R.id.tabhost);
 		
@@ -193,7 +198,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 			
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				setApplyButtonState();
+				checkPreferences();
 			}
 			
 			@Override
@@ -304,7 +309,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	}
 	
 	
-	private void setApplyButtonState() {
+	private void checkPreferences() {
 		try {
 			
 			double idle_time_to_run = Double.parseDouble(mComputeIdleFor.getText().toString());
@@ -315,7 +320,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 			double max_ncpus_pct = Double.parseDouble(mUseAtMostCPUs.getText().toString());
 			double cpu_usage_limit = Double.parseDouble(mUseAtMostCPUTime.getText().toString());
 			double battery_level_nl = Double.parseDouble(mBatteryLevelNL.getText().toString());
-			double battery_temp_lt = Double.parseDouble(mBatteryTempLT.getText().toString());
+			double batt_temp_lt = Double.parseDouble(mBatteryTempLT.getText().toString());
 			
 			double max_bytes_sec_down = Double.parseDouble(mMaxDownloadRate.getText().toString());
 			double max_bytes_sec_up = Double.parseDouble(mMaxUploadRate.getText().toString());
@@ -334,23 +339,125 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 			double ram_max_used_idle_frac = Double.parseDouble(
 					mUseAtMostMemoryInIdle.getText().toString());
 			
-			if (idle_time_to_run < 0.0 || suspend_cpu_usage > 100.0 || suspend_cpu_usage < 0.0 ||
-					battery_level_nl < 0.0 || battery_level_nl > 100.0 || battery_temp_lt >= 300.0 ||
-					cpu_scheduling_period_minutes < 0.0 || max_ncpus_pct > 100.0 || max_ncpus_pct < 0.0 ||
-					cpu_usage_limit > 100.0 || cpu_usage_limit < 0.0 ||
-					max_bytes_sec_down < 0.0 || max_bytes_sec_up < 0.0 || daily_xfer_limit_mb < 0.0 ||
-					daily_xfer_period_days < 0 || work_buf_min_days < 0.0 || work_buf_addit_days < 0.0 || 
-					disk_max_used_gb < 0.0 || disk_max_used_pct > 100.0 || disk_max_used_pct < 0.0 ||
-					disk_min_free_gb < 0.0 || disk_interval < 0.0 ||
-					ram_max_used_busy_frac > 100.0 || ram_max_used_busy_frac < 0.0 ||
-					ram_max_used_idle_frac > 100.0 || ram_max_used_idle_frac < 0.0) {
-				/* if invalids values */
-				if (Logging.DEBUG) Log.d(TAG, "Set up 'apply' as disabled");
-				mApply.setEnabled(false);
-			} else {
-				if (Logging.DEBUG) Log.d(TAG, "Set up 'apply' as enabled");
-				mApply.setEnabled(true);
-			}
+			/* setup color */
+			boolean good = true;
+			if (idle_time_to_run < 0.0) {
+				mComputeIdleFor.setError(mWrongText);
+				good = false;
+			} else
+				mComputeIdleFor.setError(null);
+			
+			if (suspend_cpu_usage > 100.0 || suspend_cpu_usage < 0.0) {
+				mComputeUsageLessThan.setError(mWrongText);
+				good = false;
+			} else
+				mComputeUsageLessThan.setError(null);
+			
+			if (battery_level_nl < 0.0 || battery_level_nl > 100.0) {
+				mBatteryLevelNL.setError(mWrongText);
+				good = false;
+			} else
+				mBatteryLevelNL.setError(null);
+			
+			if (batt_temp_lt > 300.0) {
+				mBatteryTempLT.setError(mWrongText);
+				good = false;
+			} else
+				mBatteryTempLT.setError(null);
+			
+			if (cpu_scheduling_period_minutes < 0.0) {
+				mSwitchBetween.setError(mWrongText);
+				good = false;
+			} else
+				mSwitchBetween.setError(null);
+			
+			if (max_ncpus_pct > 100.0 || max_ncpus_pct < 0.0) {
+				mUseAtMostCPUs.setError(mWrongText);
+				good = false;
+			} else
+				mUseAtMostCPUs.setError(null);
+			
+			if (cpu_usage_limit > 100.0 || cpu_usage_limit < 0.0) {
+				mUseAtMostCPUTime.setError(mWrongText);
+				good =false;
+			} else
+				mUseAtMostCPUTime.setError(null);
+			
+			if (max_bytes_sec_down < 0.0) {
+				mMaxDownloadRate.setError(mWrongText);
+				good = false;
+			} else
+				mMaxDownloadRate.setError(null);
+			
+			if (max_bytes_sec_up < 0.0) {
+				mMaxUploadRate.setError(mWrongText);
+				good = false;
+			} else
+				mMaxUploadRate.setError(null);
+			
+			if (daily_xfer_limit_mb < 0.0) {
+				mTransferAtMost.setError(mWrongText);
+				good = false;
+			} else
+				mTransferAtMost.setError(null);
+			
+			if (daily_xfer_period_days < 0) {
+				mTransferPeriodDays.setError(mWrongText);
+				good = false;
+			} else
+				mTransferPeriodDays.setError(null);
+			
+			if (work_buf_min_days < 0.0) {
+				mConnectAboutEvery.setError(mWrongText);
+				good = false;
+			} else
+				mConnectAboutEvery.setError(null);
+			
+			if (work_buf_addit_days < 0.0) {
+				mAdditionalWorkBuffer.setError(mWrongText);
+				good = false;
+			} else
+				mAdditionalWorkBuffer.setError(null);
+			
+			if (disk_max_used_gb < 0.0) {
+				mUseAtMostDiskSpace.setError(mWrongText);
+				good = false;
+			} else
+				mUseAtMostDiskSpace.setError(null);
+			
+			if (disk_max_used_pct > 100.0 || disk_max_used_pct < 0.0) {
+				mUseAtMostTotalDisk.setError(mWrongText);
+				good = false;
+			} else
+				mUseAtMostTotalDisk.setError(null);
+			
+			if (disk_min_free_gb < 0.0) {
+				mLeaveAtLeastDiskFree.setError(mWrongText);
+				good = false;
+			} else
+				mLeaveAtLeastDiskFree.setError(null);
+			
+			if (disk_interval < 0.0) {
+				mCheckpointToDisk.setError(mWrongText);
+				good = false;
+			} else
+				mCheckpointToDisk.setError(null);
+			
+			if (ram_max_used_busy_frac > 100.0 || ram_max_used_busy_frac < 0.0) {
+				mUseAtMostMemoryInUse.setError(mWrongText);
+				good = false;
+			} else
+				mUseAtMostMemoryInUse.setError(null);
+			
+			if (ram_max_used_idle_frac > 100.0 || ram_max_used_idle_frac < 0.0) {
+				mUseAtMostMemoryInIdle.setError(mWrongText);
+				good = false;
+			} else
+				mUseAtMostMemoryInIdle.setError(null);
+			
+			//	/* if invalids values */
+			if (Logging.DEBUG) Log.d(TAG, "Set up 'apply' as enabled:"+good);
+			mApply.setEnabled(good);
 		} catch(NumberFormatException ex) {
 			if (Logging.DEBUG) Log.d(TAG, "Cant parse numbers");
 			mApply.setEnabled(false);
@@ -388,6 +495,8 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		mUseAtMostMemoryInIdle.setText(Double.toString(globalPrefs.ram_max_used_idle_frac));
 		mUseAtMostMemoryInUse.setText(Double.toString(globalPrefs.ram_max_used_busy_frac));
 		mLeaveApplications.setChecked(globalPrefs.leave_apps_in_memory);
+		
+		checkPreferences();
 	}
 
 	private void doApplyPreferences() {

@@ -281,7 +281,7 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 			
 			return new AlertDialog.Builder(this)
 				.setIcon(android.R.drawable.ic_input_get)
-				.setTitle(R.string.projectUrl)
+				.setTitle(R.string.hostname)
 				.setView(view)
 				.setPositiveButton(R.string.ok, new Dialog.OnClickListener() {
 					@Override
@@ -300,7 +300,7 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 			
 			return new AlertDialog.Builder(this)
 				.setIcon(android.R.drawable.ic_input_get)
-				.setTitle(R.string.projectUrl)
+				.setTitle(R.string.accessPassword)
 				.setView(view)
 				.setPositiveButton(R.string.ok, new Dialog.OnClickListener() {
 					@Override
@@ -339,13 +339,7 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 		}
 		case DIALOG_CHANGE_PASSWORD: {
 			EditText edit = (EditText)dialog.findViewById(android.R.id.edit);
-			
-			String password = "";
-			try {
-				password = NativeBoincUtils.getAccessPassword(this);
-			} catch(IOException ex) { }
-			
-			edit.setText(password);
+			edit.setText("");
 			break;
 		}
 		case DIALOG_RESTART_PROGRESS:
@@ -454,9 +448,7 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 			
 			if (Logging.DEBUG) Log.d(TAG, "Set to restart");
 			mDoRestart = DO_RESTART;
-		} catch(IOException ex) {
-			
-		}
+		} catch(IOException ex) { }
 	}
 	
 	private void changePassword(String password) {
@@ -464,8 +456,6 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 			NativeBoincUtils.setAccessPassword(this, password);
 			if (Logging.DEBUG) Log.d(TAG, "Set to restart");
 			mDoRestart = DO_RESTART;
-		} catch(IOException ex) {
-			
-		}
+		} catch(IOException ex) { }
 	}
 }

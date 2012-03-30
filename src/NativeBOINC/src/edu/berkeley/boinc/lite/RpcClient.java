@@ -1047,7 +1047,7 @@ public class RpcClient {
 			mRequest.append(globalPrefs.daily_xfer_period_days);
 			mRequest.append("</daily_xfer_period_days>\n  <run_if_battery_nl_than>");
 			mRequest.append(globalPrefs.run_if_battery_nl_than);
-			mRequest.append("<run_if_battery_nl_than>\n  <run_if_temp_lt_than>");
+			mRequest.append("</run_if_battery_nl_than>\n  <run_if_temp_lt_than>");
 			mRequest.append(globalPrefs.run_if_temp_lt_than);
 			mRequest.append("</run_if_temp_lt_than>\n</global_preferences>\n</set_global_prefs_override>\n");
 		

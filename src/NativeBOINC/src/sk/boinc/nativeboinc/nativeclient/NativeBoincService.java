@@ -670,6 +670,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 	 * @return
 	 */
 	public void restartClient() {
+		if (Logging.DEBUG) Log.d(TAG, "Restarting client");
 		if (mNativeBoincThread == null) {
 			// normal start
 			startClient(false); 

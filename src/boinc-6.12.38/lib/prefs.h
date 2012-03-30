@@ -69,7 +69,7 @@ struct GLOBAL_PREFS_MASK {
     bool daily_xfer_limit_mb;
     bool daily_xfer_period_days;
     bool run_if_battery_nl_than; // not lower than
-    double run_if_temp_lt_than;
+    bool run_if_temp_lt_than;
 
     GLOBAL_PREFS_MASK();
     void clear();

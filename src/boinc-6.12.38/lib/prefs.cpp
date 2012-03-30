@@ -550,14 +550,14 @@ int GLOBAL_PREFS::parse_override(
             continue;
         }
         if (xp.parse_double(tag, "run_if_battery_nl_than", dtemp)) {
-            if (dtemp >= 0) {
+            if (dtemp > 0.0) {
                 run_if_battery_nl_than = dtemp;
                 mask.run_if_battery_nl_than = true;
             }
             continue;
         }
         if (xp.parse_double(tag, "run_if_temp_lt_than", dtemp)) {
-            if (dtemp >= 0) {
+            if (dtemp < BATT_TEMP_NO_LEVEL) {
                 run_if_temp_lt_than = dtemp;
                 mask.run_if_temp_lt_than = true;
             }

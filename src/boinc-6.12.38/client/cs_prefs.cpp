@@ -127,7 +127,7 @@ int CLIENT_STATE::check_suspend_processing() {
                 return SUSPEND_REASON_BATTERIES;
             }
         
-        if (global_prefs.run_if_temp_lt_than>BATT_TEMP_NO_LEVEL &&
+        if (global_prefs.run_if_temp_lt_than<BATT_TEMP_NO_LEVEL &&
             host_info.host_battery_temp() >= global_prefs.run_if_temp_lt_than
         ) {
             return SUSPEND_REASON_BATTERIES;
@@ -451,6 +451,9 @@ void CLIENT_STATE::read_global_prefs() {
         XML_PARSER xp(&mf);
         global_prefs.parse_override(xp, "", found_venue, mask);
         msg_printf(NULL, MSG_INFO, "Reading preferences override file");
+        msg_printf(NULL, MSG_INFO, "nonstandard:%f,%f",global_prefs.run_if_battery_nl_than,
+            global_prefs.run_if_temp_lt_than
+        );
         fclose(f);
     }
 

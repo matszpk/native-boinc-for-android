@@ -887,9 +887,9 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 				mSelectedClient = null;
 			}
 			else {
-				if (Logging.DEBUG) Log.d(TAG, "Selected new client: " + mSelectedClient.getNickname() +
+				/*if (Logging.DEBUG) Log.d(TAG, "Selected new client: " + mSelectedClient.getNickname() +
 						", while already connected to: " + mConnectedClient.getNickname() +
-						", disconnecting it first");
+						", disconnecting it first");*/
 				boincDisconnect();
 				// The boincConnect() will be triggered after the clientDisconnected() notification
 			}

@@ -40,7 +40,7 @@
 		<RelativeLayout	android:id="@+id/projectShare"
 			android:layout_marginTop="12dip"
 			android:layout_marginRight="6dip"
-			android:layout_width="100dip"
+			android:layout_width="150dip"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true">
 			<ProgressBar

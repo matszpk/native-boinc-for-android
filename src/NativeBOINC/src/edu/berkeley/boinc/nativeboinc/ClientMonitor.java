@@ -157,7 +157,7 @@ public class ClientMonitor {
 				mReply.append(new String(mReadBuffer, mReadBufferPos, readPos-mReadBufferPos));
 				mReadBufferPos = readPos+1;
 				return ClientEventParser.parse(mReply.toString());
-			} else {
+			} else if (mReadBufferPos != 0) {
 				// shift rest of content
 				System.arraycopy(mReadBuffer, mReadBufferPos, mReadBuffer, 0, mReadBufferReaded-mReadBufferPos);
 				mReadBufferReaded -= mReadBufferPos;
@@ -174,8 +174,8 @@ public class ClientMonitor {
 			if (readed != -1) {
 				/* if last chunk */
 				mReadBufferReaded += readed;
-			} else // continue reading
-				continue;
+			} else // break reading
+				return null;
 			
 			int readPos = mReadBufferPos;
 			for (;readPos < mReadBufferReaded; readPos++)

@@ -201,7 +201,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		
 		changeIsHandlerWorking(true);
 		
-		if (Logging.DEBUG) Log.d(TAG, "Opening connection to " + client.getNickname());
+		if (Logging.DEBUG) Log.d(TAG, "Opening connection to " + ((client != null) ? client.getNickname() : "(null)"));
 		notifyProgress(ClientManageReceiver.PROGRESS_CONNECTING);
 		mRpcClient = new RpcClient(mNetStats);
 		if (!mRpcClient.open(client.getAddress(), client.getPort())) {

@@ -166,8 +166,8 @@ public class ConnectionManagerService extends Service implements
 	public void onConnectivityLost() {
 		if (mClientBridge != null) {
 			// We are interested in this event only when connected
-			if (Logging.DEBUG) Log.d(TAG, "onConnectivityLost() while connected to host " +
-			mClientBridge.getClientId().getNickname());
+			/*if (Logging.DEBUG) Log.d(TAG, "onConnectivityLost() while connected to host " +
+			mClientBridge.getClientId().getNickname());*/
 			// TODO Handle connectivity loss
 		}
 	}
@@ -186,8 +186,8 @@ public class ConnectionManagerService extends Service implements
 	public void onConnectivityChangedType(int connectivityType) {
 		if (mClientBridge != null) {
 			// We are interested in this event only when connected
-			if (Logging.DEBUG) Log.d(TAG, "onConnectivityChangedType() while connected to host " + 
-			mClientBridge.getClientId().getNickname() + ", new connectivity type: " + connectivityType);
+			/*if (Logging.DEBUG) Log.d(TAG, "onConnectivityChangedType() while connected to host " + 
+			mClientBridge.getClientId().getNickname() + ", new connectivity type: " + connectivityType);*/
 			// TODO Handle connectivity type change
 		}
 	}

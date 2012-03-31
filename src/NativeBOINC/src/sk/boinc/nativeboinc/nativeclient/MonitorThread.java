@@ -136,7 +136,7 @@ public class MonitorThread extends Thread {
 	
 	public void quitFromThread() {
 		interrupt();
-		mDoQuit = false;
+		mDoQuit = true;
 	}
 	
 	private synchronized void notifyMonitorEvent(final ClientEvent event) {

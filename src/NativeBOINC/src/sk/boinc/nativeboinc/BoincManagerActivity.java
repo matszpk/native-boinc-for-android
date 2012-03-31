@@ -1166,10 +1166,10 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 				mSelectedClient = null;
 			}
 			else {
-				if (Logging.DEBUG) Log.d(TAG, "Selected new client: " +
+				/*if (Logging.DEBUG) Log.d(TAG, "Selected new client: " +
 						mSelectedClient.getNickname() +
 						", while already connected to: " + mConnectedClient.getNickname() +
-						", disconnecting it first");
+						", disconnecting it first");*/
 				boincDisconnect();
 				// The boincConnect() will be triggered after the clientDisconnected() notification
 			}

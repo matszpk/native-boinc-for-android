@@ -1011,7 +1011,15 @@ public class RpcClient {
 			mRequest.append(globalPrefs.idle_time_to_run);
 			mRequest.append("</idle_time_to_run>\n  <suspend_cpu_usage>");
 			mRequest.append(globalPrefs.suspend_cpu_usage);
-			mRequest.append("</suspend_cpu_usage>\n  <max_ncpus_pct>");
+			mRequest.append("</suspend_cpu_usage>\n  <start_hour>");
+			mRequest.append(globalPrefs.cpu_times.start_hour);
+			mRequest.append("</start_hour>\n  <end_hour>");
+			mRequest.append(globalPrefs.cpu_times.end_hour);
+			mRequest.append("</end_hour>\n  <net_start_hour>");
+			mRequest.append(globalPrefs.net_times.start_hour);
+			mRequest.append("</net_start_hour>\n  <net_end_hour>");
+			mRequest.append(globalPrefs.net_times.end_hour);
+			mRequest.append("</net_end_hour>\n  <max_ncpus_pct>");
 			mRequest.append(globalPrefs.max_ncpus_pct);
 			mRequest.append("</max_ncpus_pct>\n  <leave_apps_in_memory>");
 			mRequest.append(globalPrefs.leave_apps_in_memory ? 1 : 0);
@@ -1049,8 +1057,36 @@ public class RpcClient {
 			mRequest.append(globalPrefs.run_if_battery_nl_than);
 			mRequest.append("</run_if_battery_nl_than>\n  <run_if_temp_lt_than>");
 			mRequest.append(globalPrefs.run_if_temp_lt_than);
-			mRequest.append("</run_if_temp_lt_than>\n</global_preferences>\n</set_global_prefs_override>\n");
-		
+			mRequest.append("</run_if_temp_lt_than>\n");
+			
+			// write days prefs
+			TimePreferences.TimeSpan[] weekPrefs = globalPrefs.cpu_times.week_prefs;
+			for (int i = 0; i < weekPrefs.length; i++) {
+				TimePreferences.TimeSpan timeSpan = weekPrefs[i];
+				if (timeSpan == null) continue;
+				mRequest.append("  <day_prefs>\n    <day_of_week>");
+				mRequest.append(i);
+				mRequest.append("</day_of_week>\n    <start_hour>");
+				mRequest.append(timeSpan.start_hour);
+				mRequest.append("</start_hour>\n    <end_hour>");
+				mRequest.append(timeSpan.end_hour);
+				mRequest.append("</end_hour>\n  </day_prefs>\n");
+			}
+			
+			weekPrefs = globalPrefs.net_times.week_prefs;
+			for (int i = 0; i < weekPrefs.length; i++) {
+				TimePreferences.TimeSpan timeSpan = weekPrefs[i];
+				if (timeSpan == null) continue;
+				mRequest.append("  <day_prefs>\n    <day_of_week>");
+				mRequest.append(i);
+				mRequest.append("</day_of_week>\n    <net_start_hour>");
+				mRequest.append(timeSpan.start_hour);
+				mRequest.append("</net_start_hour>\n    <net_end_hour>");
+				mRequest.append(timeSpan.end_hour);
+				mRequest.append("</net_end_hour>\n  </day_prefs>\n");
+			}
+			
+			mRequest.append("</global_preferences>\n</set_global_prefs_override>\n");
 			sendRequest(mRequest.toString());
 			receiveReply();
 			return true;

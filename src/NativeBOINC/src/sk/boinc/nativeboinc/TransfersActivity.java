@@ -90,10 +90,9 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 	private boolean mShowDetailsDialog = false;
 	private boolean mShowWarnAbortDialog = false;
 	
-	private static final long UPDATES_ON_RESUMES_PERIOD = 4000; 
-	
 	private boolean mUpdateTransfersInProgress = false;
 	private long mLastUpdateTime = -1;
+	private boolean mAfterRecreating = false;
 	
 	private static class SavedState {
 		private final ArrayList<TransferInfo> transfers;
@@ -309,6 +308,7 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 				// We restored transfers - view will be updated on resume (before we will get refresh)
 				mViewDirty = true;
 			}
+			mAfterRecreating = true;
 		}
 	}
 
@@ -325,14 +325,22 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 				if (transfers != null) // if already updated
 					updatedTransfers(transfers);
 				
-				mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TRANSFERS);
+				mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TRANSFERS, -1);
 			} else { // if after update
-				if (Logging.DEBUG) Log.d(TAG, "do update transfers");
-				if (SystemClock.elapsedRealtime()-mLastUpdateTime >= UPDATES_ON_RESUMES_PERIOD)
-					// if later than 4 seconds
-					mConnectionManager.updateTransfers();
-				else // only add auto updates
-					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TRANSFERS);
+				int autoRefresh = mConnectionManager.getAutoRefresh();
+				
+				if (autoRefresh != -1) {
+					long period = SystemClock.elapsedRealtime()-mLastUpdateTime;
+					if (period >= autoRefresh*1000) {
+						// if later than 4 seconds
+						if (Logging.DEBUG) Log.d(TAG, "do update transfers");
+						mConnectionManager.updateTransfers();
+					} else { // only add auto updates
+						if (Logging.DEBUG) Log.d(TAG, "do add to schedule update transfers");
+						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TRANSFERS,
+								(int)(autoRefresh*1000-period));
+					}
+				}
 			}
 		}
 		mViewUpdatesAllowed = true;
@@ -568,13 +576,21 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 			if (mRequestUpdates) {
 				// Request fresh data
 				mConnectionManager.updateTransfers();
-				if (!mUpdateTransfersInProgress) {
+				if (!mUpdateTransfersInProgress && !mAfterRecreating) {
 					if (Logging.DEBUG) Log.d(TAG, "do update transfers");
 					mUpdateTransfersInProgress = true;
 					mConnectionManager.updateTransfers();
 				} else {
 					if (Logging.DEBUG) Log.d(TAG, "do add to scheduled updates");
-					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TRANSFERS);
+					int autoRefresh = mConnectionManager.getAutoRefresh();
+					
+					if (autoRefresh != -1) {
+						long period = SystemClock.elapsedRealtime()-mLastUpdateTime;
+						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TRANSFERS,
+								(int)(autoRefresh*1000-period));
+					} else
+						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TRANSFERS, -1);
+					mAfterRecreating = false;
 				}
 			}
 		}
@@ -589,12 +605,14 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 		updateSelectedTransfers();
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
+		mAfterRecreating = false;
 	}
 	
 	@Override
 	public boolean clientError(int err_num, String message) {
 		// do not consume
 		mUpdateTransfersInProgress = false;
+		mAfterRecreating = false;
 		return false;
 	}
 

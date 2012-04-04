@@ -48,7 +48,6 @@ public class TaskInfoCreator {
 		sb.append((appVersion%100)/10);
 		sb.append(appVersion%10);
 		ti.application = sb.toString();
-		ti.pid = result.pid;
 		ti.rsc_fpops_est = formatter.formatGFlops(workunit.rsc_fpops_est);
 		ti.rsc_memory_bound = formatter.formatBinSize((long)workunit.rsc_memory_bound);
 		update(ti, result, formatter);
@@ -59,6 +58,7 @@ public class TaskInfoCreator {
 		Resources resources = formatter.getResources();
 		ti.state = formatTaskState(result.state, result.active_task_state, resources);
 		ti.stateControl = 0;
+		ti.pid = result.pid;
 		if (result.project_suspended_via_gui) {
 			ti.stateControl = TaskInfo.SUSPENDED;
 			ti.state = resources.getString(R.string.projectSuspendedByUser);

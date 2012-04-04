@@ -2,6 +2,26 @@
 NativeBOINC 0.4 TODO
 ---------------------------------
 
+Na Teraz:
+
+  * usunąć problemy z brakiem stabilności
+/ * poprawić layout Local preferences
+/ * dodać opcję ustawiania dni w Local preferences
+  * przetestować Notices tab
+  * przetestować Transfers tab
+  * przetestować instalacje (także podczas działania)
+/ * poprawić refresh auto refresh (po resume)
+  * przetestować obsługę zmiany orientacji
+  * poprawić obsługę ponownego łączenia po restarcie (np.: po zmianie w native client)
+  * przetestować opcję update from sdcard
+  * przetestować opcje z Preferences
+/ * wprowadzić listę do large widget (android 3.0) (są problemy, zrezygnowano)
+  * poprawić obsługę błędów w instalatorze (install activities)
+  * rozszerzyc tekst na koncowym ekranie instalatora
+/ * poprawic menu w main screen (Android 4.0) (częsciowo)
+
+---------------------------------------------------------------
+
 / * wprowadzić proces instalacji w oddzielnym wątku z komunikacją po stronie UI
 / * zrobić obsługę zmiany orientacji dla wszystkich aktywności (poza ScreenLock i ShutddownActivity)
     (zrobione dla instalatora, ManagerActivity, EditBAMActivity)
@@ -11,7 +31,7 @@ NativeBOINC 0.4 TODO
     mechanizm instalacji/update'a aplikacji w kliencie)
     
 / * dodać powiadomienia (o właczeniu/wyłączeniu klienta)
-  * usunąć problem nie łączenia sie z klientem przy wybieraniu managera z widgeta
+? * usunąć problem nie łączenia sie z klientem przy wybieraniu managera z widgeta \
 / * przewijanie uwag w pierwszym kroku instalatora
 / * dodać info o oryginalnym AndroBOINC
 / * dodać opcje zmiany listy hostów z którymi może się połączyć klient
@@ -29,14 +49,14 @@ NativeBOINC 0.4 TODO
     niespodziewanym zamknięciu, zamknięciu przez z innego urzadzenia) w ScreenLockActivity i 
     jako notification (notification)
 / * zrobic automatyczną instalacje aplikacji po update z BAM'a
-  *- i dodać powiadomienie o tym.
+/ *- i dodać powiadomienie o tym.
 / * poprawić wygląd widgeta
 / * dodać opcje do local preferences
 (nie przetestowane jeszcze i w klience tylko)
 /  * dodać do natywnego klienta zatrzymywania zadań gdy bateria ma mniej niż X% naladowania
 /  - dodac do opcji local preferences (wazne)
     * Developer tools *
-  * dać mozliwość instalacji róznych wersji (opcja update apps) (na póżniej)
+/ * dać mozliwość instalacji róznych wersji (opcja update apps) (na póżniej)
 (na razie jest tylko w klience)
 / * dodac opcje debugowania natywnego klienta i aplikacji (logi itp).
 / * dodac opcje kopiowania katalogu na sdcard
@@ -51,8 +71,8 @@ NativeBOINC 0.4 TODO
 * dostosować do Android 3.0 (opcjonalnie) i 4.0.
 
 Tablety:
-* zrobić layout głównego ekranu dla tabletów (splitview)
-* zrobic layout dla Preferences i ManageClient (wygląd jak w Android 3.0)
+* zrobić layout głównego ekranu dla tabletów (splitview) (nie uzyteczne)
+* zrobic layout dla Preferences i ManageClient (wygląd jak w Android 3.0) (nie potrzebne?)
 / * dodać nowy widget (większy z podglądem zadań)
 * zrobić ekran instalatora
 * .....
@@ -61,4 +81,4 @@ następne wersje:
 * dodać obsługę screensavera.
 
 client: bugs
-* usuń problem z pierwszymi WU po instalacji projektu. (text busy).
+* usuń problem z pierwszymi WU po instalacji projektu. (text busy). (częsciowo usunięty)

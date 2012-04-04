@@ -179,7 +179,7 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 		}
 	}
 
-	public void scheduleAutomaticRefresh(final ClientReceiver callback, final int requestType) {
+	public void scheduleAutomaticRefresh(final ClientReceiver callback, final int requestType, final int period) {
 		if (mAutoRefresh == 0) return;
 		UpdateRequest request = new UpdateRequest(callback, requestType);
 		if (mScheduledUpdates.contains(request)) {
@@ -188,7 +188,8 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 		}
 		mScheduledUpdates.add(request);
 		
-		mHandler.sendMessageDelayed(mHandler.obtainMessage(RUN_UPDATE, request), (mAutoRefresh * 1000));
+		int autoRefresh = (period != -1) ? period : (mAutoRefresh*1000);
+		mHandler.sendMessageDelayed(mHandler.obtainMessage(RUN_UPDATE, request), autoRefresh);
 		if (Logging.DEBUG) Log.d(TAG, "Scheduled automatic refresh for (" + request.callback.toString() + "," + request.requestType + ")");
 	}
 
@@ -232,5 +233,12 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 				break;
 			}
 		}
+	}
+	
+	/**
+	 * returns auto refresh period time
+	 */
+	public int getAutoRefresh() {
+		return mAutoRefresh;
 	}
 }

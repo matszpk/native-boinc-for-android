@@ -26,7 +26,6 @@
 	<string name="service_desc">Enables participating to BOINC projects on Android devices</string>
 	<string name="install_service_desc">Native Client and BOINC application Installer service </string>
 	<string name="nboinc_service_desc">Native BOINC client service</string>
-	<string name="widget_service_desc">Native BOINC Widget service</string>
 
 	<!-- widget names -->
 	<string name="widget2x1">NativeBOINC small</string>
@@ -207,14 +206,12 @@
 	<string name="days">days</string>
 	<string name="localPrefSkipImageVerify">Skip image verification</string>
 	
-	<string name="localPrefDiskUsage">Disk</string>
+	<string name="localPrefDiskRAMUsage">Disk &amp; RAM</string>
 	
 	<string name="localPrefLeaveAtLeast">Leave at least</string>
 	<string name="localPrefGBDisk">GB disk space</string>
 	<string name="localPrefGBDiskFree">GB disk space free</string>
 	<string name="localPrefPercentTotalDisk">% total disk free</string>
-	
-	<string name="localPrefMemoryUsage">Memory</string>
 	
 	<string name="localPrefMemoryWhenInUse">% when device is in use</string>
 	<string name="localPrefMemoryWhenInIdle">% when device is in idle</string>
@@ -224,6 +221,21 @@
 	<string name="localPrefLeaveApplications">Leave applications in memory while suspended</string>
 	<string name="applyDefault">Apply default</string>
 
+	<!-- time preferences -->
+	<string name="cpuTimePrefTitle">Computing time preferences</string>
+	<string name="netTimePrefTitle">Network time preferences</string>
+	
+	<string name="timePrefEveryDay">Every day of week</string>
+	<string name="monday">Monday</string>
+	<string name="tuesday">Tuesday</string>
+	<string name="wednesday">Wednesday</string>
+	<string name="thursday">Thursday</string>
+	<string name="friday">Friday</string>
+	<string name="saturday">Saturday</string>
+	<string name="sunday">Sunday</string>
+	
+	<string name="setHour">Set hour</string>
+	
 	<!-- Network status -->
 	<string name="networkUnavailable">Network connection unavailable.</string>
 

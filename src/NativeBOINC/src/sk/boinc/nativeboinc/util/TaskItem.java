@@ -3,7 +3,9 @@
  */
 package sk.boinc.nativeboinc.util;
 
-import sk.boinc.nativeboinc.R;
+import java.io.BufferedReader;
+import java.io.StringReader;
+
 import sk.boinc.nativeboinc.bridge.Formatter;
 import sk.boinc.nativeboinc.bridge.TaskInfoCreator;
 import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
@@ -12,7 +14,6 @@ import edu.berkeley.boinc.lite.App;
 import edu.berkeley.boinc.lite.Project;
 import edu.berkeley.boinc.lite.Result;
 import edu.berkeley.boinc.lite.Workunit;
-import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
 

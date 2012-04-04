@@ -35,6 +35,11 @@ public class GlobalPreferencesParser extends BaseParser {
 	
 	private GlobalPreferences mPreferences = null;
 	
+	private boolean mInsideDayPrefs = false;
+	private int mDayOfWeek = 0;
+	private TimePreferences.TimeSpan mTempCpuTimeSpan = null;
+	private TimePreferences.TimeSpan mTempNetTimeSpan = null;
+	
 	public GlobalPreferences getGlobalPreferences() {
 		return mPreferences;
 	}
@@ -62,8 +67,11 @@ public class GlobalPreferencesParser extends BaseParser {
 				}
 			}
 			mPreferences = new GlobalPreferences();
-		}
-		else {
+		} else if (localName.equalsIgnoreCase("day_prefs")) {
+			if (mInsideDayPrefs) 
+				if (Logging.INFO) Log.i(TAG, "Dropping all <day_prefs>");
+			mInsideDayPrefs = true;
+		} else {
 			// Another element, hopefully primitive and not constructor
 			// (although unknown constructor does not hurt, because there will be primitive start anyway)
 			mElementStarted = true;
@@ -79,8 +87,38 @@ public class GlobalPreferencesParser extends BaseParser {
 				// we are inside <global_preferences>
 				if (localName.equalsIgnoreCase("global_preferences")) {
 					// Closing tag of <global_preferences> - nothing to do at the moment
-				}
-				else {
+				} else if (localName.equalsIgnoreCase("day_prefs")) {
+					// closing <day_prefs>
+					if (mDayOfWeek >= 0 && mDayOfWeek <= 6) {
+						mPreferences.cpu_times.week_prefs[mDayOfWeek] = mTempCpuTimeSpan;
+						mPreferences.net_times.week_prefs[mDayOfWeek] = mTempNetTimeSpan;
+					}
+					
+					mTempCpuTimeSpan = null;
+					mTempNetTimeSpan = null;
+					mInsideDayPrefs = false;
+				} else if (mInsideDayPrefs) {
+					trimEnd();
+					if (localName.equalsIgnoreCase("day_of_week")) {
+						mDayOfWeek = Integer.parseInt(mCurrentElement.toString());
+					} else if (localName.equalsIgnoreCase("start_hour")) {
+						if (mTempCpuTimeSpan == null)
+							mTempCpuTimeSpan = new TimePreferences.TimeSpan();
+						mTempCpuTimeSpan.start_hour = Double.parseDouble(mCurrentElement.toString());
+					} else if (localName.equalsIgnoreCase("end_hour")) {
+						if (mTempCpuTimeSpan == null)
+							mTempCpuTimeSpan = new TimePreferences.TimeSpan();
+						mTempCpuTimeSpan.end_hour = Double.parseDouble(mCurrentElement.toString());
+					} else if (localName.equalsIgnoreCase("net_start_hour")) {
+						if (mTempNetTimeSpan == null)
+							mTempNetTimeSpan = new TimePreferences.TimeSpan();
+						mTempNetTimeSpan.start_hour = Double.parseDouble(mCurrentElement.toString());
+					} else if (localName.equalsIgnoreCase("net_end_hour")) {
+						if (mTempNetTimeSpan == null)
+							mTempNetTimeSpan = new TimePreferences.TimeSpan();
+						mTempNetTimeSpan.end_hour = Double.parseDouble(mCurrentElement.toString());
+					}
+				} else {
 					// Not the closing tag - we decode possible inner tags
 					trimEnd();
 					if (localName.equalsIgnoreCase("run_on_batteries")) {
@@ -137,6 +175,14 @@ public class GlobalPreferencesParser extends BaseParser {
 						mPreferences.run_if_battery_nl_than = Double.parseDouble(mCurrentElement.toString());
 					} else if (localName.equalsIgnoreCase("run_if_temp_lt_than")) {
 						mPreferences.run_if_temp_lt_than = Double.parseDouble(mCurrentElement.toString());
+					} else if (localName.equalsIgnoreCase("start_hour")) {
+						mPreferences.cpu_times.start_hour = Double.parseDouble(mCurrentElement.toString());
+					} else if (localName.equalsIgnoreCase("end_hour")) {
+						mPreferences.cpu_times.end_hour = Double.parseDouble(mCurrentElement.toString());
+					} else if (localName.equalsIgnoreCase("net_start_hour")) {
+						mPreferences.net_times.start_hour = Double.parseDouble(mCurrentElement.toString());
+					} else if (localName.equalsIgnoreCase("net_end_hour")) {
+						mPreferences.net_times.end_hour = Double.parseDouble(mCurrentElement.toString());
 					}
 				}
 			}

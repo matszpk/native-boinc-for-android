@@ -24,35 +24,35 @@
 		android:id="@+id/menuStartUp"
 		android:icon="@android:drawable/ic_media_play"
 		android:title="@string/menuStartUp"
-		android:showAsAction="never"/>
+		android:showAsAction="always|withText"/>
 	<item
 		android:id="@+id/menuShutdown"
 		android:icon="@android:drawable/ic_media_pause"
-		android:showAsAction="ifRoom"
+		android:showAsAction="always|withText"
 		android:title="@string/menuShutdown"/>
 	<item
 		android:id="@+id/menuManage"
 		android:icon="@android:drawable/ic_menu_manage"
-		android:showAsAction="never"
+		android:showAsAction="always|withText"
 		android:title="@string/menuManage"/>
 	<item
 		android:id="@+id/menuPreferences"
 		android:icon="@android:drawable/ic_menu_preferences"
-		android:showAsAction="never|withText"
+		android:showAsAction="ifRoom|withText"
 		android:title="@string/menuPreferences"/>
 	<item
 		android:id="@+id/menuNativeClient"
 		android:icon="@drawable/ic_menu_boinc"
-		android:showAsAction="never"
+		android:showAsAction="ifRoom|withText"
 		android:title="@string/menuNativeClient"/>
 	<item
 		android:id="@+id/menuConnect"
 		android:icon="@drawable/ic_menu_goto"
-		android:showAsAction="never"
+		android:showAsAction="ifRoom|withText"
 		android:title="@string/menuConnect"/>
 	<item
 		android:id="@+id/menuDisconnect"
 		android:icon="@android:drawable/ic_menu_close_clear_cancel"
-		android:showAsAction="never"
+		android:showAsAction="ifRoom|withText"
 		android:title="@string/menuDisconnect"/>
 </menu>

@@ -444,6 +444,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		Parcelable[] taskItems = new Parcelable[tasks.size()];
 		for (int i = 0; i < taskItems.length; i++)
 			taskItems[i] = tasks.get(i);
+		
 		intent.putExtra(UPDATE_TASKS, taskItems);
 		
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent,
@@ -464,6 +465,5 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	@Override
 	public void onChangeRunnerIsWorking(boolean isWorking) {
 		// TODO Auto-generated method stub
-		
 	}
 }

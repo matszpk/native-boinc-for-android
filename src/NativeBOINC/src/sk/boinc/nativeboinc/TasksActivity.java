@@ -96,10 +96,9 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 	private boolean mShowWarnAbortDialog = false;
 	private TaskInfo mChoosenTask = null; 
 
-	private static final long UPDATES_ON_RESUMES_PERIOD = 4000; 
-	
 	private boolean mUpdateTasksInProgress = false;
 	private long mLastUpdateTime = -1;
+	private boolean mAfterRecreating = false;
 	
 	private StringBuilder mSb = new StringBuilder(SB_INIT_CAPACITY);
 
@@ -339,6 +338,7 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 				// We restored tasks - view will be updated on resume (before we will get refresh)
 				mViewDirty = true;
 			}
+			mAfterRecreating = true;
 		}
 	}
 
@@ -355,15 +355,21 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 				if (tasks != null) // if already updated
 					updatedTasks(tasks);
 				
-				mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TASKS);
+				mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TASKS, -1);
 			} else { // if after update
-				if (SystemClock.elapsedRealtime()-mLastUpdateTime >= UPDATES_ON_RESUMES_PERIOD) {
-					// if later than 4 seconds
-					if (Logging.DEBUG) Log.d(TAG, "do update tasks");
-					mConnectionManager.updateTasks();
-				} else { // only add auto updates
-					if (Logging.DEBUG) Log.d(TAG, "do add to schedule update tasks");
-					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TASKS);
+				int autoRefresh = mConnectionManager.getAutoRefresh();
+				
+				if (autoRefresh != -1) {
+					long period = SystemClock.elapsedRealtime()-mLastUpdateTime;
+					if (period >= autoRefresh*1000) {
+						// if later than 4 seconds
+						if (Logging.DEBUG) Log.d(TAG, "do update tasks");
+						mConnectionManager.updateTasks();
+					} else { // only add auto updates
+						if (Logging.DEBUG) Log.d(TAG, "do add to schedule update tasks");
+						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TASKS,
+								(int)(autoRefresh*1000-period));
+					}
 				}
 			}
 		}
@@ -613,13 +619,21 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 			if (Logging.DEBUG) Log.d(TAG, "Client is connected");
 			if (mRequestUpdates) {
 				// Request fresh data
-				if (!mUpdateTasksInProgress) {
+				if (!mUpdateTasksInProgress && !mAfterRecreating) {
 					if (Logging.DEBUG) Log.d(TAG, "do update tasks");
 					mUpdateTasksInProgress = true;
 					mConnectionManager.updateTasks();
 				} else {
 					if (Logging.DEBUG) Log.d(TAG, "do add to scheduled updates");
-					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TASKS);
+					int autoRefresh = mConnectionManager.getAutoRefresh();
+					
+					if (autoRefresh != -1) {
+						long period = SystemClock.elapsedRealtime()-mLastUpdateTime;
+						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TASKS,
+								(int)(autoRefresh*1000-period));
+					} else
+						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TASKS, -1);
+					mAfterRecreating = false;
 				}
 			}
 		}
@@ -634,12 +648,14 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 		updateSelectedTasks();
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
+		mAfterRecreating = false;
 	}
 	
 	@Override
 	public boolean clientError(int err_num, String message) {
 		// do not consume
 		mUpdateTasksInProgress = false;
+		mAfterRecreating = false;
 		return false;
 	}
 	

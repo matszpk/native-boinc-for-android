@@ -74,6 +74,7 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 	
 	private boolean mUpdateNoticesInProgress = false;
 	private long mLastUpdateTime = -1;
+	private boolean mAfterRecreating = false;
 	
 	private static class SavedState {
 		private final ArrayList<NoticeInfo> notices;
@@ -197,6 +198,7 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 				// We restored notices - view will be updated on resume (before we will get refresh)
 				mViewDirty = true;
 			}
+			mAfterRecreating = true;
 		}
 		ListView lv = getListView();
 		lv.setStackFromBottom(true);
@@ -235,14 +237,22 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 				if (notices != null) // if already updated
 					updatedNotices(notices);
 				
-				mConnectionManager.addToScheduledUpdates(this, AutoRefresh.NOTICES);
+				mConnectionManager.addToScheduledUpdates(this, AutoRefresh.NOTICES, -1);
 			} else { // if after update
-				if (Logging.DEBUG) Log.d(TAG, "do update notices");
-				if (SystemClock.elapsedRealtime()-mLastUpdateTime >= UPDATES_ON_RESUMES_PERIOD)
-					// if later than 4 seconds
-					mConnectionManager.updateNotices();
-				else // only add auto updates
-					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.NOTICES);
+				int autoRefresh = mConnectionManager.getAutoRefresh();
+				
+				if (autoRefresh != -1) {
+					long period = SystemClock.elapsedRealtime()-mLastUpdateTime;
+					if (period >= autoRefresh*1000) {
+						// if later than 4 seconds
+						if (Logging.DEBUG) Log.d(TAG, "do update notices");
+						mConnectionManager.updateNotices();
+					} else { // only add auto updates
+						if (Logging.DEBUG) Log.d(TAG, "do add to schedule update notices");
+						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.NOTICES,
+								(int)(autoRefresh*1000-period));
+					}
+				}
 			}
 		}
 		
@@ -298,6 +308,7 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 	public boolean clientError(int err_num, String message) {
 		// do not consume
 		mUpdateNoticesInProgress = false;
+		mAfterRecreating = false;
 		return false;
 	}
 
@@ -314,13 +325,21 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 			if (Logging.DEBUG) Log.d(TAG, "Client is connected");
 			if (mRequestUpdates) {
 				mConnectionManager.updateNotices();
-				if (!mUpdateNoticesInProgress) {
+				if (!mUpdateNoticesInProgress && !mAfterRecreating) {
 					if (Logging.DEBUG) Log.d(TAG, "do update notices");
 					mUpdateNoticesInProgress = true;
 					mConnectionManager.updateNotices();
 				} else {
 					if (Logging.DEBUG) Log.d(TAG, "do add to scheduled updates");
-					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.NOTICES);
+					int autoRefresh = mConnectionManager.getAutoRefresh();
+					
+					if (autoRefresh != -1) {
+						long period = SystemClock.elapsedRealtime()-mLastUpdateTime;
+						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.NOTICES,
+								(int)(autoRefresh*1000-period));
+					} else
+						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.NOTICES, -1);
+					mAfterRecreating = false;
 				}
 			}
 		}
@@ -334,6 +353,7 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 		mNotices.clear();
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
+		mAfterRecreating = false;
 	}
 
 	@Override

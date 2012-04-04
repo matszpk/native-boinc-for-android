@@ -227,7 +227,7 @@ public class ClientBridge implements ClientRequestHandler {
 					
 					boolean periodicAllowed = callback.updatedClientMode(modeInfo);
 					if (periodicAllowed)
-						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.CLIENT_MODE);
+						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.CLIENT_MODE, -1);
 				}
 			}
 		}
@@ -346,7 +346,7 @@ public class ClientBridge implements ClientRequestHandler {
 					
 					boolean periodicAllowed = callback.updatedProjects(projects);
 					if (periodicAllowed)
-						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.PROJECTS);
+						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.PROJECTS, -1);
 				}
 			}
 		}
@@ -363,7 +363,7 @@ public class ClientBridge implements ClientRequestHandler {
 					
 					boolean periodicAllowed = callback.updatedTasks(tasks);
 					if (periodicAllowed)
-						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.TASKS);
+						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.TASKS, -1);
 				}
 			}
 		}
@@ -380,7 +380,7 @@ public class ClientBridge implements ClientRequestHandler {
 					
 					boolean periodicAllowed = callback.updatedTransfers(transfers);
 					if (periodicAllowed)
-						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.TRANSFERS);
+						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.TRANSFERS, -1);
 				}
 			}
 		}
@@ -397,7 +397,7 @@ public class ClientBridge implements ClientRequestHandler {
 					
 					boolean periodicAllowed = callback.updatedMessages(messages);
 					if (periodicAllowed)
-						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.MESSAGES);
+						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.MESSAGES, -1);
 				}
 			}
 		}
@@ -414,7 +414,7 @@ public class ClientBridge implements ClientRequestHandler {
 					
 					boolean periodicAllowed = callback.updatedNotices(notices);
 					if (periodicAllowed)
-						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.MESSAGES);
+						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.MESSAGES, -1);
 				}
 			}
 		}
@@ -477,6 +477,12 @@ public class ClientBridge implements ClientRequestHandler {
 			throw new RuntimeException("Worker thread cannot start");
 		}
 		if (Logging.DEBUG) Log.d(TAG, "ClientClientBridgeWorkerThread started successfully");
+	}
+	
+	public int getAutoRefresh() {
+		if (mAutoRefresh != null)
+			return mAutoRefresh.getAutoRefresh();
+		return -1;
 	}
 
 	@Override
@@ -657,9 +663,9 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 	
 	@Override
-	public void addToScheduledUpdates(ClientReceiver callback, int refreshType) {
+	public void addToScheduledUpdates(ClientReceiver callback, int refreshType, int period) {
 		if (mRemoteClient == null) return; // not connected
-		mAutoRefresh.scheduleAutomaticRefresh(callback, refreshType);
+		mAutoRefresh.scheduleAutomaticRefresh(callback, refreshType, period);
 	}
 
 	@Override

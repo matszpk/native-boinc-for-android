@@ -72,10 +72,9 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 	private ArrayList<MessageInfo> mUnfilteredMessages = new ArrayList<MessageInfo>();
 	private ArrayList<MessageInfo> mMessages = new ArrayList<MessageInfo>();
 
-	private static final long UPDATES_ON_RESUMES_PERIOD = 4000; 
-	
 	private boolean mUpdateMessagesInProgress = false;
 	private long mLastUpdateTime = -1;
+	private boolean mAfterRecreating = false;
 	
 	private int mFilterType = Message.MSG_INFO;
 	
@@ -225,6 +224,7 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 				// We restored messages - view will be updated on resume (before we will get refresh)
 				mViewDirty = true;
 			}
+			mAfterRecreating = true;
 		}
 		ListView lv = getListView();
 		lv.setStackFromBottom(true);
@@ -260,14 +260,22 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 				if (messages != null) // if already updated
 					updatedMessages(messages);
 				
-				mConnectionManager.addToScheduledUpdates(this, AutoRefresh.MESSAGES);
+				mConnectionManager.addToScheduledUpdates(this, AutoRefresh.MESSAGES, -1);
 			} else { // if after update
-				if (Logging.DEBUG) Log.d(TAG, "do update messages");
-				if (SystemClock.elapsedRealtime()-mLastUpdateTime >= UPDATES_ON_RESUMES_PERIOD)
-					// if later than 4 seconds
-					mConnectionManager.updateMessages();
-				else // only add auto updates
-					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.MESSAGES);
+				int autoRefresh = mConnectionManager.getAutoRefresh();
+				
+				if (autoRefresh != -1) {
+					long period = SystemClock.elapsedRealtime()-mLastUpdateTime;
+					if (period >= autoRefresh*1000) {
+						// if later than 4 seconds
+						if (Logging.DEBUG) Log.d(TAG, "do update messages");
+						mConnectionManager.updateMessages();
+					} else { // only add auto updates
+						if (Logging.DEBUG) Log.d(TAG, "do add to schedule update messages");
+						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.MESSAGES,
+								(int)(autoRefresh*1000-period));
+					}
+				}
 			}
 		}
 		
@@ -353,13 +361,21 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 			if (Logging.DEBUG) Log.d(TAG, "Client is connected");
 			if (mRequestUpdates) {
 				mConnectionManager.updateMessages();
-				if (!mUpdateMessagesInProgress) {
+				if (!mUpdateMessagesInProgress && !mAfterRecreating) {
 					if (Logging.DEBUG) Log.d(TAG, "do update messages");
 					mUpdateMessagesInProgress = true;
 					mConnectionManager.updateMessages();
 				} else {
 					if (Logging.DEBUG) Log.d(TAG, "do add to scheduled updates");
-					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.MESSAGES);
+					int autoRefresh = mConnectionManager.getAutoRefresh();
+					
+					if (autoRefresh != -1) {
+						long period = SystemClock.elapsedRealtime()-mLastUpdateTime;
+						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.MESSAGES,
+								(int)(autoRefresh*1000-period));
+					} else
+						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.MESSAGES, -1);
+					mAfterRecreating = false;
 				}
 			}
 		}
@@ -374,12 +390,14 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 		mMessages.clear();
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
+		mAfterRecreating = false;
 	}
 	
 	@Override
 	public boolean clientError(int err_num, String message) {
 		// do not consume
 		mUpdateMessagesInProgress = false;
+		mAfterRecreating = false;
 		return false;
 	}
 

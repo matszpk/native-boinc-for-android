@@ -214,6 +214,11 @@
 							android:textSize="@dimen/labelTextSize"
 							android:text="@string/localPrefPercentCPUTime" />
 					</LinearLayout>
+					
+					<Button android:id="@+id/localPrefCPUTimePrefs"
+					    android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/cpuTimePrefTitle" />
 			  	</LinearLayout>
 		    </ScrollView>
 		    
@@ -350,10 +355,15 @@
 			  			android:layout_width="fill_parent"
 			  			android:layout_height="wrap_content"
 			  			android:text="@string/localPrefSkipImageVerify" />
+					
+					<Button android:id="@+id/localPrefNetTimePrefs"
+					    android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/netTimePrefTitle" />
 				</LinearLayout>
 			</ScrollView>
 		    
-		    <ScrollView  android:id="@+id/localPrefDiskOptions"
+		    <ScrollView  android:id="@+id/localPrefDiskRAMOptions"
 		  		android:layout_width="fill_parent"
 		  		android:layout_height="fill_parent">
 		  		<LinearLayout
@@ -448,16 +458,6 @@
 							android:textSize="@dimen/labelTextSize"
 							android:text="@string/seconds" />
 					</LinearLayout>
-	  			</LinearLayout>
-			</ScrollView>
-			
-		    <ScrollView  android:id="@+id/localPrefMemoryOptions"
-		  		android:layout_width="fill_parent"
-		  		android:layout_height="fill_parent">
-		  		<LinearLayout
-				  	android:orientation="vertical"
-				  	android:layout_width="fill_parent"
-				  	android:layout_height="wrap_content">
 					<LinearLayout
 			  			android:orientation="horizontal"
 						android:layout_width="fill_parent"
@@ -507,9 +507,8 @@
 			  			android:layout_width="fill_parent"
 			  			android:layout_height="wrap_content"
 			  			android:text="@string/localPrefLeaveApplications" />
-			  	</LinearLayout>
+	  			</LinearLayout>
 			</ScrollView>
-		    
 		</FrameLayout>
 		<LinearLayout android:orientation="horizontal"
 	  		android:layout_width="wrap_content"

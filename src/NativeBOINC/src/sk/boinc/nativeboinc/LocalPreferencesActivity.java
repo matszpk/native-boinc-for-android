@@ -27,8 +27,10 @@ import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.StandardDialogs;
+import sk.boinc.nativeboinc.util.TimePrefsData;
 import edu.berkeley.boinc.lite.GlobalPreferences;
-import edu.berkeley.boinc.lite.Md5;
+import edu.berkeley.boinc.lite.TimePreferences;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.Editable;
@@ -49,7 +51,13 @@ import android.widget.TabHost;
 public class LocalPreferencesActivity extends ServiceBoincActivity implements ClientPreferencesReceiver {
 	private static final String TAG = "LocalPrefsActivity";
 	
+	private static final int ACTIVITY_CPU_TIMES = 1;
+	private static final int ACTIVITY_NET_TIMES = 2;
+	
 	private ClientId mConnectedClient = null;
+	
+	private TabHost mTabHost;
+	private Button mApplyDefault;
 	
 	private int mGlobalPrefsFetchProgress = ProgressState.NOT_RUN;
 	private boolean mGlobalPrefsSavingInProgress = false;
@@ -81,18 +89,32 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	
 	private Button mApply;
 	
+	private int mSelectedTab = 0;
+	
+	private TimePreferences mCPUTimePreferences = null;
+	private TimePreferences mNetTimePreferences = null;
+	
 	private static class SavedState {
 		private final int globalPrefsFetchProgress;
 		private final boolean globalPrefsSavingInProgress;
+		private final int selectedTab;
+		private final TimePreferences cpuTimePreferences;
+		private final TimePreferences netTimePreferences;
 		
 		public SavedState(LocalPreferencesActivity activity) {
 			globalPrefsFetchProgress = activity.mGlobalPrefsFetchProgress;
 			globalPrefsSavingInProgress = activity.mGlobalPrefsSavingInProgress;
+			selectedTab = activity.mSelectedTab;
+			cpuTimePreferences = activity.mCPUTimePreferences;
+			netTimePreferences = activity.mNetTimePreferences;
 		}
 		
 		public void restore(LocalPreferencesActivity activity) {
 			activity.mGlobalPrefsFetchProgress = globalPrefsFetchProgress;
 			activity.mGlobalPrefsSavingInProgress = globalPrefsSavingInProgress;
+			activity.mSelectedTab = selectedTab;
+			activity.mCPUTimePreferences = cpuTimePreferences;
+			activity.mNetTimePreferences = netTimePreferences;
 		}
 	}
 	
@@ -113,35 +135,31 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		
 		mWrongText = getString(R.string.localPrefWrong);
 		
-		TabHost tabHost = (TabHost)findViewById(android.R.id.tabhost);
+		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
 		
-		tabHost.setup();
+		mTabHost.setup();
 		
 		Resources res = getResources();
 		
-		TabHost.TabSpec tabSpec1 = tabHost.newTabSpec("computeOptions");
+		TabHost.TabSpec tabSpec1 = mTabHost.newTabSpec("computeOptions");
 		tabSpec1.setContent(R.id.localPrefComputeOptions);
 		tabSpec1.setIndicator(getString(R.string.localPrefComputeOptions),
 				res.getDrawable(R.drawable.ic_tab_compute));
-		tabHost.addTab(tabSpec1);
+		mTabHost.addTab(tabSpec1);
 		
-		TabHost.TabSpec tabSpec2 = tabHost.newTabSpec("networkUsage");
+		TabHost.TabSpec tabSpec2 = mTabHost.newTabSpec("networkUsage");
 		tabSpec2.setContent(R.id.localPrefNetworkOptions);
 		tabSpec2.setIndicator(getString(R.string.localPrefNetworkUsage),
 				res.getDrawable(R.drawable.ic_tab_network));
-		tabHost.addTab(tabSpec2);
+		mTabHost.addTab(tabSpec2);
 		
-		TabHost.TabSpec tabSpec3 = tabHost.newTabSpec("diskUsage");
-		tabSpec3.setContent(R.id.localPrefDiskOptions);
-		tabSpec3.setIndicator(getString(R.string.localPrefDiskUsage),
+		TabHost.TabSpec tabSpec3 = mTabHost.newTabSpec("diskUsage");
+		tabSpec3.setContent(R.id.localPrefDiskRAMOptions);
+		tabSpec3.setIndicator(getString(R.string.localPrefDiskRAMUsage),
 				res.getDrawable(R.drawable.ic_tab_disk));
-		tabHost.addTab(tabSpec3);
+		mTabHost.addTab(tabSpec3);
 		
-		TabHost.TabSpec tabSpec4 = tabHost.newTabSpec("diskUsage");
-		tabSpec4.setContent(R.id.localPrefMemoryOptions);
-		tabSpec4.setIndicator(getString(R.string.localPrefMemoryUsage),
-				res.getDrawable(R.drawable.ic_tab_memory));
-		tabHost.addTab(tabSpec4);
+		mTabHost.setCurrentTab(mSelectedTab);
 		
 		mComputeOnBatteries = (CheckBox)findViewById(R.id.localPrefComputeOnBatteries);
 		mComputeInUse = (CheckBox)findViewById(R.id.localPrefComputeInUse);
@@ -177,8 +195,8 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 			}
 		});
 		
-		Button applyDefault = (Button)findViewById(R.id.localPrefDefault);
-		applyDefault.setOnClickListener(new View.OnClickListener() {
+		mApplyDefault = (Button)findViewById(R.id.localPrefDefault);
+		mApplyDefault.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -237,6 +255,36 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		
 		mUseAtMostMemoryInIdle.addTextChangedListener(textWatcher);
 		mUseAtMostMemoryInUse.addTextChangedListener(textWatcher);
+		
+		// buttons
+		Button cpuTimePrefs = (Button)findViewById(R.id.localPrefCPUTimePrefs);
+		cpuTimePrefs.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (mCPUTimePreferences == null)
+					return;
+				
+				Intent intent = new Intent(LocalPreferencesActivity.this, TimePreferencesActivity.class);
+				intent.putExtra(TimePreferencesActivity.ARG_TITLE, getString(R.string.cpuTimePrefTitle));
+				intent.putExtra(TimePreferencesActivity.ARG_TIME_PREFS,
+						new TimePrefsData(mCPUTimePreferences));
+				startActivityForResult(intent, ACTIVITY_CPU_TIMES);
+			}
+		});
+		
+		Button netTimePrefs = (Button)findViewById(R.id.localPrefNetTimePrefs);
+		netTimePrefs.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (mNetTimePreferences == null)
+					return;
+				Intent intent = new Intent(LocalPreferencesActivity.this, TimePreferencesActivity.class);
+				intent.putExtra(TimePreferencesActivity.ARG_TITLE, getString(R.string.netTimePrefTitle));
+				intent.putExtra(TimePreferencesActivity.ARG_TIME_PREFS,
+						new TimePrefsData(mNetTimePreferences));
+				startActivityForResult(intent, ACTIVITY_NET_TIMES);
+			}
+		});
 	}
 	
 	private void updateActivityState() {
@@ -281,6 +329,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	
 	@Override
 	public Object onRetainNonConfigurationInstance() {
+		mSelectedTab = mTabHost.getCurrentTab();
 		return new SavedState(this);
 	}
 	
@@ -288,6 +337,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	protected void onConnectionManagerConnected() {
 		mConnectedClient = mConnectionManager.getClientId();
 		
+		mApplyDefault.setEnabled(mConnectedClient.isNativeClient());
 		updateActivityState();
 	}
 	
@@ -308,6 +358,20 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		}
 	}
 	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == RESULT_OK) {
+			if (requestCode == ACTIVITY_CPU_TIMES) {
+				TimePrefsData timePrefsData = (TimePrefsData)data.getParcelableExtra(
+						TimePreferencesActivity.RESULT_TIME_PREFS);
+				mCPUTimePreferences = timePrefsData.timePrefs;
+			} else if (requestCode == ACTIVITY_NET_TIMES) {
+				TimePrefsData timePrefsData = (TimePrefsData)data.getParcelableExtra(
+						TimePreferencesActivity.RESULT_TIME_PREFS);
+				mNetTimePreferences = timePrefsData.timePrefs;
+			}
+		}
+	}
 	
 	private void checkPreferences() {
 		try {
@@ -496,6 +560,9 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		mUseAtMostMemoryInUse.setText(Double.toString(globalPrefs.ram_max_used_busy_frac));
 		mLeaveApplications.setChecked(globalPrefs.leave_apps_in_memory);
 		
+		mCPUTimePreferences = globalPrefs.cpu_times;
+		mNetTimePreferences = globalPrefs.net_times;
+		
 		checkPreferences();
 	}
 
@@ -540,6 +607,9 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 			globalPrefs.ram_max_used_idle_frac = Double.parseDouble(
 					mUseAtMostMemoryInIdle.getText().toString());
 			globalPrefs.leave_apps_in_memory = mLeaveApplications.isChecked();
+			
+			globalPrefs.cpu_times = mCPUTimePreferences;
+			globalPrefs.net_times = mNetTimePreferences;
 		} catch(NumberFormatException ex) {
 			return;	// do nothing
 		}

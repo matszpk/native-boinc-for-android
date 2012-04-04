@@ -475,6 +475,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 				dismissDialog(DIALOG_SHUTDOWN_PROGRESS);
 			}
 		}
+		if (Build.VERSION.SDK_INT >= 11)
+			invalidateOptionsMenu();
 	}
 	
 	private void onRunnerStart() {

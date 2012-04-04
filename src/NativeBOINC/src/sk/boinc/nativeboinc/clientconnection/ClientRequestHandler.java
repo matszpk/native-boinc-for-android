@@ -39,6 +39,8 @@ public interface ClientRequestHandler {
 
 	public abstract boolean isWorking();
 	
+	public abstract int getAutoRefresh();
+	
 	public abstract void updateClientMode();
 	public abstract void updateHostInfo();
 	public abstract HostInfo getPendingHostInfo();
@@ -58,7 +60,7 @@ public interface ClientRequestHandler {
 	public abstract void updateNotices();
 	public abstract ArrayList<NoticeInfo> getPendingNotices();
 	
-	public abstract void addToScheduledUpdates(ClientReceiver callback, int refreshType); 
+	public abstract void addToScheduledUpdates(ClientReceiver callback, int refreshType, int period); 
 	public abstract void cancelScheduledUpdates(int refreshType);
 
 	public abstract ClientError getPendingClientError();

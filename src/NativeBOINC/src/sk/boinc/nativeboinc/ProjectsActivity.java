@@ -95,10 +95,9 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 	private boolean mShowDetailsDialog = false;
 	private boolean mShowWarnDetachDialog = false;
 	
-	private static final long UPDATES_ON_RESUMES_PERIOD = 4000; 
-	
 	private boolean mUpdateProjectsInProgress = false;
 	private long mLastUpdateTime = -1;
+	private boolean mAfterRecreating = false;
 	
 	private StringBuilder mSb = new StringBuilder();
 	
@@ -296,6 +295,7 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 				// We restored projects - view will be updated on resume (before we will get refresh)
 				mViewDirty = true;
 			}
+			mAfterRecreating = true;
 		}
 	}
 
@@ -311,14 +311,22 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 				if (projects != null) // if already updated
 					updatedProjects(projects);
 				
-				mConnectionManager.addToScheduledUpdates(this, AutoRefresh.PROJECTS);
+				mConnectionManager.addToScheduledUpdates(this, AutoRefresh.PROJECTS, -1);
 			} else { // if after update
-				if (Logging.DEBUG) Log.d(TAG, "do update projects");
-				if (SystemClock.elapsedRealtime()-mLastUpdateTime >= UPDATES_ON_RESUMES_PERIOD)
-					// if later than 4 seconds
-					mConnectionManager.updateProjects();
-				else // only add auto updates
-					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.PROJECTS);
+				int autoRefresh = mConnectionManager.getAutoRefresh();
+				
+				if (autoRefresh != -1) {
+					long period = SystemClock.elapsedRealtime()-mLastUpdateTime;
+					if (period >= autoRefresh*1000) {
+						// if later than 4 seconds
+						if (Logging.DEBUG) Log.d(TAG, "do update projects");
+						mConnectionManager.updateProjects();
+					} else { // only add auto updates
+						if (Logging.DEBUG) Log.d(TAG, "do add to schedule update projects");
+						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.PROJECTS,
+								(int)(autoRefresh*1000-period));
+					}
+				}
 			}
 		}
 		
@@ -597,13 +605,21 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 			// Connected client is retrieved
 			if (Logging.DEBUG) Log.d(TAG, "Client is connected");
 			if (mRequestUpdates) {
-				if (!mUpdateProjectsInProgress) {
+				if (!mUpdateProjectsInProgress && !mAfterRecreating) {
 					if (Logging.DEBUG) Log.d(TAG, "do update projects");
 					mUpdateProjectsInProgress = true;
 					mConnectionManager.updateProjects();
 				} else {
 					if (Logging.DEBUG) Log.d(TAG, "do add to scheduled updates");
-					mConnectionManager.addToScheduledUpdates(this, AutoRefresh.PROJECTS);
+					int autoRefresh = mConnectionManager.getAutoRefresh();
+					
+					if (autoRefresh != -1) {
+						long period = SystemClock.elapsedRealtime()-mLastUpdateTime;
+						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.PROJECTS,
+								(int)(autoRefresh*1000-period));
+					} else
+						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.PROJECTS, -1);
+					mAfterRecreating = false;
 				}
 			}
 		}
@@ -618,6 +634,7 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 		updateSelectedProjects();
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 		mViewDirty = false;
+		mAfterRecreating = false;
 	}
 	
 
@@ -625,6 +642,7 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 	public boolean clientError(int err_num, String message) {
 		// do not consume
 		mUpdateProjectsInProgress = false;
+		mAfterRecreating = false;
 		return false;
 	}
 

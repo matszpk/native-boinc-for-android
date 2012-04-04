@@ -289,6 +289,13 @@ public class ConnectionManagerService extends Service implements
 			if (Logging.DEBUG) Log.d(TAG, "disconnect() - not connected already ");
 		}
 	}
+	
+	@Override
+	public int getAutoRefresh() {
+		if (mClientBridge != null)
+			return mClientBridge.getAutoRefresh();
+		return -1;
+	}
 
 	@Override
 	public ClientId getClientId() {
@@ -408,9 +415,9 @@ public class ConnectionManagerService extends Service implements
 	}
 	
 	@Override
-	public void addToScheduledUpdates(ClientReceiver callback, int refreshType) {
+	public void addToScheduledUpdates(ClientReceiver callback, int refreshType, int period) {
 		if (mClientBridge != null)
-			mClientBridge.addToScheduledUpdates(callback, refreshType);
+			mClientBridge.addToScheduledUpdates(callback, refreshType, period);
 	}
 	
 	@Override

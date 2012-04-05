@@ -198,10 +198,52 @@ int get_timezone() {
     return 0;
 }
 
+static const char* battery_dirs[] = {
+    "battery",
+    "BAT0",
+    "bq27520",
+    "bq27200-0",
+    "max17042-0",
+    "ds2760-battery.0",
+    NULL
+};
+
 // Returns current host battery level
 double HOST_INFO::host_battery_level() {
+    static bool batt_files_not_found = false;
+    static char batt_present_path[256]="";
+    static char batt_capacity_path[256]="";
+    
+    if (batt_files_not_found) // if not detected
+        return 0.0;
+    
+    if (batt_present_path[0]==0) {
+        // detect
+        int i;
+        for (i = 0; battery_dirs[i]!=NULL; i++) {
+            snprintf(batt_present_path, sizeof(batt_present_path),
+                     "/sys/class/power_supply/%s/present",battery_dirs[i]);
+            
+            FILE* f = fopen(batt_present_path,"rb");
+            if (f!=NULL) {
+                fclose(f);
+                snprintf(batt_capacity_path, sizeof(batt_capacity_path),
+                     "/sys/class/power_supply/%s/capacity",battery_dirs[i]);
+                
+                msg_printf(NULL, MSG_INFO, "[battery detect] I found directory:"
+                    "/sys/class/power_supply/%s",battery_dirs[i]);
+                break;
+            }
+        }
+        if (battery_dirs[i] == NULL) { // if not found
+            msg_printf(NULL, MSG_INFO, "[battery detect] I cant detect battery!");
+            batt_files_not_found = true;
+            return 0.0;
+        }
+    }
+    
     int present = 0;
-    FILE* f = fopen("/sys/class/power_supply/battery/present","rb");
+    FILE* f = fopen(batt_present_path,"rb");
     if (f==NULL)    // not found
         return 0.0;
     fscanf(f,"%d",&present);
@@ -210,7 +252,7 @@ double HOST_INFO::host_battery_level() {
         return 0.0;
     
     int capacity=0;
-    f = fopen("/sys/class/power_supply/battery/capacity","rb");
+    f = fopen(batt_capacity_path,"rb");
     if (f==NULL)    // not found
         return 0.0;
     fscanf(f,"%d",&capacity);
@@ -220,6 +262,7 @@ double HOST_INFO::host_battery_level() {
 }
 
 double HOST_INFO::host_battery_temp() {
+    static bool use_semc_battery_data=false;
     int present = 0;
     FILE* f = fopen("/sys/class/power_supply/battery/present","rb");
     if (f==NULL)    // not found
@@ -229,12 +272,24 @@ double HOST_INFO::host_battery_temp() {
     if (present==0)
         return -10000.0;
     
+    f = NULL;
     int temp=0;
-    f = fopen("/sys/class/power_supply/battery/batt_temp","rb");
-    if (f==NULL)    // not found
-        return -10000.0;
-    fscanf(f,"%d",&temp);
-    fclose(f);
+    if (!use_semc_battery_data) {
+        f = fopen("/sys/class/power_supply/battery/batt_temp","rb");
+        if (f!=NULL) {
+            fscanf(f,"%d",&temp);
+            fclose(f);
+        } else {
+            use_semc_battery_data = true;
+        }
+    }
+    if (use_semc_battery_data) {
+        f = fopen("/sys/class/power_supply/semc_battery_data/temp","rb");
+        if (f==NULL)
+            return -10000.0;
+        fscanf(f,"%d",&temp);
+        fclose(f);
+    }
     
     return ((double)temp)*0.1;
 }
@@ -316,8 +371,8 @@ bool HOST_INFO::host_is_running_on_batteries() {
     }
     if (Detect == method) {
 #ifdef ANDROID
-        strcpy(path,"/sys/class/power_supply/usb/online");
-        strcpy(path2,"/sys/class/power_supply/ac/online");
+        strcpy(path,"/sys/class/power_supply/ac/online");
+        strcpy(path2,"/sys/class/power_supply/usb/online");
         strcpy(path3,"/sys/class/power_supply/hsusb_chg/online");
         method=SysClass;
 #else
@@ -672,7 +727,7 @@ static void parse_cpuinfo_linux(HOST_INFO& host) {
         fgets(buf, 31, file);
         int khz = strtoul(buf, &endptr, 10);
         fclose(file);
-        sprintf(buf," @%ldMHz",khz/1000);
+        sprintf(buf," @%dMHz",khz/1000);
         strcat(model_buf, buf);
       }
     }

@@ -275,6 +275,7 @@ bool HOST_INFO::host_is_running_on_batteries() {
     static char path[64] = "";
 #ifdef ANDROID
     static char path2[64] = "";
+    static char path3[64] = "";
 #endif
 
     if (Detect == method) {
@@ -317,6 +318,7 @@ bool HOST_INFO::host_is_running_on_batteries() {
 #ifdef ANDROID
         strcpy(path,"/sys/class/power_supply/usb/online");
         strcpy(path2,"/sys/class/power_supply/ac/online");
+        strcpy(path3,"/sys/class/power_supply/hsusb_chg/online");
         method=SysClass;
 #else
         // try SysFS
@@ -407,12 +409,18 @@ bool HOST_INFO::host_is_running_on_batteries() {
             fclose(fsys);
 #ifdef ANDROID
             fsys = fopen(path2, "r");
-            if (!fsys) return false;
-
             int online2;
-            (void) fscanf(fsys, "%d", &online2);
-            fclose(fsys);
-#endif            
+            if (fsys) {
+                (void) fscanf(fsys, "%d", &online2);
+                fclose(fsys);
+            } else { // hsusb_chg
+                fsys = fopen(path3, "r");
+                if (!fsys) // if only ac available
+                    return (0 == online);
+                (void) fscanf(fsys, "%d", &online2);
+                fclose(fsys);
+            }
+#endif
             // online is 1 if on AC power, 0 if on battery
 #ifdef ANDROID
             return (0 == online && 0 == online2);

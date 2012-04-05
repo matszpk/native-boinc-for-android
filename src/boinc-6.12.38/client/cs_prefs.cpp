@@ -113,8 +113,7 @@ int CLIENT_STATE::check_suspend_processing() {
         // "run according to prefs" checks:
         //
         bool running_on_batteries = false;
-        if (!global_prefs.run_on_batteries || global_prefs.run_if_battery_nl_than>0.0 ||
-            global_prefs.run_if_temp_lt_than>BATT_TEMP_NO_LEVEL)
+        if (!global_prefs.run_on_batteries || global_prefs.run_if_battery_nl_than>0.0)
             running_on_batteries = host_info.host_is_running_on_batteries();
         
         if (!global_prefs.run_on_batteries && running_on_batteries) {
@@ -451,9 +450,6 @@ void CLIENT_STATE::read_global_prefs() {
         XML_PARSER xp(&mf);
         global_prefs.parse_override(xp, "", found_venue, mask);
         msg_printf(NULL, MSG_INFO, "Reading preferences override file");
-        msg_printf(NULL, MSG_INFO, "nonstandard:%f,%f",global_prefs.run_if_battery_nl_than,
-            global_prefs.run_if_temp_lt_than
-        );
         fclose(f);
     }
 

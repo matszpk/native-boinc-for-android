@@ -962,8 +962,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 							"Cancelled during waiting benchmark finish:"+mProjectDistrib.projectUrl);
 					notifyCancel(mProjectDistrib.projectName, mProjectDistrib.projectUrl);
 					return;
+				} finally {
+					mBenchmarkFinishSem.release();
 				}
-				mBenchmarkFinishSem.release();
 				
 				if (Logging.DEBUG) Log.d(TAG,
 						"after benchmark finish :"+mProjectDistrib.projectUrl);
@@ -1057,8 +1058,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						Log.d(TAG, "Cancelled during waiting for client update");
 						notifyCancel(mProjectDistrib.projectName, mProjectDistrib.projectUrl);
 						return;
+					} finally {
+						mClientUpdatedAndRanSem.release();
 					}
-					mClientUpdatedAndRanSem.release();
 					
 					if (mRunner.isRun()) {
 						// if really run
@@ -1516,6 +1518,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	}
 	
 	private boolean mDoFetchBinariesToUpdateOrInstall = false;
+	private Semaphore mObtainedProjectsSem = new Semaphore(1);
+	private ArrayList<Project> mObtainedProjects = null;
 	
 	/**
 	 * get list of binaries to update or install (from project url)
@@ -1527,8 +1531,29 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		synchronizeInstalledProjects();
 		if (mRunner.isRun()) {
 			// if ran
+			mObtainedProjects = null;
 			mDoFetchBinariesToUpdateOrInstall = true;
+			
+			// lock semaphore
+			try {
+				mObtainedProjectsSem.acquire();
+			} catch(InterruptedException ex) { }
+			
+			// run get projects
 			mRunner.getProjects(this);
+			
+			try {
+				mObtainedProjectsSem.tryAcquire(5000, TimeUnit.MILLISECONDS);
+			} catch(InterruptedException ex) { 
+			} finally {
+				// auto releasing of semaphore
+				mObtainedProjectsSem.release();
+			}
+			
+			if (Logging.DEBUG) Log.d(TAG, "getBinariesToUpdateOrInstall: projects from client:"+
+					(mObtainedProjects != null));
+			// go to main routine
+			getBinariesToUpdateOrInstallInternal(mObtainedProjects);
 		}
 		else // if not run
 			getBinariesToUpdateOrInstallInternal(null);
@@ -1903,8 +1928,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		if (mDoFetchBinariesToUpdateOrInstall) {
 			mDoFetchBinariesToUpdateOrInstall = false;
-			// try read from boinc directory
-			getBinariesToUpdateOrInstallInternal(null);
+			mObtainedProjects = null;
+			mObtainedProjectsSem.release();
 		}
 	}
 
@@ -1914,8 +1939,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		notifyIfClientUpdatedAndRan();
 		if (mDoFetchBinariesToUpdateOrInstall) {
 			mDoFetchBinariesToUpdateOrInstall = false;
-			// try read from boinc directory
-			getBinariesToUpdateOrInstallInternal(null);
+			mObtainedProjects = null;
+			mObtainedProjectsSem.release();
 		}
 	}
 
@@ -1929,7 +1954,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	public void getProjects(ArrayList<Project> projects) {
 		if (mDoFetchBinariesToUpdateOrInstall) {
 			mDoFetchBinariesToUpdateOrInstall = false;
-			getBinariesToUpdateOrInstallInternal(projects);
+			mObtainedProjects = projects;
+			mObtainedProjectsSem.release();
 		}
 	}
 }

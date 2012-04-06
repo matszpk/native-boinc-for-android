@@ -279,7 +279,6 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
 		if (mInstaller != null)
 			updateActivityState();
 	}

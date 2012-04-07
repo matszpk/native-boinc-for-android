@@ -901,7 +901,7 @@ public class RpcClient {
 		try {
 			mRequest.setLength(0);
 			if (useConfigFile)
-				mRequest.append("<acct_mgr_rpc>\n   <use_config_file>\n</acct_mgr_rpc>\n");
+				mRequest.append("<acct_mgr_rpc>\n   <use_config_file/>\n</acct_mgr_rpc>\n");
 			else {
 				mRequest.append("<acct_mgr_rpc>\n   <url>");
 				mRequest.append(url);

@@ -1124,7 +1124,20 @@ static void worker_signal_handler(int) {
     }
     if (options.direct_process_action) {
         while (boinc_status.suspended && in_critical_section==0) {
+#ifdef ANDROID
+          /* fix bug (hangup) */
+            struct timespec tmspec;
+            tmspec.tv_sec = 1;
+            tmspec.tv_nsec = 0LL;
+            nanosleep(&tmspec,NULL);
+          
+            if (app_client_shm)
+                if (in_critical_section==0 && options.handle_process_control) {
+                    handle_process_control_msg();
+            }
+#else
             sleep(1);   // don't use boinc_sleep() because it does FP math
+#endif
         }
     }
 }

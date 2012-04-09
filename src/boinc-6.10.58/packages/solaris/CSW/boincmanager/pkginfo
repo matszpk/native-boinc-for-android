@@ -1,7 +1,0 @@
-PKG=CSWboincmanager
-NAME=boincmanager - BOINC volunteer distributed computing GUI interface 
-VERSION=6.10.58,REV=2011.07.08_r
-CATEGORY=application
-VENDOR=http://boinc.berkeley.edu/ packaged for CSW by mat
-HOTLINE=http://www.opencsw.org/
-EMAIL=mat@opencsw.org

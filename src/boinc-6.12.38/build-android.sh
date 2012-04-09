@@ -1,4 +1,5 @@
 #!/bin/sh
+./_autosetup
 ./configure --host=arm-linux --prefix="$BOINCROOTDIR" --libdir="$BOINCROOTDIR/lib" --with-boinc-platform=arm-android-linux-gnu \
     --with-boinc-alt-platform=arm-android --disable-server --disable-manager --disable-shared --enable-static
 

@@ -410,9 +410,9 @@ if test "${enable_client}" = yes; then
       ## add libcurl et al. to the list of statically linked libs
       STATIC_LIB_LIST="${STATIC_LIB_LIST} curl idn ssh2 crypto ssl krb5 k5crypto gssapi_krb5 com_err resolv lber ldap socket nsl z rt gcrypt gpg-error"
       #STATIC_LIB_LIST="${STATIC_LIB_LIST} curl idn ssh2 crypto ssl krb5 k5crypto gssapi_krb5 com_err resolv lber ldap socket nsl z rt gcrypt gpg-error"
-      LIBCURL_CPPFLAGS="-I/data/local/tmp/include"
+      LIBCURL_CPPFLAGS="-I$BOINCROOTDIR/include"
       CPPFLAGS="${CPPFLAGS} ${LIBCURL_CPPFLAGS}"
-      LIBCURL="-L/data/local/tmp/lib -lcurl -L/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/lib"
+      LIBCURL="-L$BOINCROOTDIR/lib -lcurl -L/home/mat/docs/dev/mobile/android-ndk-r5b/platforms/android-8/arch-arm//usr/lib"
       CURL_LIB_PATHS=`echo $LIBCURL | sed 's/[^[a-zA-Z]]*-l[^ ]*//g'`
 
       if test "${enable_debug}" = yes; then

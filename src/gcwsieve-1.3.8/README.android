@@ -1,4 +1,3 @@
 HOW TO COMPILE:
 
 run 'make ARCH=armv6-android'.
-Please use init.sh and android boinc-api to compile this application.

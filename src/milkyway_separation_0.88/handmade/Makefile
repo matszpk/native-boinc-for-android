@@ -9,8 +9,8 @@ all: milkyway_separation
 clean:
 	rm -f *.o milkyway_separation
 
-BOINC_INCDIR = -I/data/local/tmp/include/boinc
-BOINC_LIBS = /data/local/tmp/lib/libboinc_api.a /data/local/tmp/lib/libboinc.a
+BOINC_INCDIR = -I$(BOINCROOTDIR)/include/boinc
+BOINC_LIBS = $(BOINCROOTDIR)/lib/libboinc_api.a $(BOINCROOTDIR)/lib/libboinc.a
 
 LUASRCS = ../lua/src/lapi.c \
 	../lua/src/lauxlib.c \
@@ -235,9 +235,10 @@ INCDIRS = -Iconfig $(SEPINCDIR) $(LUAINCDIR) $(MWINCDIR) $(POPTINCDIR) \
 #	-DDOUBLEPREC=1 -DDSFMT_MEXP=19937
 
 # If you want to compile with VFP and NEON extensions please remove SKIP_VFP_SAVE macro
-DEFS = -DSKIP_VFP_SAVE=1 -DMILKYWAY_LUA_COMPILATION=1 \
+DEFS = -DSKIP_VFP_SAVE=1 -DRDEBUG=1 -DTEST_NOVFP=1 -DWRITE_PROGRESS=1 -DMILKYWAY_LUA_COMPILATION=1 \
 	-DDOUBLEPREC=1 -DDSFMT_MEXP=19937
-
+#DEFS = -DSKIP_VFP_SAVE=1 -DRDEBUG=1 -DWRITE_INT_STEPS=1 -DWRITE_PROGRESS=1 -DMILKYWAY_LUA_COMPILATION=1 \
+#	-DDOUBLEPREC=1 -DDSFMT_MEXP=19937
 
 DYNLIBS = -lm
 

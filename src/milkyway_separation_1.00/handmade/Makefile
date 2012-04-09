@@ -9,8 +9,8 @@ all: milkyway_separation
 clean:
 	rm -f *.o milkyway_separation
 
-BOINC_INCDIR = -I/data/local/tmp/include/boinc
-BOINC_LIBS = /data/local/tmp/lib/libboinc_api.a /data/local/tmp/lib/libboinc.a
+BOINC_INCDIR = -I$(BOINCROOTDIR)/include/boinc
+BOINC_LIBS = $(BOINCROOTDIR)/lib/libboinc_api.a $(BOINCROOTDIR)/lib/libboinc.a
 
 ######################
 # sources list

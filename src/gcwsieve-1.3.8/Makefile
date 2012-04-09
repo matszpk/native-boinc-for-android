@@ -35,9 +35,9 @@ ASSEMBLER=no
 
 # To link with the BOINC library, uncomment these three lines:
 #
-BOINC_CPPFLAGS=-DBOINC -I/data/local/tmp/include/boinc
+BOINC_CPPFLAGS=-DBOINC -I$(BOINCROOTDIR)/include/boinc
 BOINC_LDFLAGS=-L/home/geoff/development/boinc/lib64
-BOINC_LIBS= /data/local/tmp/lib/libboinc_api.a /data/local/tmp/lib/libboinc.a $(STDCPP)
+BOINC_LIBS= $(BOINCROOTDIR)/lib/libboinc_api.a $(BOINCROOTDIR)/lib/libboinc.a $(STDCPP)
 
 # To link with the BOINC library and make the executable work on systems that
 # don't have C++ libraries installed, uncomment these three lines:

@@ -1,0 +1,3 @@
+HOW TO COMPILE:
+
+run 'make ARCH=armv6-android'.

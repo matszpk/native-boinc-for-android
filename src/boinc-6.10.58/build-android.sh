@@ -9,3 +9,9 @@ sed -e "s%^CLIENTLIBS *= *.*$%CLIENTLIBS = -lm $STDCPP%g" client/Makefile > clie
 mv client/Makefile.out client/Makefile
 
 make
+cd api
+make install
+cd ../client
+make install
+cd ../lib
+make install

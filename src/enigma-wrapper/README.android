@@ -1,0 +1,9 @@
+HOW TO COMPILE
+
+For BOINC_API version 6.10.XX:
+
+$CC $CFLAGS $CPPFLAGS $LDFLAGS -lm -I$BOINCROOTDIR/include/boinc -o wrapper wrapper.cpp $STDCPP -lboinc_api -lboinc
+
+For BOINC_API version 6.12.XX:
+
+$CC $CFLAGS $CPPFLAGS $LDFLAGS -lm -I$BOINCROOTDIR/include/boinc -o wrapper wrapper-6.12.cpp $STDCPP -lboinc_api -lboinc

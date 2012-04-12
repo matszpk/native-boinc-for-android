@@ -82,46 +82,66 @@
 				android:layout_below="@+id/taskProjectName1"
 				android:layout_marginTop="3dip"
 				android:layout_centerHorizontal="true">
-				<ProgressBar
-					android:id="@+id/taskProgressRunning1"
-					style="?android:attr/progressBarStyleHorizontal"
+				<FrameLayout
+					android:id="@+id/taskProgressRunningLayout1"
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_green"
-					android:visibility="invisible"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressSuspended1"
-					style="?android:attr/progressBarStyleHorizontal"
+					android:visibility="invisible">
+					<ProgressBar
+						android:id="@+id/taskProgressRunning1"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_green"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+					android:id="@+id/taskProgressSuspendedLayout1"
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_red"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressWaiting1"
-					style="?android:attr/progressBarStyleHorizontal"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressSuspended1"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_red"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+					android:id="@+id/taskProgressWaitingLayout1"
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_yellow"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressFinished1"
-					style="?android:attr/progressBarStyleHorizontal"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressWaiting1"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_yellow"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+					android:id="@+id/taskProgressFinishedLayout1"
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_blue"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressFinished1"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_blue"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
 				<TextView
 					android:id="@+id/taskProgressText1"
 					android:layout_width="wrap_content"
@@ -222,46 +242,66 @@
 				android:layout_below="@+id/taskProjectName2"
 				android:layout_marginTop="3dip"
 				android:layout_centerHorizontal="true">
-				<ProgressBar
-					android:id="@+id/taskProgressRunning2"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+				<FrameLayout
+				    android:id="@+id/taskProgressRunningLayout2"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_green"
-					android:visibility="invisible"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressSuspended2"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="invisible">
+					<ProgressBar
+						android:id="@+id/taskProgressRunning2"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_green"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressSuspendedLayout2"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_red"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressWaiting2"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressSuspended2"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_red"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressWaitingLayout2"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_yellow"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressFinished2"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressWaiting2"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_yellow"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressFinishedLayout2"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_blue"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressFinished2"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_blue"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
 				<TextView
 					android:id="@+id/taskProgressText2"
 					android:layout_width="wrap_content"
@@ -362,46 +402,66 @@
 				android:layout_below="@+id/taskProjectName3"
 				android:layout_marginTop="3dip"
 				android:layout_centerHorizontal="true">
-				<ProgressBar
-					android:id="@+id/taskProgressRunning3"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+				<FrameLayout
+				    android:id="@+id/taskProgressRunningLayout3"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_green"
-					android:visibility="invisible"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressSuspended3"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="invisible">
+					<ProgressBar
+						android:id="@+id/taskProgressRunning3"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_green"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressSuspendedLayout3"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_red"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressWaiting3"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressSuspended3"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_red"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressWaitingLayout3"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_yellow"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressFinished3"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressWaiting3"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_yellow"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressFinishedLayout3"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_blue"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressFinished3"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_blue"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
 				<TextView
 					android:id="@+id/taskProgressText3"
 					android:layout_width="wrap_content"
@@ -502,46 +562,66 @@
 				android:layout_below="@+id/taskProjectName4"
 				android:layout_marginTop="3dip"
 				android:layout_centerHorizontal="true">
-				<ProgressBar
-					android:id="@+id/taskProgressRunning4"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+				<FrameLayout
+				    android:id="@+id/taskProgressRunningLayout4"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_green"
-					android:visibility="invisible"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressSuspended4"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="invisible">
+					<ProgressBar
+						android:id="@+id/taskProgressRunning4"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_green"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressSuspendedLayout4"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_red"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressWaiting4"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressSuspended4"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_red"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressWaitingLayout4"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_yellow"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressFinished4"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressWaiting4"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_yellow"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressFinishedLayout4"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_blue"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressFinished4"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_blue"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
 				<TextView
 					android:id="@+id/taskProgressText4"
 					android:layout_width="wrap_content"
@@ -642,46 +722,66 @@
 				android:layout_below="@+id/taskProjectName5"
 				android:layout_marginTop="3dip"
 				android:layout_centerHorizontal="true">
-				<ProgressBar
-					android:id="@+id/taskProgressRunning5"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+				<FrameLayout
+				    android:id="@+id/taskProgressRunningLayout5"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_green"
-					android:visibility="invisible"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressSuspended5"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="invisible">
+					<ProgressBar
+						android:id="@+id/taskProgressRunning5"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_green"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressSuspendedLayout5"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_red"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressWaiting5"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressSuspended5"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_red"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressWaitingLayout5"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_yellow"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressFinished5"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressWaiting5"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_yellow"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressFinishedLayout5"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_blue"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressFinished5"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_blue"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
 				<TextView
 					android:id="@+id/taskProgressText5"
 					android:layout_width="wrap_content"
@@ -782,46 +882,66 @@
 				android:layout_below="@+id/taskProjectName6"
 				android:layout_marginTop="3dip"
 				android:layout_centerHorizontal="true">
-				<ProgressBar
-					android:id="@+id/taskProgressRunning6"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+				<FrameLayout
+				    android:id="@+id/taskProgressRunningLayout6"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_green"
-					android:visibility="invisible"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressSuspended6"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="invisible">
+					<ProgressBar
+						android:id="@+id/taskProgressRunning6"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_green"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressSuspendedLayout6"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_red"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressWaiting6"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressSuspended6"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_red"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressWaitingLayout6"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_yellow"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressFinished6"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressWaiting6"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_yellow"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressFinishedLayout6"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_blue"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressFinished6"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_blue"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
 				<TextView
 					android:id="@+id/taskProgressText6"
 					android:layout_width="wrap_content"
@@ -922,46 +1042,66 @@
 				android:layout_below="@+id/taskProjectName7"
 				android:layout_marginTop="3dip"
 				android:layout_centerHorizontal="true">
-				<ProgressBar
-					android:id="@+id/taskProgressRunning7"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+				<FrameLayout
+				    android:id="@+id/taskProgressRunningLayout7"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_green"
-					android:visibility="invisible"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressSuspended7"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="invisible">
+					<ProgressBar
+						android:id="@+id/taskProgressRunning7"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_green"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressSuspendedLayout7"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_red"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressWaiting7"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressSuspended7"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_red"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressWaitingLayout7"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_yellow"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressFinished7"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressWaiting7"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_yellow"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressFinishedLayout7"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_blue"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressFinished7"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_blue"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
 				<TextView
 					android:id="@+id/taskProgressText7"
 					android:layout_width="wrap_content"
@@ -1062,46 +1202,66 @@
 				android:layout_below="@+id/taskProjectName8"
 				android:layout_marginTop="3dip"
 				android:layout_centerHorizontal="true">
-				<ProgressBar
-					android:id="@+id/taskProgressRunning8"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+				<FrameLayout
+				    android:id="@+id/taskProgressRunningLayout8"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_green"
-					android:visibility="invisible"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressSuspended8"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="invisible">
+					<ProgressBar
+						android:id="@+id/taskProgressRunning8"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_green"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressSuspendedLayout8"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_red"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressWaiting8"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressSuspended8"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_red"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressWaitingLayout8"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_yellow"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressFinished8"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressWaiting8"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_yellow"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressFinishedLayout8"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_blue"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressFinished8"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_blue"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
 				<TextView
 					android:id="@+id/taskProgressText8"
 					android:layout_width="wrap_content"
@@ -1202,46 +1362,66 @@
 				android:layout_below="@+id/taskProjectName9"
 				android:layout_marginTop="3dip"
 				android:layout_centerHorizontal="true">
-				<ProgressBar
-					android:id="@+id/taskProgressRunning9"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+				<FrameLayout
+				    android:id="@+id/taskProgressRunningLayout9"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_green"
-					android:visibility="invisible"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressSuspended9"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="invisible">
+					<ProgressBar
+						android:id="@+id/taskProgressRunning9"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_green"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressSuspendedLayout9"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_red"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressWaiting9"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressSuspended9"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_red"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressWaitingLayout9"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_yellow"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressFinished9"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressWaiting9"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_yellow"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressFinishedLayout9"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_blue"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressFinished9"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_blue"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
 				<TextView
 					android:id="@+id/taskProgressText9"
 					android:layout_width="wrap_content"
@@ -1342,46 +1522,66 @@
 				android:layout_below="@+id/taskProjectName10"
 				android:layout_marginTop="3dip"
 				android:layout_centerHorizontal="true">
-				<ProgressBar
-					android:id="@+id/taskProgressRunning10"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+				<FrameLayout
+				    android:id="@+id/taskProgressRunningLayout10"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_green"
-					android:visibility="invisible"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressSuspended10"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="invisible">
+					<ProgressBar
+						android:id="@+id/taskProgressRunning10"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_green"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressSuspendedLayout10"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_red"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressWaiting10"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressSuspended10"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_red"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressWaitingLayout10"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_yellow"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
-				<ProgressBar
-					android:id="@+id/taskProgressFinished10"
-					style="?android:attr/progressBarStyleHorizontal"
-					android:layout_width="fill_parent"
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressWaiting10"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_yellow"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
+				<FrameLayout
+				    android:id="@+id/taskProgressFinishedLayout10"
+				    android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
-					android:progressDrawable="@drawable/progress_blue"
-					android:visibility="gone"
-					android:max="1000"
-					android:progress="10"
-					android:secondaryProgress="1000" />
+					android:visibility="gone">
+					<ProgressBar
+						android:id="@+id/taskProgressFinished10"
+						style="?android:attr/progressBarStyleHorizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:progressDrawable="@drawable/progress_blue"
+						android:max="1000"
+						android:progress="10"
+						android:secondaryProgress="1000" />
+				</FrameLayout>
 				<TextView
 					android:id="@+id/taskProgressText10"
 					android:layout_width="wrap_content"

@@ -1,3 +1,9 @@
+Version 0.3.7.3 (alpha) (2012-04-12)
+- fixed problems with large widget on Android 2.2.
+
+Version 0.3.7.2 (alpha) (2012-04-07)
+- fixed request accountMgrRPC (BOINC BAM).
+
 Version 0.3.7.1 (alpha) (2012-04-06)
 - fixed applications crashes on ICS (in UpdateActivity and InstallerHandler).
 - fixed InstallerHandler small bugs.

@@ -324,6 +324,34 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 		R.id.taskProgressFinished10
 	};
 	
+	private static final int[] sTaskProgressRunningLayouts = {
+		R.id.taskProgressRunningLayout1, R.id.taskProgressRunningLayout2, R.id.taskProgressRunningLayout3,
+		R.id.taskProgressRunningLayout4, R.id.taskProgressRunningLayout5, R.id.taskProgressRunningLayout6,
+		R.id.taskProgressRunningLayout7, R.id.taskProgressRunningLayout8, R.id.taskProgressRunningLayout9,
+		R.id.taskProgressRunningLayout10
+	};
+	
+	private static final int[] sTaskProgressSuspendedLayouts = {
+		R.id.taskProgressSuspendedLayout1, R.id.taskProgressSuspendedLayout2, R.id.taskProgressSuspendedLayout3,
+		R.id.taskProgressSuspendedLayout4, R.id.taskProgressSuspendedLayout5, R.id.taskProgressSuspendedLayout6,
+		R.id.taskProgressSuspendedLayout7, R.id.taskProgressSuspendedLayout8, R.id.taskProgressSuspendedLayout9,
+		R.id.taskProgressSuspendedLayout10
+	};
+	
+	private static final int[] sTaskProgressWaitingLayouts = {
+		R.id.taskProgressWaitingLayout1, R.id.taskProgressWaitingLayout2, R.id.taskProgressWaitingLayout3,
+		R.id.taskProgressWaitingLayout4, R.id.taskProgressWaitingLayout5, R.id.taskProgressWaitingLayout6,
+		R.id.taskProgressWaitingLayout7, R.id.taskProgressWaitingLayout8, R.id.taskProgressWaitingLayout9,
+		R.id.taskProgressWaitingLayout10
+	};
+	
+	private static final int[] sTaskProgressFinishedLayouts = {
+		R.id.taskProgressFinishedLayout1, R.id.taskProgressFinishedLayout2, R.id.taskProgressFinishedLayout3,
+		R.id.taskProgressFinishedLayout4, R.id.taskProgressFinishedLayout5, R.id.taskProgressFinishedLayout6,
+		R.id.taskProgressFinishedLayout7, R.id.taskProgressFinishedLayout8, R.id.taskProgressFinishedLayout9,
+		R.id.taskProgressFinishedLayout10
+	};
+	
 	private static final int[] sTaskProgressTexts = {
 		R.id.taskProgressText1, R.id.taskProgressText2, R.id.taskProgressText3,
 		R.id.taskProgressText4, R.id.taskProgressText5, R.id.taskProgressText6,
@@ -382,10 +410,10 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			case TaskInfo.SUSPENDED:
 			case TaskInfo.ABORTED:
 			case TaskInfo.ERROR:
-				views.setViewVisibility(sTaskProgressRunnings[i], View.GONE);
-				views.setViewVisibility(sTaskProgressFinisheds[i], View.GONE);
-				views.setViewVisibility(sTaskProgressWaitings[i], View.GONE);
-				views.setViewVisibility(sTaskProgressSuspendeds[i], View.VISIBLE);
+				views.setViewVisibility(sTaskProgressRunningLayouts[i], View.GONE);
+				views.setViewVisibility(sTaskProgressFinishedLayouts[i], View.GONE);
+				views.setViewVisibility(sTaskProgressWaitingLayouts[i], View.GONE);
+				views.setViewVisibility(sTaskProgressSuspendedLayouts[i], View.VISIBLE);
 				views.setProgressBar(sTaskProgressSuspendeds[i], 1000, item.taskInfo.progInd, false);
 				break;
 			case TaskInfo.DOWNLOADING:
@@ -394,24 +422,24 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 				item.taskInfo.progInd = 0;
 				// no break, we continue following case (READY_TO_REPORT)
 			case TaskInfo.READY_TO_REPORT:
-				views.setViewVisibility(sTaskProgressRunnings[i], View.GONE);
-				views.setViewVisibility(sTaskProgressSuspendeds[i], View.GONE);
-				views.setViewVisibility(sTaskProgressWaitings[i], View.GONE);
-				views.setViewVisibility(sTaskProgressFinisheds[i], View.VISIBLE);
+				views.setViewVisibility(sTaskProgressRunningLayouts[i], View.GONE);
+				views.setViewVisibility(sTaskProgressSuspendedLayouts[i], View.GONE);
+				views.setViewVisibility(sTaskProgressWaitingLayouts[i], View.GONE);
+				views.setViewVisibility(sTaskProgressFinishedLayouts[i], View.VISIBLE);
 				views.setProgressBar(sTaskProgressFinisheds[i], 1000, item.taskInfo.progInd, false);
 				break;
 			case TaskInfo.RUNNING:
-				views.setViewVisibility(sTaskProgressFinisheds[i], View.GONE);
-				views.setViewVisibility(sTaskProgressSuspendeds[i], View.GONE);
-				views.setViewVisibility(sTaskProgressWaitings[i], View.GONE);
-				views.setViewVisibility(sTaskProgressRunnings[i], View.VISIBLE);
+				views.setViewVisibility(sTaskProgressFinishedLayouts[i], View.GONE);
+				views.setViewVisibility(sTaskProgressSuspendedLayouts[i], View.GONE);
+				views.setViewVisibility(sTaskProgressWaitingLayouts[i], View.GONE);
+				views.setViewVisibility(sTaskProgressRunningLayouts[i], View.VISIBLE);
 				views.setProgressBar(sTaskProgressRunnings[i], 1000, item.taskInfo.progInd, false);
 				break;
 			default:
-				views.setViewVisibility(sTaskProgressFinisheds[i], View.GONE);
-				views.setViewVisibility(sTaskProgressSuspendeds[i], View.GONE);
-				views.setViewVisibility(sTaskProgressRunnings[i], View.GONE);
-				views.setViewVisibility(sTaskProgressWaitings[i], View.VISIBLE);
+				views.setViewVisibility(sTaskProgressFinishedLayouts[i], View.GONE);
+				views.setViewVisibility(sTaskProgressSuspendedLayouts[i], View.GONE);
+				views.setViewVisibility(sTaskProgressRunningLayouts[i], View.GONE);
+				views.setViewVisibility(sTaskProgressWaitingLayouts[i], View.VISIBLE);
 				views.setProgressBar(sTaskProgressWaitings[i], 1000, item.taskInfo.progInd, false);
 				if (item.taskInfo.stateControl == TaskInfo.PREEMPTED)  {
 					// Task already started - set secondary progress to 100

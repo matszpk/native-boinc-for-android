@@ -49,9 +49,7 @@ swizzle_loop2_arm:
 .Lloop1:
                 pld [r2,#-256]
                 /* MainCore:
-                 * r0 - D->R+i
-                 * r1 - T
-                 * r2 - D->R+0
+                 * r2 - D->R+i
                  * input:
                  * r6,r7 - new A (shifted)
                  * r8,r9 - new B; // can be modified

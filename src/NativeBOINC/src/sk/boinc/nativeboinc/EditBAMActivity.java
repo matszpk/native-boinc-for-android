@@ -36,6 +36,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -83,7 +84,7 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 		TextWatcher textWatcher = new TextWatcher() {
 			@Override
 			public void afterTextChanged(Editable s) {
-				setConfirmButtonState();
+				mConfirmButton.setEnabled(isFormValid());
 			}
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -109,6 +110,17 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 			mUrlEdit.setText(s);
 		}
 		
+		mPasswordEdit.setOnKeyListener(new View.OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+					doAttachToBAM();
+					return true;
+				}
+				return false;
+			}
+		});
+		
 		Button cancelButton = (Button)findViewById(R.id.editBAMCancel);
 		cancelButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
@@ -118,15 +130,22 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 			}
 		});
 		
-		setConfirmButtonState();
+		mConfirmButton.setEnabled(isFormValid());
 		mConfirmButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
-				showDialog(DIALOG_CHANGE_BAM_PROGRESS);
-				mAttachBAMInProgress = true;
-				mConnectionManager.attachToBAM(mNameEdit.getText().toString(),
-						mUrlEdit.getText().toString(), mPasswordEdit.getText().toString());
+				doAttachToBAM();
 			}
 		});
+	}
+	
+	private void doAttachToBAM() {
+		if (!isFormValid()) // if not valid
+			return;
+		
+		showDialog(DIALOG_CHANGE_BAM_PROGRESS);
+		mAttachBAMInProgress = true;
+		mConnectionManager.attachToBAM(mNameEdit.getText().toString(),
+				mUrlEdit.getText().toString(), mPasswordEdit.getText().toString());
 	}
 	
 	private void updateActivityState() {
@@ -184,15 +203,14 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 		}
 	}
 	
-	private void setConfirmButtonState() {
+	private boolean isFormValid() {
 		// Check that required fields are non-empty
-		if ((mNameEdit.getText().length() == 0) || (mUrlEdit.getText().length() == 0)) {
+		if((mNameEdit.getText().length() == 0) || (mUrlEdit.getText().length() == 0))
 			// One of the required fields is empty, we must disable confirm button
-			mConfirmButton.setEnabled(false);
-			return;
-		}
-		mConfirmButton.setEnabled(true);
+			return false;
+		return true;
 	}
+
 
 	@Override
 	public Dialog onCreateDialog(int dialogId, Bundle args) {

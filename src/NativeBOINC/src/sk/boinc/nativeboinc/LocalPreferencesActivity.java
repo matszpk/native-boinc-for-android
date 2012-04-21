@@ -128,7 +128,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		if (savedState != null)
 			savedState.restore(this);
 		
-		setUpService(true, true, false, false, false, false);
+		setUpService(true, true, true, false, false, false);
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.local_prefs);
@@ -337,7 +337,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	protected void onConnectionManagerConnected() {
 		mConnectedClient = mConnectionManager.getClientId();
 		
-		mApplyDefault.setEnabled(mConnectedClient.isNativeClient());
+		mApplyDefault.setEnabled(mConnectionManager.isNativeConnected());
 		updateActivityState();
 	}
 	

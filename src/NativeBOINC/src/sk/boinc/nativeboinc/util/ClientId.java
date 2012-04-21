@@ -141,6 +141,6 @@ public class ClientId implements Parcelable {
 	}
 	
 	public boolean isNativeClient() {
-		return mAddress.equals("127.0.0.1") || mAddress.equals("localhost");
+		return (mAddress.equals("127.0.0.1") || mAddress.equals("localhost")) && mPort == 31416;
 	}
 }

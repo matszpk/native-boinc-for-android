@@ -24,6 +24,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
@@ -49,6 +52,15 @@ public class TaskInfoDialogActivity extends Activity {
 		mTaskInfo = item.taskInfo;
 		
 		showDialog(DIALOG_TASK_INFO);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		int screenSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+		if (Build.VERSION.SDK_INT < 11 || screenSize != 4)
+			// only when is not honeycomb or screenSize is not xlarge
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 	}
 	
 	@Override

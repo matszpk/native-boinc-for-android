@@ -181,9 +181,9 @@ public class TimePreferencesActivity extends AbstractBoincActivity {
 				.setTitle(R.string.setHour)
 				.setView(picker)
 				.setCancelable(true)
-				.setOnCancelListener(new DialogInterface.OnCancelListener() {
+				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					@Override
-					public void onCancel(DialogInterface dialog) {
+					public void onClick(DialogInterface dialog, int which) {
 						double value = (double)picker.getCurrentHour() +
 								(double)picker.getCurrentMinute()/60.0;
 						
@@ -207,6 +207,7 @@ public class TimePreferencesActivity extends AbstractBoincActivity {
 						}
 					}
 				})
+				.setNegativeButton(R.string.cancel, null)
 				.create();
 		}
 		return null;

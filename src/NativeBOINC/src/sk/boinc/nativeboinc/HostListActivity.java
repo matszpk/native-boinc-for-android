@@ -215,7 +215,7 @@ public class HostListActivity extends ListActivity {
 		if (selectedSize != 0)
 			menu.add(0, UNSELECT_ALL_ID, 0, R.string.unselectAll);
 		
-		if (!clientId.isNativeClient()) {
+		if (!clientId.getNickname().equals("nativeboinc")) {
 			// if nativeboinc
 			menu.add(0, EDIT_ID, 0, R.string.hostEdit);
 			menu.add(0, DELETE_ID, 0, R.string.hostDelete);

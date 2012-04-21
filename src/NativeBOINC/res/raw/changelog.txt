@@ -1,3 +1,10 @@
+Version 0.3.8 (alpha) (2012-04-21)
+- improved detecting native boinc client
+- added action after pressing enter on last field on the forms
+- improved time dialog on Time preferences
+- introduced Honeycomb theme in the screen locker
+- fixed layouts for tablets 
+
 Version 0.3.7.3 (alpha) (2012-04-12)
 - fixed problems with large widget on Android 2.2.
 

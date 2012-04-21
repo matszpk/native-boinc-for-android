@@ -3,4 +3,5 @@
     <dimen name="localPrefEditSize">160dip</dimen>
     <dimen name="labelTextSize">18dip</dimen>
     <dimen name="itemInfoSize">18dip</dimen>
+    <dimen name="timeButtonSize">85dp</dimen>
 </resources>

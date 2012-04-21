@@ -573,7 +573,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 		mProgressDialogAllowed = false;
 		// If we did not perform deferred connect so far, we needn't do that anymore
 		if (mSelectedClient != null) {
-			if (!mSelectedClient.isNativeClient() ||
+			if (!mSelectedClient.isNativeClient() || !mApp.isBoincClientRun() ||
 					(!mConnectClientAfterRestart && !mConnectClientAfterStart))
 				// only when is native client is not started by manager
 				mSelectedClient = null;
@@ -933,7 +933,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 		mConnectedClientVersion = clientVersion;
 		if (mConnectedClient != null) {
 			if (mDoConnectNativeClient) {
-				if (!mConnectedClient.isNativeClient()) {
+				if (!mConnectedClient.isNativeClient() || !mApp.isBoincClientRun()) {
 					// do connect to native client
 					boincConnect();
 				} else {

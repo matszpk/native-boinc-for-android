@@ -410,7 +410,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	protected void onConnectionManagerConnected() {
 		mConnectedClient = mConnectionManager.getClientId();
 		if (mConnectedClient != null) {
-			mGetFromInstaller = mConnectedClient.isNativeClient();
+			mGetFromInstaller = mConnectionManager.isNativeConnected();
 			
 			if (mGetFromInstaller) {
 				// show project list help

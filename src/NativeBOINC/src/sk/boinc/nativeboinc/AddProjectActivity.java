@@ -38,6 +38,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -134,7 +135,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		TextWatcher textWatcher = new TextWatcher() {
 			@Override
 			public void afterTextChanged(Editable s) {
-				setConfirmButtonState();
+				mConfirmButton.setEnabled(isFormValid());
 			}
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -172,6 +173,17 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			});
 		}
 		
+		mPassword.setOnKeyListener(new View.OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+					doAddBoincProject();
+					return true;
+				}
+				return false;
+			}
+		});
+		
 		Button cancelButton = (Button)findViewById(R.id.addProjectCancel);
 		cancelButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
@@ -179,24 +191,11 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			}
 		});
 		
-		setConfirmButtonState();
+		mConfirmButton.setEnabled(isFormValid());
+		
 		mConfirmButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
-				if (mConnectionServiceConnection != null) {
-					AccountIn accountIn = new AccountIn();
-					if (mDoAccountCreation)
-						accountIn.user_name = mNickname.getText().toString();
-					
-					accountIn.email_addr = mEmail.getText().toString();
-					accountIn.url = mProjectItem.getUrl();
-					accountIn.passwd = mPassword.getText().toString();
-					
-					mAddingProjectInProgress = true;
-					if (mConnectionManager != null) {
-						mConnectionManager.addProject(accountIn, mDoAccountCreation);
-						showDialog(DIALOG_ADD_PROJECT_PROGRESS);
-					}
-				}
+				doAddBoincProject();
 			}
 		});
 	}
@@ -223,6 +222,27 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		return new SavedState(this);
+	}
+	
+	private void doAddBoincProject() {
+		if (!isFormValid()) // if form is not valid
+			return;
+		
+		if (mConnectionServiceConnection != null) {
+			AccountIn accountIn = new AccountIn();
+			if (mDoAccountCreation)
+				accountIn.user_name = mNickname.getText().toString();
+			
+			accountIn.email_addr = mEmail.getText().toString();
+			accountIn.url = mProjectItem.getUrl();
+			accountIn.passwd = mPassword.getText().toString();
+			
+			mAddingProjectInProgress = true;
+			if (mConnectionManager != null) {
+				mConnectionManager.addProject(accountIn, mDoAccountCreation);
+				showDialog(DIALOG_ADD_PROJECT_PROGRESS);
+			}
+		}
 	}
 	
 	private void afterLoadingProjectConfig(ProjectConfig projectConfig) {
@@ -360,6 +380,16 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			return;
 		}
 		mConfirmButton.setEnabled(true);
+	}
+	
+	private boolean isFormValid() {
+		if ((mEmail.getText().length() == 0) || (mPassword.getText().length() == 0))
+			return false;
+		if (mDoAccountCreation && ((mNickname.getText().toString().length() == 0) ||
+				(mPassword.getText().length() < mMinPasswordLength)))
+			return false;
+		
+		return true;
 	}
 	
 	private void handlePollError(String projectUrl, int errorNum, int operation,

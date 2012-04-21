@@ -30,6 +30,7 @@ import edu.berkeley.boinc.lite.GlobalPreferences;
 import edu.berkeley.boinc.lite.ProjectConfig;
 import edu.berkeley.boinc.lite.ProjectListEntry;
 
+import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.bridge.ClientBridge;
 import sk.boinc.nativeboinc.bridge.ClientBridgeCallback;
 import sk.boinc.nativeboinc.clientconnection.ClientError;
@@ -79,6 +80,7 @@ public class ConnectionManagerService extends Service implements
 	private Set<ClientReceiver> mObservers = new HashSet<ClientReceiver>();
 	private NetworkStatisticsHandler mNetStats = null;
 
+	private BoincManagerApplication mApp = null;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -149,6 +151,7 @@ public class ConnectionManagerService extends Service implements
 		mConnectivityStatus = new ConnectivityStatus(this, this);
 		// Create network statistics handler
 		mNetStats = new NetworkStatisticsHandler(this);
+		mApp = (BoincManagerApplication)getApplication();
 	}
 
 	@Override
@@ -317,9 +320,8 @@ public class ConnectionManagerService extends Service implements
 	
 	@Override
 	public boolean isNativeConnected() {
-		if (mClientBridge != null) {
-			return mClientBridge.isNativeConnected();
-		}
+		if (mClientBridge != null)
+			return mApp.isBoincClientRun() && mClientBridge.isNativeConnected();
 		else return false;
 	}
 

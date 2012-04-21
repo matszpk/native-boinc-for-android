@@ -25,9 +25,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 
 public class EditHostActivity extends AbstractBoincActivity {
@@ -71,7 +75,8 @@ public class EditHostActivity extends AbstractBoincActivity {
 		TextWatcher textWatcher = new TextWatcher() {
 			@Override
 			public void afterTextChanged(Editable s) {
-				setConfirmButtonState();
+				mConfirmButton.setEnabled(isFormValid());
+				//setConfirmButtonState();
 			}
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -94,24 +99,23 @@ public class EditHostActivity extends AbstractBoincActivity {
 			}
 		});
 
+		mPassword.setOnKeyListener(new View.OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+					doAddHost();
+					return true;
+				}
+				return false;
+			}
+		});
+		
 		mConfirmButton = (Button)findViewById(R.id.editHostOk);
-		setConfirmButtonState();
+		mConfirmButton.setEnabled(isFormValid());
+		
 		mConfirmButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
-				int port = BoincManagerApplication.DEFAULT_PORT;
-				if (mPort.getText().length() > 0) {
-					port = Integer.parseInt(mPort.getText().toString());
-				}
-				ClientId clientId = new ClientId(
-						mRowId,
-						mNickname.getText().toString(),
-						mAddress.getText().toString(),
-						port,
-						mPassword.getText().toString()
-						);
-				Intent intent = new Intent().putExtra(ClientId.TAG, clientId);
-				setResult(RESULT_OK, intent);
-				finish();
+				doAddHost();
 			}
 		});
 	}
@@ -125,18 +129,34 @@ public class EditHostActivity extends AbstractBoincActivity {
 		super.onDestroy();
 	}
 
-	private void setConfirmButtonState() {
+	private void doAddHost() {
+		if (!isFormValid())
+			return;
+		
+		int port = BoincManagerApplication.DEFAULT_PORT;
+		if (mPort.getText().length() > 0) {
+			port = Integer.parseInt(mPort.getText().toString());
+		}
+		ClientId clientId = new ClientId(
+				mRowId,
+				mNickname.getText().toString(),
+				mAddress.getText().toString(),
+				port,
+				mPassword.getText().toString()
+				);
+		Intent intent = new Intent().putExtra(ClientId.TAG, clientId);
+		setResult(RESULT_OK, intent);
+		finish();
+	}
+	
+	private boolean isFormValid() {
 		// Check that required fields are non-empty
-		if ( (mNickname.getText().length() == 0) || (mAddress.getText().length() == 0) ) {
+		if ( (mNickname.getText().length() == 0) || (mAddress.getText().length() == 0) )
 			// One of the required fields is empty, we must disable confirm button
-			mConfirmButton.setEnabled(false);
-			return;
-		}
+			return false;
 		// Check that mNickname is unique
-		if (!mDbHelper.hostUnique(mRowId, mNickname.getText().toString())) {
-			mConfirmButton.setEnabled(false);
-			return;
-		}
-		mConfirmButton.setEnabled(true);
+		if (!mDbHelper.hostUnique(mRowId, mNickname.getText().toString()))
+			return false;
+		return true;
 	}
 }

@@ -620,7 +620,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 			String text = getString(R.string.nativeClientStarting);
 			mNotificationController.notifyClientEvent(text, text);
 			
-			// inform that, service is working
+			// inform that service is working
 			mIsWorking = true;
 			notifyChangeIsWorking();
 			

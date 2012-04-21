@@ -27,6 +27,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 
@@ -68,6 +71,16 @@ public class ShutdownDialogActivity extends Activity {
 		doBindRunnerService();
 		
 		showDialog(DIALOG_SHUTDOWN_ASK);
+	}
+	
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		int screenSize = getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+		if (Build.VERSION.SDK_INT < 11 || screenSize != 4)
+			// only when is not honeycomb or screenSize is not xlarge
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 	}
 	
 	@Override

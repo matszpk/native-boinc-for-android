@@ -360,6 +360,10 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	public NativeBoincService getRunnerService() {
 		return mRunner;
 	}
+	
+	public boolean isBoincClientRun() {
+		return mRunner != null && mRunner.isRun();
+	}
 
 	@Override
 	public void onClientStart() {

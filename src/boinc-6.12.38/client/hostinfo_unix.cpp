@@ -236,7 +236,7 @@ double HOST_INFO::host_battery_level() {
             }
         }
         if (battery_dirs[i] == NULL) { // if not found
-            msg_printf(NULL, MSG_INFO, "[battery detect] I cant detect battery!");
+            msg_printf(NULL, MSG_USER_ALERT, "[battery detect] I cant detect battery!");
             batt_files_not_found = true;
             return 0.0;
         }

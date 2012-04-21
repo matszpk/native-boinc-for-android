@@ -588,6 +588,8 @@ const char* suspend_reason_string(int reason) {
     case SUSPEND_REASON_CPU_USAGE: return "CPU is busy";
     case SUSPEND_REASON_NETWORK_QUOTA_EXCEEDED: return "network bandwidth limit exceeded";
     case SUSPEND_REASON_OS: return "requested by operating system";
+    case SUSPEND_REASON_DISCHARGE: return "battery discharged";
+    case SUSPEND_REASON_OVERHEAT: return "battery overheated";
     }
     return "unknown reason";
 }

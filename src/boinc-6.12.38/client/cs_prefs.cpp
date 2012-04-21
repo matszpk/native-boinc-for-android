@@ -93,6 +93,8 @@ int CLIENT_STATE::total_disk_usage(double& size) {
 // See if we should suspend processing
 //
 int CLIENT_STATE::check_suspend_processing() {
+    static double last_level_on_batteries = -1.0;
+    
     if (are_cpu_benchmarks_running()) {
         return SUSPEND_REASON_BENCHMARKS;
     }
@@ -119,17 +121,31 @@ int CLIENT_STATE::check_suspend_processing() {
         if (!global_prefs.run_on_batteries && running_on_batteries) {
             return SUSPEND_REASON_BATTERIES;
         }
-        if (running_on_batteries)
+        if (running_on_batteries) {
+            last_level_on_batteries = host_info.host_battery_level();
             if (global_prefs.run_if_battery_nl_than>0.0 &&
-                host_info.host_battery_level() < global_prefs.run_if_battery_nl_than
+                last_level_on_batteries < global_prefs.run_if_battery_nl_than
             ) {
-                return SUSPEND_REASON_BATTERIES;
+                return SUSPEND_REASON_DISCHARGE;
             }
+        } else {
+            double on_power_supply = host_info.host_battery_level();
+            if (last_level_on_batteries < 0.0) // if not initialized
+                last_level_on_batteries = on_power_supply;
+            if (last_level_on_batteries <= 1.0 || (
+                on_power_supply < global_prefs.run_if_battery_nl_than &&
+                last_level_on_batteries > on_power_supply)) {
+                /*msg_printf(NULL,MSG_INFO,"level battery:%f,%f",last_level_on_batteries,
+                           on_power_supply);*/
+                // again discharging: stop computations
+                return SUSPEND_REASON_DISCHARGE;
+            }
+        }
         
         if (global_prefs.run_if_temp_lt_than<BATT_TEMP_NO_LEVEL &&
             host_info.host_battery_temp() >= global_prefs.run_if_temp_lt_than
         ) {
-            return SUSPEND_REASON_BATTERIES;
+            return SUSPEND_REASON_OVERHEAT;
         }
         
         if (!global_prefs.run_if_user_active && user_active) {

@@ -32,7 +32,7 @@ btop_neon:
                 ldrd r6,[r4]            // save onep
                 /*
                  * WARNING: this factor (adds r6,r6,#XX) is very important.
-                 * shouldnt lesser than 11. This factor amortizes partial results
+                 * shouldnt lesser than 14. This factor amortizes partial results
                  */
                 adds r6,r6,#14          // with factor
                 adc r7,r7,#0

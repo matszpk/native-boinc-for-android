@@ -86,6 +86,10 @@ premod64_neon_init:
                 orr r5,r4,lsr r7
                 lsl r4,r4,r6
                 ldrd r2,[r1]            // onep
+                /*
+                 * WARNING: this factor (adds r2,r2,#XX) is very important.
+                 * shouldnt be lesser than 14. This factor amortizes partial results
+                 */
                 adds r2,r2,#14          // add factor
                 adc r3,r3,#0
                 // onep*bc

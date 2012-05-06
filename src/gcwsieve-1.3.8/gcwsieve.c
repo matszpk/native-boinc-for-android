@@ -21,9 +21,6 @@
 #include "gcwsieve.h"
 #include "version.h"
 #include "arithmetic.h"
-#ifndef NDEBUG
-#include "netnotify.h"
-#endif
 
 #if BOINC
 #include "boinc_api.h"
@@ -57,6 +54,29 @@ uint32_t L1_cache_size = 0;
 uint32_t L2_cache_size = 0;
 #ifdef SMALL_P
 int smallp_phase = 0;
+#endif
+
+#if defined(ARM_NEON) && MULTI_PATH
+int is_neon(void)
+{
+  FILE* file = NULL;
+  int neon = 0;
+  char line[257];
+  
+  file = fopen("/proc/cpuinfo","rb");
+  
+  while ((fgets(line,256,file))!= NULL)
+  {
+    if (strstr(line, "Features\t: ") != line)
+      continue;
+    if (strstr(line,"vfpv3d16")!=NULL)
+      neon=0;
+    else if (strstr(line,"neon")!=NULL)
+      neon=1;
+  }
+  fclose(file);
+  return neon;
+}
 #endif
 
 uint32_t base_opt = 0;
@@ -262,6 +282,9 @@ static const struct option long_opts[] =
 #elif defined(__x86_64__) && MULTI_PATH
     {"intel",      no_argument,       0, '1'},
     {"amd",        no_argument,       0, '2'},
+#elif defined(ARM_NEON) && MULTI_PATH
+    {"novfp",      no_argument,       0, '1'},
+    {"neon",       no_argument,       0, '2'},
 #endif
 #if HAVE_FORK
     {"threads",    required_argument, 0, 't'},
@@ -360,10 +383,6 @@ int main(int argc, char **argv)
 #endif
   int want_help = 0;
   
-#ifndef NDEBUG
-  netnotify_wait();
-#endif
-
 #if BOINC
   boinc_init();
 #endif
@@ -581,6 +600,11 @@ int main(int argc, char **argv)
     else  /* code_path == 2 */
       printf("AMD code path, ");
   }
+#elif defined(ARM_NEON) && MULTI_PATH
+  if (code_path == 0)
+    code_path = (is_neon()) ? 2 : 1;
+  if (verbose_opt && code_path == 2)
+    printf("NEON code path, ");
 #endif
 
   set_cache_sizes(L1_opt,L2_opt);
@@ -649,6 +673,8 @@ int main(int argc, char **argv)
         sieve_sse2();
 #elif defined(__x86_64__)
         sieve_amd();
+#elif defined(ARM_NEON)
+        sieve_neon();
 #endif
         break;
     }
@@ -675,6 +701,8 @@ int main(int argc, char **argv)
         sieve_sse2();
 #elif defined(__x86_64__)
         sieve_amd();
+#elif defined(ARM_NEON)
+        sieve_neon();
 #endif
         break;
     }

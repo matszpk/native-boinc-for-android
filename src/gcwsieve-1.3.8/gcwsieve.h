@@ -114,10 +114,11 @@
 # define CODE_PATH_NAME(name) name##_sse2
 #elif defined(__x86_64__) && MULTI_PATH && CODE_PATH==2
 # define CODE_PATH_NAME(name) name##_amd
+#elif defined(ARM_NEON) && MULTI_PATH && CODE_PATH==2
+# define CODE_PATH_NAME(name) name##_neon
 #else
 # define CODE_PATH_NAME(name) name
 #endif
-
 
 /* sieve.c */
 
@@ -127,8 +128,9 @@ void sieve(void);
 void sieve_sse2(void);
 #elif defined(__x86_64__) && MULTI_PATH
 void sieve_amd(void);
+#elif defined(ARM_NEON) && MULTI_PATH
+void sieve_neon(void);
 #endif
-
 
 /* begin.c */
 
@@ -142,11 +144,12 @@ void set_cache_sizes(uint32_t L1_opt, uint32_t L2_opt);
 int have_sse2(void);
 #elif defined(__x86_64__) && MULTI_PATH
 int is_amd(void);
+#elif defined(ARM_NEON) && MULTI_PATH
+int is_neon(void);
 #endif
 #if PREFETCH_OPT
 int have_prefetch(void);
 #endif
-
 
 /* clock.c */
 

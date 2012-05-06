@@ -1,10 +1,10 @@
 /*
- * btop-arm.S
+ * btop-neon.S
  * Author: Mateusz Szpakowski
  */
 
-                .arch armv6
-                .fpu softvfp
+                .arch armv7-a
+                .fpu neon
                 .eabi_attribute 20, 1
                 .eabi_attribute 21, 1
                 .eabi_attribute 23, 3
@@ -14,9 +14,9 @@
                 .eabi_attribute 30, 2
                 .eabi_attribute 18, 4
                 .align  2
-                .global btop_arm
-                .type   btop_arm, %function
-btop_arm:
+                .global btop_neon
+                .type   btop_neon, %function
+btop_neon:
                 push {r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
                 sub sp,sp,#48
                 mov r4,r1
@@ -90,6 +90,10 @@ btop_arm:
                 adc r7,r7,#0
                 adds r6,r6,r11
                 adc r7,r7,#0
+                // special optimization for NEON
+                // this speedup multiply (high 64bits) of two 64bit values
+                lsr r6,r6,#1
+                
                 strd r6,[r3,#8]         // save T.bbyp
                 ldrd r4,[sp,#8]
                 ldrd r6,[sp,#88]        // restore p
@@ -179,6 +183,10 @@ btop_arm:
                 adc r7,r7,#0
                 adds r6,r6,r5
                 adc r7,r7,#0
+                // special optimization for NEON
+                // this speedup multiply (high 64bits) of two 64bit values
+                lsr r6,r6,#1
+                
                 strd r6,[r3,#8]
                 ldrd r4,[sp,#8]
                 
@@ -284,6 +292,10 @@ btop_arm:
                 adc r7,r7,#0
                 adds r6,r6,r5
                 adc r7,r7,#0
+                // special optimization for NEON
+                // this speedup multiply (high 64bits) of two 64bit values
+                lsr r6,r6,#1
+                
                 strd r6,[r12,#8]
                 ldrd r4,[sp,#8]
                 ldrd r6,[sp,#16]

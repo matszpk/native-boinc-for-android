@@ -10,6 +10,7 @@
 #include "arithmetic.h"
 
 /* compute inverse of A, B - must be coprime */
+#if (SWIZZLE==2)
 uint64_t invmod64_64(uint64_t a, uint64_t b)
 {
   int64_t xm2 = 1LL;
@@ -35,7 +36,6 @@ uint64_t invmod64_64(uint64_t a, uint64_t b)
   }
   return (xm2>=0LL)?xm2:xm2+b;
 }
-
 
 uint64_t revert_swizzle_loop_0(uint64_t X, struct loop_rec_t* LR,
                          int reverts_n, uint64_t p)
@@ -82,3 +82,36 @@ uint64_t revert_swizzle_loop_1(uint64_t X, struct loop_rec_t* LR,
   }
   return (X+p)<<clzb;
 }
+
+#elif (SWIZZLE==6)
+
+uint64_t invmod64_64(uint64_t a, uint64_t b);
+
+void revert_swizzle_loop6(uint64_t* X, struct loop_rec_t* LR,
+                         int reverts_n, uint64_t p)
+{
+  int i, k;
+  uint32_t clzb = mod64_init_data.clzp-2;
+  
+  for (i = 0; i < SWIZZLE; i++)
+  {
+    uint64_t Xi = X[i];
+    Xi >>= clzb;
+    if (Xi>=p)
+        Xi-=p;
+    for (k = 0; k < reverts_n; k++)
+    {
+      uint64_t b = LR[k].G[i]->T;
+      uint64_t invb;
+      b -= p;
+      if (b >= p)
+        b -= p;
+        
+      invb = invmod64_64(b,p);
+      Xi = mulmod64(Xi,invb,p);
+    }
+    Xi = (Xi+p)<<clzb;
+    X[i] = Xi;
+  }
+}
+#endif

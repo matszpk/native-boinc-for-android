@@ -46,6 +46,8 @@ swizzle_loop2_arm:
                 sub r2,r2,#96
                 cmp r2,r1
                 blo .Ltoloop2           // if i<4
+                // pmask
+                ldr r0,[sp,#40]
 .Lloop1:
                 pld [r2,#-256]
                 /* MainCore:
@@ -60,7 +62,7 @@ swizzle_loop2_arm:
                  * r6,r7 - shifted modulo
                  */
                 ldrd r6,[sp,#16]            // D->X[0]
-                
+
                 /* first iteration */
                 ldr r14,[r2,#16+72]        // D->G[i][0]
                 ldrd r8,[r14]            // T[D->G[i][0]].T (newb)
@@ -75,8 +77,7 @@ swizzle_loop2_arm:
                 adc r11,r11,#0
                 adds r10,r10,r3
                 adc r11,r11,#0            // result in r10,r11
-                ldr r12,[sp,#40]
-                and r10,r10,r12            // and masking
+                and r10,r10,r0            // and masking
                 umull r1,r3,r6,r8        // newa*newb
                 mla r3,r7,r8,r3
                 mla r3,r6,r9,r3       // result in r1,r3
@@ -112,8 +113,7 @@ swizzle_loop2_arm:
                 adc r11,r11,#0
                 adds r10,r10,r3
                 adc r11,r11,#0            // result in r10,r11
-                ldr r12,[sp,#40]
-                and r10,r10,r12            // and masking
+                and r10,r10,r0            // and masking
                 umull r1,r3,r6,r8        // newa*newb
                 mla r3,r7,r8,r3
                 mla r3,r6,r9,r3       // result in r1,r3
@@ -149,8 +149,7 @@ swizzle_loop2_arm:
                 adc r11,r11,#0
                 adds r10,r10,r3
                 adc r11,r11,#0            // result in r10,r11
-                ldr r12,[sp,#40]
-                and r10,r10,r12            // and masking
+                and r10,r10,r0            // and masking
                 umull r1,r3,r6,r8        // newa*newb
                 mla r3,r7,r8,r3
                 mla r3,r6,r9,r3       // result in r1,r3
@@ -186,8 +185,7 @@ swizzle_loop2_arm:
                 adc r11,r11,#0
                 adds r10,r10,r3
                 adc r11,r11,#0            // result in r10,r11
-                ldr r12,[sp,#40]
-                and r10,r10,r12            // and masking
+                and r10,r10,r0            // and masking
                 umull r1,r3,r6,r8        // newa*newb
                 mla r3,r7,r8,r3
                 mla r3,r6,r9,r3       // result in r1,r3
@@ -228,8 +226,7 @@ swizzle_loop2_arm:
                 adc r11,r11,#0
                 adds r10,r10,r3
                 adc r11,r11,#0            // result in r10,r11
-                ldr r12,[sp,#40]
-                and r10,r10,r12            // and masking
+                and r10,r10,r0            // and masking
                 umull r1,r3,r6,r8        // newa*newb
                 mla r3,r7,r8,r3
                 mla r3,r6,r9,r3       // result in r2,r3
@@ -265,8 +262,7 @@ swizzle_loop2_arm:
                 adc r11,r11,#0
                 adds r10,r10,r3
                 adc r11,r11,#0            // result in r10,r11
-                ldr r12,[sp,#40]
-                and r10,r10,r12            // and masking
+                and r10,r10,r0            // and masking
                 umull r1,r3,r6,r8        // newa*newb
                 mla r3,r7,r8,r3
                 mla r3,r6,r9,r3       // result in r2,r3
@@ -302,8 +298,7 @@ swizzle_loop2_arm:
                 adc r11,r11,#0
                 adds r10,r10,r3
                 adc r11,r11,#0            // result in r10,r11
-                ldr r12,[sp,#40]
-                and r10,r10,r12            // and masking
+                and r10,r10,r0            // and masking
                 umull r1,r3,r6,r8        // newa*newb
                 mla r3,r7,r8,r3
                 mla r3,r6,r9,r3       // result in r2,r3
@@ -339,8 +334,7 @@ swizzle_loop2_arm:
                 adc r11,r11,#0
                 adds r10,r10,r3
                 adc r11,r11,#0            // result in r10,r11
-                ldr r12,[sp,#40]
-                and r10,r10,r12            // and masking
+                and r10,r10,r0            // and masking
                 umull r1,r3,r6,r8        // newa*newb
                 mla r3,r7,r8,r3
                 mla r3,r6,r9,r3       // result in r2,r3

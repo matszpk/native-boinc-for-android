@@ -249,12 +249,24 @@ static void sieve64(uint64_t p)
           i = swizzle_loop(T,D[cw],i,p);
 #ifndef NDEBUG
 #ifdef HAVE_novfp_loop_data
-        printf("cw=%d,i=%d:X0=%llu:X1=%llu,p=%llu\n", cw, i,
-               D[cw]->X[0]>>clzb, D[cw]->X[1]>>clzb, p);
+#if (SWIZZLE==2)
+          printf("%d,%llu:%d,%llu,%llu\n",cw,p,i,
+                 D[cw]->X[0]>>clzb,D[cw]->X[1]>>clzb);
+#elif (SWIZZLE==6)
+        printf("%d,%llu:%d,%llu,%llu,%llu,%llu,%llu,%llu\n",cw,p,i,
+               D[cw]->X[0]>>clzb,D[cw]->X[1]>>clzb,
+               D[cw]->X[2]>>clzb,D[cw]->X[3]>>clzb,
+               D[cw]->X[4]>>clzb,D[cw]->X[5]>>clzb);
+#endif // SWIZZLE
 #else
-        printf("cw=%d,i=%d:X0=%llu:X1=%llu,p=%llu\n", cw, i,
-               D[cw]->X[0], D[cw]->X[1], p);
-#endif
+#if (SWIZZLE==2)
+          printf("%d,%llu:%d,%llu,%llu\n",cw,p,i,D[cw]->X[0],D[cw]->X[1]);
+#elif (SWIZZLE==6)
+        printf("%d,%llu:%d,%llu,%llu,%llu,%llu,%llu,%llu\n",cw,p,i,
+               D[cw]->X[0],D[cw]->X[1],D[cw]->X[2],D[cw]->X[3],
+               D[cw]->X[4],D[cw]->X[5]);
+#endif // SWIZZLE
+#endif // HAVE_novfp_loop_data
 #endif
       }
       while (i >= 0);

@@ -1,3 +1,6 @@
+Version 0.3.8.1 (alpha) (2012-05-08)
+- added Polish translations
+
 Version 0.3.8 (alpha) (2012-04-21)
 - improved detecting native boinc client
 - added action after pressing enter on last field on the forms

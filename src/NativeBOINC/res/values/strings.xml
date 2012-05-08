@@ -244,7 +244,7 @@
 	<string name="noHostConnected">No host connected</string>
 	<string name="clientConnecting">Client connecting...</string>
 	<string name="selectHostTitle">Current host</string>
-	<string name="selectHostNoneAvailable">No BOINC client configured. Use menu button to add new host(s).</string>
+	<string name="selectHostNoneAvailable">No BOINC client configured.</string>
 	<string name="selectHostDialogTitle">Select host</string>
 	<string name="clientNameNone">None</string>
 	<string name="clientIdNone">0</string>
@@ -276,12 +276,6 @@
 	<string name="clientShutdownTitle">Shutdown client</string>
 	<string name="clientShutdownSummary">Shut down the currently connected core client</string>
 	<string name="clientShutdownNotify">Shutting down the currently connected core client</string>
-	<string name="clientChangePasswordTitle">Change access password</string>
-	<string name="clientChangePasswordSummary">Changing access password for native client</string>
-	<string name="clientProjectConfig">Contacting project</string>
-	<string name="clientCreatingAccount">Creating user account</string>
-	<string name="clientLookingUpAccount">Looking up user account</string>
-	<string name="clientAttachingToProject">Attaching to project</string>
 	<string name="warnShutdownText">The connected core client will be shut down. This manager cannot start the client afterwards.</string>
 	
 	<!--  NativeClient activity -->
@@ -408,8 +402,8 @@
 	<string name="installSuccessfully">Native BOINC client has been installed successfully!</string>
 	<string name="installAddProject">Please tap \'Add  project\' button to add first BOINC project, or \'Synchronize BAM\' if you want to synchronize client with BAM.</string>
 	<string name="installFinished">Installation have been finished. Please tap \'Finish\' button.</string>
-	<string name="installFinishedBut">Installation have been finished without project attachment. Please tap \'Finish\' button.</string>
-	<string name="installWidgetFinished">Notice: We recommends to use NativeBOINC widget to control native client.</string>
+	<string name="installWidgetFinished">Hint: We recommends to use NativeBOINC widget to control native client.</string>
+	<string name="installInfoFinished">Hint: You can also browse Project Wiki on \'https://github.com/matszpk/native-boinc-for-android/wiki\' to get help and informations.</string>
 	<string name="installFinishedBenchmark">During installing first project, BOINC can run benchmark, which works by 30 seconds.</string>
 
 	<string name="installReadBefore">READ BEFORE INSTALLATION:</string>
@@ -423,7 +417,7 @@
 	<string name="installClientNotifyFinish">BOINC client was installed</string>
 	<string name="installProjectNotifyBegin">Installing applications for </string>
 	<string name="installProjectBegin">Installing applications</string>
-	<string name="installProjectNotifyFinish">Applications was installed</string>
+	<string name="installProjectNotifyFinish">Applications were installed</string>
 
 	<string name="youCanChange">Now, you can change:</string>
 	
@@ -603,11 +597,11 @@
 	<string name="nativeClientWorking">Native client is working</string>
 	
 	<!-- boinc Exit code text -->
-	<string name="nativeClientWaitFailed">Naitve client was loosed (but working)!</string>
+	<string name="nativeClientWaitFailed">Native client was loosed (but still working)!</string>
 	<string name="nativeClientNormalExitWithCode">Native client was exited with code</string>
 	<string name="nativeClientSignaled">Native client was exited by signal</string>
 	<string name="nativeClientStoppedByForeign">Native client was stopped by foreign application!</string>
-	<string name="nativeClientStopUnknownReason">Unknown reason why Native client stops</string>
+	<string name="nativeClientStopUnknownReason">Unknown reason why Native client stops itself</string>
 	
 	<!-- native client events -->
 	<string name="eventAttachedProject">New project was attached</string>
@@ -655,7 +649,7 @@
 	<string name="appListParseError">Unable to parse project applications list</string>
 	<string name="clientListDownloadError">Unable to download client list</string>
 	<string name="clientListParseError">Unable to parse client list</string>
-	<string name="projectAppNotFound">Project for this project not found</string>
+	<string name="projectAppNotFound">Application for this project was not found</string>
 	
 	<string name="updateProjectAppError">Unable to finalize updating project applications for</string>
 	

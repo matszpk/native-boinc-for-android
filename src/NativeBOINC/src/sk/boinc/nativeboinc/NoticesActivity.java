@@ -70,8 +70,6 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 	
 	private ArrayList<NoticeInfo> mNotices = new ArrayList<NoticeInfo>();
 	
-	private static final long UPDATES_ON_RESUMES_PERIOD = 4000;
-	
 	private boolean mUpdateNoticesInProgress = false;
 	private long mLastUpdateTime = -1;
 	private boolean mAfterRecreating = false;
@@ -178,8 +176,6 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 		if (Logging.DEBUG) Log.d(TAG, "doUnbindService()");
 		getApplicationContext().unbindService(mServiceConnection);
 	}
-
-
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -224,11 +220,6 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 		
 		mScreenOrientation.setOrientation();
 		mRequestUpdates = true;
-		if (mConnectedClient != null) {
-			// We are connected right now, request fresh data
-			if (Logging.DEBUG) Log.d(TAG, "onResume() - Starting refresh of data");
-			mConnectionManager.updateNotices();
-		}
 		
 		Log.d(TAG, "onUpdateNoticesProgress:"+mUpdateNoticesInProgress);
 		if (mConnectedClient != null) {
@@ -324,7 +315,6 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 			// Connected client is retrieved
 			if (Logging.DEBUG) Log.d(TAG, "Client is connected");
 			if (mRequestUpdates) {
-				mConnectionManager.updateNotices();
 				if (!mUpdateNoticesInProgress && !mAfterRecreating) {
 					if (Logging.DEBUG) Log.d(TAG, "do update notices");
 					mUpdateNoticesInProgress = true;
@@ -364,9 +354,9 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 
 	@Override
 	public boolean updatedNotices(ArrayList<NoticeInfo> notices) {
-		// TODO Auto-generated method stub
 		mUpdateNoticesInProgress = false;
 		mLastUpdateTime = SystemClock.elapsedRealtime();
+		if (Logging.DEBUG) Log.d(TAG, "After update notices");
 		if (mNotices.size() != notices.size()) {
 			// Number of notices has changed (increased)
 			// This is the only case when we need an update, because content of notices
@@ -400,7 +390,7 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 
 	@Override
 	public void onStartAutoRefresh(int requestType) {
-		if (requestType == AutoRefresh.MESSAGES) // in progress
+		if (requestType == AutoRefresh.NOTICES) // in progress
 			mUpdateNoticesInProgress = true;
 	}
 }

@@ -1347,7 +1347,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			mProjectDistribs = ProjectDistribListParser.parse(inStream);
 			if (mProjectDistribs != null) {
 				if (notifyResult)
-					notifyProjectDistribs(mProjectDistribs);
+					notifyProjectDistribs(new ArrayList<ProjectDistrib>(mProjectDistribs));
 				// if success
 				return true;
 			} else if (notify) // notify error
@@ -1393,7 +1393,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				mContext.deleteFile("apps.xml");
 				/* errors occurred, but we returns previous value */
 				if (mProjectDistribs != null)
-					notifyProjectDistribs(mProjectDistribs);
+					notifyProjectDistribs(new ArrayList<ProjectDistrib>(mProjectDistribs));
 				return true;
 			}
 			
@@ -1410,7 +1410,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			mContext.deleteFile("apps.xml");
 			/* errors occurred, but we returns previous value */
 			if (mProjectDistribs != null)
-				notifyProjectDistribs(mProjectDistribs);
+				notifyProjectDistribs(new ArrayList<ProjectDistrib>(mProjectDistribs));
 			return true;
 		} finally {
 			// hanbdler doesnt working currently

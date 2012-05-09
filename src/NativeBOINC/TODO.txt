@@ -7,8 +7,8 @@ Na Teraz:
   * usunąć problemy z brakiem stabilności
 / * poprawić layout Local preferences
 / * dodać opcję ustawiania dni w Local preferences
-  * przetestować Notices tab
-  * przetestować Transfers tab
+/ * przetestować Notices tab
+/ * przetestować Transfers tab
   * przetestować instalacje (także podczas działania)
 / * poprawić refresh auto refresh (po resume)
   * przetestować obsługę zmiany orientacji

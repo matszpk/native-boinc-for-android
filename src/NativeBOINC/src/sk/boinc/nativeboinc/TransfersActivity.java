@@ -575,7 +575,6 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 			if (Logging.DEBUG) Log.d(TAG, "Client is connected");
 			if (mRequestUpdates) {
 				// Request fresh data
-				mConnectionManager.updateTransfers();
 				if (!mUpdateTransfersInProgress && !mAfterRecreating) {
 					if (Logging.DEBUG) Log.d(TAG, "do update transfers");
 					mUpdateTransfersInProgress = true;
@@ -586,6 +585,7 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 					
 					if (autoRefresh != -1) {
 						long period = SystemClock.elapsedRealtime()-mLastUpdateTime;
+						Log.d(TAG, "period at update:"+period+","+(autoRefresh*1000-period));
 						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TRANSFERS,
 								(int)(autoRefresh*1000-period));
 					} else

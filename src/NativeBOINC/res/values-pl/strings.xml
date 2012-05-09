@@ -51,14 +51,14 @@
 	<string name="notice">Powiadomienie</string>
 	<string name="ok">OK</string>
 	<string name="apply">Zastosuj</string>
-	<string name="projectSuspendedByUser">Projekt wstrzymany przez użytkownika</string>
+	<string name="projectSuspendedByUser">Projekt wstrzymany przez użytk.</string>
 	<string name="received">Odebrane</string>
 	<string name="retrievingData">Pobieranie danych...</string>
 	<string name="retrievingInitialData">Pobieranie początkowych danych...</string>
 	<string name="sent">Wysłane</string>
 	<string name="shutdown">Wyłącz</string>
 	<string name="sources">Kod źródłowy</string>
-	<string name="taskSuspendedByUser">Zadanie wstrzymane przez użytkownika</string>
+	<string name="taskSuspendedByUser">Zadanie wstrzymane przez użytk.</string>
 	<string name="unknown">nieznane</string>
 	<string name="upgradedTo">Zaktualizowany do</string>
 	<string name="warning">Ostrzeżenie</string>
@@ -98,7 +98,7 @@
 	<string name="projects">Projekty</string>
 	<string name="tasks">Zadania</string>
 	<string name="transfers">Transfery</string>
-	<string name="messages">Komunikaty</string>
+	<string name="messages">Logi</string>
 	<string name="notices">Powiadom.</string>
 	<string name="closeWarning">Wciśnij Back jeszcze (wciągu 5 sekund) żeby wyjść</string>
 
@@ -150,9 +150,9 @@
 	<string name="prefWidgetUpdateInterval">Okresowe odśwież. Widgeta</string>
 	<string name="prefWidgetUpdateIntervalSummary">Widget odświeżany co</string>
 	<string name="prefCategoryNetworkBW">Przepustowość sieci</string>
-	<string name="prefAutoUpdateIntervalWiFi">Okresowe odśwież. przy WiFi</string>
-	<string name="prefAutoUpdateIntervalMobile">Okresowe odśwież. przy mobilnym</string>
-	<string name="prefAutoUpdateIntervalLocalhost">Okresowe odśwież. przy localhost</string>
+	<string name="prefAutoUpdateIntervalWiFi">Okresowe odśwież. w WiFi</string>
+	<string name="prefAutoUpdateIntervalMobile">Okresowe odśwież. w komórkowej sieci</string>
+	<string name="prefAutoUpdateIntervalLocalhost">Okresowe odśwież. w localhost</string>
 	<string name="prefAutoUpdateIntervalSummary">Automatyczne odświeżanie co</string>
 	<string name="prefLimitMessagesTitle">Ograniczenie liczby komunikatów</string>
 	<string name="prefLimitMessagesDisabled">Pobieraj wszystkie komunikaty przy łączeniu (wymaga przepustowości)</string>
@@ -446,7 +446,7 @@
 	<string name="projectANW">Pobieraj nowe dane</string>
 	<string name="projectProperties">Właściwości</string>
 	<string name="projectStatusActive">Aktywny</string>
-	<string name="projectStatusSuspended">Wstrzymany przez użytkownika</string>
+	<string name="projectStatusSuspended">Wstrzymany przez użytk.</string>
 	<string name="projectStatusNNW">Nie ma nowych zadań</string>
 	
 	<string name="warnDetachProject">Czy jesteś pewien, że chcesz odłączyć projekt (%1$s)?</string>
@@ -563,7 +563,7 @@
 	<string name="lockWeAreComputing">My liczymy...</string>
 	<string name="lockNotRan">Nie uruchomiony</string>
 	<string name="lockTasksSuspended">Zadania wstrzymane</string>
-	<string name="lockToUnlock">Wciśnij przycisk HOME w celu odblokowania</string>
+	<string name="lockToUnlock">Wciśnij przycisk HOME by odblokować</string>
 	
 	<string name="clientDisconnected">Klient rozłączony</string>
 	<!-- Client Error display -->

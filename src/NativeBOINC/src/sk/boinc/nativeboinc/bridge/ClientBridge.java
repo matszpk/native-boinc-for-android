@@ -414,7 +414,7 @@ public class ClientBridge implements ClientRequestHandler {
 					
 					boolean periodicAllowed = callback.updatedNotices(notices);
 					if (periodicAllowed)
-						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.MESSAGES, -1);
+						mAutoRefresh.scheduleAutomaticRefresh(callback, AutoRefresh.NOTICES, -1);
 				}
 			}
 		}

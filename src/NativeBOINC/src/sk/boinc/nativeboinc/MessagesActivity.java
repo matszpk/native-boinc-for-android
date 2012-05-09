@@ -247,11 +247,6 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 		
 		mScreenOrientation.setOrientation();
 		mRequestUpdates = true;
-		if (mConnectedClient != null) {
-			// We are connected right now, request fresh data
-			if (Logging.DEBUG) Log.d(TAG, "onResume() - Starting refresh of data");
-			mConnectionManager.updateMessages();
-		}
 		
 		Log.d(TAG, "onUpdaMessagesprogress:"+mUpdateMessagesInProgress);
 		if (mConnectedClient != null) {
@@ -360,9 +355,8 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 			// Connected client is retrieved
 			if (Logging.DEBUG) Log.d(TAG, "Client is connected");
 			if (mRequestUpdates) {
-				mConnectionManager.updateMessages();
 				if (!mUpdateMessagesInProgress && !mAfterRecreating) {
-					if (Logging.DEBUG) Log.d(TAG, "do update messages");
+					if (Logging.DEBUG) Log.d(TAG, "do update messages 2");
 					mUpdateMessagesInProgress = true;
 					mConnectionManager.updateMessages();
 				} else {
@@ -405,6 +399,9 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 	public boolean updatedMessages(ArrayList<MessageInfo> messages) {
 		mUpdateMessagesInProgress = false;
 		mLastUpdateTime = SystemClock.elapsedRealtime();
+		
+		if (Logging.DEBUG) Log.d(TAG, "After message updates");
+		
 		if (mUnfilteredMessages.size() != messages.size()) {
 			// Number of messages has changed (increased)
 			// This is the only case when we need an update, because content of messages

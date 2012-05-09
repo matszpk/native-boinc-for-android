@@ -100,7 +100,7 @@
 	<!-- States of task (active tasks only) -->
 	<string-array name="activeTaskStates">
 		<item>Gotowe do uruch.</item>  <!-- 0 PROCESS_UNINITIALIZED (process doesn't exist yet) -->
-		<item>Uruchomianie</item>         <!-- 1 PROCESS_EXECUTING (process is running, as far as we know) -->
+		<item>Uruchomione</item>         <!-- 1 PROCESS_EXECUTING (process is running, as far as we know) -->
 		<item>Wyjście</item>          <!-- 2 *PROCESS_EXITED -->
 		<item>Wyjście</item>          <!-- 3 *PROCESS_WAS_SIGNALED     -->
 		<item>Wyjście</item>          <!-- 4 *PROCESS_EXIT_UNKNOWN   -->

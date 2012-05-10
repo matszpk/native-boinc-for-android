@@ -9,7 +9,7 @@ Na Teraz:
 / * dodać opcję ustawiania dni w Local preferences
 / * przetestować Notices tab
 / * przetestować Transfers tab
-  * przetestować instalacje (także podczas działania)
+  * przetestować instalacje (także podczas działania) (na teraz!)
 / * poprawić refresh auto refresh (po resume)
   * przetestować obsługę zmiany orientacji
   * poprawić obsługę ponownego łączenia po restarcie (np.: po zmianie w native client)
@@ -19,6 +19,7 @@ Na Teraz:
   * poprawić obsługę błędów w instalatorze (install activities)
   * rozszerzyc tekst na koncowym ekranie instalatora
 / * poprawic menu w main screen (Android 4.0) (częsciowo)
+  * przetestować autoinstalację po BAM
 
 ---------------------------------------------------------------
 

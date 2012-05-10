@@ -894,6 +894,9 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 				mSelectedClient = dbHelper.fetchHost("nativeboinc");
 				dbHelper.close();
 				showDialog(DIALOG_RESTART_PROGRESS);
+				
+				if (mRunner != null && mRunner.isRestarted())
+					onClientStart();
 			}
 		default:
 			break;
@@ -976,6 +979,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 			if (!mConnectClientAfterRestart)
 				// connect when not after restart
 				boincConnect();
+			
 		} else {
 			StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, mRunner,
 					prevConnectedClient);

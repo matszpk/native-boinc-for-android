@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
+import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
@@ -49,6 +50,7 @@ public class InstallationOps {
 	private static final String TAG = "InstallationOps";
 
 	private Context mContext = null;
+	private BoincManagerApplication mApp = null;
 	
 	private InstallerService.ListenerHandler mListenerHandler = null;
 	
@@ -61,6 +63,7 @@ public class InstallationOps {
 	
 	public InstallationOps(Context context, InstallerService.ListenerHandler listenerHandler) {
 		mContext = context;
+		mApp = (BoincManagerApplication)mContext.getApplicationContext();
 		mListenerHandler = listenerHandler;
 		mExternalPath = Environment.getExternalStorageDirectory().toString();
 	}
@@ -147,6 +150,25 @@ public class InstallationOps {
 		return copied;
 	}
 	
+	public static boolean isDestinationExists(String directory) {
+		String outPath = null;
+		String externalPath = Environment.getExternalStorageDirectory().toString();
+		
+		if (externalPath.endsWith("/")) {
+			if (directory.startsWith("/"))
+				outPath = externalPath+directory.substring(1);
+			else
+				outPath = externalPath+directory;
+		} else {
+			if (directory.startsWith("/"))
+				outPath = externalPath+directory;
+			else
+				outPath = externalPath+"/"+directory;
+		}
+		
+		return new File(outPath).exists();
+	}
+	
 	/**
 	 * main routine of dumping boinc files into sdcard
 	 * @param directory
@@ -170,8 +192,8 @@ public class InstallationOps {
 		if (Logging.DEBUG) Log.d(TAG, "DumpBoinc: OutPath:"+outPath);
 		
 		File fileDir = new File(outPath);
-		if (!fileDir.exists()) // create directory before 
-			fileDir.mkdirs();
+		deleteDirectory(fileDir);
+		fileDir.mkdirs();
 		
 		notifyDumpBegin();
 		
@@ -205,7 +227,11 @@ public class InstallationOps {
 	}
 	
 	private void deleteDirectory(File dir) {
-		for (File file: dir.listFiles()) {
+		File[] listFiles = dir.listFiles();
+		if (listFiles == null)
+			return;
+		
+		for (File file: listFiles) {
 			if (file.isDirectory())
 				deleteDirectory(file);
 			else
@@ -271,7 +297,6 @@ public class InstallationOps {
 			
 			if (Logging.DEBUG) Log.d(TAG, "Adding nativeboinc to hostlist");
 			// add nativeboinc to client list
-	    	HostListDbAdapter dbAdapter = null;
 	    		
 	    	try {
 	    		// set up waiting for benchmark 
@@ -280,27 +305,17 @@ public class InstallationOps {
 				sharedPrefs.edit().putBoolean(PreferenceName.WAITING_FOR_BENCHMARK, true)
 						.commit();
 				
-	    		String accessPassword = NativeBoincUtils.getAccessPassword(mContext);
-	    		dbAdapter = new HostListDbAdapter(mContext);
-	    		dbAdapter.open();
-	    		dbAdapter.addHost(new ClientId(0, "nativeboinc", "127.0.0.1",
-	    				31416, accessPassword));
-	    		
 	    		// change hostname
 	    		NativeBoincUtils.setHostname(mContext, Build.PRODUCT);
-	    	} catch(IOException ex) {
-	    		notifyReinstallError(mContext.getString(R.string.getAccessPasswordError));
-	    	} finally {
-	    		if (dbAdapter != null)
-	    			dbAdapter.close();
-	    	}
+	    	} catch(IOException ex) { }
 	    	
 	    	if (mDoCancelReinstall) {
 				notifyReinstallCancel();
 				return;
 			}
 			
-    		mRunner.startClient(true);
+	    	mApp.setRunRestartAfterReinstall(); // inform runner
+			mRunner.startClient(true);
 	    	notifyReinstallFinish();
 		} catch(Exception ex) {
 			if (Logging.ERROR) Log.e(TAG, "on client install finishing:"+

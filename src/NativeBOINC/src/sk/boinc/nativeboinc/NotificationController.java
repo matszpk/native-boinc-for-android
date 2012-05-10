@@ -289,7 +289,7 @@ public class NotificationController {
 		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 0);
 		
 		Notification notification = new Notification(R.drawable.ic_progress,
-				mAppContext.getString(R.string.nativeReinstallTitle),
+				mAppContext.getString(R.string.reinstallInProgress),
 				System.currentTimeMillis());
 		notification.contentIntent = pendingIntent;
 		RemoteViews contentView = new RemoteViews(mAppContext.getPackageName(),

@@ -293,6 +293,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 	private Notification mServiceNotification = null;
 	
 	private boolean mDoRestart = false;
+	// if restarted
+	private boolean mStartAtRestarting = false; //  
+	private boolean mIsRestarted = false;
 	
 	/*
 	 * notifications
@@ -471,6 +474,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 			}
 			
 			mIsRun = true;
+			if (mSecondStart) {
+				// restart after reinstall
+				mApp.setRestartedAfterReinstall();
+			}
 			notifyClientStart();
 			
 			int exitCode = 0;
@@ -659,6 +666,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 			mIsWorking = true;
 			notifyChangeIsWorking();
 			
+			mStartAtRestarting = false;
+			mIsRestarted = false;
+			
 			mNativeKillerThread = new NativeKillerThread();
 			mNativeKillerThread.start();
 			mWorkerThread.shutdownClient();
@@ -694,6 +704,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 			return false;
 		
 		return mNativeBoincThread.mIsRun;
+	}
+	
+	public boolean isRestarted() {
+		return mIsRestarted;
 	}
 	
 	/**
@@ -745,6 +759,11 @@ public class NativeBoincService extends Service implements MonitorListener,
 	private synchronized void notifyClientStart() {
 		// inform that, service finished work
 		mIsWorking = false;
+		if (mStartAtRestarting || mApp.restartedAfterReinstall()) {
+			mIsRestarted = true;
+			mStartAtRestarting = false;
+		}
+		
 		notifyChangeIsWorking();
 		
 		mListenerHandler.post(new Runnable() {
@@ -756,6 +775,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 	}
 	
 	private synchronized void notifyClientStop(final int exitCode, final boolean stoppedByManager) {
+		mStartAtRestarting = false;
+		mIsRestarted = false;
+		
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
@@ -785,6 +807,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 				if (mDoRestart) {
 					if (Logging.DEBUG) Log.d(TAG, "After shutdown, start native client");
 					mDoRestart = false;
+					mStartAtRestarting = true;
 					startClient(false);
 				}
 			}
@@ -794,6 +817,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 	private synchronized void notifyClientError(final String message) {
 		// inform that, service finished work
 		mIsWorking = false;
+		mStartAtRestarting = false;
+		mIsRestarted = false;
 		notifyChangeIsWorking();
 		
 		mListenerHandler.post(new Runnable() {

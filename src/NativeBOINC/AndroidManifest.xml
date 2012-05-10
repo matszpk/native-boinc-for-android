@@ -140,7 +140,7 @@
 		
 		<activity android:name=".ProgressActivity"
 			android:launchMode="singleTop"
-			android:label="@string/installingUpdating" />
+			android:label="@string/operationsProgress" />
 		
 		<activity android:name=".ScreenLockActivity"
 			android:theme="@style/ScreenLockScreen"

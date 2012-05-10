@@ -315,7 +315,6 @@
 	
 	<string name="updateFromSDCard">Update binaries from SDCard</string>
 	<string name="enterUpdateDir">Wpisz katalog z aktualizacjami</string>
-	
 	<string name="applyAfterRestart">Zmiany będą zastosowane po restarcie. Czy chcesz zrestartować klienta teraz?</string>
 	
 	<!-- dump boinc files -->
@@ -325,8 +324,10 @@
 	<string name="dumpBoincProgress">Robienie zrzutu plików BOINC\'a</string>
 	<string name="dumpBoincFinish">Zrobiono zrzut plików BOINC\'a</string>
 	<string name="dumpBoincError">Błąd podczas zrzutu: %s</string>
+	<string name="dumpBoincWarn">Katalog %s istnieje. Podczas robienia zrzutu zostanie usunięty. Czy naprawdę chcesz kontynuować?</string>
 	
 	<!-- reinstall boinc -->
+	<string name="reinstallInProgress">Reinstalowanie BOINC\'a</string>
 	<string name="reinstallFinish">Reinstalacja zakończona</string>
 	<string name="reinstallQuestion">Reinstalacja usuwa cały katalog BOINC\'a (włącznie z projektami). Czy chcesz naprawdę zrobić reinstalację BOINC\'a?</string>
 	<string name="waitingForShutdown">Czekanie na wyłączenie</string>
@@ -433,8 +434,8 @@
 	<string name="changes">Zmiany</string>
 	
 	<string name="noInstallOpsText">Nie ma operacji w tle.</string>
-	<string name="installProgressText">Instalator wykonuje pewne operacje w tle.</string>
-	<string name="installingUpdating">Instalowanie/Aktualizacja binarii</string>
+	<string name="installProgressText">NativeBOINC wykonuje pewne operacje w tle.</string>
+	<string name="operationsProgress">Postęp operacji</string>
 	
 	<!-- ProjectsActivity -->
 	<string name="projectCtxMenuTitle">Komendy</string>

@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.AbstractInstallerListener;
+import sk.boinc.nativeboinc.installer.InstallationOps;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.nativeclient.AbstractNativeBoincListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
@@ -64,9 +65,12 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	private static final int DIALOG_ENTER_DUMP_DIRECTORY = 2;
 	private static final int DIALOG_REINSTALL_QUESTION = 3;
 	private static final int DIALOG_ENTER_UPDATE_DIRECTORY = 4;
+	private static final int DIALOG_DUMP_WARNING = 5;
 	
 	/* information for main activity (for reconnect) */
 	public static final String RESULT_DATA_RESTARTED = "Restarted";
+	
+	private static final String DUMP_DIRECTORY_ARG = "DumpDir";
 	
 	private ScreenOrientationHandler mScreenOrientation;
 	
@@ -75,6 +79,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	
 	private NativeBoincService mRunner = null;
 	private boolean mDelayedRunnerListenerRegistration = false;
+	
+	private BoincManagerApplication mApp;
 	
 	private boolean mDoRestart = false;
 	private boolean mAllowRemoteHosts;
@@ -168,6 +174,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		super.onCreate(savedInstanceState);
+		
+		mApp = (BoincManagerApplication)getApplication();
 		
 		final SavedState savedState = (SavedState)getLastNonConfigurationInstance();
 		if (savedState != null)
@@ -389,6 +397,7 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	@Override
 	protected void onDestroy() {
 		mScreenOrientation = null;
+		mApp.resetRestartAfterReinstall();
 		unbindRunnerService();
 		unbindInstallerService();
 		super.onDestroy();
@@ -398,8 +407,16 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	public void onBackPressed() {
 		if (isRestartRequired() && mRunner != null && mRunner.isRun()) {
 			showDialog(DIALOG_APPLY_AFTER_RESTART);
-		} else
+		} else {
+			if (mApp.restartedAfterReinstall()) {
+				// inform, that client restarted after reinstall
+				Intent data = new Intent();
+				data.putExtra(RESULT_DATA_RESTARTED, true);
+				setResult(RESULT_OK, data);
+				finish();
+			}
 			finish();
+		}
 	}
 	
 	@Override
@@ -419,8 +436,14 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 					public void onClick(DialogInterface dialog, int which) {
 						String dumpDir = edit.getText().toString();
 						if (!dumpDir.isEmpty()) {
-							mInstaller.dumpBoincFiles(dumpDir);
-							startActivity(new Intent(NativeClientActivity.this, ProgressActivity.class));
+							if (!InstallationOps.isDestinationExists(dumpDir)) {
+								mInstaller.dumpBoincFiles(dumpDir);
+								startActivity(new Intent(NativeClientActivity.this, ProgressActivity.class));
+							} else {
+								Bundle dumpDialogArgs = new Bundle();
+								dumpDialogArgs.putString(DUMP_DIRECTORY_ARG, dumpDir);
+								showDialog(DIALOG_DUMP_WARNING, dumpDialogArgs);
+							}
 						}
 					}
 				})
@@ -501,8 +524,42 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 				})
 				.setNegativeButton(R.string.cancel, null)
 				.create();
+		case DIALOG_DUMP_WARNING:
+			return new AlertDialog.Builder(this)
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setTitle(R.string.warning)
+				.setMessage("")	// this is trick for alert dialog
+				.setPositiveButton(R.string.yesText, null)
+				.setNegativeButton(R.string.noText, null)
+				.create();
 		}
 		return null;
+	}
+	
+	@Override
+	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
+		EditText edit = null;
+		switch (dialogId) {
+		case DIALOG_ENTER_UPDATE_DIRECTORY:
+		case DIALOG_ENTER_DUMP_DIRECTORY:
+			edit = (EditText)dialog.findViewById(android.R.id.edit);
+			edit.setText("");
+			break;
+		case DIALOG_DUMP_WARNING: {
+			final String dumpDir = args.getString(DUMP_DIRECTORY_ARG);
+			AlertDialog alertDialog = ((AlertDialog)dialog);
+			alertDialog.setMessage(getString(R.string.dumpBoincWarn, dumpDir));
+			alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.yesText),
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						mInstaller.dumpBoincFiles(dumpDir);
+						startActivity(new Intent(NativeClientActivity.this, ProgressActivity.class));
+					}
+				});
+			break;
+			}
+		}
 	}
 	
 	@Override

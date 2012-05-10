@@ -98,6 +98,11 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	
 	private boolean mDoStartClientAfterBind = false;
 	
+	// restart after reinstall handling
+	private Object mRestartAfterReinstallSync = new Object();
+	private boolean mRunRestartAfterReinstall = false;
+	private boolean mRestartedAfterReinstall = false;
+	
 	private ServiceConnection mRunnerServiceConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
@@ -469,5 +474,38 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	@Override
 	public void onChangeRunnerIsWorking(boolean isWorking) {
 		// TODO Auto-generated method stub
+	}
+	
+	/*
+	 * restart after reinstall handling
+	 */
+	public boolean restartedAfterReinstall() {
+		synchronized (mRestartAfterReinstallSync) {
+			return mRestartedAfterReinstall;
+		}
+	}
+	
+	public void setRunRestartAfterReinstall() {
+		if (Logging.DEBUG) Log.d(TAG, "SetRunRestartAfterInstall");
+		synchronized(mRestartAfterReinstallSync) {
+			mRunRestartAfterReinstall = true;
+		}
+	}
+	
+	public void setRestartedAfterReinstall() {
+		if (Logging.DEBUG) Log.d(TAG, "SetRestartedAfterInstall");
+		synchronized(mRestartAfterReinstallSync) {
+			if (mRunRestartAfterReinstall)
+				mRestartedAfterReinstall = true;
+			mRunRestartAfterReinstall = false;
+		}
+	}
+	
+	public void resetRestartAfterReinstall() {
+		if (Logging.DEBUG) Log.d(TAG, "resetRunRestartAfterInstall");
+		synchronized(mRestartAfterReinstallSync) {
+			mRunRestartAfterReinstall = false;
+			mRestartedAfterReinstall = false;
+		}
 	}
 }

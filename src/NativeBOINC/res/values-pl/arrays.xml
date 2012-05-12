@@ -111,12 +111,6 @@
 		<item>Czekanie na uruch.</item>  <!-- 9 PROCESS_SUSPENDED (we've sent it a "suspend" message)        -->
 	</string-array>
 
-	<string-array name="PGPkeyservers">
-	    <item>pgp.zdv.uni-mainz.de</item>
-	    <item>keyserver.stack.nl</item>
-	    <item>subkeys.pgp.net</item>
-	</string-array>
-	
 	<string-array name="pollOps">
 	    <item>Dołączanie do BAM</item>
 	    <item>Sychronizacja z BAM</item>

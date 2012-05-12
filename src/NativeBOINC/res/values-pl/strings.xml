@@ -111,7 +111,7 @@
 	<string name="menuDisconnect">Rozłącz</string>
 	<string name="menuHosts">Zarządzaj hostami</string>
 	<string name="menuHostInfo">Host Info</string>
-	<string name="menuManage">Zarządzaj</string>
+	<string name="menuManage">Zarządzaj klientem</string>
 	<string name="menuPreferences">Preferencje</string>
 	<string name="menuReconnect">Ponownie połącz</string>
 	<string name="menuRefresh">Odśwież</string>
@@ -279,7 +279,7 @@
 	<string name="warnShutdownText">Połączony klient będzie wyłączony. Ten manager nie może wystartować klienta po tym.</string>
 	
 	<!--  NativeClient activity -->
-	<string name="nativeBoincClient">Natywnt klient BOINC</string>
+	<string name="nativeBoincClient">Natywny klient BOINC</string>
 	<string name="nativeBoincNetwork">Opcje sieciowe</string>
 	
 	<string name="nativeHostnameTitle">Ustaw nazwę hosta</string>
@@ -288,7 +288,7 @@
 	<string name="nativeRemoteAccessTitle">Pozwalaj na dostęp zdalny</string>
 	<string name="nativeRemoteAccessSummaryOn">Pozwalaj na dostęp zdalny z innych hostów</string>
 	<string name="nativeRemoteAccessSummaryOff">Nie pozwalaj na dostęp zdalny z innych hostów</string>
-	<string name="nativeAccessPasswordTitle">Hasło dostepu</string>
+	<string name="nativeAccessPasswordTitle">Hasło dostępu</string>
 	<string name="nativeAccessPasswordSummary">Zmień hasło dostępu dla klienta</string>
 	<string name="nativeAccessListTitle">Lista dostępu dla hostów</string>
 	<string name="nativeAccessListSummary">Lista dostępu dla hostów, ktore mają dostęp do klienta BOINC</string>
@@ -313,7 +313,7 @@
 	
 	<string name="nativeBoincLogs">Ostatnie logi BOINC\'a</string>
 	
-	<string name="updateFromSDCard">Update binaries from SDCard</string>
+	<string name="updateFromSDCard">Aktualizuj binaria z karty SD</string>
 	<string name="enterUpdateDir">Wpisz katalog z aktualizacjami</string>
 	<string name="applyAfterRestart">Zmiany będą zastosowane po restarcie. Czy chcesz zrestartować klienta teraz?</string>
 	
@@ -420,7 +420,7 @@
 	<string name="installProjectBegin">Instalowanie aplikacji</string>
 	<string name="installProjectNotifyFinish">Aplikacje zostały zainstalowane</string>
 
-	<string name="youCanChange">Teraz, możesz zmienić:</string>
+	<string name="youCanChange">Teraz możesz zmienić:</string>
 	
 	<!-- Change password activity -->
 	<string name="accessPassword">Hasło dostępu</string>

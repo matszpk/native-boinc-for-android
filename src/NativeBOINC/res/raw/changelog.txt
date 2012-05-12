@@ -1,3 +1,8 @@
+Version 0.3.9 (alpha) (2012-05-12)
+- added Czech translation (thanks for Haer and eLPeCKo from CNT)
+- fixed (directory deleting) (reinstall, dumping)
+- fixed reconnecting after restart
+
 Version 0.3.8.2 (alpha) (2012-05-09)
 - fixed refresh behavior on the tabs
 - fixed small Polish translations

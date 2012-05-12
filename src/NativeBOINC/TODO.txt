@@ -12,8 +12,8 @@ Na Teraz:
   * przetestować instalacje (także podczas działania) (na teraz!)
 / * poprawić refresh auto refresh (po resume)
   * przetestować obsługę zmiany orientacji
-  * poprawić obsługę ponownego łączenia po restarcie (np.: po zmianie w native client)
-  * przetestować opcję update from sdcard
+/ * poprawić obsługę ponownego łączenia po restarcie (np.: po zmianie w native client)
+/ * przetestować opcję update from sdcard
   * przetestować opcje z Preferences
 / * wprowadzić listę do large widget (android 3.0) (są problemy, zrezygnowano)
   * poprawić obsługę błędów w instalatorze (install activities)

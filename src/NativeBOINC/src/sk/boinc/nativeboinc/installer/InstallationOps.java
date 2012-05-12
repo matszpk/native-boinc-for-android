@@ -61,9 +61,12 @@ public class InstallationOps {
 	
 	private NativeBoincService mRunner = null;
 	
-	public InstallationOps(Context context, InstallerService.ListenerHandler listenerHandler) {
+	private InstallerHandler mInstallerHandler = null;
+	
+	public InstallationOps(InstallerHandler installerHandler, Context context, InstallerService.ListenerHandler listenerHandler) {
 		mContext = context;
 		mApp = (BoincManagerApplication)mContext.getApplicationContext();
+		mInstallerHandler = installerHandler;
 		mListenerHandler = listenerHandler;
 		mExternalPath = Environment.getExternalStorageDirectory().toString();
 	}
@@ -240,6 +243,7 @@ public class InstallationOps {
 			if (mDoCancelReinstall)
 				return;
 		}
+		dir.delete();
 	}
 	
 	private Semaphore mShutdownClientSem = new Semaphore(1);
@@ -273,6 +277,8 @@ public class InstallationOps {
 		}
 		
 		deleteDirectory(mContext.getFileStreamPath("boinc"));
+		
+		mContext.getFileStreamPath("boinc").mkdir();
 		
 		if (mDoCancelReinstall) {
 			notifyReinstallCancel();
@@ -314,6 +320,9 @@ public class InstallationOps {
 				return;
 			}
 			
+	    	// 
+	    	mInstallerHandler.synchronizeInstalledProjects();
+	    	
 	    	mApp.setRunRestartAfterReinstall(); // inform runner
 			mRunner.startClient(true);
 	    	notifyReinstallFinish();

@@ -42,6 +42,7 @@ import java.util.zip.ZipFile;
 import edu.berkeley.boinc.lite.Project;
 import edu.berkeley.boinc.nativeboinc.ClientEvent;
 
+import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.MonitorListener;
@@ -75,6 +76,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	private final static String TAG = "InstallerHandler";
 
 	private Context mContext = null;
+	private BoincManagerApplication mApp = null;
 	
 	private InstallerService.ListenerHandler mListenerHandler;
 	
@@ -107,11 +109,13 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	public InstallerHandler(final Context context, InstallerService.ListenerHandler listenerHandler) {
 		mContext = context;
 		
+		mApp = (BoincManagerApplication)context.getApplicationContext();
+		
 		Log.d(TAG, "Number of processors:"+ RuntimeUtils.getRealCPUCount());
 		mExecutorService = Executors.newFixedThreadPool(RuntimeUtils.getRealCPUCount());
 		
 		mDownloader = new Downloader(context, listenerHandler);
-		mInstallOps = new InstallationOps(context, listenerHandler);
+		mInstallOps = new InstallationOps(this, context, listenerHandler);
 		mListenerHandler = listenerHandler;
 		mDistribManager = new InstalledDistribManager(context);
 		mDistribManager.load();
@@ -512,6 +516,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				    	/* give control over installation to NativeBoincService (second start) */
 				    	mIsClientBeingInstalled = false;
 				    	
+				    	mApp.setRunRestartAfterReinstall(); // inform runner
 			    		mRunner.startClient(false);
 				    	
 				    	mDelayedClientShutdownSem.release();
@@ -1575,6 +1580,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				// if error
 				notifyError("", "", "Cant");
 				return;
+			} finally {
+				try {
+					inputStream.close();
+				} catch(IOException ex) { }
 			}
 		} else {
 			if (Logging.DEBUG) Log.d(TAG, "ProjectUrls From native boinc client");

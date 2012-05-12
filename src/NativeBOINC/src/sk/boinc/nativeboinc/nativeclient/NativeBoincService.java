@@ -293,7 +293,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 	private Notification mServiceNotification = null;
 	
 	private boolean mDoRestart = false;
-	// if restarted
+	// if restarted (used by BoincManagerActivity to determine whether reconnecting required)
 	private boolean mStartAtRestarting = false; //  
 	private boolean mIsRestarted = false;
 	
@@ -474,10 +474,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 			}
 			
 			mIsRun = true;
-			if (mSecondStart) {
-				// restart after reinstall
-				mApp.setRestartedAfterReinstall();
-			}
+			// restart after reinstall/update
+			mApp.setRestartedAfterReinstall();
 			notifyClientStart();
 			
 			int exitCode = 0;

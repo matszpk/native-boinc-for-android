@@ -51,7 +51,8 @@
 		android:layout_height="wrap_content"
 		android:layout_marginTop="3dip"
 		android:gravity="left"
-		android:lines="1"
+		android:minLines="1"
+		android:maxLines="2"
 		android:layout_weight="2"
 		android:text="Total:10000000.00 RAC:10000.00 Host:5000000.00 hRAC:5000.00"
 		android:textAppearance="?android:attr/textAppearanceMedium" />

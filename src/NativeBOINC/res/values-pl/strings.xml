@@ -130,6 +130,7 @@
 		Dzięki dla:\n
 		Troll81 - for logo design.\n
 		BOINC@Poland - for support.\n
+		Haer i eLPeCKo (CNT) - tłumaczenie na czeski.\n
 	</string>
 
 	<!-- Preferences -->
@@ -630,7 +631,7 @@
 	<string name="downloadApplicationError">Nie mogę ściągnąć aplikacji projektu</string>
 	<string name="downloadSignatureError">Nie mogę ściągnąć sygnatury</string>
 	<string name="verifySignatureError">Nie mogę zweryfikować sygnatury</string>
-	<string name="verifySignatureFailed">Werfykikacja sygnatury nie powiodła się</string>
+	<string name="verifySignatureFailed">Weryfikacja sygnatury nie powiodła się</string>
 	<string name="unpackNativeClientError">Nie mogę rozpakować natywnego klienta</string>
 	<string name="unpackApplicationError">Nie mogę rozpakować aplikacji projektu</string>
 	<string name="changePermissionsError">Nie mogę zmienić uprawnień</string>

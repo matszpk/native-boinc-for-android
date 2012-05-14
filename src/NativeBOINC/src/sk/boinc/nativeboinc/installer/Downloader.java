@@ -146,7 +146,7 @@ public class Downloader {
 				isDownloaded = true;
 				break;
 			} catch(InterruptedIOException ex) {
-				// if cancelled
+				// (if time out)
 				mContext.deleteFile("pgpkey.pgp");
 				continue;
 			} catch(Exception ex) {	/* on error */

@@ -19,7 +19,7 @@ Na Teraz:
   * poprawić obsługę błędów w instalatorze (install activities)
   * rozszerzyc tekst na koncowym ekranie instalatora
 / * poprawic menu w main screen (Android 4.0) (częsciowo)
-  * przetestować autoinstalację po BAM
+/ * przetestować autoinstalację po BAM (zrobione?)
 
 ---------------------------------------------------------------
 

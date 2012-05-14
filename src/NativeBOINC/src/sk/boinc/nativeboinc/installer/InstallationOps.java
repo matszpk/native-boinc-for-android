@@ -96,12 +96,23 @@ public class InstallationOps {
 	private boolean mDoCancelDumpFiles = false;
 	private boolean mDoCancelReinstall = false;
 	
+	private StringBuilder mStringBuilder = new StringBuilder();
+	
 	private long copyDirectory(File inDir, File outDir, String path, long copied, long inputSize)
 			throws IOException {
 		
 		for (File file: inDir.listFiles()) {
-			File outFile = new File(outDir.getPath()+"/"+file.getName());
-			String newPath = path+"/"+file.getName();
+			mStringBuilder.setLength(0);
+			mStringBuilder.append(outDir.getPath());
+			mStringBuilder.append("/");
+			mStringBuilder.append(file.getName());
+			File outFile = new File(mStringBuilder.toString());
+			
+			mStringBuilder.setLength(0);
+			mStringBuilder.append(path);
+			mStringBuilder.append("/");
+			mStringBuilder.append(file.getName());
+			String newPath = mStringBuilder.toString();
 			
 			if (file.isDirectory()) {
 				if (!outFile.exists())

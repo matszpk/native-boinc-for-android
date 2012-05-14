@@ -182,7 +182,6 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				if (status == Downloader.VERIFICATION_CANCELLED) {
 					Thread.interrupted(); // clear interrupted flag
 					if (Logging.DEBUG) Log.d(TAG, "updateClientDistrib verif canceled");
-					mContext.deleteFile("client.xml");
 					notifyCancel("", "");
 					return false;	// cancelled
 				}
@@ -191,13 +190,11 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					return false;	// cancelled
 				}
 			} catch(InstallationException ex) {
-				mContext.deleteFile("client.xml");
 				return false;
 			}
 
 			if (Thread.interrupted()) { // if cancelled
 				if (Logging.DEBUG) Log.d(TAG, "updateClientDistrib interrupted");
-				mContext.deleteFile("client.xml");
 				return false;
 			}
 			
@@ -218,14 +215,14 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				try {
 					inStream.close();
 				} catch(IOException ex) { }
-				
-				/* delete obsolete file */
-				mContext.deleteFile("client.xml");
 			}
 			
 			if (notifyResult)
 				notifyClientDistrib(mClientDistrib);
 		} finally {
+			// delete obsolete file
+			mContext.deleteFile("client.xml");
+
 			synchronized (this) {
 				mHandlerIsWorking = false;
 				notifyChangeOfIsWorking();
@@ -237,7 +234,6 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	private static final int BUFFER_SIZE = 4096;
 	
 	private ClientInstaller mClientInstaller = null;
-	private Future<?> mClientInstallerFuture = null;
 	
 	private boolean mClientShouldBeRun = false;
 	
@@ -248,9 +244,19 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		private boolean mIsRan = false;
 		
+		private Future<?> mClientInstallerFuture = null;
+		
 		public ClientInstaller(boolean standalone, String sdCardPath) {
 			mStandalone = standalone;
 			mSDCardPath = sdCardPath;
+		}
+		
+		public void setFuture(Future<?> future) {
+			mClientInstallerFuture = future;
+		}
+		
+		public Future<?> getFuture() {
+			return mClientInstallerFuture;
 		}
 		
 		public boolean isRan() {
@@ -597,7 +603,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			mClientInstaller = new ClientInstaller(standalone, null);
 			// notify that client installer is working
 			notifyChangeOfIsWorking();
-			mClientInstallerFuture = mExecutorService.submit(mClientInstaller);
+			Future<?> future = mExecutorService.submit(mClientInstaller);
+			mClientInstaller.setFuture(future);
 		}
 	}
 	
@@ -1235,7 +1242,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						mIsClientBeingInstalled = true;
 						notifyChangeOfIsWorking();
 						mClientInstaller = new ClientInstaller(false, null);
-						mExecutorService.submit(mClientInstaller);
+						Future<?> future = mExecutorService.submit(mClientInstaller);
+						mClientInstaller.setFuture(future);
 					}
 				}
 		
@@ -1294,7 +1302,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						mIsClientBeingInstalled = true;
 						notifyChangeOfIsWorking();
 						mClientInstaller = new ClientInstaller(false, clientFile.getAbsolutePath());
-						mExecutorService.submit(mClientInstaller);
+						Future<?> future = mExecutorService.submit(mClientInstaller);
+						mClientInstaller.setFuture(future);
 					}
 				}
 			}
@@ -1389,13 +1398,11 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			
 			if (status == Downloader.VERIFICATION_CANCELLED) {
 				Thread.interrupted(); // clear interrupted flag
-				mContext.deleteFile("apps.xml");
 				notifyCancel("", "");
 				return false;	// cancelled
 			}
 			if (status == Downloader.VERIFICATION_FAILED) {
 				notifyError("", "", mContext.getString(R.string.verifySignatureFailed));
-				mContext.deleteFile("apps.xml");
 				/* errors occurred, but we returns previous value */
 				if (mProjectDistribs != null)
 					notifyProjectDistribs(new ArrayList<ProjectDistrib>(mProjectDistribs));
@@ -1412,12 +1419,13 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						mContext.getFileStreamPath("apps-old.xml"));			
 			}
 		} catch(InstallationException ex) {
-			mContext.deleteFile("apps.xml");
 			/* errors occurred, but we returns previous value */
 			if (mProjectDistribs != null)
 				notifyProjectDistribs(new ArrayList<ProjectDistrib>(mProjectDistribs));
 			return true;
 		} finally {
+			// delete obsolete file
+			mContext.deleteFile("apps.xml");
 			// hanbdler doesnt working currently
 			synchronized(this) {
 				mHandlerIsWorking = false;
@@ -1436,7 +1444,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		cancelClientInstallation();
 		cancelDumpFiles();
 		for (ProjectAppsInstaller appInstaller: mProjectAppsInstallers.values()) {
-			appInstaller.getFuture().cancel(true);
+			Future<?> future = appInstaller.getFuture();
+			if (future != null)
+				future.cancel(true);
+			
 			if (!appInstaller.isRan()) { // notify cancel if not ran yet
 				ProjectDistrib distrib = appInstaller.getProjectDistrib();
 				notifyCancel(distrib.projectName, distrib.projectUrl);
@@ -1446,12 +1457,14 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	}
 	
 	public synchronized void cancelClientInstallation() {
-		if (mClientInstallerFuture != null) {
-			mClientInstallerFuture.cancel(true);
+		if (mClientInstaller != null) {
+			Future<?> future = mClientInstaller.getFuture();
+			if (future != null)
+				future.cancel(true);
+			
 			if (mClientInstaller != null && !mClientInstaller.isRan()) // notify cancel if not ran yet
 				notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
 		}
-		mClientInstallerFuture = null;
 		mClientInstaller = null;
 	}
 	
@@ -1473,7 +1486,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	public synchronized void cancelProjectAppsInstallation(String projectUrl) {
 		ProjectAppsInstaller appsInstaller = mProjectAppsInstallers.remove(projectUrl);
 		if (appsInstaller != null) {
-			appsInstaller.getFuture().cancel(true);
+			Future<?> future = appsInstaller.getFuture();
+			if (future != null)
+				future.cancel(true);
+			
 			if (!appsInstaller.isRan()) { // notify cancel if not ran yet
 				ProjectDistrib distrib = appsInstaller.getProjectDistrib();
 				notifyCancel(distrib.projectName, distrib.projectUrl);
@@ -1737,7 +1753,6 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	public void dumpBoincFiles(String directory) {
 		if (mDoDumpBoincFiles)
 			return;
-		
 		
 		mDoDumpBoincFiles = true;
 		mHandlerIsWorking = true;

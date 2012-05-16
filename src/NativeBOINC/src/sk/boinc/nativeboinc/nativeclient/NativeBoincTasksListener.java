@@ -23,8 +23,6 @@ import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.util.TaskItem;
 
-import edu.berkeley.boinc.lite.Result;
-
 /**
  * @author mat
  *

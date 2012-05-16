@@ -72,6 +72,7 @@ public class NativeBoincWorkerThread extends Thread {
 		}
 
 		mRpcClient = null;
+		mHandler.destroy();
 		mHandler = null;
 		if (Logging.DEBUG) Log.d(TAG, "run() - Finished" + Thread.currentThread().toString());
 	}

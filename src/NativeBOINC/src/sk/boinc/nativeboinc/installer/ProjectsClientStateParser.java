@@ -36,22 +36,21 @@ import edu.berkeley.boinc.lite.BaseParser;
  * @author mat
  *
  */
-public class ProjectUrlsClientStateParser extends BaseParser {
-	private static final String TAG = "ProjectUrlsClientStateParser";
+public class ProjectsClientStateParser extends BaseParser {
+	private static final String TAG = "ProjectsFromClientRetriever";
 
-	private ArrayList<String> mProjectUrls = new ArrayList<String>();
+	private ProjectDescriptor mProjectDesc = null;
+	private ArrayList<ProjectDescriptor> mProjects = new ArrayList<ProjectDescriptor>();
 	
-	public String[] getProjectUrls() {
-		return mProjectUrls.toArray(new String[0]);
+	public ProjectDescriptor[] getProjects() {
+		return mProjects.toArray(new ProjectDescriptor[0]); // atrape
 	}
 	
-	private boolean mInsideProject = false;
-	
-	public static String[] parse(InputStream inputStream) {
+	public static ProjectDescriptor[] parse(InputStream inputStream) {
 		try {
-			ProjectUrlsClientStateParser parser = new ProjectUrlsClientStateParser();
+			ProjectsClientStateParser parser = new ProjectsClientStateParser();
 			Xml.parse(inputStream, Xml.Encoding.UTF_8, parser);
-			return parser.getProjectUrls();
+			return parser.getProjects();
 		} catch (SAXException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + inputStream);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
@@ -66,7 +65,7 @@ public class ProjectUrlsClientStateParser extends BaseParser {
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		super.startElement(uri, localName, qName, attributes);
 		if (localName.equalsIgnoreCase("project")) {
-			mInsideProject = true;
+			mProjectDesc = new ProjectDescriptor();
 		} else {
 			mElementStarted = true;
 			mCurrentElement.setLength(0);
@@ -77,12 +76,15 @@ public class ProjectUrlsClientStateParser extends BaseParser {
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		super.endElement(uri, localName, qName);
 		if (localName.equalsIgnoreCase("project")) {
-			mInsideProject = false;
-		} else if (mInsideProject) {
+			mProjects.add(mProjectDesc);
+			mProjectDesc = null;
+		} else if (mProjectDesc != null) {
 			trimEnd();
 			
-			if (localName.equalsIgnoreCase("master_url"))
-				mProjectUrls.add(mCurrentElement.toString());
+			if (localName.equalsIgnoreCase("project_name"))
+				mProjectDesc.projectName = mCurrentElement.toString();
+			else if (localName.equalsIgnoreCase("master_url"))
+				mProjectDesc.masterUrl = mCurrentElement.toString();
 		}
 		mElementStarted = false;
 	}

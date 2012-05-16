@@ -78,8 +78,6 @@ public class StandardDialogs {
 			LayoutInflater inflater = LayoutInflater.from(activity);
 			View view = inflater.inflate(R.layout.distrib_info, null);
 
-			String name = args.getString(ARG_DISTRIB_NAME);
-			
 			int titleId = -1;
 			if (dialogId == DIALOG_CLIENT_INFO)
 				titleId = R.string.clientInfo;

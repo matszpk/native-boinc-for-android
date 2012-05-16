@@ -3,9 +3,6 @@
  */
 package sk.boinc.nativeboinc.util;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
-
 import sk.boinc.nativeboinc.bridge.Formatter;
 import sk.boinc.nativeboinc.bridge.TaskInfoCreator;
 import sk.boinc.nativeboinc.clientconnection.ProjectInfo;

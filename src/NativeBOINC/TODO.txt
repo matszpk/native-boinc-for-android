@@ -21,6 +21,10 @@ Na Teraz:
 / * poprawic menu w main screen (Android 4.0) (częsciowo)
 / * przetestować autoinstalację po BAM (zrobione?)
 
+  * dodać opcję dodawania projektów nie wspieranych przez NativeBOINC (dla nativeboinc)
+  * umożliwić instalację aplikacji projektów nie wspieranych z SDCard
+
+  * poprawić autoryzacje clientmonitor (tylko jeden kod autoryzacyjny)
 ---------------------------------------------------------------
 
 / * wprowadzić proces instalacji w oddzielnym wątku z komunikacją po stronie UI

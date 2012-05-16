@@ -66,6 +66,8 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	InstallerUpdateListener, ClientAllProjectsListReceiver {
 	private static final String TAG = "ProjectListActivity";
 	
+	private static final String ARG_FORCE_PROJECT_LIST = "ForceProjectList";
+	
 	private static final int DIALOG_ENTER_URL = 1;
 	
 	public static final int ACTIVITY_ADD_PROJECT = 1;
@@ -154,14 +156,17 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		@Override
 		public int getCount() {
 			if (mProjectDistribs == null)
-				return 0;
-			return mProjectDistribs.size();
+				return 1;
+			return mProjectDistribs.size()+1;
 		}
 
 		@Override
 		public Object getItem(int index) {
-			if (mProjectDistribs == null || mProjectDistribs.size() <= index)
+			if (mProjectDistribs == null || mProjectDistribs.size() <= index) {
+				if (index == 0)
+					return "Other";
 				return null;
+			}
 			return mProjectDistribs.get(index);
 		}
 
@@ -241,7 +246,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 				if (!mGetFromInstaller) // if not installer
 					return false;
 				
-				if (mProjectDistribs == null)
+				if (mProjectDistribs == null || position >= mProjectDistribs.size())
 					return false;
 				
 				ProjectDistrib distrib = mProjectDistribs.get(position);
@@ -275,6 +280,12 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 						
 						// reseting all pendings
 						startActivityForResult(intent, ACTIVITY_ADD_PROJECT);	// add project activity
+					} else {
+						finish();
+						Intent intent = new Intent(ProjectListActivity.this, ProjectListActivity.class);
+						intent.putExtra(ARG_FORCE_PROJECT_LIST, true);
+						// with boinc project list 
+						startActivity(intent);
 					}
 				}
 			}
@@ -303,6 +314,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	 */
 	private void onAddProjectActivityGoodFinish() {
 		mEarlyAddProjectGoodFinish = false;
+		
 		if (mConnectionManager.isNativeConnected()) { // if native client
 			finish(); // if ok then go to progress activity
 			startActivity(new Intent(this, ProgressActivity.class));
@@ -410,7 +422,11 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	protected void onConnectionManagerConnected() {
 		mConnectedClient = mConnectionManager.getClientId();
 		if (mConnectedClient != null) {
-			mGetFromInstaller = mConnectionManager.isNativeConnected();
+			Intent intent = getIntent();
+			if (!intent.getBooleanExtra(ARG_FORCE_PROJECT_LIST, false))
+				mGetFromInstaller = mConnectionManager.isNativeConnected();
+			else // do not get project list from installer (distribs)
+				mGetFromInstaller = false;
 			
 			if (mGetFromInstaller) {
 				// show project list help

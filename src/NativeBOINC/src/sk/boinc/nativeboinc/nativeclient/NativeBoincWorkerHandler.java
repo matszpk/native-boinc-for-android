@@ -29,7 +29,6 @@ import sk.boinc.nativeboinc.bridge.Formatter;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.TaskItem;
 import edu.berkeley.boinc.lite.App;
-import edu.berkeley.boinc.lite.AppVersion;
 import edu.berkeley.boinc.lite.CcState;
 import edu.berkeley.boinc.lite.Project;
 import edu.berkeley.boinc.lite.Result;
@@ -65,6 +64,12 @@ public class NativeBoincWorkerHandler extends Handler {
 		mListenerHandler = listenerHandler;
 		mRpcClient = rpcClient;
 		mFormatter = new Formatter(context);
+	}
+	
+	public void destroy() {
+		mListenerHandler = null;
+		mRpcClient = null;
+		mContext = null;
 	}
 	
 	/**

@@ -1,3 +1,7 @@
+Version 0.3.9.2 (alpha) (2012-05-16)
+- added update projects from SDCARD, whose are not supported
+- fixed deadlock after unsuccesful project installation
+
 Version 0.3.9.1 (alpha) (2012-05-14)
 - fixed installation cancelling
 - fixed translations typo

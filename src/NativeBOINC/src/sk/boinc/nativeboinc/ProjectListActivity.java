@@ -139,9 +139,12 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			
 			TextView text1 = (TextView)view.findViewById(android.R.id.text1);
 			TextView text2 = (TextView)view.findViewById(android.R.id.text2);
-			ProjectItem projectEntry = mProjectsList.get(pos);
-			text1.setText(projectEntry.getName());
-			text2.setText(projectEntry.getUrl());
+			
+			if (mProjectsList != null) {
+				ProjectItem projectEntry = mProjectsList.get(pos);
+				text1.setText(projectEntry.getName());
+				text2.setText(projectEntry.getUrl());
+			}
 			return view;
 		}
 	}
@@ -156,17 +159,14 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		@Override
 		public int getCount() {
 			if (mProjectDistribs == null)
-				return 1;
-			return mProjectDistribs.size()+1;
+				return 0;
+			return mProjectDistribs.size();
 		}
 
 		@Override
 		public Object getItem(int index) {
-			if (mProjectDistribs == null || mProjectDistribs.size() <= index) {
-				if (index == 0)
-					return "Other";
+			if (mProjectDistribs == null)
 				return null;
-			}
 			return mProjectDistribs.get(index);
 		}
 
@@ -187,15 +187,11 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			TextView text1 = (TextView)view.findViewById(android.R.id.text1);
 			TextView text2 = (TextView)view.findViewById(android.R.id.text2);
 			
-			if (pos < mProjectDistribs.size()) {
+			if (mProjectDistribs != null && pos < mProjectDistribs.size()) {
 				ProjectDistrib projectDistrib = mProjectDistribs.get(pos);
 				text1.setText(projectDistrib.projectName + " " + projectDistrib.version);
 				text2.setText(projectDistrib.projectUrl);
-			} else if (pos == mProjectDistribs.size()) {
-				text1.setText(getString(R.string.otherProject));
-				text2.setText(getString(R.string.otherProjectDetails));
 			}
-			
 			return view;
 		}
 	}
@@ -233,7 +229,15 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		otherProjectButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				showDialog(DIALOG_ENTER_URL);
+				if (!mGetFromInstaller)
+					showDialog(DIALOG_ENTER_URL);
+				else {
+					finish();
+					Intent intent = new Intent(ProjectListActivity.this, ProjectListActivity.class);
+					intent.putExtra(ARG_FORCE_PROJECT_LIST, true);
+					// with boinc project list 
+					startActivity(intent);
+				}
 			}
 		});
 		
@@ -280,12 +284,6 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 						
 						// reseting all pendings
 						startActivityForResult(intent, ACTIVITY_ADD_PROJECT);	// add project activity
-					} else {
-						finish();
-						Intent intent = new Intent(ProjectListActivity.this, ProjectListActivity.class);
-						intent.putExtra(ARG_FORCE_PROJECT_LIST, true);
-						// with boinc project list 
-						startActivity(intent);
 					}
 				}
 			}
@@ -432,8 +430,6 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 				// show project list help
 				TextView projectListHelp = (TextView)findViewById(R.id.projectListHelp);
 				projectListHelp.setVisibility(View.VISIBLE);
-				// hide buttons if obsolete
-				findViewById(R.id.bottomButtons).setVisibility(View.GONE);
 			}
 			
 			// attach adapter

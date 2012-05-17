@@ -81,7 +81,8 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:textSize="@dimen/labelTextSize"
-							android:text="@string/minutes" />
+							android:text="@string/minutes"
+							android:maxLines="1" />
 					</LinearLayout>
 					<LinearLayout
 						android:orientation="horizontal"
@@ -127,7 +128,8 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:textSize="@dimen/labelTextSize"
-							android:text="@string/minutes" />
+							android:text="@string/minutes"
+							android:maxLines="1" />
 					</LinearLayout>
 					<LinearLayout
 			  			android:orientation="horizontal"
@@ -173,7 +175,8 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:textSize="@dimen/labelTextSize"
-							android:text="@string/degreeC" />
+							android:text="@string/degreeC"
+							android:maxLines="1" />
 					</LinearLayout>
 					<LinearLayout
 			  			android:orientation="horizontal"

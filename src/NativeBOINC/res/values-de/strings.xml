@@ -1,0 +1,692 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+/* 
+ * AndroBOINC - BOINC Manager for Android
+ * Copyright (C) 2010, Pavol Michalec
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+-->
+<resources>
+	<!-- Basic application stuff -->
+	<string name="app_name">NativeBOINC</string>
+	<string name="app_desc">Native BOINC für Android mit AndroBOINC</string>
+	<string name="service_desc">Ermöglicht es in BOINC Projekten auf Android Geräten teilzunehmen</string>
+	<string name="install_service_desc">Native Client und BOINC Anwendungsinstallations-Dienst</string>
+	<string name="nboinc_service_desc">Native BOINC Client-Dienst</string>
+
+	<!-- widget names -->
+	<string name="widget2x1">NativeBOINC klein</string>
+	<string name="widgetTablet">NativeBOINC groß</string>
+	
+	<!-- Some common, generic strings -->
+	<string name="back">Zurück</string>
+	<string name="next">Weiter</string>
+	<string name="finish">Fertig</string>
+	<string name="info">Info</string>
+	<string name="authorization">Authorisirung...</string>
+	<string name="cancel">Abbrechen</string>
+	<string name="cancelAll">Alle abbrechen</string>
+	<string name="changelog">Änderunsprotokoll</string>
+	<string name="close">Schließen</string>
+	<string name="connecting">Verbinde...</string>
+	<string name="disabled">Deaktiviert</string>
+	<string name="dismiss">Abweisen</string>
+	<string name="error">Fehler</string>
+	<string name="homepage">Webseite</string>
+	<string name="license">Lizenz</string>
+	<string name="notConnected">Nicht verbunden</string>
+	<string name="notice">Nachricht</string>
+	<string name="ok">OK</string>
+	<string name="apply">Anwenden</string>
+	<string name="projectSuspendedByUser">Projekt vom Benutzer angehalten</string>
+	<string name="received">Empfangen</string>
+	<string name="retrievingData">Daten abrufen...</string>
+	<string name="retrievingInitialData">Ursprünglich Daten abrufen...</string>
+	<string name="sent">Gesendet</string>
+	<string name="shutdown">Ausschalten</string>
+	<string name="sources">Quell-Code</string>
+	<string name="taskSuspendedByUser">Aufgabe vom Benutzer angehalten</string>
+	<string name="unknown">unbekannt</string>
+	<string name="upgradedTo">Aktualisiert zu</string>
+	<string name="warning">Warnung</string>
+	<string name="now">Jetzt</string>
+	<string name="battery">Batterie</string>
+	<string name="defaultText">Standard</string>
+	<string name="copy">Kopieren</string>
+	<string name="saveToSDCard">Auf SDCard speichern</string>
+	
+	<string name="restart">Neustarten</string>
+	<string name="clientRestarting">Native Client wird neu gestartet...</string>
+	
+	<string name="selectAll">Alle auswählen</string>
+	<string name="unselectAll">Alle abwählen</string>
+	
+	<string name="yesText">Ja</string>
+	<string name="noText">Nein</string>
+	<string name="orText">oder</string>
+	
+	<string name="installedBinaries">Installierte Anwendungen</string>
+
+	<!-- Units -->
+	<string name="unitKiB">KiB</string>
+	<string name="unitMiB">MiB</string>
+	<string name="unitGiB">GiB</string>
+	<string name="unitB">B</string>
+	<string name="unitKB">KB</string>
+	<string name="unitMB">MB</string>
+	<string name="unitGB">GB</string>
+	<string name="unitBps">B/s</string>
+	<string name="unitKBps">KB/s</string>
+	<string name="unitMBps">MB/s</string>
+	<string name="gflops">GFLOPS</string>
+
+	<!-- Main Activity -->
+	<string name="temp_info">Drücken Sie auf die Menütaste</string>
+	<string name="projects">Projekte</string>
+	<string name="tasks">Aufgaben</string>
+	<string name="transfers">Übertragung</string>
+	<string name="messages">Meldungen</string>
+	<string name="notices">Nachrichten</string>
+	<string name="closeWarning">Drücken Sie erneut Zurück (innerhalb von 5 Sekunden) um zu Beenden</string>
+
+	<!-- Menu items -->
+	<string name="menuStartUp">Starten</string>
+	<string name="menuShutdown">Ausschalten</string>
+	<string name="menuAbout">Über</string>
+	<string name="menuAddNewHost">Neuen Rechner hinzufügen</string>
+	<string name="menuConnect">Verbunden</string>
+	<string name="menuDisconnect">Getrennt</string>
+	<string name="menuHosts">Rechner verwalten</string>
+	<string name="menuHostInfo">Rechner Info</string>
+	<string name="menuManage">Client verwalten</string>
+	<string name="menuPreferences">Einstellungen</string>
+	<string name="menuReconnect">Erneut verbinden</string>
+	<string name="menuRefresh">Aktualisieren</string>
+	<string name="menuNativeClient">Native Client</string>
+
+	<!-- About -->
+	<string name="aboutTitle">Basis Information</string>
+	<string name="aboutHomepageUrl">https://github.com/matszpk/native-boinc-for-android</string>
+	<string name="aboutText">
+		%1$s ist ein vollwertiger Native BOINC Client für Android integriert
+		mit AndroBOINC Manager v1.6.7b3.\n
+		Danke, dass Sie meine Software nutzen.\n
+		Copyright (C) 2012 matszpk\n
+		Original AndroBOINC von Pavel Michalec (Paulo M.)\n
+		\n
+		Danke für:\n
+		Troll81 - für Logo Design.\n
+		BOINC@Poland - für Unterstützung.\n
+		Daniel Winzen - Deutsch-Übersetzung.\n
+	</string>
+
+	<!-- Preferences -->
+	<string name="prefCategoryUI">Benutzeroberfläche</string>
+	<string name="prefScreenOrientation">Bildschirmorientierung</string>
+	<string name="prefKeepScreenOn">Bildschirm aktiv lassen</string>
+	<string name="prefKeepScreenOnEnabled">Bildschirm vom Ausschalten abhalten</string>
+	<string name="prefKeepScreenOnDisabled">Bildschirm schaltet sich eventuell bei Benutzerinaktivität ab</string>
+	<string name="prefAutoConnectTitle">Automatisch verbinden</string>
+	<string name="prefAutoConnectDisabled">Nicht automatisch beim Start verbinden</string>
+	<string name="prefAutoConnectEnabled">Mit kürzlich verbundenen Client beim Start verbinden</string>
+	<string name="prefCategoryNativeBoinc">Native BOINC Client</string>
+	<string name="prefPowerSaving">Strom sparen</string>
+	<string name="prefPowerSavingOnDisabled">Vom Bildschirm sperren und CPU untertakten abhalten</string>
+	<string name="prefPowerSavingOnEnabled">Bildschirm sperren und CPU untertakten erlauben</string>
+	<string name="prefScreenLockUpdateInterval">Regelmäßige Aktualisierung der Bildschirmsperre</string>
+	<string name="prefScreenLockUpdateIntervalSummary">Bildschirmsperre aktualisieren alle</string>
+	<string name="prefWidgetUpdateInterval">Regelmäßige Aktualisierung des Widgets</string>
+	<string name="prefWidgetUpdateIntervalSummary">Widget aktualisieren alle</string>
+	<string name="prefCategoryNetworkBW">Netzwerk Bandbreite</string>
+	<string name="prefAutoUpdateIntervalWiFi">Regelmäßige Aktualisierung über WiFi</string>
+	<string name="prefAutoUpdateIntervalMobile">Regelmäßige Aktualisierung über Mobilfunk</string>
+	<string name="prefAutoUpdateIntervalLocalhost">Regelmäßige Aktualisierung des lokalen Rechners</string>
+	<string name="prefAutoUpdateIntervalSummary">Automatisch erneuern alle</string>
+	<string name="prefLimitMessagesTitle">Maximale Anzahl an Nachrichten</string>
+	<string name="prefLimitMessagesDisabled">Alle Nachrichten beim Verbinden abrufen (kann viele Daten übertragen)</string>
+	<string name="prefLimitMessagesEnabled">Nur 50 aktuelle Nachrichten beim Verbinden abrufen (schont die Bandbreite)</string>
+	<string name="prefNetworkUsageStats">Netzwerknutzung</string>
+	<string name="prefNetworkUsageDisabled">Statistiken werden NICHT gesammelt</string>
+	<string name="prefNetworkUsageNull">Empfangen: 0B, Gesendet: 0B</string>
+	<string name="prefNetworkUsageDisclaimer">
+		Die Zahl, die in der Netzwerknutzung hier angezeigt wird  sind nicht genau.
+		Verlassen Sie sich nicht auf diese.
+	</string>
+	<string name="prefOptOutText">Diese Meldung nicht erneut anzeigen.</string>
+	<string name="prefCategoryAbout">Über</string>
+	<string name="prefAboutTitle">Über diese Anwendung</string>
+	<string name="prefChangelogSummary">Änderungsprtokoll</string>
+	<string name="prefLicenseSummary">Lizeztext</string>
+	<string name="prefNewsUpdatePeriodTitle">Regelmäßige Aktualisierung der Neuigkeiten</string>
+	<string name="prefNewsUpdatePeriodSummary">Neuigkeiten aktualisieren alle</string>
+	<string name="prefViewItemTypeTitle">Elementtyp anzeigen</string>
+	<string name="prefViewItemTypeSummary">Elementtype anzeigen als</string>
+	
+	<!--  Local Preferences -->
+	<string name="localPreferences">Lokale Einstellungen</string>
+	
+	<string name="localPrefComputeOptions">Berechnen</string>
+	
+	<string name="localPrefComputeOnBatteries">Während Gerät im Batteriebetrieb ist</string>
+	<string name="localPrefComputeInUse">Während Gerät benutzt wird</string>
+	<string name="localPrefUseGPUInUse">Nutze GPU während Gerät benutzt wird</string>
+	<string name="localPrefComputeIdleFor">Nur wenn Gerät nicht beschäftigt war für</string>
+	<string name="minutes">Min</string>
+	<string name="localPrefComputeUsageLessThan">Solange Prozessornutzung geringer ist als</string>
+	<string name="percent">%</string>
+	<string name="localPrefSwitchBetween">Wechsel zwischen Anwendungen alle</string>
+	<string name="localPrefBatteryNL">Solange die Batterieladung höher ist als</string>
+	<string name="localPrefTempLT">Solange die Batterietemp. geringer ist als</string>
+	<string name="degreeC">°C</string>
+	<string name="localPrefUseAtMost">Nutze max.</string>
+	<string name="localPrefPercentCPUTime">% CPU-Zeit</string>
+	<string name="localPrefPercentCPUs">% der Prozessoren</string>
+	
+	<string name="localPrefNetworkUsage">Netzwerk</string>
+	
+	<string name="localPrefMaxDownloadRate">Maximale Download-Rate</string>
+	<string name="localPrefMaxUploadRate">Maximale Upload-Rate</string>
+	<string name="localPrefConnectAboutEvery">Verbinde alle</string>
+	<string name="localPrefAdditWorkBuffer">Zusätzlicher Arbeitspuffer</string>
+	<string name="kBytesSec">KBytes/Sek</string>
+	<string name="localPrefTransferAtMost">Übertrage max.</string>
+	<string name="localPrefmBytesEvery">MB alle</string>
+	<string name="days">Tage</string>
+	<string name="localPrefSkipImageVerify">Bildüberprüfung überspringen</string>
+	
+	<string name="localPrefDiskRAMUsage">Speicher &amp; RAM</string>
+	
+	<string name="localPrefLeaveAtLeast">Lasse mindestens</string>
+	<string name="localPrefGBDisk">GB Speicherplatz</string>
+	<string name="localPrefGBDiskFree">GB Speicherplatz frei</string>
+	<string name="localPrefPercentTotalDisk">% Gesamten Speicher</string>
+	
+	<string name="localPrefMemoryWhenInUse">% wenn Gerät benutzt wird</string>
+	<string name="localPrefMemoryWhenInIdle">% wenn Gerät nicht benutzt wird</string>
+	<string name="localPrefCheckpointToDisk">Sicherungspunkt max. alle</string>
+	<string name="seconds">Sek</string>
+	<string name="localPrefWrong">Falscher Wert!</string>
+	<string name="localPrefLeaveApplications">Lasse Anwendungen im Arbeitsspeicher, wenn sie pausiert</string>
+	<string name="applyDefault">Standard</string>
+
+	<!-- time preferences -->
+	<string name="cpuTimePrefTitle">Berechnungszeit-Einstellungen</string>
+	<string name="netTimePrefTitle">Netzwerkzeit-Einstellungen</string>
+	
+	<string name="timePrefEveryDay">Jeden Tag der Woche</string>
+	<string name="monday">Montag</string>
+	<string name="tuesday">Dienstag</string>
+	<string name="wednesday">Mittwoch</string>
+	<string name="thursday">Donnerstag</string>
+	<string name="friday">Freitag</string>
+	<string name="saturday">Samstag</string>
+	<string name="sunday">Sonntag</string>
+	
+	<string name="setHour">Stunde festlegen</string>
+	
+	<!-- Network status -->
+	<string name="networkUnavailable">Netzwerkverbindung nicht verfügbar.</string>
+
+	<!-- ManageClient Activity -->
+	<string name="currentHostTitle">Aktueller Rechner</string>
+	<string name="noHostConnected">Kein Rechner verbunden</string>
+	<string name="clientConnecting">Verbinde mit Client...</string>
+	<string name="selectHostTitle">Aktueller Rechner</string>
+	<string name="selectHostNoneAvailable">Kein BOINC Client konfiguriert.</string>
+	<string name="selectHostDialogTitle">Rechner wählen</string>
+	<string name="clientNameNone">Keiner</string>
+	<string name="clientIdNone">0</string>
+	<string name="manageCategoryOptions">Optionen</string>
+	<string name="clientAddProjectTitle">BOINC Projekt hinzufügen</string>
+	<string name="clientAddProjectSummary">BOINC Projekt hinzufügen</string>
+	<string name="clientUpdateTitle">Anwendungen aktualisieren</string>
+	<string name="clientUpdateSummary">BOINC Client oder Projektanwendungen aktualisieren</string>
+	<string name="clientSyncBAMTitle">Mit BAM synchronisieren</string>
+	<string name="clientSyncBAMSummary">Versucht mit BAM Verwaltung zu synchronisieren</string>
+	<string name="clientSyncBAMNotify">Mit BAM Verwaltung synchronisieren</string>
+	<string name="clientStopBAMTitle">Stoppe die Nutzung von BAM</string>
+	<string name="clientStopBAMSummary">Stoppe die Nutzung von BAM Verwaltung</string>
+	<string name="clientStopBAMNotify">Stoppe die Nutzung von BAM Verwaltung</string>
+	<string name="clientLocalPrefsTitle">Lokale Einstellungen</string>
+	<string name="clientLocalPrefsSummary">Lokale Einstellungen für den Client</string>
+	<string name="manageCategoryActivity">Aktivität</string>
+	<string name="clientActivityRunTitle">Ausführmodus</string>
+	<string name="clientActivityRunDialogTitle">Ausführmodus</string>
+	<string name="clientActivityNetworkTitle">Netzwerk Aktivität</string>
+	<string name="clientActivityNetworkDialogTitle">Netzwerk Aktivität</string>
+	<string name="manageCategoryAdvanced">Erweitert</string>
+	<string name="clientRunBenchTitle">CPU-Benchmarks ausführen</string>
+	<string name="clientRunBenchSummary">Führt BOINC CPU-Benchmarks aus</string>
+	<string name="clientRunBenchNotify">Starte CPU-Benchmarks</string>
+	<string name="clientDoNetCommTitle">Netzwerkkommunikation ausführen</string>
+	<string name="clientDoNetCommSummary">Alle ausstehenden Netzwerkkommunikationen ausführen</string>
+	<string name="clientDoNetCommNotify">Starte Netzwerkkommunikation</string>
+	<string name="clientShutdownTitle">Client ausschalten</string>
+	<string name="clientShutdownSummary">Den aktuell verbundenen Client ausschalen</string>
+	<string name="clientShutdownNotify">Der aktuell verbundene Client wird ausgeschaltet</string>
+	<string name="warnShutdownText">Der verbundene Client wird ausgeschaltet werden. Dieser Verwalter kann den Client danach nicht starten.</string>
+	
+	<!--  NativeClient activity -->
+	<string name="nativeBoincClient">Native BOINC Client</string>
+	<string name="nativeBoincNetwork">Netzwerkoptionen</string>
+	
+	<string name="nativeHostnameTitle">Rechnernamen festlegen</string>
+	<string name="nativeHostnameSummaryNone">Vom Netzwerksystem abgerufen</string>
+	<string name="nativeHostnameSummaryCurrent">Aktueller Rechnername</string>
+	<string name="nativeRemoteAccessTitle">Remotezugriff zulassen</string>
+	<string name="nativeRemoteAccessSummaryOn">Remotezugriff für andere Rechnerzulassen</string>
+	<string name="nativeRemoteAccessSummaryOff">Remotezugriff für andere Rechner verweigern</string>
+	<string name="nativeAccessPasswordTitle">Zugriffspasswort</string>
+	<string name="nativeAccessPasswordSummary">Zugriffspasswort für den Client ändern</string>
+	<string name="nativeAccessListTitle">Rechnerzugriffsliste</string>
+	<string name="nativeAccessListSummary">Liste der Rechner, die zugriff auf den BOINC Client haben</string>
+	
+	<string name="nativeBoincInstallation">Installationsoptionen</string>
+	
+	<string name="nativeInstalledBinariesTitle">Installierte Anwendungen</string>
+	<string name="nativeInstalledBinariesSummary">Liste der installierten Anwendungen</string>
+	<string name="nativeUpdateBinariesTitle">Anwendungen aktualisieren</string>
+	<string name="nativeUpdateBinariesSummary">Client und Anwendungen aktualisieren</string>
+	<string name="nativeUpdateFromSDCardTitle">Von SDCard aktualisieren</string>
+	<string name="nativeUpdateFromSDCardSummary">Client und Projektanwendungen von SDCard aktualisieren</string>
+	<string name="nativeReinstallTitle">BOINC neu installieren</string>
+	<string name="nativeReinstallSummary">BOINC Neuinstallation machen</string>
+	
+	<string name="nativeBoincDiagnostics">Diagnoseoptionen</string>
+	
+	<string name="nativeDumpBoincDirTitle">BOINC Dateien kopieren</string>
+	<string name="nativeDumpBoincDirSummary">Kompletten BOINC Ordner auf SDCard kopieren</string>
+	<string name="nativeShowLogsTitle">Protokolle anzeigen</string>
+	<string name="nativeShowLogsSummary">Letzten Protokolle vom BOINC Client anzeigen</string>
+	
+	<string name="nativeBoincLogs">BOINC letzen Protokolle</string>
+	
+	<string name="updateFromSDCard">Anwendungen von SDCard aktualisieren</string>
+	<string name="enterUpdateDir">Aktualisierungsordner eingeben</string>
+	<string name="applyAfterRestart">Änderungen werden nach Neustart wirksam. Möchten Sie den Client jetzt neu starten?</string>
+	
+	<!-- dump boinc files -->
+	<string name="enterDumpDir">Geben Sie den Kopie-Ordner an</string>
+	
+	<string name="dumpBoincBegin">Beginne die BOINC Dateien zu kopieren</string>
+	<string name="dumpBoincProgress">Kopiere BOINC Dateien</string>
+	<string name="dumpBoincFinish">Kopieren der BOINC Dateien abgeschlossen</string>
+	<string name="dumpBoincError">Fehler beim kopieren: %s</string>
+	<string name="dumpBoincWarn">Ordner %s existiert. Während dem kopieren wird er gelöscht! Möchten Sie wirklich mit dem Kopieren der BOINC Dateien fortfahren?</string>
+	
+	<!-- reinstall boinc -->
+	<string name="reinstallInProgress">BOINC neu installieren</string>
+	<string name="reinstallFinish">Neuinstallation abgeschlossen</string>
+	<string name="reinstallQuestion">Neuinstallation entfernt den kompletten BOINC Ordnet (mit Projekten). Möchten Sie BOINC wirklich neu installieren?</string>
+	<string name="waitingForShutdown">Warte auf Ausschalten</string>
+	
+	<!-- access host list activity -->
+	<string name="accessHostList">Rechnerzugriffsliste</string>
+	<string name="addHost">Rechner hinzuf.</string>
+	<string name="remoteHostsLoadError">Konnte die Remoterechner-Liste nicht laden</string>
+	<string name="remoteHostsSaveError">Konnte die Remoterechner-Liste nicht speichern</string>
+	
+	<string name="synchronizeBAM">BAM sync.</string>
+	<!--  progress dialog messages -->
+	<string name="synchronizingBAM">Synchronisiere BAM...</string>
+	
+	<string name="shutdownAskText">Möchten Sie Native Client ausschalten?</string>
+	
+	<!-- logs -->
+	<string name="enterOutputFilePath">Geben Sie den Ausgabedatei-Pfad ein</string>
+	<string name="boincLogsSaveError">Konnte BOINC Protokolle nicht auf SDCard speichern</string>
+	
+	<!-- HostList Activity -->
+	<string name="selectHost">Rechner wählen</string>
+	<string name="hostAddNew">Neuen Rechner hinzufügen</string>
+	<string name="hostEdit">Rechner bearbeiten</string>
+	<string name="hostDelete">Rechner löschen</string>
+	<string name="hostSetDefault">Standardrechner setzen</string>
+	<string name="noHostDefined">Kein Rechner definiert</string>
+	<string name="hostNone">Kein Rechner</string>
+	<string name="hostNoneSummary">Vom aktuellen Rechner getrennt</string>
+	<string name="hostOperation">Rechneroperationen</string>
+	
+	<!-- ProjectList Activity -->
+	<string name="projectList">Wählen Sie ein Projekt</string>
+	<string name="noProjects">Projektliste ist leer</string>
+	<string name="otherProject">Anderes Projekt</string>
+	<string name="otherProjectDetails">Wählen Sie ein anderes Projekt</string>
+	<string name="projectsFromClient">Projekts vom Client anzeigen</string>
+	<string name="projectsFromClientDetails">Projektliste vom BOINC Client anzeigen</string>
+	<string name="projectListHelp">Um Info über das Projekt zu bekommen, drücken Sie bitte länger auf den Eintrag.</string>
+
+	<string name="projectUrl">Geben Sie die Projekt-URL ein</string>
+		
+	<!-- Host edit dialog -->
+	<string name="editHostNickname">Rechner Nickname</string>
+	<string name="editHostAddress">Adresse</string>
+	<string name="editHostPort">Port</string>
+	<string name="editHostPassword">Passwort</string>
+	
+	<!-- BAM edit dialog -->
+	<string name="editBAM">BAM Verwaltung bearbeiten</string>
+	<string name="editBAMName">Benutzername</string>
+	<string name="editBAMUrl">URL</string>
+	<string name="editBAMPassword">Passwort</string>
+	<string name="editBAMDefaultUrl">http://bam.boincstats.com/</string>
+	<string name="attachBAMInProgress">Verknüpfung mit BAM in Bearbeitung...</string>
+
+	<!-- Add Project dialog  -->
+	<string name="addProject">Projekt hinzuf.</string>
+	<string name="addProjectCreate">Konto erstellen</string>
+	<string name="addProjectUse">Konto benutzen</string>
+	<string name="addProjectName">Benutzername</string>
+	<string name="addProjectEmail">E-Mail Adresse</string>
+	<string name="addProjectPassword">Passwort</string>
+	<string name="addProjectMinPassword">Min. Passwortlänge</string>
+	<string name="termsOfUse">Nutzungsbedingungen</string>
+	<string name="addingProject">Projekt wird hinzugefügt...</string>
+
+	<!-- Install Wizard Activity -->
+	<string name="installWizard">Installationsassistent</string>
+	<string name="installWelcome">Willkommen bei NativeBOINC!</string>
+	<string name="installClientInstall">Bitte drücken Sie auf die \'Weiter\' Schaltfläche um den Native BOINC Client herunterzuladen und zu installieren.</string>
+	<string name="versionToInstall">Version zu installieren</string>
+	<string name="installSuccessfully">Native BOINC Client wurde erfolgreich installiert!</string>
+	<string name="installAddProject">Bitte drücken Sie auf die \'Projekt hinzuf.\' Schaltfläche um das erste BOINC Projekt hinzuzufügen, oder \'BAM Sync.\' wenn Sie den Client mit BAM synchronisieren möchten.</string>
+	<string name="installFinished">Installation wurde abgeschlossen. Bitte drücken Sie auf die \'Fertig\' Schaltfläche.</string>
+	<string name="installWidgetFinished">Hinweis: Wir empfehlen Ihnen das NativeBOINC Widget zu nutzen um den Native Client zu konfigurieren.</string>
+	<string name="installInfoFinished">Hinweis: Sie können das Projekt Wiki auf \'https://github.com/matszpk/native-boinc-for-android/wiki\' durchsuchen um Hilfe und Informationen zu bekommen.</string>
+	<string name="installFinishedBenchmark">Während der Installation des ersten Projekts, kann BOINC Benchmarks ausführen, die 30 Sekunden arbeiten.</string>
+
+	<string name="installReadBefore">VOR DER INSTALLATION LESEN:</string>
+	<string name="installAttention2">Wenn die Anwendung unerwartet beendet wird, nutzen Sie bitte \'Schließen erzwingen\' und starten Sie sie erneut.
+	    Anwendung Beendet alle Client beim Start.</string>
+	<string name="installAttention3">BOINC Client wird im Hintergrund arbeiten. Bitte nutzen Sie die \'Ausschalten\'Option um den Client auszuschalten.</string>
+	
+	<string name="installNetworkAccess1">BOINC Client erlaubt es Ihen sich mit ihm über das Netzwerk mit BOINC Manager zu verbinden.</string>
+	
+	<string name="installClientNotifyBegin">BOINC Client installieren</string>
+	<string name="installClientNotifyFinish">BOINC Client wurde installiert</string>
+	<string name="installProjectNotifyBegin">Installiere Anwendungen für </string>
+	<string name="installProjectBegin">Installiere Anwendungen</string>
+	<string name="installProjectNotifyFinish">Anwendungen wurden installiert</string>
+
+	<string name="youCanChange">Jetzt, können Sie ändern:</string>
+	
+	<!-- Change password activity -->
+	<string name="accessPassword">Zugriffspasswort</string>
+	<string name="hostname">Rechnername</string>
+
+	<!--  info ..... -->
+	<string name="clientInfo">Client Informationen</string>
+	<string name="appInfo">Anwendungsinformationen</string>
+	<string name="clientVersion">Client Version</string>
+	<string name="description">Beschreibung</string>
+	<string name="changes">Änderungen</string>
+	
+	<string name="noInstallOpsText">Keine Operationen im Hintergrund.</string>
+	<string name="installProgressText">NativeBOINC führt einige Operationen im Hintergrund aus.</string>
+	<string name="installingUpdating">Operationsfortschritt</string>
+	
+	<!-- ProjectsActivity -->
+	<string name="projectCtxMenuTitle">Befehle</string>
+	<string name="projectUpdate">Aktualisieren</string>
+	<string name="projectSuspend">Anhalten</string>
+	<string name="projectResume">Fortsetzen</string>
+	<string name="projectDetach">Entfernen</string>
+	<string name="projectNNW">Keine neuen Aufgaben</string>
+	<string name="projectANW">Neue Aufgaben zulassen</string>
+	<string name="projectProperties">Eigenschaften</string>
+	<string name="projectStatusActive">Aktiv</string>
+	<string name="projectStatusSuspended">Vom Benutzer angehalten</string>
+	<string name="projectStatusNNW">Wird keine neuen Aufgaben bekommen</string>
+	
+	<string name="warnDetachProject">Sind Sie sicher, dass Sie das Projekt (%1$s) entfernen möchten?</string>
+	<string name="warnDetachProjects">Sind Sie sicher, dass Sie die ausgewählten Projekte entfernen möchten?</string>
+	
+	<string name="projectCredits">Gesamt:%1$.0f RAC:%2$.0f Rechner:%3$.0f RechnerRAC:%4$.0f</string>
+	<string name="projectDetailedInfo">
+		&lt;b>Projekt:&lt;/b> %1$s&lt;br>\n
+		&lt;b>Konto:&lt;/b> %2$s&lt;br>\n
+		&lt;b>Team:&lt;/b> %3$s&lt;br>\n
+		&lt;b>Nicht CPU intensiv:&lt;/b> %4$s&lt;br>\n
+		&lt;b>Benutzer Kredit:&lt;/b> %5$.2f&lt;br>\n
+		&lt;b>Benutzer RAC:&lt;/b> %6$.2f&lt;br>\n
+		&lt;b>Rechner Kredit:&lt;/b> %7$.2f&lt;br>\n
+		&lt;b>Rechner RAC:&lt;/b> %8$.2f&lt;br>\n
+		&lt;b>Ressourcenaufteilung:&lt;/b> %9$s&lt;br>\n
+		&lt;b>Speichernutzung:&lt;/b> %10$s&lt;br>\n
+		&lt;b>Rechner Id:&lt;/b> %11$d&lt;br>\n
+		&lt;b>Rechnerstandort:&lt;/b> %12$s&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoNormal">
+	    &lt;b>CPU Planungspriorität:&lt;/b> %1$.2f&lt;br>\n
+		&lt;b>CPU Arbeitsabruf-Priorität:&lt;/b> %2$.2f&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoATI">
+	    &lt;b>ATI Planungspriorität:&lt;/b> %1$.2f&lt;br>\n
+		&lt;b>ATI Arbeitsabruf-Priorität:&lt;/b> %2$.2f&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoNVIDIA">
+	    &lt;b>nVidia Planungspriorität:&lt;/b> %1$.2f&lt;br>\n
+		&lt;b>nVidia Arbeitsabruf-Priorität:&lt;/b> %2$.2f&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoNormalEnd">
+		&lt;b>Dauer Korrekturfaktor:&lt;/b> %1$.4f&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoEnd">
+	    &lt;b>Status:&lt;/b> %1$s
+	</string>
+	
+	<!--  messages activity -->
+	<string name="messageFilters">Nachrichtenfilter</string>
+	
+	<!-- Update activity -->
+	<string name="updateBinaries">Anwendungen aktualisieren</string>
+	<string name="updateNewAvailable">Neue Anwendungen sind verfügbar</string>
+	<string name="updateNoNew">Keine neuen Anwendungen</string>
+	<string name="updateBoincClient">BOINC Client</string>
+	<string name="updateUpdating">Aktualisiere</string>
+	
+	<!-- TasksActivity -->
+	<string name="taskCtxMenuTitle">Befehle</string>
+	<string name="taskSuspend">Anhalten</string>
+	<string name="taskResume">Fortsetzen</string>
+	<string name="taskAbort">Abbrechen</string>
+	<string name="taskProperties">Eigenschaften</string>
+	<string name="warnAbortTask">Sind Sie sicher, dass Sie diese Aufgabe (%1$s) abbrechen möchten?</string>
+	<string name="warnAbortTasks">Sind Sie sicher, dass Sie die ausgewählten Aufgaben abbrechen möchten?</string>
+	<string name="taskDetailedInfoCommon">
+		&lt;b>Aufgabe:&lt;/b> %1$s&lt;br>\n
+		&lt;b>Projekt:&lt;/b> %2$s&lt;br>\n
+		&lt;b>Anwendung:&lt;/b> %3$s&lt;br>\n
+		&lt;b>Empfangen:&lt;/b> %4$s&lt;br>\n
+		&lt;b>Fortschritt:&lt;/b> %5$s&lt;br>\n
+		&lt;b>Verbrauchte Zeit:&lt;/b> %6$s&lt;br>\n
+		&lt;b>Verbleibende Zeit:&lt;/b> %7$s&lt;br>\n
+		&lt;b>Ablaufdatum:&lt;/b> %8$s&lt;br>\n
+		&lt;b>Geschätzter Berechnungsaufwand:&lt;/b> %9$s&lt;br>\n
+		&lt;b>Max RAM Nutzung:&lt;/b> %10$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoRun">
+		&lt;b>Größe des Virtuellen Speichers:&lt;/b> %1$s&lt;br>\n
+		&lt;b>Größe des Arbeitspakets:&lt;/b> %2$s&lt;br>\n
+		&lt;b>CPU-Zeit:&lt;/b> %3$s&lt;br>\n
+		&lt;b>Letzter Sicherungspunkt (CPU time):&lt;/b> %4$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoRunPid">
+		&lt;b>Prozess ID:&lt;/b> %1$d&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoRunDir">
+	    &lt;b>Ordner:&lt;/b> %1$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoRes">
+		&lt;b>Ressourcen:&lt;/b> %1$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoEnd">
+		&lt;b>Status:&lt;/b> %1$s
+	</string>
+
+	<!-- TransfersActivity -->
+	<string name="downloadFailed">Herunterladen fehlgeschlagen</string>
+	<string name="downloading">Am Herunterladen</string>
+	<string name="downloadPending">Herunterladen ausstehend</string>
+	<string name="projectBackoff">Projekt backoff</string>
+	<string name="retryIn">Erneut versuchen in</string>
+	<string name="transferAbort">Abbrechen</string>
+	<string name="transferProperties">Eigenschaften</string>
+	<string name="transferRetry">Erneut versuchen</string>
+	<string name="uploadFailed">Hochladen fehlgeschlagen</string>
+	<string name="uploading">Am Hochladen</string>
+	<string name="uploadPending">Hochladen ausstehend</string>
+	<string name="warnAbortTransfer">Sind Sie sicher, dass Sie die Übertragung der Datei (%1$s) abbrechen möchten?</string>
+	<string name="warnAbortTransfers">Sind Sie sicher, dass Sie die Übertragung der ausgewählten Dateien abbrechen möchten?</string>
+	<string name="transferDetailedInfo">
+		&lt;b>Datei:&lt;/b> %1$s&lt;br>\n
+		&lt;b>Projekt:&lt;/b> %2$s&lt;br>\n
+		&lt;b>Größe:&lt;/b> %3$s&lt;br>\n
+		&lt;b>Fortschritt:&lt;/b> %4$s&lt;br>\n
+		&lt;b>Vergangen:&lt;/b> %5$s&lt;br>\n
+		&lt;b>Geschwindigkeit:&lt;/b> %6$s&lt;br>\n
+		&lt;b>Status:&lt;/b> %7$s
+	</string>
+	
+	<!-- Screen Lock activity -->
+	<string name="lockWeAreComputing">Wir berechnen...</string>
+	<string name="lockNotRan">Nicht ausgeführt</string>
+	<string name="lockTasksSuspended">Aufgaben angehalten</string>
+	<string name="lockToUnlock">Drücken Sie die HOME Taste zum Entsperren</string>
+	
+	<string name="clientDisconnected">Client nicht verbunden</string>
+	<!-- Client Error display -->
+	<string name="clientError">Client Fehler</string>
+	<string name="clientErrorNum">Fehlernummer:</string>
+	
+	<!-- operation strings -->
+	<string name="downloadPGPKey">PGP Schlüssel wird heruntergeladen</string>
+	<string name="verifySignature">Signatur wird verifiziert</string>
+	<string name="downloadNativeClient">Native Client wird heruntergeladen</string>
+	<string name="unpackNativeClient">Native Client wird entpackt</string>
+	<string name="unpackApplication">Projekt Anwendungen werden entpackt</string>
+	
+	<string name="downloadApplication">Projekt Anwendungen werden heruntergeladen</string>
+	
+	<string name="operationCancelled">Operation abgebrochen</string>
+	<string name="operationFinished">Operation abgeschlossen</string>
+	
+	<string name="nativeClientFirstStart">Erststart des Native Clients</string>
+	<string name="nativeClientFirstStartError">Erststart des Native Clients fehlgeschlagen</string>
+	<string name="nativeClientFirstKill">Erstbeenden des Native Clients</string>
+	<string name="nativeClientAwaitForShutdown">Warte auf Ausschalten</string>
+	
+	<string name="nativeClientConfigured">Native Client wurde konfiguriert</string>
+	
+	<string name="nativeClientStarting">Starte Native Client</string>
+	<string name="nativeClientStart">Native Client gestartet</string>
+	<string name="nativeClientStopping">Stoppe Native Client</string>
+	<string name="nativeClientShutdown">Native Client wurde gestoppt</string>
+	
+	<string name="nativeClientWorking">Native Client läuft</string>
+	
+	<!-- boinc Exit code text -->
+	<string name="nativeClientWaitFailed">Native Client ist verloren gegangen (aber läuft noch)!</string>
+	<string name="nativeClientNormalExitWithCode">Native Client wurde beendet mit Code</string>
+	<string name="nativeClientSignaled">Native Client wurde beendet durch Signal</string>
+	<string name="nativeClientStoppedByForeign">Native Client wurde durch eine fremde Anwendung gestoppt!</string>
+	<string name="nativeClientStopUnknownReason">Unbekannter Grund, wiso Native Client selber gestoppt hat</string>
+	
+	<!-- native client events -->
+	<string name="eventAttachedProject">Neues Projekt wurde hinzugefügt</string>
+	<string name="eventAttachedProjectMessage">Projekt von %s wurde hinzugefügt</string>
+	<string name="eventDetachedProject">Projekt wurde entfernt</string>
+	<string name="eventDetachedProjectMessage">Projekt von %s wurde entfernt</string>
+	<string name="eventBencharkRun">Benchmark wurde ausgeführt</string>
+	<string name="eventBencharkFinished">Benchmark wurde abgeschlossen</string>
+	<string name="eventSuspendAll">Alle Aufgaben wurden angehalten</string>
+	<string name="eventRunTasks">Aufgaben wurden fortgesetzt</string>
+	
+	<string name="appListDownload">Projekt Anwendungsliste wird heruntergeladen</string>
+	<string name="clientListDownload">Clientliste wird heruntergeladen</string>
+	<string name="waitingForClientUpdateAndRun">Warte auf Clientaktualisierung und ausführung</string>
+	<string name="finalizeProjectAppInstall">Projekt Anwendungsinstallation abschließen</string>
+	
+	<string name="waitingForBenchmarkFinish">Warte auf Abschluss des Benchmark</string>
+	
+	<!-- Error strings -->
+	<string name="clientDistribNotFound">Konnte Client Verteilung nicht bestimmen</string>
+	<string name="installError">Installationsfehler</string>
+	<string name="downloadPGPKeyError">Konnte den PGP Schlüssel nicht herunterladen</string>
+	<string name="loadPGPKeyError">Konnte den PGP Schlüssel nicht laden</string>
+	<string name="downloadNativeClientError">Konnte den Native Client nicht herunterladen</string>
+	<string name="downloadApplicationError">Konnte die Projektanwendungen nicht herunterladen</string>
+	<string name="downloadSignatureError">Konnte die Signatur nicht herunterladen</string>
+	<string name="verifySignatureError">Konnte die Signatur nicht verifizieren</string>
+	<string name="verifySignatureFailed">Signaturverifikation fehlgeschlagen</string>
+	<string name="unpackNativeClientError">Konnte Native Client nicht entpacken</string>
+	<string name="unpackApplicationError">Konnte Projektanwendungen nicht entpacken</string>
+	<string name="changePermissionsError">Konnte die Rechte nicht ändern</string>
+	<string name="copyNativeClientError">Konnte Native Client nicht kopieren</string>
+	
+	<string name="runNativeClientError">Konnte Native Client nicht ausführen</string>
+	<string name="connectNativeClientError">Konnte nicht mit dem Native Client verbinden</string>
+	<string name="getAccessPasswordError">Konnte Zugriffspasswort nicht bekommen</string>
+	<string name="setAccessPasswordError">Konnte Zugriffspasswort nicht setzen</string>
+	<string name="nativeAuthorizeError">Konnte den Zugriff nicht autorisieren</string>
+	
+	<string name="nativeClientConfigError">Konnte Native Client nicht konfigurieren</string>
+	<string name="nativeClientResultsError">Konnte kein Ergebnis von Native Client bekommen</string>
+	<string name="nativeClientProjectsError">Konnte keine Projekte vom Native Client bekommen</string>
+	
+	<string name="appListDownloadError">Konnt Projektanwendungsliste nicht herunterladen</string>
+	<string name="appListParseError">Konnte Projektanwendungsliste nicht verarbeiten</string>
+	<string name="clientListDownloadError">Konnte Client Liste nicht herunterladen</string>
+	<string name="clientListParseError">Konnte Client Liste nicht verarbeiten</string>
+	<string name="projectAppNotFound">Anwendung für dieses Projekt wurde nicht gefunden</string>
+	
+	<string name="updateProjectAppError">Konnte Aktualisierung der Projektanwendungen nicht abschließen für</string>
+	
+	<string name="updateClientModeError">Ein Fehler ist während der Aktualisierung des Client-Modus aufgetreten</string>
+	<string name="boincOperationError">Ein Fehler ist während der BOINC Operation aufgetreten</string>
+	<string name="boincPollError">Ein Fehler ist während der BOINC Abfrageoperation aufgetreten</string>
+	
+	<string name="unexpectedError">Unerwarteter Fehler</string>
+	
+	<string name="errorNumFormat">(Fehler: %d)</string>
+	
+	<!-- HostInfo display -->
+	<string name="hostInfoPart1">
+		&lt;b>Domain Name:&lt;/b> %1$s&lt;br />
+		&lt;b>IP-Adresse:&lt;/b> %2$s&lt;br />
+		&lt;b>Cross-Projekt ID:&lt;/b> %3$s&lt;br />
+		&lt;b>OS Name:&lt;/b> %4$s&lt;br />
+		&lt;b>OS Version:&lt;/b> %5$s&lt;br />
+		&lt;b>#CPUs:&lt;/b> %6$s&lt;br />
+		&lt;b>Hersteller:&lt;/b> %7$s&lt;br />
+		&lt;b>Modell:&lt;/b> %8$s&lt;br />
+		&lt;b>Funktionen:&lt;/b> %9$s&lt;br />
+	</string>
+	<string name="hostInfoVB">
+	    &lt;b>VirtualBox Version:&lt;/b> %1$s&lt;br />
+	</string>
+	<string name="hostInfoPart2">
+		&lt;b>MFLOPS:&lt;/b> %1$s&lt;br />
+		&lt;b>MIPS:&lt;/b> %2$s&lt;br />
+		&lt;b>Speicher Bandbreite:&lt;/b> %3$s&lt;br />
+		&lt;b>Benchmarks haben berechnet:&lt;/b> %4$s&lt;br />
+		&lt;b>Arbeitsspeichergröße:&lt;/b> %5$s&lt;br />
+		&lt;b>Cache-Größe:&lt;/b> %6$s&lt;br />
+		&lt;b>Swap-Größe:&lt;/b> %7$s&lt;br />
+		&lt;b>Speicher-Größe:&lt;/b> %8$s&lt;br />
+		&lt;b>Speicher frei:&lt;/b> %9$s&lt;br />
+	</string>
+</resources>

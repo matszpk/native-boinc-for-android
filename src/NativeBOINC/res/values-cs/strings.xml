@@ -130,7 +130,8 @@
       Poděkování:\n
       Troll81 - za návrh loga.\n
       BOINC@Poland - za podporu.\n
-      Haer a eLPeCKo (CNT) - český překlad\n
+      Haer a eLPeCKo (CNT) - český překlad.\n
+      Daniel Winzen - německý překlad.\n
    </string>
 
    <!-- Preferences -->
@@ -689,14 +690,4 @@
       &lt;b>Velikost disku:&lt;/b> %8$s&lt;br />
       &lt;b>Volné místo:&lt;/b> %9$s&lt;br />
    </string>
-
-   <!-- install sources -->
-   <string name="PGPKey">CAD10E7D</string>
-   <string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>
-   <!-- <string name="installClientSourceUrl">http://192.168.1.3:8080/examples/boinc_client/</string>-->
-   <!-- <string name="installClientSourceUrl">http://192.168.1.3:8080/examples/new/boinc_client/</string>-->
-   <string name="installAppsSourceUrl">http://krzyszp.info/matszpk/boinc_apps/</string>
-   <!-- <string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/boinc_apps/</string>-->
-   <!-- <string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/new/boinc_apps/</string>-->
-
 </resources>

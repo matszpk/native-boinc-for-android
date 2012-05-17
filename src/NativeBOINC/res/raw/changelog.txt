@@ -1,4 +1,4 @@
-Version 0.3.9.2.1 (alpha) (2012-05-17)
+Version 0.3.9.2.2 (alpha) (2012-05-17)
 - added German translation (thanks for Daniel Winzen)
 
 Version 0.3.9.2 (alpha) (2012-05-16)

@@ -107,8 +107,8 @@
 	<string name="menuShutdown">Ausschalten</string>
 	<string name="menuAbout">Über</string>
 	<string name="menuAddNewHost">Neuen Rechner hinzufügen</string>
-	<string name="menuConnect">Verbunden</string>
-	<string name="menuDisconnect">Getrennt</string>
+	<string name="menuConnect">Verbinden</string>
+	<string name="menuDisconnect">Trennen</string>
 	<string name="menuHosts">Rechner verwalten</string>
 	<string name="menuHostInfo">Rechner Info</string>
 	<string name="menuManage">Client verwalten</string>
@@ -130,7 +130,8 @@
 		Danke für:\n
 		Troll81 - für Logo Design.\n
 		BOINC@Poland - für Unterstützung.\n
-		Daniel Winzen - Deutsch-Übersetzung.\n
+		Haer und eLPeCKo (CNT) - Tschechische Übersetzung.\n
+		Daniel Winzen - Deutsch Übersetzung.\n
 	</string>
 
 	<!-- Preferences -->
@@ -146,14 +147,14 @@
 	<string name="prefPowerSaving">Strom sparen</string>
 	<string name="prefPowerSavingOnDisabled">Vom Bildschirm sperren und CPU untertakten abhalten</string>
 	<string name="prefPowerSavingOnEnabled">Bildschirm sperren und CPU untertakten erlauben</string>
-	<string name="prefScreenLockUpdateInterval">Regelmäßige Aktualisierung der Bildschirmsperre</string>
+	<string name="prefScreenLockUpdateInterval">Bildschirmsperre Aktualisierungsintervall</string>
 	<string name="prefScreenLockUpdateIntervalSummary">Bildschirmsperre aktualisieren alle</string>
-	<string name="prefWidgetUpdateInterval">Regelmäßige Aktualisierung des Widgets</string>
+	<string name="prefWidgetUpdateInterval">Widget Aktualisierungsintervall</string>
 	<string name="prefWidgetUpdateIntervalSummary">Widget aktualisieren alle</string>
 	<string name="prefCategoryNetworkBW">Netzwerk Bandbreite</string>
-	<string name="prefAutoUpdateIntervalWiFi">Regelmäßige Aktualisierung über WiFi</string>
-	<string name="prefAutoUpdateIntervalMobile">Regelmäßige Aktualisierung über Mobilfunk</string>
-	<string name="prefAutoUpdateIntervalLocalhost">Regelmäßige Aktualisierung des lokalen Rechners</string>
+	<string name="prefAutoUpdateIntervalWiFi">WiFi Aktualisierungsintervall</string>
+	<string name="prefAutoUpdateIntervalMobile">Mobilfunk Aktualisierungsintervall</string>
+	<string name="prefAutoUpdateIntervalLocalhost">Lokaler Rechner Aktualisierungsintervall</string>
 	<string name="prefAutoUpdateIntervalSummary">Automatisch erneuern alle</string>
 	<string name="prefLimitMessagesTitle">Maximale Anzahl an Nachrichten</string>
 	<string name="prefLimitMessagesDisabled">Alle Nachrichten beim Verbinden abrufen (kann viele Daten übertragen)</string>
@@ -170,7 +171,7 @@
 	<string name="prefAboutTitle">Über diese Anwendung</string>
 	<string name="prefChangelogSummary">Änderungsprtokoll</string>
 	<string name="prefLicenseSummary">Lizeztext</string>
-	<string name="prefNewsUpdatePeriodTitle">Regelmäßige Aktualisierung der Neuigkeiten</string>
+	<string name="prefNewsUpdatePeriodTitle">Neuigkeiteten aktualisieren alle</string>
 	<string name="prefNewsUpdatePeriodSummary">Neuigkeiten aktualisieren alle</string>
 	<string name="prefViewItemTypeTitle">Elementtyp anzeigen</string>
 	<string name="prefViewItemTypeSummary">Elementtype anzeigen als</string>
@@ -183,7 +184,7 @@
 	<string name="localPrefComputeOnBatteries">Während Gerät im Batteriebetrieb ist</string>
 	<string name="localPrefComputeInUse">Während Gerät benutzt wird</string>
 	<string name="localPrefUseGPUInUse">Nutze GPU während Gerät benutzt wird</string>
-	<string name="localPrefComputeIdleFor">Nur wenn Gerät nicht beschäftigt war für</string>
+	<string name="localPrefComputeIdleFor">Nur wenn Gerät nicht beschäftigt für</string>
 	<string name="minutes">Min</string>
 	<string name="localPrefComputeUsageLessThan">Solange Prozessornutzung geringer ist als</string>
 	<string name="percent">%</string>
@@ -214,8 +215,8 @@
 	<string name="localPrefGBDiskFree">GB Speicherplatz frei</string>
 	<string name="localPrefPercentTotalDisk">% Gesamten Speicher</string>
 	
-	<string name="localPrefMemoryWhenInUse">% wenn Gerät benutzt wird</string>
-	<string name="localPrefMemoryWhenInIdle">% wenn Gerät nicht benutzt wird</string>
+	<string name="localPrefMemoryWhenInUse">% wenn Gerät benutzt</string>
+	<string name="localPrefMemoryWhenInIdle">% wenn Gerät nicht benutzt</string>
 	<string name="localPrefCheckpointToDisk">Sicherungspunkt max. alle</string>
 	<string name="seconds">Sek</string>
 	<string name="localPrefWrong">Falscher Wert!</string>
@@ -410,7 +411,7 @@
 
 	<string name="installReadBefore">VOR DER INSTALLATION LESEN:</string>
 	<string name="installAttention2">Wenn die Anwendung unerwartet beendet wird, nutzen Sie bitte \'Schließen erzwingen\' und starten Sie sie erneut.
-	    Anwendung Beendet alle Client beim Start.</string>
+	    Anwendung beendet alle Client beim Start.</string>
 	<string name="installAttention3">BOINC Client wird im Hintergrund arbeiten. Bitte nutzen Sie die \'Ausschalten\'Option um den Client auszuschalten.</string>
 	
 	<string name="installNetworkAccess1">BOINC Client erlaubt es Ihen sich mit ihm über das Netzwerk mit BOINC Manager zu verbinden.</string>

@@ -36,15 +36,16 @@ public class InstallerThread extends Thread {
 	private final static String TAG = "InstallerThread";
 	
 	private ConditionVariable mLock;
-	private Context mContext;
+	private InstallerService mInstallerService;
 	private InstallerService.ListenerHandler mListenerHandler;
 	
 	private InstallerHandler mHandler;
 	
-	public InstallerThread(ConditionVariable lock, final Context context, final InstallerService.ListenerHandler listenerHandler) {
+	public InstallerThread(ConditionVariable lock, final InstallerService installerService,
+			final InstallerService.ListenerHandler listenerHandler) {
 		mListenerHandler = listenerHandler;
 		mLock = lock;
-		mContext = context;
+		mInstallerService = installerService;
 		setDaemon(true);
 	}
 	
@@ -57,7 +58,7 @@ public class InstallerThread extends Thread {
 		if (Logging.DEBUG) Log.d(TAG, "run() - Started " + Thread.currentThread().toString());
 		Looper.prepare();
 		
-		mHandler = new InstallerHandler(mContext, mListenerHandler);
+		mHandler = new InstallerHandler(mInstallerService, mListenerHandler);
 		
 		if (mLock != null) {
 			mLock.open();
@@ -66,7 +67,7 @@ public class InstallerThread extends Thread {
 		
 		// cleanup variable dependencies
 		mListenerHandler = null;
-		mContext = null;
+		mInstallerService = null;
 		
 		Looper.loop();
 		

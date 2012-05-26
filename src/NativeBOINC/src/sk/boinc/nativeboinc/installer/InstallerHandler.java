@@ -73,7 +73,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	
 	private final static String TAG = "InstallerHandler";
 
-	private Context mContext = null;
+	private InstallerService mInstallerService = null;
 	private BoincManagerApplication mApp = null;
 	
 	private InstallerService.ListenerHandler mListenerHandler;
@@ -108,20 +108,25 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	
 	private ProjectDescriptor[] mProjectDescs = null;
 	
-	public InstallerHandler(final Context context, InstallerService.ListenerHandler listenerHandler) {
-		mContext = context;
+	/* locks resources (such as wifi and CPU) */
+	private ResourcesLocker mResourcesLocker = null;
+	
+	public InstallerHandler(final InstallerService installerService, InstallerService.ListenerHandler listenerHandler) {
+		mInstallerService = installerService;
 		
-		mApp = (BoincManagerApplication)context.getApplicationContext();
+		mApp = (BoincManagerApplication)installerService.getApplicationContext();
 		
 		Log.d(TAG, "Number of processors:"+ RuntimeUtils.getRealCPUCount());
 		mExecutorService = Executors.newFixedThreadPool(RuntimeUtils.getRealCPUCount());
 		
-		mDownloader = new Downloader(context, listenerHandler);
-		mInstallOps = new InstallationOps(this, context, listenerHandler);
-		mProjectsRetriever = new ProjectsFromClientRetriever(context);
+		mDownloader = new Downloader(installerService, listenerHandler);
+		mInstallOps = new InstallationOps(this, installerService, listenerHandler);
+		mProjectsRetriever = new ProjectsFromClientRetriever(installerService);
 		mListenerHandler = listenerHandler;
-		mDistribManager = new InstalledDistribManager(context);
+		mDistribManager = new InstalledDistribManager(installerService);
 		mDistribManager.load();
+		
+		mResourcesLocker = new ResourcesLocker(mInstallerService);
 		
 		// parse project distribs
 		parseProjectDistribs("apps-old.xml", false, false);
@@ -136,10 +141,12 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		} catch (InterruptedException ex) {
 			mExecutorService.shutdownNow();
 		}
+		mResourcesLocker.destroy();
+		mResourcesLocker = null;
 		mProjectsRetriever.destroy();
 		mProjectsRetriever = null;
 		mDownloader = null;
-		mContext = null;
+		mInstallerService = null;
 		mRunner = null;
 		mDistribManager = null;
 	}
@@ -169,7 +176,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			notifyChangeOfIsWorking();
 		}
 		
-		String clientListUrl = mContext.getString(R.string.installClientSourceUrl)+"client.xml";
+		String clientListUrl = mInstallerService.getString(R.string.installClientSourceUrl)+"client.xml";
 		
 		try {
 			mClientDistrib = null;
@@ -179,14 +186,14 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			/* download boinc client's list */
 			try {	/* download with ignoring */
 				mDownloader.downloadFile(clientListUrl, "client.xml",
-						mContext.getString(R.string.clientListDownload), 
-						mContext.getString(R.string.clientListDownloadError), false, "", "");
+						mInstallerService.getString(R.string.clientListDownload), 
+						mInstallerService.getString(R.string.clientListDownloadError), false, "", "");
 				
 				/* if doesnt downloaded */
-				if (!mContext.getFileStreamPath("client.xml").exists())
+				if (!mInstallerService.getFileStreamPath("client.xml").exists())
 					return false;
 				
-				int status = mDownloader.verifyFile(mContext.getFileStreamPath("client.xml"),
+				int status = mDownloader.verifyFile(mInstallerService.getFileStreamPath("client.xml"),
 						clientListUrl, false, "", "");
 				
 				if (status == Downloader.VERIFICATION_CANCELLED) {
@@ -196,7 +203,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					return false;	// cancelled
 				}
 				if (status == Downloader.VERIFICATION_FAILED) {
-					notifyError("", "", mContext.getString(R.string.verifySignatureFailed));
+					notifyError("", "", mInstallerService.getString(R.string.verifySignatureFailed));
 					return false;	// cancelled
 				}
 			} catch(InstallationException ex) {
@@ -213,13 +220,13 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			
 			mClientDistrib = null;
 			try {
-				inStream = mContext.openFileInput("client.xml");
+				inStream = mInstallerService.openFileInput("client.xml");
 				/* parse and notify */
 				mClientDistrib = ClientDistribListParser.parse(inStream);
 				if (mClientDistrib == null)
-					notifyError("", "", mContext.getString(R.string.clientListParseError));
+					notifyError("", "", mInstallerService.getString(R.string.clientListParseError));
 			}  catch(IOException ex) {
-				notifyError("", "", mContext.getString(R.string.clientListParseError));
+				notifyError("", "", mInstallerService.getString(R.string.clientListParseError));
 				return false;
 			} finally {
 				try {
@@ -231,7 +238,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				notifyClientDistrib(mClientDistrib);
 		} finally {
 			// delete obsolete file
-			mContext.deleteFile("client.xml");
+			mInstallerService.deleteFile("client.xml");
 
 			synchronized (this) {
 				mHandlerIsWorking = false;
@@ -277,7 +284,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		public void run() {
 			Thread currentThread = Thread.currentThread();
 			
-			boolean clientToUpdate = InstallerService.isClientInstalled(mContext);
+			boolean clientToUpdate = InstallerService.isClientInstalled(mInstallerService);
 			
 			if (mStandalone)	{// if standalone called from InstallerService
 				if (Logging.DEBUG) Log.d(TAG, "Install client standalone");
@@ -295,6 +302,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			// should be run during installation
 			mClientShouldBeRun = previouslyClientIsRan || !clientToUpdate;
 			
+			/* acquire resources (wifi, CPU) during installation */
+			mResourcesLocker.acquireAllLocks();
+			
 			try {
 				String zipFilename = null;
 				
@@ -310,7 +320,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				if (mSDCardPath == null) {
 					if (mClientDistrib == null) {
 						notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-								mContext.getString(R.string.clientDistribNotFound));
+								mInstallerService.getString(R.string.clientDistribNotFound));
 						return;
 					}
 					
@@ -324,40 +334,40 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					
 					// download from server
 					try {
-						String zipUrlString = mContext.getString(R.string.installClientSourceUrl)+zipFilename; 
+						String zipUrlString = mInstallerService.getString(R.string.installClientSourceUrl)+zipFilename; 
 						mDownloader.downloadFile(zipUrlString, "boinc_client.zip",
-								mContext.getString(R.string.downloadNativeClient),
-								mContext.getString(R.string.downloadNativeClientError), true,
+								mInstallerService.getString(R.string.downloadNativeClient),
+								mInstallerService.getString(R.string.downloadNativeClientError), true,
 								InstallerService.BOINC_CLIENT_ITEM_NAME, "");
 						
 						if (currentThread.isInterrupted()) {
-							mContext.deleteFile("boinc_client.zip");
+							mInstallerService.deleteFile("boinc_client.zip");
 							notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
 							return;
 						}
 						
-						int status = mDownloader.verifyFile(mContext.getFileStreamPath("boinc_client.zip"),
+						int status = mDownloader.verifyFile(mInstallerService.getFileStreamPath("boinc_client.zip"),
 								zipUrlString, true, InstallerService.BOINC_CLIENT_ITEM_NAME, "");
 						
 						if (status == Downloader.VERIFICATION_CANCELLED) {
-							mContext.deleteFile("boinc_client.zip");
+							mInstallerService.deleteFile("boinc_client.zip");
 							notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
 							return;	// cancelled
 						}
 						if (status == Downloader.VERIFICATION_FAILED) {
 							notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-									mContext.getString(R.string.verifySignatureFailed));
+									mInstallerService.getString(R.string.verifySignatureFailed));
 							return;	// cancelled
 						}
 					} catch(InstallationException ex) {
 						/* remove zip file */
-						mContext.deleteFile("boinc_client.zip");
+						mInstallerService.deleteFile("boinc_client.zip");
 						return;
 					}
 				}
 				
 				if (currentThread.isInterrupted()) {
-					mContext.deleteFile("boinc_client.zip");
+					mInstallerService.deleteFile("boinc_client.zip");
 					notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
 					return;
 				}
@@ -371,20 +381,20 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					/* unpack zip file */
 					try {
 						if (mSDCardPath == null)
-							zipFile = new ZipFile(mContext.getFileStreamPath("boinc_client.zip"));
+							zipFile = new ZipFile(mInstallerService.getFileStreamPath("boinc_client.zip"));
 						else // if from sdcard (zip)
 							zipFile = new ZipFile(mSDCardPath);
 						
 						ZipEntry zipEntry = zipFile.entries().nextElement();
 						zipStream = zipFile.getInputStream(zipEntry);
-						outStream = mContext.openFileOutput(boincClientFilename, Context.MODE_PRIVATE);
+						outStream = mInstallerService.openFileOutput(boincClientFilename, Context.MODE_PRIVATE);
 						
 						long time = System.currentTimeMillis();
 						long length = zipEntry.getSize();
 						int totalReaded = 0;
 						byte[] buffer = new byte[BUFFER_SIZE];
 						/* copying content to file */
-						String opDesc = mContext.getString(R.string.unpackNativeClient);
+						String opDesc = mInstallerService.getString(R.string.unpackNativeClient);
 						while (true) {
 							int readed = zipStream.read(buffer);
 							if (readed == -1)
@@ -392,8 +402,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 							totalReaded += readed;
 							
 							if (currentThread.isInterrupted()) {
-								mContext.deleteFile(boincClientFilename);
-								mContext.deleteFile("boinc_client.zip");
+								mInstallerService.deleteFile(boincClientFilename);
+								mInstallerService.deleteFile("boinc_client.zip");
 								notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
 								return;
 							}
@@ -411,12 +421,12 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 								opDesc, InstallerProgressListener.FINISH_PROGRESS);
 					} catch(InterruptedIOException ex) {
 						notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
-						mContext.deleteFile(boincClientFilename);
+						mInstallerService.deleteFile(boincClientFilename);
 						return;
 					} catch(IOException ex) {
 						notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-								mContext.getString(R.string.unpackNativeClientError));
-						mContext.deleteFile(boincClientFilename);
+								mInstallerService.getString(R.string.unpackNativeClientError));
+						mInstallerService.deleteFile(boincClientFilename);
 						return;
 					} finally {
 						try {
@@ -433,7 +443,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						} catch(IOException ex) { }
 						/* remove zip file */
 						if (mSDCardPath == null) // if from server
-							mContext.deleteFile("boinc_client.zip");
+							mInstallerService.deleteFile("boinc_client.zip");
 					}
 				} else {
 					// copy to destination
@@ -442,7 +452,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					
 					try {
 						inputStream = new FileInputStream(mSDCardPath);
-						outputStream = mContext.openFileOutput(boincClientFilename, Context.MODE_PRIVATE);
+						outputStream = mInstallerService.openFileOutput(boincClientFilename, Context.MODE_PRIVATE);
 						
 						byte[] buffer = new byte[BUFFER_SIZE];
 						
@@ -455,7 +465,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						
 					} catch(IOException ex) {
 						notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-								mContext.getString(R.string.copyNativeClientError));
+								mInstallerService.getString(R.string.copyNativeClientError));
 						return;
 					} finally {
 						try {
@@ -471,17 +481,17 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				}
 				
 				if (currentThread.isInterrupted()) {
-					mContext.deleteFile("boinc_client.zip");
-					mContext.deleteFile(boincClientFilename);
+					mInstallerService.deleteFile("boinc_client.zip");
+					mInstallerService.deleteFile(boincClientFilename);
 					notifyCancel(InstallerService.BOINC_CLIENT_ITEM_NAME, "");
 					return;
 				}
 				
 				/* change permissions */
-				if (!Chmod.chmod(mContext.getFileStreamPath(boincClientFilename).getAbsolutePath(), 0700)) {
+				if (!Chmod.chmod(mInstallerService.getFileStreamPath(boincClientFilename).getAbsolutePath(), 0700)) {
 					notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-							mContext.getString(R.string.changePermissionsError));
-			    	mContext.deleteFile(boincClientFilename);
+							mInstallerService.getString(R.string.changePermissionsError));
+			    	mInstallerService.deleteFile(boincClientFilename);
 			    	return;
 				}
 				
@@ -491,7 +501,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				}
 			    
 			    /* create boinc directory */
-			    File boincDir = new File(mContext.getFilesDir()+"/boinc");
+			    File boincDir = new File(mInstallerService.getFilesDir()+"/boinc");
 			    if (!boincDir.isDirectory()) {
 			    	boincDir.delete();
 			    	boincDir.mkdir();
@@ -508,27 +518,27 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			    	if (Logging.DEBUG) Log.d(TAG, "First start client");
 			    	
 			    	notifyOperation(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-			    			mContext.getString(R.string.nativeClientFirstStart));
+			    			mInstallerService.getString(R.string.nativeClientFirstStart));
 			    	
-				    if (!NativeBoincService.firstStartClient(mContext)) {
+				    if (!NativeBoincService.firstStartClient(mInstallerService)) {
 				    	if (Logging.DEBUG) Log.d(TAG, "first start client error");
 				    	notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-				    			mContext.getString(R.string.nativeClientFirstStartError));
+				    			mInstallerService.getString(R.string.nativeClientFirstStartError));
 				    	return;
 				    }
 				    notifyOperation(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-			    			mContext.getString(R.string.nativeClientFirstKill));	    	
+			    			mInstallerService.getString(R.string.nativeClientFirstKill));	    	
 			    }
 			    
 			    if (previouslyClientIsRan) {
 			    	if (Logging.DEBUG) Log.d(TAG, "Rename to real boinc");
 			    	try {
 			    		notifyOperation(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-			    				mContext.getString(R.string.nativeClientAwaitForShutdown));
+			    				mInstallerService.getString(R.string.nativeClientAwaitForShutdown));
 				    	mDelayedClientShutdownSem.acquire();
 				    	// rename new boinc client file
-				    	mContext.getFileStreamPath("boinc_client_new").renameTo(
-				    			mContext.getFileStreamPath("boinc_client"));
+				    	mInstallerService.getFileStreamPath("boinc_client_new").renameTo(
+				    			mInstallerService.getFileStreamPath("boinc_client"));
 				    	/* give control over installation to NativeBoincService (second start) */
 				    	mIsClientBeingInstalled = false;
 				    	
@@ -549,22 +559,22 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					    
 				    	// set up waiting for benchmark
 						SharedPreferences sharedPrefs = PreferenceManager
-								.getDefaultSharedPreferences(mContext);
+								.getDefaultSharedPreferences(mInstallerService);
 						sharedPrefs.edit().putBoolean(PreferenceName.WAITING_FOR_BENCHMARK, true)
 								.commit();
 						
 				    	try {
-				    		String accessPassword = NativeBoincUtils.getAccessPassword(mContext);
-				    		dbAdapter = new HostListDbAdapter(mContext);
+				    		String accessPassword = NativeBoincUtils.getAccessPassword(mInstallerService);
+				    		dbAdapter = new HostListDbAdapter(mInstallerService);
 				    		dbAdapter.open();
 				    		dbAdapter.addHost(new ClientId(0, "nativeboinc", "127.0.0.1",
 				    				31416, accessPassword));
 				    		
 				    		// change hostname
-				    		NativeBoincUtils.setHostname(mContext, Build.PRODUCT);
+				    		NativeBoincUtils.setHostname(mInstallerService, Build.PRODUCT);
 				    	} catch(IOException ex) {
 				    		notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-				    				mContext.getString(R.string.getAccessPasswordError));
+				    				mInstallerService.getString(R.string.getAccessPasswordError));
 				    	} finally {
 				    		if (dbAdapter != null)
 				    			dbAdapter.close();
@@ -582,7 +592,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				if (Logging.ERROR) Log.e(TAG, "on client install finishing:"+
 							ex.getClass().getCanonicalName()+":"+ex.getMessage());
 				notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-	    				mContext.getString(R.string.unexpectedError)+": "+ex.getMessage());
+	    				mInstallerService.getString(R.string.unexpectedError)+": "+ex.getMessage());
 			} finally {
 				if (Logging.DEBUG) Log.d(TAG, "Release semaphore mDelayedClientShutdownSem");
 				mDelayedClientShutdownSem.release();
@@ -591,6 +601,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				// unlock all locks for project apps installers
 				notifyIfClientUpdatedAndRan();
 				notifyIfBenchmarkFinished();
+				
+				/* release resources (wifi, CPU) during installation */
+				mResourcesLocker.releaseAllLocks();
 				
 				synchronized(this) {
 					mClientShouldBeRun = false;
@@ -607,7 +620,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			return;	// skip
 		
 		notifyOperation(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-				mContext.getString(R.string.installClientNotifyBegin));
+				mInstallerService.getString(R.string.installClientNotifyBegin));
 		synchronized(this) {
 			mIsClientBeingInstalled = true;
 			mClientInstaller = new ClientInstaller(standalone, null);
@@ -657,7 +670,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		long totalLength = 0;
 		
 		StringBuilder projectAppFilePath = new StringBuilder();
-		projectAppFilePath.append(mContext.getFilesDir());
+		projectAppFilePath.append(mInstallerService.getFilesDir());
 		if (directInstallation)
 			projectAppFilePath.append("/boinc/projects/");
 		else
@@ -700,7 +713,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			int i = 0;
 			long time = System.currentTimeMillis();
 			
-			String opDesc = mContext.getString(R.string.unpackApplication);
+			String opDesc = mInstallerService.getString(R.string.unpackApplication);
 			
 			while (zipEntries.hasMoreElements()) {
 				ZipEntry entry = zipEntries.nextElement();
@@ -749,7 +762,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
 			
 			notifyError(projectDistrib.projectName, projectDistrib.projectUrl,
-					mContext.getString(R.string.unpackApplicationError));
+					mInstallerService.getString(R.string.unpackApplicationError));
 			/* delete files */
 			if (fileList != null) {
 				projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
@@ -815,7 +828,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				projectAppFilePath.append(filename);
 				if (!Chmod.chmod(projectAppFilePath.toString(), 0700)) {
 					notifyError(projectDistrib.projectName, projectDistrib.projectUrl,
-							mContext.getString(R.string.changePermissionsError));
+							mInstallerService.getString(R.string.changePermissionsError));
 			    	return null;
 				}
 				projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
@@ -840,7 +853,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		ArrayList<String> fileList = new ArrayList<String>();
 		
 		StringBuilder projectAppFilePath = new StringBuilder();
-		projectAppFilePath.append(mContext.getFilesDir());
+		projectAppFilePath.append(mInstallerService.getFilesDir());
 		if (directInstallation)
 			projectAppFilePath.append("/boinc/projects/");
 		else
@@ -881,7 +894,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
 				
 				notifyError(projectDistrib.projectName, projectDistrib.projectUrl,
-						mContext.getString(R.string.unpackApplicationError));
+						mInstallerService.getString(R.string.unpackApplicationError));
 				
 				projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
 				/* delete files */
@@ -965,6 +978,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		public void run() {
 			boolean removeSelf = true;
 			
+			/* acquire resources (wifi, CPU) during installation */
+			mResourcesLocker.acquireAllLocks();
+			
 			Thread currentThread = Thread.currentThread();
 			try {
 				if (Logging.DEBUG) Log.d(TAG, "Runned installer for:"+mProjectDistrib.projectUrl);
@@ -978,7 +994,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				
 				/* awaiting for benchmark finish */
 				notifyOperation(mProjectDistrib.projectName, mProjectDistrib.projectUrl,
-						mContext.getString(R.string.waitingForBenchmarkFinish));
+						mInstallerService.getString(R.string.waitingForBenchmarkFinish));
 				try {
 					mBenchmarkFinishSem.acquire();
 				} catch(InterruptedException ex) {
@@ -993,45 +1009,45 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				if (Logging.DEBUG) Log.d(TAG,
 						"after benchmark finish :"+mProjectDistrib.projectUrl);
 				
-				String zipUrl = mContext.getString(R.string.installAppsSourceUrl) + mInput;
+				String zipUrl = mInstallerService.getString(R.string.installAppsSourceUrl) + mInput;
 				/* do download and verify */
 				String outZipFilename = null;
 				if (!mFromSDCard) {
 					outZipFilename = mProjectDistrib.projectName+".zip";
 					try {
 						mDownloader.downloadFile(zipUrl, outZipFilename,
-								mContext.getString(R.string.downloadApplication),
-								mContext.getString(R.string.downloadApplicationError), true,
+								mInstallerService.getString(R.string.downloadApplication),
+								mInstallerService.getString(R.string.downloadApplicationError), true,
 								mProjectDistrib.projectName, mProjectDistrib.projectUrl);
 						
 						if (currentThread.isInterrupted()) {
-							mContext.deleteFile(outZipFilename);
+							mInstallerService.deleteFile(outZipFilename);
 							notifyCancel(mProjectDistrib.projectName, mProjectDistrib.projectUrl);
 							return;
 						}
 						
-						int status = mDownloader.verifyFile(mContext.getFileStreamPath(outZipFilename),
+						int status = mDownloader.verifyFile(mInstallerService.getFileStreamPath(outZipFilename),
 								zipUrl, true, mProjectDistrib.projectName, mProjectDistrib.projectUrl);
 						
 						if (status == Downloader.VERIFICATION_CANCELLED) {
-							mContext.deleteFile(outZipFilename);
+							mInstallerService.deleteFile(outZipFilename);
 							notifyCancel(mProjectDistrib.projectName, mProjectDistrib.projectUrl);
 							return;	// cancelled
 						}
 						if (status == Downloader.VERIFICATION_FAILED) {
 							notifyError(mProjectDistrib.projectName, mProjectDistrib.projectUrl,
-									mContext.getString(R.string.verifySignatureFailed));
+									mInstallerService.getString(R.string.verifySignatureFailed));
 							return;	// cancelled
 						}
 					} catch(InstallationException ex) {
-						mContext.deleteFile(outZipFilename);
+						mInstallerService.deleteFile(outZipFilename);
 						return;
 					}
 				}
 				
 				if (currentThread.isInterrupted()) {
 					if (outZipFilename != null)
-						mContext.deleteFile(outZipFilename);
+						mInstallerService.deleteFile(outZipFilename);
 					notifyCancel(mProjectDistrib.projectName, mProjectDistrib.projectUrl);
 					return;
 				}
@@ -1044,10 +1060,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				/* do install in project directory */
 				if (!mFromSDCard) {
 					mFileList = unpackProjectApplications(mProjectDistrib,
-							mContext.getFileStreamPath(outZipFilename).getAbsolutePath(), directInstallation);
+							mInstallerService.getFileStreamPath(outZipFilename).getAbsolutePath(), directInstallation);
 					
 					if (outZipFilename != null)
-						mContext.deleteFile(outZipFilename);
+						mInstallerService.deleteFile(outZipFilename);
 				} else if (mInput.endsWith(".zip")) {
 					// if zip from sdcard
 					mFileList = unpackProjectApplications(mProjectDistrib, mInput, directInstallation);
@@ -1056,7 +1072,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						return;
 				
 					if (outZipFilename != null)
-						mContext.deleteFile(outZipFilename);
+						mInstallerService.deleteFile(outZipFilename);
 				} else {
 					// copy to update apps directory
 					mFileList = copyProjectApplications(mProjectDistrib, mInput, directInstallation);
@@ -1074,7 +1090,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					if (Logging.DEBUG) Log.d(TAG, "On indirect project installation");
 					
 					notifyOperation(mProjectDistrib.projectName, mProjectDistrib.projectUrl,
-							mContext.getString(R.string.waitingForClientUpdateAndRun));
+							mInstallerService.getString(R.string.waitingForClientUpdateAndRun));
 					
 					try {
 						mClientUpdatedAndRanSem.acquire();
@@ -1089,7 +1105,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					if (mRunner.isRun()) {
 						// if really run
 						notifyOperation(mProjectDistrib.projectName, mProjectDistrib.projectUrl,
-								mContext.getString(R.string.finalizeProjectAppInstall));
+								mInstallerService.getString(R.string.finalizeProjectAppInstall));
 						
 						/* update in client side */
 						if (Logging.DEBUG) Log.d(TAG, "Run update_apps on boinc_client for "+
@@ -1106,12 +1122,12 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						
 						String escapedUrl = escapeProjectUrl(mProjectDistrib.projectUrl);
 						
-						updateAppFilePath.append(mContext.getFilesDir());
+						updateAppFilePath.append(mInstallerService.getFilesDir());
 						updateAppFilePath.append("/boinc/updates/");
 						updateAppFilePath.append(escapedUrl);
 						updateAppFilePath.append("/");
 						
-						projectAppFilePath.append(mContext.getFilesDir());
+						projectAppFilePath.append(mInstallerService.getFilesDir());
 						projectAppFilePath.append("/boinc/projects/");
 						projectAppFilePath.append(escapedUrl);
 						projectAppFilePath.append("/");
@@ -1139,10 +1155,15 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				if (Logging.ERROR) Log.e(TAG, "on project install finishing:"+
 						ex.getClass().getCanonicalName()+":"+ex.getMessage());
 				notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-	    				mContext.getString(R.string.unexpectedError)+": "+ex.getMessage());
+	    				mInstallerService.getString(R.string.unexpectedError)+": "+ex.getMessage());
 			} finally {
-				if (removeSelf)
+				if (removeSelf) {
+					/* release resources (wifi, CPU) during installation */
+					mResourcesLocker.releaseAllLocks();
+					
 					mProjectAppsInstallers.remove(mProjectDistrib.projectUrl);
+				}
+				
 				// notify change of is working
 				notifyChangeOfIsWorking();
 			}
@@ -1195,7 +1216,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		if (zipFilename == null) {
 			notifyError(projectDistrib.projectName, projectUrl,
-					mContext.getString(R.string.projectAppNotFound));
+					mInstallerService.getString(R.string.projectAppNotFound));
 			return;
 		}
 		
@@ -1213,7 +1234,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			appInstaller.notifyIfClientUpdatedAndRan();
 		
 		SharedPreferences sharedPrefs = PreferenceManager
-				.getDefaultSharedPreferences(mContext);
+				.getDefaultSharedPreferences(mInstallerService);
 		
 		boolean awaitForBenchmark = sharedPrefs.getBoolean(PreferenceName.WAITING_FOR_BENCHMARK, false);
 		if (Logging.DEBUG) Log.d(TAG, "Await for benchmark:"+awaitForBenchmark);
@@ -1236,7 +1257,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			appInstaller.notifyIfBenchmarkFinished();
 		
 		notifyOperation(projectDistrib.projectName, projectUrl,
-				mContext.getString(R.string.installProjectBegin));
+				mInstallerService.getString(R.string.installProjectBegin));
 		
 		synchronized(this) {
 			mProjectAppsInstallers.put(projectDistrib.projectUrl, appInstaller);
@@ -1255,7 +1276,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				/* update boinc client */
 				if (!mIsClientBeingInstalled) {
 					notifyOperation(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-							mContext.getString(R.string.installClientNotifyBegin));
+							mInstallerService.getString(R.string.installClientNotifyBegin));
 					synchronized(this) {
 						mIsClientBeingInstalled = true;
 						notifyChangeOfIsWorking();
@@ -1283,7 +1304,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					continue;	// if being installed
 				// run in separate thread
 				notifyOperation(foundDistrib.projectName, foundDistrib.projectUrl,
-						mContext.getString(R.string.installProjectBegin));
+						mInstallerService.getString(R.string.installProjectBegin));
 				
 				final ProjectAppsInstaller appInstaller =
 						new ProjectAppsInstaller(updateItem.filename, foundDistrib, false);
@@ -1319,7 +1340,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				/* update boinc client */
 				if (!mIsClientBeingInstalled) {
 					notifyOperation(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-							mContext.getString(R.string.installClientNotifyBegin));
+							mInstallerService.getString(R.string.installClientNotifyBegin));
 					synchronized(this) {
 						mIsClientBeingInstalled = true;
 						notifyChangeOfIsWorking();
@@ -1371,7 +1392,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				
 				// run in separate thread
 				notifyOperation(foundDistrib.projectName, foundDistrib.projectUrl,
-						mContext.getString(R.string.installProjectBegin));
+						mInstallerService.getString(R.string.installProjectBegin));
 				
 				final ProjectAppsInstaller appInstaller =
 						new ProjectAppsInstaller(distribFile.getAbsolutePath(), foundDistrib, true);
@@ -1398,7 +1419,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	private boolean parseProjectDistribs(String filename, boolean notify, boolean notifyResult) {
 		InputStream inStream = null;
 		try {
-			inStream = mContext.openFileInput(filename);;
+			inStream = mInstallerService.openFileInput(filename);;
 			
 			/* parse and notify */
 			mProjectDistribs = ProjectDistribListParser.parse(inStream);
@@ -1408,10 +1429,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				// if success
 				return true;
 			} else if (notify) // notify error
-				notifyError("", "", mContext.getString(R.string.appListParseError));
+				notifyError("", "", mInstallerService.getString(R.string.appListParseError));
 		} catch(IOException ex) {
 			if (notify)
-				notifyError("", "", mContext.getString(R.string.appListParseError));
+				notifyError("", "", mInstallerService.getString(R.string.appListParseError));
 		} finally {
 			try {
 				if (inStream != null) inStream.close();
@@ -1425,7 +1446,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	 * @return true if success
 	 */
 	public boolean updateProjectDistribList(boolean notifyResult) {
-		String appListUrl = mContext.getString(R.string.installAppsSourceUrl)+"apps.xml";
+		String appListUrl = mInstallerService.getString(R.string.installAppsSourceUrl)+"apps.xml";
 		
 		synchronized(this) {
 			mHandlerIsWorking = true;
@@ -1433,10 +1454,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		}
 		try {
 			mDownloader.downloadFile(appListUrl, "apps.xml",
-					mContext.getString(R.string.appListDownload),
-					mContext.getString(R.string.appListDownloadError), false, "", "");
+					mInstallerService.getString(R.string.appListDownload),
+					mInstallerService.getString(R.string.appListDownloadError), false, "", "");
 			
-			int status = mDownloader.verifyFile(mContext.getFileStreamPath("apps.xml"),
+			int status = mDownloader.verifyFile(mInstallerService.getFileStreamPath("apps.xml"),
 					appListUrl, false, "", "");
 			
 			if (status == Downloader.VERIFICATION_CANCELLED) {
@@ -1445,7 +1466,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				return false;	// cancelled
 			}
 			if (status == Downloader.VERIFICATION_FAILED) {
-				notifyError("", "", mContext.getString(R.string.verifySignatureFailed));
+				notifyError("", "", mInstallerService.getString(R.string.verifySignatureFailed));
 				/* errors occurred, but we returns previous value */
 				if (mProjectDistribs != null)
 					notifyProjectDistribs(new ArrayList<ProjectDistrib>(mProjectDistribs));
@@ -1458,8 +1479,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			/* parse it */
 			if (parseProjectDistribs("apps.xml", true, notifyResult)) {
 				// make backup
-				mContext.getFileStreamPath("apps.xml").renameTo(
-						mContext.getFileStreamPath("apps-old.xml"));			
+				mInstallerService.getFileStreamPath("apps.xml").renameTo(
+						mInstallerService.getFileStreamPath("apps-old.xml"));			
 			}
 		} catch(InstallationException ex) {
 			/* errors occurred, but we returns previous value */
@@ -1468,7 +1489,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			return true;
 		} finally {
 			// delete obsolete file
-			mContext.deleteFile("apps.xml");
+			mInstallerService.deleteFile("apps.xml");
 			// hanbdler doesnt working currently
 			synchronized(this) {
 				mHandlerIsWorking = false;
@@ -1480,7 +1501,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	
 	/* remove detached projects from installed projects */
 	public void synchronizeInstalledProjects() {
-		mDistribManager.synchronizeWithProjectList(mContext);
+		mDistribManager.synchronizeWithProjectList(mInstallerService);
 	}
 	
 	public synchronized void cancelAll() {
@@ -1541,7 +1562,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	}
 	
 	public InstalledBinary[] getInstalledBinaries() {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mInstallerService);
 		String clientVersion = prefs.getString(PreferenceName.CLIENT_VERSION, null);
 		
 		InstalledClient installedClient = mDistribManager.getInstalledClient();
@@ -1619,7 +1640,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		/* client binary */
 		int firstUpdateBoincAppsIndex = 0;
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mInstallerService);
 		String clientVersion = prefs.getString(PreferenceName.CLIENT_VERSION, null);
 		
 		InstalledClient installedClient = mDistribManager.getInstalledClient();
@@ -1767,12 +1788,14 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mHandlerIsWorking = true;
 		notifyChangeOfIsWorking();
 		
-		mInstallOps.dumpBoincFiles(directory);
-		
-		mHandlerIsWorking = false;
-		notifyChangeOfIsWorking();
-		
-		mDoDumpBoincFiles = false;
+		try {
+			mInstallOps.dumpBoincFiles(directory);
+		} finally {
+			mHandlerIsWorking = false;
+			notifyChangeOfIsWorking();
+			
+			mDoDumpBoincFiles = false;
+		}
 	}
 	
 	/**
@@ -1786,11 +1809,13 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mHandlerIsWorking = true;
 		notifyChangeOfIsWorking();
 		
-		mInstallOps.reinstallBoinc();
-		
-		mHandlerIsWorking = false;
-		notifyChangeOfIsWorking();
-		mDoBoincReinstall = false;
+		try {
+			mInstallOps.reinstallBoinc();
+		} finally {
+			mHandlerIsWorking = false;
+			notifyChangeOfIsWorking();
+			mDoBoincReinstall = false;
+		}
 	}
 	
 	/*
@@ -1882,6 +1907,11 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				}
 			});
 		}
+		if (!currentIsWorking && mInstallerService.doStopWhenNotWorking()) {
+			// stop service
+			Log.d(TAG, "Stop when not working");
+			mInstallerService.stopSelf();
+		}
 	}
 
 	@Override
@@ -1902,6 +1932,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		notifyFinish(appsInstaller.mProjectDistrib.projectName, projectUrl);
 		
+		/* release resources (wifi, CPU) during installation */
+		mResourcesLocker.releaseAllLocks();
+		
 		notifyChangeOfIsWorking();
 	}
 	
@@ -1912,7 +1945,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				appsInstaller.mProjectDistrib.projectName);
 		
 		notifyError(appsInstaller.mProjectDistrib.projectName, projectUrl,
-				mContext.getString(R.string.updateProjectAppError));
+				mInstallerService.getString(R.string.updateProjectAppError));
+		
+		/* release resources (wifi, CPU) during installation */
+		mResourcesLocker.releaseAllLocks();
 		
 		notifyChangeOfIsWorking();
 	}

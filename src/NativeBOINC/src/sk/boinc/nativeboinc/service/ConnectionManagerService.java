@@ -82,9 +82,12 @@ public class ConnectionManagerService extends Service implements
 
 	private BoincManagerApplication mApp = null;
 
+	private int mBindCounter = 0;
+	
 	@Override
 	public IBinder onBind(Intent intent) {
-		if (Logging.DEBUG) Log.d(TAG, "onBind()");
+		mBindCounter++;
+		if (Logging.DEBUG) Log.d(TAG, "onBind(), binCounter="+mBindCounter);
 		// Just make sure the service is running:
 		startService(new Intent(this, ConnectionManagerService.class));
 		return mBinder;
@@ -92,6 +95,7 @@ public class ConnectionManagerService extends Service implements
 
 	@Override
 	public void onRebind(Intent intent) {
+		mBindCounter++;
 		if (mTerminateRunnable != null) {
 			// There is Runnable to stop the service
 			// We cancel that request now
@@ -101,7 +105,7 @@ public class ConnectionManagerService extends Service implements
 		}
 		else {
 			// This is not expected
-			if (Logging.ERROR) Log.e(TAG, "onRebind() - mTerminateRunnable empty");
+			if (Logging.ERROR) Log.e(TAG, "onRebind() - mTerminateRunnable empty, , binCounter="+mBindCounter);
 			// We just make sure the service is running
 			// If service is still running, it's kept running anyway
 			startService(new Intent(this, ConnectionManagerService.class));
@@ -110,37 +114,40 @@ public class ConnectionManagerService extends Service implements
 
 	@Override
 	public boolean onUnbind(Intent intent) {
+		mBindCounter--;
 		// The observers should be empty at this time (all are unbound from us)
 		if (!mObservers.isEmpty()) {
-			if (Logging.WARNING) Log.w(TAG, "onUnbind(), but mObservers is not empty");
+			if (Logging.WARNING) Log.w(TAG, "onUnbind(), but mObservers is not empty, bindCounter="+mBindCounter);
 			mObservers.clear();
 		}
 		// Create runnable which will stop service after grace period
-		mTerminateRunnable = new Runnable() {
-			@Override
-			public void run() {
-				// We remove reference to self
-				mTerminateRunnable = null;
-				// Disconnect client if still connected
-				if (mClientBridge != null) {
-					// Still connected to some client - disconnect it now
-					disconnect();
+		if (mBindCounter == 0) {
+			mTerminateRunnable = new Runnable() {
+				@Override
+				public void run() {
+					// We remove reference to self
+					mTerminateRunnable = null;
+					// Disconnect client if still connected
+					if (mClientBridge != null) {
+						// Still connected to some client - disconnect it now
+						disconnect();
+					}
+					// Stop service
+					stopSelf();
+					if (Logging.DEBUG) Log.d(TAG, "Stopped service");
 				}
-				// Stop service
-				stopSelf();
-				if (Logging.DEBUG) Log.d(TAG, "Stopped service");
+			};
+			// Post the runnable to self - delayed by grace period
+			long gracePeriod;
+			if (mClientBridge != null) {
+				gracePeriod = TERMINATE_GRACE_PERIOD_CONN * 1000;
 			}
-		};
-		// Post the runnable to self - delayed by grace period
-		long gracePeriod;
-		if (mClientBridge != null) {
-			gracePeriod = TERMINATE_GRACE_PERIOD_CONN * 1000;
+			else {
+				gracePeriod = TERMINATE_GRACE_PERIOD_IDLE * 1000;
+			}
+			mHandler.postDelayed(mTerminateRunnable, gracePeriod);
+			if (Logging.DEBUG) Log.d(TAG, "onUnbind() - Started grace period to terminate self, bindCounter="+mBindCounter);
 		}
-		else {
-			gracePeriod = TERMINATE_GRACE_PERIOD_IDLE * 1000;
-		}
-		mHandler.postDelayed(mTerminateRunnable, gracePeriod);
-		if (Logging.DEBUG) Log.d(TAG, "onUnbind() - Started grace period to terminate self");
 		return true;
 	}
 

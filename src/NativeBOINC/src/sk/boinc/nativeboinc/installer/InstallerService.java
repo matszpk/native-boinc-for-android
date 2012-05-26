@@ -127,8 +127,28 @@ public class InstallerService extends Service {
 	
 	private static final int DELAYED_DESTROY_INTERVAL = 4000;
 	
+	private int mBindCounter = 0;
+	private boolean mUnlockStopWhenNotWorking = false;
+	private Object mStoppingLocker = new Object();
+	
+	@Override
+	public IBinder onBind(Intent intent) {
+		synchronized(mStoppingLocker) {
+			mBindCounter++;
+			mUnlockStopWhenNotWorking = false;
+			if (Logging.DEBUG) Log.d(TAG, "Bind. bind counter: " + mBindCounter);
+		}
+		startService(new Intent(this, InstallerService.class));
+		return mBinder;
+	}
+	
 	@Override
 	public void onRebind(Intent intent) {
+		synchronized(mStoppingLocker) {
+			mBindCounter++;
+			mUnlockStopWhenNotWorking = false;
+			if (Logging.DEBUG) Log.d(TAG, "Rebind. bind counter: " + mBindCounter);
+		}
 		if (mInstallerHandler != null && mInstallerStopper != null) {
 			if (Logging.DEBUG) Log.d(TAG, "Rebind");
 			mInstallerHandler.removeCallbacks(mInstallerStopper);
@@ -138,19 +158,39 @@ public class InstallerService extends Service {
 	
 	@Override
 	public boolean onUnbind(Intent intent) {
-		if (!isWorking()) {
-			if (Logging.DEBUG) Log.d(TAG, "Installer is not working");
+		int bindCounter; 
+		synchronized(mStoppingLocker) {
+			mBindCounter--;
+			bindCounter = mBindCounter;
+		}
+		if (Logging.DEBUG) Log.d(TAG, "Unbind. bind counter: " + bindCounter);
+		if (!isWorking() && bindCounter == 0) {
 			mInstallerStopper = new Runnable() {
 				@Override
 				public void run() {
+					synchronized(mStoppingLocker) {
+						if (isWorking() || mBindCounter != 0) {
+							mUnlockStopWhenNotWorking = (mBindCounter == 0);
+							mInstallerStopper = null;
+							return;
+						}
+					}
 					if (Logging.DEBUG) Log.d(TAG, "Stop InstallerService");
 					mInstallerStopper = null;
 					stopSelf();
 				}
 			};
 			mInstallerHandler.postDelayed(mInstallerStopper, DELAYED_DESTROY_INTERVAL);
+		} else {
+			synchronized(mStoppingLocker) {
+				mUnlockStopWhenNotWorking = (mBindCounter == 0);
+			}
 		}
 		return true;
+	}
+	
+	public synchronized boolean doStopWhenNotWorking() {
+		return (mBindCounter == 0 && mUnlockStopWhenNotWorking);
 	}
 	
 	@Override
@@ -162,12 +202,6 @@ public class InstallerService extends Service {
 		mInstallerHandler = null;
 		mNotificationController = null;
 		mApp = null;
-	}
-	
-	@Override
-	public IBinder onBind(Intent intent) {
-		startService(new Intent(this, InstallerService.class));
-		return mBinder;
 	}
 	
 	private InstallError mPendingInstallError = null;

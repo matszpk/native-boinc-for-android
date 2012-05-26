@@ -69,6 +69,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 		InstallerProgressListener, InstallerUpdateListener {
 	private final static String TAG = "NativeBoincService";
 
+	private static final String PARTIAL_WAKELOCK_NAME = "RunnerPartial";
+	private static final String SCREEN_WAKELOCK_NAME = "RunnerScreen";
+	
 	public class LocalBinder extends Binder {
 		public NativeBoincService getService() {
 			return NativeBoincService.this;
@@ -188,9 +191,13 @@ public class NativeBoincService extends Service implements MonitorListener,
 	
 	private NotificationController mNotificationController = null;
 	
+	private int mBindCounter = 0;
+	
 	@Override
 	public IBinder onBind(Intent intent) {
 		if (Logging.DEBUG) Log.d(TAG, "OnBind");
+		mBindCounter++;
+		if (Logging.DEBUG) Log.d(TAG, "Bind. Bind counter: " + mBindCounter);
 		startService(new Intent(this, NativeBoincService.class));
 		return mBinder;
 	}
@@ -208,8 +215,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 		mApp = (BoincManagerApplication)getApplication();
 		mNotificationController = mApp.getNotificationController();
 		
-		mDimWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, BoincManagerApplication.GLOBAL_ID);
-		mPartialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, BoincManagerApplication.GLOBAL_ID);
+		mDimWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, SCREEN_WAKELOCK_NAME);
+		mPartialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, PARTIAL_WAKELOCK_NAME);
 		mListenerHandler = new ListenerHandler();
 		
 		mMonitorListenerHandler = MonitorThread.createListenerHandler();
@@ -223,6 +230,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 	
 	@Override
 	public void onRebind(Intent intent) {
+		mBindCounter++;
+		if (Logging.DEBUG) Log.d(TAG, "Rebind. Bind counter: " + mBindCounter);
 		if (mListenerHandler != null && mRunnerStopper != null) {
 			if (Logging.DEBUG) Log.d(TAG, "Rebind");
 			mListenerHandler.removeCallbacks(mRunnerStopper);
@@ -232,12 +241,13 @@ public class NativeBoincService extends Service implements MonitorListener,
 	
 	@Override
 	public boolean onUnbind(Intent intent) {
-		if (mNativeBoincThread == null) {
+		mBindCounter--;
+		if (Logging.DEBUG) Log.d(TAG, "Unbind. Bind counter: " + mBindCounter);
+		if (mNativeBoincThread == null && mBindCounter == 0) {
 			if (Logging.DEBUG) Log.d(TAG, "nativeboincthread is null");
 			mRunnerStopper = new Runnable() {
 				@Override
 				public void run() {
-					
 					if (Logging.DEBUG) Log.d(TAG, "Stop NativeBoincService");
 					mRunnerStopper = null;
 					stopSelf();

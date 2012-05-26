@@ -24,7 +24,13 @@ Na Teraz:
 / * dodać opcję dodawania projektów nie wspieranych przez NativeBOINC (dla nativeboinc)
 / * umożliwić instalację aplikacji projektów nie wspieranych z SDCard
 
-  * poprawić autoryzacje clientmonitor (tylko jeden kod autoryzacyjny)
+/ * uściślić obsługę błędów i anulowania (wprowadzić cykl wg aktywności)
+
+  - błędy NativeBoincService, instalatora prostych operacji, connmanagera - każda aktywność,
+    która używa określonej usługi, na topie stacka.
+  - błędy NativeBoincService, instalatora (wszystkie usługi)
+  - przetestuj czas życia usług
+  
 ---------------------------------------------------------------
 
 / * wprowadzić proces instalacji w oddzielnym wątku z komunikacją po stronie UI

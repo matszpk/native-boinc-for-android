@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -97,6 +98,8 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	private NotificationController mNotificationController = null;
 	
 	private boolean mDoStartClientAfterBind = false;
+	
+	private AtomicInteger mRequestReceiverIdCount = new AtomicInteger(0);
 	
 	// restart after reinstall handling
 	private Object mRestartAfterReinstallSync = new Object();
@@ -507,5 +510,19 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 			mRunRestartAfterReinstall = false;
 			mRestartedAfterReinstall = false;
 		}
+	}
+	
+	/**
+	 * receiver of requests support
+	 */
+	public final static int RECEIVER_FIRST_GROUP = -100;
+	public final static int RECEIVER_LAST_GROUP = -10;
+	public final static int RECEIVER_SERVICE = -3;
+	public final static int RECEIVER_EVERY = -2;
+	public final static int RECEIVER_NONE = -1;
+	
+	/* generate new request receiver id - for activities */
+	public int newRequestReceiverId() {
+		return mRequestReceiverIdCount.getAndIncrement();
 	}
 }

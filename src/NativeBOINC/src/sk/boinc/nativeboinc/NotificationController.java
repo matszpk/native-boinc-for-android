@@ -171,6 +171,8 @@ public class NotificationController {
 				10000, 0, true);
 		clientNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
 		
+		clientNotification.notification.flags &= ~Notification.FLAG_ONLY_ALERT_ONCE;
+		
 		mNotificationManager.notify(NotificationId.INSTALL_BOINC_CLIENT,
 				clientNotification.notification);
 	}
@@ -184,6 +186,8 @@ public class NotificationController {
 		clientNotification.contentView.setProgressBar(R.id.operationProgress,
 				10000, 0, true);
 		clientNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
+		
+		clientNotification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
 		
 		mNotificationManager.notify(NotificationId.INSTALL_BOINC_CLIENT,
 				clientNotification.notification);
@@ -199,6 +203,8 @@ public class NotificationController {
 				10000, progress, false);
 		clientNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
 		
+		clientNotification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		
 		mNotificationManager.notify(NotificationId.INSTALL_BOINC_CLIENT,
 				clientNotification.notification);
 	}
@@ -209,6 +215,8 @@ public class NotificationController {
 		notification.tickerText = description;
 		notification.setLatestEventInfo(mAppContext, description, description,
 				notification.contentIntent);
+		
+		notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
 		
 		mNotificationManager.notify(NotificationId.INSTALL_BOINC_CLIENT, notification);
 	}
@@ -247,6 +255,8 @@ public class NotificationController {
 				10000, 0, true);
 		dumpNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
 		
+		dumpNotification.notification.flags &= ~Notification.FLAG_ONLY_ALERT_ONCE;
+		
 		mNotificationManager.notify(NotificationId.INSTALL_DUMP_FILES,
 				dumpNotification.notification);
 	}
@@ -261,6 +271,8 @@ public class NotificationController {
 				10000, progress, false);
 		dumpNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
 		
+		dumpNotification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		
 		mNotificationManager.notify(NotificationId.INSTALL_DUMP_FILES,
 				dumpNotification.notification);
 	}
@@ -271,6 +283,8 @@ public class NotificationController {
 		notification.tickerText = description;
 		notification.setLatestEventInfo(mAppContext, description, description,
 				notification.contentIntent);
+		
+		notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
 		
 		mNotificationManager.notify(NotificationId.INSTALL_DUMP_FILES, notification);
 	}
@@ -308,6 +322,8 @@ public class NotificationController {
 		reinstallNotification.contentView.setProgressBar(R.id.operationProgress, 10000, 0, true);
 		reinstallNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
 		
+		reinstallNotification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		
 		mNotificationManager.notify(NotificationId.INSTALL_REINSTALL,
 				reinstallNotification.notification);
 	}
@@ -318,6 +334,8 @@ public class NotificationController {
 		notification.tickerText = description;
 		notification.setLatestEventInfo(mAppContext, description, description,
 				notification.contentIntent);
+		
+		notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
 		
 		mNotificationManager.notify(NotificationId.INSTALL_REINSTALL, notification);
 	}
@@ -363,6 +381,8 @@ public class NotificationController {
 		
 		DistribNotification notification = getProjectNotification(projectName);
 		
+		notification.notification.flags &= ~Notification.FLAG_ONLY_ALERT_ONCE;
+		
 		notification.notification.contentView = notification.contentView;
 		notification.contentView.setProgressBar(R.id.operationProgress, 10000, 0, true);
 		notification.contentView.setTextViewText(R.id.operationDesc, notifyText);
@@ -374,6 +394,8 @@ public class NotificationController {
 		DistribNotification notification = getProjectNotification(projectName);
 		
 		String notifyText = projectName + ": " + description;
+		
+		notification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
 		
 		notification.notification.contentView = notification.contentView;
 		notification.contentView.setProgressBar(R.id.operationProgress, 10000, 0, true);
@@ -387,6 +409,8 @@ public class NotificationController {
 		
 		String notifyText = projectName + ": " + description;
 		
+		notification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		
 		notification.notification.contentView = notification.contentView;
 		notification.contentView.setProgressBar(R.id.operationProgress,
 				10000, progress, false);
@@ -398,6 +422,8 @@ public class NotificationController {
 		DistribNotification notification = getProjectNotification(projectName);
 		
 		String notifyText = projectName + ": " + description;
+		
+		notification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
 		
 		notification.notification.tickerText = notifyText;
 		notification.notification.setLatestEventInfo(mAppContext, notifyText, notifyText,

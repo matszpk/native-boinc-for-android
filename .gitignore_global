@@ -1,0 +1,9 @@
+*.so
+*~
+*.o
+*.lo
+*.la
+.deps
+.libs
+*.class
+*.apk

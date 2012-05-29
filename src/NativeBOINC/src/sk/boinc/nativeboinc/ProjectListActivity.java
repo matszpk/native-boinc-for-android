@@ -648,4 +648,10 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void binariesToUpdateFromSDCard(String[] projectNames) {
+		// TODO Auto-generated method stub
+		
+	}
 }

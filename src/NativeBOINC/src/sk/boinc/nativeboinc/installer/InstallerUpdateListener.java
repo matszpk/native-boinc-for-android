@@ -31,4 +31,5 @@ public interface InstallerUpdateListener extends AbstractInstallerListener {
 	public abstract void currentProjectDistribList(ArrayList<ProjectDistrib> projectDistribs);
 	public abstract void currentClientDistrib(ClientDistrib clientDistrib);
 	public abstract void binariesToUpdateOrInstall(UpdateItem[] updateItems);
+	public abstract void binariesToUpdateFromSDCard(String[] projectNames);
 }

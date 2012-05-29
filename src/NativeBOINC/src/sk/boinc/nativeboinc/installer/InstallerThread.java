@@ -162,6 +162,15 @@ public class InstallerThread extends Thread {
 		});
 	}
 	
+	public void getBinariesToUpdateFromSDCard(final String path) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.getBinariesToUpdateFromSDCard(path);
+			}
+		});
+	}
+	
 	public void updateProjectDistribList() {
 		mHandler.post(new Runnable() {
 			@Override

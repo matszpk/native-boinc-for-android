@@ -233,4 +233,10 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void binariesToUpdateFromSDCard(String[] projectNames) {
+		// TODO Auto-generated method stub
+		
+	}
 }

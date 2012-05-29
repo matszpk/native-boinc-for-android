@@ -26,8 +26,10 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
+import android.util.Log;
 
 import edu.berkeley.boinc.lite.Project;
+import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincProjectsListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
@@ -38,6 +40,8 @@ import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
  */
 public class ProjectsFromClientRetriever implements NativeBoincProjectsListener, NativeBoincStateListener {
 
+	private static final String TAG = "ProjectsFromClient";
+	
 	private Context mContext = null;
 	private NativeBoincService mRunner = null;
 	
@@ -80,6 +84,8 @@ public class ProjectsFromClientRetriever implements NativeBoincProjectsListener,
 			} finally {
 				mProjectDescsSem.release();
 			}
+			
+			if (Logging.DEBUG) Log.d(TAG, "Timeout: "+mIsTimeout);
 			
 			if (mProjectDescs != null)
 				projDescs = mProjectDescs;
@@ -130,6 +136,8 @@ public class ProjectsFromClientRetriever implements NativeBoincProjectsListener,
 	@Override
 	public void getProjects(ArrayList<Project> projects) {
 		if (!mIsTimeout) {
+			if (Logging.DEBUG) Log.d(TAG, "Get projects");
+			
 			mProjectDescs = new ProjectDescriptor[projects.size()];
 			
 			for (int i = 0; i < projects.size(); i++) {

@@ -19,7 +19,16 @@
 
 package sk.boinc.nativeboinc;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+
+import sk.boinc.nativeboinc.installer.ClientDistrib;
+import sk.boinc.nativeboinc.installer.InstallError;
+import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
+import sk.boinc.nativeboinc.installer.ProjectDistrib;
+import sk.boinc.nativeboinc.util.ProgressState;
+import sk.boinc.nativeboinc.util.StandardDialogs;
+import sk.boinc.nativeboinc.util.UpdateItem;
 
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +37,7 @@ import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -39,12 +49,14 @@ import android.widget.TextView;
  * @author mat
  *
  */
-public class UpdateFromSDCardActivity extends ServiceBoincActivity {
+public class UpdateFromSDCardActivity extends ServiceBoincActivity implements InstallerUpdateListener {
 	
 	public static final String UPDATE_DIR = "UpdateDir"; 
 	
 	private String[] mUpdateDistribList = null;
 	private HashSet<String> mSelectedItems = new HashSet<String>();
+	
+	private int mUpdateListProgressState = ProgressState.NOT_RUN;
 	
 	private class ItemOnClickListener implements View.OnClickListener {
 		private String mDistribName;
@@ -134,26 +146,30 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity {
 		private final String updateDirPath;
 		private String[] updateDistribList;
 		private HashSet<String> selectedItems;
+		private int updateListProgressState;
 		
 		public SavedState(UpdateFromSDCardActivity activity) {
 			updateDirPath = activity.mUpdateDirPath;
 			selectedItems = activity.mSelectedItems;
 			updateDistribList = activity.mUpdateDistribList;
+			updateListProgressState = activity.mUpdateListProgressState;
 		}
 		
 		public void restore(UpdateFromSDCardActivity activity) {
 			activity.mUpdateDirPath = updateDirPath;
 			activity.mSelectedItems = selectedItems;
 			activity.mUpdateDistribList = updateDistribList;
+			activity.mUpdateListProgressState = updateListProgressState;
 		}
 	};
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		
 		mExternalPath = Environment.getExternalStorageDirectory().toString();
 		
-		setUpService(false, false, false, false, true, false);
+		setUpService(false, false, false, false, true, true);
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.update);
@@ -213,41 +229,114 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity {
 	}
 	
 	@Override
+	protected void onResume() {
+		super.onResume();
+		if (mInstaller != null)
+			updateActivityState();
+	}
+	
+	@Override
+	public void onBackPressed() {
+		if (mInstaller != null)
+			mInstaller.cancelOperation();
+		finish();
+	}
+	
+	private void updateActivityState() {
+		setProgressBarIndeterminateVisibility(mInstaller.isWorking());
+		
+		InstallError installError = mInstaller.getPendingError();
+		if (installError != null && mUpdateListProgressState == ProgressState.IN_PROGRESS) {
+			onOperationError(installError.distribName, installError.errorMessage);
+			return;
+		}
+		
+		if (mUpdateDistribList == null) {
+			if (mUpdateListProgressState == ProgressState.IN_PROGRESS) {
+				mUpdateDistribList = mInstaller.getPendingBinariesToUpdateFromSDCard();
+				
+				if (mUpdateDistribList != null)
+					updateDistribList();
+			} else if (mUpdateListProgressState == ProgressState.NOT_RUN) {
+				mUpdateListProgressState = ProgressState.IN_PROGRESS;
+				mInstaller.getBinariesToUpdateFromSDCard(mUpdateDirPath);
+			}
+			// if finished but failed
+		} else
+			updateDistribList();
+	}
+	
+	@Override
 	public void onInstallerConnected() {
 		String updateDir = getIntent().getStringExtra(UPDATE_DIR);
 		
 		if (updateDir == null)
 			return;
 		
-		if (mUpdateDirPath != null) // if from savedState
-			return;
-		
-		if (mExternalPath.endsWith("/")) {
-			if (updateDir.startsWith("/"))
-				mUpdateDirPath = mExternalPath+updateDir.substring(1);
-			else
-				mUpdateDirPath = mExternalPath+updateDir;
-		} else {
-			if (updateDir.startsWith("/"))
-				mUpdateDirPath = mExternalPath+updateDir;
-			else
-				mUpdateDirPath = mExternalPath+"/"+updateDir;
+		if (mUpdateDirPath == null) { // if not from savedState
+			if (mExternalPath.endsWith("/")) {
+				if (updateDir.startsWith("/"))
+					mUpdateDirPath = mExternalPath+updateDir.substring(1);
+				else
+					mUpdateDirPath = mExternalPath+updateDir;
+			} else {
+				if (updateDir.startsWith("/"))
+					mUpdateDirPath = mExternalPath+updateDir;
+				else
+					mUpdateDirPath = mExternalPath+"/"+updateDir;
+			}
+			
+			if (!mUpdateDirPath.endsWith("/")) // add last slash
+				mUpdateDirPath += "/";
 		}
+			
+		updateActivityState();
+	}
+	
+	private void setConfirmButtonEnabled() {
+		mConfirmButton.setEnabled(!mSelectedItems.isEmpty());
+	}
+
+	@Override
+	public void onChangeInstallerIsWorking(boolean isWorking) {
+		setProgressBarIndeterminateVisibility(isWorking);
+	}
+
+	@Override
+	public void onOperationError(String distribName, String errorMessage) {
+		StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
+	}
+
+	@Override
+	public void currentProjectDistribList(ArrayList<ProjectDistrib> projectDistribs) {
+		// TODO Auto-generated method stub
 		
-		if (!mUpdateDirPath.endsWith("/")) // add last slash
-			mUpdateDirPath += "/";
+	}
+
+	@Override
+	public void currentClientDistrib(ClientDistrib clientDistrib) {
+		// TODO Auto-generated method stub
 		
-		mUpdateDistribList = mInstaller.getBinariesToUpdateFromSDCard(mUpdateDirPath);
+	}
+
+	@Override
+	public void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
+		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void binariesToUpdateFromSDCard(String[] projectNames) {
+		mUpdateDistribList = projectNames;
+		updateDistribList();
+	}
+	
+	private void updateDistribList() {
 		if (mUpdateDistribList == null || mUpdateDistribList.length == 0)
 			mAvailableText.setText(R.string.updateNoNew);
 		else
 			mAvailableText.setText(R.string.updateNewAvailable);
 		
 		mUpdateListAdapter.notifyDataSetChanged();
-	}
-	
-	private void setConfirmButtonEnabled() {
-		mConfirmButton.setEnabled(!mSelectedItems.isEmpty());
 	}
 }

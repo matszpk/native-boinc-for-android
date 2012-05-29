@@ -1070,4 +1070,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 	public void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
 		// TODO Auto-generated method stub
 	}
+
+	@Override
+	public void binariesToUpdateFromSDCard(String[] projectNames) {
+		// TODO Auto-generated method stub
+		
+	}
 }

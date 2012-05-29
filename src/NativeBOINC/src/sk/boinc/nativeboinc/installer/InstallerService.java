@@ -71,6 +71,9 @@ public class InstallerService extends Service {
 	private UpdateItem[] mPendingUpdateItems = null;
 	private Object mPendingUpdateItemsSync = new Object();
 	
+	private String[] mPendingUpdateProjNames = null;
+	private Object mPendingUpdateProjNamesSync = new Object();
+	
 	public class LocalBinder extends Binder {
 		public InstallerService getService() {
 			return InstallerService.this;
@@ -321,6 +324,19 @@ public class InstallerService extends Service {
 					((InstallerUpdateListener)listener).binariesToUpdateOrInstall(updateItems);
 		}
 		
+		public void notifyBinariesToUpdateFromSDCard(String[] projectNames) {
+			synchronized(mPendingUpdateItemsSync) {
+				mPendingUpdateProjNames = projectNames;
+			}
+			
+			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			
+			for (AbstractInstallerListener listener: listeners)
+				if (listener instanceof InstallerUpdateListener)
+					((InstallerUpdateListener)listener).binariesToUpdateFromSDCard(projectNames);
+		}
+		
+		
 		public void onChangeIsWorking(boolean isWorking) {
 			for (AbstractInstallerListener listener: mListeners)
 				listener.onChangeInstallerIsWorking(isWorking);
@@ -558,9 +574,18 @@ public class InstallerService extends Service {
 		}
 	}
 	
-	public String[] getBinariesToUpdateFromSDCard(String path) {
-		return mInstallerHandler.getBinariesToUpdateFromSDCard(path);
+	public void getBinariesToUpdateFromSDCard(String path) {
+		mInstallerThread.getBinariesToUpdateFromSDCard(path);
 	}
+	
+	public String[] getPendingBinariesToUpdateFromSDCard() {
+		synchronized(mPendingUpdateProjNamesSync) {
+			String[] pending = mPendingUpdateProjNames;
+			mPendingUpdateProjNames= null;
+			return pending;
+		}
+	}
+	
 	
 	/**
 	 * dump boinc files

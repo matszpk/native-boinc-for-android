@@ -334,5 +334,11 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 		mGetUpdateItemsProgressState = ProgressState.FINISHED;
 		updateBinariesView();
 	}
+
+	@Override
+	public void binariesToUpdateFromSDCard(String[] projectNames) {
+		// TODO Auto-generated method stub
+		
+	}
 }
 

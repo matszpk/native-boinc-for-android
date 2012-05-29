@@ -1724,14 +1724,14 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	/**
 	 * get list of distrib to update from sdcard
 	 */
-	public String[] getBinariesToUpdateFromSDCard(String path) {
+	public void getBinariesToUpdateFromSDCard(String path) {
 		File dirFile = new File(path);
 		if (!dirFile.isDirectory())
-			return null;
+			return;
 		
 		File[] fileList = dirFile.listFiles();
 		if (fileList == null)
-			return null;
+			return;
 		
 		ArrayList<InstalledDistrib> installedDistribs = mDistribManager.getInstalledDistribs();
 		ArrayList<String> distribsToUpdate = new ArrayList<String>(1);
@@ -1774,7 +1774,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					}
 			}
 		}
-		return distribsToUpdate.toArray(new String[0]);
+		notifyBinariesToUpdateFromSDCard(distribsToUpdate.toArray(new String[0]));
 	}
 	
 	/**
@@ -1892,6 +1892,15 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			@Override
 			public void run() {
 				mListenerHandler.notifyBinariesToInstallOrUpdate(updateItems);
+			}
+		});
+	}
+	
+	private synchronized void notifyBinariesToUpdateFromSDCard(final String[] projectNames) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.notifyBinariesToUpdateFromSDCard(projectNames);
 			}
 		});
 	}

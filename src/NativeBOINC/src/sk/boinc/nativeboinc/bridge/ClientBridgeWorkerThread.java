@@ -337,22 +337,22 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 
-	public void setRunMode(final ClientManageReceiver callback, final int mode) {
+	public void setRunMode(final int mode) {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.setRunMode(callback, mode);
+				mHandler.setRunMode(mode);
 			}
 		});
 	}
 
-	public void setNetworkMode(final ClientManageReceiver callback, final int mode) {
+	public void setNetworkMode(final int mode) {
 		// Execute in worker thread
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.setNetworkMode(callback, mode);
+				mHandler.setNetworkMode(mode);
 			}
 		});
 	}

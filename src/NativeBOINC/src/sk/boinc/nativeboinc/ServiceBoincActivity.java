@@ -42,8 +42,6 @@ public class ServiceBoincActivity extends AbstractBoincActivity {
 
 	private static final String TAG = "ServiceBoincActivity";
 	
-	private static final String STATE_REQUEST_RECEIVER_ID = "RequestReceiverId";
-	
 	protected ConnectionManagerService mConnectionManager = null;
 	protected NativeBoincService mRunner = null;
 	protected InstallerService mInstaller = null;
@@ -58,9 +56,7 @@ public class ServiceBoincActivity extends AbstractBoincActivity {
 	private boolean mDelayedObserverRegistration = false;
 	private boolean mDelayedInstallerListenerRegistration = false;
 	private boolean mDelayedRunnerListenerRegistration = false;
-	
-	private int mRequestReceiverId = -1;
-	
+		
 	protected ServiceConnection mConnectionServiceConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
@@ -201,20 +197,6 @@ public class ServiceBoincActivity extends AbstractBoincActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		// handling request receiver id
-		if (savedInstanceState != null)
-			mRequestReceiverId = savedInstanceState.getInt(STATE_REQUEST_RECEIVER_ID, -1);
-		
-		BoincManagerApplication app = (BoincManagerApplication)getApplication();
-		if (mRequestReceiverId == -1) {
-			mRequestReceiverId = app.newRequestReceiverId();
-			if (Logging.DEBUG)
-				Log.d(TAG, "New requestReceiverId:"+mRequestReceiverId);
-		} else {
-			if (Logging.DEBUG)
-				Log.d(TAG, "Restore requestReceiverId:"+mRequestReceiverId);
-		}
-		
 		if (mBindToConnManager)
 			doBindConnectionManagerService();
 		if (mBindToInstaller)
@@ -281,15 +263,5 @@ public class ServiceBoincActivity extends AbstractBoincActivity {
 		if (mBindToRunner)
 			doUnbindRunnerService();
 		super.onDestroy();
-	}
-	
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		outState.putInt(STATE_REQUEST_RECEIVER_ID, mRequestReceiverId);
-		super.onSaveInstanceState(outState);
-	}
-	
-	public int getRequestReceiverId() {
-		return mRequestReceiverId;
 	}
 }

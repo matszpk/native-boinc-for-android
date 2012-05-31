@@ -16,15 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
-
-package sk.boinc.nativeboinc.nativeclient;
+package sk.boinc.nativeboinc.util;
 
 /**
  * @author mat
  *
  */
-public interface AbstractNativeBoincListener {
-	public abstract boolean onNativeBoincClientError(String message);
-	
-	public abstract void onChangeRunnerIsWorking(boolean isWorking);
+public class FileUtils {
+	public final static String joinBaseAndPath(String base, String filePath) {
+		String outPath;
+		if (base.endsWith("/")) {
+			if (filePath.startsWith("/"))
+				outPath = base+filePath.substring(1);
+			else
+				outPath = base+filePath;
+		} else {
+			if (filePath.startsWith("/"))
+				outPath = base+filePath;
+			else
+				outPath = base+"/"+filePath;
+		}
+		return outPath;
+	}
 }

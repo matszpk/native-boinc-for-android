@@ -121,13 +121,11 @@ public class NativeBoincService extends Service implements MonitorListener,
 			AbstractNativeBoincListener[] listeners = mListeners.toArray(
 					new AbstractNativeBoincListener[0]);
 			for (AbstractNativeBoincListener listener: listeners)
-				if (listener instanceof NativeBoincStateListener) {
-					((NativeBoincStateListener)listener).onNativeBoincClientError(message);
+				if (listener.onNativeBoincClientError(message))
 					called = true;
-				}
 			
 			synchronized(mPendingErrorSync) {
-				if (!called)
+				if (!called) /* set up pending if not already handled */
 					mPendingError = message;
 				else	// if already handled
 					mPendingError = null;
@@ -141,12 +139,12 @@ public class NativeBoincService extends Service implements MonitorListener,
 					new AbstractNativeBoincListener[0]);
 			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincServiceListener) {
-					((NativeBoincServiceListener)listener).onNativeBoincServiceError(message);
-					called = true;
+					if (((NativeBoincServiceListener)listener).onNativeBoincServiceError(message))
+						called = true;
 				}
 			
 			synchronized(mPendingErrorSync) {
-				if (!called)
+				if (!called) /* set up pending if not already handled */
 					mPendingError = message;
 				else	// if already handled
 					mPendingError = null;
@@ -315,6 +313,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 		
 		Intent intent = new Intent(this, BoincManagerActivity.class);
 		intent.putExtra(BoincManagerActivity.PARAM_CONNECT_NATIVE_CLIENT, true);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
 				PendingIntent.FLAG_UPDATE_CURRENT);
 		
@@ -1013,7 +1012,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 	}
 
 	@Override
-	public void onOperationError(String distribName, String errorMessage) {
+	public boolean onOperationError(String distribName, String errorMessage) {
 		if (distribName == null || distribName.length() == 0) {
 			// is not distrib (updating project distrib list simply failed)
 			if (Logging.DEBUG) Log.d(TAG, "on operation failed");
@@ -1029,6 +1028,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 				unboundInstallService();
 		}
 		finishProjectApplicationInstallation(distribName);
+		// do not consume error data
+		return false;
 	}
 
 	@Override

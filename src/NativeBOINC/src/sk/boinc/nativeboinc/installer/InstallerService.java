@@ -248,12 +248,12 @@ public class InstallerService extends Service {
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners) {
-				listener.onOperationError(distribName, errorMessage);
-				called = true;
+				if (listener.onOperationError(distribName, errorMessage))
+					called = true;
 			}
 			
 			synchronized(mPendingInstallErrorSync) {
-				if (!called)
+				if (!called) /* set up pending if not already handled */
 					mPendingInstallError = new InstallError(distribName, projectUrl, errorMessage);
 				else // if already handled
 					mPendingInstallError = null;

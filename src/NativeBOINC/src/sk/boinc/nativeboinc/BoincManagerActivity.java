@@ -25,8 +25,10 @@ import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientUpdateMessagesReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientUpdateNoticesReceiver;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
+import sk.boinc.nativeboinc.clientconnection.NoticeInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.InstallerService;
@@ -70,7 +72,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class BoincManagerActivity extends TabActivity implements ClientUpdateMessagesReceiver,
+public class BoincManagerActivity extends TabActivity implements ClientUpdateNoticesReceiver,
 		NativeBoincStateListener {
 	private static final String TAG = "BoincManagerActivity";
 
@@ -122,6 +124,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 	
 	// true when 'Shutdown' option selected and shutdown confirmed
 	private boolean mStoppedInMainActivity = false;
+	
+	private boolean mIsPaused = false;
 	
 	private static class SavedState {
 		private final boolean isInstallerRan;
@@ -462,13 +466,19 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 		
 		/* display error if pending */
 		if (mRunner != null && mConnectionManager != null) {
-			ClientError clientError = mConnectionManager.getPendingClientError();
-			if (clientError != null) {
+			
+			ClientError cError = mConnectionManager.getPendingClientError();
+			if (cError != null) {
 				if (!mConnectionManager.isNativeConnected() || !mRunner.ifStoppedByManager())
-					StandardDialogs.showClientErrorDialog(this, clientError.errorNum,
-							clientError.message);
-				return;
+					StandardDialogs.showClientErrorDialog(this, cError.errorNum, cError.message);
 			}
+			
+			String runnerError = mRunner.getPendingErrorMessage();
+			if (runnerError != null)
+				StandardDialogs.showErrorDialog(this, runnerError);
+			
+			if (runnerError != null || cError != null) // if error then do nothing
+				return;
 			
 			if (mStoppedInMainActivity && !mRunner.isRun()) {
 				mStoppedInMainActivity = false;
@@ -520,6 +530,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 	@Override
 	protected void onResume() {
 		super.onResume();
+		mIsPaused = false;
 		if (Logging.DEBUG) Log.d(TAG, "onResume()");
 		mBackPressedRecently = false;
 		mScreenOrientation.setOrientation();
@@ -581,6 +592,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 		if (Logging.DEBUG) Log.d(TAG, "unregister runner listener");
 		if (mRunner != null)
 			mRunner.removeNativeBoincListener(this);
+		mIsPaused = true;
 	}
 
 	@Override
@@ -925,6 +937,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 			break;
 		case PROGRESS_XFER_FINISHED:
 			break;
+		case PROGRESS_XFER_POLL:
+			break;
 		default:
 			if (Logging.ERROR) Log.e(TAG, "Unhandled progress indicator: " + progress);
 		}
@@ -991,7 +1005,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 
 	@Override
 	public boolean clientError(int errorNum, String message) {
-		if (mConnectionManager.isNativeConnected() && !mRunner.ifStoppedByManager()) {
+		if (!mIsPaused && (!mConnectionManager.isNativeConnected() || !mRunner.ifStoppedByManager())) {
 			StandardDialogs.showClientErrorDialog(this, errorNum, message);
 			return true;
 		}
@@ -1005,17 +1019,9 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 		else if ((mRunner == null || !mRunner.serviceIsWorking()) && !isWorking)
 			setProgressBarIndeterminateVisibility(false);
 	}
-	
-	/*@Override
-	public boolean updatedClientMode(ModeInfo modeInfo) {
-		// TODO: Handle client mode
-		// If run mode is suspended, show notification about it (pause symbol?)
-		// In such case also request periodic updates of status
-		return false;
-	}*/
 
 	@Override
-	public boolean updatedMessages(ArrayList<MessageInfo> messages) {
+	public boolean updatedNotices(ArrayList<NoticeInfo> notices) {
 		if (mInitialDataRetrievalStarted) {
 			dismissProgressDialog();
 			mInitialDataRetrievalStarted = false;
@@ -1067,7 +1073,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 	}
 	
 	@Override
-	public void onNativeBoincClientError(String message) {
+	public boolean onNativeBoincClientError(String message) {
 		if (mShowStartDialog) {
 			if (mConnectClientAfterRestart) // after restarting
 				dismissDialog(DIALOG_RESTART_PROGRESS);
@@ -1078,10 +1084,15 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateMes
 		mStoppedInMainActivity = false;
 		mConnectClientAfterStart = false;
 		mConnectClientAfterRestart = false;
-		StandardDialogs.showErrorDialog(this, message);
 		
 		if (Build.VERSION.SDK_INT >= 11)
 			invalidateOptionsMenu();
+		
+		if (!mIsPaused) {
+			StandardDialogs.showErrorDialog(this, message);
+			return true;
+		}
+		return false;
 	}
 	
 	@Override

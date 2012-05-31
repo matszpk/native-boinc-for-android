@@ -99,8 +99,9 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 	}
 	
 	@Override
-	public void onNativeBoincClientError(String message) {
+	public boolean onNativeBoincClientError(String message) {
 		// nothing
+		return false;
 	}
 
 	private Runnable mAutoRelease = new Runnable() {

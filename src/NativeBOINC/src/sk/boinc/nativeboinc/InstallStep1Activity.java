@@ -150,10 +150,13 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	private void updateActivityState() {
 		setProgressBarIndeterminateVisibility(mInstaller.isWorking());
 		
-		InstallError installError = mInstaller.getPendingError();
-		if (installError != null && mClientDistribProgressState == ProgressState.IN_PROGRESS) {
-			handleInstallError(installError.distribName, installError.errorMessage);
-			return;
+		
+		if (mClientDistribProgressState == ProgressState.IN_PROGRESS) {
+			InstallError installError = mInstaller.getPendingError();
+			if (installError != null) {
+				onOperationError(installError.distribName, installError.errorMessage);
+				return;
+			}
 		}
 		
 		if (mClientDistrib == null) {
@@ -190,15 +193,15 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
 		StandardDialogs.onPrepareDialog(this, dialogId, dialog, args);
 	}
-
-	private void handleInstallError(String distribName, String errorMessage) {
-		mClientDistribProgressState = ProgressState.FAILED;
-		StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
-	}
 	
 	@Override
-	public void onOperationError(String distribName, String errorMessage) {
-		handleInstallError(distribName, errorMessage);
+	public boolean onOperationError(String distribName, String errorMessage) {
+		if (mClientDistribProgressState == ProgressState.IN_PROGRESS) {
+			mClientDistribProgressState = ProgressState.FAILED;
+			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

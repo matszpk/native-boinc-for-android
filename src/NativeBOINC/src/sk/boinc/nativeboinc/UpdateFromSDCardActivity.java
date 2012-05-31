@@ -26,6 +26,7 @@ import sk.boinc.nativeboinc.installer.ClientDistrib;
 import sk.boinc.nativeboinc.installer.InstallError;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
+import sk.boinc.nativeboinc.util.FileUtils;
 import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.StandardDialogs;
 import sk.boinc.nativeboinc.util.UpdateItem;
@@ -245,10 +246,12 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 	private void updateActivityState() {
 		setProgressBarIndeterminateVisibility(mInstaller.isWorking());
 		
-		InstallError installError = mInstaller.getPendingError();
-		if (installError != null && mUpdateListProgressState == ProgressState.IN_PROGRESS) {
-			onOperationError(installError.distribName, installError.errorMessage);
-			return;
+		if (mUpdateListProgressState == ProgressState.IN_PROGRESS) {
+			InstallError installError = mInstaller.getPendingError();
+			if (installError != null) {
+				onOperationError(installError.distribName, installError.errorMessage);
+				return;
+			}
 		}
 		
 		if (mUpdateDistribList == null) {
@@ -274,17 +277,7 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 			return;
 		
 		if (mUpdateDirPath == null) { // if not from savedState
-			if (mExternalPath.endsWith("/")) {
-				if (updateDir.startsWith("/"))
-					mUpdateDirPath = mExternalPath+updateDir.substring(1);
-				else
-					mUpdateDirPath = mExternalPath+updateDir;
-			} else {
-				if (updateDir.startsWith("/"))
-					mUpdateDirPath = mExternalPath+updateDir;
-				else
-					mUpdateDirPath = mExternalPath+"/"+updateDir;
-			}
+			mUpdateDirPath = FileUtils.joinBaseAndPath(mExternalPath, updateDir);
 			
 			if (!mUpdateDirPath.endsWith("/")) // add last slash
 				mUpdateDirPath += "/";
@@ -303,8 +296,13 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 	}
 
 	@Override
-	public void onOperationError(String distribName, String errorMessage) {
-		StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
+	public boolean onOperationError(String distribName, String errorMessage) {
+		if (mUpdateListProgressState == ProgressState.IN_PROGRESS) {
+			mUpdateListProgressState = ProgressState.FAILED;
+			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

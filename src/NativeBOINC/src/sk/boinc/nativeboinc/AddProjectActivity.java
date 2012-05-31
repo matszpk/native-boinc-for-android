@@ -23,6 +23,7 @@ package sk.boinc.nativeboinc;
 import hal.android.workarounds.FixedProgressDialog;
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.ProjectConfig;
+import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
 import sk.boinc.nativeboinc.clientconnection.PollError;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
@@ -266,17 +267,20 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
 		
 		if (mProjectConfigProgressState == ProgressState.IN_PROGRESS || mAddingProjectInProgress) {
-			PollError error = mConnectionManager.getPendingPollError(mProjectItem.getUrl());
+			ClientError cError = mConnectionManager.getPendingClientError();
+			PollError pollError = mConnectionManager.getPendingPollError(mProjectItem.getUrl());
 			
-			if (error != null) {
-				handlePollError(error.param, error.errorNum, error.operation, error.message);
-				return;
-			} else if (mConnectedClient == null) {
+			if (pollError != null)
+				onPollError(pollError.errorNum, pollError.operation, pollError.message, pollError.param);
+			else if (cError != null)
+				clientError(cError.errorNum, cError.message);
+			
+			if (mConnectedClient == null)
 				clientDisconnected(); // if disconnected
-				return;
-			}
+			
+			if (pollError != null || cError != null || mConnectedClient == null) return;
 		}
-		
+	
 		if (mProjectConfigProgressState != ProgressState.FINISHED) {
 			if (mProjectConfigProgressState == ProgressState.NOT_RUN) {
 				if (Logging.DEBUG) Log.d(TAG, "get project config from client");
@@ -391,23 +395,22 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		return true;
 	}
-	
-	private void handlePollError(String projectUrl, int errorNum, int operation,
-			String errorMessage) {
-		// getProjectConfig - set as finished - prevents repeating operation
-		mProjectConfigProgressState = ProgressState.FINISHED;
-		if (mAddingProjectInProgress)
-			dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
-		mAddingProjectInProgress = false;
-		
-		StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, projectUrl);
-	}
 
 	@Override
 	public boolean onPollError(int errorNum, int operation, String errorMessage, String param) {
 		if (Logging.WARNING) Log.w(TAG, "Poller error:"+errorNum+":"+operation+":"+param);
-		handlePollError(param, errorNum, operation, errorMessage);
-		return true;
+		if (mProjectConfigProgressState == ProgressState.IN_PROGRESS || mAddingProjectInProgress) {
+			// getProjectConfig - set as failed - prevents repeating operation
+			if (mProjectConfigProgressState == ProgressState.IN_PROGRESS)
+				mProjectConfigProgressState = ProgressState.FAILED;
+			if (mAddingProjectInProgress)
+				dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
+			mAddingProjectInProgress = false;
+			
+			StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -423,7 +426,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	public void clientDisconnected() {
 		if (Logging.WARNING) Log.w(TAG, "Client disconnected");
 		
-		// getProjectConfig - set as finished - prevents repeating operation
+		// getProjectConfig - set as failed - prevents repeating operation
 		mProjectConfigProgressState = ProgressState.FAILED;
 		if (mAddingProjectInProgress)
 			dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
@@ -474,14 +477,17 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	@Override
 	public boolean clientError(int errorNum, String errorMessage) {
 		// getProjectConfig - set as finished - prevents repeating operation
-		mProjectConfigProgressState = ProgressState.FAILED;
-		
-		if (mAddingProjectInProgress)
-			dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
-		mAddingProjectInProgress = false;
-		
-		StandardDialogs.showClientErrorDialog(this, errorNum, errorMessage);
-		return true;
+		if (mProjectConfigProgressState == ProgressState.IN_PROGRESS || mAddingProjectInProgress) {
+			mProjectConfigProgressState = ProgressState.FAILED;
+			
+			if (mAddingProjectInProgress)
+				dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
+			mAddingProjectInProgress = false;
+			
+			StandardDialogs.showClientErrorDialog(this, errorNum, errorMessage);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import sk.boinc.nativeboinc.installer.InstallerService;
+import sk.boinc.nativeboinc.util.FileUtils;
 import sk.boinc.nativeboinc.util.StandardDialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -117,19 +118,7 @@ public class BoincLogsActivity extends AbstractBoincActivity {
 					public void onClick(DialogInterface dialog, int which) {
 						String base = Environment.getExternalStorageDirectory().getAbsolutePath();
 						String filePath = edit.getText().toString();
-						String outPath =null;
-						
-						if (base.endsWith("/")) {
-							if (filePath.startsWith("/"))
-								outPath = base+filePath.substring(1);
-							else
-								outPath = base+filePath;
-						} else {
-							if (filePath.startsWith("/"))
-								outPath = base+filePath;
-							else
-								outPath = base+"/"+filePath;
-						}
+						String outPath = FileUtils.joinBaseAndPath(base, filePath);
 						
 						saveToFile(outPath);
 					}

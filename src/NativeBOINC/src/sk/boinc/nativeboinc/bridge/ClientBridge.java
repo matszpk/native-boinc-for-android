@@ -155,7 +155,7 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 			
 			synchronized(mPendingClientErrorSync) {
-				if (!called)
+				if (!called) /* set up pending if not already handled */
 					mPendingClientError = new ClientError(errorNum, errorMessage);
 				else	// if error already handled 
 					mPendingClientError = null;
@@ -181,7 +181,7 @@ public class ClientBridge implements ClientRequestHandler {
 				}
 			}
 			synchronized(ClientBridge.this) {
-				if (!called) {
+				if (!called) { /* set up pending if not already handled */
 					PollError pollError = new PollError(errorNum, operation, errorMessage, param);
 					if (param != null)
 						mPollErrorsMap.put(param, pollError);
@@ -865,15 +865,15 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 
 	@Override
-	public void setRunMode(final ClientManageReceiver callback, final int mode) {
+	public void setRunMode(final int mode) {
 		if (mRemoteClient == null) return; // not connected
-		mWorker.setRunMode(callback, mode);
+		mWorker.setRunMode(mode);
 	}
 
 	@Override
-	public void setNetworkMode(final ClientManageReceiver callback, final int mode) {
+	public void setNetworkMode(final int mode) {
 		if (mRemoteClient == null) return; // not connected
-		mWorker.setNetworkMode(callback, mode);
+		mWorker.setNetworkMode(mode);
 	}
 
 	@Override

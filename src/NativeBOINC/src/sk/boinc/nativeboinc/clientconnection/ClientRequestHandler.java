@@ -94,8 +94,8 @@ public interface ClientRequestHandler {
 	public abstract boolean isGlobalPrefsBeingOverriden();
 	
 	public abstract void runBenchmarks();
-	public abstract void setRunMode(ClientManageReceiver callback, int mode);
-	public abstract void setNetworkMode(ClientManageReceiver callback, int mode);
+	public abstract void setRunMode(int mode);
+	public abstract void setNetworkMode(int mode);
 	public abstract void shutdownCore();
 	public abstract void doNetworkCommunication();
 	

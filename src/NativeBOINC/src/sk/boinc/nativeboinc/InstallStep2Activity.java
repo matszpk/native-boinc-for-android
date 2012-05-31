@@ -397,12 +397,13 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 	}
 
 	@Override
-	public void onNativeBoincClientError(String message) {
+	public boolean onNativeBoincClientError(String message) {
 		setProgressBarIndeterminateVisibility(false);
 		mConnectionFailed = true;
 		// reset restart
 		mDoRestart = NO_RESTART;
 		StandardDialogs.showErrorDialog(this, message);
+		return true;
 	}
 
 	@Override

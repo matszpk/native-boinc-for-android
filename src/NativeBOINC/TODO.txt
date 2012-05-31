@@ -25,11 +25,10 @@ Na Teraz:
 / * umożliwić instalację aplikacji projektów nie wspieranych z SDCard
 
 / * uściślić obsługę błędów i anulowania (wprowadzić cykl wg aktywności)
-
-  - błędy NativeBoincService, instalatora prostych operacji, connmanagera - każda aktywność,
-    która używa określonej usługi, na topie stacka.
-  - błędy NativeBoincService, instalatora (wszystkie usługi)
-  - przetestuj czas życia usług
+/ * obsłużyć wielokrotne wyświetlanie błędów w aktywności (niepotrzebne)
+    
+/ - przetestuj czas życia usług
+/ * opcja dump to dir musi działać w osobnym wątku
   
 ---------------------------------------------------------------
 

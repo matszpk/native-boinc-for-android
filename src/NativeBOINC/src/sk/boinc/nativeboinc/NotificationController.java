@@ -135,18 +135,24 @@ public class NotificationController {
 	/*
 	 * create new or reuse existing notification for client
 	 */
-	private DistribNotification getClientNotification() {
+	private DistribNotification getClientNotification(boolean emptyIntent) {
+		Intent intent = null;
+		if (!emptyIntent) {
+			intent = new Intent(mAppContext, ProgressActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		} else
+			intent = new Intent();
+		
+		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 0);
+		
 		if (mClientInstallNotification != null) {
 			mClientInstallNotification.notification.when = System.currentTimeMillis();
+			mClientInstallNotification.notification.contentIntent = pendingIntent;
 			return mClientInstallNotification;
 		}
 		
-		Intent intent = new Intent(mAppContext, ProgressActivity.class);
-		
-		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 0);
 		RemoteViews contentView = new RemoteViews(mAppContext.getPackageName(),
 				R.layout.install_notification);
-		
 		Notification notification = new Notification(R.drawable.ic_download,
 				mAppContext.getString(R.string.installClientNotifyBegin),
 				System.currentTimeMillis());
@@ -164,7 +170,7 @@ public class NotificationController {
 	public synchronized void notifyInstallClientBegin() {
 		String notifyText = mAppContext.getString(R.string.installClientNotifyBegin);
 		
-		DistribNotification clientNotification = getClientNotification();
+		DistribNotification clientNotification = getClientNotification(false);
 		
 		clientNotification.notification.contentView = clientNotification.contentView;
 		clientNotification.contentView.setProgressBar(R.id.operationProgress,
@@ -172,6 +178,7 @@ public class NotificationController {
 		clientNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
 		
 		clientNotification.notification.flags &= ~Notification.FLAG_ONLY_ALERT_ONCE;
+		clientNotification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
 		
 		mNotificationManager.notify(NotificationId.INSTALL_BOINC_CLIENT,
 				clientNotification.notification);
@@ -180,7 +187,7 @@ public class NotificationController {
 	public synchronized void notifyInstallClientOperation(String description) {
 		String notifyText = InstallerService.BOINC_CLIENT_ITEM_NAME + ": " + description;
 		
-		DistribNotification clientNotification = getClientNotification();
+		DistribNotification clientNotification = getClientNotification(false);
 		
 		clientNotification.notification.contentView = clientNotification.contentView;
 		clientNotification.contentView.setProgressBar(R.id.operationProgress,
@@ -188,6 +195,7 @@ public class NotificationController {
 		clientNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
 		
 		clientNotification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		clientNotification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
 		
 		mNotificationManager.notify(NotificationId.INSTALL_BOINC_CLIENT,
 				clientNotification.notification);
@@ -196,7 +204,7 @@ public class NotificationController {
 	public synchronized void notifyInstallClientProgress(String description, int progress) {
 		String notifyText = InstallerService.BOINC_CLIENT_ITEM_NAME + ": " + description;
 		
-		DistribNotification clientNotification = getClientNotification();
+		DistribNotification clientNotification = getClientNotification(false);
 		
 		clientNotification.notification.contentView = clientNotification.contentView;
 		clientNotification.contentView.setProgressBar(R.id.operationProgress,
@@ -204,19 +212,20 @@ public class NotificationController {
 		clientNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
 		
 		clientNotification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		clientNotification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
 		
 		mNotificationManager.notify(NotificationId.INSTALL_BOINC_CLIENT,
 				clientNotification.notification);
 	}
 	
 	public synchronized void notifyInstallClientFinish(String description) {
-		Notification notification = getClientNotification().notification;
+		Notification notification = getClientNotification(true).notification;
 		
 		notification.tickerText = description;
 		notification.setLatestEventInfo(mAppContext, description, description,
 				notification.contentIntent);
 		
-		notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;
 		
 		mNotificationManager.notify(NotificationId.INSTALL_BOINC_CLIENT, notification);
 	}
@@ -224,15 +233,22 @@ public class NotificationController {
 	/**
 	 * dump boinc files: notifications handling
 	 */
-	private DistribNotification getDumpFilesNotification() {
+	private DistribNotification getDumpFilesNotification(boolean emptyIntent) {
+		Intent intent = null;
+		if (!emptyIntent) {
+			intent = new Intent(mAppContext, ProgressActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		} else
+			intent = new Intent();
+		
+		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 0);
+		
 		if (mDumpFilesNotification != null) {
 			mDumpFilesNotification.notification.when = System.currentTimeMillis();
+			mDumpFilesNotification.notification.contentIntent = pendingIntent;
 			return mDumpFilesNotification;
 		}
 		
-		Intent intent = new Intent(mAppContext, ProgressActivity.class);
-		
-		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 0);
 		RemoteViews contentView = new RemoteViews(mAppContext.getPackageName(),
 				R.layout.install_notification);
 		
@@ -248,7 +264,7 @@ public class NotificationController {
 	}
 	
 	public synchronized void notifyDumpFilesOperation(String notifyText) {
-		DistribNotification dumpNotification = getDumpFilesNotification();
+		DistribNotification dumpNotification = getDumpFilesNotification(false);
 		
 		dumpNotification.notification.contentView = dumpNotification.contentView;
 		dumpNotification.contentView.setProgressBar(R.id.operationProgress,
@@ -256,6 +272,7 @@ public class NotificationController {
 		dumpNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
 		
 		dumpNotification.notification.flags &= ~Notification.FLAG_ONLY_ALERT_ONCE;
+		dumpNotification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
 		
 		mNotificationManager.notify(NotificationId.INSTALL_DUMP_FILES,
 				dumpNotification.notification);
@@ -264,7 +281,7 @@ public class NotificationController {
 	public synchronized void notifyDumpFilesProgress(String filePath, int progress) {
 		String notifyText = mAppContext.getString(R.string.dumpBoincProgress, filePath);
 		
-		DistribNotification dumpNotification = getDumpFilesNotification();
+		DistribNotification dumpNotification = getDumpFilesNotification(false);
 		
 		dumpNotification.notification.contentView = dumpNotification.contentView;
 		dumpNotification.contentView.setProgressBar(R.id.operationProgress,
@@ -272,19 +289,20 @@ public class NotificationController {
 		dumpNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
 		
 		dumpNotification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		dumpNotification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
 		
 		mNotificationManager.notify(NotificationId.INSTALL_DUMP_FILES,
 				dumpNotification.notification);
 	}
 	
 	public synchronized void notifyDumpFilesFinish(String description) {
-		Notification notification = getDumpFilesNotification().notification;
+		Notification notification = getDumpFilesNotification(true).notification;
 		
 		notification.tickerText = description;
 		notification.setLatestEventInfo(mAppContext, description, description,
 				notification.contentIntent);
 		
-		notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;
 		
 		mNotificationManager.notify(NotificationId.INSTALL_DUMP_FILES, notification);
 	}
@@ -293,14 +311,20 @@ public class NotificationController {
 	 * routines for reinstall notifications
 	 */
 	
-	private DistribNotification getReinstallNotification() {
+	private DistribNotification getReinstallNotification(boolean emptyIntent) {
+		Intent intent = null;
+		if (!emptyIntent) {
+			intent = new Intent(mAppContext, ProgressActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		} else
+			intent = new Intent();
+		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 0);
+		
 		if (mReinstallNotification != null) {
 			mReinstallNotification.notification.when = System.currentTimeMillis();
+			mReinstallNotification.notification.contentIntent = pendingIntent;
 			return mReinstallNotification;
 		}
-		
-		Intent intent = new Intent(mAppContext, ProgressActivity.class);
-		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 0);
 		
 		Notification notification = new Notification(R.drawable.ic_progress,
 				mAppContext.getString(R.string.reinstallInProgress),
@@ -316,26 +340,27 @@ public class NotificationController {
 	}
 	
 	public void notifyReinstallBoincOperation(String notifyText) {
-		DistribNotification reinstallNotification = getReinstallNotification();
+		DistribNotification reinstallNotification = getReinstallNotification(false);
 		
 		reinstallNotification.notification.contentView = reinstallNotification.contentView;
 		reinstallNotification.contentView.setProgressBar(R.id.operationProgress, 10000, 0, true);
 		reinstallNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
 		
 		reinstallNotification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		reinstallNotification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
 		
 		mNotificationManager.notify(NotificationId.INSTALL_REINSTALL,
 				reinstallNotification.notification);
 	}
 	
 	public synchronized void notifyReinstallFinish(String description) {
-		Notification notification = getReinstallNotification().notification;
+		Notification notification = getReinstallNotification(true).notification;
 		
 		notification.tickerText = description;
 		notification.setLatestEventInfo(mAppContext, description, description,
 				notification.contentIntent);
 		
-		notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;
 		
 		mNotificationManager.notify(NotificationId.INSTALL_REINSTALL, notification);
 	}
@@ -343,18 +368,25 @@ public class NotificationController {
 	/***
 	 * create new or reuse existing notification for project distrib
 	 */
-	private DistribNotification getProjectNotification(String projectName) {
+	private DistribNotification getProjectNotification(String projectName, boolean emptyIntent) {
 		DistribNotification distribNotification = mProjectInstallNotifications.get(projectName);
+		
+		Intent intent = null;
+		if (!emptyIntent) {
+			intent = new Intent(mAppContext, ProgressActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		} else
+			intent = new Intent();
+		
+		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 0);
 		
 		if (distribNotification != null) {
 			Notification notification = distribNotification.notification;
 			notification.when = System.currentTimeMillis();
+			notification.contentIntent = pendingIntent;
 			return distribNotification;
 		}
 		
-		Intent intent = new Intent(mAppContext, ProgressActivity.class);
-		
-		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 0);
 		RemoteViews contentView = new RemoteViews(mAppContext.getPackageName(),
 				R.layout.install_notification);
 		
@@ -379,9 +411,10 @@ public class NotificationController {
 		String notifyText = mAppContext.getString(
 				R.string.installProjectNotifyBegin) + " " + projectName;
 		
-		DistribNotification notification = getProjectNotification(projectName);
+		DistribNotification notification = getProjectNotification(projectName, false);
 		
 		notification.notification.flags &= ~Notification.FLAG_ONLY_ALERT_ONCE;
+		notification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
 		
 		notification.notification.contentView = notification.contentView;
 		notification.contentView.setProgressBar(R.id.operationProgress, 10000, 0, true);
@@ -391,11 +424,12 @@ public class NotificationController {
 	
 	public synchronized void notifyInstallProjectAppsOperation(String projectName,
 			String description) {
-		DistribNotification notification = getProjectNotification(projectName);
+		DistribNotification notification = getProjectNotification(projectName, false);
 		
 		String notifyText = projectName + ": " + description;
 		
 		notification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		notification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
 		
 		notification.notification.contentView = notification.contentView;
 		notification.contentView.setProgressBar(R.id.operationProgress, 10000, 0, true);
@@ -405,11 +439,12 @@ public class NotificationController {
 	
 	public synchronized void notifyInstallProjectAppsProgress(String projectName,
 			String description, int progress) {
-		DistribNotification notification = getProjectNotification(projectName);
+		DistribNotification notification = getProjectNotification(projectName, false);
 		
 		String notifyText = projectName + ": " + description;
 		
 		notification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		notification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
 		
 		notification.notification.contentView = notification.contentView;
 		notification.contentView.setProgressBar(R.id.operationProgress,
@@ -419,11 +454,12 @@ public class NotificationController {
 	}
 	
 	public synchronized void notifyInstallProjectAppsFinish(String projectName, String description) {
-		DistribNotification notification = getProjectNotification(projectName);
+		DistribNotification notification = getProjectNotification(projectName, true);
 		
 		String notifyText = projectName + ": " + description;
 		
-		notification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		notification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE |
+				Notification.FLAG_AUTO_CANCEL;
 		
 		notification.notification.tickerText = notifyText;
 		notification.notification.setLatestEventInfo(mAppContext, notifyText, notifyText,

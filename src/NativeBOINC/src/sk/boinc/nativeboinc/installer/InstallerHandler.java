@@ -605,7 +605,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				/* release resources (wifi, CPU) during installation */
 				mResourcesLocker.releaseAllLocks();
 				
-				synchronized(this) {
+				synchronized(InstallerHandler.this) {
 					mClientShouldBeRun = false;
 					mIsClientBeingInstalled = false;
 					mClientInstaller = null;
@@ -869,7 +869,15 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			updateDir.mkdirs();
 		
 		File sdCardFile = new File(sdCardPath);
-		for (File file: sdCardFile.listFiles()) {
+		File[] sdCardFileDirList = sdCardFile.listFiles();
+		if (sdCardFileDirList == null) {
+			// if error
+			notifyError(projectDistrib.projectName, projectDistrib.projectUrl,
+					mInstallerService.getString(R.string.copyApplicationError));
+			return null;
+		}
+		
+		for (File file: sdCardFileDirList) {
 			FileInputStream inStream = null;
 			FileOutputStream outStream = null;
 			
@@ -1138,7 +1146,14 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						
 						File updateDirFile = new File(updateAppFilePath.toString());
 						// rename files
-						for (File file: updateDirFile.listFiles()) {
+						File[] filesToRename = updateDirFile.listFiles();
+						if (filesToRename == null) {
+							notifyError(mProjectDistrib.projectName, mProjectDistrib.projectUrl,
+									mInstallerService.getString(R.string.unexpectedError));
+							return;
+						}
+						
+						for (File file: filesToRename) {
 							projectAppFilePath.append(file.getName());
 							file.renameTo(new File(projectAppFilePath.toString()));
 							projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
@@ -1154,7 +1169,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			} catch(Exception ex) {
 				if (Logging.ERROR) Log.e(TAG, "on project install finishing:"+
 						ex.getClass().getCanonicalName()+":"+ex.getMessage());
-				notifyError(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
+				notifyError(mProjectDistrib.projectName, mProjectDistrib.projectUrl,
 	    				mInstallerService.getString(R.string.unexpectedError)+": "+ex.getMessage());
 			} finally {
 				if (removeSelf) {
@@ -1533,18 +1548,27 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	}
 	
 	public synchronized void cancelDumpFiles() {
-		mInstallOps.cancelDumpFiles();
+		if (mBoincFilesDumper != null) {
+			mInstallOps.cancelDumpFiles();
+			Future<?> future = mBoincFilesDumper.getFuture();
+			if (future != null)
+				future.cancel(true);
+			
+			if (mBoincFilesDumper != null && !mBoincFilesDumper.isRan()) // notify cancel if not ran yet
+				notifyCancel(InstallerService.BOINC_DUMP_ITEM_NAME, ""); 
+		}
+		mBoincFilesDumper = null;
 	}
 	
 	public synchronized void cancelOperation(Thread workingThread) {
 		if (isWorking()) {
 			workingThread.interrupt();
 		}
-			
 	}
 	
 	public synchronized boolean isWorking() {
-		return  mIsClientBeingInstalled || !mProjectAppsInstallers.isEmpty() || mHandlerIsWorking;
+		return  mIsClientBeingInstalled || !mProjectAppsInstallers.isEmpty() ||
+				mHandlerIsWorking || mDoDumpBoincFiles;
 	}
 	
 	public synchronized void cancelProjectAppsInstallation(String projectUrl) {
@@ -1780,21 +1804,64 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	/**
 	 * dump boinc files (installation) to directory
 	 */
-	public void dumpBoincFiles(String directory) {
-		if (mDoDumpBoincFiles)
-			return;
+	public class BoincFilesDumper implements Runnable {
+
+		private String mDirectory = null;
+		private Future<?> mFuture = null;
+		private boolean mIsRan = false;
 		
-		mDoDumpBoincFiles = true;
-		mHandlerIsWorking = true;
-		notifyChangeOfIsWorking();
+		public BoincFilesDumper(String directory) {
+			mDirectory = directory;
+		}
 		
-		try {
-			mInstallOps.dumpBoincFiles(directory);
-		} finally {
-			mHandlerIsWorking = false;
+		public void setFuture(Future<?> future) {
+			mFuture = future;
+		}
+		
+		public Future<?> getFuture() {
+			return mFuture;
+		}
+		
+		public boolean isRan() {
+			return mIsRan;
+		}
+		
+		@Override
+		public void run() {
+			mIsRan = true;
+			mDoDumpBoincFiles = true;
 			notifyChangeOfIsWorking();
 			
-			mDoDumpBoincFiles = false;
+			try {
+				mInstallOps.dumpBoincFiles(mDirectory);
+			} catch(Exception ex) {
+				notifyError(InstallerService.BOINC_DUMP_ITEM_NAME, "", 
+						mInstallerService.getString(R.string.unexpectedError));
+			} finally {
+				synchronized(InstallerHandler.this) {
+					mBoincFilesDumper = null;
+					mDoDumpBoincFiles = false;
+					notifyChangeOfIsWorking();
+				}
+			}
+		}
+	}
+	
+	private BoincFilesDumper mBoincFilesDumper = null;
+	
+	public void dumpBoincFiles(String directory) {
+		if (mDoDumpBoincFiles)
+			return;	// skip
+		
+		notifyOperation(InstallerService.BOINC_DUMP_ITEM_NAME, "",
+				mInstallerService.getString(R.string.dumpBoincBegin));
+		synchronized(this) {
+			mDoDumpBoincFiles = true;
+			mBoincFilesDumper = new BoincFilesDumper(directory);
+			// notify that client installer is working
+			notifyChangeOfIsWorking();
+			Future<?> future = mExecutorService.submit(mBoincFilesDumper);
+			mBoincFilesDumper.setFuture(future);
 		}
 	}
 	
@@ -1924,7 +1991,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	}
 
 	@Override
-	public void onNativeBoincClientError(String message) {
+	public boolean onNativeBoincClientError(String message) {
+		return false;
 	}
 
 	@Override
@@ -2005,9 +2073,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	}
 
 	@Override
-	public void onNativeBoincServiceError(String message) {
+	public boolean onNativeBoincServiceError(String message) {
 		// also notify
 		notifyIfClientUpdatedAndRan();
+		return false; // do not consume error
 	}
 
 	@Override

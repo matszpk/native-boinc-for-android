@@ -25,5 +25,5 @@ package sk.boinc.nativeboinc.installer;
  */
 public interface AbstractInstallerListener {
 	public abstract void onChangeInstallerIsWorking(boolean isWorking);
-	public abstract void onOperationError(String distribName, String errorMessage);
+	public abstract boolean onOperationError(String distribName, String errorMessage);
 }

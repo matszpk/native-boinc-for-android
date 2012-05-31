@@ -339,10 +339,8 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	
 	private void updateActivityState() {
 		// if disconnected
-		if (mDataDownloadProgressState == ProgressState.IN_PROGRESS && mConnectedClient == null) {
+		if (mDataDownloadProgressState == ProgressState.IN_PROGRESS && mConnectedClient == null)
 			clientDisconnected();
-			return;
-		}
 		
 		if (mGetFromInstaller) {
 			// from installer
@@ -354,7 +352,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			if (mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
 				InstallError installError = mInstaller.getPendingError();
 				if (installError != null) {
-					handleInstallError(installError.distribName, installError.errorMessage);
+					onOperationError(installError.distribName, installError.errorMessage);
 					return;
 				}
 			}
@@ -387,11 +385,16 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			
 			setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
 			
-			ClientError clientError = mConnectionManager.getPendingClientError();
-			if (clientError != null && mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
-				handleClientError(clientError.errorNum, clientError.message);
-				return;
+			if (mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
+				ClientError cError = mConnectionManager.getPendingClientError();
+				if (cError != null) {
+					clientError(cError.errorNum, cError.message);
+					return;
+				}
 			}
+			
+			if (mConnectedClient == null)
+				return;
 			
 			if (mProjectsList == null) {
 				if (mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
@@ -542,19 +545,17 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			int progress) {
 	}
 	
-	private void handleInstallError(String distribName, String errorMessage) {
-		mDataDownloadProgressState = ProgressState.FAILED;
-		
-		StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
-	}
-
 	@Override
-	public void onOperationError(String distribName, String errorMessage) {
+	public boolean onOperationError(String distribName, String errorMessage) {
 		if (distribName != null && distribName.length() != 0)
-			return;
+			return false;
 		
-		if (mGetFromInstaller)
-			handleInstallError(distribName, errorMessage);
+		if (mGetFromInstaller && mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
+			mDataDownloadProgressState = ProgressState.FAILED;
+			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -617,16 +618,11 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		return true;
 	}
 	
-	private void handleClientError(int errorNum, String message) {
-		mDataDownloadProgressState = ProgressState.FAILED;
-	
-		StandardDialogs.showClientErrorDialog(this, errorNum, message);
-	}
-
 	@Override
 	public boolean clientError(int errorNum, String message) {
-		if (!mGetFromInstaller) {
-			handleClientError(errorNum, message);
+		if (!mGetFromInstaller && mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
+			mDataDownloadProgressState = ProgressState.FAILED;
+			StandardDialogs.showClientErrorDialog(this, errorNum, message);
 			return true;
 		}
 		return false;

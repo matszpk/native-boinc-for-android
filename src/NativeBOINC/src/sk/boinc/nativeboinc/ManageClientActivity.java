@@ -314,17 +314,16 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		ClientError error = mConnectionManager.getPendingClientError();
 		// get error for account mgr operations 
 		PollError pollError = mConnectionManager.getPendingPollError("");
-		if (error != null) {
+		if (error != null)
 			clientError(error.errorNum, error.message);
-			return;
-		} else if (pollError != null) {
-			onPollError(pollError.errorNum, pollError.operation,
-					pollError.message, pollError.param);
-			return;
-		} else if (mConnectedClient == null) {
+		else if (pollError != null)
+			onPollError(pollError.errorNum, pollError.operation, pollError.message, pollError.param);
+		
+		if (mConnectedClient == null)
 			clientDisconnected(); // if disconnected
+		
+		if (error != null || pollError != null || mConnectedClient == null)
 			return;
-		}
 		
 		// check pending of account mgr
 		if (mDoGetBAMInfo) {
@@ -350,7 +349,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
+		if (Logging.DEBUG) Log.d(TAG, "Resume");
 		// setup orientation
 		mScreenOrientation.setOrientation();
 		
@@ -409,6 +408,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	@Override
 	protected void onPause() {
 		super.onPause();
+		if (Logging.DEBUG) Log.d(TAG, "Pause");
 		// No more repeated displays
 		mPeriodicModeRetrievalAllowed = false;
 		mProgressDialogAllowed = false;
@@ -709,6 +709,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		mDoGetBAMInfo = false;
 		mDoUpdateHostInfo = false;
 		mSyncingBAMInProgress = false;
+		Log.d(TAG, "client error");
 		StandardDialogs.showClientErrorDialog(this, errorNum, message);
 		return true;
 	}
@@ -903,11 +904,11 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	}
 	
 	private void boincChangeRunMode(int mode) {
-		mConnectionManager.setRunMode(this, mode);
+		mConnectionManager.setRunMode(mode);
 	}
 
 	private void boincChangeNetworkMode(int mode) {
-		mConnectionManager.setNetworkMode(this, mode);
+		mConnectionManager.setNetworkMode(mode);
 	}
 	
 	private void boincRunCpuBenchmarks() {

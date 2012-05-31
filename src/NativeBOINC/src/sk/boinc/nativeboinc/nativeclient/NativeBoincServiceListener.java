@@ -24,5 +24,5 @@ package sk.boinc.nativeboinc.nativeclient;
  *
  */
 public interface NativeBoincServiceListener extends AbstractNativeBoincListener {
-	public abstract void onNativeBoincServiceError(String message);
+	public abstract boolean onNativeBoincServiceError(String message);
 }

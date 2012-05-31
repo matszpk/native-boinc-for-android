@@ -617,16 +617,16 @@ public class ConnectionManagerService extends Service implements
 	}
 
 	@Override
-	public void setRunMode(ClientManageReceiver callback, int mode) {
+	public void setRunMode(int mode) {
 		if (mClientBridge != null) {
-			mClientBridge.setRunMode(callback, mode);
+			mClientBridge.setRunMode(mode);
 		}
 	}
 
 	@Override
-	public void setNetworkMode(ClientManageReceiver callback, int mode) {
+	public void setNetworkMode(int mode) {
 		if (mClientBridge != null) {
-			mClientBridge.setNetworkMode(callback, mode);
+			mClientBridge.setNetworkMode(mode);
 		}
 	}
 

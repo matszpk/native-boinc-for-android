@@ -120,8 +120,9 @@ public class ProjectsFromClientRetriever implements NativeBoincProjectsListener,
 	}
 	
 	@Override
-	public void onNativeBoincClientError(String message) {
+	public boolean onNativeBoincClientError(String message) {
 		mProjectDescsSem.release();
+		return false; // do not consume
 	}
 
 	@Override
@@ -129,8 +130,9 @@ public class ProjectsFromClientRetriever implements NativeBoincProjectsListener,
 	}
 
 	@Override
-	public void onNativeBoincServiceError(String message) {
+	public boolean onNativeBoincServiceError(String message) {
 		mProjectDescsSem.release();
+		return false; // do not consume
 	}
 
 	@Override

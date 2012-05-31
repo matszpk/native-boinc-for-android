@@ -30,6 +30,7 @@ import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
+import sk.boinc.nativeboinc.util.FileUtils;
 import sk.boinc.nativeboinc.util.PreferenceName;
 
 import android.content.Context;
@@ -75,9 +76,17 @@ public class InstallationOps {
 	
 	private long calculateDirectorySize(File dir) {
 		int length = 0;
-		for (File file: dir.listFiles()) {
-			if (file.isDirectory())
-				length += calculateDirectorySize(file);
+		File[] dirFiles = dir.listFiles();
+		if (dirFiles == null)
+			return -1;
+		
+		for (File file: dirFiles) {
+			if (file.isDirectory()) {
+				long childLength = calculateDirectorySize(file);
+				if (childLength == -1)
+					return -1;
+				length += childLength;
+			}
 			else
 				length += file.length();
 			
@@ -99,7 +108,12 @@ public class InstallationOps {
 	private long copyDirectory(File inDir, File outDir, String path, long copied, long inputSize)
 			throws IOException {
 		
-		for (File file: inDir.listFiles()) {
+		File[] inDirFiles = inDir.listFiles();
+		
+		if (inDirFiles == null)
+			throw new IOException("Cant access to directory!");
+		
+		for (File file: inDirFiles) {
 			mStringBuilder.setLength(0);
 			mStringBuilder.append(outDir.getPath());
 			mStringBuilder.append("/");
@@ -163,20 +177,8 @@ public class InstallationOps {
 	}
 	
 	public static boolean isDestinationExists(String directory) {
-		String outPath = null;
 		String externalPath = Environment.getExternalStorageDirectory().toString();
-		
-		if (externalPath.endsWith("/")) {
-			if (directory.startsWith("/"))
-				outPath = externalPath+directory.substring(1);
-			else
-				outPath = externalPath+directory;
-		} else {
-			if (directory.startsWith("/"))
-				outPath = externalPath+directory;
-			else
-				outPath = externalPath+"/"+directory;
-		}
+		String outPath = FileUtils.joinBaseAndPath(externalPath, directory);
 		
 		return new File(outPath).exists();
 	}
@@ -187,30 +189,21 @@ public class InstallationOps {
 	 */
 	public void dumpBoincFiles(String directory) {
 		mDoCancelDumpFiles = false;
-		String outPath = null;
-		
-		if (mExternalPath.endsWith("/")) {
-			if (directory.startsWith("/"))
-				outPath = mExternalPath+directory.substring(1);
-			else
-				outPath = mExternalPath+directory;
-		} else {
-			if (directory.startsWith("/"))
-				outPath = mExternalPath+directory;
-			else
-				outPath = mExternalPath+"/"+directory;
-		}
+		String outPath = FileUtils.joinBaseAndPath(mExternalPath, directory);
 		
 		if (Logging.DEBUG) Log.d(TAG, "DumpBoinc: OutPath:"+outPath);
 		
 		File fileDir = new File(outPath);
 		deleteDirectory(fileDir);
 		fileDir.mkdirs();
-		
-		notifyDumpBegin();
-		
+				
 		File boincDir = mContext.getFileStreamPath("boinc");
 		long boincDirSize = calculateDirectorySize(boincDir);
+		if (boincDirSize == -1) {
+			notifyDumpError(mContext.getString(R.string.unexpectedError));
+			return;
+		}
+		
 		if (mDoCancelDumpFiles) {
 			notifyDumpCancel();
 			mDoCancelDumpFiles = false;
@@ -352,16 +345,6 @@ public class InstallationOps {
 	/**
 	 * Dump boinc files notify routines
 	 */
-	private synchronized void notifyDumpBegin() {
-		mListenerHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				mListenerHandler.onOperation(InstallerService.BOINC_DUMP_ITEM_NAME, "",
-						mContext.getString(R.string.dumpBoincBegin));
-			}
-		});
-	}
-	
 	private synchronized void notifyDumpProgress(final int progress) {
 		mListenerHandler.post(new Runnable() {
 			@Override

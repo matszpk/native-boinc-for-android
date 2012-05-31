@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.AbstractInstallerListener;
+import sk.boinc.nativeboinc.installer.InstallError;
 import sk.boinc.nativeboinc.installer.InstallationOps;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.nativeclient.AbstractNativeBoincListener;
@@ -29,6 +30,7 @@ import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.ScreenOrientationHandler;
+import sk.boinc.nativeboinc.util.StandardDialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ComponentName;
@@ -99,6 +101,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 			}
 			
 			updateProgressBarState();
+			// update show error dialog
+			updateServicesError();
 		}
 
 		@Override
@@ -120,6 +124,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 			}
 			
 			updateProgressBarState();
+			// update show error dialog
+			updateServicesError();
 		}
 
 		@Override
@@ -349,6 +355,18 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 		setProgressBarIndeterminateVisibility(installerIsWorking || runnerIsWorking);
 	}
 	
+	private void updateServicesError() {
+		if (mRunner != null && mInstaller != null) {
+			String runnerError = mRunner.getPendingErrorMessage();
+			if (runnerError != null)
+				onNativeBoincClientError(runnerError);
+			
+			InstallError installError = mInstaller.getPendingError();
+			if (installError != null)
+				onOperationError(installError.distribName, installError.errorMessage);
+		}
+	}
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -390,6 +408,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 		
 		// progress bar update
 		updateProgressBarState();
+		// update error dialogs
+		updateServicesError();
 		
 		mScreenOrientation.setOrientation();
 	}
@@ -421,6 +441,10 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	
 	@Override
 	public Dialog onCreateDialog(int dialogId, Bundle args) {
+		Dialog dialog = StandardDialogs.onCreateDialog(this, dialogId, args);
+		if (dialog != null)
+			return dialog;
+		
 		switch(dialogId) {
 		case DIALOG_ENTER_DUMP_DIRECTORY: {
 			View view = LayoutInflater.from(this).inflate(R.layout.dialog_edit, null);
@@ -538,6 +562,9 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	
 	@Override
 	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
+		if (StandardDialogs.onPrepareDialog(this, dialogId, dialog, args))
+			return; // if standard dialog
+		
 		EditText edit = null;
 		switch (dialogId) {
 		case DIALOG_ENTER_UPDATE_DIRECTORY:
@@ -580,9 +607,9 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	}
 
 	@Override
-	public void onNativeBoincClientError(String message) {
-		// TODO Auto-generated method stub
-		
+	public boolean onNativeBoincClientError(String message) {
+		StandardDialogs.showErrorDialog(this, message);
+		return true;
 	}
 
 	@Override
@@ -602,8 +629,12 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	}
 
 	@Override
-	public void onOperationError(String distribName, String errorMessage) {
-		// TODO Auto-generated method stub
-		
+	public boolean onOperationError(String distribName, String errorMessage) {
+		if (distribName == null || distribName.length() == 0) {
+			// if global install error
+			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
+			return true;
+		}
+		return false;
 	}
 }

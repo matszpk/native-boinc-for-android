@@ -207,9 +207,9 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 	}
 
 	@Override
-	public void onNativeBoincClientError(String message) {
+	public boolean onNativeBoincClientError(String message) {
 		// TODO Auto-generated method stub
-		
+		return false;
 	}
 	
 	@Override
@@ -240,10 +240,11 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 	}
 
 	@Override
-	public void onNativeBoincServiceError(String message) {
+	public boolean onNativeBoincServiceError(String message) {
 		// trigger progress change
 		mErrorMessage = message;
 		onProgressChange(-1.0);
+		return false;
 	}
 
 	@Override

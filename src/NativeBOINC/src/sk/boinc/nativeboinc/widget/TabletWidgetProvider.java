@@ -120,11 +120,13 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			
 			/* start manager button */
 			Intent intent = new Intent(appContext, BoincManagerActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			PendingIntent pendingIntent = PendingIntent.getActivity(appContext, 0, intent, 0);
 			views.setOnClickPendingIntent(R.id.widgetManager, pendingIntent);
 			
 			/* start manager button */
 			intent = new Intent(appContext, ScreenLockActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			pendingIntent = PendingIntent.getActivity(appContext, 0, intent, 0);
 			views.setOnClickPendingIntent(R.id.widgetLock, pendingIntent);
 			
@@ -177,6 +179,7 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			if (runner != null) {
 				if (runner.isRun()) {
 					Intent intent = new Intent(appContext, ShutdownDialogActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					PendingIntent pendingIntent = PendingIntent.getActivity(appContext, 0, intent, 0);
 					try {
 						pendingIntent.send();
@@ -197,6 +200,7 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 				if (sb.toString().equals(action)) {
 					Intent intent = new Intent(appContext, TaskInfoDialogActivity.class);
 					intent.putExtra(TaskInfoDialogActivity.ARG_TASK_INFO, taskItem);
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					PendingIntent pendingIntent = PendingIntent.getActivity(appContext, 0, intent,
 							PendingIntent.FLAG_UPDATE_CURRENT);
 					

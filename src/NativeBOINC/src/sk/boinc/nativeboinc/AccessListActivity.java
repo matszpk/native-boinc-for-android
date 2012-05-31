@@ -264,9 +264,20 @@ public class AccessListActivity extends ServiceBoincActivity implements Abstract
 		});
 	}
 	
+	private void updateRunnerError() {
+		if (mRunner == null)
+			return;
+		
+		String runnerError = mRunner.getPendingErrorMessage();
+		if (runnerError != null)
+			onNativeBoincClientError(runnerError);
+	}
+	
 	@Override
 	public void onRunnerConnected() {
 		setProgressBarIndeterminateVisibility(mRunner.serviceIsWorking());
+		// update runner error (show)
+		updateRunnerError();
 	}
 	
 	@Override
@@ -279,6 +290,9 @@ public class AccessListActivity extends ServiceBoincActivity implements Abstract
 		super.onResume();
 		
 		mAccessListAdapter.notifyDataSetChanged();
+		
+		// update runner error (show)
+		updateRunnerError();
 	}
 	
 	@Override
@@ -286,7 +300,6 @@ public class AccessListActivity extends ServiceBoincActivity implements Abstract
 		Dialog dialog = StandardDialogs.onCreateDialog(this, dialogId, args);
 		if (dialog != null)
 			return dialog;
-		
 		
 		if (dialogId == DIALOG_ENTER_EDIT_HOST || dialogId == DIALOG_ENTER_ADD_HOST) {
 			View view = LayoutInflater.from(this).inflate(R.layout.dialog_edit, null);
@@ -384,9 +397,9 @@ public class AccessListActivity extends ServiceBoincActivity implements Abstract
 	}
 
 	@Override
-	public void onNativeBoincClientError(String message) {
-		// TODO Auto-generated method stub
-		
+	public boolean onNativeBoincClientError(String message) {
+		StandardDialogs.showErrorDialog(this, message);
+		return true;
 	}
 
 	@Override

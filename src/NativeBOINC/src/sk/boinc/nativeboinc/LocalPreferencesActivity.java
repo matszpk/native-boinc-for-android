@@ -292,15 +292,15 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
 		
 		if (mGlobalPrefsFetchProgress == ProgressState.IN_PROGRESS || mGlobalPrefsSavingInProgress) {
-			ClientError error = mConnectionManager.getPendingClientError();
+			ClientError cError = mConnectionManager.getPendingClientError();
 			
-			if (error != null) {
-				clientError(error.errorNum, error.message);
-				return;
-			} else if (mConnectedClient == null) {
+			if (cError != null)
+				clientError(cError.errorNum, cError.message);
+			if (mConnectedClient == null)
 				clientDisconnected(); // if disconnected
+			
+			if (cError != null || mConnectedClient == null)
 				return;
-			}
 		}
 		
 		if (mGlobalPrefsFetchProgress != ProgressState.FINISHED) {
@@ -648,11 +648,16 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 
 	@Override
 	public boolean clientError(int errorNum, String errorMessage) {
-		mGlobalPrefsFetchProgress = ProgressState.FAILED;
-		mGlobalPrefsSavingInProgress = false;
-		
-		StandardDialogs.showClientErrorDialog(this, errorNum, errorMessage);
-		return true;
+		if (mGlobalPrefsFetchProgress == ProgressState.IN_PROGRESS || mGlobalPrefsSavingInProgress) {
+			if (mGlobalPrefsFetchProgress == ProgressState.IN_PROGRESS)
+				mGlobalPrefsFetchProgress = ProgressState.FAILED;
+			else // mGlobalPrefsSavingInProgress
+				mGlobalPrefsSavingInProgress = false;
+			
+			StandardDialogs.showClientErrorDialog(this, errorNum, errorMessage);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

@@ -120,6 +120,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 	public void cleanup() {
 		mFormatter.cleanup();
 		mFormatter = null;
+		cancelPollOperations();
 		if (mRpcClient != null) {
 			if (Logging.WARNING) Log.w(TAG, "RpcClient still opened in cleanup(), closing it now");
 			closeConnection();
@@ -142,11 +143,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 
 	private void closeConnection() {
 		if (mRpcClient != null) {
-			removeCallbacks(mAccountMgrRPCPoller);
-			removeCallbacks(mLookupAccountPoller);
-			removeCallbacks(mCreateAccountPoller);
-			removeCallbacks(mProjectAttachPoller);
-			removeCallbacks(mGetProjectConfigPoller);
+			cancelPollOperations();
 			
 			mRpcClient.close();
 			mRpcClient = null;
@@ -668,7 +665,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		
 		changeIsHandlerWorking(true);
 		notifyProgress(ClientManageReceiver.PROGRESS_XFER_STARTED);
-		if (mRpcClient.accountMgrRPC(url, name, password, useConfigFile) == false) {
+		if (!mRpcClient.accountMgrRPC(url, name, password, useConfigFile)) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in " + infoMsg);
 			notifyError(0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
@@ -796,7 +793,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		
 		changeIsHandlerWorking(true);
 		notifyProgress(ClientManageReceiver.PROGRESS_XFER_STARTED);
-		if (mRpcClient.lookupAccount(accountIn) == false) {
+		if (!mRpcClient.lookupAccount(accountIn)) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount()");
 			notifyError(0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
@@ -894,7 +891,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		
 		changeIsHandlerWorking(true);
 		notifyProgress(ClientManageReceiver.PROGRESS_XFER_STARTED);
-		if (mRpcClient.createAccount(accountIn) == false) {
+		if (!mRpcClient.createAccount(accountIn)) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
 			notifyError(0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
@@ -997,7 +994,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		
 		changeIsHandlerWorking(true);
 		notifyProgress(ClientManageReceiver.PROGRESS_XFER_STARTED);
-		if (mRpcClient.projectAttach(url, authCode, projectName) == false) {
+		if (!mRpcClient.projectAttach(url, authCode, projectName)) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
 			notifyError(0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
@@ -1095,7 +1092,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		
 		changeIsHandlerWorking(true);
 		notifyProgress(ClientManageReceiver.PROGRESS_XFER_STARTED);
-		if (mRpcClient.getProjectConfig(url) == false) {
+		if (!mRpcClient.getProjectConfig(url)) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in projectConfig()");
 			notifyError(0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
@@ -1122,6 +1119,13 @@ public class ClientBridgeWorkerHandler extends Handler {
 		mLookupAccountCall = null;
 		mProjectAttachCall = null;
 		mGetProjectConfigCall = null;
+		
+		removeCallbacks(mAccountMgrRPCPoller);
+		removeCallbacks(mLookupAccountPoller);
+		removeCallbacks(mCreateAccountPoller);
+		removeCallbacks(mProjectAttachPoller);
+		removeCallbacks(mGetProjectConfigPoller);
+		
 		notifyChangeOfIsWorking();
 		notifyCancelPollOperations();
 	}
@@ -1214,7 +1218,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(false);
 	}
 
-	public void setRunMode(final ClientManageReceiver callback, int mode) {
+	public void setRunMode(int mode) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		changeIsHandlerWorking(true);
 		notifyProgress(ClientManageReceiver.PROGRESS_XFER_STARTED);
@@ -1226,7 +1230,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		updateClientMode();
 	}
 
-	public void setNetworkMode(final ClientManageReceiver callback, int mode) {
+	public void setNetworkMode(int mode) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		changeIsHandlerWorking(true);
 		notifyProgress(ClientManageReceiver.PROGRESS_XFER_STARTED);

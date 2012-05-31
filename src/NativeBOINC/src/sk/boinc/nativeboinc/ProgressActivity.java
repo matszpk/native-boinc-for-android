@@ -472,10 +472,10 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	}
 
 	@Override
-	public void onOperationError(String distribName, String errorMessage) {
+	public boolean onOperationError(String distribName, String errorMessage) {
 		int position = getProgressItem(distribName);
 		if (position == -1)
-			return;
+			return false;
 		
 		ProgressItem progress = mCurrentProgress[position];
 		
@@ -485,6 +485,7 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 		updateItemView(position);
 		
 		ifNothingInBackground();
+		return true;
 	}
 	
 	@Override

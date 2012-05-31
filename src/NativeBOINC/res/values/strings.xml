@@ -635,6 +635,7 @@
 	<string name="verifySignatureFailed">Signature verification failed</string>
 	<string name="unpackNativeClientError">Unable to unpack native client</string>
 	<string name="unpackApplicationError">Unable to unpack project applications</string>
+	<string name="copyApplicationError">Unable to copy project applications</string>
 	<string name="changePermissionsError">Unable to change permissions</string>
 	<string name="copyNativeClientError">Unable to copy native client</string>
 	

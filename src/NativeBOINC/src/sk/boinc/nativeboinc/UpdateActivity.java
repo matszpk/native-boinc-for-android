@@ -250,11 +250,12 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 		setProgressBarIndeterminateVisibility(mInstaller.isWorking());
 		
 		/* display error if pending */
-		if (mRunner != null && mInstaller != null) {
+		if (mRunner != null && mInstaller != null &&
+				mGetUpdateItemsProgressState == ProgressState.IN_PROGRESS) {
+			
 			InstallError installError = mInstaller.getPendingError();
 			if (installError != null) {
-				StandardDialogs.showInstallErrorDialog(this, installError.distribName,
-						installError.errorMessage);
+				onOperationError(installError.distribName, installError.errorMessage);
 				return;
 			}
 		}
@@ -321,11 +322,13 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 	}
 
 	@Override
-	public void onOperationError(String distribName, String errorMessage) {
+	public boolean onOperationError(String distribName, String errorMessage) {
 		if (mGetUpdateItemsProgressState == ProgressState.IN_PROGRESS) {
 			mGetUpdateItemsProgressState = ProgressState.FAILED;
 			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
+			return true;
 		}
+		return false;
 	}
 
 	@Override

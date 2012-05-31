@@ -154,22 +154,21 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 		else
 			setProgressBarIndeterminateVisibility(false);
 		
-		ClientError error = mConnectionManager.getPendingClientError();
-		// get error for account mgr operations 
-		PollError pollError = mConnectionManager.getPendingPollError("");
-		if (error != null) {
-			clientError(error.errorNum, error.message);
-			return;
-		} else if (pollError != null) {
-			onPollError(pollError.errorNum, pollError.operation,
-					pollError.message, pollError.param);
-			return;
-		} else if (mConnectedClient == null) {
-			clientDisconnected(); // if disconnected
-			return;
-		}
-		
 		if (mAttachBAMInProgress) {
+			ClientError cError = mConnectionManager.getPendingClientError();
+			// get error for account mgr operations 
+			PollError pollError = mConnectionManager.getPendingPollError("");
+			if (cError != null)
+				clientError(cError.errorNum, cError.message);
+			else if (pollError != null)
+				onPollError(pollError.errorNum, pollError.operation, pollError.message, pollError.param);
+
+			if (mConnectedClient == null)
+				clientDisconnected(); // if disconnected
+			
+			if (pollError != null || cError != null || mConnectedClient == null)
+				return;
+			
 			if (!mConnectionManager.isBAMBeingSynchronized())
 				onAfterAccountMgrRPC();
 		}

@@ -550,9 +550,9 @@ public class ConnectionManagerService extends Service implements
 	 * cancels all poll operations
 	 */
 	@Override
-	public void cancelPollOperations() {
+	public void cancelPollOperations(int opFlags) {
 		if (mClientBridge != null)
-			mClientBridge.cancelPollOperations();
+			mClientBridge.cancelPollOperations(opFlags);
 	}
 	
 	@Override

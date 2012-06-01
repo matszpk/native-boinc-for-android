@@ -26,6 +26,7 @@ import edu.berkeley.boinc.lite.ProjectConfig;
 import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
 import sk.boinc.nativeboinc.clientconnection.PollError;
+import sk.boinc.nativeboinc.clientconnection.PollOp;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.ClientId;
@@ -45,7 +46,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
@@ -62,12 +62,19 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	
 	private BoincManagerApplication mApp = null;
 	
-	private LinearLayout mNicknameLayout;
-	private EditText mNickname;
-	private EditText mEmail;
-	private EditText mPassword;
+	private View mCreateAccountContainer = null;
+	private View mUseAccountContainer = null;
+	
+	// create account tab
+	private EditText mCreateNickname;
+	private EditText mCreateEmail;
+	private EditText mCreatePassword;
 	private Button mConfirmButton;
 	private TextView mMinPasswordText;
+	
+	// use account tab
+	private EditText mUseEmail;
+	private EditText mUsePassword;
 	
 	private ProjectItem mProjectItem = null;
 	
@@ -127,11 +134,16 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		else
 			setTitle(getString(R.string.addProject) + " " + mProjectItem.getUrl());
 		
-		mNicknameLayout = (LinearLayout)findViewById(R.id.addProjectNameLayout);
-		mNickname = (EditText)findViewById(R.id.addProjectName);
-		mEmail = (EditText)findViewById(R.id.addProjectEmail);
-		mPassword = (EditText)findViewById(R.id.addProjectPassword);
-		mMinPasswordText = (TextView)findViewById(R.id.addProjectMinPasswordLength);
+		mCreateAccountContainer = findViewById(R.id.createAccountContainer);
+		mUseAccountContainer = findViewById(R.id.useAccountContainer);
+		
+		mCreateNickname = (EditText)findViewById(R.id.create_name);
+		mCreateEmail = (EditText)findViewById(R.id.create_email);
+		mCreatePassword = (EditText)findViewById(R.id.create_password);
+		mMinPasswordText = (TextView)findViewById(R.id.create_minPasswordLength);
+		
+		mUseEmail = (EditText)findViewById(R.id.use_email);
+		mUsePassword = (EditText)findViewById(R.id.use_password);
 		
 		TextWatcher textWatcher = new TextWatcher() {
 			@Override
@@ -147,9 +159,12 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 				// Not needed
 			}
 		};
-		mNickname.addTextChangedListener(textWatcher);
-		mEmail.addTextChangedListener(textWatcher);
-		mPassword.addTextChangedListener(textWatcher);
+		mCreateNickname.addTextChangedListener(textWatcher);
+		mCreateEmail.addTextChangedListener(textWatcher);
+		mCreatePassword.addTextChangedListener(textWatcher);
+		
+		mUseEmail.addTextChangedListener(textWatcher);
+		mUsePassword.addTextChangedListener(textWatcher);
 		
 		mConfirmButton = (Button)findViewById(R.id.addProjectOk);
 		
@@ -174,7 +189,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			});
 		}
 		
-		mPassword.setOnKeyListener(new View.OnKeyListener() {
+		View.OnKeyListener onAfterEnterListener = new View.OnKeyListener() {
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
 				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
@@ -183,7 +198,10 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 				}
 				return false;
 			}
-		});
+		};
+		
+		mCreatePassword.setOnKeyListener(onAfterEnterListener);
+		mUsePassword.setOnKeyListener(onAfterEnterListener);
 		
 		Button cancelButton = (Button)findViewById(R.id.addProjectCancel);
 		cancelButton.setOnClickListener(new View.OnClickListener() {
@@ -215,7 +233,10 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	@Override
 	public void onBackPressed() {
 		if (mConnectionManager != null)
-			mConnectionManager.cancelPollOperations();
+			mConnectionManager.cancelPollOperations(PollOp.POLL_CREATE_ACCOUNT_MASK |
+					PollOp.POLL_LOOKUP_ACCOUNT_MASK |
+					PollOp.POLL_PROJECT_ATTACH_MASK |
+					PollOp.POLL_PROJECT_CONFIG_MASK);
 		setResult(RESULT_CANCELED);
 		finish();
 	}
@@ -231,12 +252,15 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		if (mConnectionServiceConnection != null) {
 			AccountIn accountIn = new AccountIn();
-			if (mDoAccountCreation)
-				accountIn.user_name = mNickname.getText().toString();
-			
-			accountIn.email_addr = mEmail.getText().toString();
 			accountIn.url = mProjectItem.getUrl();
-			accountIn.passwd = mPassword.getText().toString();
+			if (mDoAccountCreation) {
+				accountIn.user_name = mCreateNickname.getText().toString();
+				accountIn.email_addr = mCreateEmail.getText().toString();
+				accountIn.passwd = mCreatePassword.getText().toString();
+			} else {
+				accountIn.email_addr = mUseEmail.getText().toString();
+				accountIn.passwd = mUsePassword.getText().toString();
+			}
 			
 			mAddingProjectInProgress = true;
 			if (mConnectionManager != null) {
@@ -364,34 +388,25 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	
 	private void updateViewMode() {
 		if (mDoAccountCreation) {
-			mNicknameLayout.setVisibility(View.VISIBLE);
-			mMinPasswordText.setVisibility(View.VISIBLE);
+			mCreateAccountContainer.setVisibility(View.VISIBLE);
+			mUseAccountContainer.setVisibility(View.GONE);
 		} else {
-			mNicknameLayout.setVisibility(View.GONE);
-			mMinPasswordText.setVisibility(View.GONE);
+			mCreateAccountContainer.setVisibility(View.GONE);
+			mUseAccountContainer.setVisibility(View.VISIBLE);
 		}
-		setConfirmButtonState();
-	}
-	
-	private void setConfirmButtonState() {
-		if ((mEmail.getText().length() == 0) || (mPassword.getText().length() == 0)) {
-			mConfirmButton.setEnabled(false);
-			return;
-		}
-		if (mDoAccountCreation && ((mNickname.getText().toString().length() == 0) ||
-				(mPassword.getText().length() < mMinPasswordLength))) {
-			mConfirmButton.setEnabled(false);
-			return;
-		}
-		mConfirmButton.setEnabled(true);
+		mConfirmButton.setEnabled(isFormValid());
 	}
 	
 	private boolean isFormValid() {
-		if ((mEmail.getText().length() == 0) || (mPassword.getText().length() == 0))
-			return false;
-		if (mDoAccountCreation && ((mNickname.getText().toString().length() == 0) ||
-				(mPassword.getText().length() < mMinPasswordLength)))
-			return false;
+		if (mDoAccountCreation) {
+			if (((mCreateNickname.getText().toString().length() == 0) ||
+					(mCreateEmail.getText().length() == 0) || (mCreatePassword.getText().length() == 0) ||
+					(mCreatePassword.getText().length() < mMinPasswordLength)))
+				return false;
+		} else {
+			if ((mUseEmail.getText().length() == 0) || (mUsePassword.getText().length() == 0))
+				return false;
+		}
 		
 		return true;
 	}

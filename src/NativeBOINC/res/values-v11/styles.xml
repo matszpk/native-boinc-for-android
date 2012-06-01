@@ -2,4 +2,7 @@
 <resources>
     <style name="StandaloneDialog" parent="@android:style/Theme.Holo.Dialog"></style>
     <style name="ScreenLockScreen" parent="@android:style/Theme.Holo.NoActionBar.Fullscreen"></style>
+    
+    <style name="Theme.NativeBoincActivity" parent="@android:style/Theme.Holo">
+    </style>
 </resources>

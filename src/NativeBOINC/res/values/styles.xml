@@ -2,4 +2,12 @@
 <resources>
     <style name="StandaloneDialog" parent="@android:style/Theme.Dialog"></style>
     <style name="ScreenLockScreen" parent="@android:style/Theme.NoTitleBar.Fullscreen"></style>
+    
+    <style name="Theme.NativeBoincActivity" parent="@android:style/Theme">
+        <item name="android:editTextStyle">@style/EditText.NativeBoinc</item>
+    </style>
+    
+    <style name="EditText.NativeBoinc" parent="@android:style/Widget.EditText">
+        <item name="android:background">@android:drawable/editbox_background</item>
+    </style>
 </resources>

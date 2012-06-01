@@ -85,7 +85,7 @@ public interface ClientRequestHandler {
 	public abstract ProjectConfig getPendingProjectConfig(String projectUrl);
 	public abstract void addProject(AccountIn accountIn, boolean create);
 	public abstract boolean isProjectBeingAdded(String projectUrl);
-	public abstract void cancelPollOperations();
+	public abstract void cancelPollOperations(int opFlags);
 	
 	public abstract void getGlobalPrefsWorking();
 	public abstract GlobalPreferences getPendingGlobalPrefsWorking();

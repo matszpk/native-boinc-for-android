@@ -37,7 +37,6 @@
 			android:id="@+id/editHostNickname" 
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:background="@android:drawable/editbox_background"
 			android:inputType="textUri" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"
@@ -53,7 +52,6 @@
 			android:id="@+id/editHostAddress" 
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:background="@android:drawable/editbox_background"
 			android:inputType="textUri" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"
@@ -70,7 +68,6 @@
 			android:id="@+id/editHostPort" 
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:background="@android:drawable/editbox_background"
 			android:inputType="number"
 			android:digits="0123456789"
 			android:maxLength="5"
@@ -89,7 +86,6 @@
 			android:id="@+id/editHostPassword"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:background="@android:drawable/editbox_background"
 			android:inputType="textPassword" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"

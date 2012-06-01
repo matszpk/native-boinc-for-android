@@ -16,7 +16,7 @@ Na Teraz:
 / * przetestować opcję update from sdcard
   * przetestować opcje z Preferences
 / * wprowadzić listę do large widget (android 3.0) (są problemy, zrezygnowano)
-  * poprawić obsługę błędów w instalatorze (install activities)
+/ * poprawić obsługę błędów w instalatorze (install activities)
   * rozszerzyc tekst na koncowym ekranie instalatora
 / * poprawic menu w main screen (Android 4.0) (częsciowo)
 / * przetestować autoinstalację po BAM (zrobione?)

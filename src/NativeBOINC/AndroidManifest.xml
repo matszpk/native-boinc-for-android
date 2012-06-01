@@ -23,7 +23,8 @@
 		android:description="@string/app_desc"
 		android:icon="@drawable/nativeboinc" android:debuggable="false">
 
-		<activity android:name=".BoincManagerActivity" 
+		<activity android:name=".BoincManagerActivity"
+		    android:theme="@style/Theme.NativeBoincActivity"
 		    android:launchMode="singleTop">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -74,73 +75,93 @@
 		
 		<activity android:name=".ManageClientActivity"
 			android:label="@string/menuManage"
-			android:launchMode="singleTop" />
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity" />
 
 		<activity android:name=".NativeClientActivity"
 			android:label="@string/nativeBoincClient"
-			android:launchMode="singleTop" />
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity" />
 		
 		<activity android:name=".AccessListActivity"
 			android:label="@string/accessHostList"
-			android:launchMode="singleTop" />
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity" />
 		
 		<activity android:name=".BoincLogsActivity"
 			android:label="@string/nativeBoincLogs"
-			android:launchMode="singleTop" />
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity" />
 		
 		<activity android:name=".InstalledBinariesActivity"
 		    android:label="@string/installedBinaries"
-		    android:launchMode="singleTop" />
+		    android:launchMode="singleTop"
+		    android:theme="@style/Theme.NativeBoincActivity" />
 		
 		<activity android:name=".AppPreferencesActivity"
 			android:label="@string/menuPreferences"
-			android:launchMode="singleTop" />
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity" />
 
 		<activity android:name=".HostListActivity"
 			android:label="@string/selectHost"
-			android:launchMode="singleTop" />
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity" />
 
 		<activity android:name=".EditHostActivity"
 			android:label="@string/hostEdit"
-			android:launchMode="singleTop" />
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity" />
 
-		<activity android:name=".ProjectsActivity" />
+		<activity android:name=".ProjectsActivity"
+		    android:theme="@style/Theme.NativeBoincActivity" />
 
-		<activity android:name=".TasksActivity" />
+		<activity android:name=".TasksActivity"
+		    android:theme="@style/Theme.NativeBoincActivity" />
 
-		<activity android:name=".TransfersActivity" />
+		<activity android:name=".TransfersActivity"
+		    android:theme="@style/Theme.NativeBoincActivity" />
 
-		<activity android:name=".MessagesActivity" />
+		<activity android:name=".MessagesActivity"
+		    android:theme="@style/Theme.NativeBoincActivity" />
 		
-		<activity android:name=".NoticesActivity" />
+		<activity android:name=".NoticesActivity"
+		    android:theme="@style/Theme.NativeBoincActivity" />
 		
 		<activity android:name=".EditBAMActivity"
 			android:label="@string/editBAM"
-			android:launchMode="singleTop" />
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity" />
 		
 		<activity android:name=".ProjectListActivity"
 			android:label="@string/projectList"
-			android:launchMode="singleTop" />
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity" />
 
 		<activity android:name=".AddProjectActivity"
 			android:label="@string/addProject"
-			android:launchMode="singleTop" />
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity" />
 		
 		<activity android:name=".InstallStep1Activity"
 			android:launchMode="singleTop"
-			android:label="@string/installWizard" />
+			android:label="@string/installWizard"
+			android:theme="@style/Theme.NativeBoincActivity" />
 			
 		<activity android:name=".InstallStep2Activity"
 			android:launchMode="singleTop"
-			android:label="@string/installWizard" />
+			android:label="@string/installWizard"
+			android:theme="@style/Theme.NativeBoincActivity" />
 		
 		<activity android:name=".InstallFinishActivity"
 			android:launchMode="singleTop"
-			android:label="@string/installWizard" />
+			android:label="@string/installWizard"
+			android:theme="@style/Theme.NativeBoincActivity" />
 		
 		<activity android:name=".ProgressActivity"
 			android:launchMode="singleTop"
-			android:label="@string/operationsProgress" />
+			android:label="@string/operationsProgress"
+			android:theme="@style/Theme.NativeBoincActivity" />
 		
 		<activity android:name=".ScreenLockActivity"
 			android:theme="@style/ScreenLockScreen"
@@ -149,7 +170,8 @@
 		
 		<activity android:name=".UpdateActivity"
 			android:label="@string/updateBinaries"
-			android:launchMode="singleTop" />
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity" />
 		
 		<activity android:name=".UpdateFromSDCardActivity"
 			android:label="@string/updateFromSDCard"
@@ -165,10 +187,12 @@
 		
 		<activity android:name=".LocalPreferencesActivity"
 			android:label="@string/localPreferences"
-			android:launchMode="singleTop" />
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity" />
 		
 		<activity android:name=".TimePreferencesActivity"
-			android:launchMode="singleTop" />
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity" />
 	</application>
     
 </manifest>

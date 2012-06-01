@@ -804,10 +804,10 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 	
 	@Override
-	public void cancelPollOperations() {
+	public void cancelPollOperations(int opFlags) {
 		if (mRemoteClient == null)
 			return;
-		mWorker.cancelPollOperations();
+		mWorker.cancelPollOperations(opFlags);
 	}
 	
 	@Override

@@ -120,7 +120,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 	public void cleanup() {
 		mFormatter.cleanup();
 		mFormatter = null;
-		cancelPollOperations();
+		cancelPollOperations(PollOp.POLL_ALL_MASK);
 		if (mRpcClient != null) {
 			if (Logging.WARNING) Log.w(TAG, "RpcClient still opened in cleanup(), closing it now");
 			closeConnection();
@@ -143,7 +143,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 
 	private void closeConnection() {
 		if (mRpcClient != null) {
-			cancelPollOperations();
+			cancelPollOperations(PollOp.POLL_ALL_MASK);
 			
 			mRpcClient.close();
 			mRpcClient = null;
@@ -1113,18 +1113,29 @@ public class ClientBridgeWorkerHandler extends Handler {
 	/**
 	 * cancel all poll operations
 	 */
-	public synchronized void cancelPollOperations() {
-		mAccountMgrRPCCall = null;
-		mCreateAccountCall = null;
-		mLookupAccountCall = null;
-		mProjectAttachCall = null;
-		mGetProjectConfigCall = null;
+	public synchronized void cancelPollOperations(int opFlags) {
+		if (Logging.DEBUG) Log.d(TAG, String.format("Cancel poll ops:0x%02x", opFlags));
 		
-		removeCallbacks(mAccountMgrRPCPoller);
-		removeCallbacks(mLookupAccountPoller);
-		removeCallbacks(mCreateAccountPoller);
-		removeCallbacks(mProjectAttachPoller);
-		removeCallbacks(mGetProjectConfigPoller);
+		if ((opFlags & PollOp.POLL_BAM_OPERATION_MASK) != 0) {
+			mAccountMgrRPCCall = null;
+			removeCallbacks(mAccountMgrRPCPoller);
+		}
+		if ((opFlags & PollOp.POLL_CREATE_ACCOUNT_MASK) != 0) {
+			mCreateAccountCall = null;
+			removeCallbacks(mLookupAccountPoller);
+		}
+		if ((opFlags & PollOp.POLL_LOOKUP_ACCOUNT_MASK) != 0) {
+			mLookupAccountCall = null;
+			removeCallbacks(mCreateAccountPoller);
+		}
+		if ((opFlags & PollOp.POLL_PROJECT_ATTACH_MASK) != 0) {
+			mProjectAttachCall = null;
+			removeCallbacks(mProjectAttachPoller);
+		}
+		if ((opFlags & PollOp.POLL_PROJECT_CONFIG_MASK) != 0) {
+			mGetProjectConfigCall = null;
+			removeCallbacks(mGetProjectConfigPoller);
+		}
 		
 		notifyChangeOfIsWorking();
 		notifyCancelPollOperations();

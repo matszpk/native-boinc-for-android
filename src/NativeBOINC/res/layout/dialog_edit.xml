@@ -28,6 +28,5 @@
 		android:orientation="horizontal"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:id="@android:id/edit" 
-		android:background="@android:drawable/editbox_background" />
+		android:id="@android:id/edit" />
 </LinearLayout>

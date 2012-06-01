@@ -30,6 +30,7 @@ import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.ModeInfo;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
 import sk.boinc.nativeboinc.clientconnection.PollError;
+import sk.boinc.nativeboinc.clientconnection.PollOp;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.service.ConnectionManagerService;
@@ -444,7 +445,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	@Override
 	public void onBackPressed() {
 		if (mConnectionManager != null)
-			mConnectionManager.cancelPollOperations();
+			mConnectionManager.cancelPollOperations(PollOp.POLL_BAM_OPERATION_MASK);
 		finish();
 	}
 

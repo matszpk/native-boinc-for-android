@@ -290,11 +290,11 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
-	public void cancelPollOperations() {
+	public void cancelPollOperations(final int opFlags) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.cancelPollOperations();
+				mHandler.cancelPollOperations(opFlags);
 			}
 		});
 	}

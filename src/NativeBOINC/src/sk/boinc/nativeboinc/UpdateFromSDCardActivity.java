@@ -31,6 +31,7 @@ import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.StandardDialogs;
 import sk.boinc.nativeboinc.util.UpdateItem;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -267,6 +268,16 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 			// if finished but failed
 		} else
 			updateDistribList();
+	}
+	
+	@Override
+	protected Dialog onCreateDialog(int dialogId, Bundle args) {
+		return StandardDialogs.onCreateDialog(this, dialogId, args);
+	}
+	
+	@Override
+	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
+		StandardDialogs.onPrepareDialog(this, dialogId, dialog, args);
 	}
 	
 	@Override

@@ -214,7 +214,10 @@ public class NativeBoincUtils {
 		try {
 			inReader = new BufferedReader(new FileReader(
 					context.getFilesDir().getAbsolutePath()+"/boinc/gui_rpc_auth.cfg"));
-			return inReader.readLine();
+			String output = inReader.readLine();
+			if (output == null)
+				throw new IOException("Empty file!");
+			return output;
 		} finally {
 			if (inReader != null)
 				inReader.close();

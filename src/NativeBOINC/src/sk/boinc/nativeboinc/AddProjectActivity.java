@@ -493,7 +493,8 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	public boolean clientError(int errorNum, String errorMessage) {
 		// getProjectConfig - set as finished - prevents repeating operation
 		if (mProjectConfigProgressState == ProgressState.IN_PROGRESS || mAddingProjectInProgress) {
-			mProjectConfigProgressState = ProgressState.FAILED;
+			if (mProjectConfigProgressState == ProgressState.IN_PROGRESS)
+				mProjectConfigProgressState = ProgressState.FAILED;
 			
 			if (mAddingProjectInProgress)
 				dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);

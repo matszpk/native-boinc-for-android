@@ -405,13 +405,13 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 			mDelayedInstallerListenerRegistration = false;
 		} else
 			mDelayedInstallerListenerRegistration = true;
+
+		mScreenOrientation.setOrientation();
 		
 		// progress bar update
 		updateProgressBarState();
 		// update error dialogs
 		updateServicesError();
-		
-		mScreenOrientation.setOrientation();
 	}
 	
 	@Override

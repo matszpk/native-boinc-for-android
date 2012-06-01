@@ -1,3 +1,10 @@
+Version 0.3.9.3 (alpha) (2012-06-01)
+- fixed error handling
+- improved add project activity
+- improved boinc dumping (runs in separate thread)
+- remove deadlocks during preparing update sdcard activity
+- other minor changes
+
 Version 0.3.9.2.2 (alpha) (2012-05-17)
 - added German translation (thanks for Daniel Winzen)
 

@@ -42,7 +42,7 @@ public class TaskInfoDialogActivity extends Activity {
 	
 	public static final String ARG_TASK_INFO = "TaskInfo";
 	
-	private TaskInfo mTaskInfo;
+	private TaskInfo mTaskInfo = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +90,8 @@ public class TaskInfoDialogActivity extends Activity {
 	protected void onPrepareDialog(int dialogId, Dialog dialog) {
 		if (dialogId == DIALOG_TASK_INFO) {
 			TextView text = (TextView)dialog.findViewById(R.id.dialogText);
-			text.setText(Html.fromHtml(prepareTaskDetails(mTaskInfo)));
+			if (mTaskInfo != null)
+				text.setText(Html.fromHtml(prepareTaskDetails(mTaskInfo)));
 		}
 	}
 	

@@ -407,7 +407,6 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 			// This is the only case when we need an update, because content of messages
 			// never changes, only fresh arrived messages are added to list
 			mUnfilteredMessages = messages;
-			filterMessages();
 			if (mViewUpdatesAllowed) {
 				// We are visible, update the view with fresh data
 				if (Logging.DEBUG) Log.d(TAG, "Messages are updated, refreshing view");

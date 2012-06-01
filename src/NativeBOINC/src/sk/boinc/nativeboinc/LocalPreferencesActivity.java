@@ -30,6 +30,7 @@ import sk.boinc.nativeboinc.util.StandardDialogs;
 import sk.boinc.nativeboinc.util.TimePrefsData;
 import edu.berkeley.boinc.lite.GlobalPreferences;
 import edu.berkeley.boinc.lite.TimePreferences;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -371,6 +372,16 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 				mNetTimePreferences = timePrefsData.timePrefs;
 			}
 		}
+	}
+	
+	@Override
+	public Dialog onCreateDialog(int dialogId, Bundle args) {
+		return StandardDialogs.onCreateDialog(this, dialogId, args);
+	}
+
+	@Override
+	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
+		StandardDialogs.onPrepareDialog(this, dialogId, dialog, args);
 	}
 	
 	private void checkPreferences() {

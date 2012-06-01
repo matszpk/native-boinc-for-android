@@ -629,6 +629,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			break;
 		case PROGRESS_XFER_FINISHED:
 			break;
+		case PROGRESS_XFER_POLL:
+			break;
 		default:
 			if (Logging.ERROR) Log.e(TAG, "Unhandled progress indicator: " + progress);
 		}

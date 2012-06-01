@@ -172,6 +172,7 @@ public class NotificationController {
 		
 		DistribNotification clientNotification = getClientNotification(false);
 		
+		clientNotification.notification.tickerText = notifyText;
 		clientNotification.notification.contentView = clientNotification.contentView;
 		clientNotification.contentView.setProgressBar(R.id.operationProgress,
 				10000, 0, true);
@@ -189,6 +190,7 @@ public class NotificationController {
 		
 		DistribNotification clientNotification = getClientNotification(false);
 		
+		clientNotification.notification.tickerText = notifyText;
 		clientNotification.notification.contentView = clientNotification.contentView;
 		clientNotification.contentView.setProgressBar(R.id.operationProgress,
 				10000, 0, true);
@@ -206,6 +208,7 @@ public class NotificationController {
 		
 		DistribNotification clientNotification = getClientNotification(false);
 		
+		clientNotification.notification.tickerText = notifyText;
 		clientNotification.notification.contentView = clientNotification.contentView;
 		clientNotification.contentView.setProgressBar(R.id.operationProgress,
 				10000, progress, false);
@@ -266,6 +269,7 @@ public class NotificationController {
 	public synchronized void notifyDumpFilesOperation(String notifyText) {
 		DistribNotification dumpNotification = getDumpFilesNotification(false);
 		
+		dumpNotification.notification.tickerText = notifyText;
 		dumpNotification.notification.contentView = dumpNotification.contentView;
 		dumpNotification.contentView.setProgressBar(R.id.operationProgress,
 				10000, 0, true);
@@ -283,6 +287,7 @@ public class NotificationController {
 		
 		DistribNotification dumpNotification = getDumpFilesNotification(false);
 		
+		dumpNotification.notification.tickerText = notifyText;
 		dumpNotification.notification.contentView = dumpNotification.contentView;
 		dumpNotification.contentView.setProgressBar(R.id.operationProgress,
 				10000, progress, false);
@@ -342,6 +347,7 @@ public class NotificationController {
 	public void notifyReinstallBoincOperation(String notifyText) {
 		DistribNotification reinstallNotification = getReinstallNotification(false);
 		
+		reinstallNotification.notification.tickerText = notifyText;
 		reinstallNotification.notification.contentView = reinstallNotification.contentView;
 		reinstallNotification.contentView.setProgressBar(R.id.operationProgress, 10000, 0, true);
 		reinstallNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
@@ -413,6 +419,8 @@ public class NotificationController {
 		
 		DistribNotification notification = getProjectNotification(projectName, false);
 		
+		notification.notification.tickerText = notifyText;
+		
 		notification.notification.flags &= ~Notification.FLAG_ONLY_ALERT_ONCE;
 		notification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
 		
@@ -431,6 +439,7 @@ public class NotificationController {
 		notification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
 		notification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
 		
+		notification.notification.tickerText = notifyText;
 		notification.notification.contentView = notification.contentView;
 		notification.contentView.setProgressBar(R.id.operationProgress, 10000, 0, true);
 		notification.contentView.setTextViewText(R.id.operationDesc, notifyText);
@@ -446,6 +455,7 @@ public class NotificationController {
 		notification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
 		notification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
 		
+		notification.notification.tickerText = notifyText;
 		notification.notification.contentView = notification.contentView;
 		notification.contentView.setProgressBar(R.id.operationProgress,
 				10000, progress, false);

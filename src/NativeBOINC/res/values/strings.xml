@@ -661,6 +661,8 @@
 	<string name="boincOperationError">Error happens during BOINC operation</string>
 	<string name="boincPollError">Error happens during BOINC polling operation</string>
 	
+	<string name="binSDCardDirReadError">Unable to read SDCard directory</string>
+	
 	<string name="unexpectedError">Unexpected error</string>
 	
 	<string name="errorNumFormat">(error: %d)</string>

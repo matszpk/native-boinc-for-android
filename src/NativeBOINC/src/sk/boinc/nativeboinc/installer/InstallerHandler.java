@@ -565,6 +565,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						
 				    	try {
 				    		String accessPassword = NativeBoincUtils.getAccessPassword(mInstallerService);
+				    		
 				    		dbAdapter = new HostListDbAdapter(mInstallerService);
 				    		dbAdapter.open();
 				    		dbAdapter.addHost(new ClientId(0, "nativeboinc", "127.0.0.1",
@@ -1749,56 +1750,68 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	 * get list of distrib to update from sdcard
 	 */
 	public void getBinariesToUpdateFromSDCard(String path) {
-		File dirFile = new File(path);
-		if (!dirFile.isDirectory())
-			return;
+		mHandlerIsWorking = true;
+		notifyChangeOfIsWorking();
 		
-		File[] fileList = dirFile.listFiles();
-		if (fileList == null)
-			return;
-		
-		ArrayList<InstalledDistrib> installedDistribs = mDistribManager.getInstalledDistribs();
-		ArrayList<String> distribsToUpdate = new ArrayList<String>(1);
-		
-		// mProjectDescs used by updateDistribsFromSDCard to retrieve projectUrl
-		mProjectDescs = mProjectsRetriever.getProjectDescriptors();
-		
-		/* for projects */
-		for (File file: fileList) {
-			String distribName;
-			
-			String filename = file.getName();
-			
-			if (filename.equals("boinc_client") || filename.equals("boinc_client.zip")) {
-				// if boinc client
-				distribsToUpdate.add(InstallerService.BOINC_CLIENT_ITEM_NAME);
-				continue;
+		try {
+			File dirFile = new File(path);
+			if (!dirFile.isDirectory()) {
+				notifyError("", "", mInstallerService.getString(R.string.binSDCardDirReadError));
+				return;
 			}
 			
-			if (file.isDirectory()) // if directory
-				distribName = filename;
-			else if (filename.endsWith(".zip")) // if zip
-				distribName = filename.substring(0, filename.length() - 4);
-			else // if not determined
-				continue;
+			File[] fileList = dirFile.listFiles();
+			if (fileList == null) {
+				notifyError("", "", mInstallerService.getString(R.string.binSDCardDirReadError));
+				return;
+			}
 			
-			boolean found = false;
-			for (InstalledDistrib distrib: installedDistribs)
-				if (distrib.projectName.equals(distribName)) {
-					distribsToUpdate.add(distribName);
-					found = true;
-					break;
+			ArrayList<InstalledDistrib> installedDistribs = mDistribManager.getInstalledDistribs();
+			ArrayList<String> distribsToUpdate = new ArrayList<String>(1);
+			
+			// mProjectDescs used by updateDistribsFromSDCard to retrieve projectUrl
+			mProjectDescs = mProjectsRetriever.getProjectDescriptors();
+			
+			/* for projects */
+			for (File file: fileList) {
+				String distribName;
+				
+				String filename = file.getName();
+				
+				if (filename.equals("boinc_client") || filename.equals("boinc_client.zip")) {
+					// if boinc client
+					distribsToUpdate.add(InstallerService.BOINC_CLIENT_ITEM_NAME);
+					continue;
 				}
-			
-			if (!found) { // search in project boinc list
-				for (ProjectDescriptor desc: mProjectDescs)
-					if (desc.projectName.equals(distribName)) {
+				
+				if (file.isDirectory()) // if directory
+					distribName = filename;
+				else if (filename.endsWith(".zip")) // if zip
+					distribName = filename.substring(0, filename.length() - 4);
+				else // if not determined
+					continue;
+				
+				boolean found = false;
+				for (InstalledDistrib distrib: installedDistribs)
+					if (distrib.projectName.equals(distribName)) {
 						distribsToUpdate.add(distribName);
+						found = true;
 						break;
 					}
+				
+				if (!found) { // search in project boinc list
+					for (ProjectDescriptor desc: mProjectDescs)
+						if (desc.projectName.equals(distribName)) {
+							distribsToUpdate.add(distribName);
+							break;
+						}
+				}
 			}
+			notifyBinariesToUpdateFromSDCard(distribsToUpdate.toArray(new String[0]));
+		} finally {
+			mHandlerIsWorking = false;
+			notifyChangeOfIsWorking();
 		}
-		notifyBinariesToUpdateFromSDCard(distribsToUpdate.toArray(new String[0]));
 	}
 	
 	/**

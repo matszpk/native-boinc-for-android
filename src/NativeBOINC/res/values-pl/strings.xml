@@ -329,8 +329,10 @@
 	<string name="dumpBoincWarn">Katalog %s istnieje. Podczas robienia zrzutu zostanie usunięty. Czy naprawdę chcesz kontynuować?</string>
 	
 	<!-- reinstall boinc -->
+	<string name="reinstallBegin">Rozpoczęcie reinstalacji BOINC\'a</string>
 	<string name="reinstallInProgress">Reinstalowanie BOINC\'a</string>
 	<string name="reinstallFinish">Reinstalacja zakończona</string>
+	<string name="reinstallError">Błąd podczas reinstalacji: %s</string>
 	<string name="reinstallQuestion">Reinstalacja usuwa cały katalog BOINC\'a (włącznie z projektami). Czy chcesz naprawdę zrobić reinstalację BOINC\'a?</string>
 	<string name="waitingForShutdown">Czekanie na wyłączenie</string>
 	
@@ -659,6 +661,11 @@
 	<string name="updateClientModeError">Błąd nastąpił podczas aktualizowania trybu klienta</string>
 	<string name="boincOperationError">Błąd nastąpił podczas operacji BOINC\'a</string>
 	<string name="boincPollError">Błąd nastąpił podczas pollingu operacji BOINC\'a</string>
+	
+	<string name="binSDCardDirReadError">Nie mogę odczytać katalogu z karty SD</string>
+	<string name="getProjectsFromClientError">Nie mogę pobrać projektów z klienta</string>
+	<string name="badDataInClientDistrib">Dystrybucja klienta ma niekompletne informacje!</string>
+	<string name="badDataInProjectDistribs">Dystrybucje projektów mają niekompletne informacje!</string>
 	
 	<string name="unexpectedError">Niespodziewany błąd</string>
 	

@@ -15,7 +15,7 @@ public class BCPGOutputStream
     private int     partialPower;
     private int     partialOffset;
     
-    private static final int    BUF_SIZE_POWER = 16; // 2^16 size buffer on long files
+    //private static final int    BUF_SIZE_POWER = 16; // 2^16 size buffer on long files
     
     public BCPGOutputStream(
         OutputStream    out)

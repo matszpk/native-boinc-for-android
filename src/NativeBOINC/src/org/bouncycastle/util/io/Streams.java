@@ -5,7 +5,7 @@ import java.io.InputStream;
 
 public class Streams
 {
-    private static int BUFFER_SIZE = 512;
+    //private static int BUFFER_SIZE = 512;
 
     /*public static void drain(InputStream inStr)
         throws IOException

@@ -1,6 +1,6 @@
 package org.bouncycastle.openpgp;
 
-import java.io.ByteArrayOutputStream;
+//import java.io.ByteArrayOutputStream
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.KeyFactory;
@@ -9,13 +9,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
 import java.security.PublicKey;
-import java.security.interfaces.DSAParams;
-import java.security.interfaces.DSAPublicKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.DSAPublicKeySpec;
+//import java.security.interfaces.DSAParams;
+//import java.security.interfaces.DSAPublicKey;
+//import java.security.interfaces.RSAPublicKey;
+//import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.ArrayList;
-import java.util.Collection;
+//import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -32,7 +32,7 @@ import org.bouncycastle.bcpg.RSAPublicBCPGKey;
 import org.bouncycastle.bcpg.TrustPacket;
 import org.bouncycastle.bcpg.UserAttributePacket;
 import org.bouncycastle.bcpg.UserIDPacket;
-import org.bouncycastle.util.Arrays;
+//import org.bouncycastle.util.Arrays;
 
 /**
  * general class to handle a PGP public key object.

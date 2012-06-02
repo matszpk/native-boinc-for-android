@@ -22,7 +22,6 @@ package sk.boinc.nativeboinc.bridge;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.GlobalPreferences;
-import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
 import sk.boinc.nativeboinc.clientconnection.TaskDescriptor;
 import sk.boinc.nativeboinc.clientconnection.TransferDescriptor;
 import sk.boinc.nativeboinc.debug.Logging;

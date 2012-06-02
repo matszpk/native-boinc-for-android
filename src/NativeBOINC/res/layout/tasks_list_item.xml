@@ -42,7 +42,6 @@
 		android:layout_marginTop="6dip"
 		android:lines="1"
 		android:layout_toRightOf="@+id/check"
-		android:text="Application A"
 		android:textAppearance="?android:attr/textAppearanceMedium" />
 
 	<!-- Task deadline -->
@@ -54,7 +53,6 @@
 		android:layout_alignRight="@+id/taskAppName"
 		android:gravity="left"
 		android:lines="1"
-		android:text="2012/12/12 12:12:12"
 		android:textAppearance="?android:attr/textAppearanceSmall" />
 
 	<!-- Project name -->
@@ -67,7 +65,6 @@
 		android:layout_alignLeft="@+id/taskAppName"
 		android:gravity="left"
 		android:lines="1"
-		android:text="ProjectX@Home"
 		android:textAppearance="?android:attr/textAppearanceSmall" />
 
 	<!-- Progress indicator -->
@@ -124,7 +121,6 @@
 			android:layout_alignParentTop="true"
 			android:layout_centerInParent="true"
 			android:lines="1"
-			android:text="99.999%"
 			android:textAppearance="?android:attr/textAppearanceSmallInverse" />
 	</RelativeLayout>
 
@@ -140,7 +136,6 @@
 		android:layout_marginRight="5dip"
 		android:gravity="right"
 		android:lines="1"
-		android:text="000:00:00"
 		android:textAppearance="?android:attr/textAppearanceSmall" />
 
 	<!-- Remaining time -->
@@ -154,6 +149,5 @@
 		android:layout_marginLeft="3dip"
 		android:gravity="right"
 		android:lines="1"
-		android:text="000:00:00"
 		android:textAppearance="?android:attr/textAppearanceSmall" />
 </RelativeLayout>

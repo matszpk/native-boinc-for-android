@@ -106,7 +106,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 			// save stop reason
 			mNotificationController.notifyClientEvent(getString(R.string.nativeClientShutdown),
 					ExitCode.getExitCodeMessage(NativeBoincService.this,
-							exitCode, stoppedByManager));
+							exitCode, stoppedByManager), true);
 			
 			AbstractNativeBoincListener[] listeners = mListeners.toArray(
 					new AbstractNativeBoincListener[0]);
@@ -632,7 +632,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 		if (mNativeBoincThread == null) {
 			
 			String text = getString(R.string.nativeClientStarting);
-			mNotificationController.notifyClientEvent(text, text);
+			mNotificationController.notifyClientEvent(text, text, false);
 			
 			// inform that service is working
 			mIsWorking = true;
@@ -668,7 +668,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 			mShutdownCommandWasPerformed = true;
 			/* start killer */
 			String text = getString(R.string.nativeClientStopping);
-			mNotificationController.notifyClientEvent(text, text);
+			mNotificationController.notifyClientEvent(text, text, false);
 			// inform that, service is working
 			mIsWorking = true;
 			notifyChangeIsWorking();
@@ -952,29 +952,29 @@ public class NativeBoincService extends Service implements MonitorListener,
 		switch(event.type) {
 		case ClientEvent.EVENT_ATTACHED_PROJECT:
 			mNotificationController.notifyClientEvent(getString(R.string.eventAttachedProject), 
-					getString(R.string.eventAttachedProjectMessage, event.projectUrl));
+					getString(R.string.eventAttachedProjectMessage, event.projectUrl), false);
 			
 			startInstallProjectApplication(event.projectUrl);
 			break;
 		case ClientEvent.EVENT_DETACHED_PROJECT:
 			mNotificationController.notifyClientEvent(getString(R.string.eventDetachedProject), 
-					getString(R.string.eventDetachedProjectMessage, event.projectUrl));
+					getString(R.string.eventDetachedProjectMessage, event.projectUrl), false);
 			break;
 		case ClientEvent.EVENT_RUN_BENCHMARK:
 			title = getString(R.string.eventBencharkRun);
-			mNotificationController.notifyClientEvent(title, title);
+			mNotificationController.notifyClientEvent(title, title, false);
 			break;
 		case ClientEvent.EVENT_FINISH_BENCHMARK:
 			title = getString(R.string.eventBencharkFinished);
-			mNotificationController.notifyClientEvent(title, title);
+			mNotificationController.notifyClientEvent(title, title, false);
 			break;
 		case ClientEvent.EVENT_SUSPEND_ALL_TASKS:
 			title = getString(R.string.eventSuspendAll);
-			mNotificationController.notifyClientEvent(title, title);
+			mNotificationController.notifyClientEvent(title, title, false);
 			break;
 		case ClientEvent.EVENT_RUN_TASKS:
 			title = getString(R.string.eventRunTasks);
-			mNotificationController.notifyClientEvent(title, title);
+			mNotificationController.notifyClientEvent(title, title, false);
 			break;
 		}
 	}

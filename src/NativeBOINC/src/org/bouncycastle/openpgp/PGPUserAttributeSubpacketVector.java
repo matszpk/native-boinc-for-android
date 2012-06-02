@@ -1,7 +1,7 @@
 package org.bouncycastle.openpgp;
 
 import org.bouncycastle.bcpg.UserAttributeSubpacket;
-import org.bouncycastle.bcpg.UserAttributeSubpacketTags;
+//import org.bouncycastle.bcpg.UserAttributeSubpacketTags;
 //import org.bouncycastle.bcpg.attr.ImageAttribute;
 
 /**

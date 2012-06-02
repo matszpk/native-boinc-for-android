@@ -37,14 +37,12 @@
 		android:layout_alignParentTop="true"
 		android:layout_marginLeft="6dip"
 		android:layout_toRightOf="@android:id/checkbox"
-		android:textAppearance="?android:attr/textAppearanceLarge" 
-		android:text="text1" />
+		android:textAppearance="?android:attr/textAppearanceLarge" />
     <TextView android:id="@android:id/text2"
         android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:layout_below="@android:id/text1"
 		android:layout_marginLeft="6dip"
 		android:layout_toRightOf="@android:id/checkbox"
-		android:textAppearance="?android:attr/textAppearanceSmall" 
-		android:text="text2" />
+		android:textAppearance="?android:attr/textAppearanceSmall" />
 </RelativeLayout>

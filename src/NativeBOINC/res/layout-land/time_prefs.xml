@@ -24,7 +24,7 @@
     android:layout_height="fill_parent" >
     <LinearLayout
 	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
+	    android:layout_height="0dip"
 	    android:orientation="vertical" >
 	    <LinearLayout
 	        android:orientation="horizontal"
@@ -39,13 +39,11 @@
 	        <Button android:id="@+id/everyDayStart"
 	            android:layout_width="@dimen/timeButtonSize"
 				android:layout_height="wrap_content"
-				android:gravity="center"
-				android:text="11:00" />
+				android:gravity="center" />
 	        <Button android:id="@+id/everyDayEnd"
 	            android:layout_width="@dimen/timeButtonSize"
 	            android:layout_height="wrap_content"
-				android:gravity="center"
-				android:text="23:00" />
+				android:gravity="center" />
 	    </LinearLayout>
 	    
 	    <TableLayout 
@@ -68,13 +66,11 @@
 		        <Button android:id="@+id/mondayStart"
 		            android:layout_width="@dimen/timeButtonSize"
 		            android:layout_height="wrap_content"
-					android:gravity="center"
-					android:text="11:00" />
+					android:gravity="center" />
 		        <Button android:id="@+id/mondayEnd"
 		            android:layout_width="@dimen/timeButtonSize"
 		            android:layout_height="wrap_content"
-					android:gravity="center"
-					android:text="23:00" />
+					android:gravity="center" />
 		        <CheckBox android:id="@+id/tuesdayEnable"
 				    android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -88,13 +84,11 @@
 		        <Button android:id="@+id/tuesdayStart"
 		            android:layout_width="@dimen/timeButtonSize"
 		            android:layout_height="wrap_content"
-					android:gravity="center"
-					android:text="11:00" />
+					android:gravity="center" />
 		        <Button android:id="@+id/tuesdayEnd"
 		            android:layout_width="@dimen/timeButtonSize"
 		            android:layout_height="wrap_content"
-					android:gravity="center"
-					android:text="23:00" />
+					android:gravity="center" />
 	        </TableRow>
 	        
 	        <TableRow
@@ -113,13 +107,11 @@
 		        <Button android:id="@+id/wednesdayStart"
 		            android:layout_width="@dimen/timeButtonSize"
 		            android:layout_height="wrap_content"
-					android:gravity="center"
-					android:text="11:00" />
+					android:gravity="center" />
 		        <Button android:id="@+id/wednesdayEnd"
 		            android:layout_width="@dimen/timeButtonSize"
 		            android:layout_height="wrap_content"
-					android:gravity="center"
-					android:text="23:00" />
+					android:gravity="center" />
 		        <CheckBox android:id="@+id/thursdayEnable"
 				    android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -133,13 +125,11 @@
 		        <Button android:id="@+id/thursdayStart"
 		            android:layout_width="@dimen/timeButtonSize"
 		            android:layout_height="wrap_content"
-					android:gravity="center"
-					android:text="11:00" />
+					android:gravity="center" />
 		        <Button android:id="@+id/thursdayEnd"
 		            android:layout_width="@dimen/timeButtonSize"
 		            android:layout_height="wrap_content"
-					android:gravity="center"
-					android:text="23:00" />
+					android:gravity="center" />
 	        </TableRow>
 	        
 	        <TableRow
@@ -158,13 +148,11 @@
 		        <Button android:id="@+id/fridayStart"
 		            android:layout_width="@dimen/timeButtonSize"
 		            android:layout_height="wrap_content"
-					android:gravity="center"
-					android:text="11:00" />
+					android:gravity="center" />
 		        <Button android:id="@+id/fridayEnd"
 		            android:layout_width="@dimen/timeButtonSize"
 		            android:layout_height="wrap_content"
-					android:gravity="center"
-					android:text="23:00" />
+					android:gravity="center" />
 		        <CheckBox android:id="@+id/saturdayEnable"
 				    android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -178,13 +166,11 @@
 		        <Button android:id="@+id/saturdayStart"
 		            android:layout_width="@dimen/timeButtonSize"
 		            android:layout_height="wrap_content"
-					android:gravity="center"
-					android:text="11:00" />
+					android:gravity="center" />
 		        <Button android:id="@+id/saturdayEnd"
 		            android:layout_width="@dimen/timeButtonSize"
 		            android:layout_height="wrap_content"
-					android:gravity="center"
-					android:text="23:00" />
+					android:gravity="center" />
 	        </TableRow>
 	        
 	        <TableRow
@@ -203,13 +189,11 @@
 		        <Button android:id="@+id/sundayStart"
 		            android:layout_width="@dimen/timeButtonSize"
 		            android:layout_height="wrap_content"
-					android:gravity="center"
-					android:text="11:00" />
+					android:gravity="center" />
 		        <Button android:id="@+id/sundayEnd"
 		            android:layout_width="@dimen/timeButtonSize"
 		            android:layout_height="wrap_content"
-					android:gravity="center"
-					android:text="23:00" />
+					android:gravity="center" />
 	        </TableRow>
 	    </TableLayout>
     </LinearLayout>

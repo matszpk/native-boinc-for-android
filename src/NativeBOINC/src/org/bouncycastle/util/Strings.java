@@ -1,7 +1,7 @@
 package org.bouncycastle.util;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Vector;
+//import java.util.Vector;
 
 public class Strings
 {

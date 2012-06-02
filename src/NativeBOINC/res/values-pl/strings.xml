@@ -36,12 +36,12 @@
 	<string name="next">Dalej</string>
 	<string name="finish">Koniec</string>
 	<string name="info">Info</string>
-	<string name="authorization">Autoryzcja...</string>
+	<string name="authorization">Autoryzcja&#8230;</string>
 	<string name="cancel">Anuluj</string>
 	<string name="cancelAll">Anuluj wszystko</string>
 	<string name="changelog">ChangeLog</string>
 	<string name="close">Zamknij</string>
-	<string name="connecting">Łączenie...</string>
+	<string name="connecting">Łączenie&#8230;</string>
 	<string name="disabled">Wyłączony</string>
 	<string name="dismiss">Opuść</string>
 	<string name="error">Błąd</string>
@@ -53,8 +53,8 @@
 	<string name="apply">Zastosuj</string>
 	<string name="projectSuspendedByUser">Projekt wstrzymany przez użytk.</string>
 	<string name="received">Odebrane</string>
-	<string name="retrievingData">Pobieranie danych...</string>
-	<string name="retrievingInitialData">Pobieranie początkowych danych...</string>
+	<string name="retrievingData">Pobieranie danych&#8230;</string>
+	<string name="retrievingInitialData">Pobieranie początkowych danych&#8230;</string>
 	<string name="sent">Wysłane</string>
 	<string name="shutdown">Wyłącz</string>
 	<string name="sources">Kod źródłowy</string>
@@ -69,7 +69,7 @@
 	<string name="saveToSDCard">Zapisz na kartę SD</string>
 	
 	<string name="restart">Restart</string>
-	<string name="clientRestarting">Restartowanie klienta natywnego...</string>
+	<string name="clientRestarting">Restartowanie klienta natywnego&#8230;</string>
 	
 	<string name="selectAll">Zaznacz wszystko</string>
 	<string name="unselectAll">Odznacz wszystko</string>
@@ -124,7 +124,7 @@
 	    %1$s to pełnoprawny natywny klient BOINC dla Android zintegrowany
 		z AndroBOINC manager v1.6.7b3.\n
 		Dziękuję za użycie mojego software.\n
-		Copyright (C) 2012 matszpk\n
+		Copyright &#169; 2012 matszpk\n
 		Oryginalny AndroBOINC by Pavel Michalec (Paulo M.)\n
 		\n
 		Dzięki dla:\n
@@ -244,7 +244,7 @@
 	<!-- ManageClient Activity -->
 	<string name="currentHostTitle">Aktualny Host</string>
 	<string name="noHostConnected">Brak połączenia z hostem</string>
-	<string name="clientConnecting">Łączenie z klientem...</string>
+	<string name="clientConnecting">Łączenie z klientem&#8230;</string>
 	<string name="selectHostTitle">Aktualny host</string>
 	<string name="selectHostNoneAvailable">Nie skonfigurowanych klientów BOINC.</string>
 	<string name="selectHostDialogTitle">Wybierz hosta</string>
@@ -342,7 +342,7 @@
 	
 	<string name="synchronizeBAM">Synchronizuj z BAM</string>
 	<!--  progress dialog messages -->
-	<string name="synchronizingBAM">Synchronizowanie z BAM...</string>
+	<string name="synchronizingBAM">Synchronizowanie z BAM&#8230;</string>
 	
 	<string name="shutdownAskText">Czy chcesz wyłączyć natywnego klienta?</string>
 	
@@ -384,7 +384,7 @@
 	<string name="editBAMUrl">URL</string>
 	<string name="editBAMPassword">Hasło</string>
 	<string name="editBAMDefaultUrl">http://bam.boincstats.com/</string>
-	<string name="attachBAMInProgress">Dołączanie do BAM w toku...</string>
+	<string name="attachBAMInProgress">Dołączanie do BAM w toku&#8230;</string>
 
 	<!-- Add Project dialog  -->
 	<string name="addProject">Dodaj projekt</string>
@@ -395,7 +395,7 @@
 	<string name="addProjectPassword">Hasło</string>
 	<string name="addProjectMinPassword">Min. długość hasła</string>
 	<string name="termsOfUse">Warunki używania</string>
-	<string name="addingProject">Dodawanie projektu...</string>
+	<string name="addingProject">Dodawanie projektu&#8230;</string>
 
 	<!-- Install Wizard Activity -->
 	<string name="installWizard">Kreator instalacji</string>
@@ -563,7 +563,7 @@
 	</string>
 	
 	<!-- Screen Lock activity -->
-	<string name="lockWeAreComputing">My liczymy...</string>
+	<string name="lockWeAreComputing">My liczymy&#8230;</string>
 	<string name="lockNotRan">Nie uruchomiony</string>
 	<string name="lockTasksSuspended">Zadania wstrzymane</string>
 	<string name="lockToUnlock">Wciśnij przycisk HOME by odblokować</string>

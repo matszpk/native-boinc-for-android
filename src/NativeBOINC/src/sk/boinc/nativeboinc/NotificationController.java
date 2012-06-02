@@ -511,19 +511,31 @@ public class NotificationController {
 	 * Native Boinc Service notifications
 	 * 
 	 */
-	public void notifyClientEvent(String title, String message) {
-		Intent intent = new Intent(mAppContext, BoincManagerActivity.class);
-		intent.putExtra(BoincManagerActivity.PARAM_CONNECT_NATIVE_CLIENT, true);
-		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 
-				PendingIntent.FLAG_UPDATE_CURRENT);
+	public void notifyClientEvent(String title, String message, boolean empty) {
+		PendingIntent pendingIntent = null;
+		if (!empty) {
+			Intent intent = new Intent(mAppContext, BoincManagerActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			intent.putExtra(BoincManagerActivity.PARAM_CONNECT_NATIVE_CLIENT, true);
+			pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 
+					PendingIntent.FLAG_UPDATE_CURRENT);
+		} else { // if empty notification
+			pendingIntent = PendingIntent.getActivity(mAppContext, 0, new Intent(), 
+					PendingIntent.FLAG_UPDATE_CURRENT);
+		}
 		
 		if (mClientEventNotification == null) {
 			mClientEventNotification = new Notification(R.drawable.nativeboinc_alpha,
 					message, System.currentTimeMillis());
 		} else {
-			mClientEventNotification.tickerText = title;
 			mClientEventNotification.when = System.currentTimeMillis();
 		}
+		mClientEventNotification.tickerText = title;
+		
+		if (empty)
+			mClientEventNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+		else
+			mClientEventNotification.flags &= ~Notification.FLAG_AUTO_CANCEL;
 		
 		mClientEventNotification.setLatestEventInfo(mAppContext,
 				title, message, pendingIntent);

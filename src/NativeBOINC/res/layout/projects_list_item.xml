@@ -41,7 +41,6 @@
 		android:layout_marginLeft="6dip"
 		android:layout_marginTop="6dip"
 		android:lines="1"
-		android:text="ProjectX@Home"
 		android:layout_toRightOf="@+id/check"
 		android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -91,7 +90,6 @@
 			android:layout_alignParentTop="true"
 			android:layout_centerInParent="true"
 			android:lines="1"
-			android:text="500 (100.00%)"
 			android:textAppearance="?android:attr/textAppearanceSmallInverse" />
 	</RelativeLayout>
 
@@ -107,6 +105,5 @@
 		android:gravity="left"
 		android:minLines="2"
 		android:maxLines="3"
-		android:text="Total:10000000.00 RAC:10000.00 Host:5000000.00 hRAC:5000.00"
 		android:textAppearance="?android:attr/textAppearanceSmall" />
 </RelativeLayout>

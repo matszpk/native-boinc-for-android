@@ -1,3 +1,9 @@
+Version 0.3.9.3.1 (alpha) (2012-06-02)
+- fixed bugs
+- fixed compatibility with older Android 2.2
+- minor improvements
+- fixed layouts,strings
+
 Version 0.3.9.3 (alpha) (2012-06-01)
 - fixed error handling
 - improved add project activity

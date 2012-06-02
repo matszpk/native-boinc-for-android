@@ -23,7 +23,6 @@ import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.UpdateItem;
-import android.content.Context;
 import android.os.ConditionVariable;
 import android.os.Looper;
 import android.util.Log;

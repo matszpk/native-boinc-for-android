@@ -38,6 +38,5 @@
 		android:layout_weight="1"
 		android:layout_gravity="center_vertical"
 		android:layout_marginLeft="6dip"
-		android:textAppearance="?android:attr/textAppearanceLarge" 
-		android:text="text1" />
+		android:textAppearance="?android:attr/textAppearanceLarge" />
 </LinearLayout>

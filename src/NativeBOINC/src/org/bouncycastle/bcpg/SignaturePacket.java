@@ -2,7 +2,7 @@ package org.bouncycastle.bcpg;
 
 import org.bouncycastle.bcpg.sig.IssuerKeyID;
 import org.bouncycastle.bcpg.sig.SignatureCreationTime;
-import org.bouncycastle.util.Arrays;
+//import org.bouncycastle.util.Arrays;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

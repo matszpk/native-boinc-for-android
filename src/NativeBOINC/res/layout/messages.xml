@@ -34,7 +34,6 @@
     	android:layout_height="wrap_content"
     	android:textAppearance="?android:attr/textAppearanceMedium"
     	android:textStyle="bold"
-    	android:text="Filter type"
     	android:color="#ffffff"
     	android:layout_gravity="right|top" />
 </FrameLayout>

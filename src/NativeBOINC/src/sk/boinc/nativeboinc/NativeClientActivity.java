@@ -88,6 +88,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	private boolean mAllowRemoteHosts;
 	private boolean mAllowRemoteHostsDetermined = false;
 	
+	private String mOldHostname = null;
+	
 	private ServiceConnection mInstallerConnection = new ServiceConnection() {
 
 		@Override
@@ -159,18 +161,21 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	
 	
 	private static class SavedState {
+		private final String oldHostname;
 		private final boolean doRestart;
 		private final boolean allowRemoteHosts;
 		private final boolean allowRemoteHostsDetermined;
 		
 		public SavedState(NativeClientActivity activity) {
 			this.doRestart = activity.mDoRestart;
+			this.oldHostname = activity.mOldHostname;
 			this.allowRemoteHosts = activity.mAllowRemoteHosts;
 			this.allowRemoteHostsDetermined = activity.mAllowRemoteHostsDetermined;
 		}
 		
 		public void restore(NativeClientActivity activity) {
 			activity.mDoRestart = this.doRestart;
+			activity.mOldHostname = this.oldHostname;
 			activity.mAllowRemoteHosts = this.allowRemoteHosts;
 			activity.mAllowRemoteHostsDetermined = this.allowRemoteHostsDetermined;
 		}
@@ -186,6 +191,14 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 		final SavedState savedState = (SavedState)getLastNonConfigurationInstance();
 		if (savedState != null)
 			savedState.restore(this);
+		else { // if created
+			/* fetch old hostname from boinc file */
+			try {
+				mOldHostname = NativeBoincUtils.getHostname(this);
+			} catch(IOException ex) {
+				mOldHostname = "";
+			}
+		}
 		
 		bindRunnerService();
 		bindInstallerService();
@@ -211,7 +224,6 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 					NativeBoincUtils.setHostname(NativeClientActivity.this, newHostName);
 				} catch(IOException ex) { }
 				
-				mDoRestart = true;
 				return true;
 			}
 		});
@@ -602,8 +614,12 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	/* check whether restart is required */
 	private boolean isRestartRequired() {
 		CheckBoxPreference checkPref = (CheckBoxPreference)findPreference(PreferenceName.NATIVE_REMOTE_ACCESS);
+		
+		EditTextPreference hostnamePref = (EditTextPreference)findPreference(PreferenceName.NATIVE_HOSTNAME);
+		
 		// if do restart or new allowRemoteHost is different value
-		return mDoRestart || (mAllowRemoteHosts != checkPref.isChecked());
+		return mDoRestart || (mAllowRemoteHosts != checkPref.isChecked()) ||
+				!(mOldHostname.equals(hostnamePref.getText()));
 	}
 
 	@Override

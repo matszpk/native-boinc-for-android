@@ -45,7 +45,6 @@
 			android:layout_marginRight="6dip"
 			android:layout_marginTop="8dip"
 			android:lines="1"
-			android:text="56.2 KB / 126.6 KB"
 			android:textAppearance="?android:attr/textAppearanceSmall" />
 	
 		<!-- File name -->
@@ -59,7 +58,6 @@
 			android:layout_marginTop="6dip"
 			android:layout_alignParentLeft="true"
 			android:lines="1"
-			android:text="File A"
 			android:textAppearance="?android:attr/textAppearanceMedium" />
 	
 		<!-- Speed -->
@@ -73,7 +71,6 @@
 			android:layout_marginLeft="3dip"
 			android:gravity="right"
 			android:lines="1"
-			android:text="123.4 KB/s"
 			android:textAppearance="?android:attr/textAppearanceSmall" />
 	
 		<!-- Progress indicator -->
@@ -121,7 +118,6 @@
 				android:layout_alignParentTop="true"
 				android:layout_centerInParent="true"
 				android:lines="1"
-				android:text="99.999%"
 				android:textAppearance="?android:attr/textAppearanceSmallInverse" />
 		</RelativeLayout>
 	
@@ -136,7 +132,6 @@
 			android:layout_marginLeft="3dip"
 			android:gravity="right"
 			android:lines="1"
-			android:text="000:00:00"
 			android:textAppearance="?android:attr/textAppearanceSmall" />
 	
 		<!-- Project name -->
@@ -149,7 +144,6 @@
 			android:layout_alignLeft="@+id/transferFileName"
 			android:gravity="left"
 			android:lines="1"
-			android:text="ProjectX@Home"
 			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 </LinearLayout>

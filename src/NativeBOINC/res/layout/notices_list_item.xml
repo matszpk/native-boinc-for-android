@@ -36,7 +36,6 @@
 		android:layout_marginTop="3dip"
 		android:gravity="left"
 		android:lines="1"
-		android:text="2012/12/12 12:12:12"
 		android:textAppearance="?android:attr/textAppearanceSmall" />
 
 	<!-- Project name -->
@@ -51,7 +50,6 @@
 		android:gravity="left"
 		android:textStyle="bold"
 		android:lines="1"
-		android:text="Title"
 		android:textAppearance="?android:attr/textAppearanceSmall" />
 
 	<!-- Message text -->
@@ -63,7 +61,6 @@
 		android:layout_alignLeft="@+id/noticeCreateTime"
 		android:layout_marginTop="3dip"
 		android:layout_marginRight="6dip"
-		android:text="This is what happened in the client for ProjectX. Just kidding, nothing happened. This is template :-)"
 		android:textAppearance="?android:attr/textAppearanceSmall" />
     
     <TextView
@@ -75,7 +72,6 @@
 		android:layout_marginTop="3dip"
 		android:layout_marginLeft="6dip"
 		android:layout_marginRight="6dip"
-		android:text="xxxx"
 		android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </RelativeLayout>

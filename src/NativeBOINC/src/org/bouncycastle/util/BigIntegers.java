@@ -1,7 +1,7 @@
 package org.bouncycastle.util;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
+//import java.security.SecureRandom;
 
 /**
  * BigInteger utilities.

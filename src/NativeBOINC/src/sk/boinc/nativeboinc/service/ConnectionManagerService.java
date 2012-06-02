@@ -35,7 +35,6 @@ import sk.boinc.nativeboinc.bridge.ClientBridge;
 import sk.boinc.nativeboinc.bridge.ClientBridgeCallback;
 import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;

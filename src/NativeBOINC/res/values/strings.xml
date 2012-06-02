@@ -36,12 +36,12 @@
 	<string name="next">Next</string>
 	<string name="finish">Finish</string>
 	<string name="info">Info</string>
-	<string name="authorization">Authorization...</string>
+	<string name="authorization">Authorization&#8230;</string>
 	<string name="cancel">Cancel</string>
 	<string name="cancelAll">Cancel all</string>
 	<string name="changelog">ChangeLog</string>
 	<string name="close">Close</string>
-	<string name="connecting">Connecting...</string>
+	<string name="connecting">Connecting&#8230;</string>
 	<string name="disabled">Disabled</string>
 	<string name="dismiss">Dismiss</string>
 	<string name="error">Error</string>
@@ -53,8 +53,8 @@
 	<string name="apply">Apply</string>
 	<string name="projectSuspendedByUser">Project suspended by user</string>
 	<string name="received">Received</string>
-	<string name="retrievingData">Retrieving data...</string>
-	<string name="retrievingInitialData">Retrieving initial data...</string>
+	<string name="retrievingData">Retrieving data&#8230;</string>
+	<string name="retrievingInitialData">Retrieving initial data&#8230;</string>
 	<string name="sent">Sent</string>
 	<string name="shutdown">Shutdown</string>
 	<string name="sources">Source Code</string>
@@ -69,7 +69,7 @@
 	<string name="saveToSDCard">Save to SDCard</string>
 	
 	<string name="restart">Restart</string>
-	<string name="clientRestarting">Restarting native client...</string>
+	<string name="clientRestarting">Restarting native client&#8230;</string>
 	
 	<string name="selectAll">Select all</string>
 	<string name="unselectAll">Unselect all</string>
@@ -124,7 +124,7 @@
 		%1$s is fully fledged native BOINC client for Android integrated
 		with AndroBOINC manager v1.6.7b3.\n
 		Thank you for use my software.\n
-		Copyright (C) 2012 matszpk\n
+		Copyright &#169; 2012 matszpk\n
 		Original AndroBOINC by Pavel Michalec (Paulo M.)\n
 		\n
 		Thanks for:\n
@@ -244,7 +244,7 @@
 	<!-- ManageClient Activity -->
 	<string name="currentHostTitle">Current Host</string>
 	<string name="noHostConnected">No host connected</string>
-	<string name="clientConnecting">Client connecting...</string>
+	<string name="clientConnecting">Client connecting&#8230;</string>
 	<string name="selectHostTitle">Current host</string>
 	<string name="selectHostNoneAvailable">No BOINC client configured.</string>
 	<string name="selectHostDialogTitle">Select host</string>
@@ -344,7 +344,7 @@
 	
 	<string name="synchronizeBAM">Synchronize BAM</string>
 	<!--  progress dialog messages -->
-	<string name="synchronizingBAM">Synchronizing BAM...</string>
+	<string name="synchronizingBAM">Synchronizing BAM&#8230;</string>
 	
 	<string name="shutdownAskText">Do you want to shutdown native client?</string>
 	
@@ -386,7 +386,7 @@
 	<string name="editBAMUrl">URL</string>
 	<string name="editBAMPassword">Password</string>
 	<string name="editBAMDefaultUrl">http://bam.boincstats.com/</string>
-	<string name="attachBAMInProgress">Attaching to BAM in progress...</string>
+	<string name="attachBAMInProgress">Attaching to BAM in progress&#8230;</string>
 
 	<!-- Add Project dialog  -->
 	<string name="addProject">Add project</string>
@@ -397,7 +397,7 @@
 	<string name="addProjectPassword">Password</string>
 	<string name="addProjectMinPassword">Min. password length</string>
 	<string name="termsOfUse">Terms of use</string>
-	<string name="addingProject">Adding project...</string>
+	<string name="addingProject">Adding project&#8230;</string>
 
 	<!-- Install Wizard Activity -->
 	<string name="installWizard">Installation Wizard</string>
@@ -565,7 +565,7 @@
 	</string>
 	
 	<!-- Screen Lock activity -->
-	<string name="lockWeAreComputing">We are computing...</string>
+	<string name="lockWeAreComputing">We are computing&#8230;</string>
 	<string name="lockNotRan">Not ran</string>
 	<string name="lockTasksSuspended">Tasks suspended</string>
 	<string name="lockToUnlock">Press HOME key to unlock</string>

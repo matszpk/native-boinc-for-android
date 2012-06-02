@@ -36,12 +36,12 @@
 	<string name="next">Weiter</string>
 	<string name="finish">Fertig</string>
 	<string name="info">Info</string>
-	<string name="authorization">Authorisirung...</string>
+	<string name="authorization">Authorisirung&#8230;</string>
 	<string name="cancel">Abbrechen</string>
 	<string name="cancelAll">Alle abbrechen</string>
 	<string name="changelog">Änderunsprotokoll</string>
 	<string name="close">Schließen</string>
-	<string name="connecting">Verbinde...</string>
+	<string name="connecting">Verbinde&#8230;</string>
 	<string name="disabled">Deaktiviert</string>
 	<string name="dismiss">Abweisen</string>
 	<string name="error">Fehler</string>
@@ -53,8 +53,8 @@
 	<string name="apply">Anwenden</string>
 	<string name="projectSuspendedByUser">Projekt vom Benutzer angehalten</string>
 	<string name="received">Empfangen</string>
-	<string name="retrievingData">Daten abrufen...</string>
-	<string name="retrievingInitialData">Ursprünglich Daten abrufen...</string>
+	<string name="retrievingData">Daten abrufen&#8230;</string>
+	<string name="retrievingInitialData">Ursprünglich Daten abrufen&#8230;</string>
 	<string name="sent">Gesendet</string>
 	<string name="shutdown">Ausschalten</string>
 	<string name="sources">Quell-Code</string>
@@ -69,7 +69,7 @@
 	<string name="saveToSDCard">Auf SDCard speichern</string>
 	
 	<string name="restart">Neustarten</string>
-	<string name="clientRestarting">Native Client wird neu gestartet...</string>
+	<string name="clientRestarting">Native Client wird neu gestartet&#8230;</string>
 	
 	<string name="selectAll">Alle auswählen</string>
 	<string name="unselectAll">Alle abwählen</string>
@@ -124,7 +124,7 @@
 		%1$s ist ein vollwertiger Native BOINC Client für Android integriert
 		mit AndroBOINC Manager v1.6.7b3.\n
 		Danke, dass Sie meine Software nutzen.\n
-		Copyright (C) 2012 matszpk\n
+		Copyright &#169; 2012 matszpk\n
 		Original AndroBOINC von Pavel Michalec (Paulo M.)\n
 		\n
 		Danke für:\n
@@ -244,7 +244,7 @@
 	<!-- ManageClient Activity -->
 	<string name="currentHostTitle">Aktueller Rechner</string>
 	<string name="noHostConnected">Kein Rechner verbunden</string>
-	<string name="clientConnecting">Verbinde mit Client...</string>
+	<string name="clientConnecting">Verbinde mit Client&#8230;</string>
 	<string name="selectHostTitle">Aktueller Rechner</string>
 	<string name="selectHostNoneAvailable">Kein BOINC Client konfiguriert.</string>
 	<string name="selectHostDialogTitle">Rechner wählen</string>
@@ -342,7 +342,7 @@
 	
 	<string name="synchronizeBAM">BAM sync.</string>
 	<!--  progress dialog messages -->
-	<string name="synchronizingBAM">Synchronisiere BAM...</string>
+	<string name="synchronizingBAM">Synchronisiere BAM&#8230;</string>
 	
 	<string name="shutdownAskText">Möchten Sie Native Client ausschalten?</string>
 	
@@ -384,7 +384,7 @@
 	<string name="editBAMUrl">URL</string>
 	<string name="editBAMPassword">Passwort</string>
 	<string name="editBAMDefaultUrl">http://bam.boincstats.com/</string>
-	<string name="attachBAMInProgress">Verknüpfung mit BAM in Bearbeitung...</string>
+	<string name="attachBAMInProgress">Verknüpfung mit BAM in Bearbeitung&#8230;</string>
 
 	<!-- Add Project dialog  -->
 	<string name="addProject">Projekt hinzuf.</string>
@@ -395,7 +395,7 @@
 	<string name="addProjectPassword">Passwort</string>
 	<string name="addProjectMinPassword">Min. Passwortlänge</string>
 	<string name="termsOfUse">Nutzungsbedingungen</string>
-	<string name="addingProject">Projekt wird hinzugefügt...</string>
+	<string name="addingProject">Projekt wird hinzugefügt&#8230;</string>
 
 	<!-- Install Wizard Activity -->
 	<string name="installWizard">Installationsassistent</string>
@@ -563,7 +563,7 @@
 	</string>
 	
 	<!-- Screen Lock activity -->
-	<string name="lockWeAreComputing">Wir berechnen...</string>
+	<string name="lockWeAreComputing">Wir berechnen&#8230;</string>
 	<string name="lockNotRan">Nicht ausgeführt</string>
 	<string name="lockTasksSuspended">Aufgaben angehalten</string>
 	<string name="lockToUnlock">Drücken Sie die HOME Taste zum Entsperren</string>

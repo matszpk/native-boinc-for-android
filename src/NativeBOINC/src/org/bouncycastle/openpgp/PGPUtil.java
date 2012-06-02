@@ -1,28 +1,28 @@
 package org.bouncycastle.openpgp;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
+//import java.io.File;
+//import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+//import java.io.OutputStream;
+//import java.security.MessageDigest;
+//import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
-import java.security.SecureRandom;
+//import java.security.SecureRandom;
 import java.security.Security;
 //import java.util.Date;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
+//import javax.crypto.SecretKey;
+//import javax.crypto.spec.SecretKeySpec;
 
 //import org.bouncycastle.asn1.ASN1InputStream;
 //import org.bouncycastle.asn1.ASN1Sequence;
 //import org.bouncycastle.asn1.DERInteger;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.HashAlgorithmTags;
-import org.bouncycastle.bcpg.MPInteger;
+//import org.bouncycastle.bcpg.MPInteger;
 import org.bouncycastle.bcpg.PublicKeyAlgorithmTags;
 //import org.bouncycastle.bcpg.S2K;
 //import org.bouncycastle.bcpg.SymmetricKeyAlgorithmTags;

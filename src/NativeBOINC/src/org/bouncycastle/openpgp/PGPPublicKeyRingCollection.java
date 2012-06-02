@@ -1,15 +1,15 @@
 package org.bouncycastle.openpgp;
 
-import org.bouncycastle.bcpg.BCPGOutputStream;
-import org.bouncycastle.util.Strings;
+//import org.bouncycastle.bcpg.BCPGOutputStream;
+//import org.bouncycastle.util.Strings;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+//import java.io.ByteArrayInputStream;
+//import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+//import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
+//import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;

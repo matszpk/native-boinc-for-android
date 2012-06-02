@@ -79,7 +79,6 @@
 			android:layout_alignParentTop="true"
 			android:layout_centerInParent="true"
 			android:lines="1"
-			android:text="99.999%"
 			android:textAppearance="?android:attr/textAppearanceSmallInverse" />
 	</RelativeLayout>
 </LinearLayout>

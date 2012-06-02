@@ -36,12 +36,12 @@
    <string name="next">Další</string>
    <string name="finish">Dokončit</string>
    <string name="info">Info</string>
-   <string name="authorization">Autorizace...</string>
+   <string name="authorization">Autorizace&#8230;</string>
    <string name="cancel">Zrušit</string>
    <string name="cancelAll">Zrušit vše</string>
    <string name="changelog">ChangeLog</string>
    <string name="close">Zavřít</string>
-   <string name="connecting">Připojuji se...</string>
+   <string name="connecting">Připojuji se&#8230;</string>
    <string name="disabled">Zakázaný</string>
    <string name="dismiss">Odmítnout</string>
    <string name="error">Chyba</string>
@@ -53,8 +53,8 @@
    <string name="apply">Použít</string>
    <string name="projectSuspendedByUser">Projekt pozastaven uživatelem</string>
    <string name="received">Přijato</string>
-   <string name="retrievingData">Stahuji data...</string>
-   <string name="retrievingInitialData">Stahuji výchozí data...</string>
+   <string name="retrievingData">Stahuji data&#8230;</string>
+   <string name="retrievingInitialData">Stahuji výchozí data&#8230;</string>
    <string name="sent">Odeslat</string>
    <string name="shutdown">Vypnout</string>
    <string name="sources">Zdrojový kód</string>
@@ -69,7 +69,7 @@
    <string name="saveToSDCard">Uložit na SD kartu</string>
 
    <string name="restart">Restartovat</string>
-   <string name="clientRestarting">Restartuji nativního klienta...</string>
+   <string name="clientRestarting">Restartuji nativního klienta&#8230;</string>
 
    <string name="selectAll">Označit vše</string>
    <string name="unselectAll">Odznačit vše</string>
@@ -124,7 +124,7 @@
       %1$s je plnohodnotný nativní BOINC klient pro Android s integrovaným
       AndroBOINC managerem v1.6.7b3.\n
       Děkuji, že používáte můj software.\n
-      Copyright (C) 2012 matszpk\n
+      Copyright &#169; 2012 matszpk\n
       Původní AndroBOINC od Pavla Michalce(Paulo M.)\n
       \n
       Poděkování:\n
@@ -244,7 +244,7 @@
    <!-- ManageClient Activity -->
    <string name="currentHostTitle">Současné zařízení</string>
    <string name="noHostConnected">Nepřipojeno žádné zařízení</string>
-   <string name="clientConnecting">Klient se připojuje...</string>
+   <string name="clientConnecting">Klient se připojuje&#8230;</string>
    <string name="selectHostTitle">Současné zařízení</string>
    <string name="selectHostNoneAvailable">Nenakonfigurován žádný klient.</string>
    <string name="selectHostDialogTitle">Vyberte zařízení</string>
@@ -342,7 +342,7 @@
 
    <string name="synchronizeBAM">Synchronizovat s BAM</string>
    <!--  progress dialog messages -->
-   <string name="synchronizingBAM">Synchronizuji s BAM...</string>
+   <string name="synchronizingBAM">Synchronizuji s BAM&#8230;</string>
 
    <string name="shutdownAskText">Chcete ukončit nativního klienta?</string>
 
@@ -384,7 +384,7 @@
    <string name="editBAMUrl">URL</string>
    <string name="editBAMPassword">heslo</string>
    <string name="editBAMDefaultUrl">http://bam.boincstats.com/</string>
-   <string name="attachBAMInProgress">Připojuji se k BAM...</string>
+   <string name="attachBAMInProgress">Připojuji se k BAM&#8230;</string>
 
    <!-- Add Project dialog  -->
    <string name="addProject">Přidat projekt</string>
@@ -395,7 +395,7 @@
    <string name="addProjectPassword">Heslo</string>
    <string name="addProjectMinPassword">Min. délka hesla</string>
    <string name="termsOfUse">Podmínky použití</string>
-   <string name="addingProject">Přidávám projekt...</string>
+   <string name="addingProject">Přidávám projekt&#8230;</string>
 
    <!-- Install Wizard Activity -->
    <string name="installWizard">Instalační pomocník</string>
@@ -563,7 +563,7 @@
    </string>
 
    <!-- Screen Lock activity -->
-   <string name="lockWeAreComputing">Počítáme...</string>
+   <string name="lockWeAreComputing">Počítáme&#8230;</string>
    <string name="lockNotRan">Neběžel</string>
    <string name="lockTasksSuspended">Úkol pozastaven</string>
    <string name="lockToUnlock">Stiskněte tlačítko HOME pro odemčení</string>

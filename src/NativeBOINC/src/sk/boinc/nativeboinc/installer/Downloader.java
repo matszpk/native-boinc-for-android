@@ -319,9 +319,10 @@ public class Downloader {
 	        else
 	        	return VERIFICATION_FAILED;
 		} catch(InterruptedIOException ex) {
+			if (Logging.DEBUG) Log.d(TAG, "verif cancelled");
 			return VERIFICATION_CANCELLED;
 		} catch (Exception ex) {
-			if (Logging.DEBUG) Log.d(TAG, "verif cancelled:"+ex.getMessage());
+			if (Logging.DEBUG) Log.d(TAG, "verif failed:"+ex.getMessage());
 			notifyError(distribName, projectUrl, mContext.getString(R.string.verifySignatureError));
 			throw new InstallationException();
 		} finally {

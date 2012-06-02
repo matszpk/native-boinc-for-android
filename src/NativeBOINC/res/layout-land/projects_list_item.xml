@@ -83,7 +83,6 @@
 				android:layout_alignParentTop="true"
 				android:layout_centerInParent="true"
 				android:lines="1"
-				android:text="500 (100.00%)"
 				android:textAppearance="?android:attr/textAppearanceSmallInverse" />
 		</RelativeLayout>
 	
@@ -98,7 +97,6 @@
 			android:layout_alignParentTop="true"
 			android:layout_alignParentLeft="true"
 			android:lines="1"
-			android:text="ProjectX@Home"
 			android:textAppearance="?android:attr/textAppearanceLarge" />
 	
 		<!-- Project details -->
@@ -111,7 +109,6 @@
 			android:layout_alignLeft="@+id/projectName"
 			android:gravity="left"
 			android:lines="1"
-			android:text="Total:10000000.00 RAC:10000.00 Host:5000000.00 hRAC:5000.00"
 			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 </LinearLayout>

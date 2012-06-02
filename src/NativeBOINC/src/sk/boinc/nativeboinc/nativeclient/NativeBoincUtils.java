@@ -229,6 +229,8 @@ public class NativeBoincUtils {
 		try {
 			writer = new FileWriter(context.getFilesDir().getAbsolutePath()+"/boinc/gui_rpc_auth.cfg");
 			writer.write(password);
+			
+			writer.flush();
 		} finally {
 			if (writer != null)
 				writer.close();
@@ -261,6 +263,8 @@ public class NativeBoincUtils {
 		try {
 			writer = new FileWriter(context.getFilesDir().getAbsolutePath()+"/boinc/hostname.cfg");
 			writer.write(hostname);
+			
+			writer.flush();
 		} finally {
 			if (writer != null)
 				writer.close();
@@ -316,6 +320,8 @@ public class NativeBoincUtils {
 			
 			// write to file
 			writer.write(sB.toString());
+			
+			writer.flush();
 		} finally {
 			if (writer != null)
 				writer.close();

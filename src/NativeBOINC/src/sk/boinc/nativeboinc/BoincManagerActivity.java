@@ -24,9 +24,7 @@ import hal.android.workarounds.FixedProgressDialog;
 import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.clientconnection.ClientError;
-import sk.boinc.nativeboinc.clientconnection.ClientUpdateMessagesReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientUpdateNoticesReceiver;
-import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
 import sk.boinc.nativeboinc.clientconnection.NoticeInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
@@ -891,6 +889,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			// all tabs cleared old data and did not receive new one yet (because ManageClientActivity
 			// does not request initial data due to speed and data volume aspects).
 			if ( (mConnectedClient != null) && (!mInitialDataAvailable) ) {
+				if (Logging.DEBUG) Log.d(TAG, "connected:"+mConnectedClient+","+mInitialDataAvailable);
 				// We are connected to some client right now, but initial data were
 				// NOT retrieved yet. We trigger it now...
 				retrieveInitialData();
@@ -1198,6 +1197,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		mConnectionManager.updateTasks(); // will get whole state
 		mConnectionManager.updateTransfers();
 		mConnectionManager.updateMessages();
+		mConnectionManager.updateNotices();
 		mInitialDataRetrievalStarted = true;
 	}
 }

@@ -529,10 +529,11 @@ public class ClientBridgeWorkerHandler extends Handler {
 		if (!notices.complete) {
 			// do update
 			dataUpdateNotices(notices.notices);
-			updatedNotices(getNotices());
-			notifyProgress(ClientManageReceiver.PROGRESS_XFER_FINISHED);
-			changeIsHandlerWorking(false);
 		}
+		// always update notices
+		updatedNotices(getNotices());
+		notifyProgress(ClientManageReceiver.PROGRESS_XFER_FINISHED);
+		changeIsHandlerWorking(false);
 	}
 	
 	public void getAllProjectsList() {

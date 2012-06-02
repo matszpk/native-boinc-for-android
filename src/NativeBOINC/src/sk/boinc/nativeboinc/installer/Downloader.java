@@ -141,6 +141,7 @@ public class Downloader {
 				mPgpKeyContent = keyBlock.substring(keyStart, keyEnd+35).getBytes();
 				pgpStream.write(mPgpKeyContent);
 				
+				pgpStream.flush();
 				pgpStream.close();
 				
 				isDownloaded = true;
@@ -318,9 +319,9 @@ public class Downloader {
 	        else
 	        	return VERIFICATION_FAILED;
 		} catch(InterruptedIOException ex) {
-			if (Logging.DEBUG) Log.d(TAG, "verif cancelled");
 			return VERIFICATION_CANCELLED;
 		} catch (Exception ex) {
+			if (Logging.DEBUG) Log.d(TAG, "verif cancelled:"+ex.getMessage());
 			notifyError(distribName, projectUrl, mContext.getString(R.string.verifySignatureError));
 			throw new InstallationException();
 		} finally {
@@ -388,6 +389,8 @@ public class Downloader {
 						return;
 					}*/
 				}
+				
+				outStream.flush();
 				
 				notifyProgress(distribName, projectUrl, opDesc, 10000);
 			} else {

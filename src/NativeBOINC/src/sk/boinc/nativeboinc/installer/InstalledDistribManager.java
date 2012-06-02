@@ -229,6 +229,8 @@ public class InstalledDistribManager {
 			}
 			
 			writer.write("</distribs>\n");
+			
+			writer.flush();
 		} catch(IOException ex) {
 			return false;
 		} finally {

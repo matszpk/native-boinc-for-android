@@ -206,7 +206,7 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
 				NoticeInfo notice = mNotices.get(position);
-				if (notice.link != null && !notice.link.isEmpty()) {
+				if (notice.link != null && notice.link.length() != 0) {
 					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(notice.link));
 					startActivity(intent);
 				}

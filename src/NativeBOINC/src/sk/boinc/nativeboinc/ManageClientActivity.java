@@ -683,9 +683,9 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		if (mSelectedClient != null) {
 			// Connection to another client is deferred, we proceed with it now
 			boincConnect();
-		} 
+		}
 		if (Build.VERSION.SDK_INT >= 11)
-				invalidateOptionsMenu();
+			invalidateOptionsMenu();
 	}
 	
 	@Override

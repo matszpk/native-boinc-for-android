@@ -141,6 +141,8 @@ public class BoincLogsActivity extends AbstractBoincActivity {
 		try {
 			outWriter = new OutputStreamWriter(new FileOutputStream(path), "UTF-8");
 			outWriter.write(mLogsString);
+			
+			outWriter.flush();
 		} catch(IOException ex) {
 			StandardDialogs.showErrorDialog(this, getString(R.string.boincLogsSaveError));
 		} finally {

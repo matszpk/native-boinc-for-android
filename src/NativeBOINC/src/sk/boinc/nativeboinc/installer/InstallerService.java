@@ -489,6 +489,10 @@ public class InstallerService extends Service {
 		mInstallerHandler.cancelDumpFiles();
 	}
 	
+	public void cancelReinstallation() {
+		mInstallerHandler.cancelReinstallation();
+	}
+	
 	public void cancelOperation() {
 		mInstallerHandler.cancelOperation(mInstallerThread);
 	}

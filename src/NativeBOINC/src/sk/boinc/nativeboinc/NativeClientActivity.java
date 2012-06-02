@@ -459,7 +459,7 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						String dumpDir = edit.getText().toString();
-						if (!dumpDir.isEmpty()) {
+						if (dumpDir.length() != 0) {
 							if (!InstallationOps.isDestinationExists(dumpDir)) {
 								mInstaller.dumpBoincFiles(dumpDir);
 								startActivity(new Intent(NativeClientActivity.this, ProgressActivity.class));
@@ -538,7 +538,7 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 					public void onClick(DialogInterface dialog, int which) {
 						String updateDir = edit.getText().toString();
 						
-						if (!updateDir.isEmpty()) {
+						if (updateDir.length() != 0) {
 							Intent intent = new Intent(NativeClientActivity.this,
 									UpdateFromSDCardActivity.class);
 							intent.putExtra(UpdateFromSDCardActivity.UPDATE_DIR, updateDir);

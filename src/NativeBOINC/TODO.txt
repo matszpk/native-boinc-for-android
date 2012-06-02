@@ -17,7 +17,7 @@ Na Teraz:
   * przetestować opcje z Preferences
 / * wprowadzić listę do large widget (android 3.0) (są problemy, zrezygnowano)
 / * poprawić obsługę błędów w instalatorze (install activities)
-  * rozszerzyc tekst na koncowym ekranie instalatora
+/ * rozszerzyc tekst na koncowym ekranie instalatora
 / * poprawic menu w main screen (Android 4.0) (częsciowo)
 / * przetestować autoinstalację po BAM (zrobione?)
 
@@ -29,6 +29,9 @@ Na Teraz:
     
 / - przetestuj czas życia usług
 / * opcja dump to dir musi działać w osobnym wątku
+/ * popraw obslugę połaczen, po nacisnieciu home, gdy user był na dalszej aktywności (po głównej)
+    (obsługe pola project_name) 
+/ * popraw obsługę ProjectsFromClientRetriever i metod uzywających jej.
   
 ---------------------------------------------------------------
 

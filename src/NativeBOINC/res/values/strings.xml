@@ -329,7 +329,9 @@
 	<string name="dumpBoincWarn">Directory %s exists. During dumping will be deleted! Do you want really to continue dumping of BOINC files?</string>
 	
 	<!-- reinstall boinc -->
+	<string name="reinstallBegin">Begin reinstalling BOINC</string>
 	<string name="reinstallInProgress">Reinstalling BOINC</string>
+	<string name="reinstallError">Error during reinstalling: %s</string>
 	<string name="reinstallFinish">Reinstallation finished</string>
 	<string name="reinstallQuestion">Reinstallation removes whole BOINC directory (including projects). Do you really want to reinstall BOINC?</string>
 	<string name="waitingForShutdown">Waiting for shutdown</string>
@@ -662,6 +664,9 @@
 	<string name="boincPollError">Error happens during BOINC polling operation</string>
 	
 	<string name="binSDCardDirReadError">Unable to read SDCard directory</string>
+	<string name="getProjectsFromClientError">Unable to retrieve projects from client</string>
+	<string name="badDataInClientDistrib">Client distribution has incomplete informations!</string>
+	<string name="badDataInProjectDistribs">Project distributions has incomplete informations!</string>
 	
 	<string name="unexpectedError">Unexpected error</string>
 	

@@ -268,9 +268,7 @@ public class AccessListActivity extends ServiceBoincActivity implements Abstract
 		if (mRunner == null)
 			return;
 		
-		String runnerError = mRunner.getPendingErrorMessage();
-		if (runnerError != null)
-			onNativeBoincClientError(runnerError);
+		mRunner.handlePendingErrorMessage(this);
 	}
 	
 	@Override

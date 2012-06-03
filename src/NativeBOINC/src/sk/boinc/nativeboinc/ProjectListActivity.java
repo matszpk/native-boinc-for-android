@@ -350,13 +350,8 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			
 			setProgressBarIndeterminateVisibility(mInstaller.isWorking());
 			
-			if (mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
-				InstallError installError = mInstaller.getPendingError();
-				if (installError != null) {
-					onOperationError(installError.distribName, installError.errorMessage);
-					return;
-				}
-			}
+			if (mInstaller.handlePendingError(this))
+				return;
 			
 			if (mConnectedClient == null)
 				return;	// do not continue 
@@ -386,13 +381,8 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			
 			setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
 			
-			if (mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
-				ClientError cError = mConnectionManager.getPendingClientError();
-				if (cError != null) {
-					clientError(cError.errorNum, cError.message);
-					return;
-				}
-			}
+			if (mConnectionManager.handlePendingClientError(this))
+				return;
 			
 			if (mConnectedClient == null)
 				return;
@@ -548,7 +538,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	
 	@Override
 	public boolean onOperationError(String distribName, String errorMessage) {
-		if (!InstallerService.isSimpleOperation(distribName) && mGetFromInstaller &&
+		if (InstallerService.isSimpleOperation(distribName) && mGetFromInstaller &&
 				mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
 			mDataDownloadProgressState = ProgressState.FAILED;
 			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);

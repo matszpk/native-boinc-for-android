@@ -201,6 +201,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 			
 			@Override
 			public void onClick(View v) {
+				mGlobalPrefsSavingInProgress = true;
 				mConnectionManager.setGlobalPrefsOverride(NativeBoincUtils.INITIAL_BOINC_CONFIG);
 			}
 		});
@@ -293,15 +294,14 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
 		
 		if (mGlobalPrefsFetchProgress == ProgressState.IN_PROGRESS || mGlobalPrefsSavingInProgress) {
-			ClientError cError = mConnectionManager.getPendingClientError();
+			boolean isError = mConnectionManager.handlePendingClientError(this);
 			
-			if (cError != null)
-				clientError(cError.errorNum, cError.message);
-			if (mConnectedClient == null)
+			if (mConnectedClient == null) {
 				clientDisconnected(); // if disconnected
+				isError = true;
+			}
 			
-			if (cError != null || mConnectedClient == null)
-				return;
+			if (isError) return;
 		}
 		
 		if (mGlobalPrefsFetchProgress != ProgressState.FINISHED) {
@@ -624,6 +624,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		} catch(NumberFormatException ex) {
 			return;	// do nothing
 		}
+		mGlobalPrefsSavingInProgress = true;
 		mConnectionManager.setGlobalPrefsOverrideStruct(globalPrefs);
 	}
 	

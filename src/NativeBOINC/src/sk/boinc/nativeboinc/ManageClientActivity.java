@@ -312,19 +312,15 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		if (mConnectionManager == null)
 			return;
 		
-		ClientError error = mConnectionManager.getPendingClientError();
+		boolean isError = mConnectionManager.handlePendingClientError(this);
 		// get error for account mgr operations 
-		PollError pollError = mConnectionManager.getPendingPollError("");
-		if (error != null)
-			clientError(error.errorNum, error.message);
-		else if (pollError != null)
-			onPollError(pollError.errorNum, pollError.operation, pollError.message, pollError.param);
-		
-		if (mConnectedClient == null)
+		isError |= mConnectionManager.handlePendingPollErrors(this, "");
+		if (mConnectedClient == null) {
 			clientDisconnected(); // if disconnected
+			isError = true;
+		}
 		
-		if (error != null || pollError != null || mConnectedClient == null)
-			return;
+		if (isError) return;
 		
 		// check pending of account mgr
 		if (mDoGetBAMInfo) {

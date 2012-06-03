@@ -63,8 +63,8 @@ public interface ClientRequestHandler {
 	public abstract void addToScheduledUpdates(ClientReceiver callback, int refreshType, int period); 
 	public abstract void cancelScheduledUpdates(int refreshType);
 
-	public abstract ClientError getPendingClientError();
-	public abstract PollError getPendingPollError(String projectUrl);
+	public abstract boolean handlePendingClientError(ClientReceiver receiver);
+	public abstract boolean handlePendingPollErrors(ClientPollErrorReceiver receiver, String projectUrl);
 	
 	public abstract boolean isNativeConnected();
 	

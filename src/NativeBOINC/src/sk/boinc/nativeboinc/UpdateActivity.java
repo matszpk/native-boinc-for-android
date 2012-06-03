@@ -251,14 +251,9 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 		setProgressBarIndeterminateVisibility(mInstaller.isWorking());
 		
 		/* display error if pending */
-		if (mRunner != null && mInstaller != null &&
-				mGetUpdateItemsProgressState == ProgressState.IN_PROGRESS) {
-			
-			InstallError installError = mInstaller.getPendingError();
-			if (installError != null) {
-				onOperationError(installError.distribName, installError.errorMessage);
+		if (mRunner != null && mInstaller != null) {
+			if (mInstaller.handlePendingError(this))
 				return;
-			}
 		}
 		
 		/* handle update items operation */

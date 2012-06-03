@@ -34,6 +34,7 @@ import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.bridge.ClientBridge;
 import sk.boinc.nativeboinc.bridge.ClientBridgeCallback;
 import sk.boinc.nativeboinc.clientconnection.ClientError;
+import sk.boinc.nativeboinc.clientconnection.ClientPollErrorReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
@@ -555,22 +556,22 @@ public class ConnectionManagerService extends Service implements
 	}
 	
 	@Override
-	public ClientError getPendingClientError() {
+	public boolean handlePendingClientError(ClientReceiver receiver) {
 		if (mClientBridge != null) {
-			return mClientBridge.getPendingClientError();
+			return mClientBridge.handlePendingClientError(receiver);
 		}
-		return null;
+		return false;
 	}
 	
 	/**
 	 * pending poll errors
 	 */
 	@Override
-	public PollError getPendingPollError(String projectUrl) {
+	public boolean handlePendingPollErrors(ClientPollErrorReceiver receiver, String projectUrl) {
 		if (mClientBridge != null) {
-			return mClientBridge.getPendingPollError(projectUrl);
+			return mClientBridge.handlePendingPollErrors(receiver, projectUrl);
 		}
-		return null;
+		return false;
 	}
 	
 	@Override

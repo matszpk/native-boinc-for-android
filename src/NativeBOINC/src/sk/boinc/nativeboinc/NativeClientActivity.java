@@ -369,13 +369,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	
 	private void updateServicesError() {
 		if (mRunner != null && mInstaller != null) {
-			String runnerError = mRunner.getPendingErrorMessage();
-			if (runnerError != null)
-				onNativeBoincClientError(runnerError);
-			
-			InstallError installError = mInstaller.getPendingError();
-			if (installError != null)
-				onOperationError(installError.distribName, installError.errorMessage);
+			mRunner.handlePendingErrorMessage(this);
+			mInstaller.handlePendingError(this);
 		}
 	}
 	

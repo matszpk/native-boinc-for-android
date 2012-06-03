@@ -228,6 +228,7 @@ public class InstallerService extends Service {
 		mApp = null;
 	}
 	
+	/* pending errors used during working simple installer operations (not progress operations) */
 	private InstallError mPendingInstallError = null;
 	private Object mPendingInstallErrorSync = new Object();
 	
@@ -276,12 +277,14 @@ public class InstallerService extends Service {
 					called = true;
 			}
 			
-			synchronized(mPendingInstallErrorSync) {
-				if (!called) /* set up pending if not already handled */
-					mPendingInstallError = new InstallError(distribName, projectUrl, errorMessage);
-				else // if already handled
-					mPendingInstallError = null;
-			}
+			// enqueue only errors from simple operations
+			if (isSimpleOperation(distribName))
+				synchronized(mPendingInstallErrorSync) {
+					if (!called) /* set up pending if not already handled */
+						mPendingInstallError = new InstallError(distribName, projectUrl, errorMessage);
+					else // if already handled
+						mPendingInstallError = null;
+				}
 		}
 		
 		public void onOperationCancel(String distribName, String projectUrl) {
@@ -412,11 +415,26 @@ public class InstallerService extends Service {
 	}
 	
 	/**
-	 * Install client automatically (with signature checking)
+	 * get pending install error
+	 * @return pending install error
 	 */
-	public void installClientAutomatically() {
-		mNotificationController.notifyInstallClientBegin();
-		mInstallerThread.installClientAutomatically();
+	public boolean handlePendingError(AbstractInstallerListener listener) {
+		synchronized (mPendingInstallErrorSync) {
+			if (mPendingInstallError == null)
+				return false;
+			InstallError installError = mPendingInstallError;
+			if (listener.onOperationError(installError.distribName, installError.errorMessage)) {
+				mPendingInstallError = null;
+				return true;
+			}
+			return false;
+		}
+	}
+	
+	private void clearPendingError() {
+		synchronized(mPendingInstallErrorSync) {
+			mPendingInstallError = null;
+		}
 	}
 	
 	/* update client distrib info */
@@ -424,6 +442,7 @@ public class InstallerService extends Service {
 		synchronized(mPendingClientDistribSync) {
 			mPendingClientDistrib = null;
 		}
+		clearPendingError();
 		mInstallerThread.updateClientDistrib();
 	}
 	
@@ -434,16 +453,13 @@ public class InstallerService extends Service {
 			return pending;
 		}
 	}
+	
 	/**
-	 * get pending install error
-	 * @return pending install error
+	 * Install client automatically (with signature checking)
 	 */
-	public InstallError getPendingError() {
-		synchronized (mPendingInstallErrorSync) {
-			InstallError installError = mPendingInstallError;
-			mPendingInstallError = null;
-			return installError;
-		}
+	public void installClientAutomatically() {
+		mNotificationController.notifyInstallClientBegin();
+		mInstallerThread.installClientAutomatically();
 	}
 	
 	/**
@@ -465,7 +481,7 @@ public class InstallerService extends Service {
 				mNotificationController.notifyInstallClientBegin();
 			else
 				mNotificationController.notifyInstallProjectBegin(item.name);
-			
+		
 		mInstallerThread.reinstallUpdateItems(updateItems);
 	}
 	
@@ -483,6 +499,7 @@ public class InstallerService extends Service {
 		synchronized(mPendingNewProjectDistribsSync) {
 			mPendingNewProjectDistribs = null;
 		}
+		clearPendingError();
 		mInstallerThread.updateProjectDistribList();
 	}
 	
@@ -593,6 +610,7 @@ public class InstallerService extends Service {
 	 * @return update items
 	 */
 	public void getBinariesToUpdateOrInstall() {
+		clearPendingError();
 		mInstallerThread.getBinariesToUpdateOrInstall();
 	}
 	
@@ -605,6 +623,7 @@ public class InstallerService extends Service {
 	}
 	
 	public void getBinariesToUpdateFromSDCard(String path) {
+		clearPendingError();
 		mInstallerThread.getBinariesToUpdateFromSDCard(path);
 	}
 	

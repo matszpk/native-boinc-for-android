@@ -291,18 +291,15 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
 		
 		if (mProjectConfigProgressState == ProgressState.IN_PROGRESS || mAddingProjectInProgress) {
-			ClientError cError = mConnectionManager.getPendingClientError();
-			PollError pollError = mConnectionManager.getPendingPollError(mProjectItem.getUrl());
+			boolean isError = mConnectionManager.handlePendingClientError(this);
+			isError |= mConnectionManager.handlePendingPollErrors(this, mProjectItem.getUrl());
 			
-			if (pollError != null)
-				onPollError(pollError.errorNum, pollError.operation, pollError.message, pollError.param);
-			else if (cError != null)
-				clientError(cError.errorNum, cError.message);
-			
-			if (mConnectedClient == null)
+			if (mConnectedClient == null) {
 				clientDisconnected(); // if disconnected
+				isError = true;
+			}
 			
-			if (pollError != null || cError != null || mConnectedClient == null) return;
+			if (isError) return;
 		}
 	
 		if (mProjectConfigProgressState != ProgressState.FINISHED) {
@@ -412,23 +409,6 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	}
 
 	@Override
-	public boolean onPollError(int errorNum, int operation, String errorMessage, String param) {
-		if (Logging.WARNING) Log.w(TAG, "Poller error:"+errorNum+":"+operation+":"+param);
-		if (mProjectConfigProgressState == ProgressState.IN_PROGRESS || mAddingProjectInProgress) {
-			// getProjectConfig - set as failed - prevents repeating operation
-			if (mProjectConfigProgressState == ProgressState.IN_PROGRESS)
-				mProjectConfigProgressState = ProgressState.FAILED;
-			if (mAddingProjectInProgress)
-				dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
-			mAddingProjectInProgress = false;
-			
-			StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
-			return true;
-		}
-		return false;
-	}
-
-	@Override
 	public void clientConnectionProgress(int progress) {
 	}
 
@@ -490,15 +470,45 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	}
 
 	@Override
+	public boolean onPollError(int errorNum, int operation, String errorMessage, String param) {
+		if (Logging.WARNING) Log.w(TAG, "Poller error:"+errorNum+":"+operation+":"+param);
+		if (mProjectConfigProgressState == ProgressState.IN_PROGRESS || mAddingProjectInProgress) {
+			// getProjectConfig - set as failed - prevents repeating operation
+			
+			boolean doShowError = false;
+			
+			if (mProjectConfigProgressState == ProgressState.IN_PROGRESS &&
+					operation == PollOp.POLL_PROJECT_CONFIG) {
+				doShowError = true;
+				mProjectConfigProgressState = ProgressState.FAILED;
+			}
+			
+			if (mAddingProjectInProgress && (operation == PollOp.POLL_PROJECT_ATTACH ||
+					operation == PollOp.POLL_LOOKUP_ACCOUNT || operation == PollOp.POLL_CREATE_ACCOUNT)) {
+				doShowError = true;
+				dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
+				mAddingProjectInProgress = false;
+			}
+			
+			if (doShowError) {
+				StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
 	public boolean clientError(int errorNum, String errorMessage) {
 		// getProjectConfig - set as finished - prevents repeating operation
 		if (mProjectConfigProgressState == ProgressState.IN_PROGRESS || mAddingProjectInProgress) {
 			if (mProjectConfigProgressState == ProgressState.IN_PROGRESS)
 				mProjectConfigProgressState = ProgressState.FAILED;
 			
-			if (mAddingProjectInProgress)
+			if (mAddingProjectInProgress) {
 				dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
-			mAddingProjectInProgress = false;
+				mAddingProjectInProgress = false;
+			}
 			
 			StandardDialogs.showClientErrorDialog(this, errorNum, errorMessage);
 			return true;

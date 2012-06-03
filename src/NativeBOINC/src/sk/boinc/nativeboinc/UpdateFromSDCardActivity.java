@@ -248,13 +248,8 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 	private void updateActivityState() {
 		setProgressBarIndeterminateVisibility(mInstaller.isWorking());
 		
-		if (mUpdateListProgressState == ProgressState.IN_PROGRESS) {
-			InstallError installError = mInstaller.getPendingError();
-			if (installError != null) {
-				onOperationError(installError.distribName, installError.errorMessage);
-				return;
-			}
-		}
+		if (mInstaller.handlePendingError(this))
+			return;
 		
 		if (mUpdateDistribList == null) {
 			if (mUpdateListProgressState == ProgressState.IN_PROGRESS) {

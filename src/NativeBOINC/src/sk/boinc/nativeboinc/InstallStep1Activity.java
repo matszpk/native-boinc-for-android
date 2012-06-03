@@ -150,14 +150,8 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	private void updateActivityState() {
 		setProgressBarIndeterminateVisibility(mInstaller.isWorking());
 		
-		
-		if (mClientDistribProgressState == ProgressState.IN_PROGRESS) {
-			InstallError installError = mInstaller.getPendingError();
-			if (installError != null) {
-				onOperationError(installError.distribName, installError.errorMessage);
-				return;
-			}
-		}
+		if (mInstaller.handlePendingError(this))
+			return;
 		
 		if (mClientDistrib == null) {
 			if (mClientDistribProgressState == ProgressState.IN_PROGRESS) {

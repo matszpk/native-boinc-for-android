@@ -19,6 +19,7 @@
 
 package sk.boinc.nativeboinc.bridge;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.ArrayList;
@@ -80,7 +81,8 @@ public class ClientBridge implements ClientRequestHandler {
 	// for joining two requests in one (create/lookup and attach)
 	private ConcurrentMap<String, String> mJoinedAddProjectsMap = new ConcurrentHashMap<String, String>();
 	
-	private ConcurrentMap<String, PollError> mPollErrorsMap = new ConcurrentHashMap<String, PollError>();
+	private HashMap<String, PollError> mPollErrorsMap = new HashMap<String, PollError>();
+	private HashMap<String, PollError> mProjectConfigErrorsMap = new HashMap<String, PollError>();
 	private ClientError mPendingClientError = null;
 	private Object mPendingClientErrorSync = new Object(); // syncer
 	
@@ -175,23 +177,41 @@ public class ClientBridge implements ClientRequestHandler {
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientPollErrorReceiver) {
-					((ClientPollErrorReceiver)observer).onPollError(errorNum, operation,
-							errorMessage, param);
-					called = true;
+					if (((ClientPollErrorReceiver)observer).onPollError(errorNum, operation,
+							errorMessage, param))
+						called = true;
 				}
 			}
-			synchronized(ClientBridge.this) {
-				if (!called) { /* set up pending if not already handled */
-					PollError pollError = new PollError(errorNum, operation, errorMessage, param);
-					if (param != null)
-						mPollErrorsMap.put(param, pollError);
-					else  // if account mgr operation
-						mPollErrorsMap.put("", pollError);
-				} else { // if already handled (remove old errors)
-					if (param != null)
-						mPollErrorsMap.remove(param);
-					else // if account mgr operation
-						mPollErrorsMap.remove("");
+			if (operation != PollOp.POLL_PROJECT_CONFIG) {
+				// error from other operation
+				synchronized(mPollErrorsMap) {
+					if (!called) { /* set up pending if not already handled */
+						PollError pollError = new PollError(errorNum, operation, errorMessage, param);
+						if (param != null)
+							mPollErrorsMap.put(param, pollError);
+						else  // if account mgr operation
+							mPollErrorsMap.put("", pollError);
+					} else { // if already handled (remove old errors)
+						if (param != null)
+							mPollErrorsMap.remove(param);
+						else // if account mgr operation
+							mPollErrorsMap.remove("");
+					}
+				}
+			} else {
+				synchronized(mProjectConfigErrorsMap) {
+					if (!called) { /* set up pending if not already handled */
+						PollError pollError = new PollError(errorNum, operation, errorMessage, param);
+						if (param != null)
+							mProjectConfigErrorsMap.put(param, pollError);
+						else  // if account mgr operation
+							mProjectConfigErrorsMap.put("", pollError);
+					} else { // if already handled (remove old errors)
+						if (param != null)
+							mProjectConfigErrorsMap.remove(param);
+						else // if account mgr operation
+							mProjectConfigErrorsMap.remove("");
+					}
 				}
 			}
 		}
@@ -546,6 +566,7 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public void updateClientMode() {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingClientError();
 		mWorker.updateClientMode();
 	}
 
@@ -555,6 +576,7 @@ public class ClientBridge implements ClientRequestHandler {
 		synchronized(mPendingHostInfoSync) {
 			mPendingHostInfo = null;
 		}
+		clearPendingClientError();
 		mWorker.updateHostInfo();
 	}
 	
@@ -574,6 +596,7 @@ public class ClientBridge implements ClientRequestHandler {
 		synchronized(mPendingProjectsSync) {
 			mPendingProjects = null;
 		}
+		clearPendingClientError();
 		mWorker.updateProjects();
 	}
 	
@@ -593,6 +616,7 @@ public class ClientBridge implements ClientRequestHandler {
 		synchronized(mPendingTasksSync) {
 			mPendingTasks = null;
 		}
+		clearPendingClientError();
 		mWorker.updateTasks();
 	}
 	
@@ -612,6 +636,7 @@ public class ClientBridge implements ClientRequestHandler {
 		synchronized(mPendingTransfersSync) {
 			mPendingTransfers = null;
 		}
+		clearPendingClientError();
 		mWorker.updateTransfers();
 	}
 	
@@ -631,6 +656,7 @@ public class ClientBridge implements ClientRequestHandler {
 		synchronized(mPendingMessagesSync) {
 			mPendingMessages = null;
 		}
+		clearPendingClientError();
 		mWorker.updateMessages();
 	}
 	
@@ -649,6 +675,7 @@ public class ClientBridge implements ClientRequestHandler {
 		synchronized(mPendingMessagesSync) {
 			mPendingMessages = null;
 		}
+		clearPendingClientError();
 		mWorker.updateNotices();
 	}
 	
@@ -684,6 +711,7 @@ public class ClientBridge implements ClientRequestHandler {
 		synchronized(mPendingAccountMgrInfoSync) {
 			mPendingAccountMgrInfo = null;
 		}
+		clearPendingClientError();
 		mWorker.getBAMInfo();
 	}
 
@@ -700,6 +728,8 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public void attachToBAM(String name, String url, String password) {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingPollError("");
+		clearPendingClientError();
 		mBAMBeingSynchronized = true;
 		mWorker.attachToBAM(name, url, password);
 	}
@@ -708,12 +738,15 @@ public class ClientBridge implements ClientRequestHandler {
 	public void synchronizeWithBAM() {
 		if (mRemoteClient == null) return; // not connected
 		mBAMBeingSynchronized = true;
+		clearPendingPollError("");
+		clearPendingClientError();
 		mWorker.synchronizeWithBAM();
 	}
 	
 	@Override
 	public void stopUsingBAM() {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingClientError();
 		mWorker.stopUsingBAM();
 	}
 	
@@ -729,6 +762,7 @@ public class ClientBridge implements ClientRequestHandler {
 		synchronized (mPendingAllProjectsListSync) {
 			mPendingAllProjectsList = null;
 		}
+		clearPendingClientError();
 		mWorker.getAllProjectsList();
 	}
 	
@@ -745,18 +779,24 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public void lookupAccount(AccountIn accountIn) {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingPollError(accountIn.url);
+		clearPendingClientError();
 		mWorker.lookupAccount(accountIn);
 	}
 	
 	@Override
 	public void createAccount(AccountIn accountIn) {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingPollError(accountIn.url);
+		clearPendingClientError();
 		mWorker.createAccount(accountIn);
 	}
 	
 	@Override
 	public void projectAttach(String url, String authCode, String projectName) {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingPollError(url);
+		clearPendingClientError();
 		mWorker.projectAttach(url, authCode, projectName);
 	}
 	
@@ -783,6 +823,8 @@ public class ClientBridge implements ClientRequestHandler {
 	public void getProjectConfig(String url) {
 		if (mRemoteClient == null) return; // not connected
 		mPendingProjectConfigs.remove(url);
+		clearPendingProjectConfigError(url);
+		clearPendingClientError();
 		mWorker.getProjectConfig(url);
 	}
 	
@@ -792,14 +834,27 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 	
 	@Override
-	public ClientError getPendingClientError() {
+	public boolean handlePendingClientError(ClientReceiver receiver) {
 		if (mRemoteClient == null)
-			return null;
+			return false;
 		
 		synchronized(mPendingClientErrorSync) {
 			ClientError clientError = mPendingClientError;
+			
+			if (clientError == null)
+				return false;
+			
+			if (receiver.clientError(clientError.errorNum, clientError.message)) {
+				mPendingClientError = null;
+				return true;
+			}
+			return false;
+		}
+	}
+	
+	private void clearPendingClientError() {
+		synchronized (mPendingClientErrorSync) {
 			mPendingClientError = null;
-			return clientError;
 		}
 	}
 	
@@ -811,12 +866,50 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 	
 	@Override
-	public PollError getPendingPollError(String projectUrl) {
+	public boolean handlePendingPollErrors(ClientPollErrorReceiver receiver, String projectUrl) {
 		if (mRemoteClient == null)
-			return null;
-		if (projectUrl == null)
-			return mPollErrorsMap.remove("");
-		return mPollErrorsMap.remove(projectUrl);
+			return false;
+		
+		boolean handled = false;
+		
+		synchronized(mPollErrorsMap) {
+			String key = (projectUrl != null) ? projectUrl : "";
+			PollError pollError = mPollErrorsMap.get(key);
+			
+			if (pollError != null) {
+				if (receiver.onPollError(pollError.errorNum, pollError.operation, pollError.message,
+						pollError.param)) {
+					mPollErrorsMap.remove(key);
+					handled = true;
+				}
+			}
+		}
+		
+		synchronized(mProjectConfigErrorsMap) {
+			String key = (projectUrl != null) ? projectUrl : "";
+			PollError pollError = mProjectConfigErrorsMap.get(key);
+			
+			if (pollError != null) {
+				if (receiver.onPollError(pollError.errorNum, pollError.operation, pollError.message,
+						pollError.param)) {
+					mProjectConfigErrorsMap.remove(key);
+					handled = true;
+				}
+			}
+		}
+		return handled;
+	}
+	
+	private void clearPendingPollError(String projectUrl) {
+		synchronized(mPollErrorsMap) {
+			mPollErrorsMap.remove(projectUrl);
+		}
+	}
+	
+	private void clearPendingProjectConfigError(String projectUrl) {
+		synchronized(mProjectConfigErrorsMap) {
+			mProjectConfigErrorsMap.remove(projectUrl);
+		}
 	}
 	
 	@Override
@@ -825,6 +918,7 @@ public class ClientBridge implements ClientRequestHandler {
 		synchronized(mPendingGlobalPrefsSync) {
 			mPendingGlobalPrefs = null;
 		}
+		clearPendingClientError();
 		mWorker.getGlobalPrefsWorking();
 	}
 	
@@ -842,6 +936,7 @@ public class ClientBridge implements ClientRequestHandler {
 	public void setGlobalPrefsOverride(String globalPrefs) {
 		if (mRemoteClient == null) return; // not connected
 		mGlobalPrefsBeingOverriden = true;
+		clearPendingClientError();
 		mWorker.setGlobalPrefsOverride(globalPrefs);
 	}
 	
@@ -849,6 +944,7 @@ public class ClientBridge implements ClientRequestHandler {
 	public void setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs) {
 		if (mRemoteClient == null) return; // not connected
 		mGlobalPrefsBeingOverriden = true;
+		clearPendingClientError();
 		mWorker.setGlobalPrefsOverrideStruct(globalPrefs, mRemoteClient.isNativeClient());
 	}
 	
@@ -861,66 +957,77 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public void runBenchmarks() {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingClientError();
 		mWorker.runBenchmarks();
 	}
 
 	@Override
 	public void setRunMode(final int mode) {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingClientError();
 		mWorker.setRunMode(mode);
 	}
 
 	@Override
 	public void setNetworkMode(final int mode) {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingClientError();
 		mWorker.setNetworkMode(mode);
 	}
 
 	@Override
 	public void shutdownCore() {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingClientError();
 		mWorker.shutdownCore();
 	}
 
 	@Override
 	public void doNetworkCommunication() {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingClientError();
 		mWorker.doNetworkCommunication();
 	}
 
 	@Override
 	public void projectOperation(final int operation, final String projectUrl) {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingClientError();
 		mWorker.projectOperation(operation, projectUrl);
 	}
 	
 	@Override
 	public void projectsOperation(final int operation, final String[] projectUrls) {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingClientError();
 		mWorker.projectsOperation(operation, projectUrls);
 	}
 
 	@Override
 	public void taskOperation(final int operation, final String projectUrl, final String taskName) {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingClientError();
 		mWorker.taskOperation(operation, projectUrl, taskName);
 	}
 	
 	@Override
 	public void tasksOperation(final int operation, final TaskDescriptor[] tasks) {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingClientError();
 		mWorker.tasksOperation(operation, tasks);
 	}
 
 	@Override
 	public void transferOperation(final int operation, final String projectUrl, final String fileName) {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingClientError();
 		mWorker.transferOperation(operation, projectUrl, fileName);
 	}
 	
 	@Override
 	public void transfersOperation(final int operation, final TransferDescriptor[] transfers) {
 		if (mRemoteClient == null) return; // not connected
+		clearPendingClientError();
 		mWorker.transfersOperation(operation, transfers);
 	}
 }

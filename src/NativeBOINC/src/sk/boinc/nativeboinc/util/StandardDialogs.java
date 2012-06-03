@@ -21,6 +21,7 @@ package sk.boinc.nativeboinc.util;
 
 import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.R;
+import sk.boinc.nativeboinc.clientconnection.PollOp;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.service.ConnectionManagerService;
@@ -39,9 +40,11 @@ import android.widget.TextView;
 public class StandardDialogs {
 	public final static int DIALOG_ERROR = 12345;
 	public final static int DIALOG_CLIENT_ERROR = 12346;
-	public final static int DIALOG_INSTALL_ERROR = 12347;
-	private static final int DIALOG_CLIENT_INFO = 12348;
-	private static final int DIALOG_DISTRIB_INFO = 12349;
+	public final static int DIALOG_POLL_ERROR = 12347;
+	public final static int DIALOG_POLL2_ERROR = 12348;
+	public final static int DIALOG_INSTALL_ERROR = 12349;
+	private static final int DIALOG_CLIENT_INFO = 12350;
+	private static final int DIALOG_DISTRIB_INFO = 12351;
 	
 	private static final String ARG_DISTRIB_NAME = "DistribName";
 	private static final String ARG_DISTRIB_VERSION = "DistribVersion";
@@ -67,6 +70,8 @@ public class StandardDialogs {
 				.setNegativeButton(R.string.ok, null)
 				.create();
 		case DIALOG_CLIENT_ERROR:
+		case DIALOG_POLL_ERROR:
+		case DIALOG_POLL2_ERROR:
 			return new AlertDialog.Builder(activity)
 				.setIcon(android.R.drawable.ic_dialog_alert)
 				.setTitle(R.string.clientError)
@@ -99,6 +104,8 @@ public class StandardDialogs {
 			Bundle args) {
 		switch (dialogId) {
 		case DIALOG_CLIENT_ERROR:
+		case DIALOG_POLL_ERROR:
+		case DIALOG_POLL2_ERROR:
 		case DIALOG_INSTALL_ERROR:
 		case DIALOG_ERROR: {
 			TextView textView = (TextView)dialog.findViewById(R.id.dialogText);
@@ -149,7 +156,10 @@ public class StandardDialogs {
 		else
 			args.putString(ARG_ERROR, mainText);
 		
-		activity.showDialog(DIALOG_CLIENT_ERROR, args);
+		if (operation != PollOp.POLL_PROJECT_CONFIG)
+			activity.showDialog(DIALOG_POLL_ERROR, args);
+		else // if project config
+			activity.showDialog(DIALOG_POLL2_ERROR, args);
 	}
 	
 	public static void showClientErrorDialog(Activity activity, int errorNum, String errorMessage) {
@@ -168,7 +178,7 @@ public class StandardDialogs {
 			String errorMessage) {
 		Bundle args = new Bundle();
 		
-		if (distribName != null && distribName.length() != 0)
+		if (!InstallerService.isSimpleOperation(distribName))
 			args.putString(ARG_ERROR, distribName + ": " + errorMessage);
 		else
 			args.putString(ARG_ERROR, errorMessage);

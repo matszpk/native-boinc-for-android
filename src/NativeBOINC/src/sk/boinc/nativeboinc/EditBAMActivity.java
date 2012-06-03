@@ -24,6 +24,7 @@ import hal.android.workarounds.FixedProgressDialog;
 import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.PollError;
+import sk.boinc.nativeboinc.clientconnection.PollOp;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.BAMAccount;
@@ -155,19 +156,15 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 			setProgressBarIndeterminateVisibility(false);
 		
 		if (mAttachBAMInProgress) {
-			ClientError cError = mConnectionManager.getPendingClientError();
-			// get error for account mgr operations 
-			PollError pollError = mConnectionManager.getPendingPollError("");
-			if (cError != null)
-				clientError(cError.errorNum, cError.message);
-			else if (pollError != null)
-				onPollError(pollError.errorNum, pollError.operation, pollError.message, pollError.param);
-
-			if (mConnectedClient == null)
+			boolean isError = mConnectionManager.handlePendingClientError(this);
+			// get error for account mgr operations
+			isError |= mConnectionManager.handlePendingPollErrors(this, "");
+			if (mConnectedClient == null) {
 				clientDisconnected(); // if disconnected
+				isError = true;
+			}
 			
-			if (pollError != null || cError != null || mConnectedClient == null)
-				return;
+			if (isError) return;
 			
 			if (!mConnectionManager.isBAMBeingSynchronized())
 				onAfterAccountMgrRPC();
@@ -239,12 +236,13 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 	
 	@Override
 	public boolean clientError(int errorNum, String errorMessage) {
-		if (mAttachBAMInProgress)
+		if (mAttachBAMInProgress) {
 			dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
-		
-		mAttachBAMInProgress = false;
-		StandardDialogs.showClientErrorDialog(this, errorNum, errorMessage);
-		return true;
+			mAttachBAMInProgress = false;
+			StandardDialogs.showClientErrorDialog(this, errorNum, errorMessage);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -273,14 +271,15 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 	}
 
 	@Override
-	public boolean onPollError(int errorNum, int operation,
-			String errorMessage, String param) {
-		if (mAttachBAMInProgress)
+	public boolean onPollError(int errorNum, int operation, String errorMessage, String param) {
+		if (mAttachBAMInProgress && operation == PollOp.POLL_ATTACH_TO_BAM) {
 			dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
 		
-		mAttachBAMInProgress = false;
-		StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
-		return true;
+			mAttachBAMInProgress = false;
+			StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

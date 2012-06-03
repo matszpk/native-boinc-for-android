@@ -138,7 +138,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		Log.d(TAG, "Number of processors:"+ RuntimeUtils.getRealCPUCount());
 		mExecutorService = Executors.newFixedThreadPool(RuntimeUtils.getRealCPUCount());
 		
-		mDownloader = new Downloader(installerService, listenerHandler);
+		mDownloader = new Downloader(installerService, this);
 		mProjectsRetriever = new ProjectsFromClientRetriever(installerService);
 		mListenerHandler = listenerHandler;
 		mDistribManager = new InstalledDistribManager(installerService);
@@ -148,7 +148,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mResourcesLocker = new ResourcesLocker(mInstallerService);
 		
 		// parse project distribs
-		mProjectDistribs = mInstallOps.parseProjectDistribs("apps-old.xml", false);
+		mProjectDistribs = mInstallOps.parseProjectDistribs("apps-old.xml", false, "");
 	}
 	
 	public void destroy() {
@@ -164,6 +164,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mResourcesLocker = null;
 		mProjectsRetriever.destroy();
 		mProjectsRetriever = null;
+		mDownloader.destroy();
 		mDownloader = null;
 		mInstallerService = null;
 		mRunner = null;

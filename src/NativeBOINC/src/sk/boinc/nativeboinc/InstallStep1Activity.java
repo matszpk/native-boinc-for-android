@@ -196,7 +196,8 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	
 	@Override
 	public boolean onOperationError(String distribName, String errorMessage) {
-		if (mClientDistribProgressState == ProgressState.IN_PROGRESS) {
+		if (InstallerService.isSimpleOperation(distribName) &&
+				mClientDistribProgressState == ProgressState.IN_PROGRESS) {
 			mClientDistribProgressState = ProgressState.FAILED;
 			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
 			return true;

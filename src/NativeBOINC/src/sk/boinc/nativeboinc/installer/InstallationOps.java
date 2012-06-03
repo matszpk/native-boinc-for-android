@@ -110,23 +110,25 @@ public class InstallationOps {
 			try {	/* download with ignoring */
 				mDownloader.downloadFile(clientListUrl, "client.xml",
 						mContext.getString(R.string.clientListDownload), 
-						mContext.getString(R.string.clientListDownloadError), false, "", "");
+						mContext.getString(R.string.clientListDownloadError), false,
+						InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME, "");
 				
 				/* if doesnt downloaded */
 				if (!mContext.getFileStreamPath("client.xml").exists())
 					return null;
 				
 				int status = mDownloader.verifyFile(mContext.getFileStreamPath("client.xml"),
-						clientListUrl, false, "", "");
+						clientListUrl, false, InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME, "");
 				
 				if (status == Downloader.VERIFICATION_CANCELLED) {
 					Thread.interrupted(); // clear interrupted flag
 					if (Logging.DEBUG) Log.d(TAG, "updateClientDistrib verif canceled");
-					mInstallerHandler.notifyCancel("", "");
+					mInstallerHandler.notifyCancel(InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME, "");
 					return null;	// cancelled
 				}
 				if (status == Downloader.VERIFICATION_FAILED) {
-					mInstallerHandler.notifyError("", "", mContext.getString(R.string.verifySignatureFailed));
+					mInstallerHandler.notifyError(InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME,
+							"", mContext.getString(R.string.verifySignatureFailed));
 					return null;	// cancelled
 				}
 			} catch(InstallationException ex) {
@@ -135,7 +137,7 @@ public class InstallationOps {
 
 			if (Thread.interrupted()) { // if cancelled
 				if (Logging.DEBUG) Log.d(TAG, "updateClientDistrib interrupted");
-				mInstallerHandler.notifyCancel("", "");
+				mInstallerHandler.notifyCancel(InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME, "");
 				return null;
 			}
 			
@@ -147,14 +149,16 @@ public class InstallationOps {
 				/* parse and notify */
 				clientDistrib = ClientDistribListParser.parse(inStream);
 				if (clientDistrib == null)
-					mInstallerHandler.notifyError("", "", mContext.getString(R.string.clientListParseError));
+					mInstallerHandler.notifyError(InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME,
+							"", mContext.getString(R.string.clientListParseError));
 				else { // verify data
 					if (clientDistrib.filename.length() == 0 || clientDistrib.version.length() == 0)
-						mInstallerHandler.notifyError("", "",
+						mInstallerHandler.notifyError(InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME, "",
 								mContext.getString(R.string.badDataInClientDistrib));
 				}
 			}  catch(IOException ex) {
-				mInstallerHandler.notifyError("", "", mContext.getString(R.string.clientListParseError));
+				mInstallerHandler.notifyError(InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME, "",
+						mContext.getString(R.string.clientListParseError));
 				return null;
 			} finally {
 				try {
@@ -173,7 +177,7 @@ public class InstallationOps {
 	 * retrieve project distrib list
 	 */
 	
-	public ArrayList<ProjectDistrib> parseProjectDistribs(String filename, boolean notify) {
+	public ArrayList<ProjectDistrib> parseProjectDistribs(String filename, boolean notify, String notifyDistribName) {
 		InputStream inStream = null;
 		ArrayList<ProjectDistrib> projectDistribs = null;
 		try {
@@ -186,7 +190,7 @@ public class InstallationOps {
 					if (distrib.projectName.length() == 0 || distrib.filename.length() == 0 ||
 							distrib.projectUrl.length() == 0 || distrib.version.length() == 0) {
 						if (notify) // notify error (corrupted list)
-							mInstallerHandler.notifyError("", "",
+							mInstallerHandler.notifyError(notifyDistribName, "",
 									mContext.getString(R.string.badDataInProjectDistribs));
 						return null;
 					}
@@ -195,10 +199,12 @@ public class InstallationOps {
 				// if success
 				return projectDistribs;
 			} else if (notify) // notify error
-				mInstallerHandler.notifyError("", "", mContext.getString(R.string.appListParseError));
+				mInstallerHandler.notifyError(notifyDistribName, "",
+						mContext.getString(R.string.appListParseError));
 		} catch(IOException ex) {
 			if (notify)
-				mInstallerHandler.notifyError("", "", mContext.getString(R.string.appListParseError));
+				mInstallerHandler.notifyError(notifyDistribName, "",
+						mContext.getString(R.string.appListParseError));
 		} finally {
 			try {
 				if (inStream != null) inStream.close();
@@ -217,18 +223,20 @@ public class InstallationOps {
 		try {
 			mDownloader.downloadFile(appListUrl, "apps.xml",
 					mContext.getString(R.string.appListDownload),
-					mContext.getString(R.string.appListDownloadError), false, "", "");
+					mContext.getString(R.string.appListDownloadError), false, 
+					InstallerService.BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME, "");
 			
 			int status = mDownloader.verifyFile(mContext.getFileStreamPath("apps.xml"),
-					appListUrl, false, "", "");
+					appListUrl, false, InstallerService.BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME, "");
 			
 			if (status == Downloader.VERIFICATION_CANCELLED) {
 				Thread.interrupted(); // clear interrupted flag
-				mInstallerHandler.notifyCancel("", "");
+				mInstallerHandler.notifyCancel(InstallerService.BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME, "");
 				return null;	// cancelled
 			}
 			if (status == Downloader.VERIFICATION_FAILED) {
-				mInstallerHandler.notifyError("", "", mContext.getString(R.string.verifySignatureFailed));
+				mInstallerHandler.notifyError(InstallerService.BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME,
+						"", mContext.getString(R.string.verifySignatureFailed));
 				/* errors occurred, but we returns previous value */
 				return previousDistribs;
 			}
@@ -239,7 +247,8 @@ public class InstallationOps {
 			}
 			
 			/* parse it */
-			ArrayList<ProjectDistrib> projectDistribs = parseProjectDistribs("apps.xml", true);
+			ArrayList<ProjectDistrib> projectDistribs = parseProjectDistribs("apps.xml", true,
+					InstallerService.BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME);
 			if (projectDistribs != null) {
 				// make backup
 				mContext.getFileStreamPath("apps.xml").renameTo(
@@ -577,8 +586,7 @@ public class InstallationOps {
 		long boincDirSize = calculateDirectorySize(boincDir);
 		if (boincDirSize == -1) {
 			mInstallerHandler.notifyError(InstallerService.BOINC_DUMP_ITEM_NAME, "",
-					mContext.getString(R.string.dumpBoincError,
-							mContext.getString(R.string.unexpectedError)));
+							mContext.getString(R.string.unexpectedError));
 			return;
 		}
 		
@@ -597,8 +605,7 @@ public class InstallationOps {
 			} else
 				mInstallerHandler.notifyFinish(InstallerService.BOINC_DUMP_ITEM_NAME, "");
 		} catch(IOException ex) {
-			mInstallerHandler.notifyError(InstallerService.BOINC_DUMP_ITEM_NAME, "",
-					mContext.getString(R.string.dumpBoincError, ex.getMessage()));
+			mInstallerHandler.notifyError(InstallerService.BOINC_DUMP_ITEM_NAME, "", ex.getMessage());
 		}
 	}
 	
@@ -664,8 +671,7 @@ public class InstallationOps {
 			
 			if (!NativeBoincService.firstStartClient(mContext)) {
 				mInstallerHandler.notifyError(InstallerService.BOINC_REINSTALL_ITEM_NAME, "",
-						mContext.getString(R.string.reinstallError,
-								mContext.getString(R.string.nativeClientFirstStartError)));
+								mContext.getString(R.string.nativeClientFirstStartError));
 		    	return;
 		    }
 			mInstallerHandler.notifyOperation(InstallerService.BOINC_REINSTALL_ITEM_NAME, "",
@@ -705,8 +711,7 @@ public class InstallationOps {
 			if (Logging.ERROR) Log.e(TAG, "on client install finishing:"+
 					ex.getClass().getCanonicalName()+":"+ex.getMessage());
 			mInstallerHandler.notifyError(InstallerService.BOINC_REINSTALL_ITEM_NAME, "",
-					mContext.getString(R.string.reinstallError,
-							mContext.getString(R.string.unexpectedError)));
+							mContext.getString(R.string.unexpectedError));
 		}
 	}
 }

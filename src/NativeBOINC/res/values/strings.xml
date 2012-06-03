@@ -80,6 +80,8 @@
 	
 	<string name="installedBinaries">Installed binaries</string>
 
+	<string name="boincClient">BOINC client</string>
+	
 	<!-- Units -->
 	<string name="unitKiB">KiB</string>
 	<string name="unitMiB">MiB</string>
@@ -322,17 +324,16 @@
 	<!-- dump boinc files -->
 	<string name="enterDumpDir">Enter dump directory</string>
 	
+	<string name="dumpFiles">Dump files</string>
 	<string name="dumpBoincBegin">Begin dumping BOINC files</string>
 	<string name="dumpBoincProgress">Dumping BOINC files</string>
 	<string name="dumpBoincFinish">Dumping BOINC files finished</string>
-	<string name="dumpBoincError">Error during dumping: %s</string>
 	<string name="dumpBoincWarn">Directory %s exists. During dumping will be deleted! Do you want really to continue dumping of BOINC files?</string>
 	
 	<!-- reinstall boinc -->
+	<string name="boincReinstall">BOINC Reinstall</string>
 	<string name="reinstallBegin">Begin reinstalling BOINC</string>
 	<string name="reinstallInProgress">Reinstalling BOINC</string>
-	<string name="reinstallError">Error during reinstalling: %s</string>
-	<string name="reinstallFinish">Reinstallation finished</string>
 	<string name="reinstallQuestion">Reinstallation removes whole BOINC directory (including projects). Do you really want to reinstall BOINC?</string>
 	<string name="waitingForShutdown">Waiting for shutdown</string>
 	

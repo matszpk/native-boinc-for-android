@@ -962,11 +962,11 @@ public class NativeBoincService extends Service implements MonitorListener,
 			break;
 		case ClientEvent.EVENT_RUN_BENCHMARK:
 			title = getString(R.string.eventBencharkRun);
-			mNotificationController.notifyClientEvent(title, title, false);
+			mNotificationController.notifyClientEvent(title, title, true);
 			break;
 		case ClientEvent.EVENT_FINISH_BENCHMARK:
 			title = getString(R.string.eventBencharkFinished);
-			mNotificationController.notifyClientEvent(title, title, false);
+			mNotificationController.notifyClientEvent(title, title, true);
 			break;
 		case ClientEvent.EVENT_SUSPEND_ALL_TASKS:
 			title = getString(R.string.eventSuspendAll);
@@ -1013,21 +1013,23 @@ public class NativeBoincService extends Service implements MonitorListener,
 
 	@Override
 	public boolean onOperationError(String distribName, String errorMessage) {
-		if (distribName == null || distribName.length() == 0) {
-			// is not distrib (updating project distrib list simply failed)
-			if (Logging.DEBUG) Log.d(TAG, "on operation failed");
-			synchronized (mPendingProjectAppsToInstall) {
-				mPendingProjectAppsToInstall.clear();
-			}
-			
-			boolean ifLast = false; 
-			synchronized (mInstalledProjectApps) {
-				ifLast = mInstalledProjectApps.isEmpty();
-			}
-			if (ifLast)
-				unboundInstallService();
+		if (distribName != null) {
+			if (distribName.equals(InstallerService.BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME)) {
+				// is not distrib (updating project distrib list simply failed)
+				if (Logging.DEBUG) Log.d(TAG, "on operation failed");
+				synchronized (mPendingProjectAppsToInstall) {
+					mPendingProjectAppsToInstall.clear();
+				}
+				
+				boolean ifLast = false; 
+				synchronized (mInstalledProjectApps) {
+					ifLast = mInstalledProjectApps.isEmpty();
+				}
+				if (ifLast)
+					unboundInstallService();
+			} else
+				finishProjectApplicationInstallation(distribName);
 		}
-		finishProjectApplicationInstallation(distribName);
 		// do not consume error data
 		return false;
 	}

@@ -80,6 +80,8 @@
 	
 	<string name="installedBinaries">Zainstalowane binaria</string>
 
+	<string name="boincClient">Klient BOINC</string>
+	
 	<!-- Units -->
 	<string name="unitKiB">KiB</string>
 	<string name="unitMiB">MiB</string>
@@ -322,17 +324,17 @@
 	<!-- dump boinc files -->
 	<string name="enterDumpDir">Wpisz katalog zrzutu</string>
 	
+	<string name="dumpFiles">Zrzut plików</string>
 	<string name="dumpBoincBegin">Rozpoczęcie zrzutu plików BOINC\'a</string>
 	<string name="dumpBoincProgress">Robienie zrzutu plików BOINC\'a</string>
 	<string name="dumpBoincFinish">Zrobiono zrzut plików BOINC\'a</string>
-	<string name="dumpBoincError">Błąd podczas zrzutu: %s</string>
 	<string name="dumpBoincWarn">Katalog %s istnieje. Podczas robienia zrzutu zostanie usunięty. Czy naprawdę chcesz kontynuować?</string>
 	
 	<!-- reinstall boinc -->
+	<string name="boincReinstall">Reinstalowanie BOINC\'a</string>
 	<string name="reinstallBegin">Rozpoczęcie reinstalacji BOINC\'a</string>
 	<string name="reinstallInProgress">Reinstalowanie BOINC\'a</string>
 	<string name="reinstallFinish">Reinstalacja zakończona</string>
-	<string name="reinstallError">Błąd podczas reinstalacji: %s</string>
 	<string name="reinstallQuestion">Reinstalacja usuwa cały katalog BOINC\'a (włącznie z projektami). Czy chcesz naprawdę zrobić reinstalację BOINC\'a?</string>
 	<string name="waitingForShutdown">Czekanie na wyłączenie</string>
 	

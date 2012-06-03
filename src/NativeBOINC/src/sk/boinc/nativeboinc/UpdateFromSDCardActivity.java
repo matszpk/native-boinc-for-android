@@ -24,6 +24,7 @@ import java.util.HashSet;
 
 import sk.boinc.nativeboinc.installer.ClientDistrib;
 import sk.boinc.nativeboinc.installer.InstallError;
+import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
 import sk.boinc.nativeboinc.util.FileUtils;
@@ -308,7 +309,8 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 
 	@Override
 	public boolean onOperationError(String distribName, String errorMessage) {
-		if (mUpdateListProgressState == ProgressState.IN_PROGRESS) {
+		if (InstallerService.isSimpleOperation(distribName) &&
+				mUpdateListProgressState == ProgressState.IN_PROGRESS) {
 			mUpdateListProgressState = ProgressState.FAILED;
 			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
 			return true;

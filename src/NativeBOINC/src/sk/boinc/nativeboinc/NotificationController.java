@@ -186,7 +186,7 @@ public class NotificationController {
 	}
 	
 	public synchronized void notifyInstallClientOperation(String description) {
-		String notifyText = InstallerService.BOINC_CLIENT_ITEM_NAME + ": " + description;
+		String notifyText = mAppContext.getString(R.string.boincClient) + ": " + description;
 		
 		DistribNotification clientNotification = getClientNotification(false);
 		
@@ -204,7 +204,7 @@ public class NotificationController {
 	}
 	
 	public synchronized void notifyInstallClientProgress(String description, int progress) {
-		String notifyText = InstallerService.BOINC_CLIENT_ITEM_NAME + ": " + description;
+		String notifyText = mAppContext.getString(R.string.boincClient) + ": " + description;
 		
 		DistribNotification clientNotification = getClientNotification(false);
 		
@@ -584,11 +584,11 @@ public class NotificationController {
 				ProgressItem.STATE_ERROR_OCCURRED);
 		
 		if (distribName.equals(InstallerService.BOINC_CLIENT_ITEM_NAME))
-			notifyInstallClientFinish(errorMessage);
+			notifyInstallClientFinish(mAppContext.getString(R.string.boincClient)+": "+errorMessage);
 		else if (distribName.equals(InstallerService.BOINC_DUMP_ITEM_NAME))
-			notifyDumpFilesFinish(errorMessage);
+			notifyDumpFilesFinish(mAppContext.getString(R.string.dumpFiles)+": "+errorMessage);
 		else if (distribName.equals(InstallerService.BOINC_REINSTALL_ITEM_NAME))
-			notifyReinstallFinish(errorMessage);
+			notifyReinstallFinish(mAppContext.getString(R.string.boincReinstall)+ ": "+errorMessage);
 		// ignore non distrib notifications
 		else if (distribName.length()!=0)
 			notifyInstallProjectAppsFinish(distribName, errorMessage);
@@ -601,10 +601,10 @@ public class NotificationController {
 			notifyInstallClientFinish(InstallerService.BOINC_CLIENT_ITEM_NAME + ": "+
 						mAppContext.getString(R.string.operationCancelled));
 		else if (distribName.equals(InstallerService.BOINC_DUMP_ITEM_NAME))
-			notifyDumpFilesFinish(InstallerService.BOINC_DUMP_ITEM_NAME+ ": "+
+			notifyDumpFilesFinish(mAppContext.getString(R.string.dumpFiles)+ ": "+
 						mAppContext.getString(R.string.operationCancelled));
 		else if (distribName.equals(InstallerService.BOINC_REINSTALL_ITEM_NAME))
-			notifyReinstallFinish(InstallerService.BOINC_REINSTALL_ITEM_NAME+ ": "+
+			notifyReinstallFinish(mAppContext.getString(R.string.boincReinstall)+ ": "+
 						mAppContext.getString(R.string.operationCancelled));
 		// ignore non distrib notifications
 		else if (distribName.length()!=0)

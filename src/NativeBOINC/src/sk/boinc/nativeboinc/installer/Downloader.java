@@ -64,15 +64,21 @@ public class Downloader {
 	private byte[] mPgpKeyContent = null;
 	
 	private Context mContext = null;
-	private InstallerService.ListenerHandler mListenerHandler;
+	private InstallerHandler mInstallerHandler = null;
 	
 	private static final int BUFFER_SIZE = 4096;
 	
 	private static final int NOTIFY_PERIOD = 400;
 	
-	public Downloader(Context context, InstallerService.ListenerHandler listenerHandler) {
+	public Downloader(Context context, InstallerHandler installerHandler) {
 		mContext = context;
-		mListenerHandler = listenerHandler;
+		mInstallerHandler = installerHandler;
+	}
+	
+	public void destroy() {
+		mInstallerHandler = null;
+		mContext = null;
+		mPgpKeyContent = null;
 	}
 	
 	public byte[] getPgpKeyContent() {
@@ -84,7 +90,8 @@ public class Downloader {
 		
 		Thread currentThread = Thread.currentThread();
 		
-		notifyOperation(distribName, projectUrl, mContext.getString(R.string.downloadPGPKey));
+		mInstallerHandler.notifyOperation(distribName, projectUrl,
+				mContext.getString(R.string.downloadPGPKey));
 		
 		BasicHttpParams params = new BasicHttpParams();
 		HttpConnectionParams.setConnectionTimeout(params, 7000);
@@ -166,7 +173,8 @@ public class Downloader {
 		}
 		
 		if (!isDownloaded) {
-			notifyError(distribName, projectUrl, mContext.getString(R.string.downloadPGPKeyError));
+			mInstallerHandler.notifyError(distribName, projectUrl,
+					mContext.getString(R.string.downloadPGPKeyError));
 			throw new InstallationException();
 		}
 	}
@@ -212,7 +220,8 @@ public class Downloader {
 		} catch(InterruptedIOException ex) {
 			return VERIFICATION_CANCELLED;
 		} catch(IOException ex) {
-			notifyError(distribName, projectUrl, mContext.getString(R.string.loadPGPKeyError));
+			mInstallerHandler.notifyError(distribName, projectUrl,
+					mContext.getString(R.string.loadPGPKeyError));
 			throw new InstallationException();
 		} finally {
 			try {
@@ -243,7 +252,7 @@ public class Downloader {
 		} catch(InterruptedIOException ex) {
 			return VERIFICATION_CANCELLED;
 		} catch(IOException ex) {
-			notifyError(distribName, projectUrl,
+			mInstallerHandler.notifyError(distribName, projectUrl,
 					mContext.getString(R.string.downloadSignatureError));
 			throw new InstallationException();
 		} finally {
@@ -258,7 +267,7 @@ public class Downloader {
 		
 		String opDesc = mContext.getString(R.string.verifySignature);
 		
-		notifyOperation(distribName, projectUrl, opDesc);
+		mInstallerHandler.notifyOperation(distribName, projectUrl, opDesc);
 		
 		/* verify file signature */
 		InputStream bIStream = new ByteArrayInputStream(signContent);
@@ -299,7 +308,7 @@ public class Downloader {
 	            if (withProgress && (readed & 8191) == 0) {
 	            	long newTime = System.currentTimeMillis(); 
 	            	if (newTime-time > NOTIFY_PERIOD) {
-	            		notifyProgress(distribName, projectUrl, opDesc,
+	            		mInstallerHandler.notifyProgress(distribName, projectUrl, opDesc,
 	            				(int)((double)readed*10000.0/(double)length));
 	            		time = newTime;
 	            	}
@@ -312,7 +321,8 @@ public class Downloader {
 	        }
 	        
 	        if (withProgress)
-	        	notifyProgress(distribName, projectUrl, opDesc, InstallerProgressListener.FINISH_PROGRESS);
+	        	mInstallerHandler.notifyProgress(distribName, projectUrl, opDesc,
+	        			InstallerProgressListener.FINISH_PROGRESS);
 	        
 	        if (signature.verify())
 	        	return VERIFIED_SUCCESFULLY;
@@ -323,7 +333,8 @@ public class Downloader {
 			return VERIFICATION_CANCELLED;
 		} catch (Exception ex) {
 			if (Logging.DEBUG) Log.d(TAG, "verif failed:"+ex.getMessage());
-			notifyError(distribName, projectUrl, mContext.getString(R.string.verifySignatureError));
+			mInstallerHandler.notifyError(distribName, projectUrl,
+					mContext.getString(R.string.verifySignatureError));
 			throw new InstallationException();
 		} finally {
 			try {
@@ -347,7 +358,7 @@ public class Downloader {
 		try {
 			URL url = new URL(urlString);
 			
-			notifyOperation(distribName, projectUrl, opDesc);
+			mInstallerHandler.notifyOperation(distribName, projectUrl, opDesc);
 			
 			if (!url.getProtocol().equals("ftp")) {
 				/* if http protocol */
@@ -378,7 +389,7 @@ public class Downloader {
 					if (length != -1 && withProgress) {
 						long newTime = System.currentTimeMillis();
 						if (newTime-currentTime > NOTIFY_PERIOD) {
-							notifyProgress(distribName, projectUrl, opDesc,
+							mInstallerHandler.notifyProgress(distribName, projectUrl, opDesc,
 									(int)((double)totalReaded*10000.0/(double)length));
 							currentTime = newTime;
 						}
@@ -393,7 +404,7 @@ public class Downloader {
 				
 				outStream.flush();
 				
-				notifyProgress(distribName, projectUrl, opDesc, 10000);
+				mInstallerHandler.notifyProgress(distribName, projectUrl, opDesc, 10000);
 			} else {
 				throw new UnsupportedOperationException("Unsupported operation");
 			}
@@ -401,7 +412,7 @@ public class Downloader {
 			return; // cancelled
 		} catch(IOException ex) {
 			mContext.deleteFile(outFilename);
-			notifyError(distribName, projectUrl, messageError);
+			mInstallerHandler.notifyError(distribName, projectUrl, messageError);
 			throw new InstallationException();
 		} finally {
 			try {
@@ -413,35 +424,5 @@ public class Downloader {
 					outStream.close();
 			} catch (IOException ex) { }
 		}
-	}
-	
-	private synchronized void notifyOperation(final String distribName, final String projectUrl,
-			final String opDesc) {
-		mListenerHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				mListenerHandler.onOperation(distribName, projectUrl, opDesc);
-			}
-		});
-	}
-	
-	private synchronized void notifyProgress(final String distribName, final String projectUrl,
-			final String opDesc, final int progress) {
-		mListenerHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				mListenerHandler.onOperationProgress(distribName, projectUrl, opDesc, progress);
-			}
-		});
-	}
-	
-	private synchronized void notifyError(final String distribName, final String projectUrl,
-			final String errorMessage) {
-		mListenerHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				mListenerHandler.onOperationError(distribName, projectUrl, errorMessage);
-			}
-		});
 	}
 }

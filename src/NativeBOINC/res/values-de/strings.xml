@@ -325,7 +325,6 @@
 	<string name="dumpBoincBegin">Beginne die BOINC Dateien zu kopieren</string>
 	<string name="dumpBoincProgress">Kopiere BOINC Dateien</string>
 	<string name="dumpBoincFinish">Kopieren der BOINC Dateien abgeschlossen</string>
-	<string name="dumpBoincError">Fehler beim kopieren: %s</string>
 	<string name="dumpBoincWarn">Ordner %s existiert. Während dem kopieren wird er gelöscht! Möchten Sie wirklich mit dem Kopieren der BOINC Dateien fortfahren?</string>
 	
 	<!-- reinstall boinc -->

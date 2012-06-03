@@ -28,6 +28,7 @@ import java.util.List;
 
 import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.NotificationController;
+import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.util.ProgressItem;
@@ -38,6 +39,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Resources;
 import android.os.Binder;
 import android.os.ConditionVariable;
 import android.os.Handler;
@@ -52,8 +54,27 @@ public class InstallerService extends Service {
 	private static final String TAG = "InstallerService";
 	
 	public static final String BOINC_CLIENT_ITEM_NAME = "BOINC client";
-	public static final String BOINC_DUMP_ITEM_NAME = "BOINC Dump Files";
-	public static final String BOINC_REINSTALL_ITEM_NAME = "BOINC Reinstall";
+	public static final String BOINC_DUMP_ITEM_NAME = ":::BOINC Dump Files";
+	public static final String BOINC_REINSTALL_ITEM_NAME = ":::BOINC Reinstall";
+	public static final String BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME = "::!cdist";
+	public static final String BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME = "::!pdist";
+	public static final String BOINC_IGNORE_ITEM_PREFIX = "::!"; // should be ignored by progress activity
+	
+	// determine wheter distrib is normal simple install operation
+	public static boolean isSimpleOperation(String distribName) {
+		return (distribName == null || distribName.length() == 0 ||
+				distribName.startsWith(BOINC_IGNORE_ITEM_PREFIX));
+	}
+	
+	public static String resolveItemName(Resources res, String name) {
+		if (name.equals(BOINC_CLIENT_ITEM_NAME))
+			return res.getString(R.string.boincClient);
+		else if (name.equals(BOINC_DUMP_ITEM_NAME))
+			return res.getString(R.string.dumpFiles);
+		else if (name.equals(BOINC_REINSTALL_ITEM_NAME))
+			return res.getString(R.string.boincReinstall);
+		return name;
+	}
 	
 	private InstallerThread mInstallerThread = null;
 	private InstallerHandler mInstallerHandler = null;
@@ -218,7 +239,8 @@ public class InstallerService extends Service {
 	public class ListenerHandler extends Handler {
 		
 		public void onOperation(String distribName, String projectUrl, String opDescription) {
-			mNotificationController.handleOnOperation(distribName, projectUrl, opDescription);
+			if (distribName != null && !distribName.startsWith(BOINC_IGNORE_ITEM_PREFIX))
+				mNotificationController.handleOnOperation(distribName, projectUrl, opDescription);
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners)
@@ -228,8 +250,9 @@ public class InstallerService extends Service {
 		
 		public void onOperationProgress(String distribName, String projectUrl,
 				String opDescription,int progress) {
-			mNotificationController.handleOnOperationProgress(distribName, projectUrl,
-					opDescription, progress);
+			if (distribName != null && !distribName.startsWith(BOINC_IGNORE_ITEM_PREFIX))
+				mNotificationController.handleOnOperationProgress(distribName, projectUrl,
+						opDescription, progress);
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners)
@@ -242,7 +265,8 @@ public class InstallerService extends Service {
 			if (mApp.isInstallerRun())
 				mApp.backToPreviousInstallerStage();
 			
-			mNotificationController.handleOnOperationError(distribName, projectUrl, errorMessage);
+			if (distribName != null && !distribName.startsWith(BOINC_IGNORE_ITEM_PREFIX))
+				mNotificationController.handleOnOperationError(distribName, projectUrl, errorMessage);
 			
 			boolean called = false;
 			
@@ -264,7 +288,8 @@ public class InstallerService extends Service {
 			if (mApp.isInstallerRun())
 				mApp.backToPreviousInstallerStage();
 			
-			mNotificationController.handleOnOperationCancel(distribName, projectUrl);
+			if (distribName != null && !distribName.startsWith(BOINC_IGNORE_ITEM_PREFIX))
+				mNotificationController.handleOnOperationCancel(distribName, projectUrl);
 						
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners)
@@ -282,7 +307,8 @@ public class InstallerService extends Service {
 			else if (installerStage == BoincManagerApplication.INSTALLER_PROJECT_INSTALLING_STAGE)
 				mApp.setInstallerStage(BoincManagerApplication.INSTALLER_FINISH_STAGE);
 		
-			mNotificationController.handleOnOperationFinish(distribName, projectUrl);
+			if (distribName != null && !distribName.startsWith(BOINC_IGNORE_ITEM_PREFIX))
+				mNotificationController.handleOnOperationFinish(distribName, projectUrl);
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners)

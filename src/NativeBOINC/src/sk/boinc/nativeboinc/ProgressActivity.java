@@ -109,18 +109,20 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 		final ProgressItem item = mCurrentProgress[position];
 		if (Logging.DEBUG) Log.d(TAG, "position:"+position+",name:"+item.name+"state:"+item.state);
 		
+		String itemName = InstallerService.resolveItemName(getResources(), item.name);
+		
 		switch(item.state) {
 		case ProgressItem.STATE_IN_PROGRESS:
-			tag.progressInfo.setText(item.name + ": " + item.opDesc);
+			tag.progressInfo.setText(itemName + ": " + item.opDesc);
 			break;
 		case ProgressItem.STATE_CANCELLED:
-			tag.progressInfo.setText(item.name + ": " + getString(R.string.operationCancelled));
+			tag.progressInfo.setText(itemName + ": " + getString(R.string.operationCancelled));
 			break;
 		case ProgressItem.STATE_ERROR_OCCURRED:
-			tag.progressInfo.setText(item.name + ": " + item.opDesc);
+			tag.progressInfo.setText(itemName + ": " + item.opDesc);
 			break;
 		case ProgressItem.STATE_FINISHED:
-			tag.progressInfo.setText(item.name + ": " + getString(R.string.operationFinished));
+			tag.progressInfo.setText(itemName + ": " + getString(R.string.operationFinished));
 			break;
 		}
 		
@@ -368,14 +370,28 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 			startActivity(new Intent(ProgressActivity.this, InstallFinishActivity.class));
 	}
 	
+	private static final String[] sItemNameOrder = {
+		InstallerService.BOINC_DUMP_ITEM_NAME,
+		InstallerService.BOINC_REINSTALL_ITEM_NAME,
+		InstallerService.BOINC_CLIENT_ITEM_NAME
+	};
+	
 	private Comparator<ProgressItem> mProgressCompatator = new Comparator<ProgressItem>() {
 		@Override
 		public int compare(ProgressItem p1, ProgressItem p2) {
-			/* boinc client should in first position */
-			if (p1.name.equals(InstallerService.BOINC_CLIENT_ITEM_NAME))
-				return -1;
-			if (p2.name.equals(InstallerService.BOINC_CLIENT_ITEM_NAME))
-				return 1;
+			int order1, order2;
+			for (order1 = 0; order1 < sItemNameOrder.length; order1++)
+				if (sItemNameOrder[order1].equals(p1.name))
+					break;
+			for (order2 = 0; order2 < sItemNameOrder.length; order2++)
+				if (sItemNameOrder[order2].equals(p2.name))
+					break;
+			
+			// determine order
+			if (order1 != sItemNameOrder.length || order2 != sItemNameOrder.length)
+				return Integer.signum(order1-order2);
+			
+			// if normal project names
 			return p1.name.compareTo(p2.name);
 		}
 	};
@@ -443,6 +459,9 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	
 	@Override
 	public void onOperation(String distribName, String opDescription) {
+		if (InstallerService.isSimpleOperation(distribName))
+			return;
+		
 		int position = getProgressItem(distribName);
 		if (position == -1)
 			return;
@@ -459,6 +478,9 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 
 	@Override
 	public void onOperationProgress(String distribName, String opDescription, int progressValue) {
+		if (InstallerService.isSimpleOperation(distribName))
+			return;
+		
 		int position = getProgressItem(distribName);
 		if (position == -1)
 			return;
@@ -475,6 +497,9 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 
 	@Override
 	public boolean onOperationError(String distribName, String errorMessage) {
+		if (InstallerService.isSimpleOperation(distribName))
+			return false;
+		
 		int position = getProgressItem(distribName);
 		if (position == -1)
 			return false;
@@ -492,6 +517,9 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	
 	@Override
 	public void onOperationCancel(String distribName) {
+		if (InstallerService.isSimpleOperation(distribName))
+			return;
+		
 		int position = getProgressItem(distribName);
 		if (position == -1)
 			return;
@@ -508,6 +536,9 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 
 	@Override
 	public void onOperationFinish(String distribName) {
+		if (InstallerService.isSimpleOperation(distribName))
+			return;
+		
 		if (Logging.DEBUG) Log.d(TAG, "On operation finish:"+distribName);
 		int position = getProgressItem(distribName);
 		if (position == -1)

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
 import sk.boinc.nativeboinc.installer.InstallError;
+import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
 import sk.boinc.nativeboinc.util.ProgressState;
@@ -323,7 +324,8 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 
 	@Override
 	public boolean onOperationError(String distribName, String errorMessage) {
-		if (mGetUpdateItemsProgressState == ProgressState.IN_PROGRESS) {
+		if (InstallerService.isSimpleOperation(distribName) &&
+				mGetUpdateItemsProgressState == ProgressState.IN_PROGRESS) {
 			mGetUpdateItemsProgressState = ProgressState.FAILED;
 			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
 			return true;

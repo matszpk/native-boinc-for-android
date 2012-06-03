@@ -32,6 +32,7 @@ import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
 import sk.boinc.nativeboinc.installer.InstallError;
 import sk.boinc.nativeboinc.installer.InstallerProgressListener;
+import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
 import sk.boinc.nativeboinc.util.ClientId;
@@ -547,10 +548,8 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	
 	@Override
 	public boolean onOperationError(String distribName, String errorMessage) {
-		if (distribName != null && distribName.length() != 0)
-			return false;
-		
-		if (mGetFromInstaller && mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
+		if (!InstallerService.isSimpleOperation(distribName) && mGetFromInstaller &&
+				mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
 			mDataDownloadProgressState = ProgressState.FAILED;
 			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
 			return true;

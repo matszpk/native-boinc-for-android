@@ -646,7 +646,7 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 
 	@Override
 	public boolean onOperationError(String distribName, String errorMessage) {
-		if (distribName == null || distribName.length() == 0) {
+		if (InstallerService.isSimpleOperation(distribName)) {
 			// if global install error
 			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
 			return true;

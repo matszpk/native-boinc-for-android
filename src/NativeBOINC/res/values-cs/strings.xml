@@ -325,7 +325,6 @@
    <string name="dumpBoincBegin">Zahajuji vypisování BOINC soborů</string>
    <string name="dumpBoincProgress">Vypisuji BOINC soubory</string>
    <string name="dumpBoincFinish">Výpis BOINC souborů dokončen</string>
-   <string name="dumpBoincError">Chyba během výpisu: %s</string>
    <string name="dumpBoincWarn">Adresář %s existuje. Během výpisu bude smazán! Chcete pokračovat ve výpisu BOINC souborů?</string>
 
    <!-- reinstall boinc -->

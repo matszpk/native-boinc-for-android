@@ -24,12 +24,10 @@ import hal.android.workarounds.FixedProgressDialog;
 import edu.berkeley.boinc.lite.AccountMgrInfo;
 
 import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
 import sk.boinc.nativeboinc.clientconnection.ModeInfo;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
-import sk.boinc.nativeboinc.clientconnection.PollError;
 import sk.boinc.nativeboinc.clientconnection.PollOp;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
@@ -312,7 +310,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		if (mConnectionManager == null)
 			return;
 		
-		boolean isError = mConnectionManager.handlePendingClientError(this);
+		boolean isError = mConnectionManager.handlePendingClientErrors(this);
 		// get error for account mgr operations 
 		isError |= mConnectionManager.handlePendingPollErrors(this, "");
 		if (mConnectedClient == null) {

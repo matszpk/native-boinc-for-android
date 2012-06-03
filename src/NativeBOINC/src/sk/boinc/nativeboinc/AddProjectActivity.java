@@ -23,9 +23,7 @@ package sk.boinc.nativeboinc;
 import hal.android.workarounds.FixedProgressDialog;
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.ProjectConfig;
-import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
-import sk.boinc.nativeboinc.clientconnection.PollError;
 import sk.boinc.nativeboinc.clientconnection.PollOp;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
@@ -291,7 +289,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
 		
 		if (mProjectConfigProgressState == ProgressState.IN_PROGRESS || mAddingProjectInProgress) {
-			boolean isError = mConnectionManager.handlePendingClientError(this);
+			boolean isError = mConnectionManager.handlePendingClientErrors(this);
 			isError |= mConnectionManager.handlePendingPollErrors(this, mProjectItem.getUrl());
 			
 			if (mConnectedClient == null) {

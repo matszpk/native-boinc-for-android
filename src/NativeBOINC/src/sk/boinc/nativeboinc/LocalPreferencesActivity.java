@@ -19,7 +19,6 @@
 
 package sk.boinc.nativeboinc;
 
-import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
@@ -294,7 +293,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
 		
 		if (mGlobalPrefsFetchProgress == ProgressState.IN_PROGRESS || mGlobalPrefsSavingInProgress) {
-			boolean isError = mConnectionManager.handlePendingClientError(this);
+			boolean isError = mConnectionManager.handlePendingClientErrors(this);
 			
 			if (mConnectedClient == null) {
 				clientDisconnected(); // if disconnected

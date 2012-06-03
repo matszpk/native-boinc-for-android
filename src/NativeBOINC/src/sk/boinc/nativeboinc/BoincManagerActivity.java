@@ -23,7 +23,6 @@ import hal.android.workarounds.FixedProgressDialog;
 
 import java.util.ArrayList;
 
-import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientUpdateNoticesReceiver;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
 import sk.boinc.nativeboinc.clientconnection.NoticeInfo;
@@ -465,7 +464,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		/* display error if pending */
 		if (mRunner != null && mConnectionManager != null) {
 			
-			boolean isError = mConnectionManager.handlePendingClientError(this);
+			boolean isError = mConnectionManager.handlePendingClientErrors(this);
 			isError |= mRunner.handlePendingErrorMessage(this);
 			
 			if (isError) // if error then do nothing

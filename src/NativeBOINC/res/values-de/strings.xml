@@ -80,6 +80,8 @@
 	
 	<string name="installedBinaries">Installierte Anwendungen</string>
 
+	<string name="boincClient">BOINC Client</string>
+	
 	<!-- Units -->
 	<string name="unitKiB">KiB</string>
 	<string name="unitMiB">MiB</string>
@@ -322,12 +324,15 @@
 	<!-- dump boinc files -->
 	<string name="enterDumpDir">Geben Sie den Kopie-Ordner an</string>
 	
+	<string name="dumpFiles">Dateien kopieren</string>
 	<string name="dumpBoincBegin">Beginne die BOINC Dateien zu kopieren</string>
 	<string name="dumpBoincProgress">Kopiere BOINC Dateien</string>
 	<string name="dumpBoincFinish">Kopieren der BOINC Dateien abgeschlossen</string>
-	<string name="dumpBoincWarn">Ordner %s existiert. Während dem kopieren wird er gelöscht! Möchten Sie wirklich mit dem Kopieren der BOINC Dateien fortfahren?</string>
+	<string name="dumpBoincWarn">Ordner %s existiert. Während dem Kopieren wird er gelöscht! Möchten Sie wirklich fortfahren die BOINC Dateien zu kopieren?</string>
 	
 	<!-- reinstall boinc -->
+	<string name="boincReinstall">BOINC Neuinstallation</string>
+    <string name="reinstallBegin">Starte Neuinstallation von BOINC</string>
 	<string name="reinstallInProgress">BOINC neu installieren</string>
 	<string name="reinstallFinish">Neuinstallation abgeschlossen</string>
 	<string name="reinstallQuestion">Neuinstallation entfernt den kompletten BOINC Ordnet (mit Projekten). Möchten Sie BOINC wirklich neu installieren?</string>
@@ -658,6 +663,13 @@
 	<string name="updateClientModeError">Ein Fehler ist während der Aktualisierung des Client-Modus aufgetreten</string>
 	<string name="boincOperationError">Ein Fehler ist während der BOINC Operation aufgetreten</string>
 	<string name="boincPollError">Ein Fehler ist während der BOINC Abfrageoperation aufgetreten</string>
+	
+	<string name="binSDCardDirReadError">Konnte SDCard Ordner nicht lesen</string>
+    <string name="getProjectsFromClientError">Konnte Projekte vom Client nicht abrufen</string>
+    <string name="badDataInClientDistrib">Client-Verteilung hat unvollständige Informationen!</string>
+    <string name="badDataInProjectDistribs">Projekt-Verteilung hat unvollständige Informationen!</string>
+    <string name="copyApplicationError">Konnte die Projektanwendungen nicht kopieren</string>
+     
 	
 	<string name="unexpectedError">Unerwarteter Fehler</string>
 	

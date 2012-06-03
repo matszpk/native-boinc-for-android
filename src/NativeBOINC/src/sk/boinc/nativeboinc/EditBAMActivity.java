@@ -22,8 +22,6 @@ package sk.boinc.nativeboinc;
 import edu.berkeley.boinc.lite.AccountMgrInfo;
 import hal.android.workarounds.FixedProgressDialog;
 import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientError;
-import sk.boinc.nativeboinc.clientconnection.PollError;
 import sk.boinc.nativeboinc.clientconnection.PollOp;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
@@ -156,7 +154,7 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 			setProgressBarIndeterminateVisibility(false);
 		
 		if (mAttachBAMInProgress) {
-			boolean isError = mConnectionManager.handlePendingClientError(this);
+			boolean isError = mConnectionManager.handlePendingClientErrors(this);
 			// get error for account mgr operations
 			isError |= mConnectionManager.handlePendingPollErrors(this, "");
 			if (mConnectedClient == null) {

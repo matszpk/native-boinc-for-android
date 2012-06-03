@@ -86,6 +86,9 @@ public class ClientBridge implements ClientRequestHandler {
 	private ClientError mPendingClientError = null;
 	private Object mPendingClientErrorSync = new Object(); // syncer
 	
+	private ClientError mPendingAutoRefreshClientError = null;
+	private Object mPendingAutoRefreshClientErrorSync = new Object(); // syncer
+	
 	private ArrayList<ProjectListEntry> mPendingAllProjectsList = null;
 	private Object mPendingAllProjectsListSync = new Object(); // syncer
 	
@@ -148,7 +151,7 @@ public class ClientBridge implements ClientRequestHandler {
 				observer.clientConnectionProgress(progress);
 		}
 		
-		public void notifyError(int errorNum, String errorMessage) {
+		public void notifyError(boolean autoRefresh, int errorNum, String errorMessage) {
 			boolean called = false;
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -156,12 +159,20 @@ public class ClientBridge implements ClientRequestHandler {
 					called = true;
 			}
 			
-			synchronized(mPendingClientErrorSync) {
-				if (!called) /* set up pending if not already handled */
-					mPendingClientError = new ClientError(errorNum, errorMessage);
-				else	// if error already handled 
-					mPendingClientError = null;
-			}
+			if (!autoRefresh) // if not autorefeshed operation
+				synchronized(mPendingClientErrorSync) {
+					if (!called) /* set up pending if not already handled */
+						mPendingClientError = new ClientError(errorNum, errorMessage);
+					else	// if error already handled 
+						mPendingClientError = null;
+				}
+			else // use different pending error handling channel
+				synchronized(mPendingAutoRefreshClientErrorSync) {
+					if (!called) /* set up pending if not already handled */
+						mPendingAutoRefreshClientError = new ClientError(errorNum, errorMessage);
+					else	// if error already handled 
+						mPendingAutoRefreshClientError = null;
+				}
 		}
 		
 		public void notifyPollError(int errorNum, int operation, String errorMessage, String param) {
@@ -566,7 +577,7 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public void updateClientMode() {
 		if (mRemoteClient == null) return; // not connected
-		clearPendingClientError();
+		clearPendingAutoRefreshClientError();
 		mWorker.updateClientMode();
 	}
 
@@ -596,7 +607,7 @@ public class ClientBridge implements ClientRequestHandler {
 		synchronized(mPendingProjectsSync) {
 			mPendingProjects = null;
 		}
-		clearPendingClientError();
+		clearPendingAutoRefreshClientError();
 		mWorker.updateProjects();
 	}
 	
@@ -616,7 +627,7 @@ public class ClientBridge implements ClientRequestHandler {
 		synchronized(mPendingTasksSync) {
 			mPendingTasks = null;
 		}
-		clearPendingClientError();
+		clearPendingAutoRefreshClientError();
 		mWorker.updateTasks();
 	}
 	
@@ -636,7 +647,7 @@ public class ClientBridge implements ClientRequestHandler {
 		synchronized(mPendingTransfersSync) {
 			mPendingTransfers = null;
 		}
-		clearPendingClientError();
+		clearPendingAutoRefreshClientError();
 		mWorker.updateTransfers();
 	}
 	
@@ -656,7 +667,7 @@ public class ClientBridge implements ClientRequestHandler {
 		synchronized(mPendingMessagesSync) {
 			mPendingMessages = null;
 		}
-		clearPendingClientError();
+		clearPendingAutoRefreshClientError();
 		mWorker.updateMessages();
 	}
 	
@@ -675,7 +686,7 @@ public class ClientBridge implements ClientRequestHandler {
 		synchronized(mPendingMessagesSync) {
 			mPendingMessages = null;
 		}
-		clearPendingClientError();
+		clearPendingAutoRefreshClientError();
 		mWorker.updateNotices();
 	}
 	
@@ -834,27 +845,44 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 	
 	@Override
-	public boolean handlePendingClientError(ClientReceiver receiver) {
+	public boolean handlePendingClientErrors(ClientReceiver receiver) {
 		if (mRemoteClient == null)
 			return false;
 		
+		boolean handled = false;
 		synchronized(mPendingClientErrorSync) {
 			ClientError clientError = mPendingClientError;
 			
 			if (clientError == null)
 				return false;
 			
-			if (receiver.clientError(clientError.errorNum, clientError.message)) {
+			if (clientError != null && receiver.clientError(clientError.errorNum, clientError.message)) {
 				mPendingClientError = null;
-				return true;
+				handled = true;
 			}
-			return false;
 		}
+		
+		synchronized(mPendingAutoRefreshClientErrorSync) {
+			ClientError clientError = mPendingAutoRefreshClientError;
+			
+			if (clientError != null && receiver.clientError(clientError.errorNum, clientError.message)) {
+				mPendingAutoRefreshClientError = null;
+				handled = true;
+			}
+		}
+		
+		return handled;
 	}
 	
 	private void clearPendingClientError() {
 		synchronized (mPendingClientErrorSync) {
 			mPendingClientError = null;
+		}
+	}
+	
+	private void clearPendingAutoRefreshClientError() {
+		synchronized (mPendingAutoRefreshClientErrorSync) {
+			mPendingAutoRefreshClientError = null;
 		}
 	}
 	

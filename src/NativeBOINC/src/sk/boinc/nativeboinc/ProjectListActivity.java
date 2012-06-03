@@ -26,11 +26,9 @@ import java.util.Comparator;
 import edu.berkeley.boinc.lite.ProjectListEntry;
 
 import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
-import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
-import sk.boinc.nativeboinc.installer.InstallError;
 import sk.boinc.nativeboinc.installer.InstallerProgressListener;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
@@ -381,7 +379,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			
 			setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
 			
-			if (mConnectionManager.handlePendingClientError(this))
+			if (mConnectionManager.handlePendingClientErrors(this))
 				return;
 			
 			if (mConnectedClient == null)

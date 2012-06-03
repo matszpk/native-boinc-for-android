@@ -328,7 +328,7 @@
 	<string name="dumpBoincBegin">Begin dumping BOINC files</string>
 	<string name="dumpBoincProgress">Dumping BOINC files</string>
 	<string name="dumpBoincFinish">Dumping BOINC files finished</string>
-	<string name="dumpBoincWarn">Directory %s exists. During dumping will be deleted! Do you want really to continue dumping of BOINC files?</string>
+	<string name="dumpBoincWarn">Directory %s exists. During dumping will be deleted! Do you really want to continue dumping of BOINC files?</string>
 	
 	<!-- reinstall boinc -->
 	<string name="boincReinstall">BOINC Reinstall</string>

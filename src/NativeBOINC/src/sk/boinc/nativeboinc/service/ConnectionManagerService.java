@@ -556,9 +556,9 @@ public class ConnectionManagerService extends Service implements
 	}
 	
 	@Override
-	public boolean handlePendingClientError(ClientReceiver receiver) {
+	public boolean handlePendingClientErrors(ClientReceiver receiver) {
 		if (mClientBridge != null) {
-			return mClientBridge.handlePendingClientError(receiver);
+			return mClientBridge.handlePendingClientErrors(receiver);
 		}
 		return false;
 	}

@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import sk.boinc.nativeboinc.installer.ClientDistrib;
-import sk.boinc.nativeboinc.installer.InstallError;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;

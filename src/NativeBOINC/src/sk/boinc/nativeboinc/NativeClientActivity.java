@@ -22,7 +22,6 @@ import java.io.IOException;
 
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.AbstractInstallerListener;
-import sk.boinc.nativeboinc.installer.InstallError;
 import sk.boinc.nativeboinc.installer.InstallationOps;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.nativeclient.AbstractNativeBoincListener;

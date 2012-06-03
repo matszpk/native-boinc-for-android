@@ -190,15 +190,21 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 		}
 		
 		if (mRunner != null && !mConnectionFailed) {
+			if (mRunner.handlePendingErrorMessage(this))
+				return;
+			
 			if (!mRunner.isRun()) {
 				setProgressBarIndeterminateVisibility(true);
 				mRunner.startClient(false);
-			} else if (mConnectionManager != null)	// now try to connect
+			} else if (mConnectionManager != null) 	// now try to connect
 				connectWithNativeClient();
 		}
 	}
 	
 	private void connectWithNativeClient() {
+		if (mConnectionManager.handlePendingClientErrors(this))
+			return;
+		
 		HostListDbAdapter dbAdapter = null;
 		try {
 			dbAdapter = new HostListDbAdapter(this);
@@ -432,7 +438,6 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 
 	@Override
 	public void onClientIsWorking(boolean isWorking) {
-		// TODO Auto-generated method stub
 		
 	}
 

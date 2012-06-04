@@ -286,6 +286,7 @@ public class InstallerService extends Service {
 
 		public void onOperationError(int channelId, String distribName, String projectUrl,
 				String errorMessage) {
+			if (Logging.DEBUG) Log.d(TAG, "onError: "+channelId+","+distribName+","+errorMessage);
 			PendingSimpleChannel channel = mPendingChannels[channelId];
 			
 			if (!isSimpleOperation(distribName) && channelId == DEFAULT_CHANNEL_ID) {
@@ -319,6 +320,7 @@ public class InstallerService extends Service {
 		}
 		
 		public void onOperationCancel(int channelId, String distribName, String projectUrl) {
+			if (Logging.DEBUG) Log.d(TAG, "onCancel: "+channelId+","+distribName);
 			
 			if (!isSimpleOperation(distribName) && channelId == DEFAULT_CHANNEL_ID) {
 				// if installer operation (with progress)
@@ -356,6 +358,7 @@ public class InstallerService extends Service {
 		}
 		
 		public void currentProjectDistribList(int channelId, ArrayList<ProjectDistrib> projectDistribs) {
+			if (Logging.DEBUG) Log.d(TAG, "onProjectDistribs: "+channelId);
 			PendingSimpleChannel channel = mPendingChannels[channelId];
 			
 			synchronized(channel.newProjectDistribsSync) {
@@ -370,6 +373,7 @@ public class InstallerService extends Service {
 		}
 		
 		public void currentClientDistrib(int channelId, ClientDistrib clientDistrib) {
+			if (Logging.DEBUG) Log.d(TAG, "onClientDistrib: "+channelId);
 			PendingSimpleChannel channel = mPendingChannels[channelId];
 			
 			synchronized(channel.clientDistribSync) {

@@ -67,8 +67,8 @@ public class NativeBoincWorkerHandler extends Handler {
 	}
 	
 	public void destroy() {
-		mListenerHandler = null;
 		mRpcClient = null;
+		mListenerHandler = null;
 		mContext = null;
 	}
 	
@@ -169,10 +169,9 @@ public class NativeBoincWorkerHandler extends Handler {
 	public void getTasks(NativeBoincTasksListener callback) {
 		if (Logging.DEBUG) Log.d(TAG, "Get results from native client");
 		
-		if (mRpcClient == null) {
-			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError));
+		if (mRpcClient == null)
 			return;
-		}
+		
 		ArrayList<Result> results = mRpcClient.getResults();
 		if (results == null) {
 			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError));
@@ -194,10 +193,9 @@ public class NativeBoincWorkerHandler extends Handler {
 	public void getProjects(NativeBoincProjectsListener callback) {
 		if (Logging.DEBUG) Log.d(TAG, "Get projects from native client");
 		
-		if (mRpcClient == null) {
-			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientProjectsError));
+		if (mRpcClient == null)
 			return;
-		}
+		
 		ArrayList<Project> projects = mRpcClient.getProjectStatus();
 		if (projects == null) {
 			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientProjectsError));

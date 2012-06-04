@@ -21,7 +21,9 @@ package sk.boinc.nativeboinc.nativeclient;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import sk.boinc.nativeboinc.BoincManagerActivity;
 import sk.boinc.nativeboinc.BoincManagerApplication;
@@ -911,7 +913,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 	/**
 	 * contains project urls
 	 */
-	private ArrayList<String> mPendingProjectAppsToInstall = new ArrayList<String>();
+	private LinkedList<String> mPendingProjectAppsToInstall = new LinkedList<String>();
 	/**
 	 * contains project names (not projectUrls)
 	 */
@@ -950,6 +952,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 	
 	private boolean mInstallerInBounding = false;
 	private boolean mIfProjectDistribsListUpdated = false;
+	private AtomicBoolean mProjectDistribsListUpdating = new AtomicBoolean(false);
 	
 	/**
 	 * real project installtion routine
@@ -967,7 +970,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 					mPendingProjectAppsToInstall.add(projectUrl);
 				}
 				// try to update project list (with own channel id)
-				mInstaller.updateProjectDistribList(NATIVEBOINC_ID);
+				if (mProjectDistribsListUpdating.compareAndSet(false, true)) {
+					if (Logging.DEBUG) Log.d(TAG, "trying update project distribs");
+					mInstaller.updateProjectDistribList(NATIVEBOINC_ID);
+				}
 			} else {
 				if (Logging.DEBUG) Log.d(TAG, "again not found. to finish");
 				// simply finish task
@@ -1040,13 +1046,18 @@ public class NativeBoincService extends Service implements MonitorListener,
 			ifLast = mInstalledProjectApps.isEmpty();
 			if (Logging.DEBUG) Log.d(TAG, "is last:"+ifLast);
 		}
+		boolean pendingIsEmpty = false;
+		synchronized(mPendingProjectAppsToInstall) {
+			pendingIsEmpty = mPendingProjectAppsToInstall.isEmpty();
+		}
 
-		if (ifLast)
+		if (ifLast && pendingIsEmpty)
 			unboundInstallService();
 	}
 	
 	private void unboundInstallService() {
 		mIfProjectDistribsListUpdated = false;	// reset this indicator
+		mProjectDistribsListUpdating.set(false);
 		/* do unbound installer service */
 		Log.d(TAG, "Unbound installer service");
 		unbindService(mInstallerConn);
@@ -1065,8 +1076,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 		// do nothing
 	}
 
-	@Override
-	public boolean onOperationError(String distribName, String errorMessage) {
+	private void onOperationErrorOrCancel(String distribName) {
+		mProjectDistribsListUpdating.set(false);
 		if (distribName != null) {
 			// if error from project distribs update
 			if (distribName.equals(InstallerService.BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME)) {
@@ -1082,16 +1093,21 @@ public class NativeBoincService extends Service implements MonitorListener,
 				}
 				if (ifLast)
 					unboundInstallService();
-			} else if (distribName.length() != 0)
+			} else if (distribName.length() != 0) // if project name
 				finishProjectApplicationInstallation(distribName);
 		}
+	}
+	
+	@Override
+	public boolean onOperationError(String distribName, String errorMessage) {
+		onOperationErrorOrCancel(distribName);
 		// do not consume error data
 		return false;
 	}
 
 	@Override
 	public void onOperationCancel(String distribName) {
-		finishProjectApplicationInstallation(distribName);
+		onOperationErrorOrCancel(distribName);
 	}
 
 	@Override
@@ -1103,14 +1119,17 @@ public class NativeBoincService extends Service implements MonitorListener,
 	public void currentProjectDistribList(ArrayList<ProjectDistrib> projectDistribs) {
 		if (Logging.DEBUG) Log.d(TAG, "on currentProjectDistrib"); 
 		mIfProjectDistribsListUpdated = true;
+		mProjectDistribsListUpdating.set(false);
 		// try again
-		synchronized(mPendingProjectAppsToInstall) {
-			String[] toInstall = mPendingProjectAppsToInstall.toArray(new String[0]);
-			mPendingProjectAppsToInstall.clear();
-			for (String projectUrl: toInstall) {
-				if (Logging.DEBUG) Log.d(TAG, "after updating:"+projectUrl);
-				installProjectApplication(projectUrl);
+		String projectUrl = null;
+		while (true) {
+			synchronized(this) {
+				projectUrl = mPendingProjectAppsToInstall.poll();
 			}
+			if (projectUrl == null) // if end
+				break;
+			if (Logging.DEBUG) Log.d(TAG, "after updating:"+projectUrl);
+			installProjectApplication(projectUrl);
 		}
 	}
 

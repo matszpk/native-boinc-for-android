@@ -632,7 +632,6 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 
 	@Override
 	public void clientConnected(VersionInfo clientVersion) {
-		setProgressBarIndeterminateVisibility(false);
 		mConnectedClient = mConnectionManager.getClientId();
 		refreshClientName();
 		if (mConnectedClient != null) {
@@ -684,7 +683,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	
 	@Override
 	public boolean onAfterAccountMgrRPC() {
-		dismissProgressDialogs();
+		dismissBAMProgressDialog();
 		mSyncingBAMInProgress = false;
 		return true;
 	}
@@ -692,7 +691,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	@Override
 	public boolean onPollError(int errorNum, int operation, String errorMessage, String param) {
 		setProgressBarIndeterminateVisibility(false);
-		dismissProgressDialogs();
+		dismissBAMProgressDialog();
 		mDoGetBAMInfo = false;
 		mSyncingBAMInProgress = false;
 		StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
@@ -716,6 +715,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		if (Logging.DEBUG) Log.d(TAG, "Client run/network mode info updated, refreshing view");
 		mClientMode = modeInfo;
 		refreshClientMode();
+		dismissClientProgressDialog();
 		return mPeriodicModeRetrievalAllowed;
 	}
 
@@ -724,7 +724,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		if (Logging.DEBUG) Log.d(TAG, "Host info received, displaying");
 		mDoUpdateHostInfo = false;
 		mHostInfo = hostInfo;
-		dismissProgressDialogs();
+		dismissClientProgressDialog();
 		if (mHostInfo != null) {
 			showDialog(DIALOG_HOST_INFO);
 		}
@@ -843,15 +843,24 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		}
 	}
 
-	private void dismissProgressDialogs() {
+	private void dismissClientProgressDialog() {
 		if (mConnectProgressIndicator != -1) {
 			dismissDialog(DIALOG_RETRIEVAL_PROGRESS);
 			mConnectProgressIndicator = -1;
 		}
+	}
+	
+	private void dismissBAMProgressDialog() {
 		if (mSyncingBAMInProgress)
 			dismissDialog(DIALOG_ATTACH_BAM_PROGRESS);
 	}
-
+	
+	private void dismissProgressDialogs() {
+		dismissClientProgressDialog();
+		dismissBAMProgressDialog();
+	}
+	
+	
 	private void boincConnect() {
 		if (mConnectionManager == null)
 			return;

@@ -309,7 +309,8 @@ public class InstallerService extends Service {
 			// enqueue only errors from simple operations
 			if (isSimpleOperation(distribName))
 				synchronized(channel.installErrorSync) {
-					if (Logging.DEBUG) Log.d(TAG, "Is PendingInstallError set: "+ (!called));
+					if (Logging.DEBUG) Log.d(TAG, "Is PendingInstallError set: "+ (!called)+
+							", channel: "+channelId);
 					if (!called) /* set up pending if not already handled */
 						channel.installError = new InstallError(distribName, projectUrl, errorMessage);
 					else // if already handled
@@ -473,7 +474,8 @@ public class InstallerService extends Service {
 				return false;
 			InstallError installError = channel.installError;
 			if (listener.onOperationError(installError.distribName, installError.errorMessage)) {
-				if (Logging.DEBUG) Log.d(TAG, "PendingInstallError is handled");
+				if (Logging.DEBUG) Log.d(TAG, "PendingInstallError is handled, channel: "+
+							listener.getInstallerChannelId());
 				channel.installError = null;
 				return true;
 			}

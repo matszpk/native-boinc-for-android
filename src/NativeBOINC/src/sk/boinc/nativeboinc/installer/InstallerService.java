@@ -243,7 +243,6 @@ public class InstallerService extends Service {
 	@Override
 	public void onDestroy() {
 		if (Logging.DEBUG) Log.d(TAG, "onDestroy");
-		mInstallerHandler.destroy();
 		doUnbindRunnerService();
 		stopInstaller();
 		mInstallerHandler = null;
@@ -452,10 +451,15 @@ public class InstallerService extends Service {
 	}
 	
 	public void stopInstaller() {
+		mInstallerHandler.cancelSimpleOperationAlways(mInstallerThread);
 		mInstallerHandler.cancelAllProgressOperations();
 		mInstallerThread.stopThread();
 		mInstallerThread = null;
 		mListeners.clear();
+		try {
+			Thread.sleep(200);
+		} catch(InterruptedException ex) { }
+		mInstallerHandler.destroy();
 		mListenerHandler = null;
 	}
 	
@@ -618,12 +622,16 @@ public class InstallerService extends Service {
 		mInstallerHandler.cancelReinstallation();
 	}
 	
-	public void cancelSimpleOperation() {
-		mInstallerHandler.cancelOperation(DEFAULT_CHANNEL_ID, mInstallerThread);
+	public void cancelSimpleOperation() { // cancel in default channel
+		mInstallerHandler.cancelSimpleOperation(DEFAULT_CHANNEL_ID, mInstallerThread);
 	}
 	
 	public void cancelSimpleOperation(int channelId) {
-		mInstallerHandler.cancelOperation(channelId, mInstallerThread);
+		mInstallerHandler.cancelSimpleOperation(channelId, mInstallerThread);
+	}
+	
+	public void cancelSimpleOperationAlways() { // used by destroy
+		mInstallerHandler.cancelSimpleOperationAlways(mInstallerThread);
 	}
 	
 	/**

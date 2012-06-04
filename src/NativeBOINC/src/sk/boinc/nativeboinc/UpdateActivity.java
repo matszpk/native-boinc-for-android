@@ -213,6 +213,8 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 		mConfirmButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if (mInstaller == null)
+					return;
 				// runs update/installation
 				ArrayList<UpdateItem> selectedUpdateItems = new ArrayList<UpdateItem>();
 				for (UpdateItem item: mUpdateItems)

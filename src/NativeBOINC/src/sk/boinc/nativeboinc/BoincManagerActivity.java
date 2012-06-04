@@ -702,7 +702,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		case R.id.menuStartUp: {
 			mConnectClientAfterStart = true;
 			showDialog(DIALOG_START_PROGRESS);
-			mRunner.startClient(false);
+			if (mRunner != null)
+				mRunner.startClient(false);
 			return true;
 		}
 		case R.id.menuShutdown:
@@ -1155,7 +1156,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	}
 
 	private void boincDisconnect() {
-		mConnectionManager.disconnect();
+		if (mConnectionManager != null)
+			mConnectionManager.disconnect();
 	}
 
 	private void connectOrReconnect() {

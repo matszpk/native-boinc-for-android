@@ -1475,9 +1475,15 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mBoincReinstaller = null;
 	}
 	
-	public synchronized void cancelOperation(int channelId, Thread workingThread) {
+	public synchronized void cancelSimpleOperation(int channelId, Thread workingThread) {
 		if (mCurrentChannelId != channelId)
 			return; // do nothing if not same channel
+		if (isWorking()) {
+			workingThread.interrupt();
+		}
+	}
+	
+	public synchronized void cancelSimpleOperationAlways(Thread workingThread) {
 		if (isWorking()) {
 			workingThread.interrupt();
 		}

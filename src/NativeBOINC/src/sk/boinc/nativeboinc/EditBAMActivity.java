@@ -140,6 +140,8 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 	private void doAttachToBAM() {
 		if (!isFormValid()) // if not valid
 			return;
+		if (mConnectionManager == null)
+			return;
 		
 		showDialog(DIALOG_CHANGE_BAM_PROGRESS);
 		mAttachBAMInProgress = true;

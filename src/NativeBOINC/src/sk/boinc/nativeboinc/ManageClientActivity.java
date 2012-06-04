@@ -853,6 +853,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	}
 
 	private void boincConnect() {
+		if (mConnectionManager == null)
+			return;
 		try {
 			mClientMode = null;
 			refreshClientModePending();
@@ -866,7 +868,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	}
 
 	private void boincDisconnect() {
-		mConnectionManager.disconnect();
+		if (mConnectionManager != null)
+			mConnectionManager.disconnect();
 	}
 
 	private void connectOrReconnect() {

@@ -103,8 +103,10 @@ public class ShutdownDialogActivity extends Activity {
 	    		.setPositiveButton(R.string.shutdown,
 	    			new DialogInterface.OnClickListener() {
 	    				public void onClick(DialogInterface dialog, int whichButton) {
-	    					mRunner.shutdownClient();
-	    					ShutdownDialogActivity.this.finish();
+	    					if (mRunner != null) {
+		    					mRunner.shutdownClient();
+		    					ShutdownDialogActivity.this.finish();
+	    					}
 	    				}
 	    			})
 	    		.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

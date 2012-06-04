@@ -219,6 +219,9 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	}
 
 	private void installClient() {
+		if (mInstaller == null)
+			return;
+		
 		mApp.setInstallerStage(BoincManagerApplication.INSTALLER_CLIENT_INSTALLING_STAGE);
 		mInstaller.installClientAutomatically();
 		finish();

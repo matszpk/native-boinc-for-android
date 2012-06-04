@@ -214,6 +214,8 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 		mConfirmButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if (mInstaller == null)
+					return;
 				// runs update/installation
 				mInstaller.updateDistribsFromSDCard(mUpdateDirPath, mSelectedItems.toArray(new String[0]));
 				finish();

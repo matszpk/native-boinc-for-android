@@ -200,6 +200,9 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 			
 			@Override
 			public void onClick(View v) {
+				if (mConnectionManager == null)
+					return;
+				
 				mGlobalPrefsSavingInProgress = true;
 				mConnectionManager.setGlobalPrefsOverride(NativeBoincUtils.INITIAL_BOINC_CONFIG);
 			}
@@ -577,6 +580,9 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	}
 
 	private void doApplyPreferences() {
+		if (mConnectionManager == null)
+			return;
+		
 		GlobalPreferences globalPrefs = new GlobalPreferences();
 		
 		try {

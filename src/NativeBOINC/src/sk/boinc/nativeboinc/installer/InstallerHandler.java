@@ -109,9 +109,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	private ResourcesLocker mResourcesLocker = null;
 	
 	/**
-	 * current channelId
+	 * current channelId (default is unset: -1)
 	 */
-	public int mCurrentSimpleChannelId = InstallerService.DEFAULT_CHANNEL_ID;
+	public int mCurrentChannelId = -1;
 	
 	/**
 	 * abstract class for workers
@@ -197,9 +197,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	/**
 	 * @return true if success
 	 **/
-	public boolean updateClientDistrib(int channelId, boolean notifyResult) {
+	public boolean updateClientDistrib(int channelId) {
 		synchronized (this) {
-			mCurrentSimpleChannelId = channelId;
+			mCurrentChannelId = channelId;
 			mHandlerIsWorking = true;
 			notifyChangeOfIsWorking();
 		}
@@ -210,10 +210,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			if (mClientDistrib == null)
 				return false;
 			
-			if (notifyResult)
-				notifyClientDistrib(channelId, mClientDistrib);
+			notifyClientDistrib(channelId, mClientDistrib);
 		} finally {
 			synchronized (this) {
+				mCurrentChannelId = -1; // unset channel id
 				mHandlerIsWorking = false;
 				notifyChangeOfIsWorking();
 			}
@@ -1392,9 +1392,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	/**
 	 * @return true if success
 	 */
-	public boolean updateProjectDistribList(int channelId, boolean notifyResult) {
+	public boolean updateProjectDistribList(int channelId) {
 		synchronized(this) {
-			mCurrentSimpleChannelId = channelId;
+			mCurrentChannelId = channelId;
 			mHandlerIsWorking = true;
 			notifyChangeOfIsWorking();
 		}
@@ -1404,12 +1404,12 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			
 			if (projectDistribs != null) {
 				mProjectDistribs = projectDistribs;
-				if (notifyResult)
-					notifyProjectDistribs(channelId, mProjectDistribs);
+				notifyProjectDistribs(channelId, mProjectDistribs);
 			}
 		} finally {
 			// hanbdler doesnt working currently
 			synchronized(this) {
+				mCurrentChannelId = -1; // unset channel id
 				mHandlerIsWorking = false;
 				notifyChangeOfIsWorking();
 			}
@@ -1422,7 +1422,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mDistribManager.synchronizeWithProjectList(mInstallerService);
 	}
 	
-	public synchronized void cancelAll() {
+	public synchronized void cancelAllProgressOperations() {
 		cancelClientInstallation();
 		cancelReinstallation();
 		cancelDumpFiles();
@@ -1475,7 +1475,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mBoincReinstaller = null;
 	}
 	
-	public synchronized void cancelOperation(Thread workingThread) {
+	public synchronized void cancelOperation(int channelId, Thread workingThread) {
+		if (mCurrentChannelId != channelId)
+			return; // do nothing if not same channel
 		if (isWorking()) {
 			workingThread.interrupt();
 		}
@@ -1510,7 +1512,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	 */
 	public void getBinariesToUpdateOrInstall(int channelId) {
 		synchronized(this) {
-			mCurrentSimpleChannelId = channelId;
+			mCurrentChannelId = channelId;
 			mHandlerIsWorking = true;
 			notifyChangeOfIsWorking();
 		}
@@ -1525,20 +1527,21 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				attachedProjectUrls[i] = mProjectDescs[i].masterUrl;
 		}
 		
-		/* update client and project list */
-		if (!updateClientDistrib(channelId, false))
-			return;
-		
-		if (!updateProjectDistribList(channelId, false))
-			return;
-		
-		// re-set working state
-		synchronized(this) {
-			mHandlerIsWorking = true;
-	        notifyChangeOfIsWorking();
-		}
-			
 		try {
+			/* update client and project list */
+			ClientDistrib clientDistrib = mInstallOps.updateClientDistrib(channelId);
+			if (clientDistrib != null)
+				mClientDistrib = clientDistrib;
+			else // fail
+				return;
+			
+			ArrayList<ProjectDistrib> projectDistribs =
+					mInstallOps.updateProjectDistribList(channelId, mProjectDistribs);
+			if (projectDistribs != null)
+				mProjectDistribs = projectDistribs;
+			else // fail
+				return;
+			
 			/* client binary */
 			UpdateItem[] output = mInstallOps.getBinariesToUpdateOrInstall(mClientDistrib, mProjectDistribs,
 					attachedProjectUrls);
@@ -1550,6 +1553,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			notifyError("", "", mInstallerService.getString(R.string.unexpectedError));
 		} finally {
 			synchronized(this) {
+				mCurrentChannelId = -1;
 				mHandlerIsWorking = false;
 				notifyChangeOfIsWorking();
 			}
@@ -1561,7 +1565,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	 */
 	public void getBinariesToUpdateFromSDCard(int channelId, String path) {
 		synchronized (this) {
-			mCurrentSimpleChannelId = channelId;
+			mCurrentChannelId = channelId;
 			mHandlerIsWorking = true;
 			notifyChangeOfIsWorking();
 		}
@@ -1579,6 +1583,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				notifyBinariesToUpdateFromSDCard(channelId, output);
 		} finally {
 			synchronized(this) {
+				mCurrentChannelId = -1;
 				mHandlerIsWorking = false;
 				notifyChangeOfIsWorking();
 			}

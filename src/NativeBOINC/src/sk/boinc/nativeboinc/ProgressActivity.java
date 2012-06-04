@@ -252,7 +252,7 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 			@Override
 			public void onClick(View v) {
 				if (mInstaller != null)
-					mInstaller.cancelAll();
+					mInstaller.cancelAllProgressOperations();
 			}
 		});
 		

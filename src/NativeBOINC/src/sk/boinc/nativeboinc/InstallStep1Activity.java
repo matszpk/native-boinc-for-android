@@ -134,7 +134,7 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	@Override
 	public void onBackPressed() {
 		if (mInstaller != null)
-			mInstaller.cancelOperation();
+			mInstaller.cancelSimpleOperation();
 		finish();
 	}
 	

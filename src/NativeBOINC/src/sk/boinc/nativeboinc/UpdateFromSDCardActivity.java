@@ -245,7 +245,7 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 	@Override
 	public void onBackPressed() {
 		if (mInstaller != null)
-			mInstaller.cancelOperation();
+			mInstaller.cancelSimpleOperation();
 		finish();
 	}
 	

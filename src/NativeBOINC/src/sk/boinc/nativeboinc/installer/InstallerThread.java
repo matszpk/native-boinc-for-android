@@ -93,7 +93,7 @@ public class InstallerThread extends Thread {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateClientDistrib(channelId, true);
+				mHandler.updateClientDistrib(channelId);
 			}
 		});
 	}
@@ -102,7 +102,7 @@ public class InstallerThread extends Thread {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateProjectDistribList(channelId, true);
+				mHandler.updateProjectDistribList(channelId);
 			}
 		});
 	}

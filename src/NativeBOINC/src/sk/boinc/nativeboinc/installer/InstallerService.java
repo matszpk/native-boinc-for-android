@@ -107,7 +107,7 @@ public class InstallerService extends Service {
 		
 		/* pending errors used during working simple installer operations (not progress operations) */
 		public InstallError installError = null;
-		public Object installErrorSync = null;
+		public Object installErrorSync = new Object();
 	};
 	
 	private PendingSimpleChannel[] mPendingChannels = null;
@@ -448,7 +448,7 @@ public class InstallerService extends Service {
 	}
 	
 	public void stopInstaller() {
-		mInstallerHandler.cancelAll();
+		mInstallerHandler.cancelAllProgressOperations();
 		mInstallerThread.stopThread();
 		mInstallerThread = null;
 		mListeners.clear();
@@ -594,8 +594,8 @@ public class InstallerService extends Service {
 		mInstallerHandler.synchronizeInstalledProjects();
 	}
 	
-	public void cancelAll() {
-		mInstallerHandler.cancelAll();
+	public void cancelAllProgressOperations() {
+		mInstallerHandler.cancelAllProgressOperations();
 	}
 	
 	public void cancelClientInstallation() {
@@ -614,8 +614,12 @@ public class InstallerService extends Service {
 		mInstallerHandler.cancelReinstallation();
 	}
 	
-	public void cancelOperation() {
-		mInstallerHandler.cancelOperation(mInstallerThread);
+	public void cancelSimpleOperation() {
+		mInstallerHandler.cancelOperation(DEFAULT_CHANNEL_ID, mInstallerThread);
+	}
+	
+	public void cancelSimpleOperation(int channelId) {
+		mInstallerHandler.cancelOperation(channelId, mInstallerThread);
 	}
 	
 	/**
@@ -717,7 +721,7 @@ public class InstallerService extends Service {
 	}
 	
 	public void getBinariesToUpdateFromSDCard(String path) {
-		getBinariesToUpdateFromSDCard(path);
+		getBinariesToUpdateFromSDCard(DEFAULT_CHANNEL_ID, path);
 	}
 	
 	public void getBinariesToUpdateFromSDCard(int channelId, String path) {

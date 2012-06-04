@@ -67,6 +67,9 @@ import android.util.Log;
  */
 public class NativeBoincService extends Service implements MonitorListener,
 		InstallerProgressListener, InstallerUpdateListener {
+	
+	private static final int NATIVEBOINC_ID = 1; // channelId
+	
 	private final static String TAG = "NativeBoincService";
 
 	private static final String PARTIAL_WAKELOCK_NAME = "RunnerPartial";
@@ -88,6 +91,11 @@ public class NativeBoincService extends Service implements MonitorListener,
 	
 	private boolean mPreviousStateOfIsWorking = false;
 	private boolean mIsWorking = false;
+	
+	@Override
+	public int getInstallerChannelId() {
+		return NATIVEBOINC_ID;
+	}
 	
 	public class ListenerHandler extends Handler {
 
@@ -958,8 +966,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 				synchronized (mPendingProjectAppsToInstall) {
 					mPendingProjectAppsToInstall.add(projectUrl);
 				}
-				// try to update project list
-				mInstaller.updateProjectDistribList();
+				// try to update project list (with own channel id)
+				mInstaller.updateProjectDistribList(NATIVEBOINC_ID);
 			} else {
 				if (Logging.DEBUG) Log.d(TAG, "again not found. to finish");
 				// simply finish task

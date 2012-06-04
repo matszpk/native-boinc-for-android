@@ -60,6 +60,11 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 	
 	private int mUpdateListProgressState = ProgressState.NOT_RUN;
 	
+	@Override
+	public int getInstallerChannelId() {
+		return InstallerService.DEFAULT_CHANNEL_ID;
+	}
+	
 	private class ItemOnClickListener implements View.OnClickListener {
 		private String mDistribName;
 		

@@ -89,6 +89,11 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	
 	private String mOldHostname = null;
 	
+	@Override
+	public int getInstallerChannelId() {
+		return InstallerService.DEFAULT_CHANNEL_ID;
+	}
+	
 	private ServiceConnection mInstallerConnection = new ServiceConnection() {
 
 		@Override

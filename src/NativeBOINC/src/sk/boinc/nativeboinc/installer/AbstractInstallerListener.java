@@ -24,6 +24,8 @@ package sk.boinc.nativeboinc.installer;
  *
  */
 public interface AbstractInstallerListener {
+	public abstract int getInstallerChannelId();
+	
 	/* info: about distrib name
 	 * distrib name determine not only distribution and also operation code
 	 * please lookup on InstallerService

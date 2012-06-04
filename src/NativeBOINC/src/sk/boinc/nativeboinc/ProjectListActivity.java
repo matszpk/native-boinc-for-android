@@ -80,6 +80,11 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	/* if add project finish successfully */
 	private boolean mEarlyAddProjectGoodFinish = false;
 	
+	@Override
+	public int getInstallerChannelId() {
+		return InstallerService.DEFAULT_CHANNEL_ID;
+	}
+	
 	private static class SavedState {
 		private final ArrayList<ProjectItem> mProjectsList;
 		private final ArrayList<ProjectDistrib> mProjectDistribs;

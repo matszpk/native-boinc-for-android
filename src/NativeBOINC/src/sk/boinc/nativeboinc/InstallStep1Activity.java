@@ -56,6 +56,11 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	private Button mInfoButton = null;
 	private Button mNextButton = null;
 	
+	@Override
+	public int getInstallerChannelId() {
+		return InstallerService.DEFAULT_CHANNEL_ID;
+	}
+	
 	private static class SavedState {
 		private final ClientDistrib mClientDistrib;
 		private final int mClientDistribProgressState;

@@ -61,6 +61,11 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 	
 	private int mGetUpdateItemsProgressState = ProgressState.NOT_RUN;
 
+	@Override
+	public int getInstallerChannelId() {
+		return InstallerService.DEFAULT_CHANNEL_ID;
+	}
+	
 	private static class SavedState {
 		private final UpdateItem[] updateItems; 
 		private final int getUpdateItemsProgressState;

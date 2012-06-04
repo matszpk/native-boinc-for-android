@@ -53,6 +53,9 @@ import android.util.Log;
 public class InstallerService extends Service {
 	private static final String TAG = "InstallerService";
 	
+	public static final int DEFAULT_CHANNEL_ID = 0; // for activity
+	public static final int MAX_CHANNEL_ID = 16; // for activity
+	
 	public static final String BOINC_CLIENT_ITEM_NAME = "BOINC client";
 	public static final String BOINC_DUMP_ITEM_NAME = ":::BOINC Dump Files";
 	public static final String BOINC_REINSTALL_ITEM_NAME = ":::BOINC Reinstall";
@@ -84,16 +87,31 @@ public class InstallerService extends Service {
 	private BoincManagerApplication mApp = null;
 	private NotificationController mNotificationController = null;
 	
-	private ArrayList<ProjectDistrib> mPendingNewProjectDistribs = null;
-	private Object mPendingNewProjectDistribsSync = new Object(); // syncer
-	private ClientDistrib mPendingClientDistrib = null;
-	private Object mPendingClientDistribSync = new Object();
+	/**
+	 * channels: I created channels for separating communication betweens activities and services,
+	 * installer calls: calls without channelId argument uses DEFAULT_CHANNEL_ID
+	 * DEFAULT_CHANNEL_ID should be used inside UI handling (activities)
+	 * other channels should be used by services (for example NativeBoincService)
+	 */
+	private static final class PendingSimpleChannel {
+		public ArrayList<ProjectDistrib> newProjectDistribs = null;
+		public Object newProjectDistribsSync = new Object(); // syncer
+		public ClientDistrib clientDistrib = null;
+		public Object clientDistribSync = new Object();
+		
+		public UpdateItem[] updateItems = null;
+		public Object updateItemsSync = new Object();
+		
+		public String[] updateProjNames = null;
+		public Object updateProjNamesSync = new Object();
+		
+		/* pending errors used during working simple installer operations (not progress operations) */
+		public InstallError installError = null;
+		public Object installErrorSync = null;
+	};
 	
-	private UpdateItem[] mPendingUpdateItems = null;
-	private Object mPendingUpdateItemsSync = new Object();
+	private PendingSimpleChannel[] mPendingChannels = null;
 	
-	private String[] mPendingUpdateProjNames = null;
-	private Object mPendingUpdateProjNamesSync = new Object();
 	
 	public class LocalBinder extends Binder {
 		public InstallerService getService() {
@@ -143,6 +161,11 @@ public class InstallerService extends Service {
 		mApp = (BoincManagerApplication)getApplication();
 		mNotificationController = mApp.getNotificationController();
 		mListenerHandler = new ListenerHandler();
+		
+		mPendingChannels = new PendingSimpleChannel[MAX_CHANNEL_ID];
+		for (int i = 0; i < MAX_CHANNEL_ID; i++)
+			mPendingChannels[i] = new PendingSimpleChannel();
+		
 		startInstaller();
 		doBindRunnerService();
 	}
@@ -228,10 +251,6 @@ public class InstallerService extends Service {
 		mApp = null;
 	}
 	
-	/* pending errors used during working simple installer operations (not progress operations) */
-	private InstallError mPendingInstallError = null;
-	private Object mPendingInstallErrorSync = new Object();
-	
 	/**
 	 * listener handler - 
 	 * @author mat
@@ -239,8 +258,10 @@ public class InstallerService extends Service {
 	 */
 	public class ListenerHandler extends Handler {
 		
-		public void onOperation(String distribName, String projectUrl, String opDescription) {
-			if (distribName != null && !distribName.startsWith(BOINC_IGNORE_ITEM_PREFIX))
+		/* only used in the default channel */
+		public void onOperation(String distribName, String projectUrl,
+				String opDescription) {
+			if (!isSimpleOperation(distribName))
 				mNotificationController.handleOnOperation(distribName, projectUrl, opDescription);
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
@@ -249,9 +270,10 @@ public class InstallerService extends Service {
 					((InstallerProgressListener)listener).onOperation(distribName, opDescription);
 		}
 		
+		/* only used in the default channel */
 		public void onOperationProgress(String distribName, String projectUrl,
 				String opDescription,int progress) {
-			if (distribName != null && !distribName.startsWith(BOINC_IGNORE_ITEM_PREFIX))
+			if (!isSimpleOperation(distribName))
 				mNotificationController.handleOnOperationProgress(distribName, projectUrl,
 						opDescription, progress);
 			
@@ -262,42 +284,53 @@ public class InstallerService extends Service {
 							distribName, opDescription, progress);
 		}
 
-		public void onOperationError(String distribName, String projectUrl, String errorMessage) {
-			if (mApp.isInstallerRun())
-				mApp.backToPreviousInstallerStage();
+		public void onOperationError(int channelId, String distribName, String projectUrl,
+				String errorMessage) {
+			PendingSimpleChannel channel = mPendingChannels[channelId];
 			
-			if (distribName != null && !distribName.startsWith(BOINC_IGNORE_ITEM_PREFIX))
+			if (!isSimpleOperation(distribName) && channelId == DEFAULT_CHANNEL_ID) {
+				// if installer operation (with progress)
+				if (mApp.isInstallerRun())
+					mApp.backToPreviousInstallerStage();
+				
 				mNotificationController.handleOnOperationError(distribName, projectUrl, errorMessage);
+			}
 			
 			boolean called = false;
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners) {
+				if (listener.getInstallerChannelId() != channelId)
+					continue;
 				if (listener.onOperationError(distribName, errorMessage))
 					called = true;
 			}
 			
 			// enqueue only errors from simple operations
 			if (isSimpleOperation(distribName))
-				synchronized(mPendingInstallErrorSync) {
+				synchronized(channel.installErrorSync) {
 					if (Logging.DEBUG) Log.d(TAG, "Is PendingInstallError set: "+ (!called));
 					if (!called) /* set up pending if not already handled */
-						mPendingInstallError = new InstallError(distribName, projectUrl, errorMessage);
+						channel.installError = new InstallError(distribName, projectUrl, errorMessage);
 					else // if already handled
-						mPendingInstallError = null;
+						channel.installError = null;
 				}
 		}
 		
-		public void onOperationCancel(String distribName, String projectUrl) {
-			if (mApp.isInstallerRun())
-				mApp.backToPreviousInstallerStage();
+		public void onOperationCancel(int channelId, String distribName, String projectUrl) {
 			
-			if (distribName != null && !distribName.startsWith(BOINC_IGNORE_ITEM_PREFIX))
+			if (!isSimpleOperation(distribName) && channelId == DEFAULT_CHANNEL_ID) {
+				// if installer operation (with progress)
+				if (mApp.isInstallerRun())
+					mApp.backToPreviousInstallerStage();
+				
 				mNotificationController.handleOnOperationCancel(distribName, projectUrl);
+			}
 						
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners)
-				if (listener instanceof InstallerProgressListener)
+				if (listener.getInstallerChannelId() == channelId &&
+						listener instanceof InstallerProgressListener)
 					((InstallerProgressListener)listener).onOperationCancel(distribName);
 		}
 		
@@ -305,14 +338,15 @@ public class InstallerService extends Service {
 			/* to next insraller stage */
 			if (Logging.DEBUG) Log.d(TAG, "Finish operation:"+distribName);
 			
-			int installerStage = mApp.getInstallerStage(); 
-			if (installerStage == BoincManagerApplication.INSTALLER_CLIENT_INSTALLING_STAGE)
-				mApp.setInstallerStage(BoincManagerApplication.INSTALLER_PROJECT_STAGE);
-			else if (installerStage == BoincManagerApplication.INSTALLER_PROJECT_INSTALLING_STAGE)
-				mApp.setInstallerStage(BoincManagerApplication.INSTALLER_FINISH_STAGE);
-		
-			if (distribName != null && !distribName.startsWith(BOINC_IGNORE_ITEM_PREFIX))
+			if (!isSimpleOperation(distribName)) {
+				int installerStage = mApp.getInstallerStage(); 
+				if (installerStage == BoincManagerApplication.INSTALLER_CLIENT_INSTALLING_STAGE)
+					mApp.setInstallerStage(BoincManagerApplication.INSTALLER_PROJECT_STAGE);
+				else if (installerStage == BoincManagerApplication.INSTALLER_PROJECT_INSTALLING_STAGE)
+					mApp.setInstallerStage(BoincManagerApplication.INSTALLER_FINISH_STAGE);
+			
 				mNotificationController.handleOnOperationFinish(distribName, projectUrl);
+			}
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners)
@@ -320,49 +354,61 @@ public class InstallerService extends Service {
 					((InstallerProgressListener)listener).onOperationFinish(distribName);
 		}
 		
-		public void currentProjectDistribList(ArrayList<ProjectDistrib> projectDistribs) {
-			synchronized(mPendingNewProjectDistribsSync) {
-				mPendingNewProjectDistribs = projectDistribs;
+		public void currentProjectDistribList(int channelId, ArrayList<ProjectDistrib> projectDistribs) {
+			PendingSimpleChannel channel = mPendingChannels[channelId];
+			
+			synchronized(channel.newProjectDistribsSync) {
+				channel.newProjectDistribs = projectDistribs;
 			}
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners)
-				if (listener instanceof InstallerUpdateListener)
+				if (listener.getInstallerChannelId() == channelId &&
+						listener instanceof InstallerUpdateListener)
 					((InstallerUpdateListener)listener).currentProjectDistribList(projectDistribs);
 		}
 		
-		public void currentClientDistrib(ClientDistrib clientDistrib) {
-			synchronized(mPendingClientDistribSync) {
-				mPendingClientDistrib = clientDistrib;
+		public void currentClientDistrib(int channelId, ClientDistrib clientDistrib) {
+			PendingSimpleChannel channel = mPendingChannels[channelId];
+			
+			synchronized(channel.clientDistribSync) {
+				channel.clientDistrib = clientDistrib;
 			}
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners)
-				if (listener instanceof InstallerUpdateListener)
+				if (listener.getInstallerChannelId() == channelId &&
+						listener instanceof InstallerUpdateListener)
 					((InstallerUpdateListener)listener).currentClientDistrib(clientDistrib);
 		}
 		
-		public void notifyBinariesToInstallOrUpdate(UpdateItem[] updateItems) {
-			synchronized(mPendingUpdateItemsSync) {
-				mPendingUpdateItems = updateItems;
+		public void notifyBinariesToInstallOrUpdate(int channelId, UpdateItem[] updateItems) {
+			PendingSimpleChannel channel = mPendingChannels[channelId];
+			
+			synchronized(channel.updateItemsSync) {
+				channel.updateItems = updateItems;
 			}
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			
 			for (AbstractInstallerListener listener: listeners)
-				if (listener instanceof InstallerUpdateListener)
+				if (listener.getInstallerChannelId() == channelId &&
+						listener instanceof InstallerUpdateListener)
 					((InstallerUpdateListener)listener).binariesToUpdateOrInstall(updateItems);
 		}
 		
-		public void notifyBinariesToUpdateFromSDCard(String[] projectNames) {
-			synchronized(mPendingUpdateItemsSync) {
-				mPendingUpdateProjNames = projectNames;
+		public void notifyBinariesToUpdateFromSDCard(int channelId, String[] projectNames) {
+			PendingSimpleChannel channel = mPendingChannels[channelId];
+			
+			synchronized(channel.updateItemsSync) {
+				channel.updateProjNames = projectNames;
 			}
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			
 			for (AbstractInstallerListener listener: listeners)
-				if (listener instanceof InstallerUpdateListener)
+				if (listener.getInstallerChannelId() == channelId &&
+						listener instanceof InstallerUpdateListener)
 					((InstallerUpdateListener)listener).binariesToUpdateFromSDCard(projectNames);
 		}
 		
@@ -420,38 +466,54 @@ public class InstallerService extends Service {
 	 * @return pending install error
 	 */
 	public boolean handlePendingError(AbstractInstallerListener listener) {
-		synchronized (mPendingInstallErrorSync) {
-			if (mPendingInstallError == null)
+		PendingSimpleChannel channel = mPendingChannels[listener.getInstallerChannelId()]; 
+		
+		synchronized (channel.installErrorSync) {
+			if (channel.installError == null)
 				return false;
-			InstallError installError = mPendingInstallError;
+			InstallError installError = channel.installError;
 			if (listener.onOperationError(installError.distribName, installError.errorMessage)) {
 				if (Logging.DEBUG) Log.d(TAG, "PendingInstallError is handled");
-				mPendingInstallError = null;
+				channel.installError = null;
 				return true;
 			}
 			return false;
 		}
 	}
 	
-	private void clearPendingError() {
-		synchronized(mPendingInstallErrorSync) {
-			mPendingInstallError = null;
+	private void clearPendingError(int channelId) {
+		PendingSimpleChannel channel = mPendingChannels[channelId];
+		
+		synchronized(channel.installErrorSync) {
+			channel.installError = null;
 		}
 	}
 	
 	/* update client distrib info */
 	public void updateClientDistrib() {
-		synchronized(mPendingClientDistribSync) {
-			mPendingClientDistrib = null;
+		updateClientDistrib(DEFAULT_CHANNEL_ID);
+	}
+	
+	public void updateClientDistrib(int channelId) {
+		PendingSimpleChannel channel = mPendingChannels[channelId];
+		
+		synchronized(channel.clientDistribSync) {
+			channel.clientDistrib = null;
 		}
-		clearPendingError();
-		mInstallerThread.updateClientDistrib();
+		clearPendingError(channelId);
+		mInstallerThread.updateClientDistrib(channelId);
 	}
 	
 	public ClientDistrib getPendingClientDistrib() {
-		synchronized(mPendingClientDistribSync) {
-			ClientDistrib pending = mPendingClientDistrib;
-			mPendingClientDistrib = null;
+		return getPendingClientDistrib(DEFAULT_CHANNEL_ID);
+	}
+	
+	public ClientDistrib getPendingClientDistrib(int channelId) {
+		PendingSimpleChannel channel = mPendingChannels[channelId];
+		
+		synchronized(channel.clientDistribSync) {
+			ClientDistrib pending = channel.clientDistrib;
+			channel.clientDistrib = null;
 			return pending;
 		}
 	}
@@ -498,17 +560,29 @@ public class InstallerService extends Service {
 	}
 	
 	public void updateProjectDistribList() {
-		synchronized(mPendingNewProjectDistribsSync) {
-			mPendingNewProjectDistribs = null;
+		updateProjectDistribList(DEFAULT_CHANNEL_ID);
+	}
+	
+	public void updateProjectDistribList(int channelId) {
+		PendingSimpleChannel channel = mPendingChannels[channelId];
+		
+		synchronized(channel.newProjectDistribsSync) {
+			channel.newProjectDistribs = null;
 		}
-		clearPendingError();
-		mInstallerThread.updateProjectDistribList();
+		clearPendingError(channelId);
+		mInstallerThread.updateProjectDistribList(channelId);
 	}
 	
 	public ArrayList<ProjectDistrib> getPendingNewProjectDistribList() {
-		synchronized(mPendingNewProjectDistribsSync) {
-			ArrayList<ProjectDistrib> pending = mPendingNewProjectDistribs;
-			mPendingNewProjectDistribs = null;
+		return getPendingNewProjectDistribList(DEFAULT_CHANNEL_ID);
+	}
+	
+	public ArrayList<ProjectDistrib> getPendingNewProjectDistribList(int channelId) {
+		PendingSimpleChannel channel = mPendingChannels[channelId];
+		
+		synchronized(channel.newProjectDistribsSync) {
+			ArrayList<ProjectDistrib> pending = channel.newProjectDistribs;
+			channel.newProjectDistribs = null;
 			return pending;
 		}
 	}
@@ -612,27 +686,59 @@ public class InstallerService extends Service {
 	 * @return update items
 	 */
 	public void getBinariesToUpdateOrInstall() {
-		clearPendingError();
-		mInstallerThread.getBinariesToUpdateOrInstall();
+		getBinariesToUpdateOrInstall(DEFAULT_CHANNEL_ID);
+	}
+	
+	public void getBinariesToUpdateOrInstall(int channelId) {
+		PendingSimpleChannel channel = mPendingChannels[channelId];
+		
+		synchronized(channel.updateItemsSync) {
+			channel.updateItems = null;
+		}
+		
+		clearPendingError(channelId);
+		mInstallerThread.getBinariesToUpdateOrInstall(channelId);
 	}
 	
 	public UpdateItem[] getPendingBinariesToUpdateOrInstall() {
-		synchronized(mPendingUpdateItemsSync) {
-			UpdateItem[] pending = mPendingUpdateItems;
-			mPendingUpdateItems = null;
+		return getPendingBinariesToUpdateOrInstall(DEFAULT_CHANNEL_ID);
+	}
+	
+	public UpdateItem[] getPendingBinariesToUpdateOrInstall(int channelId) {
+		PendingSimpleChannel channel = mPendingChannels[channelId];
+		
+		synchronized(channel.updateItemsSync) {
+			UpdateItem[] pending = channel.updateItems;
+			channel.updateItems = null;
 			return pending;
 		}
 	}
 	
 	public void getBinariesToUpdateFromSDCard(String path) {
-		clearPendingError();
-		mInstallerThread.getBinariesToUpdateFromSDCard(path);
+		getBinariesToUpdateFromSDCard(path);
+	}
+	
+	public void getBinariesToUpdateFromSDCard(int channelId, String path) {
+		PendingSimpleChannel channel = mPendingChannels[channelId];
+		
+		synchronized(channel.updateProjNamesSync) {
+			channel.updateProjNames = null;
+		}
+		
+		clearPendingError(channelId);
+		mInstallerThread.getBinariesToUpdateFromSDCard(channelId, path);
 	}
 	
 	public String[] getPendingBinariesToUpdateFromSDCard() {
-		synchronized(mPendingUpdateProjNamesSync) {
-			String[] pending = mPendingUpdateProjNames;
-			mPendingUpdateProjNames= null;
+		return getPendingBinariesToUpdateFromSDCard(DEFAULT_CHANNEL_ID);
+	}
+	
+	public String[] getPendingBinariesToUpdateFromSDCard(int channelId) {
+		PendingSimpleChannel channel = mPendingChannels[channelId];
+		
+		synchronized(channel.updateProjNamesSync) {
+			String[] pending = channel.updateProjNames;
+			channel.updateProjNames= null;
 			return pending;
 		}
 	}

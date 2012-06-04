@@ -52,6 +52,11 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	
 	private ProgressItem[] mCurrentProgress;
 	
+	@Override
+	public int getInstallerChannelId() {
+		return InstallerService.DEFAULT_CHANNEL_ID;
+	}
+	
 	private class ProgressCancelOnClickListener implements View.OnClickListener {
 
 		private String mDistribName;

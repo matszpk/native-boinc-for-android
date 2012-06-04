@@ -89,11 +89,20 @@ public class InstallerThread extends Thread {
 		});
 	}
 	
-	public void updateClientDistrib() {
+	public void updateClientDistrib(final int channelId) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateClientDistrib(true);
+				mHandler.updateClientDistrib(channelId, true);
+			}
+		});
+	}
+	
+	public void updateProjectDistribList(final int channelId) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.updateProjectDistribList(channelId, true);
 			}
 		});
 	}
@@ -152,29 +161,20 @@ public class InstallerThread extends Thread {
 		});
 	}
 	
-	public void getBinariesToUpdateOrInstall() {
+	public void getBinariesToUpdateOrInstall(final int channelId) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.getBinariesToUpdateOrInstall();
+				mHandler.getBinariesToUpdateOrInstall(channelId);
 			}
 		});
 	}
 	
-	public void getBinariesToUpdateFromSDCard(final String path) {
+	public void getBinariesToUpdateFromSDCard(final int channelId, final String path) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.getBinariesToUpdateFromSDCard(path);
-			}
-		});
-	}
-	
-	public void updateProjectDistribList() {
-		mHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				mHandler.updateProjectDistribList(true);
+				mHandler.getBinariesToUpdateFromSDCard(channelId, path);
 			}
 		});
 	}

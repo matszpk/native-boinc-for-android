@@ -231,7 +231,14 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 		});
 	}
 	
+	@Override
 	public void onInstallerConnected() {
+		Log.d(TAG, "onInstallerConnected");
+		updateActivityState();
+	}
+	
+	@Override
+	public void onRunnerConnected() {
 		Log.d(TAG, "onInstallerConnected");
 		updateActivityState();
 	}
@@ -250,7 +257,7 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 		setProgressBarIndeterminateVisibility(mInstaller.isWorking());
 		
 		/* display error if pending */
-		if (mRunner != null && mInstaller != null) {
+		if (mInstaller != null) {
 			if (mInstaller.handlePendingError(this))
 				return;
 		}

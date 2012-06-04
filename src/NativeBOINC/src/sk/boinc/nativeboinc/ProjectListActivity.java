@@ -348,30 +348,29 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			
 			setProgressBarIndeterminateVisibility(mInstaller.isWorking());
 			
-			if (mInstaller.handlePendingError(this))
-				return;
-			
-			if (mConnectedClient == null)
-				return;	// do not continue 
-			
-			if (mProjectDistribs == null) {
-				if (mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
-					if (Logging.DEBUG) Log.d(TAG, "get List from installer");
-					mProjectDistribs = mInstaller.getPendingNewProjectDistribList();
-					if (mProjectDistribs != null) {
-						mDataDownloadProgressState = ProgressState.FINISHED;
-						updateDataSet();
+			if (mConnectedClient != null) {
+				if (mProjectDistribs == null) {
+					if (mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
+						if (Logging.DEBUG) Log.d(TAG, "get List from installer");
+						mProjectDistribs = mInstaller.getPendingNewProjectDistribList();
+						if (mProjectDistribs != null) {
+							mDataDownloadProgressState = ProgressState.FINISHED;
+							updateDataSet();
+						}
+						
+					} else if (mDataDownloadProgressState == ProgressState.NOT_RUN) {
+						if (Logging.DEBUG) Log.d(TAG, "Download List");
+						mDataDownloadProgressState = ProgressState.IN_PROGRESS;
+						mInstaller.updateProjectDistribList();
 					}
-					
-				} else if (mDataDownloadProgressState == ProgressState.NOT_RUN) {
-					if (Logging.DEBUG) Log.d(TAG, "Download List");
-					mDataDownloadProgressState = ProgressState.IN_PROGRESS;
-					mInstaller.updateProjectDistribList();
+					// if finished but failed
+				} else {
+					updateDataSet();
 				}
-				// if finished but failed
-			} else {
-				updateDataSet();
 			}
+			
+			// do not finish when error
+			mInstaller.handlePendingError(this);
 		} else {
 			// from boinc client
 			if (mConnectionManager == null)
@@ -537,7 +536,8 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	@Override
 	public boolean onOperationError(String distribName, String errorMessage) {
 		if (InstallerService.isSimpleOperation(distribName) && mGetFromInstaller &&
-				mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
+				(mDataDownloadProgressState == ProgressState.IN_PROGRESS ||
+				 mDataDownloadProgressState == ProgressState.FINISHED)) {
 			mDataDownloadProgressState = ProgressState.FAILED;
 			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
 			return true;

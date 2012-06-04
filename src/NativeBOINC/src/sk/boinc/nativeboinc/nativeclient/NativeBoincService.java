@@ -128,6 +128,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 					called = true;
 			
 			synchronized(mPendingErrorSync) {
+				if (Logging.DEBUG) Log.d(TAG, "Is PendingNativeBoincError set:"+(!called));
 				if (!called) /* set up pending if not already handled */
 					mPendingError = message;
 				else	// if already handled
@@ -147,6 +148,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 				}
 			
 			synchronized(mPendingServiceErrorSync) {
+				if (Logging.DEBUG) Log.d(TAG, "Is PendingNativeBoincServiceError set:"+(!called));
 				if (!called) /* set up pending if not already handled */
 					mPendingServiceError = message;
 				else	// if already handled
@@ -623,6 +625,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 			if (mPendingError == null)
 				return false;
 			if (listener.onNativeBoincClientError(mPendingError)) {
+				if (Logging.DEBUG) Log.d(TAG, "PendingNativeBoincError is handled");
 				mPendingError = null;
 				return true;
 			}
@@ -641,6 +644,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 			if (mPendingServiceError == null)
 				return false;
 			if (listener.onNativeBoincServiceError(mPendingServiceError)) {
+				if (Logging.DEBUG) Log.d(TAG, "PendingNativeBoincServiceError is handled");
 				mPendingServiceError = null;
 				return true;
 			}

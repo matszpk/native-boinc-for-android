@@ -280,6 +280,7 @@ public class InstallerService extends Service {
 			// enqueue only errors from simple operations
 			if (isSimpleOperation(distribName))
 				synchronized(mPendingInstallErrorSync) {
+					if (Logging.DEBUG) Log.d(TAG, "Is PendingInstallError set: "+ (!called));
 					if (!called) /* set up pending if not already handled */
 						mPendingInstallError = new InstallError(distribName, projectUrl, errorMessage);
 					else // if already handled
@@ -424,6 +425,7 @@ public class InstallerService extends Service {
 				return false;
 			InstallError installError = mPendingInstallError;
 			if (listener.onOperationError(installError.distribName, installError.errorMessage)) {
+				if (Logging.DEBUG) Log.d(TAG, "PendingInstallError is handled");
 				mPendingInstallError = null;
 				return true;
 			}

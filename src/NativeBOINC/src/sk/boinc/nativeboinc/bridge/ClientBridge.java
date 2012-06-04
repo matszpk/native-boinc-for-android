@@ -161,6 +161,7 @@ public class ClientBridge implements ClientRequestHandler {
 			
 			if (!autoRefresh) // if not autorefeshed operation
 				synchronized(mPendingClientErrorSync) {
+					if (Logging.DEBUG) Log.d(TAG, "Is PendingClientError is set: "+(!called));
 					if (!called) /* set up pending if not already handled */
 						mPendingClientError = new ClientError(errorNum, errorMessage);
 					else	// if error already handled 
@@ -168,6 +169,7 @@ public class ClientBridge implements ClientRequestHandler {
 				}
 			else // use different pending error handling channel
 				synchronized(mPendingAutoRefreshClientErrorSync) {
+					if (Logging.DEBUG) Log.d(TAG, "Is PendingAutoRefreshClientError is set: "+(!called));
 					if (!called) /* set up pending if not already handled */
 						mPendingAutoRefreshClientError = new ClientError(errorNum, errorMessage);
 					else	// if error already handled 
@@ -193,35 +195,30 @@ public class ClientBridge implements ClientRequestHandler {
 						called = true;
 				}
 			}
+			
+			String key = (param != null) ? param : "";
+			
 			if (operation != PollOp.POLL_PROJECT_CONFIG) {
 				// error from other operation
 				synchronized(mPollErrorsMap) {
+					if (Logging.DEBUG) Log.d(TAG, "Is PendingPollErrorError is set: "+
+							(!called)+" for "+key);
 					if (!called) { /* set up pending if not already handled */
 						PollError pollError = new PollError(errorNum, operation, errorMessage, param);
-						if (param != null)
-							mPollErrorsMap.put(param, pollError);
-						else  // if account mgr operation
-							mPollErrorsMap.put("", pollError);
+						mPollErrorsMap.put(key, pollError);
 					} else { // if already handled (remove old errors)
-						if (param != null)
-							mPollErrorsMap.remove(param);
-						else // if account mgr operation
-							mPollErrorsMap.remove("");
+						mPollErrorsMap.remove(key);
 					}
 				}
 			} else {
 				synchronized(mProjectConfigErrorsMap) {
+					if (Logging.DEBUG) Log.d(TAG, "Is PendingProjectConfigErrorError is set: "+
+							(!called)+" for "+key);
 					if (!called) { /* set up pending if not already handled */
 						PollError pollError = new PollError(errorNum, operation, errorMessage, param);
-						if (param != null)
-							mProjectConfigErrorsMap.put(param, pollError);
-						else  // if account mgr operation
-							mProjectConfigErrorsMap.put("", pollError);
+						mProjectConfigErrorsMap.put(key, pollError);
 					} else { // if already handled (remove old errors)
-						if (param != null)
-							mProjectConfigErrorsMap.remove(param);
-						else // if account mgr operation
-							mProjectConfigErrorsMap.remove("");
+						mProjectConfigErrorsMap.remove(key);
 					}
 				}
 			}
@@ -857,6 +854,7 @@ public class ClientBridge implements ClientRequestHandler {
 				return false;
 			
 			if (clientError != null && receiver.clientError(clientError.errorNum, clientError.message)) {
+				if (Logging.DEBUG) Log.d(TAG, "PendingClientError handled");
 				mPendingClientError = null;
 				handled = true;
 			}
@@ -866,6 +864,7 @@ public class ClientBridge implements ClientRequestHandler {
 			ClientError clientError = mPendingAutoRefreshClientError;
 			
 			if (clientError != null && receiver.clientError(clientError.errorNum, clientError.message)) {
+				if (Logging.DEBUG) Log.d(TAG, "PendingAutoRefreshClientError handled");
 				mPendingAutoRefreshClientError = null;
 				handled = true;
 			}
@@ -907,6 +906,7 @@ public class ClientBridge implements ClientRequestHandler {
 			if (pollError != null) {
 				if (receiver.onPollError(pollError.errorNum, pollError.operation, pollError.message,
 						pollError.param)) {
+					if (Logging.DEBUG) Log.d(TAG, "PendingPollError handled for "+key);
 					mPollErrorsMap.remove(key);
 					handled = true;
 				}
@@ -920,6 +920,7 @@ public class ClientBridge implements ClientRequestHandler {
 			if (pollError != null) {
 				if (receiver.onPollError(pollError.errorNum, pollError.operation, pollError.message,
 						pollError.param)) {
+					if (Logging.DEBUG) Log.d(TAG, "PendingProjectConfigError handled for "+key);
 					mProjectConfigErrorsMap.remove(key);
 					handled = true;
 				}

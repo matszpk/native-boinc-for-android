@@ -690,12 +690,15 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 
 	@Override
 	public boolean onPollError(int errorNum, int operation, String errorMessage, String param) {
-		setProgressBarIndeterminateVisibility(false);
-		dismissBAMProgressDialog();
-		mDoGetBAMInfo = false;
-		mSyncingBAMInProgress = false;
-		StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
-		return true;
+		if (operation == PollOp.POLL_ATTACH_TO_BAM || operation == PollOp.POLL_SYNC_WITH_BAM) {
+			setProgressBarIndeterminateVisibility(false);
+			dismissBAMProgressDialog();
+			mDoGetBAMInfo = false;
+			mSyncingBAMInProgress = false;
+			StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

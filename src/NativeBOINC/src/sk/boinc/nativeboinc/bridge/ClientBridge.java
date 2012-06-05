@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.AccountMgrInfo;
@@ -89,32 +90,35 @@ public class ClientBridge implements ClientRequestHandler {
 	private ClientError mPendingAutoRefreshClientError = null;
 	private Object mPendingAutoRefreshClientErrorSync = new Object(); // syncer
 	
-	private ArrayList<ProjectListEntry> mPendingAllProjectsList = null;
-	private Object mPendingAllProjectsListSync = new Object(); // syncer
+	private AtomicReference<ArrayList<ProjectListEntry>> mPendingAllProjectsList =
+			new AtomicReference<ArrayList<ProjectListEntry>>();
 	
-	private AccountMgrInfo mPendingAccountMgrInfo = null;
-	private Object mPendingAccountMgrInfoSync = new Object(); // syncer
+	private AtomicReference<AccountMgrInfo> mPendingAccountMgrInfo =
+			new AtomicReference<AccountMgrInfo>();
 	
 	private boolean mBAMBeingSynchronized = false;
 	
-	private GlobalPreferences mPendingGlobalPrefs = null;
-	private Object mPendingGlobalPrefsSync = new Object(); // syncer
+	private AtomicReference<GlobalPreferences> mPendingGlobalPrefs =
+			new AtomicReference<GlobalPreferences>();
 	
 	private boolean mGlobalPrefsBeingOverriden = false;
-	private HostInfo mPendingHostInfo = null;
-	private Object mPendingHostInfoSync = new Object();  // syncer
+	private AtomicReference<HostInfo> mPendingHostInfo = new AtomicReference<HostInfo>();
 	
 	/* data updates */
-	private ArrayList<ProjectInfo> mPendingProjects = null;
-	private Object mPendingProjectsSync = new Object();
-	private ArrayList<TaskInfo> mPendingTasks = null;
-	private Object mPendingTasksSync = new Object();
-	private ArrayList<TransferInfo> mPendingTransfers = null;
-	private Object mPendingTransfersSync = new Object();
-	private ArrayList<MessageInfo> mPendingMessages = null;
-	private Object mPendingMessagesSync = new Object();
-	private ArrayList<NoticeInfo> mPendingNotices = null;
-	private Object mPendingNoticesSync = new Object();
+	private AtomicReference<ArrayList<ProjectInfo>> mPendingProjects =
+			new AtomicReference<ArrayList<ProjectInfo>>();
+	
+	private AtomicReference<ArrayList<TaskInfo>> mPendingTasks =
+			new AtomicReference<ArrayList<TaskInfo>>();
+	
+	private AtomicReference<ArrayList<TransferInfo>> mPendingTransfers =
+			new AtomicReference<ArrayList<TransferInfo>>();
+	
+	private AtomicReference<ArrayList<MessageInfo>> mPendingMessages =
+			new AtomicReference<ArrayList<MessageInfo>>();
+	
+	private AtomicReference<ArrayList<NoticeInfo>> mPendingNotices =
+			new AtomicReference<ArrayList<NoticeInfo>>();
 	
 	public class ReplyHandler extends Handler {
 		private static final String TAG = "ClientBridge.ReplyHandler";
@@ -261,9 +265,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 		public void updatedHostInfo(final HostInfo hostInfo) {
-			synchronized(mPendingHostInfoSync) {
-				mPendingHostInfo = hostInfo;
-			}
+			mPendingHostInfo.set(hostInfo);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -273,9 +275,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 		
 		public void currentBAMInfo(final AccountMgrInfo bamInfo) {
-			synchronized(mPendingAccountMgrInfoSync) {
-				mPendingAccountMgrInfo = bamInfo;
-			}
+			mPendingAccountMgrInfo.set(bamInfo);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -285,9 +285,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 		
 		public void currentAllProjectsList(final ArrayList<ProjectListEntry> projects) {
-			synchronized(mPendingAllProjectsListSync) {
-				mPendingAllProjectsList = projects;
-			}
+			mPendingAllProjectsList.set(projects);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -319,9 +317,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 		
 		public void currentGlobalPreferences(final GlobalPreferences globalPrefs) {
-			synchronized(mPendingGlobalPrefsSync) {
-				mPendingGlobalPrefs = globalPrefs;
-			}
+			mPendingGlobalPrefs.set(globalPrefs);
 			
 			// First, check whether callback is still present in observers
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
@@ -363,9 +359,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 		public void updatedProjects(final ArrayList <ProjectInfo> projects) {
-			synchronized(mPendingProjectsSync) {
-				mPendingProjects = projects;
-			}
+			mPendingProjects.set(projects);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -380,9 +374,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 		public void updatedTasks(final ArrayList <TaskInfo> tasks) {
-			synchronized(mPendingTasksSync) {
-				mPendingTasks = tasks;
-			}
+			mPendingTasks.set(tasks);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -397,9 +389,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 		public void updatedTransfers(final ArrayList <TransferInfo> transfers) {
-			synchronized(mPendingTransfersSync) {
-				mPendingTransfers = transfers;
-			}
+			mPendingTransfers.set(transfers);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -414,9 +404,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 		public void updatedMessages(final ArrayList <MessageInfo> messages) {
-			synchronized(mPendingMessagesSync) {
-				mPendingMessages = messages;
-			}
+			mPendingMessages.set(messages);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -431,9 +419,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 		
 		public void updatedNotices(final ArrayList <NoticeInfo> notices) {
-			synchronized(mPendingNoticesSync) {
-				mPendingNotices = notices;
-			}
+			mPendingNotices.set(notices);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -458,9 +444,7 @@ public class ClientBridge implements ClientRequestHandler {
 		 */
 		public void cancelPollOperations() {
 			Log.d(TAG, "on cancel poll operations");
-			synchronized(mPendingAccountMgrInfoSync) {
-				mPendingAccountMgrInfo = null;
-			}
+			mPendingAccountMgrInfo.set(null);
 			// clear 'add project' operations
 			mJoinedAddProjectsMap.clear();
 			// clear project config temp results
@@ -581,9 +565,8 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public void updateHostInfo() {
 		if (mRemoteClient == null) return; // not connected
-		synchronized(mPendingHostInfoSync) {
-			mPendingHostInfo = null;
-		}
+		
+		mPendingHostInfo.set(null);
 		clearPendingClientError();
 		mWorker.updateHostInfo();
 	}
@@ -591,19 +574,15 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public HostInfo getPendingHostInfo() {
 		if (mRemoteClient == null) return null; // not connected
-		synchronized(mPendingHostInfoSync) {
-			HostInfo pending = mPendingHostInfo;
-			mPendingHostInfo = null;
-			return pending;
-		}
+		
+		return mPendingHostInfo.getAndSet(null);
 	}
 
 	@Override
 	public void updateProjects() {
 		if (mRemoteClient == null) return; // not connected
-		synchronized(mPendingProjectsSync) {
-			mPendingProjects = null;
-		}
+		
+		mPendingProjects.set(null);
 		clearPendingAutoRefreshClientError();
 		mWorker.updateProjects();
 	}
@@ -611,19 +590,15 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public ArrayList<ProjectInfo> getPendingProjects() {
 		if (mRemoteClient == null) return null; // not connected
-		synchronized(mPendingProjectsSync) {
-			ArrayList<ProjectInfo> pending = mPendingProjects;
-			mPendingProjects = null;
-			return pending;
-		}
+		
+		return mPendingProjects.getAndSet(null);
 	}
 
 	@Override
 	public void updateTasks() {
 		if (mRemoteClient == null) return; // not connected
-		synchronized(mPendingTasksSync) {
-			mPendingTasks = null;
-		}
+		
+		mPendingTasks.set(null);
 		clearPendingAutoRefreshClientError();
 		mWorker.updateTasks();
 	}
@@ -631,19 +606,15 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public ArrayList<TaskInfo> getPendingTasks() {
 		if (mRemoteClient == null) return null; // not connected
-		synchronized(mPendingTasksSync) {
-			ArrayList<TaskInfo> pending = mPendingTasks;
-			mPendingTasks = null;
-			return pending;
-		}
+		
+		return mPendingTasks.getAndSet(null);
 	}
 
 	@Override
 	public void updateTransfers() {
 		if (mRemoteClient == null) return; // not connected
-		synchronized(mPendingTransfersSync) {
-			mPendingTransfers = null;
-		}
+		
+		mPendingTransfers.set(null);
 		clearPendingAutoRefreshClientError();
 		mWorker.updateTransfers();
 	}
@@ -651,19 +622,15 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public ArrayList<TransferInfo> getPendingTransfers() {
 		if (mRemoteClient == null) return null; // not connected
-		synchronized(mPendingTransfersSync) {
-			ArrayList<TransferInfo> pending = mPendingTransfers;
-			mPendingTransfers = null;
-			return pending;
-		}
+		
+		return mPendingTransfers.getAndSet(null);
 	}
 
 	@Override
 	public void updateMessages() {
 		if (mRemoteClient == null) return; // not connected
-		synchronized(mPendingMessagesSync) {
-			mPendingMessages = null;
-		}
+		
+		mPendingMessages.set(null);
 		clearPendingAutoRefreshClientError();
 		mWorker.updateMessages();
 	}
@@ -671,18 +638,14 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public ArrayList<MessageInfo> getPendingMessages() {
 		if (mRemoteClient == null) return null; // not connected
-		synchronized(mPendingMessagesSync) {
-			ArrayList<MessageInfo> pending = mPendingMessages;
-			mPendingMessages = null;
-			return pending;
-		}
+		
+		return mPendingMessages.getAndSet(null);
 	}
 	
 	public void updateNotices() {
 		if (mRemoteClient == null) return; // not connected
-		synchronized(mPendingMessagesSync) {
-			mPendingMessages = null;
-		}
+		
+		mPendingNotices.set(null);
 		clearPendingAutoRefreshClientError();
 		mWorker.updateNotices();
 	}
@@ -690,11 +653,8 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public ArrayList<NoticeInfo> getPendingNotices() {
 		if (mRemoteClient == null) return null; // not connected
-		synchronized(mPendingNoticesSync) {
-			ArrayList<NoticeInfo> pending = mPendingNotices;
-			mPendingNotices = null;
-			return pending;
-		}
+		
+		return mPendingNotices.getAndSet(null);
 	}
 	
 	@Override
@@ -716,9 +676,8 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public void getBAMInfo() {
 		if (mRemoteClient == null) return; // not connected
-		synchronized(mPendingAccountMgrInfoSync) {
-			mPendingAccountMgrInfo = null;
-		}
+		
+		mPendingAccountMgrInfo.set(null);
 		clearPendingClientError();
 		mWorker.getBAMInfo();
 	}
@@ -726,11 +685,8 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public AccountMgrInfo getPendingBAMInfo() {
 		if (mRemoteClient == null) return null; // not connected
-		synchronized(mPendingAccountMgrInfoSync) {
-			AccountMgrInfo toReturn = mPendingAccountMgrInfo;
-			mPendingAccountMgrInfo = null;
-			return toReturn;
-		}
+		
+		return mPendingAccountMgrInfo.getAndSet(null);
 	}
 	
 	@Override
@@ -767,9 +723,8 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public void getAllProjectsList() {
 		if (mRemoteClient == null) return; // not connected
-		synchronized (mPendingAllProjectsListSync) {
-			mPendingAllProjectsList = null;
-		}
+		mPendingAllProjectsList.set(null);
+		
 		clearPendingClientError();
 		mWorker.getAllProjectsList();
 	}
@@ -777,11 +732,8 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public ArrayList<ProjectListEntry> getPendingAllProjectsList() {
 		if (mRemoteClient == null) return null; // not connected
-		synchronized(mPendingAllProjectsListSync) {
-			ArrayList<ProjectListEntry> pending = mPendingAllProjectsList;
-			mPendingAllProjectsList = null;
-			return pending;
-		}
+		
+		return mPendingAllProjectsList.getAndSet(null);
 	}
 	
 	@Override
@@ -944,9 +896,8 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public void getGlobalPrefsWorking() {
 		if (mRemoteClient == null) return; // not connected
-		synchronized(mPendingGlobalPrefsSync) {
-			mPendingGlobalPrefs = null;
-		}
+		
+		mPendingGlobalPrefs.set(null);
 		clearPendingClientError();
 		mWorker.getGlobalPrefsWorking();
 	}
@@ -954,11 +905,8 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public GlobalPreferences getPendingGlobalPrefsWorking() {
 		if (mRemoteClient == null) return null; // not connected
-		synchronized(mPendingGlobalPrefsSync) {
-			GlobalPreferences pending = mPendingGlobalPrefs;
-			mPendingGlobalPrefs = null;
-			return pending;
-		}
+		
+		return mPendingGlobalPrefs.getAndSet(null);
 	}
 	
 	@Override

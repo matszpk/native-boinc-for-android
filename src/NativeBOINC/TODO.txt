@@ -81,7 +81,10 @@ Na Teraz:
 / * zmienic wygląd paska w ScreenLockActivity
 / * dodać wyłączanie na podstawie temp baterii (do managera) (jeszcze nie przetestowane)
 
-* dostosować do Android 3.0 (opcjonalnie) i 4.0.
+przeprojektować obsługę zadań dla handlerów, tak by jedno zadanie jedno typu mogło tylko tylko kolejkowane
+jeszcze raz usprawnic i uszczelnić obsługę błędów
+
+/ * dostosować do Android 3.0 (opcjonalnie) i 4.0.
 
 Tablety:
 * zrobić layout głównego ekranu dla tabletów (splitview) (nie uzyteczne)

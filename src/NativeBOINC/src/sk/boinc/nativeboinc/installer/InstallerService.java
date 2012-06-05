@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.NotificationController;
@@ -94,16 +95,14 @@ public class InstallerService extends Service {
 	 * other channels should be used by services (for example NativeBoincService)
 	 */
 	private static final class PendingSimpleChannel {
-		public ArrayList<ProjectDistrib> newProjectDistribs = null;
-		public Object newProjectDistribsSync = new Object(); // syncer
-		public ClientDistrib clientDistrib = null;
-		public Object clientDistribSync = new Object();
+		public AtomicReference<ArrayList<ProjectDistrib>> newProjectDistribs =
+				new AtomicReference<ArrayList<ProjectDistrib>>();
 		
-		public UpdateItem[] updateItems = null;
-		public Object updateItemsSync = new Object();
+		public AtomicReference<ClientDistrib> clientDistrib = new AtomicReference<ClientDistrib>();
 		
-		public String[] updateProjNames = null;
-		public Object updateProjNamesSync = new Object();
+		public AtomicReference<UpdateItem[]> updateItems = new AtomicReference<UpdateItem[]>();
+		
+		public AtomicReference<String[]> updateProjNames = new AtomicReference<String[]>();
 		
 		/* pending errors used during working simple installer operations (not progress operations) */
 		public InstallError installError = null;
@@ -257,6 +256,9 @@ public class InstallerService extends Service {
 	 */
 	public class ListenerHandler extends Handler {
 		
+		/**
+		 * called after when installer have new operation to notify
+		 */
 		/* only used in the default channel */
 		public void onOperation(String distribName, String projectUrl,
 				String opDescription) {
@@ -269,6 +271,10 @@ public class InstallerService extends Service {
 					((InstallerProgressListener)listener).onOperation(distribName, opDescription);
 		}
 		
+		/**
+		 * called when operation progress happens
+		 * progress determined in range between 0 10000
+		 */
 		/* only used in the default channel */
 		public void onOperationProgress(String distribName, String projectUrl,
 				String opDescription,int progress) {
@@ -283,6 +289,9 @@ public class InstallerService extends Service {
 							distribName, opDescription, progress);
 		}
 
+		/**
+		 * called when installer encounter problem while performing operation
+		 */
 		public void onOperationError(int channelId, String distribName, String projectUrl,
 				String errorMessage) {
 			if (Logging.DEBUG) Log.d(TAG, "onError: "+channelId+","+distribName+","+errorMessage);
@@ -318,6 +327,9 @@ public class InstallerService extends Service {
 				}
 		}
 		
+		/**
+		 * called when operation was cancelled
+		 */
 		public void onOperationCancel(int channelId, String distribName, String projectUrl) {
 			if (Logging.DEBUG) Log.d(TAG, "onCancel: "+channelId+","+distribName);
 			
@@ -336,6 +348,9 @@ public class InstallerService extends Service {
 					((InstallerProgressListener)listener).onOperationCancel(distribName);
 		}
 		
+		/**
+		 * called when progress operation (installation, dumping, reinstall) was finished
+		 */
 		public void onOperationFinish(String distribName, String projectUrl) {
 			/* to next insraller stage */
 			if (Logging.DEBUG) Log.d(TAG, "Finish operation:"+distribName);
@@ -356,13 +371,14 @@ public class InstallerService extends Service {
 					((InstallerProgressListener)listener).onOperationFinish(distribName);
 		}
 		
+		/**
+		 * called when Project distributions retrieved from repository
+		 */
 		public void currentProjectDistribList(int channelId, ArrayList<ProjectDistrib> projectDistribs) {
 			if (Logging.DEBUG) Log.d(TAG, "onProjectDistribs: "+channelId);
 			PendingSimpleChannel channel = mPendingChannels[channelId];
 			
-			synchronized(channel.newProjectDistribsSync) {
-				channel.newProjectDistribs = projectDistribs;
-			}
+			channel.newProjectDistribs.set(projectDistribs);
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners)
@@ -371,13 +387,14 @@ public class InstallerService extends Service {
 					((InstallerUpdateListener)listener).currentProjectDistribList(projectDistribs);
 		}
 		
+		/**
+		 * called when Client distribution retrieved from repository
+		 */
 		public void currentClientDistrib(int channelId, ClientDistrib clientDistrib) {
 			if (Logging.DEBUG) Log.d(TAG, "onClientDistrib: "+channelId);
 			PendingSimpleChannel channel = mPendingChannels[channelId];
 			
-			synchronized(channel.clientDistribSync) {
-				channel.clientDistrib = clientDistrib;
-			}
+			channel.clientDistrib.set(clientDistrib);
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			for (AbstractInstallerListener listener: listeners)
@@ -389,9 +406,7 @@ public class InstallerService extends Service {
 		public void notifyBinariesToInstallOrUpdate(int channelId, UpdateItem[] updateItems) {
 			PendingSimpleChannel channel = mPendingChannels[channelId];
 			
-			synchronized(channel.updateItemsSync) {
-				channel.updateItems = updateItems;
-			}
+			channel.updateItems.set(updateItems);
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			
@@ -404,9 +419,7 @@ public class InstallerService extends Service {
 		public void notifyBinariesToUpdateFromSDCard(int channelId, String[] projectNames) {
 			PendingSimpleChannel channel = mPendingChannels[channelId];
 			
-			synchronized(channel.updateItemsSync) {
-				channel.updateProjNames = projectNames;
-			}
+			channel.updateProjNames.set(projectNames);
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
 			
@@ -507,9 +520,9 @@ public class InstallerService extends Service {
 	public void updateClientDistrib(int channelId) {
 		PendingSimpleChannel channel = mPendingChannels[channelId];
 		
-		synchronized(channel.clientDistribSync) {
-			channel.clientDistrib = null;
-		}
+		
+		channel.clientDistrib.set(null);
+		
 		clearPendingError(channelId);
 		mInstallerThread.updateClientDistrib(channelId);
 	}
@@ -521,11 +534,7 @@ public class InstallerService extends Service {
 	public ClientDistrib getPendingClientDistrib(int channelId) {
 		PendingSimpleChannel channel = mPendingChannels[channelId];
 		
-		synchronized(channel.clientDistribSync) {
-			ClientDistrib pending = channel.clientDistrib;
-			channel.clientDistrib = null;
-			return pending;
-		}
+		return channel.clientDistrib.getAndSet(null);
 	}
 	
 	/**
@@ -576,9 +585,8 @@ public class InstallerService extends Service {
 	public void updateProjectDistribList(int channelId) {
 		PendingSimpleChannel channel = mPendingChannels[channelId];
 		
-		synchronized(channel.newProjectDistribsSync) {
-			channel.newProjectDistribs = null;
-		}
+		channel.newProjectDistribs.set(null);
+		
 		clearPendingError(channelId);
 		mInstallerThread.updateProjectDistribList(channelId);
 	}
@@ -590,11 +598,7 @@ public class InstallerService extends Service {
 	public ArrayList<ProjectDistrib> getPendingNewProjectDistribList(int channelId) {
 		PendingSimpleChannel channel = mPendingChannels[channelId];
 		
-		synchronized(channel.newProjectDistribsSync) {
-			ArrayList<ProjectDistrib> pending = channel.newProjectDistribs;
-			channel.newProjectDistribs = null;
-			return pending;
-		}
+		return channel.newProjectDistribs.getAndSet(null);
 	}
 	
 	/* remove detached projects from installed projects */
@@ -710,9 +714,7 @@ public class InstallerService extends Service {
 	public void getBinariesToUpdateOrInstall(int channelId) {
 		PendingSimpleChannel channel = mPendingChannels[channelId];
 		
-		synchronized(channel.updateItemsSync) {
-			channel.updateItems = null;
-		}
+		channel.updateItems.set(null);
 		
 		clearPendingError(channelId);
 		mInstallerThread.getBinariesToUpdateOrInstall(channelId);
@@ -725,11 +727,7 @@ public class InstallerService extends Service {
 	public UpdateItem[] getPendingBinariesToUpdateOrInstall(int channelId) {
 		PendingSimpleChannel channel = mPendingChannels[channelId];
 		
-		synchronized(channel.updateItemsSync) {
-			UpdateItem[] pending = channel.updateItems;
-			channel.updateItems = null;
-			return pending;
-		}
+		return channel.updateItems.getAndSet(null);
 	}
 	
 	public void getBinariesToUpdateFromSDCard(String path) {
@@ -739,9 +737,7 @@ public class InstallerService extends Service {
 	public void getBinariesToUpdateFromSDCard(int channelId, String path) {
 		PendingSimpleChannel channel = mPendingChannels[channelId];
 		
-		synchronized(channel.updateProjNamesSync) {
-			channel.updateProjNames = null;
-		}
+		channel.updateProjNames.set(null);
 		
 		clearPendingError(channelId);
 		mInstallerThread.getBinariesToUpdateFromSDCard(channelId, path);
@@ -754,11 +750,7 @@ public class InstallerService extends Service {
 	public String[] getPendingBinariesToUpdateFromSDCard(int channelId) {
 		PendingSimpleChannel channel = mPendingChannels[channelId];
 		
-		synchronized(channel.updateProjNamesSync) {
-			String[] pending = channel.updateProjNames;
-			channel.updateProjNames= null;
-			return pending;
-		}
+		return channel.updateProjNames.getAndSet(null);
 	}
 	
 	

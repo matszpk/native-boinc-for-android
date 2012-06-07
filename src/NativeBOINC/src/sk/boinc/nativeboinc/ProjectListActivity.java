@@ -29,6 +29,7 @@ import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
+import sk.boinc.nativeboinc.installer.InstallOp;
 import sk.boinc.nativeboinc.installer.InstallerProgressListener;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
@@ -357,7 +358,9 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 				if (mProjectDistribs == null) {
 					if (mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
 						if (Logging.DEBUG) Log.d(TAG, "get List from installer");
-						mProjectDistribs = mInstaller.getPendingNewProjectDistribList();
+						mProjectDistribs = (ArrayList<ProjectDistrib>)
+								mInstaller.getPendingOutput(InstallOp.UpdateProjectDistribs);
+						
 						if (mProjectDistribs != null) {
 							mDataDownloadProgressState = ProgressState.FINISHED;
 							updateDataSet();
@@ -375,7 +378,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			}
 			
 			// do not finish when error
-			mInstaller.handlePendingError(this);
+			mInstaller.handlePendingError(InstallOp.UpdateProjectDistribs, this);
 		} else {
 			// from boinc client
 			if (mConnectionManager == null)
@@ -539,8 +542,8 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	}
 	
 	@Override
-	public boolean onOperationError(String distribName, String errorMessage) {
-		if (InstallerService.isSimpleOperation(distribName) && mGetFromInstaller &&
+	public boolean onOperationError(InstallOp installOp, String distribName, String errorMessage) {
+		if (installOp.equals(InstallOp.UpdateProjectDistribs) && mGetFromInstaller &&
 				(mDataDownloadProgressState == ProgressState.IN_PROGRESS ||
 				 mDataDownloadProgressState == ProgressState.FINISHED)) {
 			mDataDownloadProgressState = ProgressState.FAILED;
@@ -551,11 +554,14 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	}
 
 	@Override
-	public void onOperationCancel(String distribName) {
+	public void onOperationCancel(InstallOp installOp, String distribName) {
+		// if operation cancelled
+		if (mGetFromInstaller && installOp.equals(InstallOp.UpdateProjectDistribs))
+			mDataDownloadProgressState = ProgressState.FAILED;
 	}
 
 	@Override
-	public void onOperationFinish(String distribName) {
+	public void onOperationFinish(InstallOp installOp, String distribName) {
 	}
 
 	@Override

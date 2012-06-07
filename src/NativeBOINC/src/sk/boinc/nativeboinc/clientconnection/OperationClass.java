@@ -22,7 +22,7 @@ package sk.boinc.nativeboinc.clientconnection;
  * @author mat
  *
  */
-public interface RegularOp {
+public interface OperationClass {
 	public static final int OP_UPDATE_CLIENT_MODE = 2;
 	public static final int OP_UPDATE_HOST_INFO = 3;
 	
@@ -33,25 +33,22 @@ public interface RegularOp {
 	public static final int OP_UPDATE_NOTICES = 8;
 	
 	public static final int OP_GET_BAM_INFO = 9;
-	public static final int OP_ATTACH_TO_BAM = 10;
-	public static final int OP_SYNCHRONIZE_WITH_BAM = 11;
-	public static final int OP_STOP_USING_BAM = 12;
+	public static final int OP_SYNCHRONIZE_WITH_BAM = 10;
+	public static final int OP_STOP_USING_BAM = 11;
 	
-	public static final int OP_GET_ALL_PROJECT_LIST = 13;
+	public static final int OP_GET_ALL_PROJECT_LIST = 12;
 	
-	public static final int OP_PROJECT_ATTACH = 14;
-	public static final int OP_ADD_PROJECT = 15;
-	public static final int OP_GET_PROJECT_CONFIG = 16;
+	public static final int OP_ADD_PROJECT = 14;
+	public static final int OP_GET_PROJECT_CONFIG = 15;
 	
-	public static final int OP_GLOBAL_PREFS_WORKING = 17;
-	public static final int OP_GLOBAL_PREFS_OVERRIDE = 18;
+	public static final int OP_GLOBAL_PREFS_WORKING = 16;
+	public static final int OP_GLOBAL_PREFS_OVERRIDE = 17;
 	
-	public static final int OP_RUN_BENCHMARKS = 19;
-	public static final int OP_SET_RUN_MODE = 20;
-	public static final int OP_SET_NETWORK_MODE = 21;
-	public static final int OP_SHUTDOWN_CORE = 22;
+	public static final int OP_RUN_BENCHMARKS = 18;
+	public static final int OP_SET_RUN_MODE = 19;
+	public static final int OP_SET_NETWORK_MODE = 20;
 	
-	public static final int OP_PROJECT_OP = 23;
-	public static final int OP_TASK_OP = 24;
-	public static final int OP_TRANSFER_OP = 25;
+	public static final int OP_PROJECT_OP = 21;
+	public static final int OP_TASK_OP = 22;
+	public static final int OP_TRANSFER_OP = 23;
 }

@@ -33,6 +33,7 @@ import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincReplyListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
+import sk.boinc.nativeboinc.nativeclient.WorkerOp;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.TaskItem;
 import sk.boinc.nativeboinc.widget.NativeBoincWidgetProvider;
@@ -415,7 +416,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	
 
 	@Override
-	public boolean onNativeBoincServiceError(String message) {
+	public boolean onNativeBoincServiceError(WorkerOp workerOp, String message) {
 		//Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 		return false;
 	}

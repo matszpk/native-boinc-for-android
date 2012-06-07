@@ -85,7 +85,7 @@ public class Downloader {
 		return mPgpKeyContent;
 	}
 	
-	public void downloadPGPKey(final int channelId, final String distribName, final String projectUrl)
+	public void downloadPGPKey(int channelId, InstallOp installOp, String distribName, String projectUrl)
 			throws InstallationException {
 		
 		Thread currentThread = Thread.currentThread();
@@ -174,7 +174,7 @@ public class Downloader {
 		}
 		
 		if (!isDownloaded) {
-			mInstallerHandler.notifyError(channelId, distribName, projectUrl,
+			mInstallerHandler.notifyError(channelId , installOp, distribName, projectUrl,
 					mContext.getString(R.string.downloadPGPKeyError));
 			throw new InstallationException();
 		}
@@ -185,7 +185,8 @@ public class Downloader {
 	public static final int VERIFICATION_CANCELLED = 4;
 	
 	public int verifyFile(File file, String urlString, boolean withProgress, int channelId,
-			final String distribName, final String projectUrl) throws InstallationException {
+			InstallOp installOp, final String distribName, final String projectUrl)
+					throws InstallationException {
 		if (Logging.DEBUG) Log.d(TAG, "verifying file "+urlString);
 		FileInputStream pgpStream = null;
 		
@@ -201,7 +202,7 @@ public class Downloader {
 					if (mContext.getFileStreamPath("pgpkey.pgp").exists())
 						pgpStream = mContext.openFileInput("pgpkey.pgp");
 					else	// download from keyserver
-						downloadPGPKey(channelId, distribName, projectUrl);
+						downloadPGPKey(channelId, installOp, distribName, projectUrl);
 				}
 				
 				if (mPgpKeyContent == null) {
@@ -221,7 +222,7 @@ public class Downloader {
 		} catch(InterruptedIOException ex) {
 			return VERIFICATION_CANCELLED;
 		} catch(IOException ex) {
-			mInstallerHandler.notifyError(channelId, distribName, projectUrl,
+			mInstallerHandler.notifyError(channelId, installOp, distribName, projectUrl,
 					mContext.getString(R.string.loadPGPKeyError));
 			throw new InstallationException();
 		} finally {
@@ -253,7 +254,7 @@ public class Downloader {
 		} catch(InterruptedIOException ex) {
 			return VERIFICATION_CANCELLED;
 		} catch(IOException ex) {
-			mInstallerHandler.notifyError(channelId, distribName, projectUrl,
+			mInstallerHandler.notifyError(channelId, installOp, distribName, projectUrl,
 					mContext.getString(R.string.downloadSignatureError));
 			throw new InstallationException();
 		} finally {
@@ -336,7 +337,7 @@ public class Downloader {
 			return VERIFICATION_CANCELLED;
 		} catch (Exception ex) {
 			if (Logging.DEBUG) Log.d(TAG, "verif failed:"+ex.getMessage());
-			mInstallerHandler.notifyError(channelId, distribName, projectUrl,
+			mInstallerHandler.notifyError(channelId, installOp, distribName, projectUrl,
 					mContext.getString(R.string.verifySignatureError));
 			throw new InstallationException();
 		} finally {
@@ -349,7 +350,8 @@ public class Downloader {
 	
 	public void downloadFile(String urlString, String outFilename, final String opDesc,
 			final String messageError, final boolean withProgress, final int channelId,
-			final String distribName, final String projectUrl) throws InstallationException {
+			final InstallOp installOp, final String distribName, final String projectUrl)
+					throws InstallationException {
 		
 		Thread currentThread = Thread.currentThread();
 		
@@ -418,7 +420,7 @@ public class Downloader {
 			return; // cancelled
 		} catch(IOException ex) {
 			mContext.deleteFile(outFilename);
-			mInstallerHandler.notifyError(channelId, distribName, projectUrl, messageError);
+			mInstallerHandler.notifyError(channelId, installOp, distribName, projectUrl, messageError);
 			throw new InstallationException();
 		} finally {
 			try {

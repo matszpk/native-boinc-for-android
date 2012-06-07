@@ -648,16 +648,6 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 
 	@Override
 	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
-		/*
-		 * adds fake project for testing behaviour
-		 */
-		/*ProjectInfo fakeProject = new ProjectInfo();
-		fakeProject.project = "Fake:"+System.currentTimeMillis();
-		fakeProject.share = "0.0";
-		fakeProject.account = "aaaa";
-		fakeProject.team = "team";
-		projects.add(fakeProject);*/
-		
 		mPendingProjs = projects;
 		mUpdateProjectsInProgress = false;
 		mLastUpdateTime = SystemClock.elapsedRealtime();

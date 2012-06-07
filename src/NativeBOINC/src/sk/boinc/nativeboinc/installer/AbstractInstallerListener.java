@@ -31,5 +31,5 @@ public interface AbstractInstallerListener {
 	 * please lookup on InstallerService
 	 */
 	public abstract void onChangeInstallerIsWorking(boolean isWorking);
-	public abstract boolean onOperationError(String distribName, String errorMessage);
+	public abstract boolean onOperationError(InstallOp installOp, String distribName, String errorMessage);
 }

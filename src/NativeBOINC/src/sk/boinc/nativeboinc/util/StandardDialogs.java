@@ -178,7 +178,7 @@ public class StandardDialogs {
 			String errorMessage) {
 		Bundle args = new Bundle();
 		
-		if (!InstallerService.isSimpleOperation(distribName))
+		if (distribName.length() != 0)
 			args.putString(ARG_ERROR, distribName + ": " + errorMessage);
 		else
 			args.putString(ARG_ERROR, errorMessage);

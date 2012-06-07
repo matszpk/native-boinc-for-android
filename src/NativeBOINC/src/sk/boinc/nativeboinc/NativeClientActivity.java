@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.AbstractInstallerListener;
+import sk.boinc.nativeboinc.installer.InstallOp;
 import sk.boinc.nativeboinc.installer.InstallationOps;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.nativeclient.AbstractNativeBoincListener;
@@ -374,7 +375,7 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	private void updateServicesError() {
 		if (mRunner != null && mInstaller != null) {
 			mRunner.handlePendingErrorMessage(this);
-			mInstaller.handlePendingError(this);
+			mInstaller.handlePendingError(null, this);
 		}
 	}
 	
@@ -644,8 +645,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	}
 
 	@Override
-	public boolean onOperationError(String distribName, String errorMessage) {
-		if (InstallerService.isSimpleOperation(distribName)) {
+	public boolean onOperationError(InstallOp installOp, String distribName, String errorMessage) {
+		if (!installOp.equals(InstallOp.ProgressOperation)) { // only simple operation
 			// if global install error
 			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
 			return true;

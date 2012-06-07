@@ -23,6 +23,7 @@ import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
+import sk.boinc.nativeboinc.installer.InstallOp;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
@@ -52,7 +53,7 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	// if true, then client distrib shouldnot be updated
 	private ClientDistrib mClientDistrib = null;
 	private int mClientDistribProgressState = ProgressState.NOT_RUN;
-
+	
 	private Button mInfoButton = null;
 	private Button mNextButton = null;
 	
@@ -154,12 +155,12 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	private void updateActivityState() {
 		setProgressBarIndeterminateVisibility(mInstaller.isWorking());
 		
-		if (mInstaller.handlePendingError(this))
+		if (mInstaller.handlePendingError(InstallOp.UpdateClientDistrib, this))
 			return;
 		
 		if (mClientDistrib == null) {
 			if (mClientDistribProgressState == ProgressState.IN_PROGRESS) {
-				mClientDistrib = mInstaller.getPendingClientDistrib();
+				mClientDistrib = (ClientDistrib)mInstaller.getPendingOutput(InstallOp.UpdateClientDistrib);
 				
 				if (mClientDistrib != null)
 					updateClientVersionText();
@@ -193,8 +194,8 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	}
 	
 	@Override
-	public boolean onOperationError(String distribName, String errorMessage) {
-		if (InstallerService.isSimpleOperation(distribName) &&
+	public boolean onOperationError(InstallOp installOp, String distribName, String errorMessage) {
+		if (installOp.equals(InstallOp.UpdateClientDistrib) &&
 				mClientDistribProgressState == ProgressState.IN_PROGRESS) {
 			mClientDistribProgressState = ProgressState.FAILED;
 			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);

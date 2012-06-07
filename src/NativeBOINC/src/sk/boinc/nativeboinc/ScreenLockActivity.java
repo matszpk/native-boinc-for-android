@@ -26,6 +26,7 @@ import sk.boinc.nativeboinc.nativeclient.ExitCode;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincReplyListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
+import sk.boinc.nativeboinc.nativeclient.WorkerOp;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -240,7 +241,7 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 	}
 
 	@Override
-	public boolean onNativeBoincServiceError(String message) {
+	public boolean onNativeBoincServiceError(WorkerOp workerOp, String message) {
 		// trigger progress change
 		mErrorMessage = message;
 		onProgressChange(-1.0);

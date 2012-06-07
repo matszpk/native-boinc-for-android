@@ -32,6 +32,6 @@ public interface InstallerProgressListener extends AbstractInstallerListener {
 	 */
 	public abstract void onOperation(String distribName, String opDescription);
 	public abstract void onOperationProgress(String distribName, String opDescription, int progress);
-	public abstract void onOperationCancel(String distribName);
-	public abstract void onOperationFinish(String distribName);
+	public abstract void onOperationCancel(InstallOp installOp, String distribName);
+	public abstract void onOperationFinish(InstallOp installOp, String distribName);
 }

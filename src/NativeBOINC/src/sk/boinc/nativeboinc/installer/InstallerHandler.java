@@ -47,6 +47,7 @@ import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUpdateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
+import sk.boinc.nativeboinc.nativeclient.WorkerOp;
 import sk.boinc.nativeboinc.util.Chmod;
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.HostListDbAdapter;
@@ -205,12 +206,12 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		}
 		
 		try {
-			mClientDistrib = mInstallOps.updateClientDistrib(channelId);
+			mClientDistrib = mInstallOps.updateClientDistrib(channelId, InstallOp.UpdateClientDistrib);
 	
 			if (mClientDistrib == null)
 				return false;
 			
-			notifyClientDistrib(channelId, mClientDistrib);
+			notifyClientDistrib(channelId, InstallOp.UpdateClientDistrib, mClientDistrib);
 		} finally {
 			synchronized (this) {
 				mCurrentChannelId = -1; // unset channel id
@@ -294,7 +295,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						mDownloader.downloadFile(zipUrlString, "boinc_client.zip",
 								mInstallerService.getString(R.string.downloadNativeClient),
 								mInstallerService.getString(R.string.downloadNativeClientError), true,
-								InstallerService.DEFAULT_CHANNEL_ID,
+								InstallerService.DEFAULT_CHANNEL_ID, InstallOp.ProgressOperation,
 								InstallerService.BOINC_CLIENT_ITEM_NAME, "");
 						
 						if (currentThread.isInterrupted()) {
@@ -305,7 +306,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						
 						int status = mDownloader.verifyFile(mInstallerService.getFileStreamPath("boinc_client.zip"),
 								zipUrlString, true, InstallerService.DEFAULT_CHANNEL_ID,
-								InstallerService.BOINC_CLIENT_ITEM_NAME, "");
+								InstallOp.ProgressOperation, InstallerService.BOINC_CLIENT_ITEM_NAME, "");
 						
 						if (status == Downloader.VERIFICATION_CANCELLED) {
 							mInstallerService.deleteFile("boinc_client.zip");
@@ -976,7 +977,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						mDownloader.downloadFile(zipUrl, outZipFilename,
 								mInstallerService.getString(R.string.downloadApplication),
 								mInstallerService.getString(R.string.downloadApplicationError), true,
-								InstallerService.DEFAULT_CHANNEL_ID,
+								InstallerService.DEFAULT_CHANNEL_ID, InstallOp.ProgressOperation,
 								mProjectDistrib.projectName, mProjectDistrib.projectUrl);
 						
 						if (currentThread.isInterrupted()) {
@@ -987,7 +988,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						
 						int status = mDownloader.verifyFile(mInstallerService.getFileStreamPath(outZipFilename),
 								zipUrl, true, InstallerService.DEFAULT_CHANNEL_ID,
-								mProjectDistrib.projectName, mProjectDistrib.projectUrl);
+								InstallOp.ProgressOperation, mProjectDistrib.projectName,
+								mProjectDistrib.projectUrl);
 						
 						if (status == Downloader.VERIFICATION_CANCELLED) {
 							mInstallerService.deleteFile(outZipFilename);
@@ -1399,12 +1401,12 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			notifyChangeOfIsWorking();
 		}
 		try {
-			ArrayList<ProjectDistrib> projectDistribs =
-					mInstallOps.updateProjectDistribList(channelId, mProjectDistribs);
+			ArrayList<ProjectDistrib> projectDistribs = mInstallOps.updateProjectDistribList(channelId,
+					InstallOp.UpdateProjectDistribs, mProjectDistribs);
 			
 			if (projectDistribs != null) {
 				mProjectDistribs = projectDistribs;
-				notifyProjectDistribs(channelId, mProjectDistribs);
+				notifyProjectDistribs(channelId, InstallOp.UpdateProjectDistribs, mProjectDistribs);
 			}
 		} finally {
 			// hanbdler doesnt working currently
@@ -1535,14 +1537,15 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		try {
 			/* update client and project list */
-			ClientDistrib clientDistrib = mInstallOps.updateClientDistrib(channelId);
+			ClientDistrib clientDistrib = mInstallOps.updateClientDistrib(channelId,
+					InstallOp.GetBinariesToInstall);
 			if (clientDistrib != null)
 				mClientDistrib = clientDistrib;
 			else // fail
 				return;
 			
-			ArrayList<ProjectDistrib> projectDistribs =
-					mInstallOps.updateProjectDistribList(channelId, mProjectDistribs);
+			ArrayList<ProjectDistrib> projectDistribs = mInstallOps.updateProjectDistribList(channelId,
+							InstallOp.GetBinariesToInstall, mProjectDistribs);
 			if (projectDistribs != null)
 				mProjectDistribs = projectDistribs;
 			else // fail
@@ -1554,7 +1557,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			
 			// notify final result
 			if (output != null)
-				notifyBinariesToInstallOrUpdate(channelId, output);
+				notifyBinariesToInstallOrUpdate(channelId, InstallOp.GetBinariesToInstall, output);
 		} catch(Exception ex) {
 			notifyError("", "", mInstallerService.getString(R.string.unexpectedError));
 		} finally {
@@ -1576,6 +1579,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			notifyChangeOfIsWorking();
 		}
 		
+		InstallOp installOp = InstallOp.GetBinariesFromSDCard(path);
+		
 		try {
 			// mProjectDescs used by updateDistribsFromSDCard to retrieve projectUrl
 			mProjectDescs = mProjectsRetriever.getProjectDescriptors();
@@ -1584,9 +1589,11 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				return;
 			}
 			
-			String[] output = mInstallOps.getBinariesToUpdateFromSDCard(channelId, path, mProjectDescs);
+			String[] output = mInstallOps.getBinariesToUpdateFromSDCard(channelId, installOp,
+					path, mProjectDescs);
 			if (output != null)
-				notifyBinariesToUpdateFromSDCard(channelId, output);
+				notifyBinariesToUpdateFromSDCard(channelId,
+						InstallOp.GetBinariesFromSDCard(path), output);
 		} finally {
 			synchronized(this) {
 				mCurrentChannelId = -1;
@@ -1715,83 +1722,85 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	
 	public synchronized void notifyError(final String distribName, final String projectUrl,
 			final String errorMessage) {
-		notifyError(InstallerService.DEFAULT_CHANNEL_ID, distribName, projectUrl, errorMessage);
+		notifyError(InstallerService.DEFAULT_CHANNEL_ID, InstallOp.ProgressOperation, distribName, projectUrl,
+				errorMessage);
 	}
 	
-	public synchronized void notifyError(final int channelId, final String distribName, final String projectUrl,
-			final String errorMessage) {
+	public synchronized void notifyError(final int channelId, final InstallOp installOp,
+			final String distribName, final String projectUrl, final String errorMessage) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.onOperationError(channelId, distribName, projectUrl, errorMessage);
+				mListenerHandler.onOperationError(channelId, installOp, distribName, projectUrl, errorMessage);
 			}
 		});
 	}
 	
 	public void notifyCancel(final String distribName, final String projectUrl) {
-		notifyCancel(InstallerService.DEFAULT_CHANNEL_ID, distribName, projectUrl);
+		notifyCancel(InstallerService.DEFAULT_CHANNEL_ID, InstallOp.ProgressOperation,
+				distribName, projectUrl);
 	}
 	
-	public synchronized void notifyCancel(final int channelId, final String distribName,
-			final String projectUrl) {
+	public synchronized void notifyCancel(final int channelId, final InstallOp installOp,
+			final String distribName, final String projectUrl) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.onOperationCancel(channelId, distribName, projectUrl);
+				mListenerHandler.onOperationCancel(channelId, installOp, distribName, projectUrl);
 			}
 		});
 	}
 	
 	public void notifyFinish(final String distribName, final String projectUrl) {
-		notifyFinish(InstallerService.DEFAULT_CHANNEL_ID, distribName, projectUrl);
+		notifyFinish(InstallOp.ProgressOperation, distribName, projectUrl);
 	}
 	
-	public synchronized void notifyFinish(final int channelId, final String distribName,
-			final String projectUrl) {
+	public synchronized void notifyFinish(final InstallOp installOp,
+			final String distribName, final String projectUrl) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.onOperationFinish(distribName, projectUrl);
+				mListenerHandler.onOperationFinish(installOp, distribName, projectUrl);
 			}
 		});
 	}
 	
-	public synchronized void notifyProjectDistribs(final int channelId,
+	public synchronized void notifyProjectDistribs(final int channelId, final InstallOp installOp,
 			final ArrayList<ProjectDistrib> projectDistribs) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.currentProjectDistribList(channelId, projectDistribs);
+				mListenerHandler.currentProjectDistribList(channelId, installOp, projectDistribs);
 			}
 		});
 	}
 	
-	public synchronized void notifyClientDistrib(final int channelId,
+	public synchronized void notifyClientDistrib(final int channelId, final InstallOp installOp,
 			final ClientDistrib clientDistrib) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.currentClientDistrib(channelId, clientDistrib);
+				mListenerHandler.currentClientDistrib(channelId, installOp, clientDistrib);
 			}
 		});
 	}
 	
 	public synchronized void notifyBinariesToInstallOrUpdate(final int channelId,
-			final UpdateItem[] updateItems) {
+			final InstallOp installOp, final UpdateItem[] updateItems) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.notifyBinariesToInstallOrUpdate(channelId, updateItems);
+				mListenerHandler.notifyBinariesToInstallOrUpdate(channelId, installOp, updateItems);
 			}
 		});
 	}
 	
 	public synchronized void notifyBinariesToUpdateFromSDCard(final int channelId,
-			final String[] projectNames) {
+			final InstallOp installOp, final String[] projectNames) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.notifyBinariesToUpdateFromSDCard(channelId, projectNames);
+				mListenerHandler.notifyBinariesToUpdateFromSDCard(channelId, installOp, projectNames);
 			}
 		});
 	}
@@ -1897,7 +1906,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	}
 
 	@Override
-	public boolean onNativeBoincServiceError(String message) {
+	public boolean onNativeBoincServiceError(WorkerOp workerOp, String message) {
 		// also notify
 		notifyIfClientUpdatedAndRan();
 		return false; // do not consume error

@@ -99,7 +99,7 @@ public class InstallationOps {
 	/*
 	 * retrieve client distrib
 	 */
-	public ClientDistrib updateClientDistrib(int channelId) {
+	public ClientDistrib updateClientDistrib(int channelId, InstallOp installOp) {
 		String clientListUrl = mContext.getString(R.string.installClientSourceUrl)+"client.xml";
 		
 		ClientDistrib clientDistrib = null;
@@ -111,27 +111,30 @@ public class InstallationOps {
 				mDownloader.downloadFile(clientListUrl, "client.xml",
 						mContext.getString(R.string.clientListDownload), 
 						mContext.getString(R.string.clientListDownloadError), false,
-						channelId, InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME, "");
+						channelId, installOp, "", "");
+				
+				if (Thread.interrupted()) { // if cancelled
+					if (Logging.DEBUG) Log.d(TAG, "updateClientDistrib interrupted");
+					mInstallerHandler.notifyCancel(channelId, installOp, "", "");
+					return null;
+				}
 				
 				/* if doesnt downloaded */
 				if (!mContext.getFileStreamPath("client.xml").exists())
 					return null;
 				
 				int status = mDownloader.verifyFile(mContext.getFileStreamPath("client.xml"),
-						clientListUrl, false, channelId,
-						InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME, "");
+						clientListUrl, false, channelId, installOp, "", "");
 				
 				if (status == Downloader.VERIFICATION_CANCELLED) {
 					Thread.interrupted(); // clear interrupted flag
 					if (Logging.DEBUG) Log.d(TAG, "updateClientDistrib verif canceled");
-					mInstallerHandler.notifyCancel(channelId,
-							InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME, "");
+					mInstallerHandler.notifyCancel(channelId, installOp, "", "");
 					return null;	// cancelled
 				}
 				if (status == Downloader.VERIFICATION_FAILED) {
-					mInstallerHandler.notifyError(channelId,
-							InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME,
-							"", mContext.getString(R.string.verifySignatureFailed));
+					mInstallerHandler.notifyError(channelId, installOp,
+							"", "", mContext.getString(R.string.verifySignatureFailed));
 					return null;	// cancelled
 				}
 			} catch(InstallationException ex) {
@@ -140,8 +143,7 @@ public class InstallationOps {
 
 			if (Thread.interrupted()) { // if cancelled
 				if (Logging.DEBUG) Log.d(TAG, "updateClientDistrib interrupted");
-				mInstallerHandler.notifyCancel(channelId,
-						InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME, "");
+				mInstallerHandler.notifyCancel(channelId, installOp, "", "");
 				return null;
 			}
 			
@@ -153,18 +155,15 @@ public class InstallationOps {
 				/* parse and notify */
 				clientDistrib = ClientDistribListParser.parse(inStream);
 				if (clientDistrib == null)
-					mInstallerHandler.notifyError(channelId,
-							InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME,
-							"", mContext.getString(R.string.clientListParseError));
+					mInstallerHandler.notifyError(channelId, installOp,
+							"", "", mContext.getString(R.string.clientListParseError));
 				else { // verify data
 					if (clientDistrib.filename.length() == 0 || clientDistrib.version.length() == 0)
-						mInstallerHandler.notifyError(channelId,
-								InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME, "",
+						mInstallerHandler.notifyError(channelId, installOp, "", "",
 								mContext.getString(R.string.badDataInClientDistrib));
 				}
 			}  catch(IOException ex) {
-				mInstallerHandler.notifyError(channelId,
-						InstallerService.BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME, "",
+				mInstallerHandler.notifyError(channelId, installOp, "", "",
 						mContext.getString(R.string.clientListParseError));
 				return null;
 			} finally {
@@ -189,7 +188,7 @@ public class InstallationOps {
 	}
 	
 	public ArrayList<ProjectDistrib> parseProjectDistribs(int channelId,
-			String filename, boolean notify, String notifyDistribName) {
+			String filename, boolean notify, InstallOp installOp) {
 		InputStream inStream = null;
 		ArrayList<ProjectDistrib> projectDistribs = null;
 		try {
@@ -202,7 +201,7 @@ public class InstallationOps {
 					if (distrib.projectName.length() == 0 || distrib.filename.length() == 0 ||
 							distrib.projectUrl.length() == 0 || distrib.version.length() == 0) {
 						if (notify) // notify error (corrupted list)
-							mInstallerHandler.notifyError(channelId, notifyDistribName, "",
+							mInstallerHandler.notifyError(channelId, installOp, "", "",
 									mContext.getString(R.string.badDataInProjectDistribs));
 						return null;
 					}
@@ -211,11 +210,11 @@ public class InstallationOps {
 				// if success
 				return projectDistribs;
 			} else if (notify) // notify error
-				mInstallerHandler.notifyError(channelId, notifyDistribName, "",
+				mInstallerHandler.notifyError(channelId, installOp, "", "",
 						mContext.getString(R.string.appListParseError));
 		} catch(IOException ex) {
 			if (notify)
-				mInstallerHandler.notifyError(channelId, notifyDistribName, "",
+				mInstallerHandler.notifyError(channelId, installOp, "", "",
 						mContext.getString(R.string.appListParseError));
 		} finally {
 			try {
@@ -229,7 +228,7 @@ public class InstallationOps {
 	/**
 	 * @return null if cancelled
 	 */
-	public ArrayList<ProjectDistrib> updateProjectDistribList(int channelId,
+	public ArrayList<ProjectDistrib> updateProjectDistribList(int channelId, InstallOp installOp,
 			ArrayList<ProjectDistrib> previousDistribs) {
 		String appListUrl = mContext.getString(R.string.installAppsSourceUrl)+"apps.xml";
 		
@@ -237,35 +236,37 @@ public class InstallationOps {
 			mDownloader.downloadFile(appListUrl, "apps.xml",
 					mContext.getString(R.string.appListDownload),
 					mContext.getString(R.string.appListDownloadError), false, channelId, 
-					InstallerService.BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME, "");
+					installOp, "", "");
+			
+			if (Thread.interrupted()) { // if cancelled
+				if (Logging.DEBUG) Log.d(TAG, "updateClientDistrib interrupted");
+				mInstallerHandler.notifyCancel(channelId, installOp, "", "");
+				return null;
+			}
 			
 			int status = mDownloader.verifyFile(mContext.getFileStreamPath("apps.xml"),
-					appListUrl, false, channelId,
-					InstallerService.BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME, "");
+					appListUrl, false, channelId, installOp, "", "");
 			
 			if (status == Downloader.VERIFICATION_CANCELLED) {
 				Thread.interrupted(); // clear interrupted flag
-				mInstallerHandler.notifyCancel(channelId,
-						InstallerService.BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME, "");
+				mInstallerHandler.notifyCancel(channelId, installOp, "", "");
 				return null;	// cancelled
 			}
 			if (status == Downloader.VERIFICATION_FAILED) {
-				mInstallerHandler.notifyError(channelId,
-						InstallerService.BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME,
-						"", mContext.getString(R.string.verifySignatureFailed));
+				mInstallerHandler.notifyError(channelId, installOp, "", "",
+						mContext.getString(R.string.verifySignatureFailed));
 				/* errors occurred, but we returns previous value */
 				return previousDistribs;
 			}
 			
 			if (Thread.interrupted()) { // if cancelled
-				mInstallerHandler.notifyCancel(channelId,
-						InstallerService.BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME, "");
+				mInstallerHandler.notifyCancel(channelId, installOp, "", "");
 				return null;
 			}
 			
 			/* parse it */
 			ArrayList<ProjectDistrib> projectDistribs = parseProjectDistribs(channelId, "apps.xml", true,
-					InstallerService.BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME);
+					installOp);
 			if (projectDistribs != null) {
 				// make backup
 				mContext.getFileStreamPath("apps.xml").renameTo(
@@ -414,17 +415,19 @@ public class InstallationOps {
 		return array;
 	}
 	
-	public String[] getBinariesToUpdateFromSDCard(int channelId, String path,
+	public String[] getBinariesToUpdateFromSDCard(int channelId, InstallOp installOp, String path,
 			ProjectDescriptor[] projectDescs) {
 		File dirFile = new File(path);
 		if (!dirFile.isDirectory()) {
-			mInstallerHandler.notifyError(channelId, "", "", mContext.getString(R.string.binSDCardDirReadError));
+			mInstallerHandler.notifyError(channelId, installOp, "", "",
+					mContext.getString(R.string.binSDCardDirReadError));
 			return null;
 		}
 		
 		File[] fileList = dirFile.listFiles();
 		if (fileList == null) {
-			mInstallerHandler.notifyError(channelId, "", "", mContext.getString(R.string.binSDCardDirReadError));
+			mInstallerHandler.notifyError(channelId, installOp, "", "",
+					mContext.getString(R.string.binSDCardDirReadError));
 			return null;
 		}
 		

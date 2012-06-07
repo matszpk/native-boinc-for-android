@@ -111,7 +111,8 @@ public class NativeBoincWorkerHandler extends Handler {
 		CcState ccState = mRpcClient.getState();
 		
 		if (ccState == null)  {
-			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError));
+			notifyNativeBoincServiceError(WorkerOp.GetTasks,
+					mContext.getString(R.string.nativeClientResultsError));
 			return false;
 		}
 		
@@ -174,7 +175,8 @@ public class NativeBoincWorkerHandler extends Handler {
 		
 		ArrayList<Result> results = mRpcClient.getResults();
 		if (results == null) {
-			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError));
+			notifyNativeBoincServiceError(WorkerOp.GetTasks,
+					mContext.getString(R.string.nativeClientResultsError));
 			return;
 		}
 		// try to update results
@@ -198,7 +200,8 @@ public class NativeBoincWorkerHandler extends Handler {
 		
 		ArrayList<Project> projects = mRpcClient.getProjectStatus();
 		if (projects == null) {
-			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientProjectsError));
+			notifyNativeBoincServiceError(WorkerOp.GetProjects,
+					mContext.getString(R.string.nativeClientProjectsError));
 			return;
 		}
 		notifyProjects(callback, projects);
@@ -236,8 +239,8 @@ public class NativeBoincWorkerHandler extends Handler {
 					else {	// if error
 						if (Logging.WARNING) Log.w(TAG, "error in updating app for "+projectUrl +
 								",errornum:" +reply.error_num);
-						notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError)+
-								" "+projectUrl);
+						notifyNativeBoincServiceError(WorkerOp.UpdateProjectApps(projectUrl), 
+								mContext.getString(R.string.nativeClientResultsError)+ " "+projectUrl);
 					}
 				}
 			}
@@ -264,8 +267,8 @@ public class NativeBoincWorkerHandler extends Handler {
 		
 		if (!mRpcClient.updateProjectApps(projectUrl)) {
 			if (Logging.WARNING) Log.w(TAG, "updatProjectApps error "+projectUrl);
-			notifyNativeBoincServiceError(mContext.getString(R.string.nativeClientResultsError)+
-					" "+projectUrl);
+			notifyNativeBoincServiceError(WorkerOp.UpdateProjectApps(projectUrl),
+					mContext.getString(R.string.nativeClientResultsError)+" "+projectUrl);
 		} else
 			mUpdatingProjects.add(projectUrl);
 		
@@ -298,11 +301,11 @@ public class NativeBoincWorkerHandler extends Handler {
 		});
 	}
 	
-	private synchronized void notifyNativeBoincServiceError(final String message) {
+	private synchronized void notifyNativeBoincServiceError(final WorkerOp workerOp, final String message) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.nativeBoincServiceError(message);
+				mListenerHandler.nativeBoincServiceError(workerOp, message);
 			}
 		});
 	}

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
+import sk.boinc.nativeboinc.installer.InstallOp;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
@@ -265,14 +266,14 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 		
 		/* display error if pending */
 		if (mInstaller != null) {
-			if (mInstaller.handlePendingError(this))
+			if (mInstaller.handlePendingError(InstallOp.GetBinariesToInstall, this))
 				return;
 		}
 		
 		/* handle update items operation */
 		if (mUpdateItems == null) {
 			if (mGetUpdateItemsProgressState == ProgressState.IN_PROGRESS) {
-				mUpdateItems = mInstaller.getPendingBinariesToUpdateOrInstall();
+				mUpdateItems = (UpdateItem[])mInstaller.getPendingOutput(InstallOp.GetBinariesToInstall);
 				
 				if (mUpdateItems != null)
 					updateBinariesView();
@@ -331,8 +332,8 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 	}
 
 	@Override
-	public boolean onOperationError(String distribName, String errorMessage) {
-		if (InstallerService.isSimpleOperation(distribName) &&
+	public boolean onOperationError(InstallOp installOp, String distribName, String errorMessage) {
+		if (installOp.equals(InstallOp.GetBinariesToInstall) &&
 				mGetUpdateItemsProgressState == ProgressState.IN_PROGRESS) {
 			mGetUpdateItemsProgressState = ProgressState.FAILED;
 			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);

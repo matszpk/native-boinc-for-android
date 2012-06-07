@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.installer.InstallOp;
 import sk.boinc.nativeboinc.installer.InstallerProgressListener;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.util.ProgressItem;
@@ -464,9 +465,6 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	
 	@Override
 	public void onOperation(String distribName, String opDescription) {
-		if (InstallerService.isSimpleOperation(distribName))
-			return;
-		
 		int position = getProgressItem(distribName);
 		if (position == -1)
 			return;
@@ -483,9 +481,6 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 
 	@Override
 	public void onOperationProgress(String distribName, String opDescription, int progressValue) {
-		if (InstallerService.isSimpleOperation(distribName))
-			return;
-		
 		int position = getProgressItem(distribName);
 		if (position == -1)
 			return;
@@ -501,8 +496,8 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	}
 
 	@Override
-	public boolean onOperationError(String distribName, String errorMessage) {
-		if (InstallerService.isSimpleOperation(distribName))
+	public boolean onOperationError(InstallOp installOp, String distribName, String errorMessage) {
+		if (!installOp.equals(InstallOp.ProgressOperation))
 			return false;
 		
 		int position = getProgressItem(distribName);
@@ -521,8 +516,8 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	}
 	
 	@Override
-	public void onOperationCancel(String distribName) {
-		if (InstallerService.isSimpleOperation(distribName))
+	public void onOperationCancel(InstallOp installOp, String distribName) {
+		if (!installOp.equals(InstallOp.ProgressOperation))
 			return;
 		
 		int position = getProgressItem(distribName);
@@ -540,8 +535,8 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	}
 
 	@Override
-	public void onOperationFinish(String distribName) {
-		if (InstallerService.isSimpleOperation(distribName))
+	public void onOperationFinish(InstallOp installOp, String distribName) {
+		if (!installOp.equals(InstallOp.ProgressOperation))
 			return;
 		
 		if (Logging.DEBUG) Log.d(TAG, "On operation finish:"+distribName);

@@ -31,6 +31,7 @@ import sk.boinc.nativeboinc.NotificationController;
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
+import sk.boinc.nativeboinc.installer.InstallOp;
 import sk.boinc.nativeboinc.installer.InstallerProgressListener;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
@@ -38,6 +39,8 @@ import sk.boinc.nativeboinc.installer.ProjectDistrib;
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.HostListDbAdapter;
 import sk.boinc.nativeboinc.util.NotificationId;
+import sk.boinc.nativeboinc.util.PendingController;
+import sk.boinc.nativeboinc.util.PendingErrorHandler;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.ProcessUtils;
 import sk.boinc.nativeboinc.util.TaskItem;
@@ -88,8 +91,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 	private String mPendingError = null;
 	private Object mPendingErrorSync = new Object(); // syncer
 	
-	private String mPendingServiceError = null;
-	private Object mPendingServiceErrorSync = new Object(); // syncer
+	private PendingController<WorkerOp> mWorkerPendingController =
+			new PendingController<WorkerOp>("NB:PendingCtrl");
 	
 	private boolean mPreviousStateOfIsWorking = false;
 	private boolean mIsWorking = false;
@@ -146,39 +149,42 @@ public class NativeBoincService extends Service implements MonitorListener,
 			}
 		}
 		
-		public void nativeBoincServiceError(String message) {
-			boolean called = false;
-			
+		public void nativeBoincServiceError(WorkerOp workerOp, String message) {
 			AbstractNativeBoincListener[] listeners = mListeners.toArray(
 					new AbstractNativeBoincListener[0]);
+			
+			boolean called = false;
 			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincServiceListener) {
-					if (((NativeBoincServiceListener)listener).onNativeBoincServiceError(message))
+					if (((NativeBoincServiceListener)listener).onNativeBoincServiceError(workerOp, message))
 						called = true;
 				}
 			
-			synchronized(mPendingServiceErrorSync) {
-				if (Logging.DEBUG) Log.d(TAG, "Is PendingNativeBoincServiceError set:"+(!called));
-				if (!called) /* set up pending if not already handled */
-					mPendingServiceError = message;
-				else	// if already handled
-					mPendingServiceError = null;
-			}
+			if (!called)
+				mWorkerPendingController.finishWithError(workerOp, message);
+			else
+				mWorkerPendingController.finish(workerOp);
 		}
 
 		public void onProgressChange(NativeBoincReplyListener callback, double progress) {
 			if (mListeners.contains(callback))
 				callback.onProgressChange(progress);
+			
+			mWorkerPendingController.finishWithOutput(WorkerOp.GetGlobalProgress, progress);
 		}
 		
 		public void getTasks(NativeBoincTasksListener callback, ArrayList<TaskItem> tasks) {
 			if (mListeners.contains(callback))
 				callback.getTasks(tasks);
+			
+			mWorkerPendingController.finishWithOutput(WorkerOp.GetTasks, tasks);
 		}
 		
 		public void getProjects(NativeBoincProjectsListener callback, ArrayList<Project> projects) {
 			if (mListeners.contains(callback))
 				callback.getProjects(projects);
+			
+			mWorkerPendingController.finishWithOutput(WorkerOp.GetProjects, projects);
 		}
 		
 		public void updatedProjectApps(String projectUrl) {
@@ -188,6 +194,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincUpdateListener)
 					((NativeBoincUpdateListener)listener).updatedProjectApps(projectUrl);
+			
+			mWorkerPendingController.finish(WorkerOp.UpdateProjectApps(projectUrl));
 		}
 		
 		public void notifyChangeIsWorking(boolean isWorking) {
@@ -649,23 +657,15 @@ public class NativeBoincService extends Service implements MonitorListener,
 		}
 	}
 	
-	public boolean handlePendingServiceErrorMessage(NativeBoincServiceListener listener) {
-		synchronized(mPendingServiceErrorSync) {
-			if (mPendingServiceError == null)
-				return false;
-			if (listener.onNativeBoincServiceError(mPendingServiceError)) {
-				if (Logging.DEBUG) Log.d(TAG, "PendingNativeBoincServiceError is handled");
-				mPendingServiceError = null;
-				return true;
+	public boolean handlePendingServiceErrorMessage(final WorkerOp workerOp,
+			final NativeBoincServiceListener listener) {
+		
+		return mWorkerPendingController.handlePendingErrors(workerOp, new PendingErrorHandler<WorkerOp>() {
+			@Override
+			public boolean handleError(WorkerOp op, Object error) {
+				return listener.onNativeBoincServiceError(workerOp, (String)error);
 			}
-			return false;
-		}
-	}
-	
-	private void clearPendingServiceErrorMessage() {
-		synchronized(mPendingServiceErrorSync) {
-			mPendingServiceError = null;
-		}
+		});
 	}
 	
 	/**
@@ -784,38 +784,55 @@ public class NativeBoincService extends Service implements MonitorListener,
 	}
 	
 	/**
+	 * methods returns WorkerOp (WorkerOperation) identifier
+	 */
+	/**
 	 * getGlobalProgress (concurrent version) 
 	 */
-	public void getGlobalProgress(NativeBoincReplyListener callback) {
+	public WorkerOp getGlobalProgress(NativeBoincReplyListener callback) {
 		if (Logging.DEBUG) Log.d(TAG, "Get global progress");
+		
 		if (mWorkerThread != null) {
-			clearPendingServiceErrorMessage();
-			mWorkerThread.getGlobalProgress(callback);
+			if (mWorkerPendingController.begin(WorkerOp.GetGlobalProgress))
+				mWorkerThread.getGlobalProgress(callback);
 		}
+		return WorkerOp.GetGlobalProgress;
 	}
 	
-	public void getTasks(NativeBoincTasksListener callback) {
+	public WorkerOp getTasks(NativeBoincTasksListener callback) {
 		if (Logging.DEBUG) Log.d(TAG, "Get results");
+		
 		if (mWorkerThread != null) {
-			clearPendingServiceErrorMessage();
-			mWorkerThread.getTasks(callback);
+			if (mWorkerPendingController.begin(WorkerOp.GetTasks))
+				mWorkerThread.getTasks(callback);
 		}
+		return WorkerOp.GetTasks; 
 	}
 	
-	public void getProjects(NativeBoincProjectsListener callback) {
+	public WorkerOp getProjects(NativeBoincProjectsListener callback) {
 		if (Logging.DEBUG) Log.d(TAG, "Get projects");
+		
 		if (mWorkerThread != null) {
-			clearPendingServiceErrorMessage();
-			mWorkerThread.getProjects(callback);
+			if (mWorkerPendingController.begin(WorkerOp.GetProjects))
+				mWorkerThread.getProjects(callback);
 		}
+		return WorkerOp.GetProjects;
 	}
 	
-	public void updateProjectApps(String projectUrl) {
+	public WorkerOp updateProjectApps(String projectUrl) {
 		if (Logging.DEBUG) Log.d(TAG, "update project binaries");
+		
+		WorkerOp workerOp = WorkerOp.UpdateProjectApps(projectUrl);
 		if (mWorkerThread != null) {
-			clearPendingServiceErrorMessage();
-			mWorkerThread.updateProjectApps(projectUrl);
+			if (mWorkerPendingController.begin(workerOp))
+				mWorkerThread.updateProjectApps(projectUrl);
 		}
+		return workerOp;
+	}
+	
+	/* retrieve pending output for specified operation */
+	public Object getPedingWorkerOutput(WorkerOp workerOp) {
+		return mWorkerPendingController.takePendingOutput(workerOp);
 	}
 	
 	/* notifying methods */
@@ -1076,43 +1093,42 @@ public class NativeBoincService extends Service implements MonitorListener,
 		// do nothing
 	}
 
-	private void onOperationErrorOrCancel(String distribName) {
+	private void onOperationErrorOrCancel(InstallOp installOp, String distribName) {
 		mProjectDistribsListUpdating.set(false);
-		if (distribName != null) {
-			// if error from project distribs update
-			if (distribName.equals(InstallerService.BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME)) {
-				// is not distrib (updating project distrib list simply failed)
-				if (Logging.DEBUG) Log.d(TAG, "on operation failed");
-				synchronized (mPendingProjectAppsToInstall) {
-					mPendingProjectAppsToInstall.clear();
-				}
-				
-				boolean ifLast = false; 
-				synchronized (mInstalledProjectApps) {
-					ifLast = mInstalledProjectApps.isEmpty();
-				}
-				if (ifLast)
-					unboundInstallService();
-			} else if (distribName.length() != 0) // if project name
-				finishProjectApplicationInstallation(distribName);
-		}
+		// if error from project distribs update
+		if (installOp.equals(InstallOp.UpdateProjectDistribs)) {
+			// is not distrib (updating project distrib list simply failed)
+			if (Logging.DEBUG) Log.d(TAG, "on operation failed");
+			synchronized (mPendingProjectAppsToInstall) {
+				mPendingProjectAppsToInstall.clear();
+			}
+			
+			boolean ifLast = false; 
+			synchronized (mInstalledProjectApps) {
+				ifLast = mInstalledProjectApps.isEmpty();
+			}
+			if (ifLast)
+				unboundInstallService();
+		} else if (distribName != null && distribName.length() != 0) // if project name
+			finishProjectApplicationInstallation(distribName);
 	}
 	
 	@Override
-	public boolean onOperationError(String distribName, String errorMessage) {
-		onOperationErrorOrCancel(distribName);
+	public boolean onOperationError(InstallOp installOp, String distribName, String errorMessage) {
+		onOperationErrorOrCancel(installOp, distribName);
 		// do not consume error data
 		return false;
 	}
 
 	@Override
-	public void onOperationCancel(String distribName) {
-		onOperationErrorOrCancel(distribName);
+	public void onOperationCancel(InstallOp installOp, String distribName) {
+		onOperationErrorOrCancel(installOp, distribName);
 	}
 
 	@Override
-	public void onOperationFinish(String distribName) {
-		finishProjectApplicationInstallation(distribName);
+	public void onOperationFinish(InstallOp installOp, String distribName) {
+		if (installOp.equals(InstallOp.ProgressOperation)) // if installation operation
+			finishProjectApplicationInstallation(distribName);
 	}
 
 	@Override

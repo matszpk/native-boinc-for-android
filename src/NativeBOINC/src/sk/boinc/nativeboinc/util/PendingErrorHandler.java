@@ -16,19 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
-
-package sk.boinc.nativeboinc.clientconnection;
+package sk.boinc.nativeboinc.util;
 
 /**
  * @author mat
  *
  */
-public interface ClientPollErrorReceiver extends ClientReceiver {
-	/**
-	 * @param errorNum -- error number
-	 * @param operation - poll operation code (from PollOp)
-	 * @param errorMessage 
-	 * @param param
-	 */
-	public abstract boolean onPollError(int errorNum, int operation, String errorMessage, String param);
+public interface PendingErrorHandler<Operation> {
+	public abstract boolean handleError(Operation op, Object error);
 }

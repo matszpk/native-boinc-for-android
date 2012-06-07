@@ -33,6 +33,7 @@ import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincProjectsListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
+import sk.boinc.nativeboinc.nativeclient.WorkerOp;
 
 /**
  * @author mat
@@ -130,8 +131,9 @@ public class ProjectsFromClientRetriever implements NativeBoincProjectsListener,
 	}
 
 	@Override
-	public boolean onNativeBoincServiceError(String message) {
-		mProjectDescsSem.release();
+	public boolean onNativeBoincServiceError(WorkerOp workerOp, String message) {
+		if (workerOp.equals(WorkerOp.GetProjects))
+			mProjectDescsSem.release();
 		return false; // do not consume
 	}
 

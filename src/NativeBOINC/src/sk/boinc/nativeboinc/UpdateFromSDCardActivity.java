@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import sk.boinc.nativeboinc.installer.ClientDistrib;
+import sk.boinc.nativeboinc.installer.InstallOp;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.installer.InstallerUpdateListener;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
@@ -49,33 +50,35 @@ import android.widget.TextView;
 
 /**
  * @author mat
- *
+ * 
  */
-public class UpdateFromSDCardActivity extends ServiceBoincActivity implements InstallerUpdateListener {
-	
-	public static final String UPDATE_DIR = "UpdateDir"; 
-	
+public class UpdateFromSDCardActivity extends ServiceBoincActivity implements
+		InstallerUpdateListener {
+
+	public static final String UPDATE_DIR = "UpdateDir";
+
 	private String[] mUpdateDistribList = null;
 	private HashSet<String> mSelectedItems = new HashSet<String>();
-	
+
 	private int mUpdateListProgressState = ProgressState.NOT_RUN;
-	
+	private InstallOp mUpdateListOp = null;
+
 	@Override
 	public int getInstallerChannelId() {
 		return InstallerService.DEFAULT_CHANNEL_ID;
 	}
-	
+
 	private class ItemOnClickListener implements View.OnClickListener {
 		private String mDistribName;
-		
+
 		public ItemOnClickListener(String distribName) {
 			mDistribName = distribName;
 		}
-		
+
 		public void setUp(String distribName) {
 			mDistribName = distribName;
 		}
-		
+
 		@Override
 		public void onClick(View view) {
 			if (mSelectedItems.contains(mDistribName))
@@ -85,20 +88,20 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 			setConfirmButtonEnabled();
 		}
 	}
-	
+
 	private class UpdateListAdapter extends BaseAdapter {
 
 		private Context mContext;
-		
+
 		public UpdateListAdapter(Context context) {
 			mContext = context;
 		}
-		
+
 		@Override
 		public int getCount() {
 			if (mUpdateDistribList == null)
 				return 0;
-			return mUpdateDistribList.length;		
+			return mUpdateDistribList.length;
 		}
 
 		@Override
@@ -118,50 +121,53 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 				LayoutInflater inflater = LayoutInflater.from(mContext);
 				view = inflater.inflate(R.layout.checkable_list_item_1, null);
 			}
-			
-			TextView nameText = (TextView)view.findViewById(android.R.id.text1);
-			final CheckBox checkBox = (CheckBox)view.findViewById(android.R.id.checkbox);
-			
+
+			TextView nameText = (TextView) view
+					.findViewById(android.R.id.text1);
+			final CheckBox checkBox = (CheckBox) view
+					.findViewById(android.R.id.checkbox);
+
 			final String distribName = mUpdateDistribList[position];
-			
+
 			nameText.setText(distribName);
-			
+
 			checkBox.setChecked(mSelectedItems.contains(distribName));
-			
-			ItemOnClickListener itemOnClickListener = (ItemOnClickListener)view.getTag();
+
+			ItemOnClickListener itemOnClickListener = (ItemOnClickListener) view
+					.getTag();
 			if (itemOnClickListener == null) {
 				itemOnClickListener = new ItemOnClickListener(distribName);
 				view.setTag(itemOnClickListener);
 			} else
 				itemOnClickListener.setUp(distribName);
-			
+
 			checkBox.setOnClickListener(itemOnClickListener);
 			return view;
 		}
 	}
-	
+
 	private Button mConfirmButton = null;
-	
+
 	private TextView mAvailableText = null;
 	private ListView mBinariesList = null;
 	private UpdateListAdapter mUpdateListAdapter = null;
-	
+
 	private String mExternalPath = null;
 	private String mUpdateDirPath = null;
-	
+
 	private static class SavedState {
 		private final String updateDirPath;
 		private String[] updateDistribList;
 		private HashSet<String> selectedItems;
 		private int updateListProgressState;
-		
+
 		public SavedState(UpdateFromSDCardActivity activity) {
 			updateDirPath = activity.mUpdateDirPath;
 			selectedItems = activity.mSelectedItems;
 			updateDistribList = activity.mUpdateDistribList;
 			updateListProgressState = activity.mUpdateListProgressState;
 		}
-		
+
 		public void restore(UpdateFromSDCardActivity activity) {
 			activity.mUpdateDirPath = updateDirPath;
 			activity.mSelectedItems = selectedItems;
@@ -169,7 +175,7 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 			activity.mUpdateListProgressState = updateListProgressState;
 		}
 	};
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -180,6 +186,9 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.update);
+		
+		// set up install op operation
+		mUpdateListOp = InstallOp.GetBinariesFromSDCard(getIntent().getStringExtra(UPDATE_DIR));
 		
 		final SavedState savedState = (SavedState)getLastNonConfigurationInstance();
 		if (savedState != null)
@@ -231,36 +240,36 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 			}
 		});
 	}
-	
+
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		return new SavedState(this);
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
 		if (mInstaller != null)
 			updateActivityState();
 	}
-	
+
 	@Override
 	public void onBackPressed() {
 		if (mInstaller != null)
 			mInstaller.cancelSimpleOperation();
 		finish();
 	}
-	
+
 	private void updateActivityState() {
 		setProgressBarIndeterminateVisibility(mInstaller.isWorking());
-		
-		if (mInstaller.handlePendingError(this))
+
+		if (mInstaller.handlePendingError(mUpdateListOp, this))
 			return;
-		
+
 		if (mUpdateDistribList == null) {
 			if (mUpdateListProgressState == ProgressState.IN_PROGRESS) {
-				mUpdateDistribList = mInstaller.getPendingBinariesToUpdateFromSDCard();
-				
+				mUpdateDistribList = (String[])mInstaller.getPendingOutput(mUpdateListOp);
+
 				if (mUpdateDistribList != null)
 					updateDistribList();
 			} else if (mUpdateListProgressState == ProgressState.NOT_RUN) {
@@ -271,34 +280,35 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 		} else
 			updateDistribList();
 	}
-	
+
 	@Override
 	protected Dialog onCreateDialog(int dialogId, Bundle args) {
 		return StandardDialogs.onCreateDialog(this, dialogId, args);
 	}
-	
+
 	@Override
 	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
 		StandardDialogs.onPrepareDialog(this, dialogId, dialog, args);
 	}
-	
+
 	@Override
 	public void onInstallerConnected() {
 		String updateDir = getIntent().getStringExtra(UPDATE_DIR);
-		
+
 		if (updateDir == null)
 			return;
-		
+
 		if (mUpdateDirPath == null) { // if not from savedState
-			mUpdateDirPath = FileUtils.joinBaseAndPath(mExternalPath, updateDir);
-			
+			mUpdateDirPath = FileUtils
+					.joinBaseAndPath(mExternalPath, updateDir);
+
 			if (!mUpdateDirPath.endsWith("/")) // add last slash
 				mUpdateDirPath += "/";
 		}
-			
+
 		updateActivityState();
 	}
-	
+
 	private void setConfirmButtonEnabled() {
 		mConfirmButton.setEnabled(!mSelectedItems.isEmpty());
 	}
@@ -309,9 +319,8 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 	}
 
 	@Override
-	public boolean onOperationError(String distribName, String errorMessage) {
-		if (InstallerService.isSimpleOperation(distribName) &&
-				mUpdateListProgressState == ProgressState.IN_PROGRESS) {
+	public boolean onOperationError(InstallOp installOp, String distribName, String errorMessage) {
+		if (installOp.equals(mUpdateListOp) && mUpdateListProgressState == ProgressState.IN_PROGRESS) {
 			mUpdateListProgressState = ProgressState.FAILED;
 			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
 			return true;
@@ -320,21 +329,22 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 	}
 
 	@Override
-	public void currentProjectDistribList(ArrayList<ProjectDistrib> projectDistribs) {
+	public void currentProjectDistribList(
+			ArrayList<ProjectDistrib> projectDistribs) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void currentClientDistrib(ClientDistrib clientDistrib) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -342,13 +352,13 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements In
 		mUpdateDistribList = projectNames;
 		updateDistribList();
 	}
-	
+
 	private void updateDistribList() {
 		if (mUpdateDistribList == null || mUpdateDistribList.length == 0)
 			mAvailableText.setText(R.string.updateNoNew);
 		else
 			mAvailableText.setText(R.string.updateNewAvailable);
-		
+
 		mUpdateListAdapter.notifyDataSetChanged();
 	}
 }

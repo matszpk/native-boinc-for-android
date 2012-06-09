@@ -1617,8 +1617,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		@Override
 		public void run() {
 			mIsRan = true;
-			mDoDumpBoincFiles = true;
-			notifyChangeOfIsWorking();
+			synchronized(InstallerHandler.this) {
+				mDoDumpBoincFiles = true;
+				notifyChangeOfIsWorking();
+			}
 			
 			try {
 				mInstallOps.dumpBoincFiles(mDirectory);
@@ -1639,18 +1641,21 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	
 	public void dumpBoincFiles(String directory) {
 		if (mDoDumpBoincFiles)
-			return;	// skip
+			return;
 		
 		notifyOperation(InstallerService.BOINC_DUMP_ITEM_NAME, "",
 				mInstallerService.getString(R.string.dumpBoincBegin));
 		synchronized(this) {
-			mDoDumpBoincFiles = true;
 			mBoincFilesDumper = new BoincFilesDumper(directory);
 			// notify that boinc dumper is working
 			notifyChangeOfIsWorking();
 			Future<?> future = mExecutorService.submit(mBoincFilesDumper);
 			mBoincFilesDumper.setFuture(future);
 		}
+	}
+	
+	public boolean isBeingDumpedFiles() {
+		return mDoDumpBoincFiles;
 	}
 	
 	/**
@@ -1661,8 +1666,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		@Override
 		public void run() {
 			mIsRan = true;
-			mDoBoincReinstall = true;
-			notifyChangeOfIsWorking();
+			synchronized(InstallerHandler.this) {
+				mDoBoincReinstall = true;
+				notifyChangeOfIsWorking();
+			}
 			
 			try {
 				mInstallOps.reinstallBoinc();
@@ -1695,6 +1702,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			Future<?> future = mExecutorService.submit(mBoincReinstaller);
 			mBoincReinstaller.setFuture(future);
 		}
+	}
+	
+	public boolean isBeingReinstalled() {
+		return mDoBoincReinstall;
 	}
 	
 	/*

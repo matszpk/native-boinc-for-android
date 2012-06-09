@@ -296,7 +296,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				showDialog(DIALOG_ENTER_DUMP_DIRECTORY);
+				if (mInstaller != null && !mInstaller.isBeingDumpedFiles())
+					showDialog(DIALOG_ENTER_DUMP_DIRECTORY);
 				return true;
 			}
 		});
@@ -306,7 +307,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				showDialog(DIALOG_REINSTALL_QUESTION);
+				if (mInstaller != null && !mInstaller.isBeingReinstalled())
+					showDialog(DIALOG_REINSTALL_QUESTION);
 				return true;
 			}
 		});
@@ -375,7 +377,7 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	private void updateServicesError() {
 		if (mRunner != null && mInstaller != null) {
 			mRunner.handlePendingErrorMessage(this);
-			mInstaller.handlePendingError(null, this);
+			mInstaller.handlePendingErrors(null, this);
 		}
 	}
 	

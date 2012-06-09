@@ -84,6 +84,12 @@ Na Teraz:
 przeprojektować obsługę zadań dla handlerów, tak by jedno zadanie jedno typu mogło tylko tylko kolejkowane
 jeszcze raz usprawnic i uszczelnić obsługę błędów
 
+  * wprowadzić blokowanie przycisków gdy operacja sie wykonuje (nawet gdy nie została wywołana w aktynwości)
+  * filtrowac listę dostepnyhc projektów wyrzucając wszystkie dołączone
+  * wprowadzić wykonywanie wielu 'dump boinc files' równocześnie
+  * poprawić obsługę wakelocków dla 'keep screen' z preferences.
+  *
+
 / * dostosować do Android 3.0 (opcjonalnie) i 4.0.
 
 Tablety:

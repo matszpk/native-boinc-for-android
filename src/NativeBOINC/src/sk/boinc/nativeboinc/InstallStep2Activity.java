@@ -23,6 +23,7 @@ import hal.android.workarounds.FixedProgressDialog;
 
 import java.io.IOException;
 
+import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
@@ -202,7 +203,7 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 	}
 	
 	private void connectWithNativeClient() {
-		if (mConnectionManager.handlePendingClientErrors(this))
+		if (mConnectionManager.handlePendingClientErrors(null, this))
 			return;
 		
 		HostListDbAdapter dbAdapter = null;
@@ -356,7 +357,7 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 	}
 
 	@Override
-	public void clientConnectionProgress(int progress) {
+	public void clientConnectionProgress(BoincOp boincOp, int progress) {
 		setProgressBarIndeterminateVisibility(true);
 	}
 
@@ -429,7 +430,7 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 	}
 
 	@Override
-	public boolean clientError(int errorNum, String message) {
+	public boolean clientError(BoincOp boincOp, int errorNum, String message) {
 		setProgressBarIndeterminateVisibility(false);
 		mConnectionFailed = true;
 		StandardDialogs.showClientErrorDialog(this, errorNum, message);

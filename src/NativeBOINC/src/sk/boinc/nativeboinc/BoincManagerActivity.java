@@ -23,6 +23,7 @@ import hal.android.workarounds.FixedProgressDialog;
 
 import java.util.ArrayList;
 
+import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientUpdateNoticesReceiver;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
 import sk.boinc.nativeboinc.clientconnection.NoticeInfo;
@@ -464,7 +465,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		/* display error if pending */
 		if (mRunner != null && mConnectionManager != null) {
 			
-			boolean isError = mConnectionManager.handlePendingClientErrors(this);
+			boolean isError = mConnectionManager.handlePendingClientErrors(null, this);
 			isError |= mRunner.handlePendingErrorMessage(this);
 			
 			if (isError) // if error then do nothing
@@ -909,7 +910,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 
 
 	@Override
-	public void clientConnectionProgress(int progress) {
+	public void clientConnectionProgress(BoincOp boincOp, int progress) {
 		switch (progress) {
 		case PROGRESS_INITIAL_DATA:
 			// We are already connected, so hopefully we can display client ID in title bar
@@ -996,7 +997,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	
 
 	@Override
-	public boolean clientError(int errorNum, String message) {
+	public boolean clientError(BoincOp boincOp, int errorNum, String message) {
 		if (!mIsPaused && (!mConnectionManager.isNativeConnected() || !mRunner.ifStoppedByManager())) {
 			StandardDialogs.showClientErrorDialog(this, errorNum, message);
 			return true;

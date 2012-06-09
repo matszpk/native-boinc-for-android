@@ -52,7 +52,7 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	
 	// if true, then client distrib shouldnot be updated
 	private ClientDistrib mClientDistrib = null;
-	private int mClientDistribProgressState = ProgressState.NOT_RUN;
+	private int mClientDistribProgressState = ProgressState.NOT_RUN; 
 	
 	private Button mInfoButton = null;
 	private Button mNextButton = null;
@@ -155,7 +155,7 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	private void updateActivityState() {
 		setProgressBarIndeterminateVisibility(mInstaller.isWorking());
 		
-		if (mInstaller.handlePendingError(InstallOp.UpdateClientDistrib, this))
+		if (mInstaller.handlePendingErrors(InstallOp.UpdateClientDistrib, this))
 			return;
 		
 		if (mClientDistrib == null) {
@@ -166,6 +166,7 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 					updateClientVersionText();
 			} else if (mClientDistribProgressState == ProgressState.NOT_RUN) {
 				mClientDistribProgressState = ProgressState.IN_PROGRESS;
+				// ignore if doesnt run, because we reusing previous result
 				mInstaller.updateClientDistrib();
 			}
 			// if finished but failed

@@ -22,6 +22,7 @@ package sk.boinc.nativeboinc.bridge;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.GlobalPreferences;
+import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.TaskDescriptor;
 import sk.boinc.nativeboinc.clientconnection.TransferDescriptor;
 import sk.boinc.nativeboinc.debug.Logging;
@@ -271,7 +272,8 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
-	public void projectAttach(final String url, final String authCode, final String projectName) {
+	public void projectAttach(final String url, final String authCode,
+			final String projectName) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {

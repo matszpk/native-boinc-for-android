@@ -64,6 +64,18 @@ public class PendingController<Operation> {
 		mTag = tag;
 	}
 	
+	private void removeFromErrorQueue(Operation pendingOp) {
+		// remove proper error from global queue
+		Iterator<ErrorQueueEntry> it = mPendingErrorQueue.iterator();
+		while (it.hasNext()) {
+			ErrorQueueEntry entry = it.next();
+			if (entry.pendingOp.equals(pendingOp)) {
+				it.remove();	// remove it
+				break;
+			}
+		}
+	}
+	
 	public synchronized boolean begin(Operation pendingOp) {
 		OpEntry opEntry = mPendingOutputsMap.get(pendingOp);
 		
@@ -95,6 +107,26 @@ public class PendingController<Operation> {
 		opEntry.finihTimestamp = System.currentTimeMillis();
 	}
 	
+	public synchronized void finishSelected(PendingOpSelector<Operation> selector) {
+		// remove expired entries in the map
+		Iterator<Map.Entry<Operation, OpEntry>> mapIt = mPendingOutputsMap.entrySet().iterator();
+		while(mapIt.hasNext()) {
+			Map.Entry<Operation, OpEntry> entry = mapIt.next();
+			if (selector.select(entry.getKey())) {
+				Log.d(mTag, "Do finish in selection:"+entry.getKey());
+				mapIt.remove();
+			}
+		}
+		
+		// also we remove expired errors in queue
+		Iterator<ErrorQueueEntry> it = mPendingErrorQueue.iterator();
+		while(it.hasNext()) {
+			ErrorQueueEntry entry = it.next();
+			if (selector.select(entry.pendingOp))
+				it.remove();
+		}
+	}
+	
 	public synchronized void finishWithOutput(Operation pendingOp, Object output) {
 		OpEntry opEntry = mPendingOutputsMap.get(pendingOp);
 		
@@ -107,7 +139,8 @@ public class PendingController<Operation> {
 		
 		opEntry.isRan = false;
 		opEntry.output = output;
-		opEntry.finihTimestamp = System.currentTimeMillis();
+		if (opEntry.finihTimestamp == -1)
+			opEntry.finihTimestamp = System.currentTimeMillis();
 	}
 	
 	public synchronized void finishWithError(Operation pendingOp, Object error) {
@@ -122,7 +155,8 @@ public class PendingController<Operation> {
 		
 		opEntry.isRan = false;
 		opEntry.error = error;
-		opEntry.finihTimestamp = System.currentTimeMillis();
+		if (opEntry.finihTimestamp == -1)
+			opEntry.finihTimestamp = System.currentTimeMillis();
 		if (error != null)
 			mPendingErrorQueue.addLast(new ErrorQueueEntry(pendingOp, opEntry));
 	}
@@ -147,16 +181,7 @@ public class PendingController<Operation> {
 			// error should be taken only once
 			opEntry.error = null;
 			
-			// remove proper error from global queue
-			Iterator<ErrorQueueEntry> it = mPendingErrorQueue.iterator();
-			while (it.hasNext()) {
-				ErrorQueueEntry entry = it.next();
-				if (entry.pendingOp.equals(pendingOp)) {
-					it.remove();	// remove it
-					break;
-				}
-			}
-			
+			removeFromErrorQueue(pendingOp);
 			Log.d(mTag, "Take error "+pendingOp+":"+pendingError);
 			return pendingError;
 		} else { // take from global queue
@@ -186,15 +211,7 @@ public class PendingController<Operation> {
 				// removing error
 				opEntry.error = null;
 				
-				// remove proper error from global queue
-				Iterator<ErrorQueueEntry> it = mPendingErrorQueue.iterator();
-				while (it.hasNext()) {
-					ErrorQueueEntry entry = it.next();
-					if (entry.pendingOp.equals(pendingOp)) {
-						it.remove();	// remove it
-						break;
-					}
-				}
+				removeFromErrorQueue(pendingOp);
 				// if handled
 				return true;
 			}
@@ -245,6 +262,8 @@ public class PendingController<Operation> {
 			ErrorQueueEntry entry = it.next();
 			if (entry.finishTimestamp != -1L && entry.finishTimestamp-currentTime > EXPIRE_PERIOD)
 				it.remove();
+			else // no further task to remove
+				break;
 		}
 	}
 	

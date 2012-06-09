@@ -25,6 +25,7 @@ import java.util.Comparator;
 
 import edu.berkeley.boinc.lite.ProjectListEntry;
 
+import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
@@ -76,6 +77,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	private ArrayList<ProjectDistrib> mProjectDistribs = null;
 	private boolean mGetFromInstaller = false;
 	private int mDataDownloadProgressState = ProgressState.NOT_RUN;
+
 	
 	private ClientId mConnectedClient = null;
 	/* if add project finish successfully */
@@ -368,6 +370,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 						
 					} else if (mDataDownloadProgressState == ProgressState.NOT_RUN) {
 						if (Logging.DEBUG) Log.d(TAG, "Download List");
+						// ignore if not ran, because we will using previous result 
 						mDataDownloadProgressState = ProgressState.IN_PROGRESS;
 						mInstaller.updateProjectDistribList();
 					}
@@ -378,7 +381,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			}
 			
 			// do not finish when error
-			mInstaller.handlePendingError(InstallOp.UpdateProjectDistribs, this);
+			mInstaller.handlePendingErrors(InstallOp.UpdateProjectDistribs, this);
 		} else {
 			// from boinc client
 			if (mConnectionManager == null)
@@ -386,7 +389,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			
 			setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
 			
-			if (mConnectionManager.handlePendingClientErrors(this))
+			if (mConnectionManager.handlePendingClientErrors(null, this))
 				return;
 			
 			if (mConnectedClient == null)
@@ -395,8 +398,8 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			if (mProjectsList == null) {
 				if (mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
 					if (Logging.DEBUG) Log.d(TAG, "Fetch List from boinc clmient");
-					ArrayList<ProjectListEntry> allProjects = mConnectionManager
-							.getPendingAllProjectsList();
+					ArrayList<ProjectListEntry> allProjects = (ArrayList<ProjectListEntry>)
+							mConnectionManager.getPendingOutput(BoincOp.GetAllProjectList);
 					
 					if (allProjects != null) {
 						mDataDownloadProgressState = ProgressState.FINISHED;
@@ -406,6 +409,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 					
 				} else if (mDataDownloadProgressState == ProgressState.NOT_RUN) {
 					if (Logging.DEBUG) Log.d(TAG, "List from boinc client");
+					// ignore if not ran, because we will using previous result
 					mDataDownloadProgressState = ProgressState.IN_PROGRESS;
 					mConnectionManager.getAllProjectsList();
 				}
@@ -565,7 +569,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	}
 
 	@Override
-	public void clientConnectionProgress(int progress) {
+	public void clientConnectionProgress(BoincOp boincOp, int progress) {
 	}
 
 	@Override
@@ -617,12 +621,15 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	}
 	
 	@Override
-	public boolean clientError(int errorNum, String message) {
+	public boolean clientError(BoincOp boincOp, int errorNum, String message) {
+		if (!boincOp.equals(BoincOp.GetAllProjectList))
+			return false;
+		
 		if (!mGetFromInstaller && mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
 			mDataDownloadProgressState = ProgressState.FAILED;
-			StandardDialogs.showClientErrorDialog(this, errorNum, message);
 			return true;
 		}
+		StandardDialogs.showClientErrorDialog(this, errorNum, message);
 		return false;
 	}
 

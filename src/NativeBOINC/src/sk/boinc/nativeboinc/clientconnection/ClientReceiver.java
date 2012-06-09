@@ -30,8 +30,8 @@ public interface ClientReceiver {
 	public static final int PROGRESS_XFER_FINISHED = 4;
 	public static final int PROGRESS_XFER_POLL = 5;
 
-	public abstract boolean clientError(int err_num, String message);
-	public abstract void clientConnectionProgress(int progress);
+	public abstract boolean clientError(BoincOp boincOp, int err_num, String message);
+	public abstract void clientConnectionProgress(BoincOp boincOp, int progress);
 	public abstract void clientConnected(VersionInfo clientVersion);
 	public abstract void clientDisconnected();
 	

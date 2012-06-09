@@ -26,6 +26,7 @@ import java.util.HashSet;
 
 import sk.boinc.nativeboinc.bridge.AutoRefresh;
 import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
+import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientOp;
 import sk.boinc.nativeboinc.clientconnection.ClientUpdateProjectsReceiver;
 import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
@@ -307,7 +308,9 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 		
 		if (mConnectedClient != null) {
 			if (mUpdateProjectsInProgress) {
-				ArrayList<ProjectInfo> projects = mConnectionManager.getPendingProjects();
+				ArrayList<ProjectInfo> projects = (ArrayList<ProjectInfo>)mConnectionManager
+						.getPendingOutput(BoincOp.UpdateProjects);
+				
 				if (projects != null) // if already updated
 					updatedProjects(projects);
 				
@@ -594,7 +597,7 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 
 
 	@Override
-	public void clientConnectionProgress(int progress) {
+	public void clientConnectionProgress(BoincOp boincOp, int progress) {
 		// We don't care about progress indicator in this activity, just ignore this
 	}
 
@@ -639,7 +642,9 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 	
 
 	@Override
-	public boolean clientError(int err_num, String message) {
+	public boolean clientError(BoincOp boincOp, int err_num, String message) {
+		if (!boincOp.equals(BoincOp.UpdateProjects))
+			return false;
 		// do not consume
 		mUpdateProjectsInProgress = false;
 		mAfterRecreating = false;

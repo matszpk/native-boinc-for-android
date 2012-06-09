@@ -266,7 +266,7 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 		
 		/* display error if pending */
 		if (mInstaller != null) {
-			if (mInstaller.handlePendingError(InstallOp.GetBinariesToInstall, this))
+			if (mInstaller.handlePendingErrors(InstallOp.GetBinariesToInstall, this))
 				return;
 		}
 		
@@ -279,11 +279,12 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 					updateBinariesView();
 					
 			} else if (mGetUpdateItemsProgressState == ProgressState.NOT_RUN) {
+				// ignore if not ran, because we will used previous results
 				mGetUpdateItemsProgressState = ProgressState.IN_PROGRESS;
 				mInstaller.getBinariesToUpdateOrInstall();
 			}
 			// if finished but failed
-		} else  // do it
+		} else
 			updateBinariesView();
 	}
 	

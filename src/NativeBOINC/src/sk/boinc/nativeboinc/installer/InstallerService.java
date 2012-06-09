@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.NotificationController;
@@ -60,17 +59,8 @@ public class InstallerService extends Service {
 	public static final int MAX_CHANNEL_ID = 16; // for activity
 	
 	public static final String BOINC_CLIENT_ITEM_NAME = "BOINC client";
-	public static final String BOINC_DUMP_ITEM_NAME = ":::BOINC Dump Files";
-	public static final String BOINC_REINSTALL_ITEM_NAME = ":::BOINC Reinstall";
-	//public static final String BOINC_CLIENT_DISTRIB_UPDATE_ITEM_NAME = "::!cdist";
-	//public static final String BOINC_PROJECTS_DISTRIBS_UPDATE_ITEM_NAME = "::!pdist";
-	//public static final String BOINC_IGNORE_ITEM_PREFIX = "::!"; // should be ignored by progress activity
-	
-	// determine wheter distrib is normal simple install operation
-	/*public static boolean isSimpleOperation(String distribName) {
-		return (distribName == null || distribName.length() == 0 ||
-				distribName.startsWith(BOINC_IGNORE_ITEM_PREFIX));
-	}*/
+	public static final String BOINC_DUMP_ITEM_NAME = "BOINC Dump Files";
+	public static final String BOINC_REINSTALL_ITEM_NAME = "BOINC Reinstall";
 	
 	public static String resolveItemName(Resources res, String name) {
 		if (name.equals(BOINC_CLIENT_ITEM_NAME))
@@ -230,7 +220,6 @@ public class InstallerService extends Service {
 		if (Logging.DEBUG) Log.d(TAG, "onDestroy");
 		doUnbindRunnerService();
 		stopInstaller();
-		mInstallerHandler = null;
 		mNotificationController = null;
 		mApp = null;
 	}
@@ -455,16 +444,17 @@ public class InstallerService extends Service {
 	}
 	
 	public void stopInstaller() {
-		mInstallerHandler.cancelSimpleOperationAlways(mInstallerThread);
-		mInstallerHandler.cancelAllProgressOperations();
+		InstallerHandler handler = mInstallerHandler;
+		mInstallerHandler = null;
+		handler.cancelSimpleOperationAlways(mInstallerThread);
+		handler.cancelAllProgressOperations();
 		mInstallerThread.stopThread();
 		mInstallerThread = null;
 		mListeners.clear();
 		try {
 			Thread.sleep(200);
 		} catch(InterruptedException ex) { }
-		mInstallerHandler.destroy();
-		mListenerHandler = null;
+		handler.destroy();
 	}
 	
 	/**
@@ -478,7 +468,7 @@ public class InstallerService extends Service {
 	 * get pending install error
 	 * @return pending install error
 	 */
-	public boolean handlePendingError(final InstallOp installOp, final AbstractInstallerListener listener) {
+	public boolean handlePendingErrors(final InstallOp installOp, final AbstractInstallerListener listener) {
 		PendingController<InstallOp> channel = mPendingChannels[listener.getInstallerChannelId()]; 
 		
 		return channel.handlePendingErrors(installOp, new PendingErrorHandler<InstallOp>() {
@@ -503,23 +493,43 @@ public class InstallerService extends Service {
 		return channel.takePendingOutput(installOp);
 	}
 	
+	public boolean isOperationBeingExecuted(InstallOp installOp) {
+		return mPendingChannels[DEFAULT_CHANNEL_ID].isRan(installOp);
+	}
+	
+	public boolean isOperationBeingExecuted(int channelId, InstallOp installOp) {
+		return mPendingChannels[channelId].isRan(installOp);
+	}
+	
+	/*
+	 * some simple operations (calls) return boolean value
+	 * indicates whether task has been ran (true) or not (false) 
+	 */
+	
 	/* update client distrib info */
-	public InstallOp updateClientDistrib() {
+	public boolean updateClientDistrib() {
 		return updateClientDistrib(DEFAULT_CHANNEL_ID);
 	}
 	
-	public InstallOp updateClientDistrib(int channelId) {
+	public boolean updateClientDistrib(int channelId) {
+		if (mInstallerHandler == null)
+			return false;
+		
 		PendingController<InstallOp> channel = mPendingChannels[channelId];
 		
-		if (channel.begin(InstallOp.UpdateClientDistrib))
+		if (channel.begin(InstallOp.UpdateClientDistrib)) {
 			mInstallerThread.updateClientDistrib(channelId);
-		return InstallOp.UpdateClientDistrib;
+			return true;
+		}
+		return false;
 	}
 	
 	/**
 	 * Install client automatically (with signature checking)
 	 */
 	public void installClientAutomatically() {
+		if (mInstallerHandler == null) return;
+		
 		mPendingChannels[DEFAULT_CHANNEL_ID].begin(InstallOp.ProgressOperation);
 		// always run it
 		mNotificationController.notifyInstallClientBegin();
@@ -532,6 +542,8 @@ public class InstallerService extends Service {
 	 * @param appName
 	 */
 	public void installProjectApplicationsAutomatically(String projectName, String projectUrl) {
+		if (mInstallerHandler == null) return;
+		
 		mPendingChannels[DEFAULT_CHANNEL_ID].begin(InstallOp.ProgressOperation);
 		// always run it
 		mNotificationController.notifyInstallProjectBegin(projectName);
@@ -542,6 +554,8 @@ public class InstallerService extends Service {
 	 * Reinstalls update item 
 	 */
 	public void reinstallUpdateItems(ArrayList<UpdateItem> updateItems) {
+		if (mInstallerHandler == null) return;
+		
 		mPendingChannels[DEFAULT_CHANNEL_ID].begin(InstallOp.ProgressOperation);
 		// always run it
 		for (UpdateItem item: updateItems)
@@ -554,6 +568,8 @@ public class InstallerService extends Service {
 	}
 	
 	public void updateDistribsFromSDCard(String dirPath, String[] distribNames) {
+		if (mInstallerHandler == null) return;
+		
 		mPendingChannels[DEFAULT_CHANNEL_ID].begin(InstallOp.ProgressOperation);
 		// always run it
 		for (String distribName: distribNames)
@@ -565,59 +581,34 @@ public class InstallerService extends Service {
 		mInstallerThread.updateDistribsFromSDCard(dirPath, distribNames);
 	}
 	
-	public void updateProjectDistribList() {
-		updateProjectDistribList(DEFAULT_CHANNEL_ID);
+	public boolean updateProjectDistribList() {
+		return updateProjectDistribList(DEFAULT_CHANNEL_ID);
 	}
 	
-	public void updateProjectDistribList(int channelId) {
+	public boolean updateProjectDistribList(int channelId) {
+		if (mInstallerHandler == null) 
+			return false;
+		
 		PendingController<InstallOp> channel = mPendingChannels[channelId];
 		
-		if (channel.begin(InstallOp.UpdateProjectDistribs)) // run when not ran
+		if (channel.begin(InstallOp.UpdateProjectDistribs)) { // run when not ran
 			mInstallerThread.updateProjectDistribList(channelId);
+			return true;
+		}
+		return false;
 	}
 	
 	/* remove detached projects from installed projects */
 	public void synchronizeInstalledProjects() {
+		if (mInstallerHandler == null) return;
+		
 		mInstallerHandler.synchronizeInstalledProjects();
-	}
-	
-	public void cancelAllProgressOperations() {
-		mInstallerHandler.cancelAllProgressOperations();
-	}
-	
-	public void cancelClientInstallation() {
-		mInstallerHandler.cancelClientInstallation();
-	}
-	
-	public void cancelProjectAppsInstallation(String projectUrl) {
-		mInstallerHandler.cancelProjectAppsInstallation(projectUrl);
-	}
-	
-	public void cancelDumpFiles() {
-		mInstallerHandler.cancelDumpFiles();
-	}
-	
-	public void cancelReinstallation() {
-		mInstallerHandler.cancelReinstallation();
-	}
-	
-	public void cancelSimpleOperation() { // cancel in default channel
-		mInstallerHandler.cancelSimpleOperation(DEFAULT_CHANNEL_ID, mInstallerThread);
-	}
-	
-	public void cancelSimpleOperation(int channelId) {
-		mInstallerHandler.cancelSimpleOperation(channelId, mInstallerThread);
-	}
-	
-	public void cancelSimpleOperationAlways() { // used by destroy
-		mInstallerHandler.cancelSimpleOperationAlways(mInstallerThread);
 	}
 	
 	/**
 	 * Check whether client is installed
 	 * @return
 	 */
-
 	private static final String[] sRequiredFiles = {
 		"/boinc/client_state.xml",
 		"/boinc/client_state_prev.xml",
@@ -675,33 +666,47 @@ public class InstallerService extends Service {
 	 * @return installed binaries info
 	 */
 	public InstalledBinary[] getInstalledBinaries() {
+		if (mInstallerHandler == null)
+			return null;
+		
 		return mInstallerHandler.getInstalledBinaries();
 	}
 	
 	/**
-	 * @param attachProjectUrls attached projects urls list
-	 * @return update items
+	 * @param attachProjectUrls attached projects urls list 
 	 */
-	public void getBinariesToUpdateOrInstall() {
-		getBinariesToUpdateOrInstall(DEFAULT_CHANNEL_ID);
+	public boolean getBinariesToUpdateOrInstall() {
+		return getBinariesToUpdateOrInstall(DEFAULT_CHANNEL_ID);
 	}
 	
-	public void getBinariesToUpdateOrInstall(int channelId) {
+	public boolean getBinariesToUpdateOrInstall(int channelId) {
+		if (mInstallerHandler == null)
+			return false;
+		
 		PendingController<InstallOp> channel = mPendingChannels[channelId];
 
-		if (channel.begin(InstallOp.GetBinariesToInstall))
+		if (channel.begin(InstallOp.GetBinariesToInstall)) {
 			mInstallerThread.getBinariesToUpdateOrInstall(channelId);
+			return true;
+		}
+		return false;
 	}
 	
-	public void getBinariesToUpdateFromSDCard(String path) {
-		getBinariesToUpdateFromSDCard(DEFAULT_CHANNEL_ID, path);
+	public boolean getBinariesToUpdateFromSDCard(String path) {
+		return getBinariesToUpdateFromSDCard(DEFAULT_CHANNEL_ID, path);
 	}
 	
-	public void getBinariesToUpdateFromSDCard(int channelId, String path) {
+	public boolean getBinariesToUpdateFromSDCard(int channelId, String path) {
+		if (mInstallerHandler == null)
+			return false;
+		
 		PendingController<InstallOp> channel = mPendingChannels[channelId];
 		
-		if (channel.begin(InstallOp.GetBinariesFromSDCard(path)))
+		if (channel.begin(InstallOp.GetBinariesFromSDCard(path))) {
 			mInstallerThread.getBinariesToUpdateFromSDCard(channelId, path);
+			return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -709,29 +714,107 @@ public class InstallerService extends Service {
 	 * @return
 	 */
 	public void dumpBoincFiles(String directory) {
+		if (mInstallerHandler == null) return;
+		
 		mPendingChannels[DEFAULT_CHANNEL_ID].begin(InstallOp.ProgressOperation);
 		mInstallerThread.dumpBoincFiles(directory); 
 	}
 	
+	public boolean isBeingDumpedFiles() {
+		if (mInstallerHandler == null)
+			return false;
+		
+		return mInstallerHandler.isBeingDumpedFiles();
+	}
+	
 	public void reinstallBoinc() {
+		if (mInstallerHandler == null) return;
+		
 		mPendingChannels[DEFAULT_CHANNEL_ID].begin(InstallOp.ProgressOperation);
 		mInstallerThread.reinstallBoinc();
 	}
 	
-	public boolean isWorking() {
-		return mInstallerHandler.isWorking();
+	public boolean isBeingReinstalled() {
+		if (mInstallerHandler == null)
+			return false;
+		
+		return mInstallerHandler.isBeingReinstalled();
 	}
 	
+	public boolean isWorking() {
+		if (mInstallerHandler == null) return false;
+		
+		return mInstallerHandler.isWorking();
+	}
+
+
+	/**
+	 * cancelling routines
+	 */
+	public void cancelAllProgressOperations() {
+		if (mInstallerHandler == null) return;
+		
+		mInstallerHandler.cancelAllProgressOperations();
+	}
+	
+	public void cancelClientInstallation() {
+		if (mInstallerHandler == null) return;
+		
+		mInstallerHandler.cancelClientInstallation();
+	}
+	
+	public void cancelProjectAppsInstallation(String projectUrl) {
+		if (mInstallerHandler == null) return;
+		
+		mInstallerHandler.cancelProjectAppsInstallation(projectUrl);
+	}
+	
+	public void cancelDumpFiles() {
+		if (mInstallerHandler == null) return;
+		
+		mInstallerHandler.cancelDumpFiles();
+	}
+	
+	public void cancelReinstallation() {
+		if (mInstallerHandler == null) return;
+		
+		mInstallerHandler.cancelReinstallation();
+	}
+	
+	public void cancelSimpleOperation() { // cancel in default channel
+		if (mInstallerHandler == null) return;
+		
+		mInstallerHandler.cancelSimpleOperation(DEFAULT_CHANNEL_ID, mInstallerThread);
+	}
+	
+	public void cancelSimpleOperation(int channelId) {
+		if (mInstallerHandler == null) return;
+		
+		mInstallerHandler.cancelSimpleOperation(channelId, mInstallerThread);
+	}
+	
+	public void cancelSimpleOperationAlways() { // used by destroy
+		if (mInstallerHandler == null) return;
+		
+		mInstallerHandler.cancelSimpleOperationAlways(mInstallerThread);
+	}
+		
 	/**
 	 * get progress item
 	 * @return distrib progresses (not sorted)
 	 */
 	public synchronized ProgressItem[] getProgressItems() {
-		return mNotificationController.getProgressItems();
+		if (mNotificationController != null)
+			return mNotificationController.getProgressItems();
+		else
+			return null;
 	}
 	
 	/* get current status */
 	public synchronized ProgressItem getProgressItem(String distribName) {
-		return mNotificationController.getProgressItem(distribName);
+		if (mNotificationController != null)
+			return mNotificationController.getProgressItem(distribName);
+		else
+			return null;
 	}
 }

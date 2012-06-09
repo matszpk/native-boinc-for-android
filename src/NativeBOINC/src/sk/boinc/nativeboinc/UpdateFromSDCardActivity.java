@@ -263,7 +263,7 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements
 	private void updateActivityState() {
 		setProgressBarIndeterminateVisibility(mInstaller.isWorking());
 
-		if (mInstaller.handlePendingError(mUpdateListOp, this))
+		if (mInstaller.handlePendingErrors(mUpdateListOp, this))
 			return;
 
 		if (mUpdateDistribList == null) {
@@ -273,6 +273,7 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements
 				if (mUpdateDistribList != null)
 					updateDistribList();
 			} else if (mUpdateListProgressState == ProgressState.NOT_RUN) {
+				// igjnore if not ran, because we will used previous results
 				mUpdateListProgressState = ProgressState.IN_PROGRESS;
 				mInstaller.getBinariesToUpdateFromSDCard(mUpdateDirPath);
 			}

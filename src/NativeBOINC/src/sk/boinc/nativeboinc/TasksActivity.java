@@ -27,6 +27,7 @@ import java.util.HashSet;
 
 import sk.boinc.nativeboinc.bridge.AutoRefresh;
 import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
+import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientOp;
 import sk.boinc.nativeboinc.clientconnection.ClientUpdateTasksReceiver;
 import sk.boinc.nativeboinc.clientconnection.TaskDescriptor;
@@ -351,7 +352,8 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 		Log.d(TAG, "onUpdataskprogress:"+mUpdateTasksInProgress);
 		if (mConnectedClient != null) {
 			if (mUpdateTasksInProgress) {
-				ArrayList<TaskInfo> tasks = mConnectionManager.getPendingTasks();
+				ArrayList<TaskInfo> tasks = (ArrayList<TaskInfo>)mConnectionManager
+						.getPendingOutput(BoincOp.UpdateTasks);
 				if (tasks != null) // if already updated
 					updatedTasks(tasks);
 				
@@ -607,7 +609,7 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 
 
 	@Override
-	public void clientConnectionProgress(int progress) {
+	public void clientConnectionProgress(BoincOp boincOp, int progress) {
 		// We don't care about progress indicator in this activity, just ignore this
 	}
 
@@ -652,7 +654,9 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 	}
 	
 	@Override
-	public boolean clientError(int err_num, String message) {
+	public boolean clientError(BoincOp boincOp, int err_num, String message) {
+		if (!boincOp.equals(BoincOp.UpdateTasks))
+			return false;
 		// do not consume
 		mUpdateTasksInProgress = false;
 		mAfterRecreating = false;

@@ -23,7 +23,7 @@ package sk.boinc.nativeboinc.clientconnection;
  * @author mat
  *
  */
-public interface ClientPollErrorReceiver extends ClientReceiver {
+public interface ClientPollReceiver extends ClientReceiver {
 	/**
 	 * @param errorNum -- error number
 	 * @param operation - poll operation code (from PollOp)
@@ -31,4 +31,6 @@ public interface ClientPollErrorReceiver extends ClientReceiver {
 	 * @param param
 	 */
 	public abstract boolean onPollError(int errorNum, int operation, String errorMessage, String param);
+	
+	public abstract void onPollCancel(int opFlags);
 }

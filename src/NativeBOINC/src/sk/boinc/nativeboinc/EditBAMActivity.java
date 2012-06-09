@@ -21,6 +21,7 @@ package sk.boinc.nativeboinc;
 
 import edu.berkeley.boinc.lite.AccountMgrInfo;
 import hal.android.workarounds.FixedProgressDialog;
+import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
 import sk.boinc.nativeboinc.clientconnection.PollOp;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
@@ -58,10 +59,24 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 	
 	private ClientId mConnectedClient = null;
 	private boolean mAttachBAMInProgress = false; // if 
-	
-	private static final String STATE_ATTACH_BAM_PROGRESS = "AttachBAMProgress";
+	private boolean mOtherBAMOpInProgress = false;
 	
 	private BoincManagerApplication mApp = null;
+	
+	private static class SavedState {
+		private boolean mAttachBAMInProgress = false; // if 
+		private boolean mOtherBAMOpInProgress = false;
+		
+		public SavedState(EditBAMActivity activity) {
+			mAttachBAMInProgress = activity.mAttachBAMInProgress;
+			mOtherBAMOpInProgress = activity.mOtherBAMOpInProgress; 
+		}
+		
+		public void restore(EditBAMActivity activity) {
+			activity.mAttachBAMInProgress = mAttachBAMInProgress;
+			activity.mOtherBAMOpInProgress = mOtherBAMOpInProgress;
+		}
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +84,9 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 		
 		mApp = (BoincManagerApplication)getApplication();
 		
-		if (savedInstanceState != null)
-			mAttachBAMInProgress = savedInstanceState.getBoolean(STATE_ATTACH_BAM_PROGRESS);
+		final SavedState savedState = (SavedState)getLastNonConfigurationInstance();
+		if (savedState != null)
+			savedState.restore(this);
 		
 		setUpService(true, true, false, false, false, false);
 		super.onCreate(savedInstanceState);
@@ -155,20 +171,24 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 		else
 			setProgressBarIndeterminateVisibility(false);
 		
-		if (mAttachBAMInProgress) {
-			boolean isError = mConnectionManager.handlePendingClientErrors(this);
-			// get error for account mgr operations
-			isError |= mConnectionManager.handlePendingPollErrors(this, "");
-			if (mConnectedClient == null) {
-				clientDisconnected(); // if disconnected
-				isError = true;
-			}
-			
-			if (isError) return;
-			
-			if (!mConnectionManager.isBAMBeingSynchronized())
-				onAfterAccountMgrRPC();
+		boolean isError = mConnectionManager.handlePendingClientErrors(null, this);
+		// get error for account mgr operations
+		isError |= mConnectionManager.handlePendingPollErrors(null, this);
+		if (mConnectedClient == null) {
+			clientDisconnected(); // if disconnected
+			isError = true;
 		}
+		
+		if (isError) return;
+			
+		if (!mConnectionManager.isOpBeingExecuted(BoincOp.SyncWithBAM)) {
+			if (mAttachBAMInProgress)
+				onAfterAccountMgrRPC();
+			mOtherBAMOpInProgress = false;
+		} else if (!mAttachBAMInProgress) // still is working
+			mOtherBAMOpInProgress = true;
+		
+		setConfirmButtonEnabled();
 	}
 	
 	@Override
@@ -184,9 +204,8 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 	}
 	
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putBoolean(STATE_ATTACH_BAM_PROGRESS, mAttachBAMInProgress);
+	public Object onRetainNonConfigurationInstance() {
+		return new SavedState(this);
 	}
 	
 	@Override
@@ -206,8 +225,12 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 			return false;
 		return true;
 	}
-
-
+	
+	private void setConfirmButtonEnabled() {
+		mConfirmButton.setEnabled(mConnectedClient != null && isFormValid() &&
+				!mAttachBAMInProgress && !mOtherBAMOpInProgress);
+	}
+	
 	@Override
 	public Dialog onCreateDialog(int dialogId, Bundle args) {
 		Dialog dialog = StandardDialogs.onCreateDialog(this, dialogId, args);
@@ -235,10 +258,15 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 	}
 	
 	@Override
-	public boolean clientError(int errorNum, String errorMessage) {
-		if (mAttachBAMInProgress) {
-			dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
-			mAttachBAMInProgress = false;
+	public boolean clientError(BoincOp boincOp, int errorNum, String errorMessage) {
+		if (boincOp.isBAMOperation()) {
+			if (mAttachBAMInProgress) {
+				dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
+				mAttachBAMInProgress = false;
+			}
+			mOtherBAMOpInProgress = false;
+			setConfirmButtonEnabled();
+			
 			StandardDialogs.showClientErrorDialog(this, errorNum, errorMessage);
 			return true;
 		}
@@ -246,7 +274,7 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 	}
 
 	@Override
-	public void clientConnectionProgress(int progress) {
+	public void clientConnectionProgress(BoincOp boincOp, int progress) {
 		// do nothing
 	}
 
@@ -261,8 +289,13 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 			dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
 		if (Logging.DEBUG) Log.d(TAG, "disconnected");
 		mAttachBAMInProgress = false;
+		mOtherBAMOpInProgress = false;
+		ClientId disconnectedHost = mConnectedClient;
+		
+		mConnectedClient = null; // used by setConfirmButtonEnabled
+		setConfirmButtonEnabled();
 		StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, null,
-				mConnectedClient);
+				disconnectedHost);
 	}
 
 	@Override
@@ -272,14 +305,28 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 
 	@Override
 	public boolean onPollError(int errorNum, int operation, String errorMessage, String param) {
-		if (mAttachBAMInProgress && operation == PollOp.POLL_ATTACH_TO_BAM) {
-			dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
-		
-			mAttachBAMInProgress = false;
+		if (operation == PollOp.POLL_ATTACH_TO_BAM || operation == PollOp.POLL_SYNC_WITH_BAM) {
+			if (mAttachBAMInProgress && operation == PollOp.POLL_ATTACH_TO_BAM) {
+				dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
+				mAttachBAMInProgress = false;
+			}
+			mOtherBAMOpInProgress = false;
+			setConfirmButtonEnabled();
+			
 			StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
 			return true;
 		}
 		return false;
+	}
+	
+	@Override
+	public void onPollCancel(int opFlags) {
+		if (Logging.DEBUG) Log.d(TAG, "Poller cancel:"+opFlags);
+		
+		if ((opFlags & PollOp.POLL_BAM_OPERATION_MASK) != 0) {
+			mOtherBAMOpInProgress = false;
+			setConfirmButtonEnabled();
+		}
 	}
 
 	@Override
@@ -295,9 +342,10 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 				// go to install finish activity
 				startActivity(new Intent(this, InstallFinishActivity.class));
 			}
-			return true;
 		}
-		return false;
+		mOtherBAMOpInProgress = false;
+		setConfirmButtonEnabled();
+		return true;
 	}
 
 	@Override

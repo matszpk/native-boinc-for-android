@@ -19,34 +19,23 @@
 
 package sk.boinc.nativeboinc.service;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import edu.berkeley.boinc.lite.AccountIn;
-import edu.berkeley.boinc.lite.AccountMgrInfo;
 import edu.berkeley.boinc.lite.GlobalPreferences;
-import edu.berkeley.boinc.lite.ProjectConfig;
-import edu.berkeley.boinc.lite.ProjectListEntry;
 
 import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.bridge.ClientBridge;
 import sk.boinc.nativeboinc.bridge.ClientBridgeCallback;
-import sk.boinc.nativeboinc.clientconnection.ClientError;
-import sk.boinc.nativeboinc.clientconnection.ClientPollErrorReceiver;
+import sk.boinc.nativeboinc.clientconnection.BoincOp;
+import sk.boinc.nativeboinc.clientconnection.ClientPollReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
-import sk.boinc.nativeboinc.clientconnection.HostInfo;
-import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
-import sk.boinc.nativeboinc.clientconnection.NoticeInfo;
-import sk.boinc.nativeboinc.clientconnection.PollError;
-import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
 import sk.boinc.nativeboinc.clientconnection.TaskDescriptor;
-import sk.boinc.nativeboinc.clientconnection.TaskInfo;
 import sk.boinc.nativeboinc.clientconnection.TransferDescriptor;
-import sk.boinc.nativeboinc.clientconnection.TransferInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.ClientId;
 import android.app.Service;
@@ -333,94 +322,59 @@ public class ConnectionManagerService extends Service implements
 	}
 
 	@Override
-	public void updateClientMode() {
+	public boolean updateClientMode() {
 		if (mClientBridge != null) {
-			mClientBridge.updateClientMode();
+			return mClientBridge.updateClientMode();
 		}
+		return false;
 	}
 
 	@Override
-	public void updateHostInfo() {
+	public boolean updateHostInfo() {
 		if (mClientBridge != null) {
-			mClientBridge.updateHostInfo();
+			return mClientBridge.updateHostInfo();
 		}
+		return false;
 	}
 	
 	@Override
-	public HostInfo getPendingHostInfo() {
-		if (mClientBridge != null)
-			return mClientBridge.getPendingHostInfo();
-		return null;
+	public boolean updateProjects() {
+		if (mClientBridge != null) {
+			return mClientBridge.updateProjects();
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean updateTasks() {
+		if (mClientBridge != null) {
+			return mClientBridge.updateTasks();
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean updateTransfers() {
+		if (mClientBridge != null) {
+			return mClientBridge.updateTransfers();
+		}
+		return false;
 	}
 
 	@Override
-	public void updateProjects() {
+	public boolean updateMessages() {
 		if (mClientBridge != null) {
-			mClientBridge.updateProjects();
+			return mClientBridge.updateMessages();
 		}
+		return false;
 	}
 	
 	@Override
-	public ArrayList<ProjectInfo> getPendingProjects() {
-		if (mClientBridge != null)
-			return mClientBridge.getPendingProjects();
-		return null;
-	}
-
-	@Override
-	public void updateTasks() {
+	public boolean updateNotices() {
 		if (mClientBridge != null) {
-			mClientBridge.updateTasks();
+			return mClientBridge.updateNotices();
 		}
-	}
-	
-	@Override
-	public ArrayList<TaskInfo> getPendingTasks() {
-		if (mClientBridge != null)
-			return mClientBridge.getPendingTasks();
-		return null;
-	}
-
-	@Override
-	public void updateTransfers() {
-		if (mClientBridge != null) {
-			mClientBridge.updateTransfers();
-		}
-	}
-
-	@Override
-	public ArrayList<TransferInfo> getPendingTransfers() {
-		if (mClientBridge != null)
-			return mClientBridge.getPendingTransfers();
-		return null;
-	}
-	
-	@Override
-	public void updateMessages() {
-		if (mClientBridge != null) {
-			mClientBridge.updateMessages();
-		}
-	}
-	
-	@Override
-	public ArrayList<MessageInfo> getPendingMessages() {
-		if (mClientBridge != null)
-			return mClientBridge.getPendingMessages();
-		return null;
-	}
-	
-	@Override
-	public void updateNotices() {
-		if (mClientBridge != null) {
-			mClientBridge.updateNotices();
-		}
-	}
-	
-	@Override
-	public ArrayList<NoticeInfo> getPendingNotices() {
-		if (mClientBridge != null)
-			return mClientBridge.getPendingNotices();
-		return null;
+		return false;
 	}
 	
 	@Override
@@ -437,113 +391,83 @@ public class ConnectionManagerService extends Service implements
 	}
 
 	@Override
-	public void getBAMInfo() {
+	public boolean getBAMInfo() {
 		if (mClientBridge != null) {
-			mClientBridge.getBAMInfo();
+			return mClientBridge.getBAMInfo();
 		}
-	}
-	
-	@Override
-	public AccountMgrInfo getPendingBAMInfo() {
-		if (mClientBridge != null)
-			return mClientBridge.getPendingBAMInfo();
-		return null;
-	}
-	
-	@Override
-	public void attachToBAM(String name, String url, String password) {
-		if (mClientBridge != null) {
-			mClientBridge.attachToBAM(name, url, password);
-		}
-	}
-	
-	@Override
-	public void synchronizeWithBAM() {
-		if (mClientBridge != null) {
-			mClientBridge.synchronizeWithBAM();
-		}
-	}
-	
-	@Override
-	public void stopUsingBAM() {
-		if (mClientBridge != null) {
-			mClientBridge.stopUsingBAM();
-		}
-	}
-	
-	@Override
-	public boolean isBAMBeingSynchronized() {
-		if (mClientBridge != null)
-			return mClientBridge.isBAMBeingSynchronized();
 		return false;
 	}
 	
 	@Override
-	public void getAllProjectsList() {
+	public boolean attachToBAM(String name, String url, String password) {
 		if (mClientBridge != null) {
-			mClientBridge.getAllProjectsList();
+			return mClientBridge.attachToBAM(name, url, password);
 		}
+		return false;
 	}
 	
 	@Override
-	public ArrayList<ProjectListEntry> getPendingAllProjectsList() {
-		if (mClientBridge != null)
-			return mClientBridge.getPendingAllProjectsList();
-		return null;
-	}
-	
-	@Override
-	public void lookupAccount(AccountIn accountIn) {
+	public boolean synchronizeWithBAM() {
 		if (mClientBridge != null) {
-			mClientBridge.lookupAccount(accountIn);
+			return mClientBridge.synchronizeWithBAM();
 		}
+		return false;
 	}
 	
 	@Override
-	public void createAccount(AccountIn accountIn) {
+	public boolean stopUsingBAM() {
 		if (mClientBridge != null) {
-			mClientBridge.createAccount(accountIn);
+			return mClientBridge.stopUsingBAM();
 		}
+		return false;
 	}
 	
 	@Override
-	public void projectAttach(String url, String authCode, String projectName) {
+	public boolean getAllProjectsList() {
 		if (mClientBridge != null) {
-			mClientBridge.projectAttach(url, authCode, projectName);
+			return mClientBridge.getAllProjectsList();
 		}
+		return false;
 	}
 	
 	@Override
-	public boolean isProjectBeingAdded(String projectUrl) {
-		if (mClientBridge != null)
-			return mClientBridge.isProjectBeingAdded(projectUrl);
+	public boolean lookupAccount(AccountIn accountIn) {
+		if (mClientBridge != null) {
+			return mClientBridge.lookupAccount(accountIn);
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean createAccount(AccountIn accountIn) {
+		if (mClientBridge != null) {
+			return mClientBridge.createAccount(accountIn);
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean projectAttach(String url, String authCode, String projectName) {
+		if (mClientBridge != null) {
+			return mClientBridge.projectAttach(url, authCode, projectName);
+		}
 		return false;
 	}
 	
 	/* join of createAccount/lookupAccount with projectAttach */
 	@Override
-	public void addProject(AccountIn accountIn, boolean create) {
+	public boolean addProject(AccountIn accountIn, boolean create) {
 		if (mClientBridge != null)
-			mClientBridge.addProject(accountIn, create);
+			return mClientBridge.addProject(accountIn, create);
+		return false;
 	}
 	
 	@Override
-	public void getProjectConfig(String url) {
+	public boolean getProjectConfig(String url) {
 		if (mClientBridge != null) {
-			mClientBridge.getProjectConfig(url);
+			return mClientBridge.getProjectConfig(url);
 		}
-	}
-	
-	/**
-	 * returns pending project config after calling.
-	 * @param projectUrl
-	 * @return pending projectConfig
-	 */
-	@Override
-	public ProjectConfig getPendingProjectConfig(String projectUrl) {
-		if (mClientBridge != null)
-			return mClientBridge.getPendingProjectConfig(projectUrl);
-		return null;
+		return false;
 	}
 	
 	/*
@@ -556,9 +480,9 @@ public class ConnectionManagerService extends Service implements
 	}
 	
 	@Override
-	public boolean handlePendingClientErrors(ClientReceiver receiver) {
+	public boolean handlePendingClientErrors(BoincOp boincOp, ClientReceiver receiver) {
 		if (mClientBridge != null) {
-			return mClientBridge.handlePendingClientErrors(receiver);
+			return mClientBridge.handlePendingClientErrors(boincOp, receiver);
 		}
 		return false;
 	}
@@ -567,67 +491,75 @@ public class ConnectionManagerService extends Service implements
 	 * pending poll errors
 	 */
 	@Override
-	public boolean handlePendingPollErrors(ClientPollErrorReceiver receiver, String projectUrl) {
+	public boolean handlePendingPollErrors(BoincOp boincOp, ClientPollReceiver receiver) {
 		if (mClientBridge != null) {
-			return mClientBridge.handlePendingPollErrors(receiver, projectUrl);
+			return mClientBridge.handlePendingPollErrors(boincOp, receiver);
 		}
 		return false;
 	}
 	
 	@Override
-	public void getGlobalPrefsWorking() {
+	public Object getPendingOutput(BoincOp boincOp) {
 		if (mClientBridge != null) {
-			mClientBridge.getGlobalPrefsWorking();
+			return mClientBridge.getPendingOutput(boincOp);
 		}
-	}
-	
-	@Override
-	public GlobalPreferences getPendingGlobalPrefsWorking() {
-		if (mClientBridge != null)
-			return mClientBridge.getPendingGlobalPrefsWorking();
 		return null;
 	}
 	
 	@Override
-	public void setGlobalPrefsOverride(String globalPrefs) {
+	public boolean isOpBeingExecuted(BoincOp boincOp) {
 		if (mClientBridge != null) {
-			mClientBridge.setGlobalPrefsOverride(globalPrefs);
+			return mClientBridge.isOpBeingExecuted(boincOp);
 		}
-	}
-	
-	@Override
-	public void setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs) {
-		if (mClientBridge != null) {
-			mClientBridge.setGlobalPrefsOverrideStruct(globalPrefs);
-		}
-	}
-	
-	@Override
-	public boolean isGlobalPrefsBeingOverriden() {
-		if (mClientBridge != null)
-			return mClientBridge.isGlobalPrefsBeingOverriden();
 		return false;
 	}
 	
 	@Override
-	public void runBenchmarks() {
+	public boolean getGlobalPrefsWorking() {
 		if (mClientBridge != null) {
-			mClientBridge.runBenchmarks();
+			return mClientBridge.getGlobalPrefsWorking();
 		}
+		return false;
+	}
+	
+	@Override
+	public boolean setGlobalPrefsOverride(String globalPrefs) {
+		if (mClientBridge != null) {
+			return mClientBridge.setGlobalPrefsOverride(globalPrefs);
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs) {
+		if (mClientBridge != null) {
+			return mClientBridge.setGlobalPrefsOverrideStruct(globalPrefs);
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean runBenchmarks() {
+		if (mClientBridge != null) {
+			return mClientBridge.runBenchmarks();
+		}
+		return false;
 	}
 
 	@Override
-	public void setRunMode(int mode) {
+	public boolean setRunMode(int mode) {
 		if (mClientBridge != null) {
-			mClientBridge.setRunMode(mode);
+			return mClientBridge.setRunMode(mode);
 		}
+		return false;
 	}
 
 	@Override
-	public void setNetworkMode(int mode) {
+	public boolean setNetworkMode(int mode) {
 		if (mClientBridge != null) {
-			mClientBridge.setNetworkMode(mode);
+			return mClientBridge.setNetworkMode(mode);
 		}
+		return false;
 	}
 
 	@Override
@@ -638,51 +570,58 @@ public class ConnectionManagerService extends Service implements
 	}
 
 	@Override
-	public void doNetworkCommunication() {
+	public boolean doNetworkCommunication() {
 		if (mClientBridge != null) {
-			mClientBridge.doNetworkCommunication();
+			return mClientBridge.doNetworkCommunication();
 		}
+		return false;
 	}
 
 	@Override
-	public void projectOperation(int operation, String projectUrl) {
+	public boolean projectOperation(int operation, String projectUrl) {
 		if (mClientBridge != null) {
-			mClientBridge.projectOperation(operation, projectUrl);
+			return mClientBridge.projectOperation(operation, projectUrl);
 		}
+		return false;
 	}
 	
 	@Override
-	public void projectsOperation(int operation, String[] projectUrls) {
+	public boolean projectsOperation(int operation, String[] projectUrls) {
 		if (mClientBridge != null) {
-			mClientBridge.projectsOperation(operation, projectUrls);
+			return mClientBridge.projectsOperation(operation, projectUrls);
 		}
+		return false;
 	}
 
 	@Override
-	public void taskOperation(int operation, String projectUrl, String taskName) {
+	public boolean taskOperation(int operation, String projectUrl, String taskName) {
 		if (mClientBridge != null) {
-			mClientBridge.taskOperation(operation, projectUrl, taskName);
+			return mClientBridge.taskOperation(operation, projectUrl, taskName);
 		}
+		return false;
 	}
 	
 	@Override
-	public void tasksOperation(int operation, TaskDescriptor[] tasks) {
+	public boolean tasksOperation(int operation, TaskDescriptor[] tasks) {
 		if (mClientBridge != null) {
-			mClientBridge.tasksOperation(operation, tasks);
+			return mClientBridge.tasksOperation(operation, tasks);
 		}
+		return false;
 	}
 
 	@Override
-	public void transferOperation(int operation, String projectUrl, String fileName) {
+	public boolean transferOperation(int operation, String projectUrl, String fileName) {
 		if (mClientBridge != null) {
-			mClientBridge.transferOperation(operation, projectUrl, fileName);
+			return mClientBridge.transferOperation(operation, projectUrl, fileName);
 		}
+		return false;
 	}
 	
 	@Override
-	public void transfersOperation(int operation, TransferDescriptor[] transfers) {
+	public boolean transfersOperation(int operation, TransferDescriptor[] transfers) {
 		if (mClientBridge != null) {
-			mClientBridge.transfersOperation(operation, transfers);
+			return mClientBridge.transfersOperation(operation, transfers);
 		}
+		return false;
 	}
 }

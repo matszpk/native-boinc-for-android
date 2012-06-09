@@ -23,6 +23,7 @@ import hal.android.workarounds.FixedProgressDialog;
 
 import edu.berkeley.boinc.lite.AccountMgrInfo;
 
+import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
@@ -91,6 +92,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	private boolean mDoGetBAMInfo = false;
 	private AccountMgrInfo mBAMInfo = null;
 	private boolean mSyncingBAMInProgress = false;
+	private boolean mOtherSyncingBAMInProgress = false;
 	
 	private boolean mShowShutdownDialog = false;
 	
@@ -310,9 +312,9 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		if (mConnectionManager == null)
 			return;
 		
-		boolean isError = mConnectionManager.handlePendingClientErrors(this);
+		boolean isError = mConnectionManager.handlePendingClientErrors(null, this);
 		// get error for account mgr operations 
-		isError |= mConnectionManager.handlePendingPollErrors(this, "");
+		isError |= mConnectionManager.handlePendingPollErrors(null, this);
 		if (mConnectedClient == null) {
 			clientDisconnected(); // if disconnected
 			isError = true;
@@ -322,13 +324,13 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		
 		// check pending of account mgr
 		if (mDoGetBAMInfo) {
-			AccountMgrInfo bamInfo = mConnectionManager.getPendingBAMInfo();
+			AccountMgrInfo bamInfo = (AccountMgrInfo)mConnectionManager.getPendingOutput(BoincOp.GetBAMInfo);
 			if (bamInfo != null)
 				currentBAMInfo(bamInfo);
 		}
 		
 		if (mDoUpdateHostInfo) {
-			HostInfo hostInfo = mConnectionManager.getPendingHostInfo();
+			HostInfo hostInfo = (HostInfo)mConnectionManager.getPendingOutput(BoincOp.UpdateHostInfo);
 			if (hostInfo != null)
 				updatedHostInfo(hostInfo);
 			else // otherwise show dialog
@@ -336,7 +338,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		}
 		
 		if (mSyncingBAMInProgress) {
-			if (!mConnectionManager.isBAMBeingSynchronized())
+			if (!mConnectionManager.isOpBeingExecuted(BoincOp.SyncWithBAM))
 				onAfterAccountMgrRPC();
 		}
 	}
@@ -602,7 +604,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	}
 
 	@Override
-	public void clientConnectionProgress(int progress) {
+	public void clientConnectionProgress(BoincOp boincOp, int progress) {
 		switch (progress) {
 		case PROGRESS_INITIAL_DATA:
 			// We are already connected, so hopefully we can display client ID in title bar
@@ -690,21 +692,28 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 
 	@Override
 	public boolean onPollError(int errorNum, int operation, String errorMessage, String param) {
+		setProgressBarIndeterminateVisibility(false);
 		if (operation == PollOp.POLL_ATTACH_TO_BAM || operation == PollOp.POLL_SYNC_WITH_BAM) {
-			setProgressBarIndeterminateVisibility(false);
 			dismissBAMProgressDialog();
 			mDoGetBAMInfo = false;
 			mSyncingBAMInProgress = false;
-			StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
-			return true;
 		}
-		return false;
+		StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
+		return true;
+	}
+	
+	@Override
+	public  void onPollCancel(int opFlags) {
+		// do nothing
 	}
 
 	@Override
-	public boolean clientError(int errorNum, String message) {
+	public boolean clientError(BoincOp boincOp, int errorNum, String message) {
 		setProgressBarIndeterminateVisibility(false);
-		dismissProgressDialogs();
+		if (boincOp.isBAMOperation())
+			dismissBAMProgressDialog();
+		else
+			dismissClientProgressDialog();
 		mDoGetBAMInfo = false;
 		mDoUpdateHostInfo = false;
 		mSyncingBAMInProgress = false;

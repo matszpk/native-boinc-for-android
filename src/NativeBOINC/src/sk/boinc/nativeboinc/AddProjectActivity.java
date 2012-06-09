@@ -23,6 +23,7 @@ package sk.boinc.nativeboinc;
 import hal.android.workarounds.FixedProgressDialog;
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.ProjectConfig;
+import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
 import sk.boinc.nativeboinc.clientconnection.PollOp;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
@@ -85,6 +86,9 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	
 	private int mProjectConfigProgressState = ProgressState.NOT_RUN;
 	private boolean mAddingProjectInProgress = false;
+	// if other adding project works in the background
+	private boolean mOtherAddingProjectInProgress = false;
+	private boolean mOtherProjectConfigInProgress = false;
 	
 	private ClientId mConnectedClient = null;
 	
@@ -94,17 +98,23 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		private final boolean mAddingProjectInProgress;
 		private final boolean mTermOfUseDisplayed;
 		private final int mMinPasswordLength;
+		private final boolean mOtherAddingProjectInProgress;
+		private final boolean mOtherProjectConfigInProgress;
 		
 		public SavedState(AddProjectActivity activity) {
 			mProjectConfigProgressState = activity.mProjectConfigProgressState;
+			mOtherProjectConfigInProgress = activity.mOtherProjectConfigInProgress;
 			mAddingProjectInProgress = activity.mAddingProjectInProgress;
+			mOtherAddingProjectInProgress = activity.mOtherAddingProjectInProgress;
 			mTermOfUseDisplayed = activity.mTermOfUseDisplayed;
 			mMinPasswordLength = activity.mMinPasswordLength;
 		}
 		
 		public void restore(AddProjectActivity activity) {
 			activity.mProjectConfigProgressState = mProjectConfigProgressState;
+			activity.mOtherProjectConfigInProgress = mOtherProjectConfigInProgress;
 			activity.mAddingProjectInProgress = mAddingProjectInProgress;
+			activity.mOtherAddingProjectInProgress = mOtherAddingProjectInProgress;
 			activity.mTermOfUseDisplayed = mTermOfUseDisplayed;
 			activity.mMinPasswordLength = mMinPasswordLength;
 		}
@@ -146,7 +156,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		TextWatcher textWatcher = new TextWatcher() {
 			@Override
 			public void afterTextChanged(Editable s) {
-				mConfirmButton.setEnabled(isFormValid());
+				setConfirmButtonEnabled();
 			}
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -208,7 +218,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			}
 		});
 		
-		mConfirmButton.setEnabled(isFormValid());
+		setConfirmButtonEnabled();
 		
 		mConfirmButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
@@ -262,9 +272,11 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			
 			mAddingProjectInProgress = true;
 			if (mConnectionManager != null) {
-				mConnectionManager.addProject(accountIn, mDoAccountCreation);
-				showDialog(DIALOG_ADD_PROJECT_PROGRESS);
+				if (mConnectionManager.addProject(accountIn, mDoAccountCreation))
+					showDialog(DIALOG_ADD_PROJECT_PROGRESS);
+				// do nothing if other works
 			}
+			setConfirmButtonEnabled();
 		}
 	}
 	
@@ -288,26 +300,24 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	private void updateActivityState() {
 		setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
 		
-		if (mProjectConfigProgressState == ProgressState.IN_PROGRESS || mAddingProjectInProgress) {
-			boolean isError = mConnectionManager.handlePendingClientErrors(this);
-			isError |= mConnectionManager.handlePendingPollErrors(this, mProjectItem.getUrl());
-			
-			if (mConnectedClient == null) {
-				clientDisconnected(); // if disconnected
-				isError = true;
-			}
-			
-			if (isError) return;
+		boolean isError = mConnectionManager.handlePendingClientErrors(null, this);
+		isError |= mConnectionManager.handlePendingPollErrors(null, this);
+		
+		if (mConnectedClient == null) {
+			clientDisconnected(); // if disconnected
+			isError = true;
 		}
+		
+		if (isError) return;
 	
 		if (mProjectConfigProgressState != ProgressState.FINISHED) {
 			if (mProjectConfigProgressState == ProgressState.NOT_RUN) {
-				if (Logging.DEBUG) Log.d(TAG, "get project config from client");
-				mConnectionManager.getProjectConfig(mProjectItem.getUrl());
-				mProjectConfigProgressState = ProgressState.IN_PROGRESS;
+				// do get project config (handles it)
+				doGetProjectConfig();
 			} else if (mProjectConfigProgressState == ProgressState.IN_PROGRESS) {
-				ProjectConfig projectConfig = mConnectionManager
-						.getPendingProjectConfig(mProjectItem.getUrl());
+				ProjectConfig projectConfig = (ProjectConfig)mConnectionManager
+						.getPendingOutput(BoincOp.GetProjectConfig);
+				
 				if (projectConfig != null) // if finish
 					afterLoadingProjectConfig(projectConfig);
 			}
@@ -318,12 +328,15 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			afterInitProjectConfig();
 		}
 		
-		if (mAddingProjectInProgress) {
-			if (!mConnectionManager.isProjectBeingAdded(mProjectItem.getUrl())) {
+		if (!mConnectionManager.isOpBeingExecuted(BoincOp.AddProject)) {
+			if (mAddingProjectInProgress) {
 				// its finally added
 				afterProjectAdding(mProjectItem.getUrl());
 			}
-		}
+			mOtherAddingProjectInProgress = false;
+		} else if (!mAddingProjectInProgress) // if other task works
+			mOtherAddingProjectInProgress = true;
+		setConfirmButtonEnabled();
 	}
 	
 	@Override
@@ -389,7 +402,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			mCreateAccountContainer.setVisibility(View.GONE);
 			mUseAccountContainer.setVisibility(View.VISIBLE);
 		}
-		mConfirmButton.setEnabled(isFormValid());
+		setConfirmButtonEnabled();
 	}
 	
 	private boolean isFormValid() {
@@ -405,9 +418,14 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		return true;
 	}
+	
+	public void setConfirmButtonEnabled() {
+		mConfirmButton.setEnabled(mConnectedClient != null && isFormValid() &&
+				!mAddingProjectInProgress && !mOtherAddingProjectInProgress);
+	}
 
 	@Override
-	public void clientConnectionProgress(int progress) {
+	public void clientConnectionProgress(BoincOp boincOp, int progress) {
 	}
 
 	@Override
@@ -424,11 +442,14 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		if (mAddingProjectInProgress)
 			dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
 		mAddingProjectInProgress = false;
+		mOtherAddingProjectInProgress = false;
+		mOtherProjectConfigInProgress = false;
 		
-		StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, mRunner,
-				mConnectedClient);
-		
+		ClientId disconnectedHost = mConnectedClient;
 		mConnectedClient = null;
+		setConfirmButtonEnabled();
+		StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, mRunner,
+				disconnectedHost);
 	}
 
 	@Override
@@ -436,17 +457,33 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		return false;
 	}
 
+	private void doGetProjectConfig() {
+		if (Logging.DEBUG) Log.d(TAG, "get project config from client");
+		if (mConnectionManager.getProjectConfig(mProjectItem.getUrl())) {
+			mProjectConfigProgressState = ProgressState.IN_PROGRESS;
+			mOtherProjectConfigInProgress = false;
+		} else { // other get project in progress
+			if (Logging.DEBUG) Log.d(TAG, "other getprojectconfig called");
+			mOtherProjectConfigInProgress = true;
+		}
+	}
+	
 	@Override
-	public boolean currentProjectConfig(ProjectConfig projectConfig) {
-		if (projectConfig.master_url.equals(mProjectItem.getUrl()))
+	public boolean currentProjectConfig(String projectUrl, ProjectConfig projectConfig) {
+		Log.d(TAG, "Current projectconfig: "+mOtherProjectConfigInProgress);
+		if (mOtherProjectConfigInProgress) {
+			mOtherProjectConfigInProgress = false;
+			doGetProjectConfig();
+			return true;
+		}
+		if (projectUrl.equals(mProjectItem.getUrl()))
 			afterLoadingProjectConfig(projectConfig);
 		return true;
 	}
 
 	private void afterProjectAdding(String projectUrl) {
 		if (Logging.DEBUG) Log.d(TAG, "After Project adding");
-		if (mAddingProjectInProgress)
-			dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
+		dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
 		mAddingProjectInProgress = false;
 		
 		if (mConnectionManager.isNativeConnected()) { // go to progress activity
@@ -463,55 +500,86 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	
 	@Override
 	public boolean onAfterProjectAttach(String projectUrl) {
-		afterProjectAdding(projectUrl);
+		if (mAddingProjectInProgress)
+			afterProjectAdding(projectUrl);
+		mOtherAddingProjectInProgress = false;
+		setConfirmButtonEnabled();
 		return true;
 	}
 
 	@Override
 	public boolean onPollError(int errorNum, int operation, String errorMessage, String param) {
+		if (operation != PollOp.POLL_CREATE_ACCOUNT && operation != PollOp.POLL_LOOKUP_ACCOUNT && 
+			operation != PollOp.POLL_PROJECT_ATTACH && operation != PollOp.POLL_PROJECT_CONFIG)
+			return false;
+		
 		if (Logging.WARNING) Log.w(TAG, "Poller error:"+errorNum+":"+operation+":"+param);
-		if (mProjectConfigProgressState == ProgressState.IN_PROGRESS || mAddingProjectInProgress) {
-			// getProjectConfig - set as failed - prevents repeating operation
-			
-			boolean doShowError = false;
-			
-			if (mProjectConfigProgressState == ProgressState.IN_PROGRESS &&
-					operation == PollOp.POLL_PROJECT_CONFIG) {
-				doShowError = true;
+		
+		// getProjectConfig - set as failed - prevents repeating operation
+		if (operation == PollOp.POLL_PROJECT_CONFIG) {
+			if (mOtherProjectConfigInProgress) {
+				// if previous project config failed, try to get our project config
+				mOtherProjectConfigInProgress = false;
+				doGetProjectConfig();
+			} else if (mProjectConfigProgressState == ProgressState.IN_PROGRESS)
 				mProjectConfigProgressState = ProgressState.FAILED;
-			}
-			
-			if (mAddingProjectInProgress && (operation == PollOp.POLL_PROJECT_ATTACH ||
-					operation == PollOp.POLL_LOOKUP_ACCOUNT || operation == PollOp.POLL_CREATE_ACCOUNT)) {
-				doShowError = true;
-				dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
-				mAddingProjectInProgress = false;
-			}
-			
-			if (doShowError) {
-				StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
-				return true;
-			}
 		}
-		return false;
-	}
-	
-	@Override
-	public boolean clientError(int errorNum, String errorMessage) {
-		// getProjectConfig - set as finished - prevents repeating operation
-		if (mProjectConfigProgressState == ProgressState.IN_PROGRESS || mAddingProjectInProgress) {
-			if (mProjectConfigProgressState == ProgressState.IN_PROGRESS)
-				mProjectConfigProgressState = ProgressState.FAILED;
-			
+		
+		if (operation == PollOp.POLL_PROJECT_ATTACH ||
+				operation == PollOp.POLL_LOOKUP_ACCOUNT || operation == PollOp.POLL_CREATE_ACCOUNT) {
 			if (mAddingProjectInProgress) {
 				dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
 				mAddingProjectInProgress = false;
 			}
-			
-			StandardDialogs.showClientErrorDialog(this, errorNum, errorMessage);
-			return true;
+			mOtherAddingProjectInProgress = false;
+			setConfirmButtonEnabled();
 		}
-		return false;
+		
+		StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
+		return true;
+	}
+	
+	@Override
+	public void onPollCancel(int opFlags) {
+		if (Logging.DEBUG) Log.d(TAG, "Poller cancel:"+opFlags);
+		
+		if ((opFlags & PollOp.POLL_PROJECT_CONFIG_MASK) != 0 && mOtherProjectConfigInProgress) {
+			mOtherProjectConfigInProgress = false;
+			doGetProjectConfig();
+		}
+		
+		if ((opFlags & (PollOp.POLL_PROJECT_ATTACH_MASK | PollOp.POLL_LOOKUP_ACCOUNT_MASK |
+				PollOp.POLL_CREATE_ACCOUNT_MASK)) != 0) {
+			mOtherAddingProjectInProgress = false;
+			setConfirmButtonEnabled();
+		}
+	}
+	
+	@Override
+	public boolean clientError(BoincOp boincOp, int errorNum, String errorMessage) {
+		if (!boincOp.isProjectConfig() && !boincOp.isAddProject())
+			return false;
+		
+		if (boincOp.isProjectConfig()) {
+			if (mOtherProjectConfigInProgress) {
+				// if previous project config failed, try to get our project config
+				mOtherProjectConfigInProgress = false;
+				doGetProjectConfig();
+			} else if (mProjectConfigProgressState == ProgressState.IN_PROGRESS)
+				mProjectConfigProgressState = ProgressState.FAILED;
+		}
+		
+		if (boincOp.isAddProject()) {
+			if (mAddingProjectInProgress && boincOp.isAddProject()) {
+				dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
+				mAddingProjectInProgress = false;
+			}
+			mOtherAddingProjectInProgress = false;
+			setConfirmButtonEnabled();
+		}
+		
+		StandardDialogs.showClientErrorDialog(this, errorNum, errorMessage);
+		return true;
 	}
 
 	@Override

@@ -657,7 +657,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 		}
 	}
 	
-	public boolean handlePendingServiceErrorMessage(final WorkerOp workerOp,
+	public boolean handlePendingServiceErrorMessages(final WorkerOp workerOp,
 			final NativeBoincServiceListener listener) {
 		
 		return mWorkerPendingController.handlePendingErrors(workerOp, new PendingErrorHandler<WorkerOp>() {
@@ -784,50 +784,55 @@ public class NativeBoincService extends Service implements MonitorListener,
 	}
 	
 	/**
-	 * methods returns WorkerOp (WorkerOperation) identifier
+	 * methods returns boolean value, that indicates whether task has been ran (true) or not (false) 
 	 */
-	/**
-	 * getGlobalProgress (concurrent version) 
-	 */
-	public WorkerOp getGlobalProgress(NativeBoincReplyListener callback) {
+	public boolean getGlobalProgress(NativeBoincReplyListener callback) {
 		if (Logging.DEBUG) Log.d(TAG, "Get global progress");
 		
 		if (mWorkerThread != null) {
-			if (mWorkerPendingController.begin(WorkerOp.GetGlobalProgress))
+			if (mWorkerPendingController.begin(WorkerOp.GetGlobalProgress)) {
 				mWorkerThread.getGlobalProgress(callback);
+				return true;
+			}
 		}
-		return WorkerOp.GetGlobalProgress;
+		return false;
 	}
 	
-	public WorkerOp getTasks(NativeBoincTasksListener callback) {
+	public boolean getTasks(NativeBoincTasksListener callback) {
 		if (Logging.DEBUG) Log.d(TAG, "Get results");
 		
 		if (mWorkerThread != null) {
-			if (mWorkerPendingController.begin(WorkerOp.GetTasks))
+			if (mWorkerPendingController.begin(WorkerOp.GetTasks)) {
 				mWorkerThread.getTasks(callback);
+				return true;
+			}
 		}
-		return WorkerOp.GetTasks; 
+		return false; 
 	}
 	
-	public WorkerOp getProjects(NativeBoincProjectsListener callback) {
+	public boolean getProjects(NativeBoincProjectsListener callback) {
 		if (Logging.DEBUG) Log.d(TAG, "Get projects");
 		
 		if (mWorkerThread != null) {
-			if (mWorkerPendingController.begin(WorkerOp.GetProjects))
+			if (mWorkerPendingController.begin(WorkerOp.GetProjects)) {
 				mWorkerThread.getProjects(callback);
+				return true;
+			}
 		}
-		return WorkerOp.GetProjects;
+		return false;
 	}
 	
-	public WorkerOp updateProjectApps(String projectUrl) {
+	public boolean updateProjectApps(String projectUrl) {
 		if (Logging.DEBUG) Log.d(TAG, "update project binaries");
 		
 		WorkerOp workerOp = WorkerOp.UpdateProjectApps(projectUrl);
 		if (mWorkerThread != null) {
-			if (mWorkerPendingController.begin(workerOp))
+			if (mWorkerPendingController.begin(workerOp)) {
 				mWorkerThread.updateProjectApps(projectUrl);
+				return true;
+			}
 		}
-		return workerOp;
+		return false;
 	}
 	
 	/* retrieve pending output for specified operation */

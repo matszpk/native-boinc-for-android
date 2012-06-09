@@ -19,13 +19,9 @@
 
 package sk.boinc.nativeboinc.bridge;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.AccountMgrInfo;
@@ -33,10 +29,11 @@ import edu.berkeley.boinc.lite.GlobalPreferences;
 import edu.berkeley.boinc.lite.ProjectConfig;
 import edu.berkeley.boinc.lite.ProjectListEntry;
 
+import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientAccountMgrReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientError;
-import sk.boinc.nativeboinc.clientconnection.ClientPollErrorReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientPollReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
@@ -62,6 +59,9 @@ import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.debug.NetStats;
 import sk.boinc.nativeboinc.util.ClientId;
+import sk.boinc.nativeboinc.util.PendingController;
+import sk.boinc.nativeboinc.util.PendingErrorHandler;
+import sk.boinc.nativeboinc.util.PendingOpSelector;
 import android.content.Context;
 import android.os.ConditionVariable;
 import android.os.Handler;
@@ -75,51 +75,14 @@ import android.util.Log;
  */
 public class ClientBridge implements ClientRequestHandler {
 	private static final String TAG = "ClientBridge";
-
-	private ConcurrentMap<String, ProjectConfig> mPendingProjectConfigs =
-			new ConcurrentHashMap<String, ProjectConfig>();
-	
+		
 	// for joining two requests in one (create/lookup and attach)
-	private ConcurrentMap<String, String> mJoinedAddProjectsMap = new ConcurrentHashMap<String, String>();
+	//private ConcurrentMap<String, String> mJoinedAddProjectsMap = new ConcurrentHashMap<String, String>();
+	private String mJoinedAddProjectUrl = null;
 	
-	private HashMap<String, PollError> mPollErrorsMap = new HashMap<String, PollError>();
-	private HashMap<String, PollError> mProjectConfigErrorsMap = new HashMap<String, PollError>();
-	private ClientError mPendingClientError = null;
-	private Object mPendingClientErrorSync = new Object(); // syncer
-	
-	private ClientError mPendingAutoRefreshClientError = null;
-	private Object mPendingAutoRefreshClientErrorSync = new Object(); // syncer
-	
-	private AtomicReference<ArrayList<ProjectListEntry>> mPendingAllProjectsList =
-			new AtomicReference<ArrayList<ProjectListEntry>>();
-	
-	private AtomicReference<AccountMgrInfo> mPendingAccountMgrInfo =
-			new AtomicReference<AccountMgrInfo>();
-	
-	private boolean mBAMBeingSynchronized = false;
-	
-	private AtomicReference<GlobalPreferences> mPendingGlobalPrefs =
-			new AtomicReference<GlobalPreferences>();
-	
-	private boolean mGlobalPrefsBeingOverriden = false;
-	private AtomicReference<HostInfo> mPendingHostInfo = new AtomicReference<HostInfo>();
-	
-	/* data updates */
-	private AtomicReference<ArrayList<ProjectInfo>> mPendingProjects =
-			new AtomicReference<ArrayList<ProjectInfo>>();
-	
-	private AtomicReference<ArrayList<TaskInfo>> mPendingTasks =
-			new AtomicReference<ArrayList<TaskInfo>>();
-	
-	private AtomicReference<ArrayList<TransferInfo>> mPendingTransfers =
-			new AtomicReference<ArrayList<TransferInfo>>();
-	
-	private AtomicReference<ArrayList<MessageInfo>> mPendingMessages =
-			new AtomicReference<ArrayList<MessageInfo>>();
-	
-	private AtomicReference<ArrayList<NoticeInfo>> mPendingNotices =
-			new AtomicReference<ArrayList<NoticeInfo>>();
-	
+	private PendingController<BoincOp> mClientPendingController =
+			new PendingController<BoincOp>("Client:PendingCtrl");
+		
 	public class ReplyHandler extends Handler {
 		private static final String TAG = "ClientBridge.ReplyHandler";
 
@@ -149,83 +112,60 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 		}
 
-		public void notifyProgress(int progress) {
+		public void notifyProgress(BoincOp boincOp, int progress) {
+			if (boincOp != null) {
+				if (progress == ClientReceiver.PROGRESS_XFER_STARTED)
+					mClientPendingController.begin(boincOp);	// begin queue operation
+				// finish operation without output
+				if (progress == ClientReceiver.PROGRESS_XFER_FINISHED)
+					mClientPendingController.finish(boincOp);
+			}
+			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers)
-				observer.clientConnectionProgress(progress);
+				observer.clientConnectionProgress(boincOp, progress);
 		}
 		
-		public void notifyError(boolean autoRefresh, int errorNum, String errorMessage) {
+		public void notifyError(BoincOp boincOp, int errorNum, String errorMessage) {
+			if (boincOp.isAddProject()) // addProject operation
+				mJoinedAddProjectUrl = null;
+				
 			boolean called = false;
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
-				if (observer.clientError(errorNum, errorMessage))
+				if (observer.clientError(boincOp, errorNum, errorMessage))
 					called = true;
 			}
 			
-			if (!autoRefresh) // if not autorefeshed operation
-				synchronized(mPendingClientErrorSync) {
-					if (Logging.DEBUG) Log.d(TAG, "Is PendingClientError is set: "+(!called));
-					if (!called) /* set up pending if not already handled */
-						mPendingClientError = new ClientError(errorNum, errorMessage);
-					else	// if error already handled 
-						mPendingClientError = null;
-				}
-			else // use different pending error handling channel
-				synchronized(mPendingAutoRefreshClientErrorSync) {
-					if (Logging.DEBUG) Log.d(TAG, "Is PendingAutoRefreshClientError is set: "+(!called));
-					if (!called) /* set up pending if not already handled */
-						mPendingAutoRefreshClientError = new ClientError(errorNum, errorMessage);
-					else	// if error already handled 
-						mPendingAutoRefreshClientError = null;
-				}
+			if (!called)
+				mClientPendingController.finishWithError(boincOp, new ClientError(errorNum, errorMessage));
+			else
+				mClientPendingController.finish(boincOp);
 		}
 		
-		public void notifyPollError(int errorNum, int operation, String errorMessage, String param) {
-			if (operation == PollOp.POLL_CREATE_ACCOUNT ||
-					operation == PollOp.POLL_LOOKUP_ACCOUNT ||
-					operation == PollOp.POLL_PROJECT_ATTACH) {
-				// addProject operation
-				mJoinedAddProjectsMap.remove(param);
-			}
+		public void notifyPollError(BoincOp boincOp, int errorNum, int operation,
+				String errorMessage, String param) {
+			
+			if (boincOp.isAddProject()) // addProject operation
+				mJoinedAddProjectUrl = null;
 			
 			boolean called = false;
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
-				if (observer instanceof ClientPollErrorReceiver) {
-					if (((ClientPollErrorReceiver)observer).onPollError(errorNum, operation,
+				if (observer instanceof ClientPollReceiver) {
+					if (((ClientPollReceiver)observer).onPollError(errorNum, operation,
 							errorMessage, param))
 						called = true;
 				}
 			}
 			
 			String key = (param != null) ? param : "";
-			
-			if (operation != PollOp.POLL_PROJECT_CONFIG) {
-				// error from other operation
-				synchronized(mPollErrorsMap) {
-					if (Logging.DEBUG) Log.d(TAG, "Is PendingPollErrorError is set: "+
-							(!called)+" for "+key);
-					if (!called) { /* set up pending if not already handled */
-						PollError pollError = new PollError(errorNum, operation, errorMessage, param);
-						mPollErrorsMap.put(key, pollError);
-					} else { // if already handled (remove old errors)
-						mPollErrorsMap.remove(key);
-					}
-				}
-			} else {
-				synchronized(mProjectConfigErrorsMap) {
-					if (Logging.DEBUG) Log.d(TAG, "Is PendingProjectConfigErrorError is set: "+
-							(!called)+" for "+key);
-					if (!called) { /* set up pending if not already handled */
-						PollError pollError = new PollError(errorNum, operation, errorMessage, param);
-						mProjectConfigErrorsMap.put(key, pollError);
-					} else { // if already handled (remove old errors)
-						mProjectConfigErrorsMap.remove(key);
-					}
-				}
-			}
+			if (!called)
+				mClientPendingController.finishWithError(boincOp,
+						new PollError(errorNum, operation, errorMessage, key));
+			else
+				mClientPendingController.finish(boincOp);
 		}
 		
 		public void notifyConnected(VersionInfo clientVersion) {
@@ -265,7 +205,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 		public void updatedHostInfo(final HostInfo hostInfo) {
-			mPendingHostInfo.set(hostInfo);
+			mClientPendingController.finishWithOutput(BoincOp.UpdateHostInfo, hostInfo);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -275,7 +215,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 		
 		public void currentBAMInfo(final AccountMgrInfo bamInfo) {
-			mPendingAccountMgrInfo.set(bamInfo);
+			mClientPendingController.finishWithOutput(BoincOp.GetBAMInfo, bamInfo);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -285,7 +225,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 		
 		public void currentAllProjectsList(final ArrayList<ProjectListEntry> projects) {
-			mPendingAllProjectsList.set(projects);
+			mClientPendingController.finishWithOutput(BoincOp.GetAllProjectList, projects);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -295,29 +235,34 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 		
 		public void currentAuthCode(final String projectUrl, final String authCode) {
+			
+			if (!mJoinedAddProjectUrl.equals(projectUrl)) // if not add project (standalone calls)
+				mClientPendingController.finish(BoincOp.AddProject);
+			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientProjectReceiver)
 					((ClientProjectReceiver)observer).currentAuthCode(projectUrl, authCode);
 			}
 			
-			if (mJoinedAddProjectsMap.containsKey(projectUrl)) {
+			if (mJoinedAddProjectUrl.equals(projectUrl)) {
 				projectAttach(projectUrl, authCode, "");
 			}
 		}
 		
-		public void currentProjectConfig(final ProjectConfig projectConfig) {
-			mPendingProjectConfigs.put(projectConfig.master_url, projectConfig);
+		public void currentProjectConfig(String projectUrl, final ProjectConfig projectConfig) {
+			mClientPendingController.finishWithOutput(BoincOp.GetProjectConfig, projectConfig);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientProjectReceiver)
-					((ClientProjectReceiver)observer).currentProjectConfig(projectConfig);
+					((ClientProjectReceiver)observer).currentProjectConfig(projectUrl,
+							projectConfig);
 			}
 		}
 		
 		public void currentGlobalPreferences(final GlobalPreferences globalPrefs) {
-			mPendingGlobalPrefs.set(globalPrefs);
+			mClientPendingController.finishWithOutput(BoincOp.GlobalPrefsWorking, globalPrefs);
 			
 			// First, check whether callback is still present in observers
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
@@ -328,9 +273,10 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 		
 		public void afterAccountMgrRPC() {
+			mClientPendingController.finish(BoincOp.SyncWithBAM);
+			
 			// First, check whether callback is still present in observers
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
-			mBAMBeingSynchronized = false;
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientAccountMgrReceiver)
 					((ClientAccountMgrReceiver)observer).onAfterAccountMgrRPC();
@@ -340,7 +286,9 @@ public class ClientBridge implements ClientRequestHandler {
 		public void afterProjectAttach(final String projectUrl) {
 			// First, check whether callback is still present in observers
 			if (Logging.DEBUG) Log.d(TAG, "Remove after project attach:"+projectUrl);
-			mJoinedAddProjectsMap.remove(projectUrl);
+			
+			mClientPendingController.finish(BoincOp.AddProject);
+			mJoinedAddProjectUrl = null;
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientProjectReceiver)
@@ -349,7 +297,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 		
 		public void onGlobalPreferencesChanged() {
-			mGlobalPrefsBeingOverriden = false; // if finished
+			mClientPendingController.finish(BoincOp.GlobalPrefsOverride);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -359,7 +307,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 		public void updatedProjects(final ArrayList <ProjectInfo> projects) {
-			mPendingProjects.set(projects);
+			mClientPendingController.finishWithOutput(BoincOp.UpdateProjects, projects);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -374,7 +322,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 		public void updatedTasks(final ArrayList <TaskInfo> tasks) {
-			mPendingTasks.set(tasks);
+			mClientPendingController.finishWithOutput(BoincOp.UpdateTasks, tasks);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -389,7 +337,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 		public void updatedTransfers(final ArrayList <TransferInfo> transfers) {
-			mPendingTransfers.set(transfers);
+			mClientPendingController.finishWithOutput(BoincOp.UpdateTransfers, transfers);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -404,7 +352,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 		public void updatedMessages(final ArrayList <MessageInfo> messages) {
-			mPendingMessages.set(messages);
+			mClientPendingController.finishWithOutput(BoincOp.UpdateMessages, messages);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -419,7 +367,7 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 		
 		public void updatedNotices(final ArrayList <NoticeInfo> notices) {
-			mPendingNotices.set(notices);
+			mClientPendingController.finishWithOutput(BoincOp.UpdateNotices, notices);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -442,14 +390,39 @@ public class ClientBridge implements ClientRequestHandler {
 		/*
 		 * cancel poll operations
 		 */
-		public void cancelPollOperations() {
-			Log.d(TAG, "on cancel poll operations");
-			mPendingAccountMgrInfo.set(null);
+		public void cancelPollOperations(final int opFlags) {
+			Log.d(TAG, "on cancel poll operations:"+opFlags);;
+			// finish bam sync and add project operations
+			mClientPendingController.finishSelected(new PendingOpSelector<BoincOp>() {
+				@Override
+				public boolean select(BoincOp boincOp) {
+					boolean toRemove = false;
+					if ((opFlags & PollOp.POLL_BAM_OPERATION_MASK) != 0 && boincOp.isBAMOperation())
+						toRemove = true;
+					if ((opFlags & PollOp.POLL_CREATE_ACCOUNT_MASK) != 0 && boincOp.isCreateAccount())
+						toRemove = true;
+					if ((opFlags & PollOp.POLL_LOOKUP_ACCOUNT_MASK) != 0 && boincOp.isLookupAccount())
+						toRemove = true;
+					if ((opFlags & PollOp.POLL_PROJECT_ATTACH_MASK) != 0 && boincOp.isProjectAttach())
+						toRemove = true;
+					if ((opFlags & PollOp.POLL_PROJECT_CONFIG_MASK) != 0 && boincOp.isProjectConfig())
+						toRemove = true;
+					
+					return toRemove;
+				}
+			});
+			
+			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			for (ClientReceiver observer: observers) {
+				if (observer instanceof ClientPollReceiver) {
+					((ClientPollReceiver)observer).onPollCancel(opFlags);
+				}
+			}
+			
 			// clear 'add project' operations
-			mJoinedAddProjectsMap.clear();
-			// clear project config temp results
-			mPendingProjectConfigs.clear();
-			mBAMBeingSynchronized = false;
+			if ((opFlags & (PollOp.POLL_CREATE_ACCOUNT_MASK | PollOp.POLL_LOOKUP_ACCOUNT_MASK |
+					PollOp.POLL_PROJECT_ATTACH_MASK)) != 0)
+				mJoinedAddProjectUrl = null;
 		}
 	}
 
@@ -530,7 +503,8 @@ public class ClientBridge implements ClientRequestHandler {
 	public void connect(final ClientId remoteClient, final boolean retrieveInitialData) {
 		if (mRemoteClient != null) {
 			// already connected
-			if (Logging.ERROR) Log.e(TAG, "Request to connect to: " + remoteClient.getNickname() + " while already connected to: " + mRemoteClient.getNickname());
+			if (Logging.ERROR) Log.e(TAG, "Request to connect to: " + remoteClient.getNickname() +
+					" while already connected to: " + mRemoteClient.getNickname());
 			return;
 		}
 		mRemoteClient = remoteClient;
@@ -542,6 +516,7 @@ public class ClientBridge implements ClientRequestHandler {
 		if (mRemoteClient == null) return; // not connected
 		mWorker.disconnect();
 		mRemoteClient = null; // This will prevent further triggers towards worker thread
+		mClientPendingController = null;
 	}
 
 	@Override
@@ -556,105 +531,87 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 
 	@Override
-	public void updateClientMode() {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingAutoRefreshClientError();
-		mWorker.updateClientMode();
+	public boolean updateClientMode() {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		if (mClientPendingController.begin(BoincOp.UpdateClientMode)) {
+			mWorker.updateClientMode();
+			return true;
+		}
+		return false;
 	}
 
 	@Override
-	public void updateHostInfo() {
-		if (mRemoteClient == null) return; // not connected
+	public boolean updateHostInfo() {
+		if (mRemoteClient == null)
+			return false; // not connected
 		
-		mPendingHostInfo.set(null);
-		clearPendingClientError();
-		mWorker.updateHostInfo();
+		if (mClientPendingController.begin(BoincOp.UpdateHostInfo)) {
+			mWorker.updateHostInfo();
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
-	public HostInfo getPendingHostInfo() {
-		if (mRemoteClient == null) return null; // not connected
+	public boolean updateProjects() {
+		if (mRemoteClient == null)
+			return false; // not connected
 		
-		return mPendingHostInfo.getAndSet(null);
-	}
-
-	@Override
-	public void updateProjects() {
-		if (mRemoteClient == null) return; // not connected
-		
-		mPendingProjects.set(null);
-		clearPendingAutoRefreshClientError();
-		mWorker.updateProjects();
+		if (mClientPendingController.begin(BoincOp.UpdateProjects)) {
+			mWorker.updateProjects();
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
-	public ArrayList<ProjectInfo> getPendingProjects() {
-		if (mRemoteClient == null) return null; // not connected
+	public boolean updateTasks() {
+		if (mRemoteClient == null)
+			return false; // not connected
 		
-		return mPendingProjects.getAndSet(null);
-	}
-
-	@Override
-	public void updateTasks() {
-		if (mRemoteClient == null) return; // not connected
-		
-		mPendingTasks.set(null);
-		clearPendingAutoRefreshClientError();
-		mWorker.updateTasks();
+		if (mClientPendingController.begin(BoincOp.UpdateTasks)) {
+			mWorker.updateTasks();
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
-	public ArrayList<TaskInfo> getPendingTasks() {
-		if (mRemoteClient == null) return null; // not connected
+	public boolean updateTransfers() {
+		if (mRemoteClient == null)
+			return false; // not connected
 		
-		return mPendingTasks.getAndSet(null);
-	}
-
-	@Override
-	public void updateTransfers() {
-		if (mRemoteClient == null) return; // not connected
-		
-		mPendingTransfers.set(null);
-		clearPendingAutoRefreshClientError();
-		mWorker.updateTransfers();
+		if (mClientPendingController.begin(BoincOp.UpdateTransfers)) {
+			mWorker.updateTransfers();
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
-	public ArrayList<TransferInfo> getPendingTransfers() {
-		if (mRemoteClient == null) return null; // not connected
+	public boolean updateMessages() {
+		if (mRemoteClient == null)
+			return false; // not connected
 		
-		return mPendingTransfers.getAndSet(null);
-	}
-
-	@Override
-	public void updateMessages() {
-		if (mRemoteClient == null) return; // not connected
-		
-		mPendingMessages.set(null);
-		clearPendingAutoRefreshClientError();
-		mWorker.updateMessages();
+		if (mClientPendingController.begin(BoincOp.UpdateMessages)) {
+			mWorker.updateMessages();
+			return true;
+		}
+		return false;
 	}
 	
-	@Override
-	public ArrayList<MessageInfo> getPendingMessages() {
-		if (mRemoteClient == null) return null; // not connected
+	public boolean updateNotices() {
+		if (mRemoteClient == null) {
+			return false; // not connected
+		}
 		
-		return mPendingMessages.getAndSet(null);
-	}
-	
-	public void updateNotices() {
-		if (mRemoteClient == null) return; // not connected
-		
-		mPendingNotices.set(null);
-		clearPendingAutoRefreshClientError();
-		mWorker.updateNotices();
-	}
-	
-	@Override
-	public ArrayList<NoticeInfo> getPendingNotices() {
-		if (mRemoteClient == null) return null; // not connected
-		
-		return mPendingNotices.getAndSet(null);
+		if (mClientPendingController.begin(BoincOp.UpdateNotices)) {
+			mWorker.updateNotices();
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
@@ -664,177 +621,164 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 
 	@Override
-	public void cancelScheduledUpdates(int refreshType) {
+	public void cancelScheduledUpdates(final int refreshType) {
 		if (mRemoteClient == null) return; // not connected
 		// Cancel pending updates in worker thread
 		mWorker.cancelPendingUpdates(refreshType);
+		// remove from clientPendingController
+		mClientPendingController.finishSelected(new PendingOpSelector<BoincOp>() {
+			@Override
+			public boolean select(BoincOp boincOp) {
+				switch(refreshType) {
+				case AutoRefresh.CLIENT_MODE:
+					return boincOp.isAutoRefreshOp(refreshType);
+				}
+				return false;
+			}
+		});
+		
 		// Remove scheduled auto-refresh (if any)
 		if (mAutoRefresh!=null)
 			mAutoRefresh.unscheduleAutomaticRefresh(refreshType);
 	}
 
 	@Override
-	public void getBAMInfo() {
-		if (mRemoteClient == null) return; // not connected
+	public boolean getBAMInfo() {
+		if (mRemoteClient == null)
+			return false; // not connected
 		
-		mPendingAccountMgrInfo.set(null);
-		clearPendingClientError();
-		mWorker.getBAMInfo();
+		if (mClientPendingController.begin(BoincOp.GetBAMInfo)) {
+			mWorker.getBAMInfo();
+			return true;
+		}
+		return false;
 	}
-
+	
 	@Override
-	public AccountMgrInfo getPendingBAMInfo() {
-		if (mRemoteClient == null) return null; // not connected
+	public boolean attachToBAM(String name, String url, String password) {
+		if (mRemoteClient == null)
+			return false; // not connected
 		
-		return mPendingAccountMgrInfo.getAndSet(null);
+		if (mClientPendingController.begin(BoincOp.SyncWithBAM)) {
+			mWorker.attachToBAM(name, url, password);
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
-	public void attachToBAM(String name, String url, String password) {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingPollError("");
-		clearPendingClientError();
-		mBAMBeingSynchronized = true;
-		mWorker.attachToBAM(name, url, password);
+	public boolean synchronizeWithBAM() {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		if (mClientPendingController.begin(BoincOp.SyncWithBAM)) {
+			mWorker.synchronizeWithBAM();
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
-	public void synchronizeWithBAM() {
-		if (mRemoteClient == null) return; // not connected
-		mBAMBeingSynchronized = true;
-		clearPendingPollError("");
-		clearPendingClientError();
-		mWorker.synchronizeWithBAM();
-	}
-	
-	@Override
-	public void stopUsingBAM() {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingClientError();
+	public boolean stopUsingBAM() {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
 		mWorker.stopUsingBAM();
+		return true;
 	}
 	
 	@Override
-	public boolean isBAMBeingSynchronized() {
-		if (mRemoteClient == null) return false;
-		return mBAMBeingSynchronized;
-	}
-	
-	@Override
-	public void getAllProjectsList() {
-		if (mRemoteClient == null) return; // not connected
-		mPendingAllProjectsList.set(null);
+	public boolean getAllProjectsList() {
+		if (mRemoteClient == null)
+			return false; // not connected
 		
-		clearPendingClientError();
-		mWorker.getAllProjectsList();
+		if (mClientPendingController.begin(BoincOp.GetAllProjectList)) {
+			mWorker.getAllProjectsList();
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
-	public ArrayList<ProjectListEntry> getPendingAllProjectsList() {
-		if (mRemoteClient == null) return null; // not connected
+	public boolean lookupAccount(AccountIn accountIn) {
+		if (mRemoteClient == null)
+			return false; // not connected
 		
-		return mPendingAllProjectsList.getAndSet(null);
+		if (mClientPendingController.begin(BoincOp.AddProject)) {
+			mWorker.lookupAccount(accountIn);
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
-	public void lookupAccount(AccountIn accountIn) {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingPollError(accountIn.url);
-		clearPendingClientError();
-		mWorker.lookupAccount(accountIn);
+	public boolean createAccount(AccountIn accountIn) {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		if (mClientPendingController.begin(BoincOp.AddProject)) {
+			mWorker.createAccount(accountIn);
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
-	public void createAccount(AccountIn accountIn) {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingPollError(accountIn.url);
-		clearPendingClientError();
-		mWorker.createAccount(accountIn);
+	public boolean projectAttach(String url, String authCode, String projectName) {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		if (mClientPendingController.begin(BoincOp.AddProject)) {
+			mWorker.projectAttach(url, authCode, projectName);
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
-	public void projectAttach(String url, String authCode, String projectName) {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingPollError(url);
-		clearPendingClientError();
-		mWorker.projectAttach(url, authCode, projectName);
-	}
-	
-	@Override
-	public void addProject(AccountIn accountIn, boolean create) {
-		if (mRemoteClient == null) return; // not connected
-		if (mJoinedAddProjectsMap.putIfAbsent(accountIn.url, "") != null)
-			return;
+	public boolean addProject(AccountIn accountIn, boolean create) {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		if (mJoinedAddProjectUrl != null)
+			return false; // do nothing ignore
+		
+		if (!mClientPendingController.begin(BoincOp.AddProject))
+			return false;
 		
 		if (create)
 			mWorker.createAccount(accountIn);
 		else
 			mWorker.lookupAccount(accountIn);
+		return true;
 	}
 	
 	@Override
-	public boolean isProjectBeingAdded(String projectUrl) {
+	public boolean getProjectConfig(String url) {
 		if (mRemoteClient == null)
-			return false;
-		return mJoinedAddProjectsMap.containsKey(projectUrl);
+			return false; // not connected
+		
+		if (mClientPendingController.begin(BoincOp.GetProjectConfig)) {
+			mWorker.getProjectConfig(url);
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
-	public void getProjectConfig(String url) {
-		if (mRemoteClient == null) return; // not connected
-		mPendingProjectConfigs.remove(url);
-		clearPendingProjectConfigError(url);
-		clearPendingClientError();
-		mWorker.getProjectConfig(url);
-	}
-	
-	@Override
-	public ProjectConfig getPendingProjectConfig(String projectUrl) {
-		return mPendingProjectConfigs.remove(projectUrl);
-	}
-	
-	@Override
-	public boolean handlePendingClientErrors(ClientReceiver receiver) {
+	public boolean handlePendingClientErrors(BoincOp boincOp, final ClientReceiver receiver) {
 		if (mRemoteClient == null)
 			return false;
 		
-		boolean handled = false;
-		synchronized(mPendingClientErrorSync) {
-			ClientError clientError = mPendingClientError;
-			
-			if (clientError == null)
-				return false;
-			
-			if (clientError != null && receiver.clientError(clientError.errorNum, clientError.message)) {
-				if (Logging.DEBUG) Log.d(TAG, "PendingClientError handled");
-				mPendingClientError = null;
-				handled = true;
+		return mClientPendingController.handlePendingErrors(boincOp, new PendingErrorHandler<BoincOp>() {
+			@Override
+			public boolean handleError(BoincOp boincOp, Object error) {
+				if (!boincOp.isPollOp())
+					return false;
+				ClientError cError = (ClientError)error;
+				return receiver.clientError(boincOp, cError.errorNum, cError.message);
 			}
-		}
-		
-		synchronized(mPendingAutoRefreshClientErrorSync) {
-			ClientError clientError = mPendingAutoRefreshClientError;
-			
-			if (clientError != null && receiver.clientError(clientError.errorNum, clientError.message)) {
-				if (Logging.DEBUG) Log.d(TAG, "PendingAutoRefreshClientError handled");
-				mPendingAutoRefreshClientError = null;
-				handled = true;
-			}
-		}
-		
-		return handled;
-	}
-	
-	private void clearPendingClientError() {
-		synchronized (mPendingClientErrorSync) {
-			mPendingClientError = null;
-		}
-	}
-	
-	private void clearPendingAutoRefreshClientError() {
-		synchronized (mPendingAutoRefreshClientErrorSync) {
-			mPendingAutoRefreshClientError = null;
-		}
+		});
 	}
 	
 	@Override
@@ -845,166 +789,182 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 	
 	@Override
-	public boolean handlePendingPollErrors(ClientPollErrorReceiver receiver, String projectUrl) {
+	public boolean handlePendingPollErrors(BoincOp boincOp,
+			final ClientPollReceiver receiver) {
 		if (mRemoteClient == null)
 			return false;
 		
-		boolean handled = false;
-		
-		synchronized(mPollErrorsMap) {
-			String key = (projectUrl != null) ? projectUrl : "";
-			PollError pollError = mPollErrorsMap.get(key);
-			
-			if (pollError != null) {
-				if (receiver.onPollError(pollError.errorNum, pollError.operation, pollError.message,
-						pollError.param)) {
-					if (Logging.DEBUG) Log.d(TAG, "PendingPollError handled for "+key);
-					mPollErrorsMap.remove(key);
-					handled = true;
-				}
+		return mClientPendingController.handlePendingErrors(boincOp, new PendingErrorHandler<BoincOp>() {
+			@Override
+			public boolean handleError(BoincOp boincOp, Object error) {
+				if (!boincOp.isPollOp())
+					return false;
+				PollError pollError = (PollError)error;
+				return receiver.onPollError(pollError.errorNum, pollError.operation,
+						pollError.message, pollError.param);
 			}
-		}
-		
-		synchronized(mProjectConfigErrorsMap) {
-			String key = (projectUrl != null) ? projectUrl : "";
-			PollError pollError = mProjectConfigErrorsMap.get(key);
-			
-			if (pollError != null) {
-				if (receiver.onPollError(pollError.errorNum, pollError.operation, pollError.message,
-						pollError.param)) {
-					if (Logging.DEBUG) Log.d(TAG, "PendingProjectConfigError handled for "+key);
-					mProjectConfigErrorsMap.remove(key);
-					handled = true;
-				}
-			}
-		}
-		return handled;
-	}
-	
-	private void clearPendingPollError(String projectUrl) {
-		synchronized(mPollErrorsMap) {
-			mPollErrorsMap.remove(projectUrl);
-		}
-	}
-	
-	private void clearPendingProjectConfigError(String projectUrl) {
-		synchronized(mProjectConfigErrorsMap) {
-			mProjectConfigErrorsMap.remove(projectUrl);
-		}
+		});
 	}
 	
 	@Override
-	public void getGlobalPrefsWorking() {
-		if (mRemoteClient == null) return; // not connected
+	public Object getPendingOutput(BoincOp boincOp) {
+		if (mRemoteClient == null)
+			return null;
 		
-		mPendingGlobalPrefs.set(null);
-		clearPendingClientError();
-		mWorker.getGlobalPrefsWorking();
+		return mClientPendingController.takePendingOutput(boincOp);
 	}
 	
 	@Override
-	public GlobalPreferences getPendingGlobalPrefsWorking() {
-		if (mRemoteClient == null) return null; // not connected
+	public boolean isOpBeingExecuted(BoincOp boincOp) {
+		if (mRemoteClient == null)
+			return false;
 		
-		return mPendingGlobalPrefs.getAndSet(null);
+		return mClientPendingController.isRan(boincOp);
 	}
 	
 	@Override
-	public void setGlobalPrefsOverride(String globalPrefs) {
-		if (mRemoteClient == null) return; // not connected
-		mGlobalPrefsBeingOverriden = true;
-		clearPendingClientError();
+	public boolean getGlobalPrefsWorking() {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		if (mClientPendingController.begin(BoincOp.GlobalPrefsWorking)) {
+			mWorker.getGlobalPrefsWorking();
+			return true;
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean setGlobalPrefsOverride(String globalPrefs) {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		// this call should be always enqueued
+		mClientPendingController.begin(BoincOp.GlobalPrefsOverride);
 		mWorker.setGlobalPrefsOverride(globalPrefs);
+		return true;
 	}
 	
 	@Override
-	public void setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs) {
-		if (mRemoteClient == null) return; // not connected
-		mGlobalPrefsBeingOverriden = true;
-		clearPendingClientError();
+	public boolean setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs) {
+		if (mRemoteClient == null)
+			return false;// not connected
+		
+		// this call should be always enqueued
+		mClientPendingController.begin(BoincOp.GlobalPrefsOverride);
 		mWorker.setGlobalPrefsOverrideStruct(globalPrefs, mRemoteClient.isNativeClient());
+		return true;
 	}
 	
 	@Override
-	public boolean isGlobalPrefsBeingOverriden() {
-		if (mRemoteClient == null) return false;
-		return mGlobalPrefsBeingOverriden;
-	}
-	
-	@Override
-	public void runBenchmarks() {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingClientError();
+	public boolean runBenchmarks() {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		mClientPendingController.begin(BoincOp.RunBenchmarks);
 		mWorker.runBenchmarks();
+		return true;
 	}
 
 	@Override
-	public void setRunMode(final int mode) {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingClientError();
+	public boolean setRunMode(final int mode) {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		// this call always enqueued
+		if (mClientPendingController.begin(BoincOp.SetRunMode))
 		mWorker.setRunMode(mode);
+		return true;
 	}
 
 	@Override
-	public void setNetworkMode(final int mode) {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingClientError();
+	public boolean setNetworkMode(final int mode) {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		// this call always enqueued
+		mClientPendingController.begin(BoincOp.SetNetworkMode);
 		mWorker.setNetworkMode(mode);
+		return true;
 	}
 
 	@Override
 	public void shutdownCore() {
 		if (mRemoteClient == null) return; // not connected
-		clearPendingClientError();
+		
+		mClientPendingController.begin(BoincOp.ShutdownCore);
 		mWorker.shutdownCore();
 	}
 
 	@Override
-	public void doNetworkCommunication() {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingClientError();
+	public boolean doNetworkCommunication() {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		mClientPendingController.begin(BoincOp.DoNetworkComm);
 		mWorker.doNetworkCommunication();
+		return true;
 	}
 
 	@Override
-	public void projectOperation(final int operation, final String projectUrl) {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingClientError();
+	public boolean projectOperation(final int operation, final String projectUrl) {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		// this call should be always enqueued
+		mClientPendingController.begin(BoincOp.ProjectOperation);
 		mWorker.projectOperation(operation, projectUrl);
+		return true;
 	}
 	
 	@Override
-	public void projectsOperation(final int operation, final String[] projectUrls) {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingClientError();
+	public boolean projectsOperation(final int operation, final String[] projectUrls) {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		mClientPendingController.begin(BoincOp.ProjectOperation);
 		mWorker.projectsOperation(operation, projectUrls);
+		return true;
 	}
 
 	@Override
-	public void taskOperation(final int operation, final String projectUrl, final String taskName) {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingClientError();
+	public boolean taskOperation(final int operation, final String projectUrl, final String taskName) {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		mClientPendingController.begin(BoincOp.TaskOperation);
 		mWorker.taskOperation(operation, projectUrl, taskName);
+		return true;
 	}
 	
 	@Override
-	public void tasksOperation(final int operation, final TaskDescriptor[] tasks) {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingClientError();
+	public boolean tasksOperation(final int operation, final TaskDescriptor[] tasks) {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		mClientPendingController.begin(BoincOp.TaskOperation);
 		mWorker.tasksOperation(operation, tasks);
+		return true;
 	}
 
 	@Override
-	public void transferOperation(final int operation, final String projectUrl, final String fileName) {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingClientError();
+	public boolean transferOperation(final int operation, final String projectUrl, final String fileName) {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		mClientPendingController.begin(BoincOp.TransferOperation);
 		mWorker.transferOperation(operation, projectUrl, fileName);
+		return true;
 	}
 	
 	@Override
-	public void transfersOperation(final int operation, final TransferDescriptor[] transfers) {
-		if (mRemoteClient == null) return; // not connected
-		clearPendingClientError();
+	public boolean transfersOperation(final int operation, final TransferDescriptor[] transfers) {
+		if (mRemoteClient == null)
+			return false; // not connected
+		
+		
+		mClientPendingController.begin(BoincOp.TransferOperation);
 		mWorker.transfersOperation(operation, transfers);
+		return true;
 	}
 }

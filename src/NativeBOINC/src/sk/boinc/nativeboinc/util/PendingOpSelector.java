@@ -16,16 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
-
-package sk.boinc.nativeboinc.clientconnection;
-
-import edu.berkeley.boinc.lite.AccountMgrInfo;
+package sk.boinc.nativeboinc.util;
 
 /**
  * @author mat
  *
  */
-public interface ClientAccountMgrReceiver extends ClientPollReceiver {
-	public abstract boolean onAfterAccountMgrRPC();
-	public abstract boolean currentBAMInfo(AccountMgrInfo accountMgrInfo);
+public interface PendingOpSelector<Operation> {
+	public abstract boolean select(Operation op);
 }

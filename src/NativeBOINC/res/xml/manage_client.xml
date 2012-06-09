@@ -31,28 +31,24 @@
 			android:key="synchronizeWithBAM"
 			android:title="@string/clientSyncBAMTitle"
 			android:summary="@string/clientSyncBAMSummary"
-			android:dependency="actRunMode"
 			android:shouldDisableView="true"
 			android:persistent="false" />
 		<Preference
 			android:key="stopUsingBAM"
 			android:title="@string/clientStopBAMTitle"
 			android:summary="@string/clientStopBAMSummary"
-			android:dependency="actRunMode"
 			android:shouldDisableView="true"
 			android:persistent="false" />
 		<Preference
 			android:key="addProject"
 			android:title="@string/clientAddProjectTitle"
 			android:summary="@string/clientAddProjectSummary"
-			android:dependency="actRunMode"
 			android:shouldDisableView="true"
 			android:persistent="false" />
 		<Preference
 			android:key="localPreferences"
 			android:title="@string/clientLocalPrefsTitle"
 			android:summary="@string/clientLocalPrefsSummary"
-			android:dependency="actRunMode"
 			android:shouldDisableView="true"
 			android:persistent="false" />
 	</PreferenceCategory>
@@ -85,21 +81,18 @@
 			android:key="runBenchmark"
 			android:title="@string/clientRunBenchTitle"
 			android:summary="@string/clientRunBenchSummary"
-			android:dependency="actRunMode"
 			android:shouldDisableView="true"
 			android:persistent="false" />
 		<Preference
 			android:key="doNetworkCommunication"
 			android:title="@string/clientDoNetCommTitle"
 			android:summary="@string/clientDoNetCommSummary"
-			android:dependency="actRunMode"
 			android:shouldDisableView="true"
 			android:persistent="false" />
 		<Preference
 			android:key="shutDownClient"
 			android:title="@string/clientShutdownTitle"
 			android:summary="@string/clientShutdownSummary"
-			android:dependency="actRunMode"
 			android:shouldDisableView="true"
 			android:persistent="false" />
 	</PreferenceCategory>

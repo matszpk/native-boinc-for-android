@@ -24,6 +24,7 @@ import java.util.HashSet;
 
 import sk.boinc.nativeboinc.bridge.AutoRefresh;
 import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
+import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientOp;
 import sk.boinc.nativeboinc.clientconnection.ClientUpdateTransfersReceiver;
 import sk.boinc.nativeboinc.clientconnection.TransferDescriptor;
@@ -321,7 +322,8 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 		Log.d(TAG, "onUpdaTransfersprogress:"+mUpdateTransfersInProgress);
 		if (mConnectedClient != null) {
 			if (mUpdateTransfersInProgress) {
-				ArrayList<TransferInfo> transfers = mConnectionManager.getPendingTransfers();
+				ArrayList<TransferInfo> transfers = (ArrayList<TransferInfo>)mConnectionManager
+						.getPendingOutput(BoincOp.UpdateTransfers);
 				if (transfers != null) // if already updated
 					updatedTransfers(transfers);
 				
@@ -563,7 +565,7 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 
 
 	@Override
-	public void clientConnectionProgress(int progress) {
+	public void clientConnectionProgress(BoincOp boincOp, int progress) {
 		// We don't care about progress indicator in this activity, just ignore this
 	}
 
@@ -609,7 +611,9 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 	}
 	
 	@Override
-	public boolean clientError(int err_num, String message) {
+	public boolean clientError(BoincOp boincOp, int err_num, String message) {
+		if (!boincOp.equals(BoincOp.UpdateTransfers))
+			return false;
 		// do not consume
 		mUpdateTransfersInProgress = false;
 		mAfterRecreating = false;

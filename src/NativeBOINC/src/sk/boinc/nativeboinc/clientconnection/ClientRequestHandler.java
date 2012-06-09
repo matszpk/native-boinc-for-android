@@ -19,13 +19,9 @@
 
 package sk.boinc.nativeboinc.clientconnection;
 
-import java.util.ArrayList;
 
 import edu.berkeley.boinc.lite.AccountIn;
-import edu.berkeley.boinc.lite.AccountMgrInfo;
 import edu.berkeley.boinc.lite.GlobalPreferences;
-import edu.berkeley.boinc.lite.ProjectConfig;
-import edu.berkeley.boinc.lite.ProjectListEntry;
 import sk.boinc.nativeboinc.util.ClientId;
 
 
@@ -41,68 +37,73 @@ public interface ClientRequestHandler {
 	
 	public abstract int getAutoRefresh();
 	
-	public abstract void updateClientMode();
-	public abstract void updateHostInfo();
-	public abstract HostInfo getPendingHostInfo();
+	/*
+	 * some methods retuns boolean value:
+	 * 		returns true if was ran, otherwise returns false
+	 */
 	
-	public abstract void updateProjects();
-	public abstract ArrayList<ProjectInfo> getPendingProjects();
+	/* this calls should enqueued only once, because read state of the client */
+	public abstract boolean updateClientMode();
+	public abstract boolean updateHostInfo();
 	
-	public abstract void updateTasks();
-	public abstract ArrayList<TaskInfo> getPendingTasks();
-	
-	public abstract void updateTransfers();
-	public abstract ArrayList<TransferInfo> getPendingTransfers();
-	
-	public abstract void updateMessages();
-	public abstract ArrayList<MessageInfo> getPendingMessages();
-	
-	public abstract void updateNotices();
-	public abstract ArrayList<NoticeInfo> getPendingNotices();
+	public abstract boolean updateProjects();
+	public abstract boolean updateTasks();
+	public abstract boolean updateTransfers();
+	public abstract boolean updateMessages();
+	public abstract boolean updateNotices();
 	
 	public abstract void addToScheduledUpdates(ClientReceiver callback, int refreshType, int period); 
 	public abstract void cancelScheduledUpdates(int refreshType);
 
-	public abstract boolean handlePendingClientErrors(ClientReceiver receiver);
-	public abstract boolean handlePendingPollErrors(ClientPollErrorReceiver receiver, String projectUrl);
+	public abstract boolean handlePendingClientErrors(BoincOp boincOp, ClientReceiver receiver);
+	public abstract boolean handlePendingPollErrors(BoincOp boincOp, ClientPollReceiver receiver);
+	public abstract Object getPendingOutput(BoincOp boincOp);
+	public abstract boolean isOpBeingExecuted(BoincOp boincOp);
 	
 	public abstract boolean isNativeConnected();
 	
-	public abstract void getBAMInfo();
-	public abstract AccountMgrInfo getPendingBAMInfo();
-	public abstract void attachToBAM(String name, String url, String password);
-	public abstract void synchronizeWithBAM();
-	public abstract void stopUsingBAM();
-	public abstract boolean isBAMBeingSynchronized();
+	/* this calls should enqueued only once, because read state of the client */
+	public abstract boolean getBAMInfo();
 	
-	public abstract void getAllProjectsList();
-	public abstract ArrayList<ProjectListEntry> getPendingAllProjectsList();
+	/* this tasks should be enqueued only once at this same time, because
+	 * can be performed only once at this same time */
+	public abstract boolean attachToBAM(String name, String url, String password);
+	public abstract boolean synchronizeWithBAM();
 	
-	public abstract void lookupAccount(AccountIn accountIn);
-	public abstract void createAccount(AccountIn accountIn);
-	public abstract void projectAttach(String url, String authCode, String projectName);
-	public abstract void getProjectConfig(String url);
-	public abstract ProjectConfig getPendingProjectConfig(String projectUrl);
-	public abstract void addProject(AccountIn accountIn, boolean create);
-	public abstract boolean isProjectBeingAdded(String projectUrl);
+	/* this tasks should be enqueued always because changes state of the client */
+	public abstract boolean stopUsingBAM();
+	
+	/* this calls should enqueued only once, because read state of the client */
+	public abstract boolean getAllProjectsList();
+	
+	/* this tasks should be enqueued only once at this same time, because
+	 * can be performed only once at this same time */
+	public abstract boolean lookupAccount(AccountIn accountIn);
+	public abstract boolean createAccount(AccountIn accountIn);
+	public abstract boolean projectAttach(String url, String authCode, String projectName);
+	public abstract boolean getProjectConfig(String url);
+	public abstract boolean addProject(AccountIn accountIn, boolean create);
 	public abstract void cancelPollOperations(int opFlags);
 	
-	public abstract void getGlobalPrefsWorking();
-	public abstract GlobalPreferences getPendingGlobalPrefsWorking();
-	public abstract void setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs);
-	public abstract void setGlobalPrefsOverride(String globalPrefs);
-	public abstract boolean isGlobalPrefsBeingOverriden();
+	/* this calls should enqueued only once, because read state of the client */
+	public abstract boolean getGlobalPrefsWorking();
+	/* this tasks should be enqueued always because changes state of the client */
+	public abstract boolean setGlobalPrefsOverride(String data);
+	public abstract boolean setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs);
 	
-	public abstract void runBenchmarks();
-	public abstract void setRunMode(int mode);
-	public abstract void setNetworkMode(int mode);
+	/* this tasks should be enqueued always because changes state of the client */
+	public abstract boolean runBenchmarks();
+	public abstract boolean setRunMode(int mode);
+	public abstract boolean setNetworkMode(int mode);
+	public abstract boolean doNetworkCommunication();
+	
 	public abstract void shutdownCore();
-	public abstract void doNetworkCommunication();
 	
-	public abstract void projectOperation(int operation, String projectUrl);
-	public abstract void projectsOperation(int operation, String[] projectUrls);
-	public abstract void taskOperation(int operation, String projectUrl, String taskName);
-	public abstract void tasksOperation(int operation, TaskDescriptor[] tasks);
-	public abstract void transferOperation(int operation, String projectUrl, String fileName);
-	public abstract void transfersOperation(int operation, TransferDescriptor[] transfers);
+	/* this tasks should be enqueued always because changes state of the client */
+	public abstract boolean projectOperation(int operation, String projectUrl);
+	public abstract boolean projectsOperation(int operation, String[] projectUrls);
+	public abstract boolean taskOperation(int operation, String projectUrl, String taskName);
+	public abstract boolean tasksOperation(int operation, TaskDescriptor[] tasks);
+	public abstract boolean transferOperation(int operation, String projectUrl, String fileName);
+	public abstract boolean transfersOperation(int operation, TransferDescriptor[] transfers);
 }

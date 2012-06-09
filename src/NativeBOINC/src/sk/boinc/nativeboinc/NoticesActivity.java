@@ -25,6 +25,7 @@ import java.util.Comparator;
 
 import sk.boinc.nativeboinc.bridge.AutoRefresh;
 import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
+import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientUpdateNoticesReceiver;
 import sk.boinc.nativeboinc.clientconnection.NoticeInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
@@ -224,7 +225,9 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 		Log.d(TAG, "onUpdateNoticesProgress:"+mUpdateNoticesInProgress);
 		if (mConnectedClient != null) {
 			if (mUpdateNoticesInProgress) {
-				ArrayList<NoticeInfo> notices = mConnectionManager.getPendingNotices();
+				ArrayList<NoticeInfo> notices = (ArrayList<NoticeInfo>)mConnectionManager
+						.getPendingOutput(BoincOp.UpdateNotices);
+				
 				if (notices != null) // if already updated
 					updatedNotices(notices);
 				
@@ -296,7 +299,9 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 	}
 	
 	@Override
-	public boolean clientError(int err_num, String message) {
+	public boolean clientError(BoincOp boincOp, int err_num, String message) {
+		if (!boincOp.equals(BoincOp.UpdateNotices))
+			return false;
 		// do not consume
 		mUpdateNoticesInProgress = false;
 		mAfterRecreating = false;
@@ -304,7 +309,7 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 	}
 
 	@Override
-	public void clientConnectionProgress(int progress) {
+	public void clientConnectionProgress(BoincOp boincOp, int progress) {
 		// TODO Auto-generated method stub
 	}
 

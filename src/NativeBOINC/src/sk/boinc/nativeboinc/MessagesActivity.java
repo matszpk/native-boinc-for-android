@@ -27,6 +27,7 @@ import edu.berkeley.boinc.lite.Message;
 
 import sk.boinc.nativeboinc.bridge.AutoRefresh;
 import sk.boinc.nativeboinc.clientconnection.AutoRefreshListener;
+import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientUpdateMessagesReceiver;
 import sk.boinc.nativeboinc.clientconnection.MessageInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
@@ -251,7 +252,9 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 		Log.d(TAG, "onUpdaMessagesprogress:"+mUpdateMessagesInProgress);
 		if (mConnectedClient != null) {
 			if (mUpdateMessagesInProgress) {
-				ArrayList<MessageInfo> messages = mConnectionManager.getPendingMessages();
+				ArrayList<MessageInfo> messages = (ArrayList<MessageInfo>)mConnectionManager
+						.getPendingOutput(BoincOp.UpdateMessages);
+				
 				if (messages != null) // if already updated
 					updatedMessages(messages);
 				
@@ -344,7 +347,7 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 	}
 
 	@Override
-	public void clientConnectionProgress(int progress) {
+	public void clientConnectionProgress(BoincOp boincOp, int progress) {
 		// We don't care about progress indicator in this activity, just ignore this
 	}
 
@@ -388,7 +391,9 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 	}
 	
 	@Override
-	public boolean clientError(int err_num, String message) {
+	public boolean clientError(BoincOp boincOp, int err_num, String message) {
+		if (!boincOp.equals(BoincOp.UpdateMessages)) // ingore if not this task
+			return false;
 		// do not consume
 		mUpdateMessagesInProgress = false;
 		mAfterRecreating = false;

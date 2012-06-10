@@ -277,6 +277,10 @@ public class InstallerService extends Service {
 				
 				mNotificationController.handleOnOperationError(distribName, projectUrl, errorMessage);
 			}
+			
+			if (!installOp.equals(InstallOp.ProgressOperation))
+				channel.finish(installOp);
+			
 			boolean called = false;
 			
 			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
@@ -291,8 +295,6 @@ public class InstallerService extends Service {
 			// enqueue only errors from simple operations
 			if (!called && !installOp.equals(InstallOp.ProgressOperation))
 				channel.finishWithError(installOp, new InstallError(distribName, projectUrl, errorMessage));
-			else
-				channel.finish(installOp);
 		}
 		
 		/**

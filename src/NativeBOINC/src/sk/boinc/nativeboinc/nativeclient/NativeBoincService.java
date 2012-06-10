@@ -150,6 +150,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 		}
 		
 		public void nativeBoincServiceError(WorkerOp workerOp, String message) {
+			mWorkerPendingController.finish(workerOp);
+			
 			AbstractNativeBoincListener[] listeners = mListeners.toArray(
 					new AbstractNativeBoincListener[0]);
 			
@@ -162,8 +164,6 @@ public class NativeBoincService extends Service implements MonitorListener,
 			
 			if (!called)
 				mWorkerPendingController.finishWithError(workerOp, message);
-			else
-				mWorkerPendingController.finish(workerOp);
 		}
 
 		public void onProgressChange(NativeBoincReplyListener callback, double progress) {

@@ -594,9 +594,18 @@ public class ClientBridgeWorkerHandler extends Handler {
 	
 	private AccountMgrRPCCall mAccountMgrRPCCall = null;
 	
-	private synchronized void clearAccountMgrCall() {
-		mAccountMgrRPCCall = null;
-		notifyChangeOfIsWorking();
+	/* return true if clear not null call */
+	private synchronized boolean clearAccountMgrCall() {
+		if (mCreateAccountCall != null) {
+			mAccountMgrRPCCall = null;
+			notifyChangeOfIsWorking();
+			return true;
+		}
+		return false;
+	}
+	
+	private synchronized boolean isAccountMgrRPCCallCancelled() {
+		return mAccountMgrRPCCall == null;
 	}
 	
 	/**
@@ -606,13 +615,17 @@ public class ClientBridgeWorkerHandler extends Handler {
 		@Override
 		public void run() {
 			AccountMgrRPCReply reply;
-			if (mAccountMgrRPCCall == null) return;
+			AccountMgrRPCCall call = null;
+			synchronized(ClientBridgeWorkerHandler.this) {
+				if (mAccountMgrRPCCall == null) return;
+				call = mAccountMgrRPCCall;
+			}
 			if (mDisconnecting) return;  // already in disconnect phase
 			
-			if (SystemClock.elapsedRealtime()-mAccountMgrRPCCall.startTime >= TIMEOUT) { // time out
-				if (Logging.INFO) Log.i(TAG, "RPC failed in " + mAccountMgrRPCCall.infoMsg);
-				notifyError(BoincOp.SyncWithBAM, 0, mContext.getString(R.string.boincPollError));
-				clearAccountMgrCall();
+			if (SystemClock.elapsedRealtime()-call.startTime >= TIMEOUT) { // time out
+				if (Logging.INFO) Log.i(TAG, "RPC failed in " + call.infoMsg);
+				if (clearAccountMgrCall())
+					notifyError(BoincOp.SyncWithBAM, 0, mContext.getString(R.string.boincPollError));
 				rpcFailed();
 				return;
 			}
@@ -622,38 +635,41 @@ public class ClientBridgeWorkerHandler extends Handler {
 				if (reply.error_num == RpcClient.ERR_IN_PROGRESS) {
 					// try poll in next second
 					if (Logging.DEBUG) Log.d(TAG, "polling mAccountMgr()");
-					postDelayed(mAccountMgrRPCPoller, 1000);
+					if (!isAccountMgrRPCCallCancelled())
+						postDelayed(mAccountMgrRPCPoller, 1000);
 				} else if (reply.error_num == RpcClient.ERR_RETRY) { // retry operation
-					if (mRpcClient.accountMgrRPC(mAccountMgrRPCCall.url,
-							mAccountMgrRPCCall.name, mAccountMgrRPCCall.password,
-							mAccountMgrRPCCall.useConfigFile) == false) {
-						if (Logging.INFO) Log.i(TAG, "RPC failed in " + mAccountMgrRPCCall.infoMsg);
+					if (isAccountMgrRPCCallCancelled())
+						return; // if cancelled
+					
+					if (!mRpcClient.accountMgrRPC(call.url, call.name, call.password,
+							call.useConfigFile)) {
+						if (Logging.INFO) Log.i(TAG, "RPC failed in " + call.infoMsg);
 						
-						notifyError(BoincOp.SyncWithBAM, 0, mContext.getString(R.string.boincPollError));
-						clearAccountMgrCall();
+						if (clearAccountMgrCall())
+							notifyError(BoincOp.SyncWithBAM, 0, mContext.getString(R.string.boincPollError));
 						rpcFailed();
 					} else {
 						// try poll in next second
 						if (Logging.DEBUG) Log.d(TAG, "polling mAccountMgr() (retry)");
-						postDelayed(mAccountMgrRPCPoller, 1000);
+						if (!isAccountMgrRPCCallCancelled())
+							postDelayed(mAccountMgrRPCPoller, 1000);
 					}
 				} else {	// if other error
 					if (reply.error_num != RpcClient.SUCCESS) {
-						if (Logging.INFO) Log.i(TAG, "RPC failed in " + mAccountMgrRPCCall.infoMsg);
-						notifyPollError(BoincOp.SyncWithBAM, reply.error_num, mAccountMgrRPCCall.operation,
+						if (Logging.INFO) Log.i(TAG, "RPC failed in " + call.infoMsg);
+						if (clearAccountMgrCall())
+							notifyPollError(BoincOp.SyncWithBAM, reply.error_num, call.operation,
 								StringUtil.joinString("\n", reply.messages), null);
-						
-						clearAccountMgrCall();
 					} else {
 						// if success
-						notifyAfterAccountMgrRPC();
-						clearAccountMgrCall();
+						if (clearAccountMgrCall())
+							notifyAfterAccountMgrRPC();
 					}
 				}
 			} else {	// rpc failed
-				if (Logging.INFO) Log.i(TAG, "RPC failed in " + mAccountMgrRPCCall.infoMsg);
-				notifyError(BoincOp.SyncWithBAM, 0, mContext.getString(R.string.boincPollError));
-				clearAccountMgrCall();
+				if (Logging.INFO) Log.i(TAG, "RPC failed in " + call.infoMsg);
+				if (clearAccountMgrCall())
+					notifyError(BoincOp.SyncWithBAM, 0, mContext.getString(R.string.boincPollError));
 				rpcFailed();
 			}
 		}
@@ -664,7 +680,9 @@ public class ClientBridgeWorkerHandler extends Handler {
 		if (mDisconnecting) return;  // already in disconnect phase
 		
 		// do nothing if already run
-		if (mAccountMgrRPCCall != null) return;
+		synchronized(this) {
+			if (mAccountMgrRPCCall != null) return;
+		}
 		
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.SyncWithBAM, ClientReceiver.PROGRESS_XFER_STARTED);
@@ -725,9 +743,18 @@ public class ClientBridgeWorkerHandler extends Handler {
 	
 	private LookupAccountCall mLookupAccountCall = null;
 	
-	private synchronized void clearLookupAccountCall() {
-		mLookupAccountCall = null;
-		notifyChangeOfIsWorking();
+	/* return true if clears not cancelled task */
+	private synchronized boolean clearLookupAccountCall() {
+		if (mLookupAccountCall != null) {
+			mLookupAccountCall = null;
+			notifyChangeOfIsWorking();
+			return true;
+		}
+		return false;
+	}
+	
+	private synchronized boolean isLookupAccountCallCancelled() {
+		return mLookupAccountCall == null;
 	}
 	
 	/**
@@ -736,15 +763,19 @@ public class ClientBridgeWorkerHandler extends Handler {
 	private Runnable mLookupAccountPoller = new Runnable() {
 		@Override
 		public void run() {
-			if (mLookupAccountCall == null) return;
+			LookupAccountCall call = null;
+			synchronized(ClientBridgeWorkerHandler.this) {
+				if (mLookupAccountCall == null) return;
+				call = mLookupAccountCall;
+			}
 			if (mDisconnecting) return;  // already in disconnect phase
 			
-			final String projectUrl = mLookupAccountCall.accountIn.url;
+			final String projectUrl = call.accountIn.url;
 			
-			if (SystemClock.elapsedRealtime()-mLookupAccountCall.startTime >= TIMEOUT) { // time out
+			if (SystemClock.elapsedRealtime()-call.startTime >= TIMEOUT) { // time out
 				if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount() timeout");
-				notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
-				clearLookupAccountCall();
+				if (clearLookupAccountCall())
+					notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
 				rpcFailed();
 				return;
 			}
@@ -754,37 +785,41 @@ public class ClientBridgeWorkerHandler extends Handler {
 				if (accountOut.error_num == RpcClient.ERR_IN_PROGRESS) {
 					// try poll in next second
 					if (Logging.DEBUG) Log.d(TAG, "polling lookupAccount()");
-					postDelayed(mLookupAccountPoller, 1000);
+					
+					if (!isLookupAccountCallCancelled())
+						postDelayed(mLookupAccountPoller, 1000);
 				} else if (accountOut.error_num == RpcClient.ERR_RETRY) { // retry operation
-					if (mRpcClient.lookupAccount(mLookupAccountCall.accountIn) == false) {
+					if (isLookupAccountCallCancelled())
+						return;	// if cancelled
+					
+					if (!mRpcClient.lookupAccount(call.accountIn)) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount() retry");
-						
-						notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError)); 
-						clearLookupAccountCall();
+						if (clearLookupAccountCall())
+							notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError)); 
 						rpcFailed();
 					} else {
 						// try poll in next second
 						if (Logging.DEBUG) Log.d(TAG, "polling lookupAccount() (retry)");
-						postDelayed(mLookupAccountPoller, 1000);
+						if (!isLookupAccountCallCancelled())
+							postDelayed(mLookupAccountPoller, 1000);
 					}
 				} else {	// if other error
 					if (accountOut.error_num != RpcClient.SUCCESS) {
 						if (Logging.INFO) Log.i(TAG,
 								"RPC failed in lookupAccount(): "+accountOut.error_num);
-						
-						notifyPollError(BoincOp.AddProject, accountOut.error_num, PollOp.POLL_LOOKUP_ACCOUNT,
+						if (clearLookupAccountCall())
+							notifyPollError(BoincOp.AddProject, accountOut.error_num, PollOp.POLL_LOOKUP_ACCOUNT,
 								accountOut.error_msg, projectUrl);
-						clearLookupAccountCall();
 					} else {
 						// if success
-						currentAuthCode(projectUrl, accountOut.authenticator);
-						clearLookupAccountCall();
+						if (clearLookupAccountCall())
+							currentAuthCode(projectUrl, accountOut.authenticator);
 					}
 				}
 			} else {	// rpc failed
 				if (Logging.INFO) Log.i(TAG, "RPC failed in lookupAccount() (null)");
-				notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
-				clearLookupAccountCall();
+				if (clearLookupAccountCall())
+					notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
 				rpcFailed();
 			}
 		}
@@ -794,7 +829,9 @@ public class ClientBridgeWorkerHandler extends Handler {
 		if (mDisconnecting) return;  // already in disconnect phase
 		
 		// do nothing if already run
-		if (mLookupAccountCall != null) return;
+		synchronized(this) {
+			if (mLookupAccountCall != null) return;
+		}
 		
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.AddProject, ClientReceiver.PROGRESS_XFER_STARTED);
@@ -828,9 +865,18 @@ public class ClientBridgeWorkerHandler extends Handler {
 	
 	private CreateAccountCall mCreateAccountCall = null;
 	
-	private synchronized void clearCreateAccountCall() {
-		mCreateAccountCall = null;
-		notifyChangeOfIsWorking();
+	/* return true if clears not cancelled task */
+	private synchronized boolean clearCreateAccountCall() {
+		if (mCreateAccountCall != null) {
+			mCreateAccountCall = null;
+			notifyChangeOfIsWorking();
+			return true;
+		} 
+		return false;
+	}
+	
+	private synchronized boolean isCreateAccountCallCancelled() {
+		return mCreateAccountCall == null;
 	}
 	
 	/**
@@ -839,15 +885,19 @@ public class ClientBridgeWorkerHandler extends Handler {
 	private Runnable mCreateAccountPoller = new Runnable() {
 		@Override
 		public void run() {
-			if (mCreateAccountCall == null) return;
+			CreateAccountCall call = null;
+			synchronized(ClientBridgeWorkerHandler.this) {
+				if (mCreateAccountCall == null) return;
+				call = mCreateAccountCall;
+			}
 			if (mDisconnecting) return;  // already in disconnect phase
 			
-			final String projectUrl = mCreateAccountCall.accountIn.url;
+			final String projectUrl = call.accountIn.url;
 			
-			if (SystemClock.elapsedRealtime()-mCreateAccountCall.startTime >= TIMEOUT) { // time out
+			if (SystemClock.elapsedRealtime()-call.startTime >= TIMEOUT) { // time out
 				if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
-				notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
-				clearCreateAccountCall();
+				if (clearCreateAccountCall())
+					notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
 				rpcFailed();
 				return;
 			}
@@ -857,35 +907,41 @@ public class ClientBridgeWorkerHandler extends Handler {
 				if (accountOut.error_num == RpcClient.ERR_IN_PROGRESS) {
 					// try poll in next second
 					if (Logging.DEBUG) Log.d(TAG, "polling createAccount()");
-					postDelayed(mCreateAccountPoller, 1000);
+					if (!isCreateAccountCallCancelled())
+						postDelayed(mCreateAccountPoller, 1000);
 				} else if (accountOut.error_num == RpcClient.ERR_RETRY) { // retry operation
-					if (mRpcClient.createAccount(mCreateAccountCall.accountIn) == false) {
+					if (isCreateAccountCallCancelled())
+						return; // if cancelled
+					
+					if (mRpcClient.createAccount(call.accountIn) == false) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
 						
-						notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
-						clearCreateAccountCall();
+						if (clearCreateAccountCall())
+							notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
 						rpcFailed();
 					} else {
 						// try poll in next second
 						if (Logging.DEBUG) Log.d(TAG, "polling createAccount() (retry)");
-						postDelayed(mCreateAccountPoller, 1000);
+						if (!isCreateAccountCallCancelled())
+							postDelayed(mCreateAccountPoller, 1000);
 					}
 				} else {	// if other error
 					if (accountOut.error_num != RpcClient.SUCCESS) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
-						notifyPollError(BoincOp.AddProject, accountOut.error_num,
+						if (clearCreateAccountCall())
+							notifyPollError(BoincOp.AddProject, accountOut.error_num,
 								PollOp.POLL_CREATE_ACCOUNT, accountOut.error_msg, projectUrl);
-						clearCreateAccountCall();
+						
 					} else {
 						// if success
-						currentAuthCode(projectUrl, accountOut.authenticator);
-						clearCreateAccountCall();
+						if (clearCreateAccountCall())
+							currentAuthCode(projectUrl, accountOut.authenticator);
 					}
 				}
 			} else {	// rpc failed
 				if (Logging.INFO) Log.i(TAG, "RPC failed in createAccount()");
-				notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
-				clearCreateAccountCall();
+				if (clearCreateAccountCall())
+					notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
 				rpcFailed();
 			}
 		}
@@ -895,7 +951,9 @@ public class ClientBridgeWorkerHandler extends Handler {
 		if (mDisconnecting) return;  // already in disconnect phase
 		
 		// do nothing if already run
-		if (mCreateAccountCall != null) return;
+		synchronized(this) {
+			if (mCreateAccountCall != null) return;
+		}
 		
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.AddProject, ClientReceiver.PROGRESS_XFER_STARTED);
@@ -933,9 +991,18 @@ public class ClientBridgeWorkerHandler extends Handler {
 	
 	private ProjectAttachCall mProjectAttachCall = null;
 
-	private synchronized void clearProjectAttachCall() {
-		mProjectAttachCall = null;
-		notifyChangeOfIsWorking();
+	/* return true if clears not cancelled task */
+	private synchronized boolean clearProjectAttachCall() {
+		if (mProjectAttachCall != null) {
+			mProjectAttachCall = null;
+			notifyChangeOfIsWorking();
+			return true;
+		}
+		return false;
+	}
+	
+	private synchronized boolean isProjectAttachCallCancelled() {
+		return mProjectAttachCall == null;
 	}
 	
 	/**
@@ -944,15 +1011,19 @@ public class ClientBridgeWorkerHandler extends Handler {
 	private Runnable mProjectAttachPoller = new Runnable() {
 		@Override
 		public void run() {
-			if (mProjectAttachCall == null) return;
+			ProjectAttachCall call = null;
+			synchronized(ClientBridgeWorkerHandler.this) {
+				if (mProjectAttachCall == null) return;
+				call = mProjectAttachCall;
+			}
 			if (mDisconnecting) return;  // already in disconnect phase
 			
-			final String projectUrl = mProjectAttachCall.url;
+			final String projectUrl = call.url;
 			
-			if (SystemClock.elapsedRealtime()-mProjectAttachCall.startTime >= TIMEOUT) { // time out
-				clearProjectAttachCall();
+			if (SystemClock.elapsedRealtime()-call.startTime >= TIMEOUT) { // time out
 				if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
-				notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
+				if (clearProjectAttachCall())
+					notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
 				rpcFailed();
 				return;
 			}
@@ -962,36 +1033,40 @@ public class ClientBridgeWorkerHandler extends Handler {
 				if (reply.error_num == RpcClient.ERR_IN_PROGRESS) {
 					// try poll in next second
 					if (Logging.DEBUG) Log.d(TAG, "polling projectAttach()");
-					postDelayed(mProjectAttachPoller, 1000);
+					if (!isProjectAttachCallCancelled())
+						postDelayed(mProjectAttachPoller, 1000);
 				} else if (reply.error_num == RpcClient.ERR_RETRY) { // retry operation
-					if (mRpcClient.projectAttach(mProjectAttachCall.url, mProjectAttachCall.authCode,
-							mProjectAttachCall.projectName) == false) {
+					if (isProjectAttachCallCancelled())
+						return; // if cancelled
+					
+					if (mRpcClient.projectAttach(call.url, call.authCode, call.projectName) == false) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
-						
-						notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
-						clearProjectAttachCall();
+						if (clearProjectAttachCall())
+							notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
 						rpcFailed();
 					} else {
 						// try poll in next second
 						if (Logging.DEBUG) Log.d(TAG, "polling projectAttach() (retry)");
-						postDelayed(mProjectAttachPoller, 1000);
+						if (!isProjectAttachCallCancelled())
+							postDelayed(mProjectAttachPoller, 1000);
 					}
 				} else {	// if other error
 					if (reply.error_num != RpcClient.SUCCESS) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
-						notifyPollError(BoincOp.AddProject, reply.error_num, PollOp.POLL_PROJECT_ATTACH,
+						if (clearProjectAttachCall())
+							notifyPollError(BoincOp.AddProject, reply.error_num, PollOp.POLL_PROJECT_ATTACH,
 								null, projectUrl);
-						clearProjectAttachCall();
+						
 					} else {
 						// if success
-						notifyAfterProjectAttach(projectUrl);
-						clearProjectAttachCall();
+						if (clearProjectAttachCall())
+							notifyAfterProjectAttach(projectUrl);
 					}
 				}
 			} else {	// rpc failed
 				if (Logging.INFO) Log.i(TAG, "RPC failed in projectAttach()");
-				notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
-				clearProjectAttachCall();
+				if (clearProjectAttachCall())
+					notifyError(BoincOp.AddProject, 0, mContext.getString(R.string.boincPollError));
 				rpcFailed();
 			}
 		}
@@ -1001,7 +1076,9 @@ public class ClientBridgeWorkerHandler extends Handler {
 		if (mDisconnecting) return;  // already in disconnect phase
 		
 		// do nothing if already run
-		if (mProjectAttachCall != null) return;
+		synchronized(this) {
+			if (mProjectAttachCall != null) return;
+		}
 		
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.AddProject, ClientReceiver.PROGRESS_XFER_STARTED);
@@ -1034,9 +1111,18 @@ public class ClientBridgeWorkerHandler extends Handler {
 	
 	private GetProjectConfigCall mGetProjectConfigCall = null;
 	
-	private synchronized void clearGetProjectConfigCall() {
-		mGetProjectConfigCall = null;
-		notifyChangeOfIsWorking();
+	/* return true if clears not cancelled task */
+	private synchronized boolean clearGetProjectConfigCall() {
+		if (mGetProjectConfigCall != null) {
+			mGetProjectConfigCall = null;
+			notifyChangeOfIsWorking();
+			return true;
+		}
+		return false;
+	}
+	
+	private synchronized boolean isGetProjectConfigCallCancelled() {
+		return mGetProjectConfigCall == null;
 	}
 	
 	/**
@@ -1045,16 +1131,20 @@ public class ClientBridgeWorkerHandler extends Handler {
 	private Runnable mGetProjectConfigPoller = new Runnable() {
 		@Override
 		public void run() {
-			if (mGetProjectConfigCall == null) return;
+			GetProjectConfigCall call = null;
+			synchronized(ClientBridgeWorkerHandler.this) {
+				if (mGetProjectConfigCall == null) return;
+				call = mGetProjectConfigCall;
+			}
 			if (mDisconnecting) return;  // already in disconnect phase
 			
-			final String projectUrl = mGetProjectConfigCall.url;
+			final String projectUrl = call.url;
 			
-			if (SystemClock.elapsedRealtime()-mGetProjectConfigCall.startTime >= TIMEOUT) { // time out
+			if (SystemClock.elapsedRealtime()-call.startTime >= TIMEOUT) { // time out
 				if (Logging.INFO) Log.i(TAG, "RPC failed in getProjectConfig()");
 				
-				notifyError(BoincOp.GetProjectConfig, 0, mContext.getString(R.string.boincPollError));
-				clearGetProjectConfigCall();
+				if (clearGetProjectConfigCall())
+					notifyError(BoincOp.GetProjectConfig, 0, mContext.getString(R.string.boincPollError));
 				rpcFailed();
 				return;
 			}
@@ -1064,35 +1154,39 @@ public class ClientBridgeWorkerHandler extends Handler {
 				if (projectConfig.error_num == RpcClient.ERR_IN_PROGRESS) {
 					// try poll in next second
 					if (Logging.DEBUG) Log.d(TAG, "polling getProjectConfig()");
-					postDelayed(mGetProjectConfigPoller, 1000);
+					if (!isGetProjectConfigCallCancelled())
+						postDelayed(mGetProjectConfigPoller, 1000);
 				} else if (projectConfig.error_num == RpcClient.ERR_RETRY) { // retry operation
+					if (isGetProjectConfigCallCancelled())
+						return; // cancelled
+					
 					if (mRpcClient.getProjectConfig(projectUrl) == false) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in getProjectConfig()");
-						
-						notifyError(BoincOp.GetProjectConfig, 0, mContext.getString(R.string.boincPollError));
-						clearGetProjectConfigCall();
+						if (clearGetProjectConfigCall())
+							notifyError(BoincOp.GetProjectConfig, 0, mContext.getString(R.string.boincPollError));
 						rpcFailed();
 					} else {
 						// try poll in next second
 						if (Logging.DEBUG) Log.d(TAG, "polling getProjectConfig() (retry)");
-						postDelayed(mGetProjectConfigPoller, 1000);
+						if (!isGetProjectConfigCallCancelled())
+							postDelayed(mGetProjectConfigPoller, 1000);
 					}
 				} else {	// if other error
 					if (projectConfig.error_num != RpcClient.SUCCESS) {
 						if (Logging.INFO) Log.i(TAG, "RPC failed in getProjectConfig()");
-						notifyPollError(BoincOp.GetProjectConfig, projectConfig.error_num,
+						if (clearGetProjectConfigCall())
+							notifyPollError(BoincOp.GetProjectConfig, projectConfig.error_num,
 								PollOp.POLL_PROJECT_CONFIG, projectConfig.error_msg, projectUrl);
-						clearGetProjectConfigCall();
 					} else {
 						// if success
-						currentProjectConfig(projectUrl, projectConfig);
-						clearGetProjectConfigCall();
+						if (clearGetProjectConfigCall())
+							currentProjectConfig(projectUrl, projectConfig);
 					}
 				}
 			} else {	// rpc failed
 				if (Logging.INFO) Log.i(TAG, "RPC failed in getProjectConfig()");
-				notifyError(BoincOp.GetProjectConfig, 0, mContext.getString(R.string.boincPollError));
-				clearGetProjectConfigCall();
+				if (clearGetProjectConfigCall())
+					notifyError(BoincOp.GetProjectConfig, 0, mContext.getString(R.string.boincPollError));
 				rpcFailed();
 			}
 		}
@@ -1102,14 +1196,11 @@ public class ClientBridgeWorkerHandler extends Handler {
 		if (mDisconnecting) return;  // already in disconnect phase
 		
 		// do nothing if already run
-		if (mGetProjectConfigCall != null) return;
+		synchronized(this) {
+			if (mGetProjectConfigCall != null) return;
+		}
 		
 		changeIsHandlerWorking(true);
-		// delay
-		try {
-			Thread.sleep(15000);
-		} catch(InterruptedException ex) { }
-		// delay
 		notifyProgress(BoincOp.GetProjectConfig, ClientReceiver.PROGRESS_XFER_STARTED);
 		if (!mRpcClient.getProjectConfig(url)) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in projectConfig()");
@@ -1135,29 +1226,38 @@ public class ClientBridgeWorkerHandler extends Handler {
 	public synchronized void cancelPollOperations(int opFlags) {
 		if (Logging.DEBUG) Log.d(TAG, String.format("Cancel poll ops:0x%02x", opFlags));
 		
-		if ((opFlags & PollOp.POLL_BAM_OPERATION_MASK) != 0) {
+		int destOpFlags = 0;
+		
+		if ((opFlags & PollOp.POLL_BAM_OPERATION_MASK) != 0 && mAccountMgrRPCCall != null) {
 			mAccountMgrRPCCall = null;
 			removeCallbacks(mAccountMgrRPCPoller);
+			destOpFlags |= PollOp.POLL_BAM_OPERATION_MASK;
 		}
-		if ((opFlags & PollOp.POLL_CREATE_ACCOUNT_MASK) != 0) {
+		if ((opFlags & PollOp.POLL_CREATE_ACCOUNT_MASK) != 0 && mCreateAccountCall != null) {
 			mCreateAccountCall = null;
 			removeCallbacks(mLookupAccountPoller);
+			destOpFlags |= PollOp.POLL_CREATE_ACCOUNT_MASK;
 		}
-		if ((opFlags & PollOp.POLL_LOOKUP_ACCOUNT_MASK) != 0) {
+		if ((opFlags & PollOp.POLL_LOOKUP_ACCOUNT_MASK) != 0 && mLookupAccountCall != null) {
 			mLookupAccountCall = null;
 			removeCallbacks(mCreateAccountPoller);
+			destOpFlags |= PollOp.POLL_LOOKUP_ACCOUNT_MASK;
 		}
-		if ((opFlags & PollOp.POLL_PROJECT_ATTACH_MASK) != 0) {
+		if ((opFlags & PollOp.POLL_PROJECT_ATTACH_MASK) != 0 && mProjectAttachCall != null) {
 			mProjectAttachCall = null;
 			removeCallbacks(mProjectAttachPoller);
+			destOpFlags |= PollOp.POLL_PROJECT_ATTACH_MASK;
 		}
-		if ((opFlags & PollOp.POLL_PROJECT_CONFIG_MASK) != 0) {
+		if ((opFlags & PollOp.POLL_PROJECT_CONFIG_MASK) != 0 && mGetProjectConfigCall != null) {
 			mGetProjectConfigCall = null;
 			removeCallbacks(mGetProjectConfigPoller);
+			destOpFlags |= PollOp.POLL_PROJECT_CONFIG_MASK;
 		}
 		
 		notifyChangeOfIsWorking();
-		notifyCancelPollOperations(opFlags);
+		
+		if (destOpFlags != 0)
+			notifyCancelPollOperations(destOpFlags);
 	}
 	
 	public void getGlobalPrefsWorking() {

@@ -625,12 +625,10 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		if (!boincOp.equals(BoincOp.GetAllProjectList))
 			return false;
 		
-		if (!mGetFromInstaller && mDataDownloadProgressState == ProgressState.IN_PROGRESS) {
+		if (!mGetFromInstaller && mDataDownloadProgressState == ProgressState.IN_PROGRESS)
 			mDataDownloadProgressState = ProgressState.FAILED;
-			return true;
-		}
 		StandardDialogs.showClientErrorDialog(this, errorNum, message);
-		return false;
+		return true;
 	}
 
 	@Override

@@ -88,7 +88,6 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	private boolean mAddingProjectInProgress = false;
 	// if other adding project works in the background
 	private boolean mOtherAddingProjectInProgress = false;
-	private boolean mOtherProjectConfigInProgress = false;
 	
 	private ClientId mConnectedClient = null;
 	
@@ -99,11 +98,9 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		private final boolean mTermOfUseDisplayed;
 		private final int mMinPasswordLength;
 		private final boolean mOtherAddingProjectInProgress;
-		private final boolean mOtherProjectConfigInProgress;
 		
 		public SavedState(AddProjectActivity activity) {
 			mProjectConfigProgressState = activity.mProjectConfigProgressState;
-			mOtherProjectConfigInProgress = activity.mOtherProjectConfigInProgress;
 			mAddingProjectInProgress = activity.mAddingProjectInProgress;
 			mOtherAddingProjectInProgress = activity.mOtherAddingProjectInProgress;
 			mTermOfUseDisplayed = activity.mTermOfUseDisplayed;
@@ -112,7 +109,6 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		public void restore(AddProjectActivity activity) {
 			activity.mProjectConfigProgressState = mProjectConfigProgressState;
-			activity.mOtherProjectConfigInProgress = mOtherProjectConfigInProgress;
 			activity.mAddingProjectInProgress = mAddingProjectInProgress;
 			activity.mOtherAddingProjectInProgress = mOtherAddingProjectInProgress;
 			activity.mTermOfUseDisplayed = mTermOfUseDisplayed;
@@ -443,7 +439,6 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
 		mAddingProjectInProgress = false;
 		mOtherAddingProjectInProgress = false;
-		mOtherProjectConfigInProgress = false;
 		
 		ClientId disconnectedHost = mConnectedClient;
 		mConnectedClient = null;
@@ -459,20 +454,14 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 
 	private void doGetProjectConfig() {
 		if (Logging.DEBUG) Log.d(TAG, "get project config from client");
-		if (mConnectionManager.getProjectConfig(mProjectItem.getUrl())) {
+		if (mConnectionManager.getProjectConfig(mProjectItem.getUrl()))
 			mProjectConfigProgressState = ProgressState.IN_PROGRESS;
-			mOtherProjectConfigInProgress = false;
-		} else { // other get project in progress
-			if (Logging.DEBUG) Log.d(TAG, "other getprojectconfig called");
-			mOtherProjectConfigInProgress = true;
-		}
 	}
 	
 	@Override
 	public boolean currentProjectConfig(String projectUrl, ProjectConfig projectConfig) {
-		Log.d(TAG, "Current projectconfig: "+mOtherProjectConfigInProgress);
-		if (mOtherProjectConfigInProgress) {
-			mOtherProjectConfigInProgress = false;
+		Log.d(TAG, "Current projectconfig: "+mProjectConfigProgressState);
+		if (mProjectConfigProgressState == ProgressState.NOT_RUN) {
 			doGetProjectConfig();
 			return true;
 		}
@@ -517,12 +506,13 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		// getProjectConfig - set as failed - prevents repeating operation
 		if (operation == PollOp.POLL_PROJECT_CONFIG) {
-			if (mOtherProjectConfigInProgress) {
-				// if previous project config failed, try to get our project config
-				mOtherProjectConfigInProgress = false;
-				doGetProjectConfig();
-			} else if (mProjectConfigProgressState == ProgressState.IN_PROGRESS)
+			if (mProjectConfigProgressState == ProgressState.IN_PROGRESS)
 				mProjectConfigProgressState = ProgressState.FAILED;
+			else if (mProjectConfigProgressState == ProgressState.NOT_RUN)
+				// if previous project config failed, try to get our project config
+				doGetProjectConfig();
+			
+			if (Logging.DEBUG) Log.d(TAG, "configprogress:"+mProjectConfigProgressState);
 		}
 		
 		if (operation == PollOp.POLL_PROJECT_ATTACH ||
@@ -543,10 +533,9 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	public void onPollCancel(int opFlags) {
 		if (Logging.DEBUG) Log.d(TAG, "Poller cancel:"+opFlags);
 		
-		if ((opFlags & PollOp.POLL_PROJECT_CONFIG_MASK) != 0 && mOtherProjectConfigInProgress) {
-			mOtherProjectConfigInProgress = false;
+		if ((opFlags & PollOp.POLL_PROJECT_CONFIG_MASK) != 0 &&
+				mProjectConfigProgressState == ProgressState.NOT_RUN)
 			doGetProjectConfig();
-		}
 		
 		if ((opFlags & (PollOp.POLL_PROJECT_ATTACH_MASK | PollOp.POLL_LOOKUP_ACCOUNT_MASK |
 				PollOp.POLL_CREATE_ACCOUNT_MASK)) != 0) {
@@ -561,12 +550,11 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			return false;
 		
 		if (boincOp.isProjectConfig()) {
-			if (mOtherProjectConfigInProgress) {
-				// if previous project config failed, try to get our project config
-				mOtherProjectConfigInProgress = false;
-				doGetProjectConfig();
-			} else if (mProjectConfigProgressState == ProgressState.IN_PROGRESS)
+			if (mProjectConfigProgressState == ProgressState.IN_PROGRESS)
 				mProjectConfigProgressState = ProgressState.FAILED;
+			else if (mProjectConfigProgressState == ProgressState.NOT_RUN)
+				// if previous project config failed, try to get our project config
+				doGetProjectConfig();
 		}
 		
 		if (boincOp.isAddProject()) {

@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
+import sk.boinc.nativeboinc.debug.Logging;
+
 import android.util.Log;
 
 /**
@@ -79,12 +81,14 @@ public class PendingController<Operation> {
 	public synchronized boolean begin(Operation pendingOp) {
 		OpEntry opEntry = mPendingOutputsMap.get(pendingOp);
 		
-		Log.d(mTag, "Do begin:"+pendingOp);
+		if (Logging.DEBUG) Log.d(mTag, "Do begin:"+pendingOp);
 		
 		if (opEntry != null && opEntry.isRan)
 			return false;	// currently is working
 		
-		Log.d(mTag, "Began:"+pendingOp);
+		if (Logging.DEBUG) Log.d(mTag, "Began:"+pendingOp);
+		// remove from queue pending errors
+		removeFromErrorQueue(pendingOp);
 		
 		if (mPendingOutputsMap.put(pendingOp, new OpEntry()) == null) {
 			// if add new entry, check whether saving memory is needed
@@ -97,33 +101,26 @@ public class PendingController<Operation> {
 		OpEntry opEntry = mPendingOutputsMap.get(pendingOp);
 		
 		if (opEntry == null) {
-			Log.w(mTag, "Failed finish for "+pendingOp);
+			if (Logging.WARNING) Log.w(mTag, "Failed finish for "+pendingOp);
 			return;
 		}
 		
-		Log.d(mTag, "Do finish:"+pendingOp);
+		if (Logging.DEBUG) Log.d(mTag, "Do finish:"+pendingOp);
 		
 		opEntry.isRan = false;
 		opEntry.finihTimestamp = System.currentTimeMillis();
 	}
 	
 	public synchronized void finishSelected(PendingOpSelector<Operation> selector) {
-		// remove expired entries in the map
 		Iterator<Map.Entry<Operation, OpEntry>> mapIt = mPendingOutputsMap.entrySet().iterator();
 		while(mapIt.hasNext()) {
 			Map.Entry<Operation, OpEntry> entry = mapIt.next();
 			if (selector.select(entry.getKey())) {
-				Log.d(mTag, "Do finish in selection:"+entry.getKey());
-				mapIt.remove();
+				if (Logging.DEBUG) Log.d(mTag, "Do finish in selection:"+entry.getKey());
+				OpEntry opEntry = entry.getValue();
+				opEntry.isRan = false;
+				opEntry.finihTimestamp = System.currentTimeMillis();
 			}
-		}
-		
-		// also we remove expired errors in queue
-		Iterator<ErrorQueueEntry> it = mPendingErrorQueue.iterator();
-		while(it.hasNext()) {
-			ErrorQueueEntry entry = it.next();
-			if (selector.select(entry.pendingOp))
-				it.remove();
 		}
 	}
 	
@@ -131,7 +128,7 @@ public class PendingController<Operation> {
 		OpEntry opEntry = mPendingOutputsMap.get(pendingOp);
 		
 		if (opEntry == null) {
-			Log.w(mTag, "Failed finish for "+pendingOp);
+			if (Logging.WARNING) Log.w(mTag, "Failed finish for "+pendingOp);
 			return;
 		}
 		
@@ -147,11 +144,11 @@ public class PendingController<Operation> {
 		OpEntry opEntry = mPendingOutputsMap.get(pendingOp);
 		
 		if (opEntry == null) {
-			Log.w(mTag, "Failed finish for "+pendingOp);
+			if (Logging.WARNING) Log.w(mTag, "Failed finish for "+pendingOp);
 			return;
 		}
 		
-		Log.d(mTag, "Do finish:"+pendingOp+",err:"+error);
+		if (Logging.DEBUG) Log.d(mTag, "Do finish:"+pendingOp+",err:"+error);
 		
 		opEntry.isRan = false;
 		opEntry.error = error;
@@ -162,7 +159,7 @@ public class PendingController<Operation> {
 	}
 	
 	public synchronized Object takePendingOutput(Operation pendingOp) {
-		Log.d(mTag, "Take out:"+pendingOp);
+		if (Logging.DEBUG) Log.d(mTag, "Take out:"+pendingOp);
 		OpEntry opEntry = mPendingOutputsMap.get(pendingOp);
 		if (opEntry == null)
 			return null;
@@ -182,15 +179,14 @@ public class PendingController<Operation> {
 			opEntry.error = null;
 			
 			removeFromErrorQueue(pendingOp);
-			Log.d(mTag, "Take error "+pendingOp+":"+pendingError);
+			if (Logging.DEBUG) Log.d(mTag, "Take error "+pendingOp+":"+pendingError);
 			return pendingError;
 		} else { // take from global queue
-			
 			ErrorQueueEntry entry = mPendingErrorQueue.pollFirst();
 			if (entry != null) {
 				OpEntry opEntry = mPendingOutputsMap.get(entry.pendingOp);
 				opEntry.error = null;
-				Log.d(mTag, "Take error from queue:"+opEntry.error);
+				if (Logging.DEBUG) Log.d(mTag, "Take error from queue:"+opEntry.error);
 				return entry.error; 
 			}
 			return null;
@@ -205,9 +201,9 @@ public class PendingController<Operation> {
 			if (opEntry == null || opEntry.error == null)
 				return false;	// no error set
 			// do handle errors
-			Log.d(mTag, "try handle error for "+pendingOp+":"+opEntry.error);
+			if (Logging.DEBUG) Log.d(mTag, "try handle error for "+pendingOp+":"+opEntry.error);
 			if (callback.handleError(pendingOp, opEntry.error)) {
-				Log.d(mTag, "handle error for "+pendingOp+":"+opEntry.error);
+				if (Logging.DEBUG) Log.d(mTag, "handle error for "+pendingOp+":"+opEntry.error);
 				// removing error
 				opEntry.error = null;
 				
@@ -218,16 +214,21 @@ public class PendingController<Operation> {
 		} else {
 			// handle all pending errors
 			boolean handled = false;
-			for (ErrorQueueEntry queueEntry: mPendingErrorQueue) {
-				Log.d(mTag, "try handle error from queue:"+queueEntry.error);
+			LinkedList<ErrorQueueEntry> copyOfQueue = new LinkedList<ErrorQueueEntry>(mPendingErrorQueue);
+			
+			Iterator<ErrorQueueEntry> queueIt = copyOfQueue.iterator();
+			while (queueIt.hasNext()) {
+				ErrorQueueEntry queueEntry = queueIt.next();
+				if (Logging.DEBUG) Log.d(mTag, "try handle error from queue:"+queueEntry.error);
 				if (callback.handleError(queueEntry.pendingOp, queueEntry.error)) {
-					Log.d(mTag, "handle error from queue:"+queueEntry.error);
-					OpEntry opEntry = mPendingOutputsMap.get(pendingOp);
+					if (Logging.DEBUG) Log.d(mTag, "handle error from queue:"+queueEntry.error);
+					OpEntry opEntry = mPendingOutputsMap.get(queueEntry.pendingOp);
 					opEntry.error = null;
 					handled = true;
+					// remove from queue
+					removeFromErrorQueue(queueEntry.pendingOp);
 				}
 			}
-			mPendingErrorQueue.clear();
 			return handled;
 		}
 		return false;
@@ -245,7 +246,7 @@ public class PendingController<Operation> {
 		
 		long currentTime = System.currentTimeMillis();
 		
-		Log.d(mTag, "save memory if needed");
+		if (Logging.DEBUG) Log.d(mTag, "save memory if needed");
 		
 		// remove expired entries in the map
 		Iterator<Map.Entry<Operation, OpEntry>> mapIt = mPendingOutputsMap.entrySet().iterator();

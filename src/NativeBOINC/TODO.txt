@@ -88,7 +88,7 @@ jeszcze raz usprawnic i uszczelnić obsługę błędów
   * filtrowac listę dostepnyhc projektów wyrzucając wszystkie dołączone
   * wprowadzić wykonywanie wielu 'dump boinc files' równocześnie
   * poprawić obsługę wakelocków dla 'keep screen' z preferences.
-  *
+  * dodać blokowanie przycisku start/shutdown na widgecie przy startowaniu/wyłączaniu boinca 
 
 / * dostosować do Android 3.0 (opcjonalnie) i 4.0.
 

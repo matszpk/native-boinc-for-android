@@ -129,7 +129,9 @@ public class ClientBridge implements ClientRequestHandler {
 		public void notifyError(BoincOp boincOp, int errorNum, String errorMessage) {
 			if (boincOp.isAddProject()) // addProject operation
 				mJoinedAddProjectUrl = null;
-				
+			
+			mClientPendingController.finish(boincOp);
+			
 			boolean called = false;
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
@@ -139,8 +141,6 @@ public class ClientBridge implements ClientRequestHandler {
 			
 			if (!called)
 				mClientPendingController.finishWithError(boincOp, new ClientError(errorNum, errorMessage));
-			else
-				mClientPendingController.finish(boincOp);
 		}
 		
 		public void notifyPollError(BoincOp boincOp, int errorNum, int operation,
@@ -148,6 +148,8 @@ public class ClientBridge implements ClientRequestHandler {
 			
 			if (boincOp.isAddProject()) // addProject operation
 				mJoinedAddProjectUrl = null;
+			
+			mClientPendingController.finish(boincOp);
 			
 			boolean called = false;
 			
@@ -164,8 +166,6 @@ public class ClientBridge implements ClientRequestHandler {
 			if (!called)
 				mClientPendingController.finishWithError(boincOp,
 						new PollError(errorNum, operation, errorMessage, key));
-			else
-				mClientPendingController.finish(boincOp);
 		}
 		
 		public void notifyConnected(VersionInfo clientVersion) {
@@ -188,6 +188,7 @@ public class ClientBridge implements ClientRequestHandler {
 			// before clearing observers inform is client connection finish work
 			onChangeIsWorking(false);
 			mObservers.clear();
+			mClientPendingController = null;
 		}
 
 
@@ -412,6 +413,7 @@ public class ClientBridge implements ClientRequestHandler {
 				}
 			});
 			
+			// send notification to observers about cancelling
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientPollReceiver) {
@@ -516,7 +518,6 @@ public class ClientBridge implements ClientRequestHandler {
 		if (mRemoteClient == null) return; // not connected
 		mWorker.disconnect();
 		mRemoteClient = null; // This will prevent further triggers towards worker thread
-		mClientPendingController = null;
 	}
 
 	@Override
@@ -773,10 +774,11 @@ public class ClientBridge implements ClientRequestHandler {
 		return mClientPendingController.handlePendingErrors(boincOp, new PendingErrorHandler<BoincOp>() {
 			@Override
 			public boolean handleError(BoincOp boincOp, Object error) {
-				if (!boincOp.isPollOp())
+				if (error instanceof ClientError) {
+					ClientError cError = (ClientError)error;
+					return receiver.clientError(boincOp, cError.errorNum, cError.message);
+				} else
 					return false;
-				ClientError cError = (ClientError)error;
-				return receiver.clientError(boincOp, cError.errorNum, cError.message);
 			}
 		});
 	}
@@ -797,11 +799,12 @@ public class ClientBridge implements ClientRequestHandler {
 		return mClientPendingController.handlePendingErrors(boincOp, new PendingErrorHandler<BoincOp>() {
 			@Override
 			public boolean handleError(BoincOp boincOp, Object error) {
-				if (!boincOp.isPollOp())
+				if (error instanceof PollError) {
+					PollError pollError = (PollError)error;
+					return receiver.onPollError(pollError.errorNum, pollError.operation,
+							pollError.message, pollError.param);
+				} else
 					return false;
-				PollError pollError = (PollError)error;
-				return receiver.onPollError(pollError.errorNum, pollError.operation,
-						pollError.message, pollError.param);
 			}
 		});
 	}

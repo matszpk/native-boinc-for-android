@@ -304,17 +304,21 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 
-	public void updateClientMode() {
+	public void updateClientMode(boolean runInternally) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		synchronized (mUpdateCancelSync) {
 			
 			if ((mUpdateCancelMask & (1<<AutoRefresh.CLIENT_MODE)) != 0) {
 				// This update was canceled meanwhile
 				if (Logging.DEBUG) Log.d(TAG, "Canceled updateClientMode()");
+				notifyCancelUpdate(BoincOp.UpdateClientMode);
 				return;
 			}
 		}
 		changeIsHandlerWorking(true);
+		
+		if (runInternally)
+			notifyOperationBegin(BoincOp.UpdateClientMode);
 		notifyProgress(BoincOp.UpdateClientMode, ClientReceiver.PROGRESS_XFER_STARTED);
 		CcStatus ccStatus = mRpcClient.getCcStatus();
 		if (ccStatus == null) {
@@ -350,16 +354,20 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(false);
 	}
 
-	public void updateProjects() {
+	public void updateProjects(boolean runInternally) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		synchronized (mUpdateCancelSync) {
 			if ((mUpdateCancelMask & (1<<AutoRefresh.PROJECTS)) != 0) {
 				// This update was canceled meanwhile
 				if (Logging.DEBUG) Log.d(TAG, "Canceled updateProjects()");
+				notifyCancelUpdate(BoincOp.UpdateProjects);
 				return;
 			}
 		}
 		changeIsHandlerWorking(true);
+		if (runInternally)
+			notifyOperationBegin(BoincOp.UpdateProjects);
+		
 		notifyProgress(BoincOp.UpdateProjects, ClientReceiver.PROGRESS_XFER_STARTED);
 		ArrayList<Project> projects = mRpcClient.getProjectStatus();
 		if (projects == null) {
@@ -385,17 +393,21 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(false);
 	}
 
-	public void updateTasks() {
+	public void updateTasks(boolean runInternally) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		synchronized (mUpdateCancelSync) {
 			if ((mUpdateCancelMask & (1<<AutoRefresh.TASKS)) != 0) {
 				// This update was canceled meanwhile
 				if (Logging.DEBUG) Log.d(TAG, "Canceled updateTasks()");
+				notifyCancelUpdate(BoincOp.UpdateTasks);
 				return;
 			}
 		}
+		
 		if (Logging.DEBUG) Log.d(TAG, "run updateTasks()");
 		changeIsHandlerWorking(true);
+		if (runInternally)
+			notifyOperationBegin(BoincOp.UpdateTasks);
 		
 		notifyProgress(BoincOp.UpdateTasks, ClientReceiver.PROGRESS_XFER_STARTED);
 		boolean updateFinished = false;
@@ -433,16 +445,20 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(false);
 	}
 
-	public void updateTransfers() {
+	public void updateTransfers(boolean runInternally) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		synchronized (mUpdateCancelSync) {
 			if ((mUpdateCancelMask & (1<<AutoRefresh.TRANSFERS)) != 0) {
 				// This update was canceled meanwhile
 				if (Logging.DEBUG) Log.d(TAG, "Canceled updateTransfers()");
+				notifyCancelUpdate(BoincOp.UpdateTransfers);
 				return;
 			}
 		}
 		changeIsHandlerWorking(true);
+		if (runInternally)
+			notifyOperationBegin(BoincOp.UpdateTransfers);
+		
 		notifyProgress(BoincOp.UpdateTransfers, ClientReceiver.PROGRESS_XFER_STARTED);
 		ArrayList<Transfer> transfers = mRpcClient.getFileTransfers();
 		if (transfers == null) {
@@ -458,16 +474,20 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(false);
 	}
 
-	public void updateMessages() {
+	public void updateMessages(boolean runInternally) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		synchronized (mUpdateCancelSync) {
 			if ((mUpdateCancelMask & (1<<AutoRefresh.MESSAGES)) != 0) {
 				// This update was canceled meanwhile
 				if (Logging.DEBUG) Log.d(TAG, "Canceled updateMessages()");
+				notifyCancelUpdate(BoincOp.UpdateMessages);
 				return;
 			}
 		}
 		changeIsHandlerWorking(true);
+		if (runInternally)
+			notifyOperationBegin(BoincOp.UpdateMessages);
+		
 		notifyProgress(BoincOp.UpdateMessages, ClientReceiver.PROGRESS_XFER_STARTED);
 		int reqSeqno = (mMessages.isEmpty()) ? 0 : mMessages.lastKey();
 		if (reqSeqno == 0) {
@@ -509,6 +529,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			if ((mUpdateCancelMask & (1<<AutoRefresh.NOTICES)) != 0) {
 				// This update was canceled meanwhile
 				if (Logging.DEBUG) Log.d(TAG, "Canceled updateNotices()");
+				notifyCancelUpdate(BoincOp.UpdateNotices);
 				return;
 			}
 		}
@@ -727,6 +748,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			return;
 		}
 		
+		notifyOperationFinish(BoincOp.StopUsingBAM);
 		notifyProgress(BoincOp.StopUsingBAM, ClientReceiver.PROGRESS_XFER_FINISHED);
 		changeIsHandlerWorking(false);
 	}
@@ -1263,6 +1285,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 	public void getGlobalPrefsWorking() {
 		if (mDisconnecting) return;  // already in disconnect phase
 		changeIsHandlerWorking(true);
+		if (Logging.DEBUG) Log.d(TAG, "Begin Get globalprefs");
 		notifyProgress(BoincOp.GlobalPrefsWorking, ClientReceiver.PROGRESS_XFER_STARTED);
 		
 		GlobalPreferences globalPrefs = mRpcClient.getGlobalPrefsWorkingStruct();
@@ -1270,10 +1293,12 @@ public class ClientBridgeWorkerHandler extends Handler {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in getGlobalPrefsWorking()");
 			notifyError(BoincOp.GlobalPrefsWorking, 0, mContext.getString(R.string.boincOperationError));
 			rpcFailed();
+			if (Logging.DEBUG) Log.d(TAG, "Finish Get globalprefs with error");
 			changeIsHandlerWorking(false);
 			return;
 		}
 		currentGlobalPreferences(globalPrefs);
+		if (Logging.DEBUG) Log.d(TAG, "Finish Get globalprefs");
 		notifyProgress(BoincOp.GlobalPrefsWorking, ClientReceiver.PROGRESS_XFER_FINISHED);
 		changeIsHandlerWorking(false);
 	}
@@ -1283,7 +1308,6 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.GlobalPrefsOverride, ClientReceiver.PROGRESS_XFER_STARTED);
 		boolean success = mRpcClient.setGlobalPrefsOverride(globalPrefs);
-		notifyProgress(BoincOp.GlobalPrefsOverride, ClientReceiver.PROGRESS_XFER_FINISHED);
 		
 		if (!success) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in setGlobalPrefsOverride()");
@@ -1300,7 +1324,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 			rpcFailed();
 			changeIsHandlerWorking(false);
 			return;
-		} 
+		}
+		notifyProgress(BoincOp.GlobalPrefsOverride, ClientReceiver.PROGRESS_XFER_FINISHED);
 		notifyGlobalPrefsChanged();
 		changeIsHandlerWorking(false);
 	}
@@ -1345,6 +1370,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			changeIsHandlerWorking(false);
 			return;
 		}
+		notifyOperationFinish(BoincOp.RunBenchmarks);
 		changeIsHandlerWorking(false);
 	}
 
@@ -1353,11 +1379,12 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.SetRunMode, ClientReceiver.PROGRESS_XFER_STARTED);
 		mRpcClient.setRunMode(mode, 0);
+		notifyOperationFinish(BoincOp.SetRunMode);
 		notifyProgress(BoincOp.SetRunMode, ClientReceiver.PROGRESS_XFER_FINISHED);
 		changeIsHandlerWorking(false);
 		// Regardless of success we run update of client mode
 		// If there is problem with socket, it will be handled there
-		updateClientMode();
+		updateClientMode(true);
 	}
 
 	public void setNetworkMode(int mode) {
@@ -1365,11 +1392,12 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.SetNetworkMode, ClientReceiver.PROGRESS_XFER_STARTED);
 		mRpcClient.setNetworkMode(mode, 0);
+		notifyOperationFinish(BoincOp.SetNetworkMode);
 		notifyProgress(BoincOp.SetNetworkMode, ClientReceiver.PROGRESS_XFER_FINISHED);
 		changeIsHandlerWorking(false);
 		// Regardless of success we run update of client mode
 		// If there is problem with socket, it will be handled there
-		updateClientMode();
+		updateClientMode(true);
 	}
 
 	public void shutdownCore() {
@@ -1419,6 +1447,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.DoNetworkComm, ClientReceiver.PROGRESS_XFER_STARTED);
 		boolean success = mRpcClient.networkAvailable();
+		notifyOperationFinish(BoincOp.DoNetworkComm);
 		notifyProgress(BoincOp.DoNetworkComm, ClientReceiver.PROGRESS_XFER_FINISHED);
 		if (!success) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in doNetworkCommunication()");
@@ -1435,10 +1464,11 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.ProjectOperation, ClientReceiver.PROGRESS_XFER_STARTED);
 		mRpcClient.projectOp(operation, projectUrl);
+		notifyOperationFinish(BoincOp.ProjectOperation);
 		notifyProgress(BoincOp.ProjectOperation, ClientReceiver.PROGRESS_XFER_FINISHED);
 		// Regardless of success we run update of projects
 		// If there is problem with socket, it will be handled there
-		updateProjects();
+		updateProjects(true);
 		changeIsHandlerWorking(false);
 	}
 	
@@ -1448,10 +1478,11 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(BoincOp.ProjectOperation, ClientReceiver.PROGRESS_XFER_STARTED);
 		for (String projectUrl: projectUrls)
 			mRpcClient.projectOp(operation, projectUrl);
+		notifyOperationFinish(BoincOp.ProjectOperation);
 		notifyProgress(BoincOp.ProjectOperation, ClientReceiver.PROGRESS_XFER_FINISHED);
 		// Regardless of success we run update of projects
 		// If there is problem with socket, it will be handled there
-		updateProjects();
+		updateProjects(true);
 		changeIsHandlerWorking(false);
 	}
 
@@ -1460,10 +1491,11 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.TaskOperation, ClientReceiver.PROGRESS_XFER_STARTED);
 		mRpcClient.resultOp(operation, projectUrl, taskName);
+		notifyOperationFinish(BoincOp.TaskOperation);
 		notifyProgress(BoincOp.TaskOperation, ClientReceiver.PROGRESS_XFER_FINISHED);
 		// Regardless of success we run update of tasks
 		// If there is problem with socket, it will be handled there
-		updateTasks();
+		updateTasks(true);
 		changeIsHandlerWorking(false);
 	}
 	
@@ -1473,10 +1505,11 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(BoincOp.TaskOperation, ClientReceiver.PROGRESS_XFER_STARTED);
 		for (TaskDescriptor task: tasks)
 			mRpcClient.resultOp(operation, task.projectUrl, task.taskName);
+		notifyOperationFinish(BoincOp.TaskOperation);
 		notifyProgress(BoincOp.TaskOperation, ClientReceiver.PROGRESS_XFER_FINISHED);
 		// Regardless of success we run update of tasks
 		// If there is problem with socket, it will be handled there
-		updateTasks();
+		updateTasks(true);
 		changeIsHandlerWorking(false);
 	}
 
@@ -1485,10 +1518,11 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.TransferOperation, ClientReceiver.PROGRESS_XFER_STARTED);
 		mRpcClient.transferOp(operation, projectUrl, fileName);
+		notifyOperationFinish(BoincOp.TransferOperation);
 		notifyProgress(BoincOp.TransferOperation, ClientReceiver.PROGRESS_XFER_FINISHED);
 		// Regardless of success we run update of transfers
 		// If there is problem with socket, it will be handled there
-		updateTransfers();
+		updateTransfers(true);
 		changeIsHandlerWorking(false);
 	}
 	
@@ -1498,19 +1532,40 @@ public class ClientBridgeWorkerHandler extends Handler {
 		notifyProgress(BoincOp.TransferOperation, ClientReceiver.PROGRESS_XFER_STARTED);
 		for (TransferDescriptor transfer: transfers)
 			mRpcClient.transferOp(operation, transfer.projectUrl, transfer.fileName);
+		notifyOperationFinish(BoincOp.TransferOperation);
 		notifyProgress(BoincOp.TransferOperation, ClientReceiver.PROGRESS_XFER_FINISHED);
 		// Regardless of success we run update of transfers
 		// If there is problem with socket, it will be handled there
-		updateTransfers();
+		updateTransfers(true);
 		changeIsHandlerWorking(false);
 	}
 
+	private synchronized void notifyOperationBegin(final BoincOp boincOp) {
+		if (mDisconnecting) return;
+		mReplyHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mReplyHandler.notifyOperationBegin(boincOp);
+			}
+		});
+	}
+	
 	private synchronized void notifyProgress(final BoincOp boincOp, final int progress) {
 		if (mDisconnecting) return;
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
 				mReplyHandler.notifyProgress(boincOp, progress);
+			}
+		});
+	}
+	
+	private synchronized void notifyOperationFinish(final BoincOp boincOp) {
+		if (mDisconnecting) return;
+		mReplyHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mReplyHandler.notifyOperationFinish(boincOp);
 			}
 		});
 	}
@@ -1663,6 +1718,16 @@ public class ClientBridgeWorkerHandler extends Handler {
 			}
 		});
 	}
+	
+	private synchronized void notifyCancelUpdate(final BoincOp boincOp) {
+		if (mDisconnecting) return;
+		mReplyHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mReplyHandler.cancelledUpdate(boincOp);
+			}
+		});
+	}
 
 	private synchronized void updatedProjects(final ArrayList<ProjectInfo> projects) {
 		if (mDisconnecting) return;
@@ -1780,10 +1845,10 @@ public class ClientBridgeWorkerHandler extends Handler {
 		dataSetTasks(ccState.workunits, ccState.results);
 		updatedTasks(getTasks());
 		// Retrieve also transfers. Most of time empty anyway, so it runs fast
-		updateTransfers();
+		updateTransfers(true);
 		if (mDisconnecting) return;  // already in disconnect phase
 		// Messages are useful in most of cases, so we start to retrieve them automatically as well
-		updateMessages();
+		updateMessages(true);
 		mInitialStateRetrieved = true;
 	}
 

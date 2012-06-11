@@ -132,7 +132,7 @@ public class PendingController<Operation> {
 			return;
 		}
 		
-		Log.d(mTag, "Do finish:"+pendingOp+",out:"+output);
+		Log.d(mTag, "Do finish:"+pendingOp+",out.");
 		
 		opEntry.isRan = false;
 		opEntry.output = output;
@@ -148,7 +148,7 @@ public class PendingController<Operation> {
 			return;
 		}
 		
-		if (Logging.DEBUG) Log.d(mTag, "Do finish:"+pendingOp+",err:"+error);
+		if (Logging.DEBUG) Log.d(mTag, "Do finish:"+pendingOp+",err.");
 		
 		opEntry.isRan = false;
 		opEntry.error = error;

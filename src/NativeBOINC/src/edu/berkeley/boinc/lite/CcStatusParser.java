@@ -140,7 +140,11 @@ public class CcStatusParser extends BaseParser {
 					}
 					else if (localName.equalsIgnoreCase("simple_gui_only")) {
 						if (mCurrentElement.length() > 1) {
-							mCcStatus.simple_gui_only = (0 != Integer.parseInt(mCurrentElement.toString()));
+							// handling stupid bug ?? (someone added 's' to integer)
+							String toParse = mCurrentElement.toString();
+							if (toParse.endsWith("s"))
+								toParse = toParse.substring(0, toParse.length()-1);
+							mCcStatus.simple_gui_only = (0 != Integer.parseInt(toParse));
 						}
 						else {
 							mCcStatus.simple_gui_only = true;

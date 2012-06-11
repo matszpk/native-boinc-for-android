@@ -113,17 +113,19 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 		public void notifyProgress(BoincOp boincOp, int progress) {
-			if (boincOp != null) {
-				if (progress == ClientReceiver.PROGRESS_XFER_STARTED)
-					mClientPendingController.begin(boincOp);	// begin queue operation
-				// finish operation without output
-				if (progress == ClientReceiver.PROGRESS_XFER_FINISHED)
-					mClientPendingController.finish(boincOp);
-			}
-			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers)
 				observer.clientConnectionProgress(boincOp, progress);
+		}
+		
+		// only used internally by ClientBridgeWorkerHandler 
+		public void notifyOperationBegin(BoincOp boincOp) {
+			Log.d(TAG, "RunInternally");
+			mClientPendingController.begin(boincOp);
+		}
+		
+		public void notifyOperationFinish(BoincOp boincOp) {
+			mClientPendingController.finish(boincOp);
 		}
 		
 		public void notifyError(BoincOp boincOp, int errorNum, String errorMessage) {
@@ -191,6 +193,10 @@ public class ClientBridge implements ClientRequestHandler {
 			mClientPendingController = null;
 		}
 
+		public void cancelledUpdate(final BoincOp boincOp) {
+			// finish operation
+			mClientPendingController.finish(boincOp);
+		}
 
 		public void updatedClientMode(final ModeInfo modeInfo) {
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
@@ -237,7 +243,8 @@ public class ClientBridge implements ClientRequestHandler {
 		
 		public void currentAuthCode(final String projectUrl, final String authCode) {
 			
-			if (!mJoinedAddProjectUrl.equals(projectUrl)) // if not add project (standalone calls)
+			if (mJoinedAddProjectUrl == null || !mJoinedAddProjectUrl.equals(projectUrl))
+				// if not add project (standalone calls)
 				mClientPendingController.finish(BoincOp.AddProject);
 			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
@@ -247,6 +254,7 @@ public class ClientBridge implements ClientRequestHandler {
 			}
 			
 			if (mJoinedAddProjectUrl.equals(projectUrl)) {
+				if (Logging.DEBUG) Log.d(TAG, "Join with project attach:"+projectUrl);
 				projectAttach(projectUrl, authCode, "");
 			}
 		}
@@ -729,7 +737,10 @@ public class ClientBridge implements ClientRequestHandler {
 		if (mRemoteClient == null)
 			return false; // not connected
 		
-		if (mClientPendingController.begin(BoincOp.AddProject)) {
+		// if join exists we continue operation by performing project attach
+		if ((mJoinedAddProjectUrl != null && mJoinedAddProjectUrl.equals(url)) ||
+				// otherwise run as standalone
+				mClientPendingController.begin(BoincOp.AddProject)) {
 			mWorker.projectAttach(url, authCode, projectName);
 			return true;
 		}
@@ -746,6 +757,8 @@ public class ClientBridge implements ClientRequestHandler {
 		
 		if (!mClientPendingController.begin(BoincOp.AddProject))
 			return false;
+		
+		mJoinedAddProjectUrl = accountIn.url;
 		
 		if (create)
 			mWorker.createAccount(accountIn);

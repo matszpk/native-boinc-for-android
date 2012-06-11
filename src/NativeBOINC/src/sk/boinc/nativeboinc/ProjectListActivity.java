@@ -27,6 +27,7 @@ import edu.berkeley.boinc.lite.ProjectListEntry;
 
 import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientPollReceiver;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
@@ -64,7 +65,7 @@ import android.widget.TextView;
  *
  */
 public class ProjectListActivity extends ServiceBoincActivity implements InstallerProgressListener,
-	InstallerUpdateListener, ClientAllProjectsListReceiver {
+	InstallerUpdateListener, ClientAllProjectsListReceiver, ClientPollReceiver {
 	private static final String TAG = "ProjectListActivity";
 	
 	private static final String ARG_FORCE_PROJECT_LIST = "ForceProjectList";
@@ -346,8 +347,21 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	
 	private void updateActivityState() {
 		// if disconnected
-		if (mDataDownloadProgressState == ProgressState.IN_PROGRESS && mConnectedClient == null)
+		if (mConnectionManager == null)
+			return;
+		
+		if (mConnectedClient == null)
 			clientDisconnected();
+		
+		// handle poll errors
+		setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
+		
+		mConnectionManager.handlePendingPollErrors(null, this);
+		
+		if (mConnectionManager.handlePendingClientErrors(null, this)) {
+			if (!mGetFromInstaller)  // if from boinc then returns
+				return;
+		}
 		
 		if (mGetFromInstaller) {
 			// from installer
@@ -383,14 +397,6 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			// do not finish when error
 			mInstaller.handlePendingErrors(InstallOp.UpdateProjectDistribs, this);
 		} else {
-			// from boinc client
-			if (mConnectionManager == null)
-				return;
-			
-			setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
-			
-			if (mConnectionManager.handlePendingClientErrors(null, this))
-				return;
 			
 			if (mConnectedClient == null)
 				return;
@@ -622,13 +628,25 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	
 	@Override
 	public boolean clientError(BoincOp boincOp, int errorNum, String message) {
-		if (!boincOp.equals(BoincOp.GetAllProjectList))
-			return false;
-		
-		if (!mGetFromInstaller && mDataDownloadProgressState == ProgressState.IN_PROGRESS)
-			mDataDownloadProgressState = ProgressState.FAILED;
+		if (boincOp.equals(BoincOp.GetAllProjectList)) {
+			if (!mGetFromInstaller && mDataDownloadProgressState == ProgressState.IN_PROGRESS)
+				mDataDownloadProgressState = ProgressState.FAILED;
+		}
 		StandardDialogs.showClientErrorDialog(this, errorNum, message);
 		return true;
+	}
+	
+	@Override
+	public boolean onPollError(int errorNum, int operation,
+			String errorMessage, String param) {
+		StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
+		return true;
+	}
+
+	@Override
+	public void onPollCancel(int opFlags) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override

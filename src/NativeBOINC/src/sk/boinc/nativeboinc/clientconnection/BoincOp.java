@@ -158,7 +158,7 @@ public class BoincOp {
 		
 		if (ob instanceof BoincOp) {
 			BoincOp boincOp = (BoincOp)ob;
-			return opCode != boincOp.opCode;
+			return opCode == boincOp.opCode;
 		}
 		return false;
 	}

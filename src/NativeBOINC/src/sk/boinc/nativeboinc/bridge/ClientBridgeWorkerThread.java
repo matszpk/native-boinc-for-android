@@ -143,7 +143,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateClientMode();
+				mHandler.updateClientMode(false);
 			}
 		});
 	}
@@ -163,7 +163,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateProjects();
+				mHandler.updateProjects(false);
 			}
 		});
 	}
@@ -173,7 +173,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateTasks();
+				mHandler.updateTasks(false);
 			}
 		});
 	}
@@ -183,7 +183,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateTransfers();
+				mHandler.updateTransfers(false);
 			}
 		});
 	}
@@ -193,7 +193,7 @@ public class ClientBridgeWorkerThread extends Thread {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateMessages();
+				mHandler.updateMessages(false);
 			}
 		});
 	}

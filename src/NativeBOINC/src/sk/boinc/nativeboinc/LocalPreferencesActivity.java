@@ -62,7 +62,6 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	
 	private int mGlobalPrefsFetchProgress = ProgressState.NOT_RUN;
 	private boolean mGlobalPrefsSavingInProgress = false;
-	private boolean mOtherGlobalPrefsFetchInProgress = false;
 	private boolean mOtherGlobalPrefsSavingInProgress = false;
 	
 	private CheckBox mComputeOnBatteries;
@@ -100,7 +99,6 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	private static class SavedState {
 		private final int globalPrefsFetchProgress;
 		private final boolean globalPrefsSavingInProgress;
-		private final boolean otherGlobalPrefsFetchInProgress;
 		private final boolean otherGlobalPrefsSavingInProgress;
 		private final int selectedTab;
 		private final TimePreferences cpuTimePreferences;
@@ -109,7 +107,6 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		public SavedState(LocalPreferencesActivity activity) {
 			globalPrefsFetchProgress = activity.mGlobalPrefsFetchProgress;
 			globalPrefsSavingInProgress = activity.mGlobalPrefsSavingInProgress;
-			otherGlobalPrefsFetchInProgress = activity.mOtherGlobalPrefsFetchInProgress;
 			otherGlobalPrefsSavingInProgress = activity.mOtherGlobalPrefsSavingInProgress;
 			selectedTab = activity.mSelectedTab;
 			cpuTimePreferences = activity.mCPUTimePreferences;
@@ -119,7 +116,6 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		public void restore(LocalPreferencesActivity activity) {
 			activity.mGlobalPrefsFetchProgress = globalPrefsFetchProgress;
 			activity.mGlobalPrefsSavingInProgress = globalPrefsSavingInProgress;
-			activity.mOtherGlobalPrefsFetchInProgress = otherGlobalPrefsFetchInProgress;
 			activity.mOtherGlobalPrefsSavingInProgress = otherGlobalPrefsSavingInProgress;
 			activity.mSelectedTab = selectedTab;
 			activity.mCPUTimePreferences = cpuTimePreferences;
@@ -214,6 +210,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 				
 				mGlobalPrefsSavingInProgress = true;
 				mConnectionManager.setGlobalPrefsOverride(NativeBoincUtils.INITIAL_BOINC_CONFIG);
+				setApplyButtonsEnabledAndCheckPreferences();
 			}
 		});
 		
@@ -305,14 +302,12 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
 		
 		if (mGlobalPrefsFetchProgress == ProgressState.IN_PROGRESS || mGlobalPrefsSavingInProgress) {
-			boolean isError = mConnectionManager.handlePendingClientErrors(null, this);
+			mConnectionManager.handlePendingClientErrors(null, this);
 			
 			if (mConnectedClient == null) {
 				clientDisconnected(); // if disconnected
-				isError = true;
+				return; // really to retur5n
 			}
-			
-			if (isError) return;
 		}
 		
 		if (mGlobalPrefsFetchProgress != ProgressState.FINISHED) {
@@ -353,8 +348,10 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	protected void onConnectionManagerConnected() {
 		mConnectedClient = mConnectionManager.getClientId();
 		
-		mApplyDefault.setEnabled(mConnectionManager.isNativeConnected());
-		updateActivityState();
+		if (mConnectedClient != null) {
+			mApplyDefault.setEnabled(mConnectionManager.isNativeConnected());
+			updateActivityState();
+		}
 	}
 	
 	@Override
@@ -548,17 +545,17 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 			if (Logging.DEBUG) Log.d(TAG, "Set up 'apply' as enabled:"+good);
 			return good;
 		} catch(NumberFormatException ex) {
-			if (Logging.DEBUG) Log.d(TAG, "Cant parse numbers");
 			return false;
 		}
 	}
 	
 	public void setApplyButtonsEnabledAndCheckPreferences() {
 		boolean doEnabled = mConnectedClient != null && !mOtherGlobalPrefsSavingInProgress &&
+				!mGlobalPrefsSavingInProgress &&
 				(mGlobalPrefsFetchProgress != ProgressState.FAILED ||
 						mGlobalPrefsFetchProgress != ProgressState.FINISHED);
 		
-		mApplyDefault.setEnabled(doEnabled);
+		mApplyDefault.setEnabled((mConnectedClient != null && mConnectedClient.isNativeClient()) && doEnabled);
 		mApply.setEnabled(checkPreferences() && doEnabled);
 	}
 	
@@ -651,6 +648,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		}
 		mGlobalPrefsSavingInProgress = true;
 		mConnectionManager.setGlobalPrefsOverrideStruct(globalPrefs);
+		setApplyButtonsEnabledAndCheckPreferences();
 	}
 	
 	@Override
@@ -665,18 +663,15 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 
 	private void doGetGlobalPrefsWorking() {
 		if (Logging.DEBUG) Log.d(TAG, "get get global prefs");
-		if (mConnectionManager.getGlobalPrefsWorking()) {
+		if (mConnectionManager.getGlobalPrefsWorking())
 			mGlobalPrefsFetchProgress = ProgressState.IN_PROGRESS;
-			mOtherGlobalPrefsFetchInProgress = false;
-		} else
-			mOtherGlobalPrefsFetchInProgress = true;
 	}
 	
 	@Override
 	public void clientDisconnected() {
+		if (Logging.DEBUG) Log.d(TAG, "Disconnected!!!");
 		mGlobalPrefsFetchProgress = ProgressState.FAILED;
 		mGlobalPrefsSavingInProgress = false;
-		mOtherGlobalPrefsFetchInProgress = false;
 		mOtherGlobalPrefsSavingInProgress = false;
 		ClientId disconnectedHost = mConnectedClient;
 		mConnectedClient = null; // used by setApply..
@@ -686,20 +681,24 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	
 	@Override
 	public void currentGlobalPreferences(GlobalPreferences globalPrefs) {
-		if (!mOtherGlobalPrefsFetchInProgress) {
+		if (Logging.DEBUG) Log.d(TAG, "on current global preferences:"+mGlobalPrefsFetchProgress);
+		if (mGlobalPrefsFetchProgress == ProgressState.NOT_RUN)
+			doGetGlobalPrefsWorking();
+		if (mGlobalPrefsFetchProgress == ProgressState.IN_PROGRESS) {
 			mGlobalPrefsFetchProgress = ProgressState.FINISHED;
 			updatePreferences(globalPrefs);
-		} else {
-			mOtherGlobalPrefsFetchInProgress = false;
-			doGetGlobalPrefsWorking();
 		}
 	}
 	
 	@Override
 	public void onGlobalPreferencesChanged() {
-		mGlobalPrefsSavingInProgress = false;
-		// finish
-		finish();
+		if (mOtherGlobalPrefsSavingInProgress) {
+			mOtherGlobalPrefsSavingInProgress = false;
+		} else {
+			mGlobalPrefsSavingInProgress = false;
+			// finish
+			finish();
+		}
 	}
 
 	@Override
@@ -707,28 +706,25 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		if (!boincOp.equals(BoincOp.GlobalPrefsWorking) && !boincOp.equals(BoincOp.GlobalPrefsOverride))
 			return false;
 		
+		if (Logging.DEBUG) Log.d(TAG, "on error for "+boincOp);
+		
 		if (boincOp.equals(BoincOp.GlobalPrefsWorking)) {
-			if (mGlobalPrefsFetchProgress == ProgressState.IN_PROGRESS)
-				mGlobalPrefsFetchProgress = ProgressState.FAILED;
-			else if (mOtherGlobalPrefsFetchInProgress) {
+			if (mGlobalPrefsFetchProgress == ProgressState.NOT_RUN)
 				// if previous try to get our prefs working
-				mGlobalPrefsSavingInProgress = false;
 				doGetGlobalPrefsWorking();
-			}
+			else if (mGlobalPrefsFetchProgress == ProgressState.IN_PROGRESS)
+				mGlobalPrefsFetchProgress = ProgressState.FAILED;
 		}
 		
 		if (boincOp.equals(BoincOp.GlobalPrefsOverride)) {
-			if (mGlobalPrefsSavingInProgress) {
-				
-			}
+			mGlobalPrefsSavingInProgress = false;
+			mOtherGlobalPrefsSavingInProgress = false;
 		}
-		if (mGlobalPrefsFetchProgress == ProgressState.IN_PROGRESS || mGlobalPrefsSavingInProgress) {
-			
-			
-			StandardDialogs.showClientErrorDialog(this, errorNum, errorMessage);
-			return true;
-		}
-		return false;
+		
+		setApplyButtonsEnabledAndCheckPreferences();
+		
+		StandardDialogs.showClientErrorDialog(this, errorNum, errorMessage);
+		return true;
 	}
 
 	@Override

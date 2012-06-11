@@ -562,6 +562,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		if (mDisconnecting) return;  // already in disconnect phase
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.GetAllProjectList, ClientReceiver.PROGRESS_XFER_STARTED);
+		
 		ArrayList<ProjectListEntry> projects = mRpcClient.getAllProjectsList();
 		if (projects == null) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in getAllProjectsList()");
@@ -617,7 +618,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 	
 	/* return true if clear not null call */
 	private synchronized boolean clearAccountMgrCall() {
-		if (mCreateAccountCall != null) {
+		if (mAccountMgrRPCCall != null) {
 			mAccountMgrRPCCall = null;
 			notifyChangeOfIsWorking();
 			return true;
@@ -706,6 +707,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		}
 		
 		changeIsHandlerWorking(true);
+		
 		notifyProgress(BoincOp.SyncWithBAM, ClientReceiver.PROGRESS_XFER_STARTED);
 		if (!mRpcClient.accountMgrRPC(url, name, password, useConfigFile)) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in " + infoMsg);

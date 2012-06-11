@@ -199,6 +199,8 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 		public void updatedClientMode(final ModeInfo modeInfo) {
+			mClientPendingController.finishWithOutput(BoincOp.UpdateClientMode, modeInfo);
+			
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientManageReceiver) {

@@ -92,7 +92,6 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	private boolean mDoGetBAMInfo = false;
 	private AccountMgrInfo mBAMInfo = null;
 	private boolean mSyncingBAMInProgress = false;
-	private boolean mOtherSyncingBAMInProgress = false;
 	
 	private boolean mShowShutdownDialog = false;
 	

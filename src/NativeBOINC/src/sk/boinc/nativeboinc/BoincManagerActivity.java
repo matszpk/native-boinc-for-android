@@ -54,8 +54,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -91,8 +89,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 
 	private BoincManagerApplication mApp;
 	private ScreenOrientationHandler mScreenOrientation;
-	private WakeLock mWakeLock;
-	private boolean mScreenAlwaysOn = false;
+	//private WakeLock mWakeLock;
+	//private boolean mScreenAlwaysOn = false;
 	private boolean mBackPressedRecently = false;
 	private Handler mHandler = new Handler();
 	private boolean mJustUpgraded = false;
@@ -124,6 +122,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	private boolean mStoppedInMainActivity = false;
 	
 	private boolean mIsPaused = false;
+	private boolean mIsRecreated = false;
 	
 	private static class SavedState {
 		private final boolean isInstallerRan;
@@ -186,6 +185,9 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 					connectOrReconnect();
 				}
 			}
+			// handle power management
+			if (!mIsRecreated) // if not recreated
+				mConnectionManager.acquireLockScreenOn();
 			/* display error if pending */
 			updateActivityState();
 		}
@@ -277,18 +279,16 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		// Create handler for screen orientation
 		mScreenOrientation = new ScreenOrientationHandler(this);
 
-		// Obtain screen wake-lock
-		PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-		mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, BoincManagerApplication.GLOBAL_ID);
-
 		final SavedState savedState = (SavedState)getLastNonConfigurationInstance();
 		// Restore state on configuration change (if applicable)
 		if (savedState != null) {
 			// Yes, we have the saved state, this is activity re-creation after configuration change
 			savedState.restoreState(this);
-		} else // restore from intent extra
+			mIsRecreated = true;
+		} else { // restore from intent extra
 			mDoConnectNativeClient = getIntent().getBooleanExtra(PARAM_CONNECT_NATIVE_CLIENT, false);
-		
+			mIsRecreated = false;
+		}
 		
 		if (Logging.DEBUG) Log.d(TAG, "doOpenNativeClient:"+mDoConnectNativeClient);
 		
@@ -525,22 +525,6 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		if (Logging.DEBUG) Log.d(TAG, "onResume()");
 		mBackPressedRecently = false;
 		mScreenOrientation.setOrientation();
-		// We are either starting up or returning from sub-activity, which
-		// could be the AppPreferencesActivity - we must check the wake-lock now
-		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-		boolean screenAlwaysOn = globalPrefs.getBoolean(PreferenceName.LOCK_SCREEN_ON, false);
-		if (screenAlwaysOn != mScreenAlwaysOn) {
-			// The setting is different than the old one - let's change the lock
-			mScreenAlwaysOn = screenAlwaysOn;
-			if (mScreenAlwaysOn) {
-				mWakeLock.acquire();
-				if (Logging.DEBUG) Log.d(TAG, "Acquired screen lock");
-			}
-			else {
-				mWakeLock.release();
-				if (Logging.DEBUG) Log.d(TAG, "Released screen lock");
-			}
-		}
 		// Update name of connected client (or show "not connected")
 		updateTitle();
 		// Show Information about upgrade, if applicable
@@ -628,13 +612,15 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		}
 		doUnbindService();
 		doUnbindRunnerService();
-		if (mWakeLock.isHeld()) {
-			// We locked the screen previously - release it, as we are closing now
-			mWakeLock.release();
-			if (Logging.DEBUG) Log.d(TAG, "Released screen lock");
-		}
-		mWakeLock = null;
 		mScreenOrientation = null;
+	}
+	
+	@Override
+	public void finish() {
+		// finish
+		if (mConnectionManager != null)
+			mConnectionManager.releaseLockScreenOn();
+		super.finish();
 	}
 
 	@Override

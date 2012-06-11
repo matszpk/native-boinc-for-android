@@ -38,16 +38,22 @@ import sk.boinc.nativeboinc.clientconnection.TaskDescriptor;
 import sk.boinc.nativeboinc.clientconnection.TransferDescriptor;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.ClientId;
+import sk.boinc.nativeboinc.util.PreferenceName;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 
 public class ConnectionManagerService extends Service implements
-		ClientRequestHandler, ClientBridgeCallback, ConnectivityListener {
+		ClientRequestHandler, ClientBridgeCallback, ConnectivityListener,
+		OnSharedPreferenceChangeListener {
 	private static final String TAG = "ConnectionManagerService";
 
 	private static final int TERMINATE_GRACE_PERIOD_CONN = 45;
@@ -70,7 +76,14 @@ public class ConnectionManagerService extends Service implements
 	private NetworkStatisticsHandler mNetStats = null;
 
 	private BoincManagerApplication mApp = null;
+	
+	// wake locker
+	private PowerManager.WakeLock mWakeLocker = null;
+	private boolean mLockScreenOn = false;
+	private boolean mIsLockScreenOnAcquired = false;
 
+	private SharedPreferences mGlobalPrefs = null;
+	
 	private int mBindCounter = 0;
 	
 	@Override
@@ -148,6 +161,9 @@ public class ConnectionManagerService extends Service implements
 		// Create network statistics handler
 		mNetStats = new NetworkStatisticsHandler(this);
 		mApp = (BoincManagerApplication)getApplication();
+		
+		// create wake lock
+		initPowerManagement();
 	}
 
 	@Override
@@ -159,6 +175,8 @@ public class ConnectionManagerService extends Service implements
 		// Clean-up network statistics handler
 		mNetStats.cleanup();
 		mNetStats = null;
+		
+		destroyPowerManagement();
 	}
 
 	@Override
@@ -199,6 +217,8 @@ public class ConnectionManagerService extends Service implements
 			// This is unsolicited disconnect
 			if (Logging.INFO) Log.i(TAG, "Unsolicited disconnect of ClientBridge");
 			mClientBridge = null;
+			// handle disconnect for power management
+			setUpWakeLock();
 		}
 		else {
 			if (mDyingBridges.contains(clientBridge)) {
@@ -269,6 +289,9 @@ public class ConnectionManagerService extends Service implements
 		}
 		// Finally, initiate connection to remote client
 		mClientBridge.connect(host, retrieveInitialData);
+		
+		// handle power management changes
+		setUpWakeLock();
 	}
 	
 	public boolean isDisconnectedByManager() {
@@ -283,6 +306,8 @@ public class ConnectionManagerService extends Service implements
 			mDyingBridges.add(mClientBridge);
 			mClientBridge.disconnect();
 			mClientBridge = null;
+			// handle changes for power management
+			setUpWakeLock();
 		}
 		else {
 			if (Logging.DEBUG) Log.d(TAG, "disconnect() - not connected already ");
@@ -623,5 +648,67 @@ public class ConnectionManagerService extends Service implements
 			return mClientBridge.transfersOperation(operation, transfers);
 		}
 		return false;
+	}
+
+	/*
+	 * power management
+	 */
+	
+	private void initPowerManagement() {
+		PowerManager powerManager = (PowerManager)getSystemService(POWER_SERVICE);
+		mWakeLocker = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "onScreenAlways");
+		
+		mGlobalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		mLockScreenOn = mGlobalPrefs.getBoolean(PreferenceName.LOCK_SCREEN_ON, false);
+		
+		mGlobalPrefs.registerOnSharedPreferenceChangeListener(this);
+	}
+	
+	private void destroyPowerManagement() {
+		mGlobalPrefs.unregisterOnSharedPreferenceChangeListener(this);
+		// release wake locker
+		if (mWakeLocker != null) {
+			if (mWakeLocker.isHeld())
+				mWakeLocker.release();
+		}
+		mWakeLocker = null;
+		mGlobalPrefs = null;
+	}
+	
+	public void acquireLockScreenOn() {
+		if (Logging.DEBUG) Log.d(TAG, "LockScreenOn acquired");
+		mIsLockScreenOnAcquired = true;
+		setUpWakeLock();
+	}
+	
+	public void releaseLockScreenOn() {
+		if (Logging.DEBUG) Log.d(TAG, "LockScreenOn released");
+		mIsLockScreenOnAcquired = false;
+		setUpWakeLock();
+	}
+	
+	private void setUpWakeLock() {
+		if (mWakeLocker != null) {
+			if (Logging.DEBUG) Log.d(TAG, "SetUp WakeLock: "+
+						(mClientBridge != null && mLockScreenOn && mIsLockScreenOnAcquired));
+			// if connected, lockscreenOn and screen lock and if acquired
+			if (mClientBridge != null && mLockScreenOn && mIsLockScreenOnAcquired) {
+				if (!mWakeLocker.isHeld())
+					mWakeLocker.acquire();
+			} else { // to release
+				if (mWakeLocker.isHeld())
+					mWakeLocker.release();
+			}
+		}
+	}
+	
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+			String key) {
+		if (key.equals(PreferenceName.LOCK_SCREEN_ON)) {
+			if (Logging.DEBUG) Log.d(TAG, "Change Lock screen on");
+			mLockScreenOn = sharedPreferences.getBoolean(PreferenceName.LOCK_SCREEN_ON, false);
+			setUpWakeLock();
+		}
 	}
 }

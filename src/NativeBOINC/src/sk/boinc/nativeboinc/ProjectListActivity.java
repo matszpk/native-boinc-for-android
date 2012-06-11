@@ -28,6 +28,8 @@ import edu.berkeley.boinc.lite.ProjectListEntry;
 import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientPollReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientUpdateProjectsReceiver;
+import sk.boinc.nativeboinc.clientconnection.ProjectInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.ClientDistrib;
@@ -65,7 +67,7 @@ import android.widget.TextView;
  *
  */
 public class ProjectListActivity extends ServiceBoincActivity implements InstallerProgressListener,
-	InstallerUpdateListener, ClientAllProjectsListReceiver, ClientPollReceiver {
+	InstallerUpdateListener, ClientAllProjectsListReceiver, ClientPollReceiver, ClientUpdateProjectsReceiver {
 	private static final String TAG = "ProjectListActivity";
 	
 	private static final String ARG_FORCE_PROJECT_LIST = "ForceProjectList";
@@ -78,7 +80,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	private ArrayList<ProjectDistrib> mProjectDistribs = null;
 	private boolean mGetFromInstaller = false;
 	private int mDataDownloadProgressState = ProgressState.NOT_RUN;
-
+	private int mCurrentProjectsProgress = ProgressState.NOT_RUN;
 	
 	private ClientId mConnectedClient = null;
 	/* if add project finish successfully */
@@ -94,12 +96,14 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		private final ArrayList<ProjectDistrib> mProjectDistribs;
 		private final boolean mEarlyAddProjectGoodFinish;
 		
-		private int mDataDownloadProgressState;
+		private final int mDataDownloadProgressState;
+		private final int mCurrentProjectsProgress;
 		
 		public SavedState(ProjectListActivity activity) {
 			mProjectDistribs = activity.mProjectDistribs;
 			mProjectsList = activity.mProjectsList;
-			mDataDownloadProgressState = activity.mDataDownloadProgressState; 
+			mDataDownloadProgressState = activity.mDataDownloadProgressState;
+			mCurrentProjectsProgress = activity.mCurrentProjectsProgress;
 			mEarlyAddProjectGoodFinish = activity.mEarlyAddProjectGoodFinish;
 		}
 		
@@ -107,6 +111,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			activity.mProjectDistribs = mProjectDistribs;
 			activity.mProjectsList = mProjectsList;
 			activity.mDataDownloadProgressState = mDataDownloadProgressState;
+			activity.mCurrentProjectsProgress = mCurrentProjectsProgress;
 			activity.mEarlyAddProjectGoodFinish = mEarlyAddProjectGoodFinish;
 		}
 	}
@@ -601,8 +606,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		@Override
 		public int compare(ProjectItem lhs, ProjectItem rhs) {
 			return lhs.getName().compareTo(rhs.getName());
-		}
-		
+		}	
 	}
 	
 	private void setProjectsList(ArrayList<ProjectListEntry> allProjects) {
@@ -611,6 +615,11 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			mProjectsList.add(new ProjectItem(entry.name, entry.url));
 		
 		Collections.sort(mProjectsList, new ProjectItemComparator());
+	}
+	
+	@Override
+	public boolean updatedProjects(ArrayList<ProjectInfo> projects) {
+		return false;
 	}
 
 	@Override

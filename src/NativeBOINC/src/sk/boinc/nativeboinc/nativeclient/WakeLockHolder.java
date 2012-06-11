@@ -74,6 +74,7 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 		mGlobalPrefs.unregisterOnSharedPreferenceChangeListener(this);
 		mNativeBoincService.removeMonitorListener(this);
 		mNativeBoincService.removeNativeBoincListener(this);
+		mGlobalPrefs = null;
 	}
 	
 	private void updatePowerSaving(boolean newPowerSaving) {

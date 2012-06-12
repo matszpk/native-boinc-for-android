@@ -3,8 +3,6 @@
  */
 package sk.boinc.nativeboinc.installer;
 
-import sk.boinc.nativeboinc.nativeclient.WorkerOp;
-
 /**
  * @author mat
  *
@@ -49,7 +47,7 @@ public class InstallOp {
 		if (this == ob)
 			return true;
 		
-		if (ob instanceof WorkerOp) {
+		if (ob instanceof InstallOp) {
 			InstallOp op = (InstallOp)ob;
 			if (this.opCode != op.opCode)
 				return false;
@@ -60,6 +58,13 @@ public class InstallOp {
 				return true;
 		}
 		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		if (opCode == OP_GET_BINARIES_FROM_SDCARD && path != null)
+			return opCode ^ path.hashCode();
+		return opCode;
 	}
 	
 	@Override

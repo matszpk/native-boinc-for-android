@@ -134,6 +134,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 		public void onNativeBoincError(String message) {
 			boolean called = false;
 			
+			// notify about error
+			mNotificationController.notifyClientEvent(message, message, true);
+			
 			AbstractNativeBoincListener[] listeners = mListeners.toArray(
 					new AbstractNativeBoincListener[0]);
 			for (AbstractNativeBoincListener listener: listeners)

@@ -387,8 +387,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		} catch (Exception ex) { }
 	}
 	
-	@Override
-	public void onClientStop(int exitCode, boolean stoppedByManager) {
+	private void updateWidgets() {
 		Intent intent = new Intent(NativeBoincWidgetProvider.NATIVE_BOINC_WIDGET_UPDATE);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		try {
@@ -401,20 +400,30 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		try {
 			pendingIntent.send();
 		} catch (Exception ex) { }
-		
+	}
+	
+	@Override
+	public void onClientStop(int exitCode, boolean stoppedByManager) {
+		updateWidgets();
+				
 		// unbind service
 		doUnbindRunnerService();
 	}
 
 	@Override
+	public void onChangeRunnerIsWorking(boolean isWorking) {
+		updateWidgets();
+	}
+	
+	@Override
 	public boolean onNativeBoincClientError(String message) {
+		updateWidgets();
 		doUnbindRunnerService();
 		// TODO: handle native boinc error
 		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 		return false;
 	}
 	
-
 	@Override
 	public boolean onNativeBoincServiceError(WorkerOp workerOp, String message) {
 		//Toast.makeText(this, message, Toast.LENGTH_LONG).show();
@@ -475,11 +484,6 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		return mNotificationController;
 	}
 
-	@Override
-	public void onChangeRunnerIsWorking(boolean isWorking) {
-		// TODO Auto-generated method stub
-	}
-	
 	/*
 	 * restart after reinstall handling
 	 */

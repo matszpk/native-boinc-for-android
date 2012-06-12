@@ -132,6 +132,10 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 			final NativeBoincService runner = appContext.getRunnerService();
 			double progress = inputIntent.getDoubleExtra(BoincManagerApplication.UPDATE_PROGRESS, -1.0);
 			boolean isRun = runner != null && runner.isRun();
+			boolean isRunnerBusy = (runner != null) && runner.serviceIsWorking();
+			
+			views.setBoolean(R.id.widgetStart, "setEnabled", !isRunnerBusy);
+			views.setBoolean(R.id.widgetStop, "setEnabled", !isRunnerBusy);
 			
 			if (progress >= 0.0) {
 				views.setViewVisibility(R.id.widgetProgress, View.VISIBLE);

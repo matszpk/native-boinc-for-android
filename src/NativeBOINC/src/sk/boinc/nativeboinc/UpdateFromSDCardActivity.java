@@ -180,15 +180,21 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		
+		// setup update dir path
 		mExternalPath = Environment.getExternalStorageDirectory().toString();
+		mUpdateDirPath = FileUtils.joinBaseAndPath(mExternalPath,
+				getIntent().getStringExtra(UPDATE_DIR));
+
+		if (!mUpdateDirPath.endsWith("/")) // add last slash
+			mUpdateDirPath += "/";
+		
+		// set up install op operation
+		mUpdateListOp = InstallOp.GetBinariesFromSDCard(mUpdateDirPath);
 		
 		setUpService(false, false, false, false, true, true);
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.update);
-		
-		// set up install op operation
-		mUpdateListOp = InstallOp.GetBinariesFromSDCard(getIntent().getStringExtra(UPDATE_DIR));
 		
 		final SavedState savedState = (SavedState)getLastNonConfigurationInstance();
 		if (savedState != null)
@@ -294,19 +300,6 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements
 
 	@Override
 	public void onInstallerConnected() {
-		String updateDir = getIntent().getStringExtra(UPDATE_DIR);
-
-		if (updateDir == null)
-			return;
-
-		if (mUpdateDirPath == null) { // if not from savedState
-			mUpdateDirPath = FileUtils
-					.joinBaseAndPath(mExternalPath, updateDir);
-
-			if (!mUpdateDirPath.endsWith("/")) // add last slash
-				mUpdateDirPath += "/";
-		}
-
 		updateActivityState();
 	}
 

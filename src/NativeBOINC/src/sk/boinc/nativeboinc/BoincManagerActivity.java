@@ -24,6 +24,7 @@ import hal.android.workarounds.FixedProgressDialog;
 import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.clientconnection.BoincOp;
+import sk.boinc.nativeboinc.clientconnection.ClientPollReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientUpdateNoticesReceiver;
 import sk.boinc.nativeboinc.clientconnection.NoConnectivityException;
 import sk.boinc.nativeboinc.clientconnection.NoticeInfo;
@@ -69,7 +70,7 @@ import android.widget.Toast;
 
 
 public class BoincManagerActivity extends TabActivity implements ClientUpdateNoticesReceiver,
-		NativeBoincStateListener {
+		ClientPollReceiver, NativeBoincStateListener {
 	private static final String TAG = "BoincManagerActivity";
 
 	private static final int DIALOG_CONNECT_PROGRESS = 1;
@@ -466,6 +467,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		if (mRunner != null && mConnectionManager != null) {
 			
 			boolean isError = mConnectionManager.handlePendingClientErrors(null, this);
+			isError |= mConnectionManager.handlePendingPollErrors(null, this);
 			isError |= mRunner.handlePendingErrorMessage(this);
 			
 			if (isError) // if error then do nothing
@@ -989,6 +991,20 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			return true;
 		}
 		return false;
+	}
+	
+	@Override
+	public boolean onPollError(int errorNum, int operation, String errorMessage, String param) {
+		if (!mIsPaused && (!mConnectionManager.isNativeConnected() || !mRunner.ifStoppedByManager())) {
+			StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
+			return true;
+		}
+		return false;
+	}
+	
+	@Override
+	public void onPollCancel(int opFlags) {
+		// do nothing
 	}
 	
 	@Override

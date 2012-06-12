@@ -648,6 +648,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			}
 			mConnectionManager.updateClientMode();
 			
+			updatePreferencesEnabled();
+			
 			if (Build.VERSION.SDK_INT >= 11)
 				invalidateOptionsMenu();
 		}
@@ -665,6 +667,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		refreshClientName();
 		mClientMode = null;
 		refreshClientMode();
+		updatePreferencesEnabled();
 		setProgressBarIndeterminateVisibility(false);
 		dismissProgressDialogs();
 		mDoGetBAMInfo = false;
@@ -841,6 +844,13 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		}
 	}
 
+	private void updatePreferencesEnabled() {
+		// get main dependency preference
+		Preference pref = findPreference("localPreferences");
+		// and select enabled or disabled
+		pref.setEnabled(mConnectedClient != null);
+	}
+	
 	private void showProgressDialog(final int progress) {
 		if (mProgressDialogAllowed) {
 			mConnectProgressIndicator = progress;

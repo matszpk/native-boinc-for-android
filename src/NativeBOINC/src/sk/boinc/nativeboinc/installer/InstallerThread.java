@@ -98,11 +98,11 @@ public class InstallerThread extends Thread {
 		});
 	}
 	
-	public void updateProjectDistribList(final int channelId) {
+	public void updateProjectDistribList(final int channelId, final boolean excludeAttachedProjects) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateProjectDistribList(channelId);
+				mHandler.updateProjectDistribList(channelId, excludeAttachedProjects);
 			}
 		});
 	}

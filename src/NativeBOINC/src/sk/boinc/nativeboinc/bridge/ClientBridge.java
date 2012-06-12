@@ -699,12 +699,12 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 	
 	@Override
-	public boolean getAllProjectsList() {
+	public boolean getAllProjectsList(boolean excludeAttachedProjects) {
 		if (mRemoteClient == null)
 			return false; // not connected
 		
 		if (mClientPendingController.begin(BoincOp.GetAllProjectList)) {
-			mWorker.getAllProjectsList();
+			mWorker.getAllProjectsList(excludeAttachedProjects);
 			return true;
 		}
 		return false;

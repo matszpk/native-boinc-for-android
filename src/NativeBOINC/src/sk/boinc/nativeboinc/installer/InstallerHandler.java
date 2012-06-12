@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
@@ -1394,7 +1395,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	/**
 	 * @return true if success
 	 */
-	public boolean updateProjectDistribList(int channelId) {
+	public boolean updateProjectDistribList(int channelId, boolean excludeAttachedProjects) {
 		synchronized(this) {
 			mCurrentChannelId = channelId;
 			mHandlerIsWorking = true;
@@ -1406,7 +1407,31 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			
 			if (projectDistribs != null) {
 				mProjectDistribs = projectDistribs;
-				notifyProjectDistribs(channelId, InstallOp.UpdateProjectDistribs, mProjectDistribs);
+				
+				if (excludeAttachedProjects) {
+					mProjectDescs = mProjectsRetriever.getProjectDescriptors();
+					if (mProjectDescs != null) {
+						HashSet<String> projectUrls = new HashSet<String>();
+						
+						for (ProjectDescriptor projDesc: mProjectDescs)
+							projectUrls.add(projDesc.masterUrl);
+						
+						ArrayList<ProjectDistrib> filteredProjectDistribs =
+								new ArrayList<ProjectDistrib>();
+						
+						// filtering project distribs if required
+						for (ProjectDistrib distrib: projectDistribs)
+							if (!projectUrls.contains(distrib.projectUrl))
+								filteredProjectDistribs.add(distrib);
+						
+						notifyProjectDistribs(channelId, InstallOp.UpdateProjectDistribs,
+								filteredProjectDistribs);
+					} else
+						notifyProjectDistribs(channelId, InstallOp.UpdateProjectDistribs,
+								new ArrayList<ProjectDistrib>(mProjectDistribs));
+				} else
+					notifyProjectDistribs(channelId, InstallOp.UpdateProjectDistribs,
+							new ArrayList<ProjectDistrib>(mProjectDistribs));
 			}
 		} finally {
 			// hanbdler doesnt working currently

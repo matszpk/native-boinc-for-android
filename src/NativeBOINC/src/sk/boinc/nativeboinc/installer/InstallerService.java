@@ -583,18 +583,21 @@ public class InstallerService extends Service {
 		mInstallerThread.updateDistribsFromSDCard(dirPath, distribNames);
 	}
 	
-	public boolean updateProjectDistribList() {
-		return updateProjectDistribList(DEFAULT_CHANNEL_ID);
+	/**
+	 * @param exludeAttachedProjects - if true, returns list without already attached projects
+	 */
+	public boolean updateProjectDistribList(boolean exludeAttachedProjects) {
+		return updateProjectDistribList(DEFAULT_CHANNEL_ID, exludeAttachedProjects);
 	}
 	
-	public boolean updateProjectDistribList(int channelId) {
+	public boolean updateProjectDistribList(int channelId, boolean exludeAttachedProjects) {
 		if (mInstallerHandler == null) 
 			return false;
 		
 		PendingController<InstallOp> channel = mPendingChannels[channelId];
 		
 		if (channel.begin(InstallOp.UpdateProjectDistribs)) { // run when not ran
-			mInstallerThread.updateProjectDistribList(channelId);
+			mInstallerThread.updateProjectDistribList(channelId, exludeAttachedProjects);
 			return true;
 		}
 		return false;

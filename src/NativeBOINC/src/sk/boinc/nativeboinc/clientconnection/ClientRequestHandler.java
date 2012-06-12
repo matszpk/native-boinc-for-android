@@ -74,7 +74,7 @@ public interface ClientRequestHandler {
 	public abstract boolean stopUsingBAM();
 	
 	/* this calls should enqueued only once, because read state of the client */
-	public abstract boolean getAllProjectsList();
+	public abstract boolean getAllProjectsList(boolean excludeAttachedProjects);
 	
 	/* this tasks should be enqueued only once at this same time, because
 	 * can be performed only once at this same time */

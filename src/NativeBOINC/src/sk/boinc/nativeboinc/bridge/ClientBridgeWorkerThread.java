@@ -245,11 +245,11 @@ public class ClientBridgeWorkerThread extends Thread {
 		});
 	}
 	
-	public void getAllProjectsList() {
+	public void getAllProjectsList(final boolean excludeAttachedProjects) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.getAllProjectsList();
+				mHandler.getAllProjectsList(excludeAttachedProjects);
 			}
 		});
 	}

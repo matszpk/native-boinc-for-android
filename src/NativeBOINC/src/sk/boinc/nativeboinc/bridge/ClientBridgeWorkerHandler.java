@@ -558,7 +558,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(false);
 	}
 	
-	public void getAllProjectsList() {
+	public void getAllProjectsList(boolean excludeAttachedProjects) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.GetAllProjectList, ClientReceiver.PROGRESS_XFER_STARTED);
@@ -571,7 +571,18 @@ public class ClientBridgeWorkerHandler extends Handler {
 			changeIsHandlerWorking(false);
 			return;
 		}
-		currentAllProjectsList(projects);
+		if (excludeAttachedProjects) { //
+			updateProjects(true);
+			
+			ArrayList<ProjectListEntry> filteredProjects = new ArrayList<ProjectListEntry>();
+			for (ProjectListEntry projectEntry: projects)
+				if (!mProjects.containsKey(projectEntry.url)) // if not attached
+					filteredProjects.add(projectEntry);
+			
+			// return filtered projects
+			currentAllProjectsList(filteredProjects);
+		} else
+			currentAllProjectsList(projects);
 		notifyProgress(BoincOp.GetAllProjectList, ClientReceiver.PROGRESS_XFER_FINISHED);
 		changeIsHandlerWorking(false);
 	}

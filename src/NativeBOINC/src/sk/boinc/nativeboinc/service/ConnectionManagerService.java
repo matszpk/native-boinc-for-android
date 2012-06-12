@@ -448,9 +448,9 @@ public class ConnectionManagerService extends Service implements
 	}
 	
 	@Override
-	public boolean getAllProjectsList() {
+	public boolean getAllProjectsList(boolean excludeAttachedProjects) {
 		if (mClientBridge != null) {
-			return mClientBridge.getAllProjectsList();
+			return mClientBridge.getAllProjectsList(excludeAttachedProjects);
 		}
 		return false;
 	}

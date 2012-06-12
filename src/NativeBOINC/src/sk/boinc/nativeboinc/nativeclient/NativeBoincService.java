@@ -994,7 +994,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 				// try to update project list (with own channel id)
 				if (mProjectDistribsListUpdating.compareAndSet(false, true)) {
 					if (Logging.DEBUG) Log.d(TAG, "trying update project distribs");
-					mInstaller.updateProjectDistribList(NATIVEBOINC_ID);
+					// update project distribs list
+					mInstaller.updateProjectDistribList(NATIVEBOINC_ID, true);
 				}
 			} else {
 				if (Logging.DEBUG) Log.d(TAG, "again not found. to finish");

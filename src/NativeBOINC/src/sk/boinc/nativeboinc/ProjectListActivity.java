@@ -80,7 +80,6 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	private ArrayList<ProjectDistrib> mProjectDistribs = null;
 	private boolean mGetFromInstaller = false;
 	private int mDataDownloadProgressState = ProgressState.NOT_RUN;
-	private int mCurrentProjectsProgress = ProgressState.NOT_RUN;
 	
 	private ClientId mConnectedClient = null;
 	/* if add project finish successfully */
@@ -97,13 +96,11 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 		private final boolean mEarlyAddProjectGoodFinish;
 		
 		private final int mDataDownloadProgressState;
-		private final int mCurrentProjectsProgress;
 		
 		public SavedState(ProjectListActivity activity) {
 			mProjectDistribs = activity.mProjectDistribs;
 			mProjectsList = activity.mProjectsList;
 			mDataDownloadProgressState = activity.mDataDownloadProgressState;
-			mCurrentProjectsProgress = activity.mCurrentProjectsProgress;
 			mEarlyAddProjectGoodFinish = activity.mEarlyAddProjectGoodFinish;
 		}
 		
@@ -111,7 +108,6 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			activity.mProjectDistribs = mProjectDistribs;
 			activity.mProjectsList = mProjectsList;
 			activity.mDataDownloadProgressState = mDataDownloadProgressState;
-			activity.mCurrentProjectsProgress = mCurrentProjectsProgress;
 			activity.mEarlyAddProjectGoodFinish = mEarlyAddProjectGoodFinish;
 		}
 	}
@@ -391,7 +387,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 						if (Logging.DEBUG) Log.d(TAG, "Download List");
 						// ignore if not ran, because we will using previous result 
 						mDataDownloadProgressState = ProgressState.IN_PROGRESS;
-						mInstaller.updateProjectDistribList();
+						mInstaller.updateProjectDistribList(true);
 					}
 					// if finished but failed
 				} else {
@@ -422,7 +418,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 					if (Logging.DEBUG) Log.d(TAG, "List from boinc client");
 					// ignore if not ran, because we will using previous result
 					mDataDownloadProgressState = ProgressState.IN_PROGRESS;
-					mConnectionManager.getAllProjectsList();
+					mConnectionManager.getAllProjectsList(true);
 				}
 				// if finished but failed
 			} else

@@ -382,7 +382,7 @@ public class InstallationOps {
 		}
 		/* new project binaries */
 		for (String attachedUrl: attachedProjectUrls) {
-			boolean alreadyExists = true;
+			boolean alreadyExists = false;
 			for (InstalledDistrib projectDistrib: installedDistribs) {
 				// if already exists
 				if (projectDistrib.projectUrl.equals(attachedUrl)) {

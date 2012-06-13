@@ -33,7 +33,7 @@ public interface ClientReceiver {
 	public abstract boolean clientError(BoincOp boincOp, int err_num, String message);
 	public abstract void clientConnectionProgress(BoincOp boincOp, int progress);
 	public abstract void clientConnected(VersionInfo clientVersion);
-	public abstract void clientDisconnected();
+	public abstract void clientDisconnected(boolean disconnectedByManager);
 	
 	public abstract void onClientIsWorking(boolean isWorking);
 }

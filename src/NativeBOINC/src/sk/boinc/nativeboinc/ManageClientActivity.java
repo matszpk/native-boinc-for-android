@@ -315,7 +315,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		// get error for account mgr operations 
 		isError |= mConnectionManager.handlePendingPollErrors(null, this);
 		if (mConnectedClient == null) {
-			clientDisconnected(); // if disconnected
+			clientDisconnected(mConnectionManager.isDisconnectedByManager()); // if disconnected
 			isError = true;
 		}
 		
@@ -660,7 +660,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	}
 
 	@Override
-	public void clientDisconnected() {
+	public void clientDisconnected(boolean disconnectedByManager) {
 		if (Logging.DEBUG) Log.d(TAG, "Client " + ( (mConnectedClient != null) ?
 				mConnectedClient.getNickname() : "<not connected>" ) + " is disconnected");
 		mConnectedClient = null;

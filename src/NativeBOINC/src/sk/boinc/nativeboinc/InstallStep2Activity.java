@@ -391,14 +391,14 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 	}
 
 	@Override
-	public void clientDisconnected() {
+	public void clientDisconnected(boolean disconnectedByManager) {
 		if (Logging.WARNING) Log.w(TAG, "Client disconnected");
 		// if after try (failed)
 		setProgressBarIndeterminateVisibility(false);
 
 		if (mDoRestart == NO_RESTART)
 			StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, mRunner,
-					mConnectedClient);
+					mConnectedClient, disconnectedByManager);
 		
 		mConnectedClient = null;
 	}

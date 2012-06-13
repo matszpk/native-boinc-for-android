@@ -52,9 +52,12 @@ public class InstallOp {
 			if (this.opCode != op.opCode)
 				return false;
 			
-			if (opCode == OP_GET_BINARIES_FROM_SDCARD && path != null)
-				return path.equals(op.path);
-			else
+			if (opCode == OP_GET_BINARIES_FROM_SDCARD) {
+				if (path != null)
+					return path.equals(op.path);
+				else // if also null
+					return op.path == null;
+			} else
 				return true;
 		}
 		return false;

@@ -599,7 +599,7 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 	}
 
 	@Override
-	public void clientDisconnected() {
+	public void clientDisconnected(boolean disconnectedByManager) {
 		if (Logging.DEBUG) Log.d(TAG, "Client is disconnected");
 		mConnectedClient = null;
 		mUpdateTransfersInProgress = false;

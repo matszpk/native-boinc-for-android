@@ -341,7 +341,7 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 	}
 
 	@Override
-	public void clientDisconnected() {
+	public void clientDisconnected(boolean disconnectedByManager) {
 		if (Logging.DEBUG) Log.d(TAG, "Client is disconnected");
 		mConnectedClient = null;
 		mUpdateNoticesInProgress = false;

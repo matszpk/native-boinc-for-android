@@ -305,7 +305,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 			mConnectionManager.handlePendingClientErrors(null, this);
 			
 			if (mConnectedClient == null) {
-				clientDisconnected(); // if disconnected
+				clientDisconnected(mConnectionManager.isDisconnectedByManager()); // if disconnected
 				return; // really to retur5n
 			}
 		}
@@ -668,7 +668,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	}
 	
 	@Override
-	public void clientDisconnected() {
+	public void clientDisconnected(boolean disconnectedByManager) {
 		if (Logging.DEBUG) Log.d(TAG, "Disconnected!!!");
 		mGlobalPrefsFetchProgress = ProgressState.FAILED;
 		mGlobalPrefsSavingInProgress = false;
@@ -676,7 +676,8 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		ClientId disconnectedHost = mConnectedClient;
 		mConnectedClient = null; // used by setApply..
 		setApplyButtonsEnabledAndCheckPreferences();
-		StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, null, disconnectedHost);
+		StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, null, disconnectedHost,
+				disconnectedByManager);
 	}
 	
 	@Override

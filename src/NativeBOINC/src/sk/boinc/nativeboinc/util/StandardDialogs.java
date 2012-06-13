@@ -194,12 +194,12 @@ public class StandardDialogs {
 	
 	public static void tryShowDisconnectedErrorDialog(Activity activity, 
 			ConnectionManagerService connectionManager, NativeBoincService runner,
-			ClientId clientId) {
+			ClientId clientId, boolean disconnectedByManager) {
 		
 		if (clientId != null) {
 			boolean isNativeClient = clientId.isNativeClient();
 			 // if not disconnected by manager and
-			if ((connectionManager == null || !connectionManager.isDisconnectedByManager()) &&
+			if ((connectionManager == null || !disconnectedByManager) &&
 					// if not native client or
 				(!isNativeClient ||
 						// if not stopped by manager

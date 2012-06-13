@@ -642,7 +642,7 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 	}
 
 	@Override
-	public void clientDisconnected() {
+	public void clientDisconnected(boolean disconnectedByManager) {
 		if (Logging.DEBUG) Log.d(TAG, "Client is disconnected");
 		mConnectedClient = null;
 		mUpdateTasksInProgress = false;

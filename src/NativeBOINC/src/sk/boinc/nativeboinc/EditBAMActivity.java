@@ -175,7 +175,7 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 		// get error for account mgr operations
 		isError |= mConnectionManager.handlePendingPollErrors(null, this);
 		if (mConnectedClient == null) {
-			clientDisconnected(); // if disconnected
+			clientDisconnected(mConnectionManager.isDisconnectedByManager()); // if disconnected
 			isError = true;
 		}
 		
@@ -284,7 +284,7 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 	}
 
 	@Override
-	public void clientDisconnected() {
+	public void clientDisconnected(boolean disconnectedByManager) {
 		if (mAttachBAMInProgress)
 			dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
 		if (Logging.DEBUG) Log.d(TAG, "disconnected");
@@ -295,7 +295,7 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 		mConnectedClient = null; // used by setConfirmButtonEnabled
 		setConfirmButtonEnabled();
 		StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, null,
-				disconnectedHost);
+				disconnectedHost, disconnectedByManager);
 	}
 
 	@Override

@@ -79,7 +79,9 @@
    <string name="orText">nebo</string>
 
    <string name="installedBinaries">Nainstalované programy</string>
-
+   
+   <string name="boincClient">BOINC klient</string>
+   
    <!-- Units -->
    <string name="unitKiB">KiB</string>
    <string name="unitMiB">MiB</string>
@@ -322,12 +324,15 @@
    <!-- dump boinc files -->
    <string name="enterDumpDir">Zadejte adresář pro výpisy</string>
 
+   <string name="dumpFiles">Vypsat soubory</string>
    <string name="dumpBoincBegin">Zahajuji vypisování BOINC soborů</string>
    <string name="dumpBoincProgress">Vypisuji BOINC soubory</string>
    <string name="dumpBoincFinish">Výpis BOINC souborů dokončen</string>
    <string name="dumpBoincWarn">Adresář %s existuje. Během výpisu bude smazán! Chcete pokračovat ve výpisu BOINC souborů?</string>
 
    <!-- reinstall boinc -->
+   <string name="boincReinstall">Reinstalace BOINCu</string>
+   <string name="reinstallBegin">Zahájit reinstalaci BOINCu</string>
    <string name="reinstallInProgress">Přeinstalovávám BOINC</string>
    <string name="reinstallFinish">Přeinstalace dokončena</string>
    <string name="reinstallQuestion">Přeinstalace odstraní celý BOINC adresář (včetně dat projektů). Opravdu chcete přeinstalovat BOINC?</string>
@@ -634,6 +639,7 @@
    <string name="verifySignatureFailed">Potvrzení podpisu selhalo</string>
    <string name="unpackNativeClientError">Nezdařilo se rozbalit nativního klienta</string>
    <string name="unpackApplicationError">Nezdařilo se rozbalit projektové aplikace</string>
+   <string name="copyApplicationError">Nezdařilo se zkopírovat aplikace projektu</string>
    <string name="changePermissionsError">Nezdařilo se změnit oprávnění</string>
    <string name="copyNativeClientError">Nezdařilo se zkopírovat nativního klienta</string>
 
@@ -658,6 +664,11 @@
    <string name="updateClientModeError">Chyba obnovy módu klienta</string>
    <string name="boincOperationError">Chyba činnosti BOINC</string>
    <string name="boincPollError">Chyba dotazování na BOINC</string>
+   
+   <string name="binSDCardDirReadError">Nezdařilo se přečíst adresář na SD kartě</string>
+   <string name="getProjectsFromClientError">Nezdařilo se z klienta získat projekty</string>
+   <string name="badDataInClientDistrib">Distribuce klienta neobsahuje dostatečné údaje!</string>
+   <string name="badDataInProjectDistribs">Distribuce projektu neobsahuje dostatečné údaje!</string>
 
    <string name="unexpectedError">Neočekávaná chyba</string>
 

@@ -300,7 +300,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		isError |= mConnectionManager.handlePendingPollErrors(null, this);
 		
 		if (mConnectedClient == null) {
-			clientDisconnected(); // if disconnected
+			clientDisconnected(mConnectionManager.isDisconnectedByManager()); // if disconnected
 			isError = true;
 		}
 		
@@ -430,7 +430,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	}
 
 	@Override
-	public void clientDisconnected() {
+	public void clientDisconnected(boolean disconnectedByManager) {
 		if (Logging.WARNING) Log.w(TAG, "Client disconnected");
 		
 		// getProjectConfig - set as failed - prevents repeating operation
@@ -444,7 +444,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		mConnectedClient = null;
 		setConfirmButtonEnabled();
 		StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, mRunner,
-				disconnectedHost);
+				disconnectedHost, disconnectedByManager);
 	}
 
 	@Override

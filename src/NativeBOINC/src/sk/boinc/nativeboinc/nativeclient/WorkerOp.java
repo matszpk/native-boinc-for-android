@@ -62,9 +62,12 @@ public class WorkerOp {
 			if (this.opCode != op.opCode)
 				return false;
 			
-			if (opCode == OP_UPDATE_PROJECT_APPS && projectUrl != null)
-				return projectUrl.equals(op.projectUrl);
-			else
+			if (opCode == OP_UPDATE_PROJECT_APPS) {
+				if (projectUrl != null)
+					return projectUrl.equals(op.projectUrl);
+				else
+					return op.projectUrl == null;
+			} else
 				return true;
 		}
 		return false;

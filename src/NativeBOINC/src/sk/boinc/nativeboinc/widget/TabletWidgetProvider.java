@@ -139,10 +139,6 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			final NativeBoincService runner = appContext.getRunnerService();
 			boolean isRun = runner != null && runner.isRun();
 			Parcelable[] taskItems = inputIntent.getParcelableArrayExtra(BoincManagerApplication.UPDATE_TASKS);
-			boolean isRunnerBusy = (runner != null) && runner.serviceIsWorking();
-			
-			views.setBoolean(R.id.widgetStart, "setEnabled", !isRunnerBusy);
-			views.setBoolean(R.id.widgetStop, "setEnabled", !isRunnerBusy);
 			
 			if (taskItems != null) {
 				// sort task list

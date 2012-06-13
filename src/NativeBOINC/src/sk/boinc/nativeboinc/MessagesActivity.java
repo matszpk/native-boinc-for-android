@@ -379,7 +379,7 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 	}
 
 	@Override
-	public void clientDisconnected() {
+	public void clientDisconnected(boolean disconnectedByManager) {
 		if (Logging.DEBUG) Log.d(TAG, "Client is disconnected");
 		mConnectedClient = null;
 		mUpdateMessagesInProgress = false;

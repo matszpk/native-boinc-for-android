@@ -412,7 +412,6 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 
 	@Override
 	public void onChangeRunnerIsWorking(boolean isWorking) {
-		updateWidgets();
 	}
 	
 	@Override

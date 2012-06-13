@@ -352,7 +352,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			return;
 		
 		if (mConnectedClient == null)
-			clientDisconnected();
+			clientDisconnected(mConnectionManager.isDisconnectedByManager());
 		
 		// handle poll errors
 		setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
@@ -585,13 +585,13 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	}
 
 	@Override
-	public void clientDisconnected() {
+	public void clientDisconnected(boolean disconnectedByManager) {
 		if (!mGetFromInstaller) {
 			if (Logging.WARNING) Log.w(TAG, "Client disconnected");
 			mDataDownloadProgressState = ProgressState.FAILED;
 			
 			StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, mRunner,
-					mConnectedClient);
+					mConnectedClient, disconnectedByManager);
 		
 			mConnectedClient = null;
 		}

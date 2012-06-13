@@ -183,7 +183,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		
 		if (!aliveChecker.isConnectionAlive()) {
 			// if not
-			notifyDisconnected();
+			notifyDisconnected(false);
 			closeConnection();
 		}
 	}
@@ -206,7 +206,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			// Connect failed
 			if (Logging.WARNING) Log.w(TAG, "Failed connect to " + client.getAddress() + ":" + client.getPort());
 			mRpcClient = null;
-			notifyDisconnected();
+			notifyDisconnected(false);
 			changeIsHandlerWorking(false);
 			return;
 		}
@@ -219,7 +219,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			if (!mRpcClient.authorize(password)) {
 				// Authorization failed
 				if (Logging.WARNING) Log.w(TAG, "Authorization failed for " + client.getAddress() + ":" + client.getPort());
-				notifyDisconnected();
+				notifyDisconnected(false);
 				closeConnection();
 				changeIsHandlerWorking(false);
 				return;
@@ -252,7 +252,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			CcState ccState = mRpcClient.getState();
 			if (ccState == null) {
 				if (Logging.INFO) Log.i(TAG, "RPC failed in connect()");
-				notifyDisconnected();
+				notifyDisconnected(false);
 				closeConnection();
 				changeIsHandlerWorking(false);
 				return;
@@ -274,7 +274,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		// as it could be just in use by worker thread
 		if (Logging.DEBUG) Log.d(TAG, "disconnect()");
 		changeIsHandlerWorking(true);
-		notifyDisconnected();
+		notifyDisconnected(true);
 		// Now, trigger socket closing (to be done by worker thread)
 		this.post(new Runnable() {
 			@Override
@@ -307,7 +307,6 @@ public class ClientBridgeWorkerHandler extends Handler {
 	public void updateClientMode(boolean runInternally) {
 		if (mDisconnecting) return;  // already in disconnect phase
 		synchronized (mUpdateCancelSync) {
-			
 			if ((mUpdateCancelMask & (1<<AutoRefresh.CLIENT_MODE)) != 0) {
 				// This update was canceled meanwhile
 				if (Logging.DEBUG) Log.d(TAG, "Canceled updateClientMode()");
@@ -522,7 +521,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(false);
 	}
 	
-	public void updateNotices() {
+	public void updateNotices(boolean runInternally) {
 		// TODO: do it
 		if (mDisconnecting) return;  // already in disconnect phase
 		synchronized (mUpdateCancelSync) {
@@ -534,6 +533,9 @@ public class ClientBridgeWorkerHandler extends Handler {
 			}
 		}
 		changeIsHandlerWorking(true);
+		if (runInternally)
+			notifyOperationBegin(BoincOp.UpdateNotices);
+		
 		notifyProgress(BoincOp.UpdateNotices, ClientReceiver.PROGRESS_XFER_STARTED);
 		int reqSeqno = (mNotices.isEmpty()) ? 0 : mNotices.lastKey();
 		if (mDisconnecting) {
@@ -1444,7 +1446,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		if (!connectionAlive) {
 			// Socket was closed on remote side, so connection was lost as expected
 			// We notify about lost connection
-			notifyDisconnected();
+			notifyDisconnected(true);
 			closeConnection();
 			changeIsHandlerWorking(false);
 			return;
@@ -1615,7 +1617,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 		});
 	}
 
-	private synchronized void notifyDisconnected() {
+	private synchronized void notifyDisconnected(final boolean disconnectedByManager) {
 		if (mDisconnecting) return; // already notified (by other thread)
 		// Set flag, so no further notifications/replies will be posted to UI-thread
 		mDisconnecting = true;
@@ -1623,7 +1625,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 		mReplyHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mReplyHandler.notifyDisconnected(); // will send notification to observers
+				// will send notification to observers
+				mReplyHandler.notifyDisconnected(disconnectedByManager);
 				mReplyHandler.disconnecting(); // will initiate clearing of bridge
 				// The mDisconnecting set to true above will prevent further posts
 				// and all post() calls are guarded by synchronized statement
@@ -1862,6 +1865,9 @@ public class ClientBridgeWorkerHandler extends Handler {
 		if (mDisconnecting) return;  // already in disconnect phase
 		// Messages are useful in most of cases, so we start to retrieve them automatically as well
 		updateMessages(true);
+		// notices also should be retrieved
+		if (mDisconnecting) return;  // already in disconnect phase
+		updateNotices(true);
 		mInitialStateRetrieved = true;
 	}
 

@@ -120,7 +120,7 @@ public class ClientBridge implements ClientRequestHandler {
 		
 		// only used internally by ClientBridgeWorkerHandler 
 		public void notifyOperationBegin(BoincOp boincOp) {
-			Log.d(TAG, "RunInternally");
+			Log.d(TAG, "RunInternally:"+boincOp);
 			mClientPendingController.begin(boincOp);
 		}
 		
@@ -164,10 +164,12 @@ public class ClientBridge implements ClientRequestHandler {
 				}
 			}
 			
-			String key = (param != null) ? param : "";
-			if (!called)
+			
+			if (!called) {
+				String key = (param != null) ? param : "";
 				mClientPendingController.finishWithError(boincOp,
 						new PollError(errorNum, operation, errorMessage, key));
+			}
 		}
 		
 		public void notifyConnected(VersionInfo clientVersion) {
@@ -179,12 +181,12 @@ public class ClientBridge implements ClientRequestHandler {
 				observer.clientConnected(mRemoteClientVersion);
 		}
 
-		public void notifyDisconnected() {
+		public void notifyDisconnected(boolean disconnectedByManager) {
 			mConnected = false;
 			mRemoteClientVersion = null;
 			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
 			for (ClientReceiver observer: observers) {
-				observer.clientDisconnected();
+				observer.clientDisconnected(disconnectedByManager);
 				if (Logging.DEBUG) Log.d(TAG, "Detached observer: " + observer.toString()); // see below clearing of all observers
 			}
 			// before clearing observers inform is client connection finish work
@@ -694,6 +696,7 @@ public class ClientBridge implements ClientRequestHandler {
 		if (mRemoteClient == null)
 			return false; // not connected
 		
+		mClientPendingController.begin(BoincOp.StopUsingBAM);
 		mWorker.stopUsingBAM();
 		return true;
 	}
@@ -741,7 +744,7 @@ public class ClientBridge implements ClientRequestHandler {
 		
 		// if join exists we continue operation by performing project attach
 		if ((mJoinedAddProjectUrl != null && mJoinedAddProjectUrl.equals(url)) ||
-				// otherwise run as standalone
+				// otherwise run as standalone (ok)
 				mClientPendingController.begin(BoincOp.AddProject)) {
 			mWorker.projectAttach(url, authCode, projectName);
 			return true;
@@ -979,7 +982,6 @@ public class ClientBridge implements ClientRequestHandler {
 	public boolean transfersOperation(final int operation, final TransferDescriptor[] transfers) {
 		if (mRemoteClient == null)
 			return false; // not connected
-		
 		
 		mClientPendingController.begin(BoincOp.TransferOperation);
 		mWorker.transfersOperation(operation, transfers);

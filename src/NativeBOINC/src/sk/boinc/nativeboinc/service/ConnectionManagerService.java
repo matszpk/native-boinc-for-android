@@ -82,6 +82,8 @@ public class ConnectionManagerService extends Service implements
 	private boolean mLockScreenOn = false;
 	private boolean mIsLockScreenOnAcquired = false;
 
+	private boolean mDisconnectedByManager = false;
+	
 	private SharedPreferences mGlobalPrefs = null;
 	
 	private int mBindCounter = 0;
@@ -217,6 +219,7 @@ public class ConnectionManagerService extends Service implements
 			// This is unsolicited disconnect
 			if (Logging.INFO) Log.i(TAG, "Unsolicited disconnect of ClientBridge");
 			mClientBridge = null;
+			mDisconnectedByManager = false;
 			// handle disconnect for power management
 			setUpWakeLock();
 		}
@@ -266,13 +269,9 @@ public class ConnectionManagerService extends Service implements
 		if (Logging.DEBUG) Log.d(TAG, "Detached observer: " + observer.toString());
 	}
 
-	private boolean mDisconnectedByManager = false;
-	
 	@Override
 	public void connect(ClientId host, boolean retrieveInitialData) throws NoConnectivityException {
 		if (Logging.DEBUG) Log.d(TAG, "connect() to host " + ((host != null) ? host.getNickname() : "(none)"));
-		
-		mDisconnectedByManager = false;
 		
 		if (mClientBridge != null) {
 			// Connected to some client - disconnect it first

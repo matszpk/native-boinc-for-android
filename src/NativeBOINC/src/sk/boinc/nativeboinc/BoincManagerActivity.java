@@ -957,7 +957,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	}
 
 	@Override
-	public void clientDisconnected() {
+	public void clientDisconnected(boolean disconnectedByManager) {
 		if (Logging.DEBUG) Log.d(TAG, "Client " +
 				( (mConnectedClient != null) ?
 						mConnectedClient.getNickname() : "<not connected>" ) +
@@ -977,7 +977,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			
 		} else {
 			StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, mRunner,
-					prevConnectedClient);
+					prevConnectedClient, disconnectedByManager);
 			if (Build.VERSION.SDK_INT >= 11)
 				invalidateOptionsMenu();
 		}

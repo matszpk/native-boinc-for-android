@@ -470,7 +470,9 @@ public class InstallationOps {
 					}
 			}
 		}
-		return distribsToUpdate.toArray(new String[0]);
+		String[] output = distribsToUpdate.toArray(new String[0]);
+		Arrays.sort(output);
+		return output;
 	}
 	
 	/*

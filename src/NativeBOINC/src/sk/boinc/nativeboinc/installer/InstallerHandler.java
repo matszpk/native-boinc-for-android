@@ -332,7 +332,6 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					return;
 				}
 				
-				
 				if (mSDCardPath == null || mSDCardPath.endsWith(".zip")) {
 					// unzip if path to zip or zip from server
 					FileOutputStream outStream = null;

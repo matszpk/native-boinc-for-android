@@ -108,7 +108,8 @@ public class PendingController<Operation> {
 		if (Logging.DEBUG) Log.d(mTag, "Do finish:"+pendingOp);
 		
 		opEntry.isRan = false;
-		opEntry.finihTimestamp = System.currentTimeMillis();
+		if (opEntry.finihTimestamp == -1)
+			opEntry.finihTimestamp = System.currentTimeMillis();
 	}
 	
 	public synchronized void finishSelected(PendingOpSelector<Operation> selector) {
@@ -119,7 +120,8 @@ public class PendingController<Operation> {
 				if (Logging.DEBUG) Log.d(mTag, "Do finish in selection:"+entry.getKey());
 				OpEntry opEntry = entry.getValue();
 				opEntry.isRan = false;
-				opEntry.finihTimestamp = System.currentTimeMillis();
+				if (opEntry.finihTimestamp == -1)
+					opEntry.finihTimestamp = System.currentTimeMillis();
 			}
 		}
 	}

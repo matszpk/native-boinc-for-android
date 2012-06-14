@@ -88,7 +88,7 @@ jeszcze raz usprawnic i uszczelnić obsługę błędów
 / * filtrowac listę dostepnych projektów wyrzucając wszystkie dołączone
   * wprowadzić wykonywanie wielu 'dump boinc files' równocześnie
 / * poprawić obsługę wakelocków dla 'keep screen' z preferences.
-/ * dodać blokowanie przycisku start/shutdown na widgecie przy startowaniu/wyłączaniu boinca 
+- * dodać blokowanie przycisku start/shutdown na widgecie przy startowaniu/wyłączaniu boinca 
 / * WPROWADZ nowe tłumaczenia na język czeski
 
 następne wersje:

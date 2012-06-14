@@ -476,7 +476,15 @@ public class NativeBoincService extends Service implements MonitorListener,
 			} catch(InterruptedException ex) { }
 			
 			if (rpcClient != null) {
-				monitorAuthCode = rpcClient.authorizeMonitor();
+				// try 3 times connect with client monitor
+				for (int i = 0; i < 3; i++) {
+					monitorAuthCode = rpcClient.authorizeMonitor();
+					if (monitorAuthCode != null)
+						break; // if success
+					try {
+						Thread.sleep(300);
+					} catch(InterruptedException ex) { }
+				}
 				if (monitorAuthCode == null) {
 					if (Logging.INFO) Log.i(TAG, "Cant authorize monitor access"); 
 				}
@@ -1122,6 +1130,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 			finishProjectApplicationInstallation(distribName);
 	}
 	
+	/* we do not consume error events, because only one listener can handle error (in this case is
+	 * active activity) */
 	@Override
 	public boolean onOperationError(InstallOp installOp, String distribName, String errorMessage) {
 		onOperationErrorOrCancel(installOp, distribName);

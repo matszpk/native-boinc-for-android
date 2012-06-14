@@ -423,6 +423,8 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		return false;
 	}
 	
+	/* we do not consume error events, because only one listener can handle error (in this case is
+	 * active activity) */
 	@Override
 	public boolean onNativeBoincServiceError(WorkerOp workerOp, String message) {
 		//Toast.makeText(this, message, Toast.LENGTH_LONG).show();

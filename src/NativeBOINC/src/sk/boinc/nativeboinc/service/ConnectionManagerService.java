@@ -218,10 +218,12 @@ public class ConnectionManagerService extends Service implements
 			// The currently connected bridge was disconnected.
 			// This is unsolicited disconnect
 			if (Logging.INFO) Log.i(TAG, "Unsolicited disconnect of ClientBridge");
-			mClientBridge = null;
 			mDisconnectedByManager = false;
-			// handle disconnect for power management
-			setUpWakeLock();
+			synchronized(mWakeLocker) {
+				mClientBridge = null;
+				// handle disconnect for power management
+				setUpWakeLock();
+			}
 		}
 		else {
 			if (mDyingBridges.contains(clientBridge)) {
@@ -278,19 +280,22 @@ public class ConnectionManagerService extends Service implements
 			disconnect();
 		}
 		//if (mConnectivityStatus.isConnected()) {
-		// Create new bridge first
-		mClientBridge = new ClientBridge(this, mNetStats);
-		// Propagate all current observers to bridge, so they will be informed about status
-		Iterator<ClientReceiver> it = mObservers.iterator();
-		while (it.hasNext()) {
-			ClientReceiver observer = it.next();
-			mClientBridge.registerStatusObserver(observer);
+		// wake lock syncing
+		synchronized(mWakeLocker) {
+			// Create new bridge first
+			mClientBridge = new ClientBridge(this, mNetStats);
+			// Propagate all current observers to bridge, so they will be informed about status
+			Iterator<ClientReceiver> it = mObservers.iterator();
+			while (it.hasNext()) {
+				ClientReceiver observer = it.next();
+				mClientBridge.registerStatusObserver(observer);
+			}
+			// Finally, initiate connection to remote client
+			mClientBridge.connect(host, retrieveInitialData);
+			
+			// handle power management changes
+			setUpWakeLock();
 		}
-		// Finally, initiate connection to remote client
-		mClientBridge.connect(host, retrieveInitialData);
-		
-		// handle power management changes
-		setUpWakeLock();
 	}
 	
 	public boolean isDisconnectedByManager() {
@@ -304,9 +309,11 @@ public class ConnectionManagerService extends Service implements
 			if (Logging.DEBUG) Log.d(TAG, "disconnect() - started towards " + mClientBridge.getClientId().getNickname());
 			mDyingBridges.add(mClientBridge);
 			mClientBridge.disconnect();
-			mClientBridge = null;
-			// handle changes for power management
-			setUpWakeLock();
+			synchronized(mWakeLocker) {
+				mClientBridge = null;
+				// handle changes for power management
+				setUpWakeLock();
+			}
 		}
 		else {
 			if (Logging.DEBUG) Log.d(TAG, "disconnect() - not connected already ");
@@ -676,27 +683,35 @@ public class ConnectionManagerService extends Service implements
 	
 	public void acquireLockScreenOn() {
 		if (Logging.DEBUG) Log.d(TAG, "LockScreenOn acquired");
-		mIsLockScreenOnAcquired = true;
-		setUpWakeLock();
+		if (mWakeLocker != null)
+			synchronized(mWakeLocker) {
+				mIsLockScreenOnAcquired = true;
+				setUpWakeLock();
+			}
 	}
 	
 	public void releaseLockScreenOn() {
 		if (Logging.DEBUG) Log.d(TAG, "LockScreenOn released");
-		mIsLockScreenOnAcquired = false;
-		setUpWakeLock();
+		if (mWakeLocker != null)
+			synchronized(mWakeLocker) {
+				mIsLockScreenOnAcquired = false;
+				setUpWakeLock();
+			} 
 	}
 	
 	private void setUpWakeLock() {
 		if (mWakeLocker != null) {
-			if (Logging.DEBUG) Log.d(TAG, "SetUp WakeLock: "+
-						(mClientBridge != null && mLockScreenOn && mIsLockScreenOnAcquired));
-			// if connected, lockscreenOn and screen lock and if acquired
-			if (mClientBridge != null && mLockScreenOn && mIsLockScreenOnAcquired) {
-				if (!mWakeLocker.isHeld())
-					mWakeLocker.acquire();
-			} else { // to release
-				if (mWakeLocker.isHeld())
-					mWakeLocker.release();
+			synchronized(mWakeLocker) {
+				if (Logging.DEBUG) Log.d(TAG, "SetUp WakeLock: "+
+							(mClientBridge != null && mLockScreenOn && mIsLockScreenOnAcquired));
+				// if connected, lockscreenOn and screen lock and if acquired
+				if (mClientBridge != null && mLockScreenOn && mIsLockScreenOnAcquired) {
+					if (!mWakeLocker.isHeld())
+						mWakeLocker.acquire();
+				} else { // to release
+					if (mWakeLocker.isHeld())
+						mWakeLocker.release();
+				}
 			}
 		}
 	}
@@ -706,8 +721,11 @@ public class ConnectionManagerService extends Service implements
 			String key) {
 		if (key.equals(PreferenceName.LOCK_SCREEN_ON)) {
 			if (Logging.DEBUG) Log.d(TAG, "Change Lock screen on");
-			mLockScreenOn = sharedPreferences.getBoolean(PreferenceName.LOCK_SCREEN_ON, false);
-			setUpWakeLock();
+			if (mWakeLocker != null)
+				synchronized(mWakeLocker) {
+					mLockScreenOn = sharedPreferences.getBoolean(PreferenceName.LOCK_SCREEN_ON, false);
+					setUpWakeLock();
+				}
 		}
 	}
 }

@@ -1,3 +1,13 @@
+Version 0.3.9.5 (alpha) (2012-06-14)
+- introduce new service output/error handling
+- fixed power management (lock screen)
+- fixed install options (update binaries)
+- fixed connection manager service (poll ops handling)
+- improved on pause error handling (on the activities)
+- improved manage client activity
+- improved notifications handling
+- updated Czech translations
+
 Version 0.3.9.3.3 (alpha) (2012-06-05)
 - fixed error handling (channels)
 - fixed automatic installation and BAM syncing
@@ -50,77 +60,3 @@ Version 0.3.8 (alpha) (2012-04-21)
 - improved time dialog on Time preferences
 - introduced Honeycomb theme in the screen locker
 - fixed layouts for tablets 
-
-Version 0.3.7.3 (alpha) (2012-04-12)
-- fixed problems with large widget on Android 2.2.
-
-Version 0.3.7.2 (alpha) (2012-04-07)
-- fixed request accountMgrRPC (BOINC BAM).
-
-Version 0.3.7.1 (alpha) (2012-04-06)
-- fixed applications crashes on ICS (in UpdateActivity and InstallerHandler).
-- fixed InstallerHandler small bugs.
-
-Version 0.3.7 (alpha) (2012-04-04)
-- added new Time Preferences on Local preferences
-- improved autorefreshing on the tabs
-- fix some small bugs
-
-Version 0.3.6.3 (alpha) (2012-03-31)
-- fixed some NullPointerExceptions
-- fixed problems with client monitor handling (after shutting down eating CPU power)
-
-Version 0.3.6.2 (alpha) (2012-03-30)
-- fixed problems with Local preferences
-
-Version 0.3.6.1 (alpha) (2012-03-29)
-- add task info after clicking on task (large widget).  
-- different styles for standalone dialogs (for <3.0 and >3.0)
-- fixed client monitor bugs (problem with reading)
-
-Version 0.3.6 (alpha) (2012-03-27)
-- added update from SDCard
-- fixed installer bugs
-- fixed small bugs inside ServiceBoincActivity
-
-Version 0.3.5.1 (alpha) (2012-03-26)
-- fixed tablet widget
-- fixed NPE exception on Notices tab
-
-Version 0.3.5 (alpha) (2012-03-24)
-- introduce better orientation changes handling 
-- introduced new installer
-  - multithreaded installation even during working client
-  - synchronization via BAM during installation
-  - notifications during installation
-  - update_apps mechanism support
-  - autoinstallation after BAM synchronizing
-  - progress screen (with cancel option)
-- improved runner
-  - added notifications (when event has been arrived)
-  - add notifications about reason of stopping
-  - client monitor support
-- improved connection manager
-- NativeClient menu option
-  - improved binaries updater
-  - hostname change option
-  - access host list
-  - reinstallation client option
-  - boinc logs viewer
-  - dumping of boinc installation in sdcard
-- improved host list screen (added multiselection)
-- better error handling
-- better service lifecycle managing
-- new larger desktop widget
-- improved main screen
-  - multiselection on tab items
-  - new tab 'Notices'
-  - added filter in Message tab
-  - extended info dialogs
-  - refreshing tab after clicking on tab
-- new local preferences screen
-  - replace single view by tabs
-  - added new option for power management
-- improved screen locker
-- fixed small bugs
-- fit UI for tablets (Android 3.0+)

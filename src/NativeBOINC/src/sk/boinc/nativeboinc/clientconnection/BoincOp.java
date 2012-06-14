@@ -25,42 +25,42 @@ import sk.boinc.nativeboinc.bridge.AutoRefresh;
  *
  */
 public class BoincOp {
-	private static final int OP_CONNECT = 0;
-	private static final int OP_DISCONNECT = 1;
+	public static final int OP_CONNECT = 0;
+	public static final int OP_DISCONNECT = 1;
 	
-	private static final int OP_UPDATE_CLIENT_MODE = 2;
-	private static final int OP_UPDATE_HOST_INFO = 3;
+	public static final int OP_UPDATE_CLIENT_MODE = 2;
+	public static final int OP_UPDATE_HOST_INFO = 3;
 	
-	private static final int OP_UPDATE_PROJECTS = 4;
-	private static final int OP_UPDATE_TASKS = 5;
-	private static final int OP_UPDATE_TRANSFERS = 6;
-	private static final int OP_UPDATE_MESSAGES = 7;
-	private static final int OP_UPDATE_NOTICES = 8;
+	public static final int OP_UPDATE_PROJECTS = 4;
+	public static final int OP_UPDATE_TASKS = 5;
+	public static final int OP_UPDATE_TRANSFERS = 6;
+	public static final int OP_UPDATE_MESSAGES = 7;
+	public static final int OP_UPDATE_NOTICES = 8;
 	
-	private static final int OP_GET_BAM_INFO = 9;
-	private static final int OP_BAM_SYNCHRONIZE = 10;
-	private static final int OP_STOP_USING_BAM = 11;
+	public static final int OP_GET_BAM_INFO = 9;
+	public static final int OP_BAM_SYNCHRONIZE = 10;
+	public static final int OP_STOP_USING_BAM = 11;
 	
-	private static final int OP_GET_ALL_PROJECT_LIST = 12;
+	public static final int OP_GET_ALL_PROJECT_LIST = 12;
 	
-	private static final int OP_LOOKUP_ACCOUNT = 13;
-	private static final int OP_CREATE_ACCOUNT = 14;
-	private static final int OP_ATTACH_PROJECT = 15;
-	private static final int OP_ADD_PROJECT = 16;
-	private static final int OP_GET_PROJECT_CONFIG = 17;
+	public static final int OP_LOOKUP_ACCOUNT = 13;
+	public static final int OP_CREATE_ACCOUNT = 14;
+	public static final int OP_ATTACH_PROJECT = 15;
+	public static final int OP_ADD_PROJECT = 16;
+	public static final int OP_GET_PROJECT_CONFIG = 17;
 	
-	private static final int OP_GLOBAL_PREFS_WORKING = 18;
-	private static final int OP_GLOBAL_PREFS_OVERRIDE = 19;
+	public static final int OP_GLOBAL_PREFS_WORKING = 18;
+	public static final int OP_GLOBAL_PREFS_OVERRIDE = 19;
 	
-	private static final int OP_RUN_BENCHMARKS = 20;
-	private static final int OP_SET_RUN_MODE = 21;
-	private static final int OP_SET_NETWORK_MODE = 22;
-	private static final int OP_SHUTDOWN_CORE = 23;
-	private static final int OP_DO_NETWORK_COMM = 24;
+	public static final int OP_RUN_BENCHMARKS = 20;
+	public static final int OP_SET_RUN_MODE = 21;
+	public static final int OP_SET_NETWORK_MODE = 22;
+	public static final int OP_SHUTDOWN_CORE = 23;
+	public static final int OP_DO_NETWORK_COMM = 24;
 	
-	private static final int OP_PROJECT_OP = 25;
-	private static final int OP_TASK_OP = 26;
-	private static final int OP_TRANSFER_OP = 27;
+	public static final int OP_PROJECT_OP = 25;
+	public static final int OP_TASK_OP = 26;
+	public static final int OP_TRANSFER_OP = 27;
 	
 	public static final BoincOp Connect = new BoincOp(OP_CONNECT);
 	public static final BoincOp Disconnect = new BoincOp(OP_DISCONNECT);
@@ -96,7 +96,7 @@ public class BoincOp {
 	public static final BoincOp TaskOperation = new BoincOp(OP_TASK_OP);
 	public static final BoincOp TransferOperation = new BoincOp(OP_TRANSFER_OP);
 	
-	private int opCode;
+	public final int opCode;
 	
 	protected BoincOp(int opCode) {
 		this.opCode = opCode;

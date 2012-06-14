@@ -24,10 +24,10 @@ package sk.boinc.nativeboinc.nativeclient;
  *
  */
 public class WorkerOp {
-	private final static int OP_GET_GLOBAL_PROGRESS = 1;
-	private final static int OP_GET_TASKS = 2;
-	private final static int OP_GET_PROJECTS = 3;
-	private final static int OP_UPDATE_PROJECT_APPS = 4;
+	public final static int OP_GET_GLOBAL_PROGRESS = 1;
+	public final static int OP_GET_TASKS = 2;
+	public final static int OP_GET_PROJECTS = 3;
+	public final static int OP_UPDATE_PROJECT_APPS = 4;
 	
 	public final static WorkerOp GetGlobalProgress = new WorkerOp(OP_GET_GLOBAL_PROGRESS);
 	public final static WorkerOp GetTasks = new WorkerOp(OP_GET_TASKS);
@@ -37,8 +37,8 @@ public class WorkerOp {
 		return new WorkerOp(OP_UPDATE_PROJECT_APPS, projectUrl);
 	}
 	
-	private int opCode;
-	private String projectUrl;
+	public int opCode;
+	public String projectUrl;
 	
 	protected WorkerOp(int opCode) {
 		this.opCode = opCode;

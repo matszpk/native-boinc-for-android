@@ -1856,8 +1856,8 @@ bool CLIENT_STATE::enforce_run_list(vector<RESULT*>& run_list) {
 
             PROJECT* p = atp->result->project;
             /* do not run tasks during updating, and
-             * if too early to run after update (less than 4 seconds) */
-            if (p->suspended_during_update || dtime()-p->after_update_dtime<4.0) {
+             * if too early to run after update (less than 5 seconds) */
+            if (p->suspended_during_update || dtime()-p->after_update_dtime<5.0) {
                 if (log_flags.update_apps_debug)
                     msg_printf(p, MSG_INFO, "[update_apps] prevents running wu:%s",atp->wup->name);
                 during_update = true;

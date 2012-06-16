@@ -1104,7 +1104,7 @@ int ACTIVE_TASK::unsuspend() {
 			app_client_shm.shm->process_control_request
 		);
 	}
-    set_task_state(PROCESS_EXECUTING, "unsuspend");
+	set_task_state(PROCESS_EXECUTING, "unsuspend");
     return 0;
 }
 

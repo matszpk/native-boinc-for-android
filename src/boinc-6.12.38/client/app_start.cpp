@@ -29,7 +29,7 @@
 #else
 #include "config.h"
 #if defined (HAVE_SCHED_SETSCHEDULER) && defined (__linux__)
-#include <sched.h>
+#include <linux/sched.h>
 #endif
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
@@ -881,8 +881,7 @@ int ACTIVE_TASK::start(bool first_time) {
                 perror("setpriority");
             }
 #endif
-//#if defined (HAVE_SCHED_SETSCHEDULER) && defined(SCHED_BATCH) && defined (__linux__)
-#if 0
+#if defined (HAVE_SCHED_SETSCHEDULER) && defined(SCHED_BATCH) && __linux__
             if (!high_priority) {
                 struct sched_param p;
                 p.sched_priority = 0;
@@ -932,7 +931,16 @@ int ACTIVE_TASK::start(bool first_time) {
     }
 
 #endif
-    set_task_state(PROCESS_EXECUTING, "start");
+    {
+        int ts = task_state();
+        set_task_state(PROCESS_EXECUTING, "start");
+        if (ts != PROCESS_EXECUTING &&
+            wup != NULL && wup->project->suspended_during_update) {
+            msg_printf(wup->project, MSG_INFO, "[update_apps] Adding starting app for update: %d",
+                                    wup->project->pending_to_exit);
+            wup->project->pending_to_exit++;
+        }
+    }
     return 0;
 
     // go here on error; "buf" contains error message, "retval" is nonzero

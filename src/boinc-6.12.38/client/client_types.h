@@ -415,7 +415,6 @@ struct PROJECT : PROJ_AM {
     // already suspeded (installation/update)
     int pending_to_exit; //
     bool dont_preempt_suspended;
-    double after_update_dtime;
     /* states:
      * suspended_during_update=false, pending_to_exit=-1 - before update apps
      * suspended_during_update=true, pending_to_exit>0 - during apps exiting (suspending)

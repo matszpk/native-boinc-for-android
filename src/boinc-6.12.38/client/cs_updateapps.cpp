@@ -138,7 +138,6 @@ int CLIENT_STATE::do_update_project_apps() {
         
         // update state
         p->suspended_during_update = false;
-        p->after_update_dtime = now;
         check_no_apps(p);
         
         p->anonymous_platform = true;

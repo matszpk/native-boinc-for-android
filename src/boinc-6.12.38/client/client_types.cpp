@@ -133,7 +133,6 @@ void PROJECT::init() {
     last_upload_start = 0;
     nuploading_results = 0;
     too_many_uploading_results = false;
-    after_update_dtime = 0;
 
     // Initialize scratch variables.
     rr_sim_status.clear();

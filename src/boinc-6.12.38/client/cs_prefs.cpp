@@ -90,6 +90,8 @@ int CLIENT_STATE::total_disk_usage(double& size) {
     return dir_size(".", size);
 }
 
+#define HARD_BATTERY_LIMIT (4.0)
+
 // See if we should suspend processing
 //
 int CLIENT_STATE::check_suspend_processing() {
@@ -119,16 +121,19 @@ int CLIENT_STATE::check_suspend_processing() {
         if (!global_prefs.run_on_batteries || global_prefs.run_if_battery_nl_than>0.0)
             running_on_batteries = host_info.host_is_running_on_batteries();
         
+        if (running_on_batteries) {
+            // should be always reset level if works on the batteries
+            last_level_on_power_supply = -1.0; // reset on supply level
+            on_power_supply_discharging = false;    // reset indicator
+        }
+        
         if (!global_prefs.run_on_batteries && running_on_batteries) {
             return SUSPEND_REASON_BATTERIES;
         }
         if (running_on_batteries) {
-            last_level_on_power_supply = -1.0; // reset on supply level
-            on_power_supply_discharging = false;    // reset indicator
-            
             double on_batteries = host_info.host_battery_level();
             
-            if (on_batteries < 3.0) // hard limit
+            if (on_batteries < HARD_BATTERY_LIMIT) // hard limit
                 return SUSPEND_REASON_DISCHARGE;
             
             if (global_prefs.run_if_battery_nl_than>0.0 &&
@@ -141,7 +146,7 @@ int CLIENT_STATE::check_suspend_processing() {
             if (last_level_on_power_supply < 0.0) // if not initialized
                 last_level_on_power_supply = on_power_supply;
             
-            if (on_power_supply < 3.0) { // hard limit
+            if (on_power_supply < HARD_BATTERY_LIMIT) { // hard limit
                 on_power_supply_discharging = true;
                 return SUSPEND_REASON_DISCHARGE;
             }

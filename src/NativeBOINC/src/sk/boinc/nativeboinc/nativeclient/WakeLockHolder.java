@@ -178,7 +178,11 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 
 	@Override
 	public void onChangeRunnerIsWorking(boolean isWorking) {
-		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onMonitorDoesntWork() {
 		
 	}
 }

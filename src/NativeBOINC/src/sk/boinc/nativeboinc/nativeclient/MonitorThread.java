@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import sk.boinc.nativeboinc.ClientMonitorErrorActivity;
 import sk.boinc.nativeboinc.debug.Logging;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 
@@ -40,6 +42,7 @@ public class MonitorThread extends Thread {
 	
 	private String mAuthCode = null;
 	private boolean mDoQuit = false;
+	private boolean mIsWorking = false;
 	
 	public static final int STATE_UNKNOWN = 0;
 	public static final int STATE_TASKS_RAN = 1;
@@ -61,6 +64,12 @@ public class MonitorThread extends Thread {
 			MonitorListener[] listeners = mListeners.toArray(new MonitorListener[0]);
 			for (MonitorListener callback: listeners)
 				callback.onMonitorEvent(event);
+		}
+		
+		public void onMonitorDoesntWork() {
+			MonitorListener[] listeners = mListeners.toArray(new MonitorListener[0]);
+			for (MonitorListener callback: listeners)
+				callback.onMonitorDoesntWork();
 		}
 		
 		public synchronized void addMonitorListener(MonitorListener listener) {
@@ -95,8 +104,23 @@ public class MonitorThread extends Thread {
 	public void run() {
 		ClientMonitor clientMonitor = new ClientMonitor();
 		try {
-			if (!clientMonitor.open("127.0.0.1", 31417, mAuthCode))
+			boolean opened = false;
+			for (int i = 0; i < 3; i++) {
+				if (clientMonitor.open("127.0.0.1", 31417, mAuthCode)) {
+					opened = true;
+					break;
+				}
+				try {
+					Thread.sleep(100);
+				} catch(InterruptedException ex) { }
+			}
+			// if not opened
+			if (!opened) {
+				notifyMonitorDoesntWork();
 				return;
+			}
+			
+			mIsWorking = true;
 			
 			if (Logging.DEBUG) Log.d(TAG, "Client monitor opened");
 			
@@ -146,5 +170,19 @@ public class MonitorThread extends Thread {
 				mListenerHandler.onMonitorEvent(event);
 			}
 		});
+	}
+	
+	private synchronized void notifyMonitorDoesntWork() {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.onMonitorDoesntWork();
+			}
+		});
+	}
+	
+	/* check whether client monitor is working */
+	public boolean isWorking() {
+		return mIsWorking;
 	}
 }

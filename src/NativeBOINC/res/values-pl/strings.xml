@@ -217,8 +217,8 @@
 	<string name="localPrefGBDiskFree">GB wolnej obszaru dysku</string>
 	<string name="localPrefPercentTotalDisk">% całego obszaru dysku</string>
 	
-	<string name="localPrefMemoryWhenInUse">% kiedy jest w użyciu</string>
-	<string name="localPrefMemoryWhenInIdle">% kiedy jest nieużywany</string>
+	<string name="localPrefMemoryWhenInUse">% pamięci kiedy jest w użyciu</string>
+	<string name="localPrefMemoryWhenInIdle">% pamięci kiedy jest nieużywany</string>
 	<string name="localPrefCheckpointToDisk">Checkpoint to disk at most every</string>
 	<string name="seconds">sec</string>
 	<string name="localPrefWrong">Zła wartość!</string>

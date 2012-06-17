@@ -181,6 +181,10 @@
 			android:launchMode="singleInstance"
 			android:theme="@style/StandaloneDialog" />
 		
+		<activity android:name=".ClientMonitorErrorActivity"
+			android:launchMode="singleInstance"
+			android:theme="@style/StandaloneDialog" />
+		
 		<activity android:name=".TaskInfoDialogActivity"
 			android:launchMode="singleInstance"
 			android:theme="@style/StandaloneDialog" />

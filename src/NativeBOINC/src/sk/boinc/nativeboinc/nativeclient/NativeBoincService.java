@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import sk.boinc.nativeboinc.BoincManagerActivity;
 import sk.boinc.nativeboinc.BoincManagerApplication;
+import sk.boinc.nativeboinc.ClientMonitorErrorActivity;
 import sk.boinc.nativeboinc.NotificationController;
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
@@ -108,6 +109,13 @@ public class NativeBoincService extends Service implements MonitorListener,
 			// notify user
 			startServiceInForeground();
 			mNotificationController.removeClientNotification();
+			
+			// client monitor error handling
+			if (mMonitorThread == null) {
+				Intent intent = new Intent(NativeBoincService.this, ClientMonitorErrorActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
+			}
 			
 			AbstractNativeBoincListener[] listeners = mListeners.toArray(
 					new AbstractNativeBoincListener[0]);
@@ -1071,6 +1079,13 @@ public class NativeBoincService extends Service implements MonitorListener,
 			mNotificationController.notifyClientEvent(title, title, false);
 			break;
 		}
+	}
+	
+	@Override
+	public void onMonitorDoesntWork() {
+		Intent intent = new Intent(NativeBoincService.this, ClientMonitorErrorActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(intent);
 	}
 	
 	private void finishProjectApplicationInstallation(String projectName) {

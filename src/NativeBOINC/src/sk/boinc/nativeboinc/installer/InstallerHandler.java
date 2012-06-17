@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.io.SyncFailedException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -713,9 +714,14 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				}
 				
 				outStream.flush();
-				
 				/* reverts to project dir path */
 				projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
+				
+				try {
+					if (outStream != null)
+						outStream.close();
+				} catch(IOException ex2) { }
+				
 				outStream = null;
 				i++;
 			}
@@ -1950,6 +1956,11 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	@Override
 	public void onChangeRunnerIsWorking(boolean isWorking) {
 		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onMonitorDoesntWork() {
 		
 	}
 }

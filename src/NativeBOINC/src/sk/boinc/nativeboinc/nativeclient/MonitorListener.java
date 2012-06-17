@@ -10,5 +10,6 @@ import edu.berkeley.boinc.nativeboinc.ClientEvent;
  *
  */
 public interface MonitorListener {
-	public void onMonitorEvent(ClientEvent event);
+	public abstract void onMonitorEvent(ClientEvent event);
+	public abstract void onMonitorDoesntWork();
 }

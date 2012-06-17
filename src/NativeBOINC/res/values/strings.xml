@@ -673,6 +673,9 @@
 	
 	<string name="errorNumFormat">(error: %d)</string>
 	
+	<string name="cantAuthorizeClientMonitor">Can\'t authorize client monitor!</string>
+	<string name="cantAuthorizeClientMonitorMessage">Can\'t authorize client monitor! You can\'t automatically install project binaries (you can use Update binaries option after adding project) or receive client events. You can restart BOINC client (we recommended).</string>
+	
 	<!-- HostInfo display -->
 	<string name="hostInfoPart1">
 		&lt;b>Domain name:&lt;/b> %1$s&lt;br />

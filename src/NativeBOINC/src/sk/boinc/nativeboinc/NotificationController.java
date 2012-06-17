@@ -75,6 +75,7 @@ public class NotificationController {
 	
 	private Notification mClientEventNotification = null;
 	
+	private Notification mClientMonitorErrorNotification = null;
 	
 	public NotificationController(Context appContext) {
 		mAppContext = appContext;

@@ -1,3 +1,7 @@
+Version 0.3.9.6 (alpha) (2012-06-17)
+- fixed 'Text file busy' error on the first starting project app
+- added new message when client monitor fails. 
+
 Version 0.3.9.5 (alpha) (2012-06-14)
 - introduce new service output/error handling
 - fixed power management (lock screen)

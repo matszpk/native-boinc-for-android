@@ -1,3 +1,6 @@
+Version 0.3.9.6.1 (alpha) (2012-06-17)
+- fixed long lines in the local preferences
+
 Version 0.3.9.6 (alpha) (2012-06-17)
 - fixed 'Text file busy' error on the first starting project app
 - added new message when client monitor fails. 

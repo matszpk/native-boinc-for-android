@@ -74,9 +74,7 @@ public class NotificationController {
 			new HashMap<String, ProgressItem>();
 	
 	private Notification mClientEventNotification = null;
-	
-	private Notification mClientMonitorErrorNotification = null;
-	
+		
 	public NotificationController(Context appContext) {
 		mAppContext = appContext;
 		mNotificationManager = (NotificationManager)appContext.getSystemService(

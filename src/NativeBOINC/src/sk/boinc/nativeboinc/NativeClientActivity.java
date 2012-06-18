@@ -24,6 +24,7 @@ import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.AbstractInstallerListener;
 import sk.boinc.nativeboinc.installer.InstallOp;
 import sk.boinc.nativeboinc.installer.InstallationOps;
+import sk.boinc.nativeboinc.installer.InstallerProgressListener;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.nativeclient.AbstractNativeBoincListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
@@ -57,7 +58,7 @@ import android.widget.EditText;
  *
  */
 public class NativeClientActivity extends PreferenceActivity implements AbstractNativeBoincListener,
-		AbstractInstallerListener {
+		AbstractInstallerListener, InstallerProgressListener {
 
 	private static final String TAG = "NativeClientActivity";
 	
@@ -108,6 +109,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 			}
 			
 			updateProgressBarState();
+			// update preferences
+			updatePreferencesEnabled();
 			// update show error dialog
 			updateServicesError();
 		}
@@ -381,6 +384,17 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 		}
 	}
 	
+	private void updatePreferencesEnabled() {
+		if (mInstaller == null) return;
+		
+		// update enabled/disabled
+		Preference pref = (Preference)findPreference(PreferenceName.NATIVE_DUMP_BOINC_DIR);
+		pref.setEnabled(!mInstaller.isBeingDumpedFiles());
+		
+		pref = (Preference)findPreference(PreferenceName.NATIVE_REINSTALL);
+		pref.setEnabled(!mInstaller.isBeingReinstalled());
+	}
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -422,6 +436,7 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 
 		mScreenOrientation.setOrientation();
 		
+		updatePreferencesEnabled();
 		// progress bar update
 		updateProgressBarState();
 		// update error dialogs
@@ -646,13 +661,48 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 			setProgressBarIndeterminateVisibility(false);
 	}
 
+	private void changePreferencesEnabled(String distribName) {
+		if (distribName.equals(InstallerService.BOINC_DUMP_ITEM_NAME)) {
+			Preference pref = (Preference)findPreference(PreferenceName.NATIVE_DUMP_BOINC_DIR);
+			pref.setEnabled(true); // enable it
+		} else if (distribName.equals(InstallerService.BOINC_REINSTALL_ITEM_NAME)) {
+			Preference pref = (Preference)findPreference(PreferenceName.NATIVE_REINSTALL);
+			pref.setEnabled(true); // enable it
+		}
+	}
+	
 	@Override
 	public boolean onOperationError(InstallOp installOp, String distribName, String errorMessage) {
 		if (!installOp.equals(InstallOp.ProgressOperation)) { // only simple operation
 			// if global install error
 			StandardDialogs.showInstallErrorDialog(this, distribName, errorMessage);
 			return true;
-		}
+		} else
+			changePreferencesEnabled(distribName);
 		return false;
+	}
+	
+	@Override
+	public void onOperation(String distribName, String opDescription) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onOperationProgress(String distribName, String opDescription,
+			int progress) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onOperationCancel(InstallOp installOp, String distribName) {
+		if (installOp.equals(InstallOp.ProgressOperation)) // only simple operation
+			changePreferencesEnabled(distribName);
+	}
+
+	@Override
+	public void onOperationFinish(InstallOp installOp, String distribName) {
+		if (installOp.equals(InstallOp.ProgressOperation)) // only simple operation
+			changePreferencesEnabled(distribName);
 	}
 }

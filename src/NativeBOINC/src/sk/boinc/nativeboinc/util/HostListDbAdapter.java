@@ -175,7 +175,7 @@ public class HostListDbAdapter {
 		ClientId clientId = null;
 		Cursor cur = mDb.query(true, TABLE_HOSTS,
 				new String[] {KEY_ROWID, FIELD_HOST_NICKNAME, FIELD_HOST_ADDRESS, FIELD_HOST_PORT, FIELD_HOST_PASSWORD},
-				FIELD_HOST_NICKNAME + "=\"" + nickname + "\"", null, null, null, null, null);
+				FIELD_HOST_NICKNAME + "=\'" + escapeString(nickname) + "\'", null, null, null, null, null);
 		if (cur != null) {
 			if (cur.moveToFirst()) {
 				clientId = new ClientId(cur);
@@ -195,12 +195,27 @@ public class HostListDbAdapter {
 	public boolean hostUnique(long rowId, String nickname) {
 		Cursor cur = mDb.query(true, TABLE_HOSTS,
 				new String[] { KEY_ROWID, FIELD_HOST_NICKNAME },
-				KEY_ROWID + "!=" + rowId + " AND " + FIELD_HOST_NICKNAME + "='" + nickname + "'",
+				KEY_ROWID + "!=" + rowId + " AND " + FIELD_HOST_NICKNAME + "='" + escapeString(nickname) + "'",
 				null, null, null, null, null);
 		if (cur == null) return true;
 		boolean found = cur.moveToFirst();
 		cur.close();
 		cur = null;
 		return !found;
+	}
+	
+	/**
+	 * escape utilities
+	 */
+	private static final String escapeString(String str) {
+		StringBuilder newStr = new StringBuilder();
+		for (int i = 0; i < str.length(); i++) {
+			char c = str.charAt(i);
+			if (c == '\'') {
+				newStr.append("\'\'");
+			} else
+				newStr.append(c);
+		}
+		return newStr.toString();
 	}
 }

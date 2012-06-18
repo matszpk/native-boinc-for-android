@@ -64,8 +64,12 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 
 		@Override
 		public boolean equals(Object o) {
+			if (o == null) return false;
+			if (this == o) return true;
 			if (!(o instanceof UpdateRequest)) return false;
-			return (o.hashCode() == this.hashCode());
+			
+			UpdateRequest request = (UpdateRequest)o;
+			return this.callback.equals(request.callback) && this.requestType == request.requestType;
 		}
 
 		@Override

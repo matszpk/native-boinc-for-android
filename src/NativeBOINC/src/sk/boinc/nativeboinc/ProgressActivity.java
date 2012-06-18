@@ -220,6 +220,10 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 		mApp = (BoincManagerApplication) getApplication();
 		mNotificationController = mApp.getNotificationController();
 		
+		// remove all not in progress operations from notifications
+		if (savedInstanceState == null) // if not recreated
+			mNotificationController.removeAllNotInProgress();
+		
 		setUpService(false, false, false, false, true, true);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.install_progress);

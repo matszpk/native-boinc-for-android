@@ -444,6 +444,24 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		/* check whether installer should be run (if should be, then run) */
 		checkToRunInstaller();
 	}
+	
+	/*
+	 * if new intent received when activity is ran
+	 */
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		if (intent.getBooleanExtra(PARAM_CONNECT_NATIVE_CLIENT, false)) {
+			// select native boinc client
+			HostListDbAdapter dbHelper = new HostListDbAdapter(this);
+			dbHelper.open();
+			ClientId nativeClient = dbHelper.fetchHost("nativeboinc");
+			dbHelper.close();
+			if (nativeClient != null &&
+					(mConnectedClient == null || !mConnectedClient.equals(nativeClient)))
+				mSelectedClient = nativeClient;
+		}
+	}
 
 	private void updateActivityState() {
 		// display/hide progress

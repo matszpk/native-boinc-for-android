@@ -91,10 +91,10 @@ jeszcze raz usprawnic i uszczelnić obsługę błędów
 - * dodać blokowanie przycisku start/shutdown na widgecie przy startowaniu/wyłączaniu boinca 
 / * WPROWADZ nowe tłumaczenia na język czeski
 
-  * zrób wywoływanie aktywności aplikacji w notyfikacji tak, by nie tworzyło nowego taska, lecz nic nie robiło
+/ * zrób wywoływanie aktywności aplikacji w notyfikacji tak, by nie tworzyło nowego taska, lecz nic nie robiło
     gdy już jest wywołana aktywność (rob tez tak, by automatycznie przełączał na nativeboinc).
-  * dodaj long scrolling do taba messages
-  * popraw błąd w ConnectionBridge:792 (NPE)
+/ * dodaj long scrolling do taba messages
+/ * popraw błąd w ConnectionBridge:792 (NPE)
 
 następne wersje:
 * dodać obsługę screensavera.

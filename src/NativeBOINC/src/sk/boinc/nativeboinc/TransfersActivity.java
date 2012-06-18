@@ -296,8 +296,13 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.tab_layout);
+		
 		setListAdapter(new TransferListAdapter(this));
 		registerForContextMenu(getListView());
+		View emptyView = findViewById(R.id.emptyContent);
+		registerForContextMenu(emptyView);
+		
 		mScreenOrientation = new ScreenOrientationHandler(this);
 		doBindService();
 		// Restore state on configuration change (if applicable)
@@ -365,7 +370,7 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 			}
 		}
 		if (mShowWarnAbortDialog) {
-			if (mChoosenTransfer != null) {
+			if (mChoosenTransfer != null || !mSelectedTransfers.isEmpty()) {
 				showDialog(DIALOG_WARN_ABORT);
 			} else {
 				if (Logging.DEBUG) Log.d(TAG, "If failed to recreate warn abort");
@@ -505,7 +510,9 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
-		TransferInfo transfer = (TransferInfo)getListAdapter().getItem(info.position);
+		TransferInfo transfer = null;
+		if (info != null)
+			transfer = (TransferInfo)getListAdapter().getItem(info.position);
 		menu.setHeaderTitle(R.string.taskCtxMenuTitle);
 		
 		if (mSelectedTransfers.size() != mTransfers.size())
@@ -515,25 +522,31 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 			menu.add(0, UNSELECT_ALL, 0, R.string.unselectAll);
 		
 		if (mSelectedTransfers.isEmpty()) {
-			if ((transfer.stateControl & (TransferInfo.ABORTED|TransferInfo.FAILED)) == 0) {
-				// Not aborted
-				menu.add(0, ABORT, 0, R.string.transferAbort);
-				if ((transfer.stateControl & (TransferInfo.RUNNING)) == 0) {
-					// Not running now
-					menu.add(0, RETRY, 0, R.string.transferRetry);
+			if (transfer != null) {
+				if ((transfer.stateControl & (TransferInfo.ABORTED|TransferInfo.FAILED)) == 0) {
+					// Not aborted
+					menu.add(0, ABORT, 0, R.string.transferAbort);
+					if ((transfer.stateControl & (TransferInfo.RUNNING)) == 0) {
+						// Not running now
+						menu.add(0, RETRY, 0, R.string.transferRetry);
+					}
 				}
 			}
 		} else {
 			menu.add(0, ABORT, 0, R.string.transferAbort);
 			menu.add(0, RETRY, 0, R.string.transferRetry);
 		}
-		menu.add(0, PROPERTIES, 0, R.string.transferProperties);
+		if (transfer != null)
+			menu.add(0, PROPERTIES, 0, R.string.transferProperties);
 	}
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
-		TransferInfo transfer = (TransferInfo)getListAdapter().getItem(info.position);
+		TransferInfo transfer = null;
+		if (info != null)
+			transfer = (TransferInfo)getListAdapter().getItem(info.position);
+		
 		switch(item.getItemId()) {
 		case PROPERTIES:
 			mChoosenTransfer = transfer;

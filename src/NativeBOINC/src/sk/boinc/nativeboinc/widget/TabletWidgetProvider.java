@@ -120,6 +120,7 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			
 			/* start manager button */
 			Intent intent = new Intent(appContext, BoincManagerActivity.class);
+			intent.putExtra(BoincManagerActivity.PARAM_CONNECT_NATIVE_CLIENT, true);
 			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			PendingIntent pendingIntent = PendingIntent.getActivity(appContext, 0, intent, 0);
 			views.setOnClickPendingIntent(R.id.widgetManager, pendingIntent);

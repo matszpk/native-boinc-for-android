@@ -545,7 +545,7 @@ public class ClientBridge implements ClientRequestHandler {
 
 	@Override
 	public boolean updateClientMode() {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		if (mClientPendingController.begin(BoincOp.UpdateClientMode)) {
@@ -557,7 +557,7 @@ public class ClientBridge implements ClientRequestHandler {
 
 	@Override
 	public boolean updateHostInfo() {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		if (mClientPendingController.begin(BoincOp.UpdateHostInfo)) {
@@ -569,7 +569,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean updateProjects() {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		if (mClientPendingController.begin(BoincOp.UpdateProjects)) {
@@ -581,7 +581,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean updateTasks() {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		if (mClientPendingController.begin(BoincOp.UpdateTasks)) {
@@ -593,7 +593,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean updateTransfers() {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		if (mClientPendingController.begin(BoincOp.UpdateTransfers)) {
@@ -605,7 +605,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean updateMessages() {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		if (mClientPendingController.begin(BoincOp.UpdateMessages)) {
@@ -616,7 +616,7 @@ public class ClientBridge implements ClientRequestHandler {
 	}
 	
 	public boolean updateNotices() {
-		if (mRemoteClient == null) {
+		if (mRemoteClient == null || mClientPendingController == null) {
 			return false; // not connected
 		}
 		
@@ -629,13 +629,13 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public void addToScheduledUpdates(ClientReceiver callback, int refreshType, int period) {
-		if (mRemoteClient == null) return; // not connected
+		if (mRemoteClient == null || mClientPendingController == null) return; // not connected
 		mAutoRefresh.scheduleAutomaticRefresh(callback, refreshType, period);
 	}
 
 	@Override
 	public void cancelScheduledUpdates(final int refreshType) {
-		if (mRemoteClient == null) return; // not connected
+		if (mRemoteClient == null || mClientPendingController == null) return; // not connected
 		// Cancel pending updates in worker thread
 		mWorker.cancelPendingUpdates(refreshType);
 		// remove from clientPendingController
@@ -657,7 +657,7 @@ public class ClientBridge implements ClientRequestHandler {
 
 	@Override
 	public boolean getBAMInfo() {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		if (mClientPendingController.begin(BoincOp.GetBAMInfo)) {
@@ -669,7 +669,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean attachToBAM(String name, String url, String password) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		if (mClientPendingController.begin(BoincOp.SyncWithBAM)) {
@@ -681,7 +681,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean synchronizeWithBAM() {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		if (mClientPendingController.begin(BoincOp.SyncWithBAM)) {
@@ -693,7 +693,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean stopUsingBAM() {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		mClientPendingController.begin(BoincOp.StopUsingBAM);
@@ -703,7 +703,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean getAllProjectsList(boolean excludeAttachedProjects) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		if (mClientPendingController.begin(BoincOp.GetAllProjectList)) {
@@ -715,7 +715,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean lookupAccount(AccountIn accountIn) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		if (mClientPendingController.begin(BoincOp.AddProject)) {
@@ -727,7 +727,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean createAccount(AccountIn accountIn) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		if (mClientPendingController.begin(BoincOp.AddProject)) {
@@ -739,7 +739,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean projectAttach(String url, String authCode, String projectName) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		// if join exists we continue operation by performing project attach
@@ -754,7 +754,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean addProject(AccountIn accountIn, boolean create) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		if (mJoinedAddProjectUrl != null)
@@ -774,7 +774,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean getProjectConfig(String url) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		if (mClientPendingController.begin(BoincOp.GetProjectConfig)) {
@@ -786,7 +786,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean handlePendingClientErrors(BoincOp boincOp, final ClientReceiver receiver) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false;
 		
 		return mClientPendingController.handlePendingErrors(boincOp, new PendingErrorHandler<BoincOp>() {
@@ -803,7 +803,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public void cancelPollOperations(int opFlags) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return;
 		mWorker.cancelPollOperations(opFlags);
 	}
@@ -811,7 +811,7 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public boolean handlePendingPollErrors(BoincOp boincOp,
 			final ClientPollReceiver receiver) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false;
 		
 		return mClientPendingController.handlePendingErrors(boincOp, new PendingErrorHandler<BoincOp>() {
@@ -829,7 +829,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public Object getPendingOutput(BoincOp boincOp) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return null;
 		
 		return mClientPendingController.takePendingOutput(boincOp);
@@ -837,7 +837,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean isOpBeingExecuted(BoincOp boincOp) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false;
 		
 		return mClientPendingController.isRan(boincOp);
@@ -845,7 +845,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean getGlobalPrefsWorking() {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		if (mClientPendingController.begin(BoincOp.GlobalPrefsWorking)) {
@@ -857,7 +857,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean setGlobalPrefsOverride(String globalPrefs) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		// this call should be always enqueued
@@ -868,7 +868,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean setGlobalPrefsOverrideStruct(GlobalPreferences globalPrefs) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false;// not connected
 		
 		// this call should be always enqueued
@@ -879,7 +879,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean runBenchmarks() {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		mClientPendingController.begin(BoincOp.RunBenchmarks);
@@ -889,7 +889,7 @@ public class ClientBridge implements ClientRequestHandler {
 
 	@Override
 	public boolean setRunMode(final int mode) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		// this call always enqueued
@@ -900,7 +900,7 @@ public class ClientBridge implements ClientRequestHandler {
 
 	@Override
 	public boolean setNetworkMode(final int mode) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		// this call always enqueued
@@ -911,7 +911,7 @@ public class ClientBridge implements ClientRequestHandler {
 
 	@Override
 	public void shutdownCore() {
-		if (mRemoteClient == null) return; // not connected
+		if (mRemoteClient == null || mClientPendingController == null) return; // not connected
 		
 		mClientPendingController.begin(BoincOp.ShutdownCore);
 		mWorker.shutdownCore();
@@ -919,7 +919,7 @@ public class ClientBridge implements ClientRequestHandler {
 
 	@Override
 	public boolean doNetworkCommunication() {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		mClientPendingController.begin(BoincOp.DoNetworkComm);
@@ -929,7 +929,7 @@ public class ClientBridge implements ClientRequestHandler {
 
 	@Override
 	public boolean projectOperation(final int operation, final String projectUrl) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		// this call should be always enqueued
@@ -940,7 +940,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean projectsOperation(final int operation, final String[] projectUrls) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		mClientPendingController.begin(BoincOp.ProjectOperation);
@@ -950,7 +950,7 @@ public class ClientBridge implements ClientRequestHandler {
 
 	@Override
 	public boolean taskOperation(final int operation, final String projectUrl, final String taskName) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		mClientPendingController.begin(BoincOp.TaskOperation);
@@ -960,7 +960,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean tasksOperation(final int operation, final TaskDescriptor[] tasks) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		mClientPendingController.begin(BoincOp.TaskOperation);
@@ -970,7 +970,7 @@ public class ClientBridge implements ClientRequestHandler {
 
 	@Override
 	public boolean transferOperation(final int operation, final String projectUrl, final String fileName) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		mClientPendingController.begin(BoincOp.TransferOperation);
@@ -980,7 +980,7 @@ public class ClientBridge implements ClientRequestHandler {
 	
 	@Override
 	public boolean transfersOperation(final int operation, final TransferDescriptor[] transfers) {
-		if (mRemoteClient == null)
+		if (mRemoteClient == null || mClientPendingController == null)
 			return false; // not connected
 		
 		mClientPendingController.begin(BoincOp.TransferOperation);

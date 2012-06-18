@@ -325,10 +325,14 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.tab_layout);
+		
 		setListAdapter(new TaskListAdapter(this));
 		registerForContextMenu(getListView());
-		mScreenOrientation = new ScreenOrientationHandler(this);
+		View emptyView = findViewById(R.id.emptyContent);
+		registerForContextMenu(emptyView);
 		
+		mScreenOrientation = new ScreenOrientationHandler(this);
 		doBindService();
 		// Restore state on configuration change (if applicable)
 		final SavedState savedState = (SavedState)getLastNonConfigurationInstance();
@@ -393,7 +397,7 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 			}
 		}
 		if (mShowWarnAbortDialog) {
-			if (mChoosenTask != null) {
+			if (mChoosenTask != null || !mSelectedTasks.isEmpty()) {
 				showDialog(DIALOG_WARN_ABORT);
 			} else {
 				if (Logging.DEBUG) Log.d(TAG, "If failed to recreate warn abort");
@@ -535,7 +539,11 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
-		TaskInfo task = (TaskInfo)getListAdapter().getItem(info.position);
+		
+		TaskInfo task = null;
+		if (info != null)
+			task = (TaskInfo)getListAdapter().getItem(info.position);
+		
 		menu.setHeaderTitle(R.string.taskCtxMenuTitle);
 		if (mSelectedTasks.size() != mTasks.size())
 			menu.add(0, SELECT_ALL, 0, R.string.selectAll);
@@ -544,18 +552,20 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 			menu.add(0, UNSELECT_ALL, 0, R.string.unselectAll);
 		
 		if (mSelectedTasks.isEmpty()) {
-			// only one task
-			if (task.stateControl == TaskInfo.SUSPENDED) {
-				// project is suspended
-				menu.add(0, RESUME, 0, R.string.taskResume);
-			}
-			else {
-				// not suspended
-				menu.add(0, SUSPEND, 0, R.string.taskSuspend);
-			}
-			if (task.stateControl != TaskInfo.ABORTED) {
-				// Not aborted
-				menu.add(0, ABORT, 0, R.string.taskAbort);
+			if (task != null) {
+				// only one task
+				if (task.stateControl == TaskInfo.SUSPENDED) {
+					// project is suspended
+					menu.add(0, RESUME, 0, R.string.taskResume);
+				}
+				else {
+					// not suspended
+					menu.add(0, SUSPEND, 0, R.string.taskSuspend);
+				}
+				if (task.stateControl != TaskInfo.ABORTED) {
+					// Not aborted
+					menu.add(0, ABORT, 0, R.string.taskAbort);
+				}
 			}
 		} else {
 			// selected tasks
@@ -563,13 +573,17 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 			menu.add(0, SUSPEND, 0, R.string.taskSuspend);
 			menu.add(0, ABORT, 0, R.string.taskAbort);
 		}
-		menu.add(0, PROPERTIES, 0, R.string.taskProperties);
+		if (task != null)
+			menu.add(0, PROPERTIES, 0, R.string.taskProperties);
 	}
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
-		TaskInfo task = (TaskInfo)getListAdapter().getItem(info.position);
+		TaskInfo task = null;
+		if (info != null)
+			task = (TaskInfo)getListAdapter().getItem(info.position);
+		
 		switch(item.getItemId()) {
 		case PROPERTIES:
 			mChoosenTask = task;

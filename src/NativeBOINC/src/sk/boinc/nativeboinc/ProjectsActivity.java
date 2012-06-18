@@ -283,8 +283,13 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.tab_layout);
+		
 		setListAdapter(new ProjectListAdapter(this));
 		registerForContextMenu(getListView());
+		View emptyView = findViewById(R.id.emptyContent);
+		registerForContextMenu(emptyView);
+		
 		mScreenOrientation = new ScreenOrientationHandler(this);
 		doBindService();
 		// Restore state on configuration change (if applicable)
@@ -353,7 +358,7 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 		}
 		
 		if (mShowWarnDetachDialog) {
-			if (mChoosenProject != null) {
+			if (mChoosenProject != null || !mSelectedProjects.isEmpty()) {
 				showDialog(DIALOG_WARN_DETACH);
 			} else {
 				if (Logging.DEBUG) Log.d(TAG, "If failed to recreate warns dialog");
@@ -474,11 +479,11 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 			break;
 		case DIALOG_WARN_DETACH:
 			text = (TextView)dialog.findViewById(R.id.dialogText);
-			String projName = (mChoosenProject.project != null) ? mChoosenProject.project :
-				mChoosenProject.masterUrl;
-			if (mSelectedProjects.isEmpty())
+			if (mSelectedProjects.isEmpty()) {
+				String projName = (mChoosenProject.project != null) ? mChoosenProject.project :
+					mChoosenProject.masterUrl;
 				text.setText(getString(R.string.warnDetachProject, projName));
-			else
+			} else
 				text.setText(getString(R.string.warnDetachProjects));
 			break;
 		}
@@ -495,7 +500,9 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
-		ProjectInfo proj = (ProjectInfo)getListAdapter().getItem(info.position);
+		ProjectInfo proj = null;
+		if (info != null)
+			proj = (ProjectInfo)getListAdapter().getItem(info.position);
 		menu.setHeaderTitle(R.string.projectCtxMenuTitle);
 		
 		if (mSelectedProjects.size() != mProjs.size())
@@ -504,24 +511,27 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 		if (!mSelectedProjects.isEmpty())
 			menu.add(0, UNSELECT_ALL, 0, R.string.unselectAll);
 		
-		menu.add(0, UPDATE, 0, R.string.projectUpdate);
+		if (proj != null)
+			menu.add(0, UPDATE, 0, R.string.projectUpdate);
 		if (mSelectedProjects.isEmpty()) {
-			if ((proj.statusId & ProjectInfo.SUSPENDED) == ProjectInfo.SUSPENDED) {
-				// project is suspended
-				menu.add(0, RESUME, 0, R.string.projectResume);
-			}
-			else {
-				// not suspended
-				menu.add(0, SUSPEND, 0, R.string.projectSuspend);
-			}
-			menu.add(0, DETACH, 0, R.string.projectDetach);
-			if ((proj.statusId & ProjectInfo.NNW) == ProjectInfo.NNW) {
-				// No-New-Work is currently set
-				menu.add(0, ANW, 0, R.string.projectANW);
-			}
-			else {
-				// New work is allowed
-				menu.add(0, NNW, 0, R.string.projectNNW);
+			if (proj != null) { // if not clicked in empty view
+				if ((proj.statusId & ProjectInfo.SUSPENDED) == ProjectInfo.SUSPENDED) {
+					// project is suspended
+					menu.add(0, RESUME, 0, R.string.projectResume);
+				}
+				else {
+					// not suspended
+					menu.add(0, SUSPEND, 0, R.string.projectSuspend);
+				}
+				menu.add(0, DETACH, 0, R.string.projectDetach);
+				if ((proj.statusId & ProjectInfo.NNW) == ProjectInfo.NNW) {
+					// No-New-Work is currently set
+					menu.add(0, ANW, 0, R.string.projectANW);
+				}
+				else {
+					// New work is allowed
+					menu.add(0, NNW, 0, R.string.projectNNW);
+				}
 			}
 		} else {
 			menu.add(0, RESUME, 0, R.string.projectResume);
@@ -530,13 +540,17 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 			menu.add(0, ANW, 0, R.string.projectANW);
 			menu.add(0, NNW, 0, R.string.projectNNW);
 		}
-		menu.add(0, PROPERTIES, 0, R.string.projectProperties);
+		if (proj != null)
+			menu.add(0, PROPERTIES, 0, R.string.projectProperties);
 	}
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
-		ProjectInfo proj = (ProjectInfo)getListAdapter().getItem(info.position);
+		ProjectInfo proj = null;
+		if (info != null)
+			proj = (ProjectInfo)getListAdapter().getItem(info.position);
+		
 		switch(item.getItemId()) {
 		case PROPERTIES:
 			mChoosenProject = proj;

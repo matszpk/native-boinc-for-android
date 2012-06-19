@@ -23,6 +23,8 @@ import hal.android.workarounds.FixedProgressDialog;
 
 import java.util.ArrayList;
 
+import edu.berkeley.boinc.nativeboinc.ClientEvent;
+
 import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientPollReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientUpdateNoticesReceiver;
@@ -31,6 +33,7 @@ import sk.boinc.nativeboinc.clientconnection.NoticeInfo;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.installer.InstallerService;
+import sk.boinc.nativeboinc.nativeclient.MonitorListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.service.ConnectionManagerService;
@@ -70,7 +73,7 @@ import android.widget.Toast;
 
 
 public class BoincManagerActivity extends TabActivity implements ClientUpdateNoticesReceiver,
-		ClientPollReceiver, NativeBoincStateListener {
+		ClientPollReceiver, NativeBoincStateListener, MonitorListener {
 	private static final String TAG = "BoincManagerActivity";
 
 	private static final int DIALOG_CONNECT_PROGRESS = 1;
@@ -112,6 +115,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	private boolean mConnectClientAfterStart = false;
 	private boolean mConnectingAfterRestart = false; // true when connecting to native client after restart
 	
+	private boolean mDoUpdateCurrentTab = false;
+	
 	private boolean mIsInstallerRan = false;
 	private boolean mShowShutdownDialog = false;
 	
@@ -132,6 +137,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		private final int connectProgressIndicator;
 		private final boolean connectClientAfterStart;
 		private final boolean connectClientAfterRestart;
+		private final boolean doUpdateCurrentTab;
 		private final boolean doConnectNativeClient;
 		private final boolean showShutdownDialog;
 		private final boolean stoppedInMainActivity;
@@ -141,6 +147,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			initialDataAvailable = activity.mInitialDataAvailable;
 			connectClientAfterStart = activity.mConnectClientAfterStart;
 			connectClientAfterRestart = activity.mConnectClientAfterRestart;
+			doUpdateCurrentTab = activity.mDoUpdateCurrentTab;
 			if (Logging.DEBUG) Log.d(TAG, "saved: initialDataAvailable=" + initialDataAvailable);
 			connectProgressIndicator = activity.mConnectProgressIndicator;
 			if (Logging.DEBUG) Log.d(TAG, "saved: connectProgressIndicator=" + connectProgressIndicator);
@@ -157,6 +164,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			activity.mIsInstallerRan = isInstallerRan;
 			activity.mConnectClientAfterStart = connectClientAfterStart;
 			activity.mConnectClientAfterRestart = connectClientAfterRestart;
+			activity.mDoUpdateCurrentTab = doUpdateCurrentTab;
 			activity.mDoConnectNativeClient = doConnectNativeClient;
 			activity.mShowShutdownDialog = showShutdownDialog;
 			activity.mStoppedInMainActivity = stoppedInMainActivity;
@@ -237,6 +245,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			mRunner = ((NativeBoincService.LocalBinder)service).getService();
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceConnected()");
 			
+			// add monitor listener only once
+			mRunner.addMonitorListener(BoincManagerActivity.this);
 			onRunnerStart();
 		}
 		
@@ -265,8 +275,11 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	
 	private void doUnbindRunnerService() {
 		if (Logging.DEBUG) Log.d(TAG, "doUnbindRunnerService()");
-		if (mRunner != null)
+		if (mRunner != null) {
+			// remove monitor listener only once
+			mRunner.removeMonitorListener(this);
 			mRunner.removeNativeBoincListener(this);
+		}
 		unbindService(mRunnerServiceConnection);
 		mRunner = null;
 	}
@@ -505,6 +518,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	private void onRunnerStart() {
 		if (Logging.DEBUG) Log.d(TAG, "reregister runner listener");
 		mRunner.addNativeBoincListener(this);
+		
 		if (!mConnectClientAfterRestart || mConnectClientAfterStart) { 
 			// if not connected after restart or is second phase
 			if ((mConnectClientAfterRestart && mRunner.isRestarted()) // only when restarted
@@ -573,6 +587,12 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			doBindRunnerService();
 		} else // when runner starts
 			onRunnerStart();
+		
+		if (mDoUpdateCurrentTab && mConnectionManager != null) {
+			if (Logging.DEBUG) Log.d(TAG, "DoUpdateCurrentTab");
+			updateCurrentTabAtClientEvent();
+			mDoUpdateCurrentTab = false;
+		}
 	}
 
 	@Override
@@ -1132,6 +1152,51 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			setProgressBarIndeterminateVisibility(true);
 		else if ((mConnectionManager == null || !mConnectionManager.isWorking()) && !isWorking)
 			setProgressBarIndeterminateVisibility(false);
+	}
+	
+	/*
+	 * receive monitor and refresh current tab 
+	 */
+	private void updateCurrentTabAtClientEvent() {
+		if (mConnectionManager == null || !mConnectionManager.isNativeConnected())
+			return;
+		
+		int currentTab = getTabHost().getCurrentTab();
+		if (Logging.DEBUG) Log.d(TAG, "update current tab:" + currentTab);
+		
+		switch (currentTab) {
+		case 0: // projects
+			mConnectionManager.updateProjects();
+			break;
+		case 1: // tasks
+			mConnectionManager.updateTasks();
+			break;
+		case 2: // transfers
+			mConnectionManager.updateTransfers();
+			break;
+		case 3: // messages
+			mConnectionManager.updateMessages();
+			break;
+		case 4: // notices
+			mConnectionManager.updateNotices();
+			break;
+		}
+	}
+	
+	@Override
+	public void onMonitorEvent(ClientEvent event) {
+		// trigger widget update
+		if (!mIsPaused) {
+			if (mConnectionManager != null && mConnectionManager.isNativeConnected())
+				updateCurrentTabAtClientEvent();
+		} else {
+			mDoUpdateCurrentTab = true;
+		}
+	}
+	
+	@Override
+	public void onMonitorDoesntWork() {
+		// do nothing
 	}
 	
 	private void updateTitle() {

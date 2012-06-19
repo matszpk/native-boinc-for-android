@@ -27,7 +27,10 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.berkeley.boinc.nativeboinc.ClientEvent;
+
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.nativeclient.MonitorListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincTasksListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincReplyListener;
@@ -45,6 +48,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.IBinder;
 import android.os.Parcelable;
@@ -67,7 +71,7 @@ import android.widget.Toast;
  * </ul>
  */
 public class BoincManagerApplication extends Application implements NativeBoincStateListener,
-	NativeBoincReplyListener, NativeBoincTasksListener {
+	NativeBoincReplyListener, NativeBoincTasksListener, MonitorListener, OnSharedPreferenceChangeListener {
 	
 	private static final String TAG = "BoincManagerApplication";
 
@@ -104,6 +108,8 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	private boolean mRunRestartAfterReinstall = false;
 	private boolean mRestartedAfterReinstall = false;
 	
+	private SharedPreferences mGlobalPrefs = null;
+	
 	private ServiceConnection mRunnerServiceConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
@@ -111,6 +117,8 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceConnected()");
 			// service automatically adds application object to listeners
 			mRunner.addNativeBoincListener(BoincManagerApplication.this);
+			mRunner.addMonitorListener(BoincManagerApplication.this);
+			
 			if (!mRunner.isRun()) {
 				if (mDoStartClientAfterBind && !mRunner.isRun()) {
 					if (Logging.DEBUG) Log.d(TAG, "Start client after bind runner");
@@ -139,6 +147,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		if (Logging.DEBUG) Log.d(TAG, "Undind runner service");
 		unbindService(mRunnerServiceConnection);
 		mRunner.removeNativeBoincListener(this);
+		mRunner.removeMonitorListener(this);
 		mRunner = null;
 	}
 	
@@ -158,9 +167,10 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		
 		mNotificationController = new NotificationController(this);
 		
-		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-		mWidgetUpdatePeriod = Integer.parseInt(globalPrefs.getString(PreferenceName.WIDGET_UPDATE, "10"))*1000;
-		mInstallerStage = globalPrefs.getInt(PreferenceName.INSTALLER_STAGE, INSTALLER_NO_STAGE);
+		mGlobalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		mWidgetUpdatePeriod = Integer.parseInt(mGlobalPrefs.getString(PreferenceName.WIDGET_UPDATE, "10"))*1000;
+		mInstallerStage = mGlobalPrefs.getInt(PreferenceName.INSTALLER_STAGE, INSTALLER_NO_STAGE);
+		mGlobalPrefs.registerOnSharedPreferenceChangeListener(this);
 	}
 
 	@Override
@@ -374,13 +384,22 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	@Override
 	public void onClientStart() {
 		if (Logging.DEBUG) Log.d(TAG, "On client start");
+		prepareUpdateWidgets(false);
+	}
+	
+	private void prepareUpdateWidgets(boolean isWidgetUpdateChanged) {
+		if (Logging.DEBUG) Log.d(TAG, "Prepare Update Widgets");
 		Intent intent = new Intent(NativeBoincWidgetProvider.NATIVE_BOINC_WIDGET_PREPARE_UPDATE);
+		if (isWidgetUpdateChanged)
+			intent.putExtra(NativeBoincWidgetProvider.WIDGET_UPDATE_CHANGED, true);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		try {
 			pendingIntent.send();
 		} catch (Exception ex) { }
 		
 		intent = new Intent(TabletWidgetProvider.NATIVE_BOINC_WIDGET_PREPARE_UPDATE);
+		if (isWidgetUpdateChanged)
+			intent.putExtra(TabletWidgetProvider.WIDGET_UPDATE_CHANGED, true);
 		pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		try {
 			pendingIntent.send();
@@ -404,8 +423,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	
 	@Override
 	public void onClientStop(int exitCode, boolean stoppedByManager) {
-		updateWidgets();
-				
+		updateWidgets();	
 		// unbind service
 		doUnbindRunnerService();
 	}
@@ -431,22 +449,39 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		return false;
 	}
 	
+	@Override
+	public void onMonitorEvent(ClientEvent event) {
+		// trigger widget update
+		prepareUpdateWidgets(false);
+	}
+	
+	@Override
+	public void onMonitorDoesntWork() {
+		// do nothing
+	}
+	
 	/**
 	 * 
 	 * @return true if changed, otherwise false
 	 */
-	public boolean updateWidgetUpdatePeriod() {
-		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-		int newPeriod = Integer.parseInt(globalPrefs.getString(PreferenceName.WIDGET_UPDATE, "10"))*1000;
-		if (newPeriod != mWidgetUpdatePeriod) {
-			mWidgetUpdatePeriod = newPeriod;
-			return true;
-		}
-		return false;
-	}
-	
 	public int getWigetUpdatePeriod() {
 		return mWidgetUpdatePeriod;
+	}
+	
+	/*
+	 * when widget update prefs changed, we update setup and trigger update with updating widget update prefs
+	 */
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+			String key) {
+		if (key.equals(PreferenceName.WIDGET_UPDATE)) {
+			int newPeriod = Integer.parseInt(sharedPreferences.getString(
+					PreferenceName.WIDGET_UPDATE, "10"))*1000;
+			if (Logging.DEBUG) Log.d(TAG, "When widget update changed to "+newPeriod);
+			mWidgetUpdatePeriod = newPeriod;
+			// update widget
+			prepareUpdateWidgets(true);
+		}
 	}
 
 	@Override

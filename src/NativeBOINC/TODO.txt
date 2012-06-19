@@ -99,7 +99,7 @@ jeszcze raz usprawnic i uszczelnić obsługę błędów
 
   * automatyczne dodaj włączanie/wyłączanie opcji w ManageClientActivity
   * dodaj opcję autostartu (gdy odpala się aplikację i gdy odpala się system)
-  * dodaj automatyczne refresh widgetów przy zdarzeniach klientach
+/ * dodaj automatyczne refresh widgetów przy zdarzeniach klientach
 / * zabezpiecz operacje na na DB listy klientów
   * usprawnij opcję zliczania wykorzystania sieci (tak by odświeżać co 1-2 sekundy)
 / * dodaj wskaźnik temperatury w ScreenLockActivity.
@@ -111,7 +111,7 @@ jeszcze raz usprawnic i uszczelnić obsługę błędów
     w pause/resume
   * sprawdź opcję w nativeclient activity
   * sprawdź opcje autom. połączenia przy starcie aplikacji (głównego okna).
-  * automatycznie aktualizuj stan w głównym oknie przy eventach klienta
+/ * automatycznie aktualizuj stan w głównym oknie przy eventach klienta
   * popraw kończenie instalacji projektu, gdy klient padł przy update_apps lub nie odpowiada przez ok. 7 sek.
   * sprawdz synchronizacje projektów z distribManager (synchronize project distribs).
 

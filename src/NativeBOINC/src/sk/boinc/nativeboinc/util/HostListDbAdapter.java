@@ -59,13 +59,21 @@ public class HostListDbAdapter {
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			if (Logging.INFO) Log.i(TAG, "Creating database, version " + DATABASE_VERSION);
-			db.execSQL(DATABASE_CREATE);
+			try {
+				db.execSQL(DATABASE_CREATE);
+			} catch(SQLException ex) {
+				if (Logging.ERROR) Log.e(TAG, "Cant create database");
+			}
 		}
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			// No upgrade needed yet, default stuff used here:
 			if (Logging.WARNING) Log.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion + ", destroying all old data");
-			db.execSQL(DATABASE_CLEAN);
+			try {
+				db.execSQL(DATABASE_CLEAN);
+			} catch(SQLException ex) {
+				if (Logging.ERROR) Log.e(TAG, "Cant upgrade database");
+			}
 			onCreate(db);
 		}
 	}
@@ -106,9 +114,13 @@ public class HostListDbAdapter {
 	 */
 	public void close() {
 		if (Logging.DEBUG) Log.d(String.valueOf(this), "close()");
-		if (mDbHelper != null) {
-			mDbHelper.close();
-			mDbHelper = null;
+		try {
+			if (mDbHelper != null) {
+				mDbHelper.close();
+				mDbHelper = null;
+			}
+		} catch(SQLException ex) {
+			if (Logging.ERROR) Log.e(TAG, "SQLException at close: "+ ex.getMessage());
 		}
 		mDb = null;
 	}
@@ -120,12 +132,17 @@ public class HostListDbAdapter {
 	 * @return the new rowId for that entry in case of success, otherwise -1 to indicate failure
 	 */
 	public long addHost(ClientId clientId) {
-		ContentValues initialValues = new ContentValues();
-		initialValues.put(FIELD_HOST_NICKNAME, clientId.getNickname());
-		initialValues.put(FIELD_HOST_ADDRESS, clientId.getAddress());
-		initialValues.put(FIELD_HOST_PORT, clientId.getPort());
-		initialValues.put(FIELD_HOST_PASSWORD, clientId.getPassword());
-		return mDb.insert(TABLE_HOSTS, null, initialValues);
+		try {
+			ContentValues initialValues = new ContentValues();
+			initialValues.put(FIELD_HOST_NICKNAME, clientId.getNickname());
+			initialValues.put(FIELD_HOST_ADDRESS, clientId.getAddress());
+			initialValues.put(FIELD_HOST_PORT, clientId.getPort());
+			initialValues.put(FIELD_HOST_PASSWORD, clientId.getPassword());
+			return mDb.insert(TABLE_HOSTS, null, initialValues);
+		} catch(SQLException ex) {
+			if (Logging.ERROR) Log.e(TAG, "SQLException at addHost: "+ ex.getMessage());
+			return -1;
+		}
 	}
 
 	/**
@@ -135,7 +152,12 @@ public class HostListDbAdapter {
 	 * @return true if deleted, false otherwise
 	 */
 	public boolean deleteHost(long rowId) {
-		return mDb.delete(TABLE_HOSTS, KEY_ROWID + "=" + rowId, null) > 0;
+		try {
+			return mDb.delete(TABLE_HOSTS, KEY_ROWID + "=" + rowId, null) > 0;
+		} catch(SQLException ex) {
+			if (Logging.ERROR) Log.e(TAG, "SQLException at deleteHost: "+ ex.getMessage());
+			return false;
+		}
 	}
 
 	/**
@@ -145,13 +167,18 @@ public class HostListDbAdapter {
 	 * @return true if the note was successfully updated, false otherwise
 	 */
 	public boolean updateHost(ClientId clientId) {
-		long rowId = clientId.getId();
-		ContentValues newValues = new ContentValues();
-		newValues.put(FIELD_HOST_NICKNAME, clientId.getNickname());
-		newValues.put(FIELD_HOST_ADDRESS, clientId.getAddress());
-		newValues.put(FIELD_HOST_PORT, clientId.getPort());
-		newValues.put(FIELD_HOST_PASSWORD, clientId.getPassword());
-		return (mDb.update(TABLE_HOSTS, newValues, KEY_ROWID + "=" + rowId, null) > 0);
+		try {
+			long rowId = clientId.getId();
+			ContentValues newValues = new ContentValues();
+			newValues.put(FIELD_HOST_NICKNAME, clientId.getNickname());
+			newValues.put(FIELD_HOST_ADDRESS, clientId.getAddress());
+			newValues.put(FIELD_HOST_PORT, clientId.getPort());
+			newValues.put(FIELD_HOST_PASSWORD, clientId.getPassword());
+			return (mDb.update(TABLE_HOSTS, newValues, KEY_ROWID + "=" + rowId, null) > 0);
+		} catch(SQLException ex) {
+			if (Logging.ERROR) Log.e(TAG, "SQLException at updateHost: "+ ex.getMessage());
+			return false;
+		}
 	}
 
 	/**
@@ -160,9 +187,14 @@ public class HostListDbAdapter {
 	 * @return Cursor over all data
 	 */
 	public Cursor fetchAllHosts() {
-		return mDb.query(TABLE_HOSTS,
-				new String[] {KEY_ROWID, FIELD_HOST_NICKNAME, FIELD_HOST_ADDRESS, FIELD_HOST_PORT, FIELD_HOST_PASSWORD},
-				null, null, null, null, null);
+		try {
+			return mDb.query(TABLE_HOSTS,
+					new String[] {KEY_ROWID, FIELD_HOST_NICKNAME, FIELD_HOST_ADDRESS, FIELD_HOST_PORT, FIELD_HOST_PASSWORD},
+					null, null, null, null, null);
+		} catch(SQLException ex) {
+			if (Logging.ERROR) Log.e(TAG, "SQLException at fetchAllHosts: "+ ex.getMessage());
+			return null;
+		}
 	}
 
 	/**
@@ -173,14 +205,19 @@ public class HostListDbAdapter {
 	 */
 	public ClientId fetchHost(String nickname) {
 		ClientId clientId = null;
-		Cursor cur = mDb.query(true, TABLE_HOSTS,
-				new String[] {KEY_ROWID, FIELD_HOST_NICKNAME, FIELD_HOST_ADDRESS, FIELD_HOST_PORT, FIELD_HOST_PASSWORD},
-				FIELD_HOST_NICKNAME + "=\'" + escapeString(nickname) + "\'", null, null, null, null, null);
-		if (cur != null) {
-			if (cur.moveToFirst()) {
-				clientId = new ClientId(cur);
+		try {
+			Cursor cur = mDb.query(true, TABLE_HOSTS,
+					new String[] {KEY_ROWID, FIELD_HOST_NICKNAME, FIELD_HOST_ADDRESS, FIELD_HOST_PORT, FIELD_HOST_PASSWORD},
+					FIELD_HOST_NICKNAME + "=\'" + escapeString(nickname) + "\'", null, null, null, null, null);
+			if (cur != null) {
+				if (cur.moveToFirst()) {
+					clientId = new ClientId(cur);
+				}
+				cur.close();
 			}
-			cur.close();
+		} catch (SQLException ex) { // if error
+			if (Logging.ERROR) Log.e(TAG, "SQLException at fetchHost: "+ ex.getMessage());
+			return null;
 		}
 		return clientId;
 	}
@@ -193,15 +230,20 @@ public class HostListDbAdapter {
 	 * @return true if nickname is unique, false otherwise
 	 */
 	public boolean hostUnique(long rowId, String nickname) {
-		Cursor cur = mDb.query(true, TABLE_HOSTS,
-				new String[] { KEY_ROWID, FIELD_HOST_NICKNAME },
-				KEY_ROWID + "!=" + rowId + " AND " + FIELD_HOST_NICKNAME + "='" + escapeString(nickname) + "'",
-				null, null, null, null, null);
-		if (cur == null) return true;
-		boolean found = cur.moveToFirst();
-		cur.close();
-		cur = null;
-		return !found;
+		try {
+			Cursor cur = mDb.query(true, TABLE_HOSTS,
+					new String[] { KEY_ROWID, FIELD_HOST_NICKNAME },
+					KEY_ROWID + "!=" + rowId + " AND " + FIELD_HOST_NICKNAME + "='" + escapeString(nickname) + "'",
+					null, null, null, null, null);
+			if (cur == null) return true;
+			boolean found = cur.moveToFirst();
+			cur.close();
+			cur = null;
+			return !found;
+		} catch(SQLException ex) {
+			if (Logging.ERROR) Log.e(TAG, "SQLException at hostUnique: "+ ex.getMessage());
+			return false;
+		}
 	}
 	
 	/**

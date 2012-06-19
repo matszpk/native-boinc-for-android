@@ -96,8 +96,27 @@ jeszcze raz usprawnic i uszczelnić obsługę błędów
 / * dodaj long scrolling do taba messages
 / * popraw błąd w ConnectionBridge:792 (NPE)
 
+
+  * automatyczne dodaj włączanie/wyłączanie opcji w ManageClientActivity
+  * dodaj opcję autostartu (gdy odpala się aplikację i gdy odpala się system)
+  * dodaj automatyczne refresh widgetów przy zdarzeniach klientach
+/ * zabezpiecz operacje na na DB listy klientów
+  * usprawnij opcję zliczania wykorzystania sieci (tak by odświeżać co 1-2 sekundy)
+/ * dodaj wskaźnik temperatury w ScreenLockActivity.
+  * właściwie obsługuj brak odpowiedzi klienta przy starcie (np.: gdy benchmark jest odpalony)
+/ * popraw autorestart gdy zrobiono przy nim screen lock
+  * sprawdz zachowanie przy instalacji na drugim ekranie gdy user wybrać projekt z listy BOINC'a
+    (nowa aktywność ProjectList)
+  * obsługuj poprawnie postęp w transferu przyłączeniu i nie tylko (zdarzenie connectionProgress)
+    w pause/resume
+  * sprawdź opcję w nativeclient activity
+  * sprawdź opcje autom. połączenia przy starcie aplikacji (głównego okna).
+  * automatycznie aktualizuj stan w głównym oknie przy eventach klienta
+  * popraw kończenie instalacji projektu, gdy klient padł przy update_apps lub nie odpowiada przez ok. 7 sek.
+  * sprawdz synchronizacje projektów z distribManager (synchronize project distribs).
+
 następne wersje:
 * dodać obsługę screensavera.
 
 client: bugs
-* usuń problem z pierwszymi WU po instalacji projektu. (text busy). (częsciowo usunięty)
+/ * usuń problem z pierwszymi WU po instalacji projektu. (text busy).

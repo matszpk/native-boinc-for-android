@@ -110,6 +110,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	
 	private boolean mConnectClientAfterRestart = false;
 	private boolean mConnectClientAfterStart = false;
+	private boolean mConnectingAfterRestart = false; // true when connecting to native client after restart
 	
 	private boolean mIsInstallerRan = false;
 	private boolean mShowShutdownDialog = false;
@@ -201,6 +202,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			if (Logging.WARNING) Log.w(TAG, "onServiceDisconnected()");
 			// We also reset client reference to prevent mess
 			mConnectedClient = null;
+			mConnectingAfterRestart = false;
 			mSelectedClient = null;
 			setProgressBarIndeterminateVisibility(false);
 		}
@@ -505,7 +507,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		mRunner.addNativeBoincListener(this);
 		if (!mConnectClientAfterRestart || mConnectClientAfterStart) { 
 			// if not connected after restart or is second phase
-			if (mRunner.isRun())
+			if ((mConnectClientAfterRestart && mRunner.isRestarted()) // only when restarted
+					|| (!mConnectClientAfterRestart && mRunner.isRun())) // only when to dont restart
 				onClientStart();	// if client start
 			
 			if (mSelectedClient != null) {
@@ -945,6 +948,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 
 	@Override
 	public void clientConnected(VersionInfo clientVersion) {
+		if (Logging.DEBUG) Log.d(TAG, "Client Connected!");
 		mConnectedClient = mConnectionManager.getClientId();
 		mConnectedClientVersion = clientVersion;
 		if (mConnectedClient != null) {
@@ -966,6 +970,9 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			}
 			if (Build.VERSION.SDK_INT >= 11)
 				invalidateOptionsMenu();
+			
+			if (mConnectedClient.isNativeClient())
+				mConnectingAfterRestart = false;
 		}
 		else {
 			// Received connected notification, but client is unknown!
@@ -985,6 +992,9 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		mConnectedClient = null;
 		mConnectedClientVersion = null;
 		mInitialDataAvailable = false;
+		boolean connectingAfterRestart = mConnectingAfterRestart;
+		if (prevConnectedClient != null && prevConnectedClient.isNativeClient())
+			mConnectingAfterRestart = false;
 		updateTitle();
 		dismissProgressDialog();
 		if (mSelectedClient != null) {
@@ -994,8 +1004,9 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 				boincConnect();
 			
 		} else {
-			StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, mRunner,
-					prevConnectedClient, disconnectedByManager);
+			if (!connectingAfterRestart) // only when not connecting after restart
+				StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, mRunner,
+						prevConnectedClient, disconnectedByManager);
 			if (Build.VERSION.SDK_INT >= 11)
 				invalidateOptionsMenu();
 		}
@@ -1004,8 +1015,10 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 
 	@Override
 	public boolean clientError(BoincOp boincOp, int errorNum, String message) {
-		if (!mIsPaused && (!mConnectionManager.isNativeConnected() || !mRunner.ifStoppedByManager())) {
-			StandardDialogs.showClientErrorDialog(this, errorNum, message);
+		if (!mIsPaused) {
+			if (!mConnectingAfterRestart && // only when not connecting after restart
+					(!mConnectionManager.isNativeConnected() || mRunner == null || !mRunner.ifStoppedByManager()))
+				StandardDialogs.showClientErrorDialog(this, errorNum, message);
 			return true;
 		}
 		return false;
@@ -1013,8 +1026,9 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	
 	@Override
 	public boolean onPollError(int errorNum, int operation, String errorMessage, String param) {
-		if (!mIsPaused && (!mConnectionManager.isNativeConnected() || !mRunner.ifStoppedByManager())) {
-			StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
+		if (!mIsPaused) {
+			if (!mConnectionManager.isNativeConnected() || mRunner == null || !mRunner.ifStoppedByManager())
+				StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
 			return true;
 		}
 		return false;
@@ -1053,6 +1067,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			else // if normal start
 				dismissDialog(DIALOG_START_PROGRESS);
 			
+			boolean connectClientAfterRestart = mConnectClientAfterRestart;
 			mConnectClientAfterStart = false;
 			mConnectClientAfterRestart = false;
 			
@@ -1061,8 +1076,11 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			mSelectedClient = dbHelper.fetchHost("nativeboinc");
 			dbHelper.close();
 					
-			if (mSelectedClient != null)
+			if (mSelectedClient != null) {
+				if (connectClientAfterRestart)
+					mConnectingAfterRestart = true;
 				boincConnect();
+			}
 			
 			if (Build.VERSION.SDK_INT >= 11)
 				invalidateOptionsMenu();
@@ -1162,7 +1180,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 				return;
 			}
 			if (mSelectedClient == null) {
-				if (Logging.WARNING) Log.w(TAG, "boinc connect selected client is numm");
+				if (Logging.WARNING) Log.w(TAG, "boinc connect selected client is null");
 				return;
 			}
 			if (Logging.DEBUG) Log.d(TAG, "boinc connect");

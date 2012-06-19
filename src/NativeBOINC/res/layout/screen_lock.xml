@@ -31,6 +31,17 @@
 		android:textColor="@color/screenLockBarText"
 		android:paddingRight="5dip"
 		android:gravity="right" >
+		<ImageView 
+  		    android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/thermometer"/> 
+	  	<TextView
+	  		android:id="@+id/thermText"
+			android:layout_width="wrap_content"
+			android:layout_height="fill_parent"
+			android:gravity="right|center_vertical"
+			android:textStyle="bold"
+			android:textColor="@color/screenLockBarText" />
   		<ImageView 
   		    android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

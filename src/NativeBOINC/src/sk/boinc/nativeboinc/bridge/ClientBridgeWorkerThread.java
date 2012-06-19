@@ -119,7 +119,10 @@ public class ClientBridgeWorkerThread extends Thread {
 	public void disconnect() {
 		// Run immediately NOW (from UI thread), 
 		// because worker thread can be busy with some time-consuming task
-		mHandler.disconnect();
+		if (mHandler != null)
+			mHandler.disconnect();
+		else
+			if (Logging.WARNING) Log.w(TAG, "mHandler on disconnect is null"); 
 		// Triggers for worker thread will be internally arranged by mHandler
 	}
 	

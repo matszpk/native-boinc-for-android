@@ -62,10 +62,12 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 	
 	private TextView mLockText;
 	private TextView mBarText;
+	private TextView mThermBarText;
 	
 	private SimpleDateFormat mDateFormat;
 	
 	private int mBatteryLevel = -1;
+	private int mTemperature = -1;
 	
 	private boolean mIsRefreshingOn = true;
 	private boolean mIfProgressUpdated = false;
@@ -79,6 +81,7 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(Intent.ACTION_BATTERY_CHANGED)) {
 				mBatteryLevel = intent.getIntExtra("level", 0);
+				mTemperature = intent.getIntExtra("temperature", 0);
 			}
 		}
 	};
@@ -114,6 +117,12 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 				mBarText.setText(mBatteryLevel + mDateFormat.format(new Date()));
 			else
 				mBarText.setText("---" + mDateFormat.format(new Date()));
+			
+			
+			if (mTemperature != -1)
+				mThermBarText.setText((mTemperature/10) + "." + (mTemperature%10) + " °C");
+			else
+				mThermBarText.setText("---");
 			
 			// run again
 			mLockProgress.postDelayed(mRefresher, mUpdatePeriod);
@@ -169,6 +178,7 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 		mProgressRunning = (ProgressBar)findViewById(R.id.lockProgressRunning);
 		mProgressText = (TextView)findViewById(R.id.lockProgressText);
 		mBarText = (TextView)findViewById(R.id.screenLockBarText);
+		mThermBarText = (TextView)findViewById(R.id.thermText);
 		
 		// run refresher
 		mLockProgress.postDelayed(mRefresher, 100); 

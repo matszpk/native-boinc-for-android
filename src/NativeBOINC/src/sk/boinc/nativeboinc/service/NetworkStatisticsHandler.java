@@ -34,7 +34,8 @@ import android.util.Log;
 public class NetworkStatisticsHandler implements NetStats, OnSharedPreferenceChangeListener {
 	private static final String TAG = "NetworkStatisticsHandler";
 
-	private static final int CHKPNT_THRES_SIZE = 100000;
+	private static final int CHKPNT_THRES_SIZE = 10000;
+	private static final int CHKPNT_PERIOD = 4000; // 4 seconds
 
 	private Handler mHandler = new Handler();
 	private Context mContext = null;
@@ -44,6 +45,8 @@ public class NetworkStatisticsHandler implements NetStats, OnSharedPreferenceCha
 	private long mTotalSent     = 0;
 	private long mUncommittedReceived = 0;
 	private long mUncommittedSent     = 0;
+	
+	private long mLastCommitTime = -1;
 
 	public NetworkStatisticsHandler(Context context) {
 		mContext = context;
@@ -152,11 +155,14 @@ public class NetworkStatisticsHandler implements NetStats, OnSharedPreferenceCha
 			editor.commit();
 			mUncommittedReceived = 0;
 			mUncommittedSent = 0;
+			
+			mLastCommitTime = System.currentTimeMillis();
 		}
 	}
 
 	private void checkpoint() {
-		if ((mUncommittedReceived + mUncommittedSent) > CHKPNT_THRES_SIZE) {
+		if (((mUncommittedReceived + mUncommittedSent) > CHKPNT_THRES_SIZE) || 
+				((System.currentTimeMillis()-mLastCommitTime) > CHKPNT_PERIOD)) {
 			// Time to save statistics
 			if (Logging.DEBUG) Log.d(TAG, "Uncommitted total: " + (mUncommittedReceived + mUncommittedSent) + ", checkpoint");
 			commitPending();
@@ -174,4 +180,8 @@ public class NetworkStatisticsHandler implements NetStats, OnSharedPreferenceCha
 		mUncommittedReceived = 0;
 		mUncommittedSent = 0;
 	}
+	
+	/**
+	 * receive total
+	 */
 }

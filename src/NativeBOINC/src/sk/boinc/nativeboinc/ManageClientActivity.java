@@ -157,6 +157,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			mDoGetBAMInfo = false;
 			mSyncingBAMInProgress = false;
 			setProgressBarIndeterminateVisibility(false);
+			// update particular prefs
+			updateParticularPreferences();
 		}
 	};
 	
@@ -207,6 +209,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			public boolean onPreferenceClick(Preference preference) {
 				mConnectionManager.getBAMInfo();
 				mDoGetBAMInfo = true;
+				disableBAMPreferences();
 				return true;
 			}
 		});
@@ -340,6 +343,9 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			if (!mConnectionManager.isOpBeingExecuted(BoincOp.SyncWithBAM))
 				onAfterAccountMgrRPC();
 		}
+		
+		// update particular prefs
+		updateParticularPreferences();
 	}
 
 	@Override
@@ -623,6 +629,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		case PROGRESS_XFER_STARTED:
 			break;
 		case PROGRESS_XFER_FINISHED:
+			if (boincOp.equals(BoincOp.RunBenchmarks) || boincOp.equals(BoincOp.DoNetworkComm))
+				updateParticularPreferences();
 			break;
 		case PROGRESS_XFER_POLL:
 			break;
@@ -652,6 +660,9 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			
 			if (Build.VERSION.SDK_INT >= 11)
 				invalidateOptionsMenu();
+			
+			// update preferences
+			updateParticularPreferences();
 		}
 		else {
 			// Received connected notification, but client is unknown!
@@ -683,12 +694,17 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		}
 		if (Build.VERSION.SDK_INT >= 11)
 			invalidateOptionsMenu();
+		
+		// update preferences
+		updateParticularPreferences();
 	}
 	
 	@Override
 	public boolean onAfterAccountMgrRPC() {
 		dismissBAMProgressDialog();
 		mSyncingBAMInProgress = false;
+		// update preferences
+		updateParticularPreferences();
 		return true;
 	}
 
@@ -701,12 +717,15 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			mSyncingBAMInProgress = false;
 		}
 		StandardDialogs.showPollErrorDialog(this, errorNum, operation, errorMessage, param);
+		// update preferences
+		updateParticularPreferences();
 		return true;
 	}
 	
 	@Override
 	public  void onPollCancel(int opFlags) {
-		// do nothing
+		// update preferences
+		updateParticularPreferences();
 	}
 
 	@Override
@@ -721,6 +740,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		mSyncingBAMInProgress = false;
 		Log.d(TAG, "client error");
 		StandardDialogs.showClientErrorDialog(this, errorNum, message);
+		// update preferences
+		updateParticularPreferences();
 		return true;
 	}
 	
@@ -757,6 +778,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			Intent intent = new Intent(this, EditBAMActivity.class);
 			intent.putExtra(BAMAccount.TAG, new BAMAccount(bamInfo.acct_mgr_name, "", ""));
 			startActivity(intent);
+			// if end of operation (next part in edit bam activity)
+			updateParticularPreferences();
 		} else {
 			mSyncingBAMInProgress = true;
 			showDialog(DIALOG_ATTACH_BAM_PROGRESS);
@@ -843,7 +866,51 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		
 		}
 	}
-
+	
+	/*
+	 * enabling/disabling particular preferences
+	 */
+	private void disableRunBenchmarkPreference() {
+		Preference pref = findPreference("runBenchmark");
+		pref.setEnabled(false);
+	}
+	
+	private void disableDoNetworkCommPreference() {
+		Preference pref = findPreference("doNetworkCommunication");
+		pref.setEnabled(false);
+	}
+	
+	private void disableBAMPreferences() {
+		Preference pref = findPreference("synchronizeWithBAM");
+		pref.setEnabled(false);
+		pref = findPreference("stopUsingBAM");
+		pref.setEnabled(false);
+	}
+	
+	private void updateParticularPreferences() {
+		if (Logging.DEBUG) Log.d(TAG, "update particular prefs");
+		if (mConnectionManager != null && mConnectedClient != null) {
+			Preference pref = findPreference("runBenchmark");
+			pref.setEnabled(!mConnectionManager.isOpBeingExecuted(BoincOp.RunBenchmarks));
+			
+			pref = findPreference("doNetworkCommunication");
+			pref.setEnabled(!mConnectionManager.isOpBeingExecuted(BoincOp.DoNetworkComm));
+			
+			boolean bamIsWorking = mConnectionManager.isOpBeingExecuted(BoincOp.GetBAMInfo) ||
+					mConnectionManager.isOpBeingExecuted(BoincOp.SyncWithBAM) ||
+					mConnectionManager.isOpBeingExecuted(BoincOp.StopUsingBAM);
+			pref = findPreference("synchronizeWithBAM");
+			pref.setEnabled(!bamIsWorking);
+			pref = findPreference("stopUsingBAM");
+			pref.setEnabled(!bamIsWorking);
+		} else {
+			disableRunBenchmarkPreference();
+			disableDoNetworkCommPreference();
+			disableBAMPreferences();
+		}
+	}
+	
+	
 	private void updatePreferencesEnabled() {
 		// get main dependency preference
 		Preference pref = findPreference("localPreferences");
@@ -931,6 +998,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	private void boincStopUsingBAM() {
 		mConnectionManager.stopUsingBAM();
 		Toast.makeText(this, getString(R.string.clientStopBAMNotify), Toast.LENGTH_LONG).show();
+		disableBAMPreferences();
 	}
 	
 	private void boincChangeRunMode(int mode) {
@@ -944,11 +1012,13 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 	private void boincRunCpuBenchmarks() {
 		mConnectionManager.runBenchmarks();
 		Toast.makeText(this, getString(R.string.clientRunBenchNotify), Toast.LENGTH_LONG).show();
+		disableRunBenchmarkPreference();
 	}
 
 	private void boincDoNetworkCommunication() {
 		mConnectionManager.doNetworkCommunication();
 		Toast.makeText(this, getString(R.string.clientDoNetCommNotify), Toast.LENGTH_LONG).show();
+		disableDoNetworkCommPreference();
 	}
 
 	private void boincShutdownClient() {

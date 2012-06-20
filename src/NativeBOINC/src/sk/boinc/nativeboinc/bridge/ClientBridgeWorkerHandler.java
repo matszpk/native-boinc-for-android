@@ -1377,15 +1377,17 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.RunBenchmarks, ClientReceiver.PROGRESS_XFER_STARTED);
 		boolean success = mRpcClient.runBenchmarks();
-		notifyProgress(BoincOp.RunBenchmarks, ClientReceiver.PROGRESS_XFER_FINISHED);
 		if (!success) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in runBenchmarks()");
+			notifyProgress(BoincOp.RunBenchmarks, ClientReceiver.PROGRESS_XFER_FINISHED);
 			notifyError(BoincOp.RunBenchmarks, 0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
 			changeIsHandlerWorking(false);
 			return;
+		} else { // if ok
+			notifyOperationFinish(BoincOp.RunBenchmarks);
+			notifyProgress(BoincOp.RunBenchmarks, ClientReceiver.PROGRESS_XFER_FINISHED);
 		}
-		notifyOperationFinish(BoincOp.RunBenchmarks);
 		changeIsHandlerWorking(false);
 	}
 
@@ -1462,14 +1464,17 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.DoNetworkComm, ClientReceiver.PROGRESS_XFER_STARTED);
 		boolean success = mRpcClient.networkAvailable();
-		notifyOperationFinish(BoincOp.DoNetworkComm);
-		notifyProgress(BoincOp.DoNetworkComm, ClientReceiver.PROGRESS_XFER_FINISHED);
+		
 		if (!success) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in doNetworkCommunication()");
+			notifyProgress(BoincOp.DoNetworkComm, ClientReceiver.PROGRESS_XFER_FINISHED);
 			notifyError(BoincOp.DoNetworkComm, 0, mRpcClient.getLastErrorMessage());
 			rpcFailed();
 			changeIsHandlerWorking(false);
 			return;
+		} else {
+			notifyOperationFinish(BoincOp.DoNetworkComm);
+			notifyProgress(BoincOp.DoNetworkComm, ClientReceiver.PROGRESS_XFER_FINISHED);
 		}
 		changeIsHandlerWorking(false);
 	}

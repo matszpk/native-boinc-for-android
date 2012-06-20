@@ -155,7 +155,7 @@ public class RpcClient {
 		default: return "";
 		}
 	}
-
+	
 	/*
 	 * Methods for connection - opening/closing/authorization/status
 	 */

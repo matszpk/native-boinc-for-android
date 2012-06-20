@@ -499,12 +499,9 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		/* display error if pending */
 		if (mRunner != null && mConnectionManager != null) {
 			
-			boolean isError = mConnectionManager.handlePendingClientErrors(null, this);
-			isError |= mConnectionManager.handlePendingPollErrors(null, this);
-			isError |= mRunner.handlePendingErrorMessage(this);
-			
-			if (isError) // if error then do nothing
-				return;
+			mConnectionManager.handlePendingClientErrors(null, this);
+			mConnectionManager.handlePendingPollErrors(null, this);
+			mRunner.handlePendingErrorMessage(this);
 			
 			if (mStoppedInMainActivity && !mRunner.isRun()) {
 				mStoppedInMainActivity = false;

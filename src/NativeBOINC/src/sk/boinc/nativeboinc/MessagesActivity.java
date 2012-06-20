@@ -171,6 +171,12 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 			mConnectionManager = ((ConnectionManagerService.LocalBinder)service).getService();
 			if (Logging.DEBUG) Log.d(TAG, "onServiceConnected()");
 			mConnectionManager.registerStatusObserver(MessagesActivity.this);
+			
+			if (mConnectionManager.getClientId() == null) {
+				if (Logging.DEBUG) Log.d(TAG, "when is now disconnected");
+				// if after disconnection
+				clientDisconnected(false);
+			}
 		}
 
 		@Override

@@ -300,6 +300,12 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 			mConnectionManager = ((ConnectionManagerService.LocalBinder)service).getService();
 			if (Logging.DEBUG) Log.d(TAG, "onServiceConnected()");
 			mConnectionManager.registerStatusObserver(TasksActivity.this);
+			
+			if (mConnectionManager.getClientId() == null) {
+				if (Logging.DEBUG) Log.d(TAG, "when is now disconnected");
+				// if after disconnection
+				clientDisconnected(false);
+			}
 		}
 
 		@Override

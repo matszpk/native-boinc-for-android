@@ -110,11 +110,13 @@ jeszcze raz usprawnic i uszczelnić obsługę błędów
   * obsługuj poprawnie postęp w transferu przyłączeniu i nie tylko (zdarzenie connectionProgress)
     w pause/resume
   * sprawdź opcję w nativeclient activity
-  * sprawdź opcje autom. połączenia przy starcie aplikacji (głównego okna).
+/ * sprawdź opcje autom. połączenia przy starcie aplikacji (głównego okna).
 / * automatycznie aktualizuj stan w głównym oknie przy eventach klienta
   * popraw kończenie instalacji projektu, gdy klient padł przy update_apps lub nie odpowiada przez ok. 7 sek.
   * sprawdz synchronizacje projektów z distribManager (synchronize project distribs).
   * usprawnij zmianę ustawień odświeżania (jeśli ma być natychmiastowo) - juz zrobione
+/ * usuń problem starego stanu w tabach podczas wyłączeniu klienta przy obracaniu (chyba zrobione)
+  
 
 następne wersje:
 * dodać obsługę screensavera.

@@ -156,6 +156,12 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 			mConnectionManager = ((ConnectionManagerService.LocalBinder)service).getService();
 			if (Logging.DEBUG) Log.d(TAG, "onServiceConnected()");
 			mConnectionManager.registerStatusObserver(NoticesActivity.this);
+			
+			if (mConnectionManager.getClientId() == null) {
+				if (Logging.DEBUG) Log.d(TAG, "when is now disconnected");
+				// if after disconnection
+				clientDisconnected(false);
+			}
 		}
 
 		@Override

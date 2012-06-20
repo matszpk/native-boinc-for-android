@@ -257,6 +257,12 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 			mConnectionManager = ((ConnectionManagerService.LocalBinder)service).getService();
 			if (Logging.DEBUG) Log.d(TAG, "onServiceConnected()");
 			mConnectionManager.registerStatusObserver(ProjectsActivity.this);
+			
+			if (mConnectionManager.getClientId() == null) {
+				if (Logging.DEBUG) Log.d(TAG, "when is now disconnected");
+				// if after disconnection
+				clientDisconnected(false);
+			}
 		}
 
 		@Override

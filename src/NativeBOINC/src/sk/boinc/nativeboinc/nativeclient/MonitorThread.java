@@ -23,10 +23,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import sk.boinc.nativeboinc.ClientMonitorErrorActivity;
 import sk.boinc.nativeboinc.debug.Logging;
 
-import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 

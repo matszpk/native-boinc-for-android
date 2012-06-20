@@ -153,7 +153,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			mConnectedClient = null;
 			mSelectedClient = null;
 			if (mSyncingBAMInProgress)
-				dismissDialog(DIALOG_ATTACH_BAM_PROGRESS);
+				StandardDialogs.dismissDialog(ManageClientActivity.this, DIALOG_ATTACH_BAM_PROGRESS);
 			mDoGetBAMInfo = false;
 			mSyncingBAMInProgress = false;
 			setProgressBarIndeterminateVisibility(false);
@@ -686,7 +686,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		mSyncingBAMInProgress = false;
 		if (mShowShutdownDialog) {
 			mShowShutdownDialog = false;
-			dismissDialog(DIALOG_WARN_SHUTDOWN);
+			StandardDialogs.dismissDialog(this, DIALOG_WARN_SHUTDOWN);
 		}
 		if (mSelectedClient != null) {
 			// Connection to another client is deferred, we proceed with it now
@@ -926,21 +926,21 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		else if (mConnectProgressIndicator != -1) {
 			// Not allowed to show progress dialog (i.e. activity restarting/terminating),
 			// but we are showing previous progress dialog - dismiss it
-			dismissDialog(DIALOG_RETRIEVAL_PROGRESS);
+			StandardDialogs.dismissDialog(this, DIALOG_RETRIEVAL_PROGRESS);
 			mConnectProgressIndicator = -1;
 		}
 	}
 
 	private void dismissClientProgressDialog() {
 		if (mConnectProgressIndicator != -1) {
-			dismissDialog(DIALOG_RETRIEVAL_PROGRESS);
+			StandardDialogs.dismissDialog(this, DIALOG_RETRIEVAL_PROGRESS);
 			mConnectProgressIndicator = -1;
 		}
 	}
 	
 	private void dismissBAMProgressDialog() {
 		if (mSyncingBAMInProgress)
-			dismissDialog(DIALOG_ATTACH_BAM_PROGRESS);
+			StandardDialogs.dismissDialog(this, DIALOG_ATTACH_BAM_PROGRESS);
 	}
 	
 	private void dismissProgressDialogs() {

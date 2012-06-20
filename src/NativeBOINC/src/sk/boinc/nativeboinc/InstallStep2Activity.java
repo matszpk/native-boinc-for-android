@@ -418,7 +418,7 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 		if (mDoRestart == RESTARTING) {
 			if (Logging.DEBUG) Log.d(TAG, "Set as restarted");
 			mDoRestart = RESTARTED;
-			dismissDialog(DIALOG_RESTART_PROGRESS);
+			StandardDialogs.dismissDialog(this, DIALOG_RESTART_PROGRESS);
 		}
 		if (mConnectionManager != null)
 			connectWithNativeClient();

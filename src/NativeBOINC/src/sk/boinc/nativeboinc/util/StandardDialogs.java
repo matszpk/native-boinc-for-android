@@ -225,4 +225,11 @@ public class StandardDialogs {
 		else // if distrib
 			activity.showDialog(DIALOG_DISTRIB_INFO, args);
 	}
+	
+	/* fault tolerant dismiss dialog */
+	public static void dismissDialog(Activity activity, int dialogId) {
+		try {
+			activity.dismissDialog(dialogId);
+		} catch(IllegalArgumentException ex) { }
+	}
 }

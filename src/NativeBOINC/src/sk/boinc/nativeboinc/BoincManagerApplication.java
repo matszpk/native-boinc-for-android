@@ -384,14 +384,16 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	@Override
 	public void onClientStart() {
 		if (Logging.DEBUG) Log.d(TAG, "On client start");
-		prepareUpdateWidgets(false);
+		prepareUpdateWidgets(false, true);
 	}
 	
-	private void prepareUpdateWidgets(boolean isWidgetUpdateChanged) {
+	private void prepareUpdateWidgets(boolean isWidgetUpdateChanged, boolean atClientStart) {
 		if (Logging.DEBUG) Log.d(TAG, "Prepare Update Widgets");
 		Intent intent = new Intent(NativeBoincWidgetProvider.NATIVE_BOINC_WIDGET_PREPARE_UPDATE);
 		if (isWidgetUpdateChanged)
 			intent.putExtra(NativeBoincWidgetProvider.WIDGET_UPDATE_CHANGED, true);
+		if (atClientStart)
+			intent.putExtra(NativeBoincWidgetProvider.WIDGET_CLIENT_START, true);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		try {
 			pendingIntent.send();
@@ -400,6 +402,8 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		intent = new Intent(TabletWidgetProvider.NATIVE_BOINC_WIDGET_PREPARE_UPDATE);
 		if (isWidgetUpdateChanged)
 			intent.putExtra(TabletWidgetProvider.WIDGET_UPDATE_CHANGED, true);
+		if (atClientStart)
+			intent.putExtra(TabletWidgetProvider.WIDGET_CLIENT_START, true);
 		pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		try {
 			pendingIntent.send();
@@ -452,7 +456,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	@Override
 	public void onMonitorEvent(ClientEvent event) {
 		// trigger widget update
-		prepareUpdateWidgets(false);
+		prepareUpdateWidgets(false, false);
 	}
 	
 	@Override
@@ -480,7 +484,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 			if (Logging.DEBUG) Log.d(TAG, "When widget update changed to "+newPeriod);
 			mWidgetUpdatePeriod = newPeriod;
 			// update widget
-			prepareUpdateWidgets(true);
+			prepareUpdateWidgets(true, false);
 		}
 	}
 

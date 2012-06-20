@@ -97,7 +97,7 @@ jeszcze raz usprawnic i uszczelnić obsługę błędów
 / * popraw błąd w ConnectionBridge:792 (NPE)
 
 
-  * automatyczne dodaj włączanie/wyłączanie opcji w ManageClientActivity
+/ * automatyczne dodaj włączanie/wyłączanie opcji w ManageClientActivity
   * dodaj opcję autostartu (gdy odpala się aplikację i gdy odpala się system)
 / * dodaj automatyczne refresh widgetów przy zdarzeniach klientach
 / * zabezpiecz operacje na na DB listy klientów

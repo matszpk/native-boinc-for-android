@@ -261,7 +261,7 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 	public boolean clientError(BoincOp boincOp, int errorNum, String errorMessage) {
 		if (boincOp.isBAMOperation()) {
 			if (mAttachBAMInProgress) {
-				dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
+				StandardDialogs.dismissDialog(this, DIALOG_CHANGE_BAM_PROGRESS);
 				mAttachBAMInProgress = false;
 			}
 			mOtherBAMOpInProgress = false;
@@ -286,7 +286,7 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 	@Override
 	public void clientDisconnected(boolean disconnectedByManager) {
 		if (mAttachBAMInProgress)
-			dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
+			StandardDialogs.dismissDialog(this, DIALOG_CHANGE_BAM_PROGRESS);
 		if (Logging.DEBUG) Log.d(TAG, "disconnected");
 		mAttachBAMInProgress = false;
 		mOtherBAMOpInProgress = false;
@@ -307,7 +307,7 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 	public boolean onPollError(int errorNum, int operation, String errorMessage, String param) {
 		if (operation == PollOp.POLL_ATTACH_TO_BAM || operation == PollOp.POLL_SYNC_WITH_BAM) {
 			if (mAttachBAMInProgress && operation == PollOp.POLL_ATTACH_TO_BAM) {
-				dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
+				StandardDialogs.dismissDialog(this, DIALOG_CHANGE_BAM_PROGRESS);
 				mAttachBAMInProgress = false;
 			}
 			mOtherBAMOpInProgress = false;
@@ -334,7 +334,7 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 		if (Logging.DEBUG) Log.d(TAG, "on after account mgr rpc");
 		if (mAttachBAMInProgress) {
 			mAttachBAMInProgress = false;
-			dismissDialog(DIALOG_CHANGE_BAM_PROGRESS);
+			StandardDialogs.dismissDialog(this, DIALOG_CHANGE_BAM_PROGRESS);
 			// if end
 			finish();
 			if (mApp.isInstallerRun()) {

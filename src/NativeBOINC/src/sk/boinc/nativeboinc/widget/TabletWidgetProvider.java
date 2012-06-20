@@ -57,6 +57,7 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 	public static final String NATIVE_BOINC_CLIENT_START_STOP = "sk.boinc.nativeboinc.widget.TABLET_CLIENT_START_STOP";
 	public static final String NATIVE_BOINC_CLIENT_TASK_INFO = "sk.boinc.nativeboinc.widget.TABLET_CLIENT_TASK_INFO_";
 	
+	public static final String WIDGET_CLIENT_START = "WidgetClientStart";
 	public static final String WIDGET_UPDATE_CHANGED = "WidgetUpdateChanged";
 	
 	@Override
@@ -87,9 +88,7 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 				updatePeriod, pendingIntent);
 	}
 	
-	@Override
-	public void onDisabled(Context context) {
-		super.onDisabled(context);
+	private void disableAutoRefresh(Context context) {
 		if (Logging.DEBUG) Log.d(TAG, "Disabled native periodically");
 		BoincManagerApplication appContext = (BoincManagerApplication)context.getApplicationContext();
 		/* cancel updating periodically */
@@ -101,10 +100,33 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 	}
 	
 	@Override
+	public void onDisabled(Context context) {
+		super.onDisabled(context);
+		disableAutoRefresh(context);
+	}
+	
+	/* check widgets */
+	private static boolean isWidgetEnabled(Context context) {
+		AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+		
+		ComponentName thisAppWidget = new ComponentName(context.getPackageName(),
+				TabletWidgetProvider.class.getName());
+		int[] widgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget);
+		
+		return (widgetIds != null && widgetIds.length != 0);
+	}
+	
+	@Override
 	public void onReceive(Context context, Intent inputIntent) {
 		super.onReceive(context, inputIntent);
 		
+		if (inputIntent == null || inputIntent.getAction() == null)
+			return;
+		
 		BoincManagerApplication appContext = (BoincManagerApplication)context.getApplicationContext();
+		
+		if (!isWidgetEnabled(appContext))
+			return;
 		
 		if (inputIntent.getAction().equals(NATIVE_BOINC_WIDGET_PREPARE_UPDATE)) {
 			if (Logging.DEBUG) Log.d(TAG, "Widget on prepare update from receive");
@@ -114,17 +136,24 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			if (runner != null)
 				runner.getTasks(appContext);
 			
-			if (inputIntent.getBooleanExtra(WIDGET_UPDATE_CHANGED, false)) {
+			boolean updateChanged = inputIntent.getBooleanExtra(WIDGET_UPDATE_CHANGED, false);
+			boolean clientStart = inputIntent.getBooleanExtra(WIDGET_CLIENT_START, false);
+					
+			if (updateChanged || clientStart) {
 				// change update period
 				int updatePeriod = appContext.getWigetUpdatePeriod();
-				if (Logging.DEBUG) Log.d(TAG, "Reenable update periodically "+updatePeriod);
+				if (updateChanged) {
+					if (Logging.DEBUG) Log.d(TAG, "Reenable update periodically "+updatePeriod);
+				} else
+					if (Logging.DEBUG) Log.d(TAG, "Enable update periodically at start "+updatePeriod);
 				
 				AlarmManager alarmManager = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);
 				Intent intent = new Intent(NATIVE_BOINC_WIDGET_PREPARE_UPDATE);
 				PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, intent, 
 						PendingIntent.FLAG_UPDATE_CURRENT);
 				
-				alarmManager.cancel(pendingIntent);
+				if (updateChanged) // if reenable
+					alarmManager.cancel(pendingIntent);
 				alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
 						updatePeriod, pendingIntent);
 			}
@@ -176,7 +205,10 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			int ids[] = appWidgetManager.getAppWidgetIds(thisAppWidget);
 			appWidgetManager.updateAppWidget(ids, views);
 			
-			
+			if (!isRun) {
+				// disable autorefresh when not ran
+				disableAutoRefresh(context);
+			}
 		} else if (inputIntent.getAction().equals(NATIVE_BOINC_CLIENT_START_STOP)) {
 			if (Logging.DEBUG) Log.d(TAG, "Client start/stop from widget receive");
 			

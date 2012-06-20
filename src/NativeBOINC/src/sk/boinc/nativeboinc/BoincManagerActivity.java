@@ -493,7 +493,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		if (mShowShutdownDialog && mRunner != null && !mRunner.isRun()) {
 			// dismiss dialog
 			mShowShutdownDialog = false;
-			dismissDialog(DIALOG_SHUTDOWN);
+			StandardDialogs.dismissDialog(this, DIALOG_SHUTDOWN);
 		}
 		
 		/* display error if pending */
@@ -508,7 +508,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			
 			if (mStoppedInMainActivity && !mRunner.isRun()) {
 				mStoppedInMainActivity = false;
-				dismissDialog(DIALOG_SHUTDOWN_PROGRESS);
+				StandardDialogs.dismissDialog(this, DIALOG_SHUTDOWN_PROGRESS);
 			}
 		}
 		if (Build.VERSION.SDK_INT >= 11)
@@ -1083,9 +1083,9 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		if (mConnectClientAfterStart || mConnectClientAfterRestart) {
 			if (Logging.DEBUG) Log.d(TAG, "on client start: after start");
 			if (mConnectClientAfterRestart) // after restarting
-				dismissDialog(DIALOG_RESTART_PROGRESS);
+				StandardDialogs.dismissDialog(this, DIALOG_RESTART_PROGRESS);
 			else // if normal start
-				dismissDialog(DIALOG_START_PROGRESS);
+				StandardDialogs.dismissDialog(this, DIALOG_START_PROGRESS);
 			
 			boolean connectClientAfterRestart = mConnectClientAfterRestart;
 			mConnectClientAfterStart = false;
@@ -1116,7 +1116,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		
 		if (mStoppedInMainActivity) {
 			mStoppedInMainActivity = false;
-			dismissDialog(DIALOG_SHUTDOWN_PROGRESS);
+			StandardDialogs.dismissDialog(this, DIALOG_SHUTDOWN_PROGRESS);
 		}
 		
 		if (Build.VERSION.SDK_INT >= 11)
@@ -1127,9 +1127,9 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	public boolean onNativeBoincClientError(String message) {
 		if (mShowStartDialog) {
 			if (mConnectClientAfterRestart) // after restarting
-				dismissDialog(DIALOG_RESTART_PROGRESS);
+				StandardDialogs.dismissDialog(this, DIALOG_RESTART_PROGRESS);
 			else // if normal start
-				dismissDialog(DIALOG_START_PROGRESS);
+				StandardDialogs.dismissDialog(this, DIALOG_START_PROGRESS);
 		}
 		
 		mStoppedInMainActivity = false;

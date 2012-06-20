@@ -67,8 +67,8 @@ public class NativeBoincWorkerHandler extends Handler {
 	}
 	
 	public void destroy() {
-		mRpcClient = null;
 		mListenerHandler = null;
+		mRpcClient = null;
 		mContext = null;
 	}
 	
@@ -296,7 +296,8 @@ public class NativeBoincWorkerHandler extends Handler {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.onProgressChange(callback, progress);
+				if (mListenerHandler != null)
+					mListenerHandler.onProgressChange(callback, progress);
 			}
 		});
 	}
@@ -305,7 +306,8 @@ public class NativeBoincWorkerHandler extends Handler {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.nativeBoincServiceError(workerOp, message);
+				if (mListenerHandler != null)
+					mListenerHandler.nativeBoincServiceError(workerOp, message);
 			}
 		});
 	}
@@ -315,7 +317,8 @@ public class NativeBoincWorkerHandler extends Handler {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.getTasks(callback, tasks);
+				if (mListenerHandler != null)
+					mListenerHandler.getTasks(callback, tasks);
 			}
 		});
 	}
@@ -325,7 +328,8 @@ public class NativeBoincWorkerHandler extends Handler {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.getProjects(callback, projects);
+				if (mListenerHandler != null)
+					mListenerHandler.getProjects(callback, projects);
 			}
 		});
 	}
@@ -335,7 +339,8 @@ public class NativeBoincWorkerHandler extends Handler {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.updatedProjectApps(projectUrl);
+				if (mListenerHandler != null)
+					mListenerHandler.updatedProjectApps(projectUrl);
 			}
 		});
 	}

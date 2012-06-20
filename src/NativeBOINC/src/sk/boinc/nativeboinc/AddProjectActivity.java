@@ -436,7 +436,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		// getProjectConfig - set as failed - prevents repeating operation
 		mProjectConfigProgressState = ProgressState.FAILED;
 		if (mAddingProjectInProgress)
-			dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
+			StandardDialogs.dismissDialog(this, DIALOG_ADD_PROJECT_PROGRESS);
 		mAddingProjectInProgress = false;
 		mOtherAddingProjectInProgress = false;
 		
@@ -472,7 +472,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 
 	private void afterProjectAdding(String projectUrl) {
 		if (Logging.DEBUG) Log.d(TAG, "After Project adding");
-		dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
+		StandardDialogs.dismissDialog(this, DIALOG_ADD_PROJECT_PROGRESS);
 		mAddingProjectInProgress = false;
 		
 		if (mConnectionManager.isNativeConnected()) { // go to progress activity
@@ -518,7 +518,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		if (operation == PollOp.POLL_PROJECT_ATTACH ||
 				operation == PollOp.POLL_LOOKUP_ACCOUNT || operation == PollOp.POLL_CREATE_ACCOUNT) {
 			if (mAddingProjectInProgress) {
-				dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
+				StandardDialogs.dismissDialog(this, DIALOG_ADD_PROJECT_PROGRESS);
 				mAddingProjectInProgress = false;
 			}
 			mOtherAddingProjectInProgress = false;
@@ -559,7 +559,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		if (boincOp.isAddProject()) {
 			if (mAddingProjectInProgress && boincOp.isAddProject()) {
-				dismissDialog(DIALOG_ADD_PROJECT_PROGRESS);
+				StandardDialogs.dismissDialog(this, DIALOG_ADD_PROJECT_PROGRESS);
 				mAddingProjectInProgress = false;
 			}
 			mOtherAddingProjectInProgress = false;

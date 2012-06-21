@@ -37,6 +37,7 @@ import sk.boinc.nativeboinc.nativeclient.NativeBoincReplyListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
 import sk.boinc.nativeboinc.nativeclient.WorkerOp;
+import sk.boinc.nativeboinc.util.NativeClientAutostart;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.TaskItem;
 import sk.boinc.nativeboinc.widget.NativeBoincWidgetProvider;
@@ -50,6 +51,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -108,7 +110,30 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	private boolean mRunRestartAfterReinstall = false;
 	private boolean mRestartedAfterReinstall = false;
 	
+	private boolean mFirstStartingAtAppStartup = false;
+	
 	private SharedPreferences mGlobalPrefs = null;
+	
+	private static final int SECOND_TRY_START_DELAY = 10000;
+	
+	private class SecondStartTryHandler extends Handler {
+		public void tryStartAgain() {
+			synchronized(BoincManagerApplication.this) {
+				postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						// second try to start
+						if (mRunner == null)
+							bindRunnerAndStart();
+						else // if bound only starts client
+							mRunner.startClient(false);
+					}
+				}, SECOND_TRY_START_DELAY);
+			}
+		}
+	}
+	
+	private SecondStartTryHandler mSecondTryStartHandler = null;
 	
 	private ServiceConnection mRunnerServiceConnection = new ServiceConnection() {
 		@Override
@@ -171,6 +196,22 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		mWidgetUpdatePeriod = Integer.parseInt(mGlobalPrefs.getString(PreferenceName.WIDGET_UPDATE, "10"))*1000;
 		mInstallerStage = mGlobalPrefs.getInt(PreferenceName.INSTALLER_STAGE, INSTALLER_NO_STAGE);
 		mGlobalPrefs.registerOnSharedPreferenceChangeListener(this);
+		
+		mSecondTryStartHandler = new SecondStartTryHandler();
+		
+		if (NativeClientAutostart.isAutostartsAtAppStartup(mGlobalPrefs))
+			autostartClient();
+	}
+	
+	public void autostartClient() {
+		if (Logging.DEBUG) Log.d(TAG, "Autostart client");
+		if (!mFirstStartingAtAppStartup) {
+			mFirstStartingAtAppStartup = true;
+			if (mRunner == null)
+				bindRunnerAndStart();
+			else // if bound only starts client
+				mRunner.startClient(false);
+		}
 	}
 
 	@Override
@@ -380,10 +421,15 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	public boolean isBoincClientRun() {
 		return mRunner != null && mRunner.isRun();
 	}
+	
+	public boolean isFirstStartingAtAppStartup() {
+		return mFirstStartingAtAppStartup;
+	}
 
 	@Override
 	public void onClientStart() {
 		if (Logging.DEBUG) Log.d(TAG, "On client start");
+		mFirstStartingAtAppStartup = false; // after starting
 		prepareUpdateWidgets(false, true);
 	}
 	
@@ -439,7 +485,14 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	@Override
 	public boolean onNativeBoincClientError(String message) {
 		updateWidgets();
-		doUnbindRunnerService();
+		if (mFirstStartingAtAppStartup) {
+			// when first start at startup
+			mFirstStartingAtAppStartup = false; // if starting failed
+			// try again if at booting
+			mSecondTryStartHandler.tryStartAgain();
+		} else
+			doUnbindRunnerService();
+		
 		// TODO: handle native boinc error
 		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 		return false;

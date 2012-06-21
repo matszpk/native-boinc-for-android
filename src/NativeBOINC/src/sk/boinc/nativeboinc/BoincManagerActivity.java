@@ -458,6 +458,13 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		
 		/* check whether installer should be run (if should be, then run) */
 		checkToRunInstaller();
+		
+		// handling first starting at app startup
+		if (mApp.isFirstStartingAtAppStartup() && !mConnectClientAfterStart) {
+			if (Logging.DEBUG) Log.d(TAG, "This is first startup at app start");
+			mConnectClientAfterStart = true;
+			showDialog(DIALOG_START_PROGRESS);
+		}
 	}
 	
 	/*
@@ -727,10 +734,11 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menuStartUp: {
-			mConnectClientAfterStart = true;
-			showDialog(DIALOG_START_PROGRESS);
-			if (mRunner != null)
+			if (mRunner != null) {
+				mConnectClientAfterStart = true;
+				showDialog(DIALOG_START_PROGRESS);
 				mRunner.startClient(false);
+			}
 			return true;
 		}
 		case R.id.menuShutdown:

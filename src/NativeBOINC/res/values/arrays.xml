@@ -139,4 +139,18 @@
 	    <item>User alert</item>
 	    <item>Internal error</item>
 	</string-array>
+	
+	<string-array name="nativeAutostartLabels">
+	    <item>No autostart</item>
+	    <item>At application start</item>
+	    <item>At system booting</item>
+	    <item>Always autostart</item>
+	</string-array>
+	
+	<string-array name="nativeAutostartValues">
+	    <item>0</item>
+	    <item>1</item>
+	    <item>2</item>
+	    <item>3</item>
+	</string-array>
 </resources>

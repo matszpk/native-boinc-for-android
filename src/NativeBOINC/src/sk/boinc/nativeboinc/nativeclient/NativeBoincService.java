@@ -452,7 +452,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 			}
 			boolean isAuthorized = false;
 			for (int i = 0; i < 4; i++) {
-				if (Logging.DEBUG) Log.d(TAG, "Try to authorize with password:" + password);
+				if (Logging.DEBUG) Log.d(TAG, "Try to authorize...");
 				if (rpcClient.authorize(password)) {
 					isAuthorized = true;
 					break;

@@ -42,6 +42,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
@@ -213,6 +214,21 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 		
 		mScreenOrientation = new ScreenOrientationHandler(this);
 		addPreferencesFromResource(R.xml.nativeboinc);
+		
+		/* native autostart */
+		ListPreference listPref = (ListPreference)findPreference(PreferenceName.NATIVE_AUTOSTART);
+		
+		listPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+			
+			@Override
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
+				ListPreference pref = (ListPreference)preference;
+				int index = pref.findIndexOfValue((String)newValue);
+				CharSequence[] allDescriptions = pref.getEntries();
+				pref.setSummary(allDescriptions[index]);
+				return true;
+			}
+		});
 		
 		/* hostname preference */
 		EditTextPreference editPref = (EditTextPreference)findPreference(PreferenceName.NATIVE_HOSTNAME);
@@ -398,6 +414,12 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	@Override
 	protected void onResume() {
 		super.onResume();
+		
+		/* native autostart */
+		ListPreference listPref = (ListPreference)findPreference(PreferenceName.NATIVE_AUTOSTART);
+		int index = listPref.findIndexOfValue((String)listPref.getValue());
+		CharSequence[] allDescriptions = listPref.getEntries();
+		listPref.setSummary(allDescriptions[index]);
 		
 		String hostName = null;
 		/* fetch hostname from boinc file */

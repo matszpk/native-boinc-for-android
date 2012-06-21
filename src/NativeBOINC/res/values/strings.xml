@@ -31,6 +31,8 @@
 	<string name="widget2x1">NativeBOINC small</string>
 	<string name="widgetTablet">NativeBOINC large</string>
 	
+	<string name="autostartReceiver">Autostart receiver</string>
+	
 	<!-- Some common, generic strings -->
 	<string name="back">Back</string>
 	<string name="next">Next</string>
@@ -283,6 +285,9 @@
 	<string name="warnShutdownText">The connected core client will be shut down. This manager cannot start the client afterwards.</string>
 	
 	<!--  NativeClient activity -->
+	<string name="nativeAutostart">Client starting</string>
+	<string name="nativeAutostartTitle">Autostart client</string>
+	
 	<string name="nativeBoincClient">Native BOINC client</string>
 	<string name="nativeBoincNetwork">Network options</string>
 	

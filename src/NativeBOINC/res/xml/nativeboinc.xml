@@ -20,6 +20,15 @@
  */
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/nativeAutostart">
+        <ListPreference
+            android:key="nativeAutostart"
+            android:title="@string/nativeAutostartTitle"
+            android:defaultValue="0"
+            android:persistent="true"
+            android:entries="@array/nativeAutostartLabels"
+            android:entryValues="@array/nativeAutostartValues" />
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/nativeBoincNetwork">
         <EditTextPreference
 			android:key="nativeHostname"

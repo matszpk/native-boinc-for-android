@@ -24,6 +24,7 @@
 	<color name="suspended">#ffdf3f3f</color>
 	<color name="nnw">#ffdfdf3f</color>
 	<color name="orange">#ffff7f00</color>
+	<color name="red">#ffff3f3f</color>
 	<color name="lockText">#ffc0c0c0</color>
 	<color name="localPrefGroup">#404040</color>
 	<color name="screenLockBar">#555555</color>

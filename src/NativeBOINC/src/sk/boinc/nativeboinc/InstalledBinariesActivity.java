@@ -18,8 +18,13 @@
  */
 package sk.boinc.nativeboinc;
 
+import edu.berkeley.boinc.nativeboinc.ClientEvent;
+import sk.boinc.nativeboinc.installer.InstallOp;
 import sk.boinc.nativeboinc.installer.InstalledBinary;
+import sk.boinc.nativeboinc.installer.InstallerProgressListener;
 import sk.boinc.nativeboinc.installer.InstallerService;
+import sk.boinc.nativeboinc.nativeclient.MonitorListener;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.util.StandardDialogs;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -37,26 +42,48 @@ import android.widget.ArrayAdapter;
  * @author mat
  *
  */
-public class InstalledBinariesActivity extends ListActivity {
+public class InstalledBinariesActivity extends ListActivity implements InstallerProgressListener,
+	MonitorListener {
+	
+	@Override
+	public int getInstallerChannelId() {
+		return InstallerService.DEFAULT_CHANNEL_ID;
+	}
 	
 	private InstalledBinary[] mInstalledBinaries = null;
+	
+	private InstallerService mInstaller = null;
+	private NativeBoincService mRunner = null;
 	
 	private ServiceConnection mInstallerConn = new ServiceConnection() {
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
 			// do nothing
+			mInstaller.removeInstallerListener(InstalledBinariesActivity.this);
+			mInstaller = null;
 		}
 		
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
-			InstallerService installer = ((InstallerService.LocalBinder)service).getService();
+			mInstaller = ((InstallerService.LocalBinder)service).getService();
+			mInstaller.addInstallerListener(InstalledBinariesActivity.this);
 			
-			/* synchronize before retrieving installed binaries */
-			installer.synchronizeInstalledProjects();
-			mInstalledBinaries = installer.getInstalledBinaries();
-			
-			getListView().setAdapter(new ArrayAdapter<InstalledBinary>(InstalledBinariesActivity.this,
-					android.R.layout.simple_list_item_1, mInstalledBinaries));
+			updateInstalledBinaries();
+		}
+	};
+	
+	private ServiceConnection mRunnerConn = new ServiceConnection() {
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			// do nothing
+			mRunner.removeMonitorListener(InstalledBinariesActivity.this);
+			mRunner = null;
+		}
+		
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			mRunner = ((NativeBoincService.LocalBinder)service).getService();
+			mRunner.addMonitorListener(InstalledBinariesActivity.this);
 		}
 	};
 	
@@ -65,7 +92,30 @@ public class InstalledBinariesActivity extends ListActivity {
 	}
 	
 	private void unbindInstallerService() {
+		mInstaller.removeInstallerListener(InstalledBinariesActivity.this);
 		unbindService(mInstallerConn);
+		mInstaller = null;
+	}
+	
+	private void bindRunnerService() {
+		bindService(new Intent(this, NativeBoincService.class), mRunnerConn, BIND_AUTO_CREATE);
+	}
+	
+	private void unbindRunnerService() {
+		mRunner.removeMonitorListener(InstalledBinariesActivity.this);
+		unbindService(mRunnerConn);
+		mRunner = null;
+	}
+	
+	/* update installed list */
+	private void updateInstalledBinaries() {
+		if (mInstaller == null) return;
+		/* synchronize before retrieving installed binaries */
+		mInstaller.synchronizeInstalledProjects();
+		mInstalledBinaries = mInstaller.getInstalledBinaries();
+		
+		getListView().setAdapter(new ArrayAdapter<InstalledBinary>(InstalledBinariesActivity.this,
+				android.R.layout.simple_list_item_1, mInstalledBinaries));
 	}
 	
 	@Override
@@ -73,6 +123,7 @@ public class InstalledBinariesActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 		
 		bindInstallerService();
+		bindRunnerService();
 		
 		getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
@@ -90,6 +141,7 @@ public class InstalledBinariesActivity extends ListActivity {
 	@Override
 	protected void onDestroy() {
 		unbindInstallerService();
+		unbindRunnerService();
 		super.onDestroy();
 	}
 	
@@ -101,5 +153,51 @@ public class InstalledBinariesActivity extends ListActivity {
 	@Override
 	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
 		StandardDialogs.onPrepareDialog(this, dialogId, dialog, args);
+	}
+
+	@Override
+	public void onChangeInstallerIsWorking(boolean isWorking) {
+		
+	}
+
+	@Override
+	public boolean onOperationError(InstallOp installOp, String distribName,
+			String errorMessage) {
+		return false;
+	}
+
+	@Override
+	public void onOperation(String distribName, String opDescription) {
+		// do nothing
+	}
+
+	@Override
+	public void onOperationProgress(String distribName, String opDescription,
+			int progress) {
+		// do nothing
+	}
+
+	@Override
+	public void onOperationCancel(InstallOp installOp, String distribName) {
+		// do nothing
+	}
+
+	@Override
+	public void onOperationFinish(InstallOp installOp, String distribName) {
+		// update when operation finished
+		if (installOp.equals(InstallOp.ProgressOperation) &&
+				distribName != null && distribName.length() != 0)
+			updateInstalledBinaries();
+	}
+
+	@Override
+	public void onMonitorEvent(ClientEvent event) {
+		// update when project are detached
+		if (event.type == ClientEvent.EVENT_DETACHED_PROJECT)
+			updateInstalledBinaries();
+	}
+
+	@Override
+	public void onMonitorDoesntWork() {
 	}
 }

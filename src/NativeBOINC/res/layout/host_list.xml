@@ -23,35 +23,52 @@
 	android:orientation="vertical"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
-	<ListView
-		android:id="@android:id/list"
-		android:layout_width="fill_parent"
-		android:layout_height="0dip"
-		android:layout_weight="1"
-		android:hapticFeedbackEnabled="true" />
-	<!-- For case of empty list the following layout will apply -->
-	<RelativeLayout android:id="@android:id/empty"
-		android:orientation="vertical"
-		android:paddingTop="2dip"
-		android:paddingBottom="2dip"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:minHeight="?android:attr/listPreferredItemHeight">
-		<TextView android:id="@+id/hostNoneText1"
+	
+    <FrameLayout 
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1">
+        <View android:id="@+id/emptyContent"
+		    android:layout_width="fill_parent"
+		    android:layout_height="fill_parent" />
+        <LinearLayout
+            android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+			<ListView
+				android:id="@android:id/list"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:hapticFeedbackEnabled="true" />
+			<View android:layout_width="fill_parent"
+		        android:layout_height="1dip"
+		        android:background="?android:attr/listDivider"/>
+		</LinearLayout>
+		<!-- For case of empty list the following layout will apply -->
+		<RelativeLayout android:id="@android:id/empty"
+			android:orientation="vertical"
+			android:paddingTop="2dip"
+			android:paddingBottom="2dip"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-    	    android:layout_marginLeft="6dip"
-        	android:layout_marginTop="6dip"
-        	android:text="@string/noHostDefined"
-			android:textAppearance="?android:attr/textAppearanceLarge" />
-		<TextView android:id="@+id/hostNoneText2"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:layout_below="@+id/hostNoneText1"
-        	android:layout_alignLeft="@+id/hostNoneText1"
-        	android:text="@string/selectHostNoneAvailable"
-			android:textAppearance="?android:attr/textAppearanceSmall" />
-	</RelativeLayout>
+			android:minHeight="?android:attr/listPreferredItemHeight">
+			<TextView android:id="@+id/hostNoneText1"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+	    	    android:layout_marginLeft="6dip"
+	        	android:layout_marginTop="6dip"
+	        	android:text="@string/noHostDefined"
+				android:textAppearance="?android:attr/textAppearanceLarge" />
+			<TextView android:id="@+id/hostNoneText2"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/hostNoneText1"
+	        	android:layout_alignLeft="@+id/hostNoneText1"
+	        	android:text="@string/selectHostNoneAvailable"
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		</RelativeLayout>
+	</FrameLayout>
+	
 	<LinearLayout
 		android:orientation="horizontal"
 		android:layout_width="wrap_content"

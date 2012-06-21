@@ -22,19 +22,36 @@
  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:padding="10dip" >
-    <ListView
-		android:id="@android:id/list"
-		android:layout_width="fill_parent"
-		android:layout_height="0dip"
-		android:layout_weight="1" />
+    android:orientation="vertical" >
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1">
+        <View android:id="@+id/emptyContent"
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"/>
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+		    <ListView
+				android:id="@android:id/list"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content" />
+		    <View android:layout_width="fill_parent"
+		        android:layout_height="1dip"
+		        android:background="?android:attr/listDivider"/>
+		</LinearLayout>
+	</FrameLayout>
+	
     <LinearLayout
 		android:orientation="horizontal"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="right"
-		android:paddingTop="10dip">
+		android:paddingTop="10dip"
+		android:paddingLeft="10dip"
+		android:paddingRight="10dip">
 		<Button android:id="@+id/cancel"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

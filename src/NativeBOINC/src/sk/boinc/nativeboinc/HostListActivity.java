@@ -170,6 +170,9 @@ public class HostListActivity extends ListActivity {
 		});
 		
 		registerForContextMenu(getListView());
+		View emptyContent = findViewById(R.id.emptyContent);
+		registerForContextMenu(emptyContent);
+		
 		mDbHelper = new HostListDbAdapter(this);
 		mDbHelper.open();
 		getHostList();
@@ -200,10 +203,15 @@ public class HostListActivity extends ListActivity {
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		
-		int position = ((AdapterContextMenuInfo)menuInfo).position;
-		Cursor c = mHostCursor;
-		c.moveToPosition(position);
-		ClientId clientId = new ClientId(c);
+		int position = -1;
+		ClientId clientId = null;
+		
+		if (menuInfo != null) {
+			position = ((AdapterContextMenuInfo)menuInfo).position;
+			Cursor c = mHostCursor;
+			c.moveToPosition(position);
+			clientId = new ClientId(c);
+		}
 		
 		menu.setHeaderTitle(R.string.hostOperation);
 		
@@ -215,10 +223,13 @@ public class HostListActivity extends ListActivity {
 		if (selectedSize != 0)
 			menu.add(0, UNSELECT_ALL_ID, 0, R.string.unselectAll);
 		
-		if (!clientId.getNickname().equals("nativeboinc")) {
+		if (clientId != null && !clientId.getNickname().equals("nativeboinc")) {
 			// if nativeboinc
 			menu.add(0, EDIT_ID, 0, R.string.hostEdit);
 			menu.add(0, DELETE_ID, 0, R.string.hostDelete);
+		} else {
+			if (selectedSize != 0)
+				menu.add(0, DELETE_ID, 0, R.string.hostDelete);
 		}
 	}
 
@@ -231,9 +242,11 @@ public class HostListActivity extends ListActivity {
 			return true;
 		case DELETE_ID:
 			if (mSelectedClientIds.isEmpty()) {
+				// if not selected
 				mDbHelper.deleteHost(info.id);
 				mSelectedClientIds.remove(info.id);
 			} else {
+				// selected
 				for (Long rowId: mSelectedClientIds)
 					mDbHelper.deleteHost(rowId);
 				mSelectedClientIds.clear();

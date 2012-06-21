@@ -117,6 +117,10 @@ jeszcze raz usprawnic i uszczelnić obsługę błędów
   * usprawnij zmianę ustawień odświeżania (jeśli ma być natychmiastowo) - juz zrobione
 / * usuń problem starego stanu w tabach podczas wyłączeniu klienta przy obracaniu (chyba zrobione)
   
+/ * wstaw autorefresh w InstalledBinariesActivity
+  * wstaw filtrowanie w UpdatesBinaries i UpdateFromSDCard dla projektów, które są instalowane w tym czasie
+/ * dodaj obsługe FATAL_ERROR priority w messages (kolorowanie)
+/ * dodaj menu przy długim kliku w puste miejsce w aktywnościach z listy i multiselect
 
 następne wersje:
 * dodać obsługę screensavera.

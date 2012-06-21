@@ -147,6 +147,8 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 			int color = mContext.getResources().getColorStateList(android.R.color.secondary_text_dark).getDefaultColor();
 			if (mMessages.get(position).priority == 2) {
 				color = mContext.getResources().getColor(R.color.orange);
+			} else if (mMessages.get(position).priority == 3) {
+				color = mContext.getResources().getColor(R.color.red);
 			}
 			TextView tv;
 			tv = (TextView)layout.findViewById(R.id.messageTimestamp);

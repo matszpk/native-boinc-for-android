@@ -194,11 +194,11 @@ public class AccessListActivity extends ServiceBoincActivity implements Abstract
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		
-		setUpService(false, false, true, true, false, false);
-		
 		final SavedState savedState = (SavedState)getLastNonConfigurationInstance();
 		if (savedState != null)
 			savedState.restore(this);
+		
+		setUpService(false, false, true, true, false, false);
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.access_list);
@@ -206,8 +206,10 @@ public class AccessListActivity extends ServiceBoincActivity implements Abstract
 		if (!mAccessListLoaded) {
 			try {
 				ArrayList<String> temporary = NativeBoincUtils.getRemoteHostList(this);
-				if (temporary != null) // if not null
+				if (temporary != null) { // if not null
 					mAccessList = temporary;
+				}
+				mAccessListLoaded = true;
 			} catch(IOException ex) {
 				StandardDialogs.showErrorDialog(this, getString(R.string.remoteHostsLoadError));
 			}
@@ -219,6 +221,7 @@ public class AccessListActivity extends ServiceBoincActivity implements Abstract
 		
 		// register for context menu
 		registerForContextMenu(mAccessListView);
+		registerForContextMenu(findViewById(R.id.emptyContent));
 		
 		/* buttons */
 		Button cancelButton = (Button)findViewById(R.id.cancel);
@@ -351,6 +354,11 @@ public class AccessListActivity extends ServiceBoincActivity implements Abstract
 	public void onCreateContextMenu(ContextMenu menu, View view, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, view, menuInfo);
 		
+		int position = -1; // not set
+		if (menuInfo != null)
+			position = ((AdapterContextMenuInfo)menuInfo).position;
+		
+		
 		int selectedCount = mSelectedHosts.size();
 		int accessListSize = mAccessList.size();
 		if (selectedCount != accessListSize)
@@ -358,8 +366,10 @@ public class AccessListActivity extends ServiceBoincActivity implements Abstract
 		if (selectedCount != 0)
 			menu.add(0, UNSELECT_ALL_ID, 0, R.string.unselectAll);
 		
-		menu.add(0, EDIT_ID, 0, R.string.hostEdit);
-		menu.add(0, DELETE_ID, 0, R.string.hostDelete);
+		if (position != -1)
+			menu.add(0, EDIT_ID, 0, R.string.hostEdit);
+		if (position != -1 || selectedCount != 0)
+			menu.add(0, DELETE_ID, 0, R.string.hostDelete);
 	}
 	
 	@Override

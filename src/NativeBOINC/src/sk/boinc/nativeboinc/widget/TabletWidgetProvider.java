@@ -129,7 +129,7 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			final NativeBoincService runner = appContext.getRunnerService();
 			
 			if (runner != null)
-				runner.getTasks(appContext.getRefreshWidgetHandler());
+				runner.getTasks(RefreshWidgetHandler.WIDGET_REFRESHER_ID);
 			
 		} else if (inputIntent.getAction().equals(NATIVE_BOINC_WIDGET_UPDATE)) {
 			if (Logging.DEBUG) Log.d(TAG, "Widget on update from receive");

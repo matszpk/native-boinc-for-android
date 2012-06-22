@@ -33,12 +33,20 @@ public class RefreshWidgetHandler extends Handler implements NativeBoincStateLis
 
 	private static final String TAG = "RefreshWidgetHandler";
 	
+	public static final int WIDGET_REFRESHER_ID = 2;
+	
 	public final static String UPDATE_PROGRESS = "UPDATE_PROGRESS";
 	public final static String UPDATE_TASKS = "UPDATE_TASKS";
 	
 	private final Context mContext;
 	private int mWidgetUpdatePeriod = 0;
 	private boolean mDoAttachAutoRefresher = false;
+	
+	@Override
+	public int getRunnerServiceChannelId() {
+		return WIDGET_REFRESHER_ID;
+	}
+	
 	
 	public RefreshWidgetHandler(Context context) {
 		mContext = context;

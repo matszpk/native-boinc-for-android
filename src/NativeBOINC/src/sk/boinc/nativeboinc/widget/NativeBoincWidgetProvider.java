@@ -121,7 +121,7 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 			final NativeBoincService runner = appContext.getRunnerService();
 			
 			if (runner != null)
-				runner.getGlobalProgress(appContext.getRefreshWidgetHandler());
+				runner.getGlobalProgress(RefreshWidgetHandler.WIDGET_REFRESHER_ID);
 			
 		} else if (inputIntent.getAction().equals(NATIVE_BOINC_WIDGET_UPDATE)) {
 			if (Logging.DEBUG) Log.d(TAG, "Widget on update from receive");

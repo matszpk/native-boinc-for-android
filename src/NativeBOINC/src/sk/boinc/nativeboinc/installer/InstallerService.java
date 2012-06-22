@@ -56,7 +56,7 @@ public class InstallerService extends Service {
 	private static final String TAG = "InstallerService";
 	
 	public static final int DEFAULT_CHANNEL_ID = 0; // for activity
-	public static final int MAX_CHANNEL_ID = 16; // for activity
+	public static final int MAX_CHANNEL_ID = 4; // for activity
 	
 	public static final String BOINC_CLIENT_ITEM_NAME = "BOINC client";
 	public static final String BOINC_DUMP_ITEM_NAME = "BOINC Dump Files";

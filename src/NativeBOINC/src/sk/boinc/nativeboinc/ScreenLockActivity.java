@@ -78,6 +78,12 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 	
 	private String mErrorMessage = null;
 	
+	@Override
+	public int getRunnerServiceChannelId() {
+		// used by activities
+		return NativeBoincService.DEFAULT_CHANNEL_ID;
+	}
+	
 	private BroadcastReceiver mBatteryStateReceiver = new BroadcastReceiver() {
 		
 		@Override
@@ -112,7 +118,7 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 					});
 					mIsFirstUpdate = false;
 				}
-				mRunner.getGlobalProgress(ScreenLockActivity.this);
+				mRunner.getGlobalProgress(getRunnerServiceChannelId());
 			}
 			
 			// bar text
@@ -282,7 +288,7 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 
 	@Override
 	public void onMonitorEvent(ClientEvent event) {
-		mRunner.getGlobalProgress(ScreenLockActivity.this);
+		mRunner.getGlobalProgress(getRunnerServiceChannelId());
 	}
 
 	@Override

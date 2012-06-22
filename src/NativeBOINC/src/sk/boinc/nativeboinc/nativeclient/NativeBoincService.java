@@ -77,7 +77,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 	private static final int NATIVEBOINC_ID = 1; // channelId
 	
 	private final static String TAG = "NativeBoincService";
-
+	
+	public static final int DEFAULT_CHANNEL_ID = 0; // for activity
+	public static final int MAX_CHANNEL_ID = 4; // for activity
+	
 	private static final String PARTIAL_WAKELOCK_NAME = "RunnerPartial";
 	private static final String SCREEN_WAKELOCK_NAME = "RunnerScreen";
 	
@@ -92,8 +95,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 	private String mPendingError = null;
 	private Object mPendingErrorSync = new Object(); // syncer
 	
-	private PendingController<WorkerOp> mWorkerPendingController =
-			new PendingController<WorkerOp>("NB:PendingCtrl");
+	private PendingController<WorkerOp>[] mWorkerPendingChannels =
+			new PendingController[MAX_CHANNEL_ID];
 	
 	private boolean mPreviousStateOfIsWorking = false;
 	private boolean mIsWorking = false;
@@ -160,8 +163,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 			}
 		}
 		
-		public void nativeBoincServiceError(WorkerOp workerOp, String message) {
-			mWorkerPendingController.finish(workerOp);
+		public void nativeBoincServiceError(int channelId, WorkerOp workerOp, String message) {
+			PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
+			channel.finish(workerOp);
 			
 			AbstractNativeBoincListener[] listeners = mListeners.toArray(
 					new AbstractNativeBoincListener[0]);
@@ -169,44 +173,78 @@ public class NativeBoincService extends Service implements MonitorListener,
 			boolean called = false;
 			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincServiceListener) {
-					if (((NativeBoincServiceListener)listener).onNativeBoincServiceError(workerOp, message))
-						called = true;
+					NativeBoincServiceListener callback = (NativeBoincServiceListener)listener;
+					if (callback.getRunnerServiceChannelId() == channelId)
+						if (callback.onNativeBoincServiceError(workerOp, message))
+							called = true;
 				}
 			
 			if (!called)
-				mWorkerPendingController.finishWithError(workerOp, message);
+				channel.finishWithError(workerOp, message);
 		}
 
-		public void onProgressChange(NativeBoincReplyListener callback, double progress) {
-			if (mListeners.contains(callback))
-				callback.onProgressChange(progress);
+		public void onProgressChange(int channelId, double progress) {
+			PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
 			
-			mWorkerPendingController.finishWithOutput(WorkerOp.GetGlobalProgress, progress);
+			AbstractNativeBoincListener[] listeners = mListeners.toArray(
+					new AbstractNativeBoincListener[0]); 
+			
+			for (AbstractNativeBoincListener listener: listeners)
+				if (listener instanceof NativeBoincReplyListener) {
+					NativeBoincReplyListener callback = (NativeBoincReplyListener)listener;
+					if (callback.getRunnerServiceChannelId() == channelId)
+						callback.onProgressChange(progress);
+				}
+			
+			channel.finishWithOutput(WorkerOp.GetGlobalProgress, progress);
 		}
 		
-		public void getTasks(NativeBoincTasksListener callback, ArrayList<TaskItem> tasks) {
-			if (mListeners.contains(callback))
-				callback.getTasks(tasks);
+		public void getTasks(int channelId, ArrayList<TaskItem> tasks) {
+			PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
 			
-			mWorkerPendingController.finishWithOutput(WorkerOp.GetTasks, tasks);
+			AbstractNativeBoincListener[] listeners = mListeners.toArray(
+					new AbstractNativeBoincListener[0]); 
+			
+			for (AbstractNativeBoincListener listener: listeners)
+				if (listener instanceof NativeBoincTasksListener) {
+					NativeBoincTasksListener callback = (NativeBoincTasksListener)listener;
+					if (callback.getRunnerServiceChannelId() == channelId)
+						callback.getTasks(tasks);
+				}
+			
+			channel.finishWithOutput(WorkerOp.GetTasks, tasks);
 		}
 		
-		public void getProjects(NativeBoincProjectsListener callback, ArrayList<Project> projects) {
-			if (mListeners.contains(callback))
-				callback.getProjects(projects);
+		public void getProjects(int channelId, ArrayList<Project> projects) {
+			PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
 			
-			mWorkerPendingController.finishWithOutput(WorkerOp.GetProjects, projects);
+			AbstractNativeBoincListener[] listeners = mListeners.toArray(
+					new AbstractNativeBoincListener[0]); 
+			
+			for (AbstractNativeBoincListener listener: listeners)
+				if (listener instanceof NativeBoincProjectsListener) {
+					NativeBoincProjectsListener callback = (NativeBoincProjectsListener)listener;
+					if (callback.getRunnerServiceChannelId() == channelId)
+						callback.getProjects(projects);
+				}
+			
+			channel.finishWithOutput(WorkerOp.GetProjects, projects);
 		}
 		
-		public void updatedProjectApps(String projectUrl) {
+		public void updatedProjectApps(int channelId, String projectUrl) {
+			PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
+			
 			AbstractNativeBoincListener[] listeners = mListeners.toArray(
 					new AbstractNativeBoincListener[0]);
 			
 			for (AbstractNativeBoincListener listener: listeners)
-				if (listener instanceof NativeBoincUpdateListener)
-					((NativeBoincUpdateListener)listener).updatedProjectApps(projectUrl);
+				if (listener instanceof NativeBoincUpdateListener) {
+					NativeBoincUpdateListener callback = (NativeBoincUpdateListener)listener;
+					if (callback.getRunnerServiceChannelId() == channelId)
+						callback.updatedProjectApps(projectUrl);
+				}
 			
-			mWorkerPendingController.finish(WorkerOp.UpdateProjectApps(projectUrl));
+			channel.finish(WorkerOp.UpdateProjectApps(projectUrl));
 		}
 		
 		public void notifyChangeIsWorking(boolean isWorking) {
@@ -252,6 +290,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 		mListenerHandler = new ListenerHandler();
 		
 		mMonitorListenerHandler = MonitorThread.createListenerHandler();
+		
+		for (int i = 0; i < MAX_CHANNEL_ID; i++)
+			mWorkerPendingChannels[i] = new PendingController<WorkerOp>("NB:PendingCtrl"+i);
 		
 		addMonitorListener(this);
 	}
@@ -678,8 +719,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 	
 	public boolean handlePendingServiceErrorMessages(final WorkerOp workerOp,
 			final NativeBoincServiceListener listener) {
+		PendingController<WorkerOp> channel = mWorkerPendingChannels[listener.getRunnerServiceChannelId()];
 		
-		return mWorkerPendingController.handlePendingErrors(workerOp, new PendingErrorHandler<WorkerOp>() {
+		return channel.handlePendingErrors(workerOp, new PendingErrorHandler<WorkerOp>() {
 			@Override
 			public boolean handleError(WorkerOp op, Object error) {
 				return listener.onNativeBoincServiceError(workerOp, (String)error);
@@ -805,49 +847,57 @@ public class NativeBoincService extends Service implements MonitorListener,
 	/**
 	 * methods returns boolean value, that indicates whether task has been ran (true) or not (false) 
 	 */
-	public boolean getGlobalProgress(NativeBoincReplyListener callback) {
+	public boolean getGlobalProgress(int channelId) {
 		if (Logging.DEBUG) Log.d(TAG, "Get global progress");
 		
+		PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
+		
 		if (mWorkerThread != null) {
-			if (mWorkerPendingController.begin(WorkerOp.GetGlobalProgress)) {
-				mWorkerThread.getGlobalProgress(callback);
+			if (channel.begin(WorkerOp.GetGlobalProgress)) {
+				mWorkerThread.getGlobalProgress(channelId);
 				return true;
 			}
 		}
 		return false;
 	}
 	
-	public boolean getTasks(NativeBoincTasksListener callback) {
+	public boolean getTasks(int channelId) {
 		if (Logging.DEBUG) Log.d(TAG, "Get results");
 		
+		PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
+		
 		if (mWorkerThread != null) {
-			if (mWorkerPendingController.begin(WorkerOp.GetTasks)) {
-				mWorkerThread.getTasks(callback);
+			if (channel.begin(WorkerOp.GetTasks)) {
+				mWorkerThread.getTasks(channelId);
 				return true;
 			}
 		}
 		return false; 
 	}
 	
-	public boolean getProjects(NativeBoincProjectsListener callback) {
+	public boolean getProjects(int channelId) {
 		if (Logging.DEBUG) Log.d(TAG, "Get projects");
 		
+		PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
+		
 		if (mWorkerThread != null) {
-			if (mWorkerPendingController.begin(WorkerOp.GetProjects)) {
-				mWorkerThread.getProjects(callback);
+			if (channel.begin(WorkerOp.GetProjects)) {
+				mWorkerThread.getProjects(channelId);
 				return true;
 			}
 		}
 		return false;
 	}
 	
-	public boolean updateProjectApps(String projectUrl) {
+	public boolean updateProjectApps(int channelId, String projectUrl) {
 		if (Logging.DEBUG) Log.d(TAG, "update project binaries");
+		
+		PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
 		
 		WorkerOp workerOp = WorkerOp.UpdateProjectApps(projectUrl);
 		if (mWorkerThread != null) {
-			if (mWorkerPendingController.begin(workerOp)) {
-				mWorkerThread.updateProjectApps(projectUrl);
+			if (channel.begin(workerOp)) {
+				mWorkerThread.updateProjectApps(channelId, projectUrl);
 				return true;
 			}
 		}
@@ -855,8 +905,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 	}
 	
 	/* retrieve pending output for specified operation */
-	public Object getPedingWorkerOutput(WorkerOp workerOp) {
-		return mWorkerPendingController.takePendingOutput(workerOp);
+	public Object getPedingWorkerOutput(int channelId, WorkerOp workerOp) {
+		PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
+		return channel.takePendingOutput(workerOp);
 	}
 	
 	/* notifying methods */
@@ -908,7 +959,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 				
 				mListenerHandler.onClientStop(exitCode, stoppedByManager);
 				// if after shutdown we clear all pending objects
-				mWorkerPendingController.cancelAll();
+				for (int i = 0; i < mWorkerPendingChannels.length; i++)
+					mWorkerPendingChannels[i].cancelAll();
 				
 				if (mDoRestart) {
 					if (Logging.DEBUG) Log.d(TAG, "After shutdown, start native client");
@@ -932,7 +984,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 			public void run() {
 				mListenerHandler.onNativeBoincError(message);
 				// if after shutdown we clear all pending objects
-				mWorkerPendingController.cancelAll();
+				for (int i = 0; i < mWorkerPendingChannels.length; i++)
+					mWorkerPendingChannels[i].cancelAll();
 			}
 		});
 	}

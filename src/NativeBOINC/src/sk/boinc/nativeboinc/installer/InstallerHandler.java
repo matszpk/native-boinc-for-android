@@ -70,6 +70,8 @@ import android.util.Log;
 public class InstallerHandler extends Handler implements NativeBoincUpdateListener,
 	NativeBoincStateListener, MonitorListener {
 	
+	private static final int INSTALLER_ID = 3;
+	
 	private final static String TAG = "InstallerHandler";
 
 	private InstallerService mInstallerService = null;
@@ -109,6 +111,13 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	
 	/* locks resources (such as wifi and CPU) */
 	private ResourcesLocker mResourcesLocker = null;
+	
+	/*
+	 * 
+	 */
+	public int getRunnerServiceChannelId() {
+		return INSTALLER_ID;
+	}
 	
 	/**
 	 * current channelId (default is unset: -1)
@@ -1079,7 +1088,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 									mProjectDistrib.projectName);
 						
 						removeSelf = false; // do not self remove from list
-						mRunner.updateProjectApps(mProjectDistrib.projectUrl);
+						mRunner.updateProjectApps(getRunnerServiceChannelId(), mProjectDistrib.projectUrl);
 					} else {
 						// otherwise move to proper place
 						StringBuilder projectAppFilePath = new StringBuilder();

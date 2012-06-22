@@ -43,11 +43,18 @@ public class ProjectsFromClientRetriever implements NativeBoincProjectsListener,
 
 	private static final String TAG = "ProjectsFromClient";
 	
+	private static final int PROJECTS_FROM_CLIENT_ID = 1; // channelId
+	
 	private Context mContext = null;
 	private NativeBoincService mRunner = null;
 	
 	private ProjectDescriptor[] mProjectDescs = null;
 	private boolean mIsTimeout = false; 
+	
+	@Override
+	public int getRunnerServiceChannelId() {
+		return PROJECTS_FROM_CLIENT_ID;
+	}
 	
 	public ProjectsFromClientRetriever(Context context) {
 		mContext = context;
@@ -74,7 +81,7 @@ public class ProjectsFromClientRetriever implements NativeBoincProjectsListener,
 			} catch(InterruptedException ex) {
 			}
 			
-			mRunner.getProjects(this);
+			mRunner.getProjects(getRunnerServiceChannelId());
 			
 			// awaiting for callback 
 			try {

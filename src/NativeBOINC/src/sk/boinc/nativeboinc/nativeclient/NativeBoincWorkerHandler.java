@@ -75,17 +75,17 @@ public class NativeBoincWorkerHandler extends Handler {
 	/**
 	 * getGlobalProgress
 	 */
-	public void getGlobalProgress(NativeBoincReplyListener callback) {
+	public void getGlobalProgress(int channelId) {
 		if (Logging.DEBUG) Log.d(TAG, "Get global progress");
 		if (mRpcClient == null || !mRpcClient.isConnected()) {
-			notifyGlobalProgress(callback, -1.0);
+			notifyGlobalProgress(channelId, -1.0);
 			return;
 		}
 		
 		ArrayList<Result> results = mRpcClient.getActiveResults();
 		
 		if (results == null) {
-			notifyGlobalProgress(callback, -1.0);
+			notifyGlobalProgress(channelId, -1.0);
 			return;
 		}
 		
@@ -101,17 +101,17 @@ public class NativeBoincWorkerHandler extends Handler {
 			}
 		
 		if (taskCount == 0) {	// no tasks
-			notifyGlobalProgress(callback, -1.0);
+			notifyGlobalProgress(channelId, -1.0);
 			return;
 		}
-		notifyGlobalProgress(callback, globalProgress / taskCount);
+		notifyGlobalProgress(channelId, globalProgress / taskCount);
 	}
 	
-	private boolean updateState() {
+	private boolean updateState(int channelId) {
 		CcState ccState = mRpcClient.getState();
 		
 		if (ccState == null)  {
-			notifyNativeBoincServiceError(WorkerOp.GetTasks,
+			notifyNativeBoincServiceError(channelId, WorkerOp.GetTasks,
 					mContext.getString(R.string.nativeClientResultsError));
 			return false;
 		}
@@ -167,7 +167,7 @@ public class NativeBoincWorkerHandler extends Handler {
 	 * get tasks
 	 * 
 	 */
-	public void getTasks(NativeBoincTasksListener callback) {
+	public void getTasks(int channelId) {
 		if (Logging.DEBUG) Log.d(TAG, "Get results from native client");
 		
 		if (mRpcClient == null)
@@ -175,24 +175,24 @@ public class NativeBoincWorkerHandler extends Handler {
 		
 		ArrayList<Result> results = mRpcClient.getResults();
 		if (results == null) {
-			notifyNativeBoincServiceError(WorkerOp.GetTasks,
+			notifyNativeBoincServiceError(channelId, WorkerOp.GetTasks,
 					mContext.getString(R.string.nativeClientResultsError));
 			return;
 		}
 		// try to update results
 		if (!updateTasks(results)) {
 			// try to update whole ccstate
-			if (!updateState())
+			if (!updateState(channelId))
 				return;
 		}
-		notifyResults(callback, new ArrayList<TaskItem>(mTasks.values()));
+		notifyResults(channelId, new ArrayList<TaskItem>(mTasks.values()));
 	}
 	
 	/**
 	 * get projects
 	 * 
 	 */
-	public void getProjects(NativeBoincProjectsListener callback) {
+	public void getProjects(int channelId) {
 		if (Logging.DEBUG) Log.d(TAG, "Get projects from native client");
 		
 		if (mRpcClient == null)
@@ -200,15 +200,16 @@ public class NativeBoincWorkerHandler extends Handler {
 		
 		ArrayList<Project> projects = mRpcClient.getProjectStatus();
 		if (projects == null) {
-			notifyNativeBoincServiceError(WorkerOp.GetProjects,
+			notifyNativeBoincServiceError(channelId, WorkerOp.GetProjects,
 					mContext.getString(R.string.nativeClientProjectsError));
 			return;
 		}
-		notifyProjects(callback, projects);
+		notifyProjects(channelId, projects);
 	}
 	
 	private boolean mUpdatingPollerIsRun = false;
 	private ArrayList<String> mUpdatingProjects = new ArrayList<String>();
+	private int mUpdatePollerChannelId;
 	
 	private Runnable mUpdatingPoller = new Runnable() {
 		@Override
@@ -234,12 +235,13 @@ public class NativeBoincWorkerHandler extends Handler {
 					
 					if (reply.error_num == 0) {
 						if (Logging.INFO) Log.i(TAG, "after update_apps for "+projectUrl);
-						notifyUpdatedProject(projectUrl);
+						notifyUpdatedProject(mUpdatePollerChannelId, projectUrl);
 					}
 					else {	// if error
 						if (Logging.WARNING) Log.w(TAG, "error in updating app for "+projectUrl +
 								",errornum:" +reply.error_num);
-						notifyNativeBoincServiceError(WorkerOp.UpdateProjectApps(projectUrl), 
+						notifyNativeBoincServiceError(mUpdatePollerChannelId,
+								WorkerOp.UpdateProjectApps(projectUrl), 
 								mContext.getString(R.string.nativeClientResultsError)+ " "+projectUrl);
 					}
 				}
@@ -256,7 +258,7 @@ public class NativeBoincWorkerHandler extends Handler {
 	 * update project apps
 	 * @param projectUrl
 	 */
-	public void updateProjectApps(String projectUrl) {
+	public void updateProjectApps(int channelId, String projectUrl) {
 		if (Logging.DEBUG) Log.d(TAG, "Update projects apps");
 		
 		if (mRpcClient == null)
@@ -267,12 +269,13 @@ public class NativeBoincWorkerHandler extends Handler {
 		
 		if (!mRpcClient.updateProjectApps(projectUrl)) {
 			if (Logging.WARNING) Log.w(TAG, "updatProjectApps error "+projectUrl);
-			notifyNativeBoincServiceError(WorkerOp.UpdateProjectApps(projectUrl),
+			notifyNativeBoincServiceError(channelId, WorkerOp.UpdateProjectApps(projectUrl),
 					mContext.getString(R.string.nativeClientResultsError)+" "+projectUrl);
 		} else
 			mUpdatingProjects.add(projectUrl);
 		
 		if (!mUpdatingPollerIsRun) {
+			mUpdatePollerChannelId = channelId;
 			mUpdatingPollerIsRun = true;
 			postDelayed(mUpdatingPoller, 1000);
 		}
@@ -291,56 +294,54 @@ public class NativeBoincWorkerHandler extends Handler {
 		}
 	}
 	
-	private synchronized void notifyGlobalProgress(final NativeBoincReplyListener callback,
-			final double progress) {
+	private synchronized void notifyGlobalProgress(final int channelId, final double progress) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
 				if (mListenerHandler != null)
-					mListenerHandler.onProgressChange(callback, progress);
+					mListenerHandler.onProgressChange(channelId, progress);
 			}
 		});
 	}
 	
-	private synchronized void notifyNativeBoincServiceError(final WorkerOp workerOp, final String message) {
+	private synchronized void notifyNativeBoincServiceError(final int channelId,
+			final WorkerOp workerOp, final String message) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
 				if (mListenerHandler != null)
-					mListenerHandler.nativeBoincServiceError(workerOp, message);
+					mListenerHandler.nativeBoincServiceError(channelId, workerOp, message);
 			}
 		});
 	}
 	
-	private synchronized void notifyResults(final NativeBoincTasksListener callback,
-			final ArrayList<TaskItem> tasks) {
+	private synchronized void notifyResults(final int channelId, final ArrayList<TaskItem> tasks) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
 				if (mListenerHandler != null)
-					mListenerHandler.getTasks(callback, tasks);
+					mListenerHandler.getTasks(channelId, tasks);
 			}
 		});
 	}
 	
-	private synchronized void notifyProjects(final NativeBoincProjectsListener callback,
-			final ArrayList<Project> projects) {
+	private synchronized void notifyProjects(final int channelId, final ArrayList<Project> projects) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
 				if (mListenerHandler != null)
-					mListenerHandler.getProjects(callback, projects);
+					mListenerHandler.getProjects(channelId, projects);
 			}
 		});
 	}
 	
-	private synchronized void notifyUpdatedProject(final String projectUrl) {
+	private synchronized void notifyUpdatedProject(final int channelId, final String projectUrl) {
 		if (Logging.DEBUG) Log.d(TAG, "Notify updated project:"+projectUrl);
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
 				if (mListenerHandler != null)
-					mListenerHandler.updatedProjectApps(projectUrl);
+					mListenerHandler.updatedProjectApps(channelId, projectUrl);
 			}
 		});
 	}

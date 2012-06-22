@@ -77,29 +77,29 @@ public class NativeBoincWorkerThread extends Thread {
 		if (Logging.DEBUG) Log.d(TAG, "run() - Finished" + Thread.currentThread().toString());
 	}
 	
-	public void getGlobalProgress(final NativeBoincReplyListener callback) {
+	public void getGlobalProgress(final int channelId) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.getGlobalProgress(callback);
+				mHandler.getGlobalProgress(channelId);
 			}
 		});
 	}
 	
-	public void getTasks(final NativeBoincTasksListener callback) {
+	public void getTasks(final int channelId) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.getTasks(callback);
+				mHandler.getTasks(channelId);
 			}
 		});
 	}
 	
-	public void getProjects(final NativeBoincProjectsListener callback) {
+	public void getProjects(final int channelId) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.getProjects(callback);
+				mHandler.getProjects(channelId);
 			}
 		});
 	}
@@ -113,11 +113,11 @@ public class NativeBoincWorkerThread extends Thread {
 		});
 	}
 	
-	public void updateProjectApps(final String projectUrl) {
+	public void updateProjectApps(final int channelId, final String projectUrl) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.updateProjectApps(projectUrl);
+				mHandler.updateProjectApps(channelId, projectUrl);
 			}
 		});
 	}

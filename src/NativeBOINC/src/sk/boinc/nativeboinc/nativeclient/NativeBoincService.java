@@ -907,6 +907,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 				notifyChangeIsWorking();
 				
 				mListenerHandler.onClientStop(exitCode, stoppedByManager);
+				// if after shutdown we clear all pending objects
+				mWorkerPendingController.cancelAll();
 				
 				if (mDoRestart) {
 					if (Logging.DEBUG) Log.d(TAG, "After shutdown, start native client");
@@ -929,6 +931,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 			@Override
 			public void run() {
 				mListenerHandler.onNativeBoincError(message);
+				// if after shutdown we clear all pending objects
+				mWorkerPendingController.cancelAll();
 			}
 		});
 	}

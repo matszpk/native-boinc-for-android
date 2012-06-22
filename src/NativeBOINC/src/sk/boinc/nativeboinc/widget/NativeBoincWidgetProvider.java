@@ -26,7 +26,6 @@ import sk.boinc.nativeboinc.ScreenLockActivity;
 import sk.boinc.nativeboinc.ShutdownDialogActivity;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
-import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.appwidget.AppWidgetManager;
@@ -49,17 +48,12 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 	public static final String NATIVE_BOINC_WIDGET_UPDATE = "sk.boinc.nativeboinc.widget.WIDGET_UPDATE";
 	public static final String NATIVE_BOINC_CLIENT_START_STOP = "sk.boinc.nativeboinc.widget.CLIENT_START_STOP";
 	
-	public static final String WIDGET_CLIENT_START = "WidgetClientStart";
-	public static final String WIDGET_UPDATE_CHANGED = "WidgetUpdateChanged";
-	
 	@Override
 	public void onEnabled(Context context) {
 		super.onEnabled(context);
 		
-		if (Logging.DEBUG) Log.d(TAG, "Enabled native periodically");
+		if (Logging.DEBUG) Log.d(TAG, "on enabled widget");
 		BoincManagerApplication appContext = (BoincManagerApplication)context.getApplicationContext();
-		
-		int updatePeriod = appContext.getWigetUpdatePeriod();
 		
 		/* first update */
 		Intent intent = new Intent(NATIVE_BOINC_WIDGET_UPDATE);
@@ -71,34 +65,35 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 			pendingIntent.send();
 		} catch (Exception ex) { }
 		
-		/* updating periodically */
-		AlarmManager alarmManager = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);
-		intent = new Intent(NATIVE_BOINC_WIDGET_PREPARE_UPDATE);
-		pendingIntent = PendingIntent.getBroadcast(appContext, 0, intent, 
-				PendingIntent.FLAG_UPDATE_CURRENT);
-		alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
-				updatePeriod, pendingIntent);
-	}
-	
-	private void disableAutoRefresh(Context context) {
-		if (Logging.DEBUG) Log.d(TAG, "Disabled native periodically");
-		BoincManagerApplication appContext = (BoincManagerApplication)context.getApplicationContext();
-		/* cancel updating periodically */
-		AlarmManager alarmManager = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);
-		Intent intent = new Intent(NATIVE_BOINC_WIDGET_PREPARE_UPDATE);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, intent, 
-				PendingIntent.FLAG_UPDATE_CURRENT);
-		alarmManager.cancel(pendingIntent);
+		// if runner is run
+		NativeBoincService runner = appContext.getRunnerService();
+		if (runner != null && runner.isRun()) {
+			// then send prepare update
+			intent = new Intent(NATIVE_BOINC_WIDGET_PREPARE_UPDATE);
+			pendingIntent = PendingIntent.getBroadcast(appContext, 0, intent, 
+					PendingIntent.FLAG_UPDATE_CURRENT);
+			
+			try {
+				if (Logging.DEBUG) Log.d(TAG, "Send prepare update intent");
+				pendingIntent.send();
+			} catch (Exception ex) { }
+		}
+		
+		// trigger autorefresher
+		appContext.getRefreshWidgetHandler().manuallyAttachAutoRefresher();
 	}
 	
 	@Override
 	public void onDisabled(Context context) {
-		super.onDisabled(context);
-		disableAutoRefresh(context);
+		if (Logging.DEBUG) Log.d(TAG, "on disabled widget");
+		BoincManagerApplication appContext = (BoincManagerApplication)context.getApplicationContext();
+		
+		// detach autorefresher
+		appContext.getRefreshWidgetHandler().manuallyDetachAutoRefresher();
 	}
 	
 	/* check widgets */
-	private static boolean isWidgetEnabled(Context context) {
+	public final static boolean isWidgetEnabled(Context context) {
 		AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
 		
 		ComponentName thisAppWidget = new ComponentName(context.getPackageName(),
@@ -126,29 +121,8 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 			final NativeBoincService runner = appContext.getRunnerService();
 			
 			if (runner != null)
-				runner.getGlobalProgress(appContext);
+				runner.getGlobalProgress(appContext.getRefreshWidgetHandler());
 			
-			boolean updateChanged = inputIntent.getBooleanExtra(WIDGET_UPDATE_CHANGED, false);
-			boolean clientStart = inputIntent.getBooleanExtra(WIDGET_CLIENT_START, false);
-					
-			if (updateChanged || clientStart) {
-				// change update period
-				int updatePeriod = appContext.getWigetUpdatePeriod();
-				if (updateChanged) {
-					if (Logging.DEBUG) Log.d(TAG, "Reenable update periodically "+updatePeriod);
-				} else
-					if (Logging.DEBUG) Log.d(TAG, "Enable update periodically at start "+updatePeriod);
-				
-				AlarmManager alarmManager = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);
-				Intent intent = new Intent(NATIVE_BOINC_WIDGET_PREPARE_UPDATE);
-				PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext, 0, intent, 
-						PendingIntent.FLAG_UPDATE_CURRENT);
-				
-				if (updateChanged) // cancel before
-					alarmManager.cancel(pendingIntent);
-				alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
-						updatePeriod, pendingIntent);
-			}
 		} else if (inputIntent.getAction().equals(NATIVE_BOINC_WIDGET_UPDATE)) {
 			if (Logging.DEBUG) Log.d(TAG, "Widget on update from receive");
 			
@@ -199,10 +173,6 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 			int ids[] = appWidgetManager.getAppWidgetIds(thisAppWidget);
 			appWidgetManager.updateAppWidget(ids, views);
 			
-			if (!isRun) {
-				// disable auto refresh
-				disableAutoRefresh(context);
-			}
 		} else if (inputIntent.getAction().equals(NATIVE_BOINC_CLIENT_START_STOP)) {
 			if (Logging.DEBUG) Log.d(TAG, "Client start/stop from widget receive");
 			

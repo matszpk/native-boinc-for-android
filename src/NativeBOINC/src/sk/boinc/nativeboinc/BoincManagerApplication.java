@@ -23,37 +23,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.berkeley.boinc.nativeboinc.ClientEvent;
-
 import sk.boinc.nativeboinc.debug.Logging;
-import sk.boinc.nativeboinc.nativeclient.MonitorListener;
-import sk.boinc.nativeboinc.nativeclient.NativeBoincTasksListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
-import sk.boinc.nativeboinc.nativeclient.NativeBoincReplyListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
-import sk.boinc.nativeboinc.nativeclient.WorkerOp;
 import sk.boinc.nativeboinc.util.NativeClientAutostart;
 import sk.boinc.nativeboinc.util.PreferenceName;
-import sk.boinc.nativeboinc.util.TaskItem;
-import sk.boinc.nativeboinc.widget.NativeBoincWidgetProvider;
-import sk.boinc.nativeboinc.widget.TabletWidgetProvider;
+import sk.boinc.nativeboinc.widget.RefreshWidgetHandler;
 import android.app.Application;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.util.Linkify;
@@ -72,8 +60,7 @@ import android.widget.Toast;
  * <li>provides basic information about application
  * </ul>
  */
-public class BoincManagerApplication extends Application implements NativeBoincStateListener,
-	NativeBoincReplyListener, NativeBoincTasksListener, MonitorListener, OnSharedPreferenceChangeListener {
+public class BoincManagerApplication extends Application implements NativeBoincStateListener {
 	
 	private static final String TAG = "BoincManagerApplication";
 
@@ -98,8 +85,6 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	private int mInstallerStage = INSTALLER_NO_STAGE;
 	
 	private NativeBoincService mRunner = null;
-	
-	private int mWidgetUpdatePeriod = 0;
 	
 	private NotificationController mNotificationController = null;
 	
@@ -135,6 +120,8 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	
 	private SecondStartTryHandler mSecondTryStartHandler = null;
 	
+	private RefreshWidgetHandler mRefreshWidgetHandler = null;
+	
 	private ServiceConnection mRunnerServiceConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
@@ -142,7 +129,8 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceConnected()");
 			// service automatically adds application object to listeners
 			mRunner.addNativeBoincListener(BoincManagerApplication.this);
-			mRunner.addMonitorListener(BoincManagerApplication.this);
+			mRunner.addNativeBoincListener(mRefreshWidgetHandler);
+			mRunner.addMonitorListener(mRefreshWidgetHandler);
 			
 			if (!mRunner.isRun()) {
 				if (mDoStartClientAfterBind && !mRunner.isRun()) {
@@ -158,6 +146,9 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
+			mRunner.removeNativeBoincListener(mRefreshWidgetHandler);
+			mRunner.removeMonitorListener(mRefreshWidgetHandler);
+			mRunner.removeNativeBoincListener(BoincManagerApplication.this);
 			mRunner = null;
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceDisconnected()");
 		}
@@ -171,8 +162,9 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	private void doUnbindRunnerService() {
 		if (Logging.DEBUG) Log.d(TAG, "Undind runner service");
 		unbindService(mRunnerServiceConnection);
+		mRunner.removeNativeBoincListener(mRefreshWidgetHandler);
+		mRunner.removeMonitorListener(mRefreshWidgetHandler);
 		mRunner.removeNativeBoincListener(this);
-		mRunner.removeMonitorListener(this);
 		mRunner = null;
 	}
 	
@@ -193,11 +185,13 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		mNotificationController = new NotificationController(this);
 		
 		mGlobalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-		mWidgetUpdatePeriod = Integer.parseInt(mGlobalPrefs.getString(PreferenceName.WIDGET_UPDATE, "10"))*1000;
 		mInstallerStage = mGlobalPrefs.getInt(PreferenceName.INSTALLER_STAGE, INSTALLER_NO_STAGE);
-		mGlobalPrefs.registerOnSharedPreferenceChangeListener(this);
 		
 		mSecondTryStartHandler = new SecondStartTryHandler();
+		mRefreshWidgetHandler = new RefreshWidgetHandler(this);
+		
+		// register refreshWidgetHandler as preferences change listener
+		mGlobalPrefs.registerOnSharedPreferenceChangeListener(mRefreshWidgetHandler);
 		
 		if (NativeClientAutostart.isAutostartsAtAppStartup(mGlobalPrefs))
 			autostartClient();
@@ -227,6 +221,11 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		mStringBuilder = null; // So garbage collector will free the memory
 		mReadBuffer = null;
 		super.onLowMemory();
+	}
+	
+	/* get autorefresh handler */
+	public RefreshWidgetHandler getRefreshWidgetHandler() {
+		return mRefreshWidgetHandler;
 	}
 
 	/**
@@ -430,50 +429,10 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	public void onClientStart() {
 		if (Logging.DEBUG) Log.d(TAG, "On client start");
 		mFirstStartingAtAppStartup = false; // after starting
-		prepareUpdateWidgets(false, true);
-	}
-	
-	private void prepareUpdateWidgets(boolean isWidgetUpdateChanged, boolean atClientStart) {
-		if (Logging.DEBUG) Log.d(TAG, "Prepare Update Widgets");
-		Intent intent = new Intent(NativeBoincWidgetProvider.NATIVE_BOINC_WIDGET_PREPARE_UPDATE);
-		if (isWidgetUpdateChanged)
-			intent.putExtra(NativeBoincWidgetProvider.WIDGET_UPDATE_CHANGED, true);
-		if (atClientStart)
-			intent.putExtra(NativeBoincWidgetProvider.WIDGET_CLIENT_START, true);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		try {
-			pendingIntent.send();
-		} catch (Exception ex) { }
-		
-		intent = new Intent(TabletWidgetProvider.NATIVE_BOINC_WIDGET_PREPARE_UPDATE);
-		if (isWidgetUpdateChanged)
-			intent.putExtra(TabletWidgetProvider.WIDGET_UPDATE_CHANGED, true);
-		if (atClientStart)
-			intent.putExtra(TabletWidgetProvider.WIDGET_CLIENT_START, true);
-		pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		try {
-			pendingIntent.send();
-		} catch (Exception ex) { }
-	}
-	
-	private void updateWidgets() {
-		Intent intent = new Intent(NativeBoincWidgetProvider.NATIVE_BOINC_WIDGET_UPDATE);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		try {
-			pendingIntent.send();
-		} catch (Exception ex) { }
-		
-		/* tablet widget */
-		intent = new Intent(TabletWidgetProvider.NATIVE_BOINC_WIDGET_UPDATE);
-		pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		try {
-			pendingIntent.send();
-		} catch (Exception ex) { }
 	}
 	
 	@Override
 	public void onClientStop(int exitCode, boolean stoppedByManager) {
-		updateWidgets();	
 		// unbind service
 		doUnbindRunnerService();
 	}
@@ -484,7 +443,6 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	
 	@Override
 	public boolean onNativeBoincClientError(String message) {
-		updateWidgets();
 		if (mFirstStartingAtAppStartup) {
 			// when first start at startup
 			mFirstStartingAtAppStartup = false; // if starting failed
@@ -496,78 +454,6 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		// TODO: handle native boinc error
 		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 		return false;
-	}
-	
-	/* we do not consume error events, because only one listener can handle error (in this case is
-	 * active activity) */
-	@Override
-	public boolean onNativeBoincServiceError(WorkerOp workerOp, String message) {
-		//Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-		return false;
-	}
-	
-	@Override
-	public void onMonitorEvent(ClientEvent event) {
-		// trigger widget update
-		prepareUpdateWidgets(false, false);
-	}
-	
-	@Override
-	public void onMonitorDoesntWork() {
-		// do nothing
-	}
-	
-	/**
-	 * 
-	 * @return true if changed, otherwise false
-	 */
-	public int getWigetUpdatePeriod() {
-		return mWidgetUpdatePeriod;
-	}
-	
-	/*
-	 * when widget update prefs changed, we update setup and trigger update with updating widget update prefs
-	 */
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-			String key) {
-		if (key.equals(PreferenceName.WIDGET_UPDATE)) {
-			int newPeriod = Integer.parseInt(sharedPreferences.getString(
-					PreferenceName.WIDGET_UPDATE, "10"))*1000;
-			if (Logging.DEBUG) Log.d(TAG, "When widget update changed to "+newPeriod);
-			mWidgetUpdatePeriod = newPeriod;
-			// update widget
-			prepareUpdateWidgets(true, false);
-		}
-	}
-
-	@Override
-	public void onProgressChange(double progress) {
-		Intent intent = new Intent(NativeBoincWidgetProvider.NATIVE_BOINC_WIDGET_UPDATE);
-		intent.putExtra(UPDATE_PROGRESS, progress);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		try {
-			if (Logging.DEBUG) Log.d(TAG, "Send update intent");
-			pendingIntent.send();
-		} catch (Exception ex) { }
-	}
-	
-	@Override
-	public void getTasks(ArrayList<TaskItem> tasks) {
-		Intent intent = new Intent(TabletWidgetProvider.NATIVE_BOINC_WIDGET_UPDATE);
-		
-		Parcelable[] taskItems = new Parcelable[tasks.size()];
-		for (int i = 0; i < taskItems.length; i++)
-			taskItems[i] = tasks.get(i);
-		
-		intent.putExtra(UPDATE_TASKS, taskItems);
-		
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent,
-				PendingIntent.FLAG_UPDATE_CURRENT);
-		try {
-			if (Logging.DEBUG) Log.d(TAG, "Send update intent");
-			pendingIntent.send();
-		} catch (Exception ex) { }
 	}
 	
 	/*

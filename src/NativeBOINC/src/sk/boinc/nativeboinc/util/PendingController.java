@@ -236,6 +236,14 @@ public class PendingController<Operation> {
 		return false;
 	}
 	
+	/*
+	 * cancel all pendings
+	 */
+	public synchronized void cancelAll() {
+		mPendingErrorQueue.clear();
+		mPendingOutputsMap.clear();
+	}
+	
 	/**
 	 * saving memory
 	 */

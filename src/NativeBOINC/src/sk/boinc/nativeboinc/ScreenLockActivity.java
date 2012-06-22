@@ -21,8 +21,11 @@ package sk.boinc.nativeboinc;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import edu.berkeley.boinc.nativeboinc.ClientEvent;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.ExitCode;
+import sk.boinc.nativeboinc.nativeclient.MonitorListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincReplyListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
@@ -51,7 +54,7 @@ import android.widget.TextView;
  *
  */
 public class ScreenLockActivity extends Activity implements NativeBoincReplyListener,
-		NativeBoincStateListener {
+		NativeBoincStateListener, MonitorListener {
 	private static final String TAG = "ScreenLockActivity";
 	
 	private int mUpdatePeriod;
@@ -275,5 +278,15 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 		mErrorMessage = ExitCode.getExitCodeMessage(this, exitCode, stoppedByManager);
 		// trigger progress change
 		onProgressChange(-1.0);
+	}
+
+	@Override
+	public void onMonitorEvent(ClientEvent event) {
+		mRunner.getGlobalProgress(ScreenLockActivity.this);
+	}
+
+	@Override
+	public void onMonitorDoesntWork() {
+		// do nothing
 	}
 }

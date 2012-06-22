@@ -249,7 +249,8 @@ public class ConnectionManagerService extends Service implements
 	 */
 	@Override
 	public void registerStatusObserver(ClientReceiver observer) {
-		mObservers.add(observer);
+		if (mObservers != null)
+			mObservers.add(observer);
 		if (mClientBridge != null) {
 			mClientBridge.registerStatusObserver(observer);
 		}
@@ -264,7 +265,8 @@ public class ConnectionManagerService extends Service implements
 	 */
 	@Override
 	public void unregisterStatusObserver(ClientReceiver observer) {
-		mObservers.remove(observer);
+		if (mObservers != null)
+			mObservers.remove(observer);
 		if (mClientBridge != null) {
 			mClientBridge.unregisterStatusObserver(observer);
 		}

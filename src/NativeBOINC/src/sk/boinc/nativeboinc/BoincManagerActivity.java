@@ -204,6 +204,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
+			if (mConnectionManager != null)
+				mConnectionManager.unregisterStatusObserver(BoincManagerActivity.this);
 			mConnectionManager = null;
 			// This should not happen normally, because it's local service 
 			// running in the same process...
@@ -252,6 +254,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
+			if (mRunner != null)
+				mRunner.removeMonitorListener(BoincManagerActivity.this);
 			mRunner = null;
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceDisconnected()");
 		}
@@ -269,6 +273,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	
 	private void doUnbindService() {
 		if (Logging.DEBUG) Log.d(TAG, "doUnbindService()");
+		if (mConnectionManager != null)
+			mConnectionManager.unregisterStatusObserver(this);
 		unbindService(mServiceConnection);
 		mConnectionManager = null;
 	}
@@ -649,14 +655,6 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		super.onDestroy();
 		if (Logging.DEBUG) Log.d(TAG, "onDestroy()");
 		removeDialog(DIALOG_CONNECT_PROGRESS);
-		if (mConnectionManager != null) {
-			mConnectionManager.unregisterStatusObserver(this);
-			mConnectedClient = null;
-		}
-		if (mRunner != null) {
-			mRunner.removeNativeBoincListener(this);
-			mRunner = null;
-		}
 		doUnbindService();
 		doUnbindRunnerService();
 		mScreenOrientation = null;

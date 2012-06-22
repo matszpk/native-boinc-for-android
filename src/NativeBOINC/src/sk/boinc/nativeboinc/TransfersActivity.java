@@ -281,6 +281,8 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
+			if (mConnectionManager != null)
+				mConnectionManager.unregisterStatusObserver(TransfersActivity.this);
 			mConnectionManager = null;
 			// This should not happen normally, because it's local service 
 			// running in the same process...

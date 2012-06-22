@@ -636,19 +636,23 @@ public class NativeBoincService extends Service implements MonitorListener,
 	private WakeLockHolder mWakeLockHolder = null;
 	
 	public synchronized void addNativeBoincListener(AbstractNativeBoincListener listener) {
-		mListeners.add(listener);
+		if (mListeners != null)
+			mListeners.add(listener);
 	}
 	
 	public synchronized void removeNativeBoincListener(AbstractNativeBoincListener listener) {
-		mListeners.remove(listener);
+		if (mListeners != null)
+			mListeners.remove(listener);
 	}
 	
 	public void addMonitorListener(MonitorListener listener) {
-		mMonitorListenerHandler.addMonitorListener(listener);
+		if (mMonitorListenerHandler != null)
+			mMonitorListenerHandler.addMonitorListener(listener);
 	}
 	
 	public void removeMonitorListener(MonitorListener listener) {
-		mMonitorListenerHandler.removeMonitorListener(listener);
+		if (mMonitorListenerHandler != null)
+			mMonitorListenerHandler.removeMonitorListener(listener);
 	}
 	
 	/**
@@ -1024,7 +1028,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
 			Log.d(TAG, "Installer is unbounded");
-			mInstaller.removeInstallerListener(NativeBoincService.this);
+			if (mInstaller != null)
+				mInstaller.removeInstallerListener(NativeBoincService.this);
 			mInstaller = null;
 		}
 		

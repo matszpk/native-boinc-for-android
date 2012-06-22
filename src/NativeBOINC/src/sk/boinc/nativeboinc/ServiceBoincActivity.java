@@ -73,10 +73,13 @@ public class ServiceBoincActivity extends AbstractBoincActivity {
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
+			if (mRegisterConnManagerListener && mConnectionManager != null)
+				mConnectionManager.unregisterStatusObserver((ClientReceiver)ServiceBoincActivity.this);
 			mConnectionManager = null;
 			// This should not happen normally, because it's local service 
 			// running in the same process...
 			if (Logging.WARNING) Log.w(TAG, "onServiceDisconnected()");
+			
 			// We also reset client reference to prevent mess
 			onConnectionManagerDisconnected();
 		}
@@ -106,6 +109,8 @@ public class ServiceBoincActivity extends AbstractBoincActivity {
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
+			if (mRegisterInstallerListener && mInstaller != null)
+				mInstaller.removeInstallerListener((AbstractInstallerListener)ServiceBoincActivity.this);
 			mInstaller = null;
 			if (Logging.DEBUG) Log.d(TAG, "installer.onServiceDisconnected()");
 			onInstallerDisconnected();
@@ -136,6 +141,8 @@ public class ServiceBoincActivity extends AbstractBoincActivity {
 		
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
+			if (mRegisterRunnerListener && mRunner != null)
+				mRunner.removeNativeBoincListener((AbstractNativeBoincListener)ServiceBoincActivity.this);
 			mRunner = null;
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceDisconnected()");
 			onRunnerDisconnected();

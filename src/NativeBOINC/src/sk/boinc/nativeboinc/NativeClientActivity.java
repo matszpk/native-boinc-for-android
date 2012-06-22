@@ -118,6 +118,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
+			if (mInstaller != null)
+				mInstaller.removeInstallerListener(NativeClientActivity.this);
 			if (Logging.DEBUG) Log.d(TAG, "on Installer disconnected");
 			mInstaller = null;
 		}
@@ -141,6 +143,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
+			if (mRunner != null)
+				mRunner.removeNativeBoincListener(NativeClientActivity.this);
 			if (Logging.DEBUG) Log.d(TAG, "on Runner disconnected");
 			mRunner = null;
 		}
@@ -153,6 +157,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	}
 	
 	private void unbindRunnerService() {
+		if (mRunner != null)
+			mRunner.removeNativeBoincListener(this);
 		unbindService(mRunnerConnection);
 		mRunner = null;
 	}
@@ -164,6 +170,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	}
 	
 	private void unbindInstallerService() {
+		if (mInstaller != null)
+			mInstaller.removeInstallerListener(this);
 		unbindService(mInstallerConnection);
 		mInstaller = null;
 	}

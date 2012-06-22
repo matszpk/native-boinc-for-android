@@ -145,6 +145,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
+			if (mConnectionManager != null)
+				mConnectionManager.unregisterStatusObserver(ManageClientActivity.this);
 			mConnectionManager = null;
 			// This should not happen normally, because it's local service 
 			// running in the same process...

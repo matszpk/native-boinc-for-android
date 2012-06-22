@@ -146,9 +146,11 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
-			mRunner.removeNativeBoincListener(mRefreshWidgetHandler);
-			mRunner.removeMonitorListener(mRefreshWidgetHandler);
-			mRunner.removeNativeBoincListener(BoincManagerApplication.this);
+			if (mRunner != null) {
+				mRunner.removeNativeBoincListener(mRefreshWidgetHandler);
+				mRunner.removeMonitorListener(mRefreshWidgetHandler);
+				mRunner.removeNativeBoincListener(BoincManagerApplication.this);
+			}
 			mRunner = null;
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceDisconnected()");
 		}

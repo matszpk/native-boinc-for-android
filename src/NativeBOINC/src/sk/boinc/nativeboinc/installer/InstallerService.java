@@ -110,8 +110,10 @@ public class InstallerService extends Service {
 		
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
-			mRunner.removeNativeBoincListener(mInstallerHandler);
-			mRunner.removeMonitorListener(mInstallerHandler);
+			if (mRunner != null) {
+				mRunner.removeNativeBoincListener(mInstallerHandler);
+				mRunner.removeMonitorListener(mInstallerHandler);
+			}
 			mRunner = null;
 			mInstallerHandler.setRunnerService(null);
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceDisconnected()");
@@ -421,11 +423,13 @@ public class InstallerService extends Service {
 	private ListenerHandler mListenerHandler = null;
 	
 	public synchronized void addInstallerListener(AbstractInstallerListener listener) {
-		mListeners.add(listener);
+		if (mListeners != null)
+			mListeners.add(listener);
 	}
 	
 	public synchronized void removeInstallerListener(AbstractInstallerListener listener) {
-		mListeners.remove(listener);
+		if (mListeners != null)
+			mListeners.remove(listener);
 	}
 	
 	private void startInstaller() {

@@ -146,13 +146,18 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 			mRunner = ((NativeBoincService.LocalBinder)service).getService();
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceConnected()");
 			mRunner.addNativeBoincListener(ScreenLockActivity.this);
+			mRunner.addMonitorListener(ScreenLockActivity.this);
+			
 		}
 		
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
-			mRunner = null;
 			if (Logging.DEBUG) Log.d(TAG, "runner.onServiceDisconnected()");
-			mRunner.removeNativeBoincListener(ScreenLockActivity.this);
+			if (mRunner != null) {
+				mRunner.removeNativeBoincListener(ScreenLockActivity.this);
+				mRunner.removeMonitorListener(ScreenLockActivity.this);
+			}
+			mRunner = null;
 		}
 	};
 	
@@ -162,6 +167,8 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 	}
 	
 	private void doUnbindRunnerService() {
+		mRunner.removeNativeBoincListener(ScreenLockActivity.this);
+		mRunner.removeMonitorListener(ScreenLockActivity.this);
 		unbindService(mRunnerServiceConnection);
 		mRunner = null;
 	}
@@ -213,9 +220,6 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 		super.onDestroy();
 		
 		unregisterReceiver(mBatteryStateReceiver);
-		
-		if (mRunner != null)
-			mRunner = null;
 		
 		doUnbindRunnerService();
 	}

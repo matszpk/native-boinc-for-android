@@ -114,6 +114,7 @@ jeszcze raz usprawnic i uszczelnić obsługę błędów
 / * automatycznie aktualizuj stan w głównym oknie przy eventach klienta
   * popraw kończenie instalacji projektu, gdy klient padł przy update_apps lub nie odpowiada przez ok. 7 sek.
   * sprawdz synchronizacje projektów z distribManager (synchronize project distribs).
+    (na obecnym etapie lepszy mechanizm synchronizacji nie jest potrzebny)
 / * usuń problem starego stanu w tabach podczas wyłączeniu klienta przy obracaniu (chyba zrobione)
   
 / * wstaw autorefresh w InstalledBinariesActivity

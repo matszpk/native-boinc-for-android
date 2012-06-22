@@ -59,7 +59,8 @@ public class InstalledBinariesActivity extends ListActivity implements Installer
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
 			// do nothing
-			mInstaller.removeInstallerListener(InstalledBinariesActivity.this);
+			if (mInstaller != null)
+				mInstaller.removeInstallerListener(InstalledBinariesActivity.this);
 			mInstaller = null;
 		}
 		
@@ -76,7 +77,8 @@ public class InstalledBinariesActivity extends ListActivity implements Installer
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
 			// do nothing
-			mRunner.removeMonitorListener(InstalledBinariesActivity.this);
+			if (mRunner != null)
+				mRunner.removeMonitorListener(InstalledBinariesActivity.this);
 			mRunner = null;
 		}
 		

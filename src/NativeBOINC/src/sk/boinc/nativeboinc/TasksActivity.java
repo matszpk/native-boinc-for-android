@@ -310,6 +310,8 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
+			if (mConnectionManager != null)
+				mConnectionManager.unregisterStatusObserver(TasksActivity.this);
 			mConnectionManager = null;
 			// This should not happen normally, because it's local service 
 			// running in the same process...

@@ -105,7 +105,7 @@ jeszcze raz usprawnic i uszczelnić obsługę błędów
 / * dodaj wskaźnik temperatury w ScreenLockActivity.
   * właściwie obsługuj brak odpowiedzi klienta przy starcie (np.: gdy benchmark jest odpalony)
 / * popraw autorestart gdy zrobiono przy nim screen lock
-  * sprawdz zachowanie przy instalacji na drugim ekranie gdy user wybrać projekt z listy BOINC'a
+/ * sprawdz zachowanie przy instalacji na drugim ekranie gdy user wybrać projekt z listy BOINC'a
     (nowa aktywność ProjectList)
   * obsługuj poprawnie postęp w transferu przyłączeniu i nie tylko (zdarzenie connectionProgress)
     w pause/resume

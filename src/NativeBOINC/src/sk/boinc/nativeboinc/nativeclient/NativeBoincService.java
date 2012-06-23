@@ -81,7 +81,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 	private final static String TAG = "NativeBoincService";
 	
 	public static final int DEFAULT_CHANNEL_ID = 0; // for activity
-	public static final int MAX_CHANNEL_ID = 4; // for activity
+	public static final int MAX_CHANNEL_ID = 6; // for activity
 	
 	private static final String PARTIAL_WAKELOCK_NAME = "RunnerPartial";
 	private static final String SCREEN_WAKELOCK_NAME = "RunnerScreen";
@@ -120,6 +120,14 @@ public class NativeBoincService extends Service implements MonitorListener,
 				Intent intent = new Intent(NativeBoincService.this, ClientMonitorErrorActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivity(intent);
+				
+				/* and notify about this */
+				mMonitorListenerHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						mMonitorListenerHandler.onMonitorDoesntWork();
+					}
+				});
 			}
 			
 			AbstractNativeBoincListener[] listeners = mListeners.toArray(

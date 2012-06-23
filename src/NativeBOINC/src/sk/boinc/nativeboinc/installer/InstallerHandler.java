@@ -1597,7 +1597,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			if (output != null)
 				notifyBinariesToInstallOrUpdate(channelId, InstallOp.GetBinariesToInstall, output);
 		} catch(Exception ex) {
-			notifyError("", "", mInstallerService.getString(R.string.unexpectedError));
+			notifyError(channelId, InstallOp.GetBinariesToInstall, "", "",
+					mInstallerService.getString(R.string.unexpectedError));
 		} finally {
 			synchronized(this) {
 				mCurrentChannelId = -1;
@@ -1623,7 +1624,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			// mProjectDescs used by updateDistribsFromSDCard to retrieve projectUrl
 			mProjectDescs = mProjectsRetriever.getProjectDescriptors();
 			if (mProjectDescs == null) { // returns empty list
-				notifyError("", "", mInstallerService.getString(R.string.getProjectsFromClientError));
+				notifyError(channelId, InstallOp.GetBinariesFromSDCard(null), "", "",
+						mInstallerService.getString(R.string.getProjectsFromClientError));
 				return;
 			}
 			
@@ -1958,7 +1960,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	public boolean onNativeBoincServiceError(WorkerOp workerOp, String message) {
 		// also notify
 		notifyIfClientUpdatedAndRan();
-		return false; // do not consume error
+		return true; // consume, because use separate channel
 	}
 
 	@Override

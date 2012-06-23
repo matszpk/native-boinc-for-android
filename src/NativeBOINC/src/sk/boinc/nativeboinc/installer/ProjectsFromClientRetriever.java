@@ -130,7 +130,7 @@ public class ProjectsFromClientRetriever implements NativeBoincProjectsListener,
 	@Override
 	public boolean onNativeBoincClientError(String message) {
 		mProjectDescsSem.release();
-		return false; // do not consume
+		return true; // consume because is separate channel
 	}
 
 	@Override

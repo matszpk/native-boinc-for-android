@@ -29,6 +29,7 @@ import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.BAMAccount;
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.StandardDialogs;
+import sk.boinc.nativeboinc.util.StringUtil;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -162,7 +163,8 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 		showDialog(DIALOG_CHANGE_BAM_PROGRESS);
 		mAttachBAMInProgress = true;
 		mConnectionManager.attachToBAM(mNameEdit.getText().toString(),
-				mUrlEdit.getText().toString(), mPasswordEdit.getText().toString());
+				StringUtil.normalizeHttpUrl(mUrlEdit.getText().toString()),
+				mPasswordEdit.getText().toString());
 	}
 	
 	private void updateActivityState() {

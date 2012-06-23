@@ -42,6 +42,7 @@ import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.ProjectItem;
 import sk.boinc.nativeboinc.util.StandardDialogs;
+import sk.boinc.nativeboinc.util.StringUtil;
 import sk.boinc.nativeboinc.util.UpdateItem;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -535,9 +536,9 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 						Intent intent = new Intent(ProjectListActivity.this, AddProjectActivity.class);
 						intent.putExtra(AddProjectActivity.PARAM_ADD_FOR_NATIVE_CLIENT,
 								mConnectionManager.isNativeConnected());
-						intent.putExtra(ProjectItem.TAG, new ProjectItem("", urlEdit.getText().toString()));
-						finish();
-						startActivity(intent);	// add project activity
+						intent.putExtra(ProjectItem.TAG, new ProjectItem("", 
+								StringUtil.normalizeHttpUrl(urlEdit.getText().toString())));
+						startActivityForResult(intent, ACTIVITY_ADD_PROJECT);	// add project activity
 					}
 				})
 				.setNegativeButton(R.string.cancel, null)
@@ -548,7 +549,13 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	
 	@Override
 	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
-		StandardDialogs.onPrepareDialog(this, dialogId, dialog, args);
+		if (StandardDialogs.onPrepareDialog(this, dialogId, dialog, args))
+			return;
+		
+		if (dialogId == DIALOG_ENTER_URL) {
+			EditText edit = (EditText)dialog.findViewById(android.R.id.edit);
+			edit.setText("");
+		}
 	}
 
 	@Override

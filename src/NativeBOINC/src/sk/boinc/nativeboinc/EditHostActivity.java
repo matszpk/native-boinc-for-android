@@ -134,10 +134,11 @@ public class EditHostActivity extends AbstractBoincActivity {
 		if (mPort.getText().length() > 0) {
 			port = Integer.parseInt(mPort.getText().toString());
 		}
+		
 		ClientId clientId = new ClientId(
 				mRowId,
 				mNickname.getText().toString(),
-				mAddress.getText().toString(),
+				mAddress.getText().toString().trim(),
 				port,
 				mPassword.getText().toString()
 				);

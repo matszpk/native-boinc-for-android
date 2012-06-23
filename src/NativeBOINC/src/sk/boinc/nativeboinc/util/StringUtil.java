@@ -24,7 +24,7 @@ import java.util.Iterator;
 
 public class StringUtil {
 
-	public static String joinString(String delimiter, ArrayList<String> messages) {
+	public final static String joinString(String delimiter, ArrayList<String> messages) {
 		if (messages == null || delimiter == null)
 			return null;
 		
@@ -37,5 +37,16 @@ public class StringUtil {
 				builder.append(delimiter);
 		}
 		return builder.toString();
+	}
+	
+	public final static String normalizeHttpUrl(String url) {
+		String out = url.trim();
+		
+		if (!url.startsWith("http://"))
+			out = "http://" + url;
+		if (!url.endsWith("/"))
+			out = out+"/";
+		
+		return out;
 	}
 }

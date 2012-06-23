@@ -100,6 +100,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	// if other adding project works in the background
 	private boolean mOtherAddingProjectInProgress = false;
 	
+	private boolean mToMarkProjectUrl = false; // if runner not connected when ok pressed
 	private boolean mToUnmarkProjectUrl = false;
 	
 	private ClientId mConnectedClient = null;
@@ -296,8 +297,12 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			
 			mAddingProjectInProgress = true;
 			if (mConnectionManager != null) {
-				if (mAddProjectForNativeClient)
-					mRunner.markProjectUrlToInstall(accountIn.url);
+				if (mAddProjectForNativeClient)  {
+					if (mRunner != null)
+						mRunner.markProjectUrlToInstall(accountIn.url);
+					else
+						mToMarkProjectUrl = true;
+				}
 				if (mConnectionManager.addProject(accountIn, mDoAccountCreation))
 					showDialog(DIALOG_ADD_PROJECT_PROGRESS);
 				// do nothing if other works
@@ -365,7 +370,8 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		setConfirmButtonEnabled();
 		
 		// handle runner autoinstall pendings
-		if (mAddingProjectSuccess && mAddProjectForNativeClient && mRunner.isMonitorWorks()) {
+		if ((mAddingProjectSuccess || mAddingProjectInProgress) &&
+				mAddProjectForNativeClient && mRunner.isMonitorWorks()) {
 			int autoInstallerState = mRunner.getProjectStateForAutoInstaller(mProjectItem.getUrl());
 			switch(autoInstallerState) {
 			case ProjectAutoInstallerState.NOT_IN_AUTOINSTALLER:
@@ -395,6 +401,10 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		Log.d(TAG, "onConnRunnerConnected");
 		if (mAddProjectForNativeClient && mConnectionManager != null)
 			updateActivityState();
+		if (mToMarkProjectUrl) {
+			mRunner.markProjectUrlToInstall(mProjectItem.getUrl());
+			mToMarkProjectUrl = false;
+		}
 		if (mToUnmarkProjectUrl) {
 			mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
 			mToUnmarkProjectUrl = false;
@@ -617,7 +627,8 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		if ((opFlags & (PollOp.POLL_PROJECT_ATTACH_MASK | PollOp.POLL_LOOKUP_ACCOUNT_MASK |
 				PollOp.POLL_CREATE_ACCOUNT_MASK)) != 0) {
-			tryToUnmarkProjectUrlToInstall();
+			if (mAddingProjectInProgress)
+				tryToUnmarkProjectUrlToInstall();
 			
 			mOtherAddingProjectInProgress = false;
 			setConfirmButtonEnabled();

@@ -270,7 +270,8 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 		// trigger progress change
 		mErrorMessage = message;
 		onProgressChange(-1.0);
-		return false;
+		// consume because uses separate channel
+		return true;
 	}
 
 	@Override

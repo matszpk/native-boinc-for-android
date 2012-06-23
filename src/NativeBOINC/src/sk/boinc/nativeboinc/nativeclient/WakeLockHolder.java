@@ -33,17 +33,25 @@ import android.util.Log;
  *
  */
 public class WakeLockHolder implements NativeBoincStateListener, MonitorListener,
-	OnSharedPreferenceChangeListener {
+	OnSharedPreferenceChangeListener, NativeBoincReplyListener {
 
+	private static final int WAKELOCK_CHANNEL_ID = 4;
+	
 	private static final String TAG = "WakeLockHolder";
 	
 	private NativeBoincService mNativeBoincService;
 	private WakeLock mPartialWakeLock;
 	private WakeLock mDimWakeLock;
-		
+	
+	private boolean mMonitorDoesntWork = false;
+	private boolean mFirstClientEvent = false;
+	
 	private boolean mPowerSaving = false;
 	
 	private boolean mRegisteredAsMonitorListener = false;
+	
+	private boolean mAutoRefreshRegistered = false;
+	private boolean mAutoReleaseIsRan = false;
 	
 	private SharedPreferences mGlobalPrefs = null;
 	private NativeBoincService.ListenerHandler mListenerHandler = null;
@@ -67,14 +75,21 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 		}
 	}
 	
+	@Override
+	public int getRunnerServiceChannelId() {
+		return WAKELOCK_CHANNEL_ID;
+	}
+	
 	public void destroy() {
 		// if quit
 		if (Logging.DEBUG) Log.i(TAG, "destroy: Unregistering listeners");
 		mListenerHandler.removeCallbacks(mAutoRelease);
+		mListenerHandler.removeCallbacks(mAutoRefresh);
 		mGlobalPrefs.unregisterOnSharedPreferenceChangeListener(this);
 		mNativeBoincService.removeMonitorListener(this);
 		mNativeBoincService.removeNativeBoincListener(this);
 		mGlobalPrefs = null;
+		// native boinc service should release wake lock before destroying
 	}
 	
 	private void updatePowerSaving(boolean newPowerSaving) {
@@ -105,16 +120,44 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 		return false;
 	}
 
+	private synchronized void acquireWakeLock() {
+		if (Logging.INFO) Log.i(TAG, "Wake lock acquiring");
+		mListenerHandler.removeCallbacks(mAutoRelease);
+		mAutoReleaseIsRan = false;
+		if (!mPowerSaving) {
+			if (mPartialWakeLock != null && mPartialWakeLock.isHeld())
+				mPartialWakeLock.release();
+			if (mDimWakeLock != null && !mDimWakeLock.isHeld())
+				mDimWakeLock.acquire();
+		} else {
+			if (mDimWakeLock != null && mDimWakeLock.isHeld())
+				mDimWakeLock.release();
+			if (mPartialWakeLock != null && !mPartialWakeLock.isHeld())
+				mPartialWakeLock.acquire();
+		}
+	}
+	
+	private synchronized void releaseWakeLock() {
+		if (Logging.INFO) Log.i(TAG, "Wake lock releasing from auto release");
+		if (mDimWakeLock != null && mDimWakeLock.isHeld())
+			mDimWakeLock.release();
+		if (mPartialWakeLock != null && mPartialWakeLock.isHeld())
+			mPartialWakeLock.release();
+	}
+	
+	private synchronized boolean checkWakeLock() {
+		if (mDimWakeLock != null && mDimWakeLock.isHeld())
+			return true;
+		if (mPartialWakeLock != null && mPartialWakeLock.isHeld())
+			return true;
+		return false;
+	}
+	
 	private Runnable mAutoRelease = new Runnable() {
 		@Override
 		public void run() {
-			if (Logging.INFO) Log.i(TAG, "Wake lock releasing from auto release");
-			synchronized(WakeLockHolder.this) {
-				if (mDimWakeLock != null && mDimWakeLock.isHeld())
-					mDimWakeLock.release();
-				if (mPartialWakeLock != null && mPartialWakeLock.isHeld())
-					mPartialWakeLock.release();
-			}
+			mAutoReleaseIsRan = false;
+			releaseWakeLock();
 		}
 	};
 	
@@ -122,24 +165,11 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 	
 	@Override
 	public void onMonitorEvent(ClientEvent event) {
+		boolean processed = true;
 		switch (event.type) {
 		case ClientEvent.EVENT_RUN_TASKS:
 		case ClientEvent.EVENT_RUN_BENCHMARK:
-			if (Logging.INFO) Log.i(TAG, "Wake lock acquiring");
-			synchronized(this) {
-				mListenerHandler.removeCallbacks(mAutoRelease);
-				if (!mPowerSaving) {
-					if (mPartialWakeLock != null && mPartialWakeLock.isHeld())
-						mPartialWakeLock.release();
-					if (mDimWakeLock != null && !mDimWakeLock.isHeld())
-						mDimWakeLock.acquire();
-				} else {
-					if (mDimWakeLock != null && mDimWakeLock.isHeld())
-						mDimWakeLock.release();
-					if (mPartialWakeLock != null && !mPartialWakeLock.isHeld())
-						mPartialWakeLock.acquire();
-				}
-			}
+			acquireWakeLock();
 			break;
 		case ClientEvent.EVENT_SUSPEND_ALL_TASKS:
 			mListenerHandler.postDelayed(mAutoRelease, AUTO_RELEASE_DELAY);
@@ -147,12 +177,27 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 		case ClientEvent.EVENT_FINISH_BENCHMARK:
 			mListenerHandler.postDelayed(mAutoRelease, 1200);
 			break;
-		default: // do nothinh		
+		default: // do nothinh
+			processed = false;
 		}
+		
+		mFirstClientEvent = processed; // yes it received 
 	}
-	
-	
 
+	private static final int AUTO_REFRESH_DELAY = 10000;
+	
+	private Runnable mAutoRefresh = new Runnable() {
+		
+		@Override
+		public void run() {
+			mNativeBoincService.getGlobalProgress(getRunnerServiceChannelId());
+			
+			if (mNativeBoincService.isRun()) {
+				mListenerHandler.postDelayed(mAutoRefresh, AUTO_REFRESH_DELAY);
+			}
+		}
+	};
+	
 	@Override
 	public void onClientStart() {
 		// register listener
@@ -161,11 +206,33 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 			mNativeBoincService.addMonitorListener(this);
 			mRegisteredAsMonitorListener = true;
 		}
+		if (mMonitorDoesntWork) { // if monitor doesnt work
+			acquireWakeLock();
+			// enable autorefresh
+			if (!mAutoRefreshRegistered) {
+				mListenerHandler.post(mAutoRefresh);
+				mAutoRefreshRegistered = true;
+			}
+		} else {
+			mListenerHandler.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					if (!mFirstClientEvent) {
+						if (Logging.DEBUG) Log.d(TAG, "Do get global progress (fallback)");
+						mNativeBoincService.getGlobalProgress(getRunnerServiceChannelId());
+					}
+				}
+			}, 3000); // waiting 3 seconds for first client event
+		}
 	}
 	
 	@Override
 	public void onClientStop(int exitCode, boolean stoppedByManager) {
-		// do nothing
+		if (mMonitorDoesntWork) { // if monitor doesnt work
+			releaseWakeLock();
+			mAutoRefreshRegistered = false;
+			mListenerHandler.removeCallbacks(mAutoRefresh);
+		}
 	}
 
 	@Override
@@ -183,6 +250,45 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 
 	@Override
 	public void onMonitorDoesntWork() {
+		if (Logging.INFO) Log.i(TAG, "Monitor doesnt work");
+		mMonitorDoesntWork = true;
+		acquireWakeLock();
 		
+		acquireWakeLock();
+		// enable autorefresh
+		if (!mAutoRefreshRegistered) {
+			mListenerHandler.post(mAutoRefresh);
+			mAutoRefreshRegistered = true;
+		}
+	}
+
+	@Override
+	public boolean onNativeBoincServiceError(WorkerOp workerOp, String message) {
+		// disable on Progress change
+		mFirstClientEvent = true;
+		return false;
+	}
+
+	@Override
+	public void onProgressChange(double progress) {
+		if (mMonitorDoesntWork) {
+			if (Logging.DEBUG) Log.d(TAG, "On global progress (no monitor)");
+			// first get tasks when first client event not received
+			if (progress >= 0.0) {
+				acquireWakeLock();
+			}else if (checkWakeLock() && !mAutoReleaseIsRan) {// if no task and if held
+				mAutoReleaseIsRan = true;
+				mListenerHandler.postDelayed(mAutoRelease, AUTO_RELEASE_DELAY);
+			}
+		} else if (!mFirstClientEvent) {
+			if (Logging.DEBUG) Log.d(TAG, "On global progress (fallback)");
+			// first get tasks when first client event not received
+			if (progress >= 0.0)
+				acquireWakeLock();
+			else // no tasks to run
+				releaseWakeLock();
+			// disable  it
+			mFirstClientEvent = true;
+		}
 	}
 }

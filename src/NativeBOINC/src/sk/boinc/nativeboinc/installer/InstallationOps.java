@@ -396,8 +396,9 @@ public class InstallationOps {
 					break;
 				}
 			
-			updateItems.add(new UpdateItem(selected.projectName, selected.version, selected.filename,
-					selected.description, selected.changes, true));
+			if (selected != null)
+				updateItems.add(new UpdateItem(selected.projectName, selected.version, selected.filename,
+						selected.description, selected.changes, true));
 		}
 		
 		UpdateItem[] array = updateItems.toArray(new UpdateItem[0]);

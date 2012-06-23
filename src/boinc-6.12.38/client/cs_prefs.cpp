@@ -143,30 +143,33 @@ int CLIENT_STATE::check_suspend_processing() {
             }
         } else {
             double on_power_supply = host_info.host_battery_level();
-            if (last_level_on_power_supply < 0.0) // if not initialized
-                last_level_on_power_supply = on_power_supply;
             
-            if (on_power_supply < HARD_BATTERY_LIMIT) { // hard limit
-                on_power_supply_discharging = true;
-                return SUSPEND_REASON_DISCHARGE;
-            }
-            
-            if (on_power_supply_discharging &&
-                on_power_supply >= global_prefs.run_if_battery_nl_than) {
-                on_power_supply_discharging = false;
-            }
-            
-            if (on_power_supply_discharging || (
-                on_power_supply < global_prefs.run_if_battery_nl_than &&
-                on_power_supply < last_level_on_power_supply)) {
-                /*msg_printf(NULL,MSG_INFO,"level battery:%f,%f",last_level_on_batteries,
-                           on_power_supply);*/
-                // again discharging: stop computations
-                on_power_supply_discharging = true;
-                last_level_on_power_supply = on_power_supply;
-                return SUSPEND_REASON_DISCHARGE;
-            } else
-                last_level_on_power_supply = on_power_supply;
+            if (on_power_supply >= 0.0) {
+                if (last_level_on_power_supply < 0.0) // if not initialized
+                    last_level_on_power_supply = on_power_supply;
+                
+                if (on_power_supply < HARD_BATTERY_LIMIT) { // hard limit
+                    on_power_supply_discharging = true;
+                    return SUSPEND_REASON_DISCHARGE;
+                }
+                
+                if (on_power_supply_discharging &&
+                    on_power_supply >= global_prefs.run_if_battery_nl_than) {
+                    on_power_supply_discharging = false;
+                }
+                
+                if (on_power_supply_discharging || (
+                    on_power_supply < global_prefs.run_if_battery_nl_than &&
+                    on_power_supply < last_level_on_power_supply)) {
+                    /*msg_printf(NULL,MSG_INFO,"level battery:%f,%f",last_level_on_batteries,
+                            on_power_supply);*/
+                    // again discharging: stop computations
+                    on_power_supply_discharging = true;
+                    last_level_on_power_supply = on_power_supply;
+                    return SUSPEND_REASON_DISCHARGE;
+                } else
+                    last_level_on_power_supply = on_power_supply;
+            } // do nothing when cant get battery level
         }
         
         if (global_prefs.run_if_temp_lt_than<BATT_TEMP_NO_LEVEL &&

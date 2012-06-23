@@ -215,7 +215,7 @@ double HOST_INFO::host_battery_level() {
     static char batt_capacity_path[256]="";
     
     if (batt_files_not_found) // if not detected
-        return 0.0;
+        return -1.0;
     
     if (batt_present_path[0]==0) {
         // detect
@@ -238,23 +238,23 @@ double HOST_INFO::host_battery_level() {
         if (battery_dirs[i] == NULL) { // if not found
             msg_printf(NULL, MSG_USER_ALERT, "[battery detect] I cant detect battery!");
             batt_files_not_found = true;
-            return 0.0;
+            return -1.0;
         }
     }
     
     int present = 0;
     FILE* f = fopen(batt_present_path,"rb");
     if (f==NULL)    // not found
-        return 0.0;
+        return -1.0;
     fscanf(f,"%d",&present);
     fclose(f);
     if (present==0)
-        return 0.0;
+        return -1.0;
     
     int capacity=0;
     f = fopen(batt_capacity_path,"rb");
     if (f==NULL)    // not found
-        return 0.0;
+        return -1.0;
     fscanf(f,"%d",&capacity);
     fclose(f);
     

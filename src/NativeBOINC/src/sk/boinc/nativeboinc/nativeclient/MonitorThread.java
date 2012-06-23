@@ -181,6 +181,6 @@ public class MonitorThread extends Thread {
 	
 	/* check whether client monitor is working */
 	public boolean isWorking() {
-		return mIsWorking;
+		return mIsWorking && !mDoQuit;
 	}
 }

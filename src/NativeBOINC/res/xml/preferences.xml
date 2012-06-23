@@ -54,14 +54,14 @@
 		<ListPreference 
 			android:key="screenLockUpdateInterval"
 			android:title="@string/prefScreenLockUpdateInterval"
-			android:entries="@array/prefScreenLockUpdateValues"
+			android:entries="@array/prefScreenLockUpdateDisplay"
 			android:entryValues="@array/prefScreenLockUpdateValues"
 			android:defaultValue="10"
 			android:persistent="true" />
 		<ListPreference 
 			android:key="widgetUpdateInterval"
 			android:title="@string/prefWidgetUpdateInterval"
-			android:entries="@array/prefWidgetUpdateValues"
+			android:entries="@array/prefWidgetUpdateDisplay"
 			android:entryValues="@array/prefWidgetUpdateValues"
 			android:defaultValue="10"
 			android:persistent="true" />

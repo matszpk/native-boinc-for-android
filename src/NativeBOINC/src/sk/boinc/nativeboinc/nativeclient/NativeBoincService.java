@@ -21,6 +21,8 @@ package sk.boinc.nativeboinc.nativeclient;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -253,6 +255,25 @@ public class NativeBoincService extends Service implements MonitorListener,
 			
 			for (AbstractNativeBoincListener listener: listeners)
 				listener.onChangeRunnerIsWorking(isWorking);
+		}
+		
+		/* automatic installation events */
+		public void beginProjectInstallation(String projectUrl) {
+			AbstractNativeBoincListener[] listeners = mListeners.toArray(
+					new AbstractNativeBoincListener[0]);
+			
+			for (AbstractNativeBoincListener listener: listeners)
+				if (listener instanceof NativeBoincAutoInstallListener)
+					((NativeBoincAutoInstallListener)listener).beginProjectInstallation(projectUrl);
+		}
+		
+		public void projectsNotFound(List<String> projectUrls) {
+			AbstractNativeBoincListener[] listeners = mListeners.toArray(
+					new AbstractNativeBoincListener[0]);
+			
+			for (AbstractNativeBoincListener listener: listeners)
+				if (listener instanceof NativeBoincAutoInstallListener)
+					((NativeBoincAutoInstallListener)listener).projectsNotFound(projectUrls);
 		}
 	}
 	
@@ -655,6 +676,13 @@ public class NativeBoincService extends Service implements MonitorListener,
 			mMonitorListenerHandler.removeMonitorListener(listener);
 	}
 	
+	/*
+	 * check whether monitor is works
+	 */
+	public boolean isMonitorWorks() {
+		return mMonitorThread != null && mMonitorThread.isWorking();
+	}
+	
 	/**
 	 * first starting up client (ruunning in current thread)
 	 */
@@ -1017,10 +1045,15 @@ public class NativeBoincService extends Service implements MonitorListener,
 	 */
 	private LinkedList<String> mPendingProjectAppsToInstall = new LinkedList<String>();
 	/**
-	 * contains project names (not projectUrls)
+	 * contains key=project name, value=projectUrl 
 	 */
-	private ArrayList<String> mInstalledProjectApps = new ArrayList<String>();
-
+	private HashMap<String, String> mInstalledProjectApps = new HashMap<String, String>();
+	
+	/**
+	 * project urls whose marked as to install before adding project finished
+	 */
+	private HashSet<String> mProjectsMarkedToInstall = new HashSet<String>();
+	
 	private InstallerService mInstaller = null;
 	
 	private ServiceConnection mInstallerConn = new ServiceConnection() {
@@ -1047,12 +1080,54 @@ public class NativeBoincService extends Service implements MonitorListener,
 			synchronized(mPendingProjectAppsToInstall) {
 				String[] toInstall = mPendingProjectAppsToInstall.toArray(new String[0]);
 				mPendingProjectAppsToInstall.clear();
+				mProjectsMarkedToInstall.clear();
+				
 				for (String projectUrl: toInstall)
 					installProjectApplication(projectUrl);
 			}
 		}
 	};
 	
+						
+	public void markProjectUrlToInstall(String projectUrl) {
+		synchronized(mPendingProjectAppsToInstall) {
+			mProjectsMarkedToInstall.add(projectUrl);
+		}
+	}
+	
+	public void unmarkProjectUrlToInstall(String projectUrl) {
+		synchronized(mPendingProjectAppsToInstall) {
+			mProjectsMarkedToInstall.remove(projectUrl);
+		}
+	}
+	/**
+	 * check whether project currently installed by auto installer
+	 */
+	public int getProjectStateForAutoInstaller(String projectUrl) {
+		boolean beingPending = false;
+		boolean beingInstalled = false;
+		synchronized(mPendingProjectAppsToInstall) {
+			// if processed by autoinstaller or is marked by foreign object
+			beingPending = mPendingProjectAppsToInstall.contains(projectUrl) ||
+					mProjectsMarkedToInstall.contains(projectUrl);
+		}
+		
+		if (beingPending) {
+			if (Logging.DEBUG) Log.d(TAG, "ProjectState "+projectUrl+" is "+
+					ProjectAutoInstallerState.IN_AUTOINSTALLER);
+			return ProjectAutoInstallerState.IN_AUTOINSTALLER;
+		}
+		
+		synchronized(mInstalledProjectApps) {
+			beingInstalled = mInstalledProjectApps.values().contains(projectUrl);
+		}
+		
+		int state = beingInstalled ? ProjectAutoInstallerState.BEING_INSTALLED :
+			ProjectAutoInstallerState.NOT_IN_AUTOINSTALLER;
+		if (Logging.DEBUG) Log.d(TAG, "ProjectState "+projectUrl+" is "+ state);
+		return state;
+	}
+						
 	private boolean mInstallerInBounding = false;
 	private boolean mIfProjectDistribsListUpdated = false;
 	private AtomicBoolean mProjectDistribsListUpdating = new AtomicBoolean(false);
@@ -1087,9 +1162,12 @@ public class NativeBoincService extends Service implements MonitorListener,
 		}
 		
 		synchronized (mInstalledProjectApps) {
-			mInstalledProjectApps.add(projectName);
+			mInstalledProjectApps.put(projectName, projectUrl);
 		}
 		
+		// notify event
+		notifyBeginProjectInstallation(projectUrl);
+		// go to install
 		mInstaller.installProjectApplicationsAutomatically(projectName, projectUrl);
 	}
 	
@@ -1167,6 +1245,12 @@ public class NativeBoincService extends Service implements MonitorListener,
 	}
 	
 	private void unboundInstallService() {
+		// if during installation step
+		if (mApp.isInstallerRun()) {
+			if (Logging.DEBUG) Log.d(TAG, "Set installer stage as finish");
+			mApp.setInstallerStage(BoincManagerApplication.INSTALLER_FINISH_STAGE);
+		}
+		
 		mIfProjectDistribsListUpdated = false;	// reset this indicator
 		mProjectDistribsListUpdating.set(false);
 		/* do unbound installer service */
@@ -1193,9 +1277,16 @@ public class NativeBoincService extends Service implements MonitorListener,
 		if (installOp.equals(InstallOp.UpdateProjectDistribs)) {
 			// is not distrib (updating project distrib list simply failed)
 			if (Logging.DEBUG) Log.d(TAG, "on operation failed");
+			
+			ArrayList<String> projectsNotFoundList = new ArrayList<String>(); 
 			synchronized (mPendingProjectAppsToInstall) {
+				projectsNotFoundList.addAll(mPendingProjectAppsToInstall);
 				mPendingProjectAppsToInstall.clear();
+				mProjectsMarkedToInstall.clear();
 			}
+			
+			// notify autoinstall event
+			notifyProjectsNotFound(projectsNotFoundList);
 			
 			boolean ifLast = false; 
 			synchronized (mInstalledProjectApps) {
@@ -1235,13 +1326,17 @@ public class NativeBoincService extends Service implements MonitorListener,
 		// try again
 		String projectUrl = null;
 		while (true) {
-			synchronized(this) {
+			// synchronize around all single poll 
+			synchronized(mPendingProjectAppsToInstall) {
 				projectUrl = mPendingProjectAppsToInstall.poll();
+				
+				if (projectUrl == null) // if end
+					break;
+				
+				mProjectsMarkedToInstall.remove(projectUrl);
+				if (Logging.DEBUG) Log.d(TAG, "after updating:"+projectUrl);
+				installProjectApplication(projectUrl);
 			}
-			if (projectUrl == null) // if end
-				break;
-			if (Logging.DEBUG) Log.d(TAG, "after updating:"+projectUrl);
-			installProjectApplication(projectUrl);
 		}
 	}
 
@@ -1264,5 +1359,24 @@ public class NativeBoincService extends Service implements MonitorListener,
 	public void binariesToUpdateFromSDCard(String[] projectNames) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	/* event handling for project installation */
+	private synchronized void notifyBeginProjectInstallation(final String projectUrl) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.beginProjectInstallation(projectUrl);
+			}
+		});
+	}
+	
+	private synchronized void notifyProjectsNotFound(final List<String> projectUrls) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.projectsNotFound(projectUrls);
+			}
+		});
 	}
 }

@@ -71,7 +71,8 @@
 			android:inputType="number"
 			android:digits="0123456789"
 			android:maxLength="5"
-			android:lines="1" />
+			android:maxLines="1"
+			android:imeOptions="actionNext" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"
 		android:layout_width="fill_parent"

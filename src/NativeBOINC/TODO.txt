@@ -123,6 +123,8 @@ jeszcze raz usprawnic i uszczelnić obsługę błędów
 / * dodaj obsługe FATAL_ERROR priority w messages (kolorowanie)
 / * dodaj menu przy długim kliku w puste miejsce w aktywnościach z listy i multiselect
 
+  * usuń wyświetlanie komuniktaów o błędach gdy klient wyłączany jest z mainactivity.
+
 następne wersje:
 * dodać obsługę screensavera.
 

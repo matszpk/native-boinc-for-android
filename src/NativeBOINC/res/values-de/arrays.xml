@@ -53,6 +53,13 @@
 	</string-array>
 
 	<!-- screen lock update -->
+	<string-array name="prefScreenLockUpdateDisplay">
+		<item>1s</item>
+		<item>5s</item>
+		<item>10s</item>
+		<item>60s</item>
+	</string-array>
+	
 	<string-array name="prefScreenLockUpdateValues">
 		<item>1</item>
 		<item>5</item>
@@ -61,6 +68,13 @@
 	</string-array>
 	
 	<!-- widget update -->
+	<string-array name="prefWidgetUpdateDisplay">
+		<item>1s</item>
+		<item>5s</item>
+		<item>10s</item>
+		<item>60s</item>
+	</string-array>
+	
 	<string-array name="prefWidgetUpdateValues">
 		<item>1</item>
 		<item>5</item>

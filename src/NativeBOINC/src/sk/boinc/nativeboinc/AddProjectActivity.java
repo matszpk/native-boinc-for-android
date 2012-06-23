@@ -20,6 +20,8 @@
 package sk.boinc.nativeboinc;
 
 
+import java.util.List;
+
 import hal.android.workarounds.FixedProgressDialog;
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.ProjectConfig;
@@ -28,6 +30,8 @@ import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
 import sk.boinc.nativeboinc.clientconnection.PollOp;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.nativeclient.NativeBoincAutoInstallListener;
+import sk.boinc.nativeboinc.nativeclient.ProjectAutoInstallerState;
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.ProjectItem;
@@ -35,6 +39,7 @@ import sk.boinc.nativeboinc.util.StandardDialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -53,8 +58,11 @@ import android.widget.TextView;
  * @author mat
  *
  */
-public class AddProjectActivity extends ServiceBoincActivity implements ClientProjectReceiver {
+public class AddProjectActivity extends ServiceBoincActivity implements ClientProjectReceiver,
+		NativeBoincAutoInstallListener {
 	private static final String TAG = "AddProjectActivity";
+	
+	public static final String PARAM_ADD_FOR_NATIVE_CLIENT = "AddForNativeClient";
 		
 	private final static int DIALOG_TERMS_OF_USE = 1;
 	private final static int DIALOG_ADD_PROJECT_PROGRESS = 2;
@@ -77,6 +85,8 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	
 	private ProjectItem mProjectItem = null;
 	
+	private boolean mAddProjectForNativeClient = false;
+	
 	private boolean mAccountCreationDisabled = false;
 	private int mMinPasswordLength = 0;
 	private String mTermsOfUse = "";
@@ -86,6 +96,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	
 	private int mProjectConfigProgressState = ProgressState.NOT_RUN;
 	private boolean mAddingProjectInProgress = false;
+	private boolean mAddingProjectSuccess = false; // if successfully finished
 	// if other adding project works in the background
 	private boolean mOtherAddingProjectInProgress = false;
 	
@@ -120,7 +131,12 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		
-		setUpService(true, true, false, false, false, false);
+		mAddProjectForNativeClient = getIntent().getBooleanExtra(PARAM_ADD_FOR_NATIVE_CLIENT, false);
+		
+		if (!mAddProjectForNativeClient)
+			setUpService(true, true, false, false, false, false);
+		else
+			setUpService(true, true, true, true, false, false);
 		
 		mApp = (BoincManagerApplication)getApplication();
 		
@@ -230,7 +246,8 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		if (mConnectionManager != null) {
 			mConnectedClient = mConnectionManager.getClientId();
 			Log.d(TAG, "onResume");
-			updateActivityState();
+			if (!mAddProjectForNativeClient || mRunner != null)
+				updateActivityState();
 		}
 	}
 	
@@ -241,6 +258,10 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 					PollOp.POLL_LOOKUP_ACCOUNT_MASK |
 					PollOp.POLL_PROJECT_ATTACH_MASK |
 					PollOp.POLL_PROJECT_CONFIG_MASK);
+		
+		if (mAddProjectForNativeClient && mRunner != null)
+			mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+		
 		setResult(RESULT_CANCELED);
 		finish();
 	}
@@ -268,6 +289,8 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			
 			mAddingProjectInProgress = true;
 			if (mConnectionManager != null) {
+				if (mAddProjectForNativeClient)
+					mRunner.markProjectUrlToInstall(accountIn.url);
 				if (mConnectionManager.addProject(accountIn, mDoAccountCreation))
 					showDialog(DIALOG_ADD_PROJECT_PROGRESS);
 				// do nothing if other works
@@ -296,16 +319,16 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	private void updateActivityState() {
 		setProgressBarIndeterminateVisibility(mConnectionManager.isWorking());
 		
-		boolean isError = mConnectionManager.handlePendingClientErrors(null, this);
-		isError |= mConnectionManager.handlePendingPollErrors(null, this);
+		mConnectionManager.handlePendingClientErrors(null, this);
+		mConnectionManager.handlePendingPollErrors(null, this);
 		
 		if (mConnectedClient == null) {
 			clientDisconnected(mConnectionManager.isDisconnectedByManager()); // if disconnected
-			isError = true;
+			return; // if disconnected
 		}
 		
-		if (isError) return;
-	
+		/* some error can be handled, but this is not end */
+		
 		if (mProjectConfigProgressState != ProgressState.FINISHED) {
 			if (mProjectConfigProgressState == ProgressState.NOT_RUN) {
 				// do get project config (handles it)
@@ -333,13 +356,38 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		} else if (!mAddingProjectInProgress) // if other task works
 			mOtherAddingProjectInProgress = true;
 		setConfirmButtonEnabled();
+		
+		// handle runner autoinstall pendings
+		if (mAddingProjectSuccess && mAddProjectForNativeClient && mRunner.isMonitorWorks()) {
+			int autoInstallerState = mRunner.getProjectStateForAutoInstaller(mProjectItem.getUrl());
+			switch(autoInstallerState) {
+			case ProjectAutoInstallerState.NOT_IN_AUTOINSTALLER:
+				// if not in autoinstaller (after installation)
+				mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+				setResult(RESULT_OK);
+				finish();
+				break;
+			case ProjectAutoInstallerState.BEING_INSTALLED:
+				// trigger event
+				beginProjectInstallation(mProjectItem.getUrl());
+				break;
+			}
+		}
 	}
 	
 	@Override
 	protected void onConnectionManagerConnected() {
 		mConnectedClient = mConnectionManager.getClientId();
 		Log.d(TAG, "onConnManagerConnected");
-		updateActivityState();
+		if (!mAddProjectForNativeClient || mRunner != null)
+			updateActivityState();
+	}
+	
+	@Override
+	protected void onRunnerConnected() {
+		Log.d(TAG, "onConnRunnerConnected");
+		if (mAddProjectForNativeClient && mConnectionManager != null)
+			updateActivityState();
 	}
 	
 	@Override
@@ -440,6 +488,9 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		mAddingProjectInProgress = false;
 		mOtherAddingProjectInProgress = false;
 		
+		if (mAddProjectForNativeClient)
+			mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+		
 		ClientId disconnectedHost = mConnectedClient;
 		mConnectedClient = null;
 		setConfirmButtonEnabled();
@@ -472,16 +523,24 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 
 	private void afterProjectAdding(String projectUrl) {
 		if (Logging.DEBUG) Log.d(TAG, "After Project adding");
+		
+		// mark is successfuly finished, and next operation can perfomed
+		mAddingProjectSuccess = true;
+		
+		if (mAddProjectForNativeClient)
+			mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+		
 		StandardDialogs.dismissDialog(this, DIALOG_ADD_PROJECT_PROGRESS);
 		mAddingProjectInProgress = false;
 		
-		if (mConnectionManager.isNativeConnected()) { // go to progress activity
-			// awaiting for application installation
-			if (mApp.isInstallerRun())
-				mApp.setInstallerStage(BoincManagerApplication.INSTALLER_PROJECT_INSTALLING_STAGE);
-			setResult(RESULT_OK);
-			finish(); // go to project list activity
-		} else {
+		if (!mAddProjectForNativeClient || !mRunner.isMonitorWorks()) {
+			if (mAddProjectForNativeClient) { // go to progress activity
+				// awaiting for application installation
+				if (mApp.isInstallerRun())
+					mApp.setInstallerStage(BoincManagerApplication.INSTALLER_PROJECT_INSTALLING_STAGE);
+			}
+			
+			// do this when add project for normal client or client monitor doesnt work
 			setResult(RESULT_OK);
 			finish();
 		}
@@ -518,6 +577,9 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		if (operation == PollOp.POLL_PROJECT_ATTACH ||
 				operation == PollOp.POLL_LOOKUP_ACCOUNT || operation == PollOp.POLL_CREATE_ACCOUNT) {
 			if (mAddingProjectInProgress) {
+				if (mAddProjectForNativeClient)
+					mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+				
 				StandardDialogs.dismissDialog(this, DIALOG_ADD_PROJECT_PROGRESS);
 				mAddingProjectInProgress = false;
 			}
@@ -539,6 +601,9 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		if ((opFlags & (PollOp.POLL_PROJECT_ATTACH_MASK | PollOp.POLL_LOOKUP_ACCOUNT_MASK |
 				PollOp.POLL_CREATE_ACCOUNT_MASK)) != 0) {
+			if (mAddProjectForNativeClient)
+				mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+			
 			mOtherAddingProjectInProgress = false;
 			setConfirmButtonEnabled();
 		}
@@ -559,6 +624,9 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		if (boincOp.isAddProject()) {
 			if (mAddingProjectInProgress && boincOp.isAddProject()) {
+				if (mAddProjectForNativeClient)
+					mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+				
 				StandardDialogs.dismissDialog(this, DIALOG_ADD_PROJECT_PROGRESS);
 				mAddingProjectInProgress = false;
 			}
@@ -573,5 +641,31 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	@Override
 	public void onClientIsWorking(boolean isWorking) {
 		setProgressBarIndeterminateVisibility(isWorking);
+	}
+
+	@Override
+	public void beginProjectInstallation(String projectUrl) {
+		if (mAddProjectForNativeClient && mAddingProjectSuccess &&
+				projectUrl.equals(mProjectItem.getUrl())) {
+			if (Logging.DEBUG) Log.d(TAG, "Project begin install, go to progress");
+			mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+			
+			Intent intent = new Intent();
+			intent.putExtra(ProjectListActivity.RESULT_START_PROGRESS, true);
+			setResult(RESULT_OK, intent);
+			finish();
+		}
+	}
+
+	@Override
+	public void projectsNotFound(List<String> projectUrls) { 
+		if (mAddProjectForNativeClient && mAddingProjectSuccess &&
+				projectUrls.contains(mProjectItem.getUrl())) {
+			if (Logging.DEBUG) Log.d(TAG, "Project not found, we skip progress");
+			mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+			
+			setResult(RESULT_OK);
+			finish();
+		}
 	}
 }

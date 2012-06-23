@@ -372,13 +372,9 @@ public class InstallationOps {
 					break;
 				}
 			
-			if (selected != null) {	// if update found
-				String filename = null;
-				filename = selected.filename;
-				
-				updateItems.add(new UpdateItem(selected.projectName, selected.version, filename,
+			if (selected != null) // if update found
+				updateItems.add(new UpdateItem(selected.projectName, selected.version, selected.filename,
 						selected.description, selected.changes, false));
-			}
 		}
 		/* new project binaries */
 		for (String attachedUrl: attachedProjectUrls) {

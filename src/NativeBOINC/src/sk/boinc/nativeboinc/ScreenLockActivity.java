@@ -167,8 +167,10 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 	}
 	
 	private void doUnbindRunnerService() {
-		mRunner.removeNativeBoincListener(ScreenLockActivity.this);
-		mRunner.removeMonitorListener(ScreenLockActivity.this);
+		if (mRunner != null) {
+			mRunner.removeNativeBoincListener(ScreenLockActivity.this);
+			mRunner.removeMonitorListener(ScreenLockActivity.this);
+		}
 		unbindService(mRunnerServiceConnection);
 		mRunner = null;
 	}

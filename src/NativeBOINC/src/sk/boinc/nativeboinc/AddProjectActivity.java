@@ -100,6 +100,8 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	// if other adding project works in the background
 	private boolean mOtherAddingProjectInProgress = false;
 	
+	private boolean mToUnmarkProjectUrl = false;
+	
 	private ClientId mConnectedClient = null;
 	
 	private static class SavedState {
@@ -388,6 +390,10 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		Log.d(TAG, "onConnRunnerConnected");
 		if (mAddProjectForNativeClient && mConnectionManager != null)
 			updateActivityState();
+		if (mToUnmarkProjectUrl) {
+			mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+			mToUnmarkProjectUrl = false;
+		}
 	}
 	
 	@Override
@@ -477,6 +483,15 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		mConnectedClient = mConnectionManager.getClientId();
 	}
 
+	private void tryToUnmarkProjectUrlToInstall() {
+		if (mAddProjectForNativeClient) {
+			if (mRunner != null)
+				mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+			else
+				mToUnmarkProjectUrl = true;
+		}
+	}
+	
 	@Override
 	public void clientDisconnected(boolean disconnectedByManager) {
 		if (Logging.WARNING) Log.w(TAG, "Client disconnected");
@@ -488,8 +503,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		mAddingProjectInProgress = false;
 		mOtherAddingProjectInProgress = false;
 		
-		if (mAddProjectForNativeClient)
-			mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+		tryToUnmarkProjectUrlToInstall();
 		
 		ClientId disconnectedHost = mConnectedClient;
 		mConnectedClient = null;
@@ -527,8 +541,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		// mark is successfuly finished, and next operation can perfomed
 		mAddingProjectSuccess = true;
 		
-		if (mAddProjectForNativeClient)
-			mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+		tryToUnmarkProjectUrlToInstall();
 		
 		StandardDialogs.dismissDialog(this, DIALOG_ADD_PROJECT_PROGRESS);
 		mAddingProjectInProgress = false;
@@ -577,8 +590,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		if (operation == PollOp.POLL_PROJECT_ATTACH ||
 				operation == PollOp.POLL_LOOKUP_ACCOUNT || operation == PollOp.POLL_CREATE_ACCOUNT) {
 			if (mAddingProjectInProgress) {
-				if (mAddProjectForNativeClient)
-					mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+				tryToUnmarkProjectUrlToInstall();
 				
 				StandardDialogs.dismissDialog(this, DIALOG_ADD_PROJECT_PROGRESS);
 				mAddingProjectInProgress = false;
@@ -601,8 +613,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		if ((opFlags & (PollOp.POLL_PROJECT_ATTACH_MASK | PollOp.POLL_LOOKUP_ACCOUNT_MASK |
 				PollOp.POLL_CREATE_ACCOUNT_MASK)) != 0) {
-			if (mAddProjectForNativeClient)
-				mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+			tryToUnmarkProjectUrlToInstall();
 			
 			mOtherAddingProjectInProgress = false;
 			setConfirmButtonEnabled();
@@ -624,8 +635,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		if (boincOp.isAddProject()) {
 			if (mAddingProjectInProgress && boincOp.isAddProject()) {
-				if (mAddProjectForNativeClient)
-					mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
+				tryToUnmarkProjectUrlToInstall();
 				
 				StandardDialogs.dismissDialog(this, DIALOG_ADD_PROJECT_PROGRESS);
 				mAddingProjectInProgress = false;

@@ -1624,7 +1624,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			// mProjectDescs used by updateDistribsFromSDCard to retrieve projectUrl
 			mProjectDescs = mProjectsRetriever.getProjectDescriptors();
 			if (mProjectDescs == null) { // returns empty list
-				notifyError(channelId, InstallOp.GetBinariesFromSDCard(null), "", "",
+				notifyError(channelId, installOp, "", "",
 						mInstallerService.getString(R.string.getProjectsFromClientError));
 				return;
 			}
@@ -1632,8 +1632,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			String[] output = mInstallOps.getBinariesToUpdateFromSDCard(channelId, installOp,
 					path, mProjectDescs);
 			if (output != null)
-				notifyBinariesToUpdateFromSDCard(channelId,
-						InstallOp.GetBinariesFromSDCard(path), output);
+				notifyBinariesToUpdateFromSDCard(channelId, installOp, output);
 		} finally {
 			synchronized(this) {
 				mCurrentChannelId = -1;

@@ -95,8 +95,8 @@ public class Downloader {
 					mContext.getString(R.string.downloadPGPKey));
 		
 		BasicHttpParams params = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(params, 7000);
-		HttpConnectionParams.setSoTimeout(params, 7000);
+		HttpConnectionParams.setConnectionTimeout(params, 10000);
+		HttpConnectionParams.setSoTimeout(params, 10000);
 		
 		DefaultHttpClient client = new DefaultHttpClient(params);
 		
@@ -370,8 +370,8 @@ public class Downloader {
 				/* if http protocol */
 				URLConnection urlConn = url.openConnection();
 				
-				urlConn.setConnectTimeout(7000);
-				urlConn.setReadTimeout(7000);
+				urlConn.setConnectTimeout(12000);
+				urlConn.setReadTimeout(12000);
 				
 				inStream = urlConn.getInputStream();
 				outStream = new FileOutputStream(mContext.getFileStreamPath(outFilename));

@@ -682,6 +682,9 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			if (Logging.DEBUG) Log.d(TAG, "Project begin install, go to progress");
 			mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
 			
+			if (mApp.isInstallerRun())
+				mApp.setInstallerStage(BoincManagerApplication.INSTALLER_PROJECT_INSTALLING_STAGE);
+			
 			Intent intent = new Intent();
 			intent.putExtra(ProjectListActivity.RESULT_START_PROGRESS, true);
 			setResult(RESULT_OK, intent);

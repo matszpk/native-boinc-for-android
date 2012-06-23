@@ -372,6 +372,7 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	
 	/* go to next activity in installation wizard */
 	private void toNextInstallerStep() {
+		if (Logging.DEBUG) Log.d("ProgressAct:Inst", "InstallerStage:" + mInstallerStage);
 		if (mInstallerStage == BoincManagerApplication.INSTALLER_CLIENT_INSTALLING_STAGE ||
 				mInstallerStage == BoincManagerApplication.INSTALLER_PROJECT_STAGE)
 			startActivity(new Intent(ProgressActivity.this, InstallStep2Activity.class));

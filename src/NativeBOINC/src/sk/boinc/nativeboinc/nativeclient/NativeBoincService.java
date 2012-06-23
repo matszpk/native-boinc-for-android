@@ -359,6 +359,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 		}
 		return true;
 	}
+	
 	@Override
 	public void onDestroy() {
 		if (Logging.DEBUG) Log.d(TAG, "onDestroy");

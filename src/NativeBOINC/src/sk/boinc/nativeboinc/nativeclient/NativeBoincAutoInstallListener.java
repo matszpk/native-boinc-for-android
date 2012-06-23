@@ -25,7 +25,7 @@ import java.util.List;
  * @author mat
  *
  */
-public interface NativeBoincAutoInstallListener {
+public interface NativeBoincAutoInstallListener extends AbstractNativeBoincListener {
 	public abstract void beginProjectInstallation(String projectUrl);
 	public abstract void projectsNotFound(List<String> projectUrls);
 }

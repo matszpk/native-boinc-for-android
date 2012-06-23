@@ -111,6 +111,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		private final boolean mTermOfUseDisplayed;
 		private final int mMinPasswordLength;
 		private final boolean mOtherAddingProjectInProgress;
+		private final boolean mAddingProjectSuccess;
 		
 		public SavedState(AddProjectActivity activity) {
 			mProjectConfigProgressState = activity.mProjectConfigProgressState;
@@ -118,6 +119,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			mOtherAddingProjectInProgress = activity.mOtherAddingProjectInProgress;
 			mTermOfUseDisplayed = activity.mTermOfUseDisplayed;
 			mMinPasswordLength = activity.mMinPasswordLength;
+			mAddingProjectSuccess = activity.mAddingProjectSuccess;
 		}
 		
 		public void restore(AddProjectActivity activity) {
@@ -126,6 +128,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			activity.mOtherAddingProjectInProgress = mOtherAddingProjectInProgress;
 			activity.mTermOfUseDisplayed = mTermOfUseDisplayed;
 			activity.mMinPasswordLength = mMinPasswordLength;
+			activity.mAddingProjectSuccess = mAddingProjectSuccess;
 		}
 	}
 	
@@ -134,6 +137,8 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		
 		mAddProjectForNativeClient = getIntent().getBooleanExtra(PARAM_ADD_FOR_NATIVE_CLIENT, false);
+		
+		if (Logging.DEBUG) Log.d(TAG, "AddProject for native client");
 		
 		if (!mAddProjectForNativeClient)
 			setUpService(true, true, false, false, false, false);
@@ -471,7 +476,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	
 	public void setConfirmButtonEnabled() {
 		mConfirmButton.setEnabled(mConnectedClient != null && isFormValid() &&
-				!mAddingProjectInProgress && !mOtherAddingProjectInProgress);
+				!mAddingProjectInProgress && !mAddingProjectSuccess && !mOtherAddingProjectInProgress);
 	}
 
 	@Override
@@ -541,12 +546,11 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		// mark is successfuly finished, and next operation can perfomed
 		mAddingProjectSuccess = true;
 		
-		tryToUnmarkProjectUrlToInstall();
-		
-		StandardDialogs.dismissDialog(this, DIALOG_ADD_PROJECT_PROGRESS);
 		mAddingProjectInProgress = false;
 		
 		if (!mAddProjectForNativeClient || !mRunner.isMonitorWorks()) {
+			StandardDialogs.dismissDialog(this, DIALOG_ADD_PROJECT_PROGRESS);
+			
 			if (mAddProjectForNativeClient) { // go to progress activity
 				// awaiting for application installation
 				if (mApp.isInstallerRun())
@@ -655,8 +659,15 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 
 	@Override
 	public void beginProjectInstallation(String projectUrl) {
-		if (mAddProjectForNativeClient && mAddingProjectSuccess &&
+		/* if after adding project (project attach event) or if project in auto installer */
+		boolean afterAddingProject = mAddingProjectSuccess || mAddingProjectInProgress;
+		
+		if (Logging.DEBUG) Log.d(TAG, "Project begin install:"+
+				mAddProjectForNativeClient+","+afterAddingProject+":"+projectUrl); 
+		if (mAddProjectForNativeClient && afterAddingProject &&
 				projectUrl.equals(mProjectItem.getUrl())) {
+			StandardDialogs.dismissDialog(this, DIALOG_ADD_PROJECT_PROGRESS);
+			
 			if (Logging.DEBUG) Log.d(TAG, "Project begin install, go to progress");
 			mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
 			
@@ -668,14 +679,29 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	}
 
 	@Override
-	public void projectsNotFound(List<String> projectUrls) { 
-		if (mAddProjectForNativeClient && mAddingProjectSuccess &&
-				projectUrls.contains(mProjectItem.getUrl())) {
+	public void projectsNotFound(List<String> projectUrls) {
+		if (!projectUrls.contains(mProjectItem.getUrl())) // if not in project not found
+			return;
+		
+		boolean afterAddingProject = mAddingProjectSuccess || mAddingProjectInProgress;
+		
+		if (mAddProjectForNativeClient && afterAddingProject) {
+			StandardDialogs.dismissDialog(this, DIALOG_ADD_PROJECT_PROGRESS);
+			
 			if (Logging.DEBUG) Log.d(TAG, "Project not found, we skip progress");
 			mRunner.unmarkProjectUrlToInstall(mProjectItem.getUrl());
 			
 			setResult(RESULT_OK);
 			finish();
 		}
+	}
+
+	@Override
+	public boolean onNativeBoincClientError(String message) {
+		return false;
+	}
+
+	@Override
+	public void onChangeRunnerIsWorking(boolean isWorking) {
 	}
 }

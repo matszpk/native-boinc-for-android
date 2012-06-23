@@ -285,6 +285,8 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 						Intent intent = new Intent(ProjectListActivity.this, AddProjectActivity.class);
 						ProjectItem entry = mProjectsList.get(position);
 						intent.putExtra(ProjectItem.TAG, entry);
+						intent.putExtra(AddProjectActivity.PARAM_ADD_FOR_NATIVE_CLIENT,
+								mConnectionManager.isNativeConnected());
 						
 						startActivityForResult(intent, ACTIVITY_ADD_PROJECT);	// add project activity
 					}
@@ -295,6 +297,8 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 						ProjectItem projectItem = new ProjectItem(distrib.projectName,
 								distrib.projectUrl, distrib.version);
 						intent.putExtra(ProjectItem.TAG, projectItem);
+						intent.putExtra(AddProjectActivity.PARAM_ADD_FOR_NATIVE_CLIENT,
+								mConnectionManager.isNativeConnected());
 						
 						// reseting all pendings
 						startActivityForResult(intent, ACTIVITY_ADD_PROJECT);	// add project activity
@@ -327,7 +331,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	private void onAddProjectActivityGoodFinish() {
 		mEarlyAddProjectGoodFinish = false;
 		
-		if (mConnectionManager.isNativeConnected() && mRunner.isRun()) { // if native client
+		if (mConnectionManager.isNativeConnected()) { // if native client
 			finish(); // if ok then go to progress activity
 			if (mStartProgress) // if progress activity should be started
 				startActivity(new Intent(this, ProgressActivity.class));
@@ -344,7 +348,10 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == ACTIVITY_ADD_PROJECT) {
 			if (resultCode == RESULT_OK) {
-				mStartProgress = data.getBooleanExtra(RESULT_START_PROGRESS, false);
+				if (data != null)
+					mStartProgress = data.getBooleanExtra(RESULT_START_PROGRESS, false);
+				else
+					mStartProgress = false;
 				
 				if (mConnectionManager != null)
 					onAddProjectActivityGoodFinish();
@@ -526,7 +533,8 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						Intent intent = new Intent(ProjectListActivity.this, AddProjectActivity.class);
-						intent.putExtra(AddProjectActivity.PARAM_ADD_FOR_NATIVE_CLIENT, mGetFromInstaller);
+						intent.putExtra(AddProjectActivity.PARAM_ADD_FOR_NATIVE_CLIENT,
+								mConnectionManager.isNativeConnected());
 						intent.putExtra(ProjectItem.TAG, new ProjectItem("", urlEdit.getText().toString()));
 						finish();
 						startActivity(intent);	// add project activity

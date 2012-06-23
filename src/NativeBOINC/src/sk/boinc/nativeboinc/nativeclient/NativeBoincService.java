@@ -1090,12 +1090,14 @@ public class NativeBoincService extends Service implements MonitorListener,
 	
 						
 	public void markProjectUrlToInstall(String projectUrl) {
+		if (Logging.DEBUG) Log.d(TAG, "Mark project url:"+projectUrl);
 		synchronized(mPendingProjectAppsToInstall) {
 			mProjectsMarkedToInstall.add(projectUrl);
 		}
 	}
 	
 	public void unmarkProjectUrlToInstall(String projectUrl) {
+		if (Logging.DEBUG) Log.d(TAG, "Unmark project url:"+projectUrl);
 		synchronized(mPendingProjectAppsToInstall) {
 			mProjectsMarkedToInstall.remove(projectUrl);
 		}
@@ -1157,6 +1159,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 				if (Logging.DEBUG) Log.d(TAG, "again not found. to finish");
 				// simply finish task
 				finishProjectApplicationInstallation(projectName);
+				// send notifyProjectsNotFound
+				List<String> toSend = new ArrayList<String>();
+				toSend.add(projectUrl);
+				notifyProjectsNotFound(toSend);
 			}
 			return;
 		}

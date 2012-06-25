@@ -144,7 +144,10 @@ int CLIENT_STATE::check_suspend_processing() {
         } else {
             double on_power_supply = host_info.host_battery_level();
             
-            if (on_power_supply >= 0.0) {
+            if (on_power_supply >= 0.0 &&
+                // if also this option disabled
+                !global_prefs.run_always_when_plugged
+            ) {
                 if (last_level_on_power_supply < 0.0) // if not initialized
                     last_level_on_power_supply = on_power_supply;
                 

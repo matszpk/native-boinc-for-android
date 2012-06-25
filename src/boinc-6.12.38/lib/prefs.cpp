@@ -81,6 +81,7 @@ void GLOBAL_PREFS_MASK::set_all() {
     daily_xfer_period_days = true;
     run_if_battery_nl_than = true;
     run_if_temp_lt_than = true;
+    run_always_when_plugged = true;
 }
 
 bool GLOBAL_PREFS_MASK::are_prefs_set() {
@@ -118,6 +119,7 @@ bool GLOBAL_PREFS_MASK::are_prefs_set() {
     if (daily_xfer_period_days) return true;
     if (run_if_battery_nl_than) return true;
     if (run_if_temp_lt_than) return true;
+    if (run_always_when_plugged) return true;
     return false;
 }
 
@@ -241,6 +243,7 @@ void GLOBAL_PREFS::defaults() {
     daily_xfer_period_days = 0;
     run_if_battery_nl_than = 0;
     run_if_temp_lt_than = BATT_TEMP_NO_LEVEL;
+    run_always_when_plugged = false;
 
     // don't initialize source_project, source_scheduler,
     // mod_time, host_specific here
@@ -563,6 +566,10 @@ int GLOBAL_PREFS::parse_override(
             }
             continue;
         }
+        if (xp.parse_bool(tag, "run_always_when_plugged", run_always_when_plugged)) {
+            mask.run_always_when_plugged = true;
+            continue;
+        }
         if (xp.parse_bool(tag, "host_specific", host_specific)) {
             continue;
         }
@@ -639,7 +646,8 @@ int GLOBAL_PREFS::write(MIOFILE& f) {
         "   <daily_xfer_limit_mb>%f</daily_xfer_limit_mb>\n"
         "   <daily_xfer_period_days>%d</daily_xfer_period_days>\n"
         "   <run_if_battery_nl_than>%f</run_if_battery_nl_than>\n"
-        "   <run_if_temp_lt_than>%f</run_if_temp_lt_than>\n",
+        "   <run_if_temp_lt_than>%f</run_if_temp_lt_than>\n"
+        "   <run_always_when_plugged>%d</run_always_when_plugged>\n",
         source_project,
         mod_time,
         run_on_batteries?1:0,
@@ -673,7 +681,8 @@ int GLOBAL_PREFS::write(MIOFILE& f) {
         daily_xfer_limit_mb,
         daily_xfer_period_days,
         run_if_battery_nl_than,
-        run_if_temp_lt_than
+        run_if_temp_lt_than,
+        run_always_when_plugged?1:0
     );
     if (max_ncpus) {
         f.printf("   <max_cpus>%d</max_cpus>\n", max_ncpus);
@@ -842,7 +851,11 @@ int GLOBAL_PREFS::write_subset(MIOFILE& f, GLOBAL_PREFS_MASK& mask) {
     if (mask.run_if_temp_lt_than) {
         f.printf("   <run_if_temp_lt_than>%f</run_if_temp_lt_than>\n", run_if_temp_lt_than);
     }
-
+    if (mask.run_always_when_plugged) {
+        f.printf("   <run_always_when_plugged>%d</run_always_when_plugged>\n",
+                 run_always_when_plugged?1:0);
+    }
+    
     write_day_prefs(f);
     f.printf("</global_preferences>\n");
     return 0;

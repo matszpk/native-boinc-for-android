@@ -70,6 +70,7 @@ struct GLOBAL_PREFS_MASK {
     bool daily_xfer_period_days;
     bool run_if_battery_nl_than; // not lower than
     bool run_if_temp_lt_than;
+    bool run_always_when_plugged;
 
     GLOBAL_PREFS_MASK();
     void clear();
@@ -172,6 +173,7 @@ struct GLOBAL_PREFS {
     int daily_xfer_period_days;
     double run_if_battery_nl_than;  // not lower than
     double run_if_temp_lt_than; // run if battery temperature lower than specified
+    bool run_always_when_plugged;
     char source_project[256];
     char source_scheduler[256];
     bool host_specific;

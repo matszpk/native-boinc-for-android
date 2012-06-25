@@ -186,6 +186,7 @@
 	<string name="localPrefComputeOptions">Computing</string>
 	
 	<string name="localPrefComputeOnBatteries">While device is on batteries</string>
+	<string name="localPrefRunAlwaysWhenPlugged">Run always when plugged</string>
 	<string name="localPrefComputeInUse">While device is in use</string>
 	<string name="localPrefUseGPUInUse">Use GPU while device is in use</string>
 	<string name="localPrefComputeIdleFor">Only after device has been idle for</string>

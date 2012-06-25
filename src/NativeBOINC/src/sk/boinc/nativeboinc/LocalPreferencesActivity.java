@@ -65,6 +65,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	private boolean mOtherGlobalPrefsSavingInProgress = false;
 	
 	private CheckBox mComputeOnBatteries;
+	private CheckBox mRunAlwaysWhenPlugged;
 	private CheckBox mComputeInUse;
 	private CheckBox mUseGPUInUse;
 	private EditText mComputeIdleFor;
@@ -167,6 +168,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		mTabHost.setCurrentTab(mSelectedTab);
 		
 		mComputeOnBatteries = (CheckBox)findViewById(R.id.localPrefComputeOnBatteries);
+		mRunAlwaysWhenPlugged = (CheckBox)findViewById(R.id.localPrefRunAlwaysWhenPlugged);
 		mComputeInUse = (CheckBox)findViewById(R.id.localPrefComputeInUse);
 		mUseGPUInUse = (CheckBox)findViewById(R.id.localPrefUseGPUInUse);
 		mComputeIdleFor = (EditText)findViewById(R.id.localPrefComputeIdleFor);
@@ -561,6 +563,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	
 	private void updatePreferences(GlobalPreferences globalPrefs) {
 		mComputeInUse.setChecked(globalPrefs.run_if_user_active);
+		mRunAlwaysWhenPlugged.setChecked(globalPrefs.run_always_when_plugged);
 		mComputeOnBatteries.setChecked(globalPrefs.run_on_batteries);
 		mUseGPUInUse.setChecked(globalPrefs.run_gpu_if_user_active);
 		
@@ -605,6 +608,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		try {
 			globalPrefs.run_if_user_active = mComputeInUse.isChecked();
 			globalPrefs.run_on_batteries = mComputeOnBatteries.isChecked();
+			globalPrefs.run_always_when_plugged = mRunAlwaysWhenPlugged.isChecked();
 			globalPrefs.run_gpu_if_user_active = mUseGPUInUse.isChecked();
 			
 			globalPrefs.idle_time_to_run = Double.parseDouble(mComputeIdleFor.getText().toString());

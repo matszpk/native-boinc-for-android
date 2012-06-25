@@ -50,6 +50,11 @@
 			  			android:layout_width="fill_parent"
 			  			android:layout_height="wrap_content"
 			  			android:text="@string/localPrefComputeOnBatteries" />
+					<CheckBox
+			  			android:id="@+id/localPrefRunAlwaysWhenPlugged"
+			  			android:layout_width="fill_parent"
+			  			android:layout_height="wrap_content"
+			  			android:text="@string/localPrefRunAlwaysWhenPlugged" />
 			  		<CheckBox
 			  			android:id="@+id/localPrefComputeInUse"
 			  			android:layout_width="fill_parent"

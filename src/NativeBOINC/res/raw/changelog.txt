@@ -1,3 +1,7 @@
+Version 0.3.9.9.1 (alpha) (2012-06-24)
+- fixed autostart (currently made 3 trials)
+- added 'run always when plugged' option in localprefs
+
 Version 0.3.9.9 (alpha) (2012-06-24)
 - fixed NPE and crashes
 - fixed installations and error handling

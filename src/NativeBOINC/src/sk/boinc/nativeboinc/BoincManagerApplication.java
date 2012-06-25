@@ -108,10 +108,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 					@Override
 					public void run() {
 						// second try to start
-						if (mRunner == null)
-							bindRunnerAndStart();
-						else // if bound only starts client
-							mRunner.startClient(false);
+						autostartClient();
 					}
 				}, SECOND_TRY_START_DELAY);
 			}
@@ -119,6 +116,12 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	}
 	
 	private SecondStartTryHandler mSecondTryStartHandler = null;
+	
+	/* max number of tries */
+	private static final int MAX_AUTOSTART_TRIES_N = 3;
+	
+	private int mAutostartTrialNumber = 0;
+	
 	
 	private RefreshWidgetHandler mRefreshWidgetHandler = null;
 	
@@ -203,10 +206,16 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		if (Logging.DEBUG) Log.d(TAG, "Autostart client");
 		if (!mFirstStartingAtAppStartup) {
 			mFirstStartingAtAppStartup = true;
-			if (mRunner == null)
-				bindRunnerAndStart();
-			else // if bound only starts client
-				mRunner.startClient(false);
+			
+			mAutostartTrialNumber++;
+			if (Logging.DEBUG) Log.d(TAG, "Autostart trial "+mAutostartTrialNumber);
+			
+			if (mAutostartTrialNumber <= MAX_AUTOSTART_TRIES_N) {
+				if (mRunner == null)
+					bindRunnerAndStart();
+				else // if bound only starts client
+					mRunner.startClient(false);
+			}
 		}
 	}
 
@@ -445,13 +454,15 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	
 	@Override
 	public boolean onNativeBoincClientError(String message) {
-		if (mFirstStartingAtAppStartup) {
+		if (mFirstStartingAtAppStartup && mAutostartTrialNumber < MAX_AUTOSTART_TRIES_N) {
 			// when first start at startup
 			mFirstStartingAtAppStartup = false; // if starting failed
 			// try again if at booting
 			mSecondTryStartHandler.tryStartAgain();
 		} else
 			doUnbindRunnerService();
+		
+		mFirstStartingAtAppStartup = false;
 		
 		// TODO: handle native boinc error
 		Toast.makeText(this, message, Toast.LENGTH_LONG).show();

@@ -1057,7 +1057,9 @@ public class RpcClient {
 			mRequest.append(globalPrefs.run_if_battery_nl_than);
 			mRequest.append("</run_if_battery_nl_than>\n  <run_if_temp_lt_than>");
 			mRequest.append(globalPrefs.run_if_temp_lt_than);
-			mRequest.append("</run_if_temp_lt_than>\n");
+			mRequest.append("</run_if_temp_lt_than>\n  <run_always_when_plugged>");
+			mRequest.append(globalPrefs.run_always_when_plugged ? 1 : 0);
+			mRequest.append("</run_always_when_plugged>\n");
 			
 			// write days prefs
 			TimePreferences.TimeSpan[] weekPrefs = globalPrefs.cpu_times.week_prefs;

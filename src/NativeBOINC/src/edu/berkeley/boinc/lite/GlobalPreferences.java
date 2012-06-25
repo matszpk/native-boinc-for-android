@@ -55,6 +55,7 @@ public class GlobalPreferences {
 	public int daily_xfer_period_days;
 	public double run_if_battery_nl_than;
 	public double run_if_temp_lt_than;
+	public boolean run_always_when_plugged;
 	
 	public TimePreferences cpu_times = new TimePreferences();
 	public TimePreferences net_times = new TimePreferences();

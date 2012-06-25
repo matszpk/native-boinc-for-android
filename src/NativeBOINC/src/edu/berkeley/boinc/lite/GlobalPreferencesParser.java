@@ -183,6 +183,8 @@ public class GlobalPreferencesParser extends BaseParser {
 						mPreferences.net_times.start_hour = Double.parseDouble(mCurrentElement.toString());
 					} else if (localName.equalsIgnoreCase("net_end_hour")) {
 						mPreferences.net_times.end_hour = Double.parseDouble(mCurrentElement.toString());
+					} else if (localName.equalsIgnoreCase("run_always_when_plugged")) {
+						mPreferences.run_always_when_plugged = Integer.parseInt(mCurrentElement.toString()) != 0;
 					}
 				}
 			}

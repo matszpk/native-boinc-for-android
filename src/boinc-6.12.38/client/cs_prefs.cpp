@@ -133,14 +133,16 @@ int CLIENT_STATE::check_suspend_processing() {
         if (running_on_batteries) {
             double on_batteries = host_info.host_battery_level();
             
-            if (on_batteries < HARD_BATTERY_LIMIT) // hard limit
-                return SUSPEND_REASON_DISCHARGE;
-            
-            if (global_prefs.run_if_battery_nl_than>0.0 &&
-                on_batteries < global_prefs.run_if_battery_nl_than
-            ) {
-                return SUSPEND_REASON_DISCHARGE;
-            }
+            if (on_batteries >= 0.0) {
+              if (on_batteries < HARD_BATTERY_LIMIT) // hard limit
+                  return SUSPEND_REASON_DISCHARGE;
+              
+              if (global_prefs.run_if_battery_nl_than>0.0 &&
+                  on_batteries < global_prefs.run_if_battery_nl_than
+              ) {
+                  return SUSPEND_REASON_DISCHARGE;
+              }
+            } // ignore when battery not detected
         } else {
             double on_power_supply = host_info.host_battery_level();
             

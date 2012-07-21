@@ -37,6 +37,7 @@ import sk.boinc.nativeboinc.nativeclient.MonitorListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.service.ConnectionManagerService;
+import sk.boinc.nativeboinc.util.ActivityVisibilityTracker;
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.HostListDbAdapter;
 import sk.boinc.nativeboinc.util.PreferenceName;
@@ -130,6 +131,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	
 	private boolean mIsPaused = false;
 	private boolean mIsRecreated = false;
+	
+	private ActivityVisibilityTracker mVisibilityTracker = null;
 	
 	private static class SavedState {
 		private final boolean isInstallerRan;
@@ -296,6 +299,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		if (Logging.DEBUG) Log.d(TAG, "onCreate()");
 
 		mApp = (BoincManagerApplication)getApplication();
+		mVisibilityTracker = mApp.getVisibilityTracker();
 		mJustUpgraded = mApp.getJustUpgradedStatus();
 
 		// Create handler for screen orientation
@@ -570,6 +574,9 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		super.onResume();
 		mIsPaused = false;
 		if (Logging.DEBUG) Log.d(TAG, "onResume()");
+		
+		mVisibilityTracker.resumeActivity();
+		
 		mBackPressedRecently = false;
 		mScreenOrientation.setOrientation();
 		// Update name of connected client (or show "not connected")
@@ -609,6 +616,9 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	protected void onPause() {
 		super.onPause();
 		if (Logging.DEBUG) Log.d(TAG, "onPause()");
+		
+		mVisibilityTracker.pauseActivity();
+		
 		mProgressDialogAllowed = false;
 		// If we did not perform deferred connect so far, we needn't do that anymore
 		if (mSelectedClient != null) {
@@ -657,6 +667,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		removeDialog(DIALOG_CONNECT_PROGRESS);
 		doUnbindService();
 		doUnbindRunnerService();
+		mVisibilityTracker = null;
 		mScreenOrientation = null;
 	}
 	

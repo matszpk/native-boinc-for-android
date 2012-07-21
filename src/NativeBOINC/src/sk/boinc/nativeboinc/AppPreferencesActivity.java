@@ -64,7 +64,7 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 
 		// Screen orientation handler
 		mScreenOrientation = new ScreenOrientationHandler(this);
-
+		
 		// Initializes the preference activity.
 		addPreferencesFromResource(R.xml.preferences);
 
@@ -251,7 +251,6 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 	protected void onResume() {
 		super.onResume();
 		// We are in foreground now
-
 		mScreenOrientation.setOrientation();
 
 		ListPreference listPref;

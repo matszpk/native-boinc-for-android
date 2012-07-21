@@ -166,6 +166,8 @@ public class ConnectionManagerService extends Service implements
 		
 		// create wake lock
 		initPowerManagement();
+		// after power management
+		mApp.getVisibilityTracker().registerConnectionManager(this);
 	}
 
 	@Override
@@ -177,6 +179,8 @@ public class ConnectionManagerService extends Service implements
 		// Clean-up network statistics handler
 		mNetStats.cleanup();
 		mNetStats = null;
+		
+		mApp.getVisibilityTracker().unregisterConnectionManager();
 		
 		destroyPowerManagement();
 	}

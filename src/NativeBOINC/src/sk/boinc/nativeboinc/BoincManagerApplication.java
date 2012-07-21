@@ -30,6 +30,8 @@ import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
+import sk.boinc.nativeboinc.service.ConnectionManagerService;
+import sk.boinc.nativeboinc.util.ActivityVisibilityTracker;
 import sk.boinc.nativeboinc.util.NativeClientAutostart;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.widget.RefreshWidgetHandler;
@@ -89,7 +91,32 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	private NotificationController mNotificationController = null;
 	
 	private boolean mDoStartClientAfterBind = false;
+	
+	/* activity visibility tracker */
+	public static class MyActivityVisibilityTracker extends ActivityVisibilityTracker {
+		public ConnectionManagerService mConnectionManager = null;
 		
+		public void registerConnectionManager(ConnectionManagerService service) {
+			mConnectionManager = service;
+		}
+		
+		public void unregisterConnectionManager() {
+			mConnectionManager = null;
+		}
+		
+		public void onShowActivity() {
+			if (mConnectionManager != null)
+				mConnectionManager.acquireLockScreenOn();
+		}
+		
+		public void onHideActivity() {
+			if (mConnectionManager != null)
+				mConnectionManager.releaseLockScreenOn();
+		}
+	};
+	
+	private MyActivityVisibilityTracker mVisibilityTracker = null;
+	
 	// restart after reinstall handling
 	private Object mRestartAfterReinstallSync = new Object();
 	private boolean mRunRestartAfterReinstall = false;
@@ -194,6 +221,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		
 		mSecondTryStartHandler = new SecondStartTryHandler();
 		mRefreshWidgetHandler = new RefreshWidgetHandler(this);
+		mVisibilityTracker = new MyActivityVisibilityTracker();
 		
 		// register refreshWidgetHandler as preferences change listener
 		mGlobalPrefs.registerOnSharedPreferenceChangeListener(mRefreshWidgetHandler);
@@ -507,5 +535,12 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 			mRunRestartAfterReinstall = false;
 			mRestartedAfterReinstall = false;
 		}
+	}
+	
+	/**
+	 * visivbility control
+	 */
+	public MyActivityVisibilityTracker getVisibilityTracker() {
+		return mVisibilityTracker;
 	}
 }

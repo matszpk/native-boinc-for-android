@@ -18,7 +18,6 @@
  */
 package sk.boinc.nativeboinc;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -27,7 +26,7 @@ import android.widget.Button;
  * @author mat
  *
  */
-public class InstallFinishActivity extends Activity {
+public class InstallFinishActivity extends AbstractBoincActivity {
 
 	private BoincManagerApplication mApp = null;
 	

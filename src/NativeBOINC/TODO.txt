@@ -81,8 +81,8 @@ Na Teraz:
 / * zmienic wygląd paska w ScreenLockActivity
 / * dodać wyłączanie na podstawie temp baterii (do managera) (jeszcze nie przetestowane)
 
-przeprojektować obsługę zadań dla handlerów, tak by jedno zadanie jedno typu mogło tylko tylko kolejkowane
-jeszcze raz usprawnic i uszczelnić obsługę błędów
+/ przeprojektować obsługę zadań dla handlerów, tak by jedno zadanie jedno typu mogło tylko tylko kolejkowane
+/ jeszcze raz usprawnic i uszczelnić obsługę błędów
 
 / * wprowadzić blokowanie przycisków gdy operacja sie wykonuje (nawet gdy nie została wywołana w aktynwości)
 / * filtrowac listę dostepnych projektów wyrzucając wszystkie dołączone

@@ -422,7 +422,6 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
 		/* native autostart */
 		ListPreference listPref = (ListPreference)findPreference(PreferenceName.NATIVE_AUTOSTART);
 		int index = listPref.findIndexOfValue((String)listPref.getValue());

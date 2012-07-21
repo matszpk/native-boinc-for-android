@@ -25,6 +25,7 @@ import sk.boinc.nativeboinc.installer.InstallerProgressListener;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.nativeclient.MonitorListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
+import sk.boinc.nativeboinc.util.ActivityVisibilityTracker;
 import sk.boinc.nativeboinc.util.StandardDialogs;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -51,6 +52,8 @@ public class InstalledBinariesActivity extends ListActivity implements Installer
 	}
 	
 	private InstalledBinary[] mInstalledBinaries = null;
+	
+	private ActivityVisibilityTracker mVisibilityTracker = null;
 	
 	private InstallerService mInstaller = null;
 	private NativeBoincService mRunner = null;
@@ -123,6 +126,9 @@ public class InstalledBinariesActivity extends ListActivity implements Installer
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		BoincManagerApplication app = (BoincManagerApplication)getApplication();
+		mVisibilityTracker = app.getVisibilityTracker();
 		
 		bindInstallerService();
 		bindRunnerService();

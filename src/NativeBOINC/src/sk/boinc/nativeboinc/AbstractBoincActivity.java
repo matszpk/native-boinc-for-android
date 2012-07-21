@@ -30,7 +30,7 @@ import android.os.Bundle;
 public class AbstractBoincActivity extends Activity {
 	
 	private ScreenOrientationHandler mScreenOrientation;
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -42,7 +42,7 @@ public class AbstractBoincActivity extends Activity {
 		super.onResume();
 		mScreenOrientation.setOrientation();
 	}
-
+	
 	@Override
 	protected void onDestroy() {
 		mScreenOrientation = null;

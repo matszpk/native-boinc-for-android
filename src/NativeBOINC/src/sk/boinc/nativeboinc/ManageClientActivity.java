@@ -185,9 +185,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		super.onCreate(savedInstanceState);
 
 		mScreenOrientation = new ScreenOrientationHandler(this);
-		
+
 		doBindService();
-	
 		// Initializes the preference activity.
 		addPreferencesFromResource(R.xml.manage_client);
 

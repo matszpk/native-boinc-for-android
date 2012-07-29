@@ -91,7 +91,6 @@ swizzle_loop6_neon:
                 vld1.32 {q6},[r9]
                 vld1.32 {q7},[r10]
                 vld1.32 {q8},[r11]
-                vld1.32 {q15},[lr]
                 // forming optimized structures
                 // (structures is ok)
                 // q3=[T0,bbyp0],q4=[T1,bbyp1] -> q3=[T0L,T1L,T0H,T1H],
@@ -99,6 +98,7 @@ swizzle_loop6_neon:
                 vzip.i32 q3,q4
                 vzip.i32 q5,q6
                 vzip.i32 q7,q8
+                vld1.32 {q15},[lr]
                 /* high(newa*bbyp) */
                 vmull.u32 q9,d2,d8      // d1=(newaH0,newaH1), d8=(bbyp0L,bbyp1L)
                 vmull.u32 q12,d0,d9     // d0=(newaL0,newaL1), d9=(bbyp0H,bbyp1H)

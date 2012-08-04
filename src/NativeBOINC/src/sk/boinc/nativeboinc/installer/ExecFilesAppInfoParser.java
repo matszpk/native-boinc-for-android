@@ -86,7 +86,7 @@ public class ExecFilesAppInfoParser extends BoincBaseParser {
 			} else if (localName.equalsIgnoreCase("executable"))
 				mIsExecutable = true;
 			else if (localName.equalsIgnoreCase("name"))
-				mFilename = mCurrentElement;
+				mFilename = getCurrentElement();
 		}
 	}
 }

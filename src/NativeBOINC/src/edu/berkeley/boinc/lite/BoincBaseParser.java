@@ -27,7 +27,9 @@ import java.util.Stack;
 
 public class BoincBaseParser implements BoincContentHandler {
 
-	protected String mCurrentElement = null;
+	protected StringBuilder mAllBody = null;
+	protected int mCurrentElementStart = -1;
+	protected int mCurrentElementEnd = -1;
 
 	protected boolean mTrimCharacters = true; // default is trimming
 	
@@ -158,11 +160,26 @@ public class BoincBaseParser implements BoincContentHandler {
 								continue;
 							
 							// if tag end
-							String charsString = lnReader.sb.substring(tagElem.charStartPos, tagDelimPos);
-							if (parser.mTrimCharacters)
-								parser.characters(charsString.trim());
-							else
-								parser.characters(charsString);
+							//String charsString = lnReader.sb.substring(tagElem.charStartPos, tagDelimPos);
+							if (parser.mTrimCharacters) {
+								StringBuilder allBody = lnReader.sb;
+								int startPos = tagElem.charStartPos;
+								int endPos = tagDelimPos;
+								
+								for (; startPos < endPos; startPos++)
+									if (!Character.isWhitespace(allBody.charAt(startPos)))
+										break;
+								
+								if (startPos < endPos) {
+									for (endPos = endPos-1; endPos >= startPos; endPos--)
+										if (!Character.isWhitespace(allBody.charAt(endPos)))
+											break;
+									endPos++;
+								}
+								
+								parser.characters(lnReader.sb, startPos, endPos);
+							} else
+								parser.characters(lnReader.sb, tagElem.charStartPos, tagDelimPos);
 							parser.endElement(endedTagName);
 						}
 					} else if (c == -1)
@@ -212,7 +229,7 @@ public class BoincBaseParser implements BoincContentHandler {
 						if (!endedTag)
 							tagStack.push(new TagElem(tagName, lnReader.sb.length()));
 						else {
-							parser.characters("");
+							parser.characters(lnReader.sb, 0, 0);
 							parser.endElement(tagName);
 						}
 					}
@@ -231,9 +248,16 @@ public class BoincBaseParser implements BoincContentHandler {
 		}
 	}
 	
+	public String getCurrentElement() {
+		return mAllBody.substring(mCurrentElementStart, mCurrentElementEnd);
+	}
+	
 	@Override
-	public void characters(String chars) {
-		mCurrentElement = chars;
+	public void characters(StringBuilder chars, int startPos, int endPos) {
+		//mCurrentElement = chars.substring(startPos, endPos);
+		mAllBody = chars;
+		mCurrentElementStart = startPos;
+		mCurrentElementEnd = endPos;
 	}
 	
 	@Override

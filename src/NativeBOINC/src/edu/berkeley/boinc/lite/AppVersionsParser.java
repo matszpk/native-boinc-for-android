@@ -79,10 +79,10 @@ public class AppVersionsParser extends BoincBaseParser {
 				else {
 					// Not the closing tag - we decode possible inner tags
 					if (localName.equalsIgnoreCase("app_name")) {
-						mAppVersion.app_name = mCurrentElement;
+						mAppVersion.app_name = getCurrentElement();
 					}
 					else if (localName.equalsIgnoreCase("version_num")) {
-						mAppVersion.version_num = Integer.parseInt(mCurrentElement);
+						mAppVersion.version_num = Integer.parseInt(getCurrentElement());
 					}
 				}
 			}

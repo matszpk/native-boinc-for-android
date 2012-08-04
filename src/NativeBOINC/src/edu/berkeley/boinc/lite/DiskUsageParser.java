@@ -84,9 +84,9 @@ public class DiskUsageParser extends BoincBaseParser {
 				}
 			} else {
 				if (localName.equalsIgnoreCase("master_url")) {
-					mMasterUrl = mCurrentElement;
+					mMasterUrl = getCurrentElement();
 				} else if (localName.equalsIgnoreCase("disk_usage")) {
-					mDiskUsage = Double.parseDouble(mCurrentElement);
+					mDiskUsage = Double.parseDouble(getCurrentElement());
 				}
 			}
 		} catch (NumberFormatException e) {

@@ -74,13 +74,13 @@ public class VersionInfoParser extends BoincBaseParser {
 				else {
 					// Not the closing tag - we decode possible inner tags
 					if (localName.equalsIgnoreCase("major")) {
-						mVersionInfo.major = Integer.parseInt(mCurrentElement);
+						mVersionInfo.major = Integer.parseInt(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("minor")) {
-						mVersionInfo.minor = Integer.parseInt(mCurrentElement);
+						mVersionInfo.minor = Integer.parseInt(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("release")) {
-						mVersionInfo.release = Integer.parseInt(mCurrentElement);
+						mVersionInfo.release = Integer.parseInt(getCurrentElement());
 					}
 				}
 			}

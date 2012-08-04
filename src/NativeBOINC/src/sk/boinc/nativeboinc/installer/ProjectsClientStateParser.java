@@ -76,9 +76,9 @@ public class ProjectsClientStateParser extends BoincBaseParser {
 			mProjectDesc = null;
 		} else if (mProjectDesc != null) {
 			if (localName.equalsIgnoreCase("project_name"))
-				mProjectDesc.projectName = mCurrentElement;
+				mProjectDesc.projectName = getCurrentElement();
 			else if (localName.equalsIgnoreCase("master_url"))
-				mProjectDesc.masterUrl = mCurrentElement;
+				mProjectDesc.masterUrl = getCurrentElement();
 		}
 	}
 }

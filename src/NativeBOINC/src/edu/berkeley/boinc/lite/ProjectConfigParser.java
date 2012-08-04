@@ -78,35 +78,35 @@ public class ProjectConfigParser extends BoincBaseParser {
 				else {
 					// Not the closing tag - we decode possible inner tags
 					if (localName.equalsIgnoreCase("error_num")) {
-						mProjectConfig.error_num = Integer.parseInt(mCurrentElement);
+						mProjectConfig.error_num = Integer.parseInt(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("error_msg")) {
-						mProjectConfig.error_msg = mCurrentElement;
+						mProjectConfig.error_msg = getCurrentElement();
 					} else if (localName.equalsIgnoreCase("name")) {
-						mProjectConfig.name = mCurrentElement;
+						mProjectConfig.name = getCurrentElement();
 					} else if (localName.equalsIgnoreCase("platform_name") && mInsidePlatforms) {
-						mProjectConfig.platforms.add(mCurrentElement);
+						mProjectConfig.platforms.add(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("master_url")) {
-						mProjectConfig.master_url = mCurrentElement;
+						mProjectConfig.master_url = getCurrentElement();
 					} else if (localName.equalsIgnoreCase("local_revision")) {
-						mProjectConfig.local_revision = Integer.parseInt(mCurrentElement);
+						mProjectConfig.local_revision = Integer.parseInt(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("min_passwd_length")) {
-						mProjectConfig.min_passwd_length = Integer.parseInt(mCurrentElement);
+						mProjectConfig.min_passwd_length = Integer.parseInt(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("account_manager")) {
-						mProjectConfig.account_manager = Integer.parseInt(mCurrentElement)!=0;
+						mProjectConfig.account_manager = Integer.parseInt(getCurrentElement())!=0;
 					} else if (localName.equalsIgnoreCase("use_username")) {
-						mProjectConfig.use_username = Integer.parseInt(mCurrentElement)!=0;
+						mProjectConfig.use_username = Integer.parseInt(getCurrentElement())!=0;
 					} else if (localName.equalsIgnoreCase("account_creation_disabled")) {
 						mProjectConfig.account_creation_disabled = true;
 					} else if (localName.equalsIgnoreCase("client_account_creation_disabled")) {
 						mProjectConfig.client_account_creation_disabled = true;
 					} else if (localName.equalsIgnoreCase("sched_stopped")) {
-						mProjectConfig.sched_stopped = Integer.parseInt(mCurrentElement)!=0;
+						mProjectConfig.sched_stopped = Integer.parseInt(getCurrentElement())!=0;
 					} else if (localName.equalsIgnoreCase("web_stopped")) {
-						mProjectConfig.web_stopped = Integer.parseInt(mCurrentElement)!=0;
+						mProjectConfig.web_stopped = Integer.parseInt(getCurrentElement())!=0;
 					} else if (localName.equalsIgnoreCase("min_client_version")) {
-						mProjectConfig.min_client_version = Integer.parseInt(mCurrentElement);
+						mProjectConfig.min_client_version = Integer.parseInt(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("terms_of_use")) {
-						mProjectConfig.terms_of_use = mCurrentElement;
+						mProjectConfig.terms_of_use = getCurrentElement();
 					}
 				}
 			}

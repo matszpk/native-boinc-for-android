@@ -79,7 +79,7 @@ public class SimpleReplyParser extends BoincBaseParser {
 				mSuccess = false;
 				mParsed = true;
 			} else if (localName.equalsIgnoreCase("error")) {
-				errorMessage = mCurrentElement; 
+				errorMessage = getCurrentElement(); 
 			}
 		}
 	}

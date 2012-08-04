@@ -78,64 +78,64 @@ public class HostInfoParser extends BoincBaseParser {
 				else {
 					// Not the closing tag - we decode possible inner tags
 					if (localName.equalsIgnoreCase("timezone")) {
-						mHostInfo.timezone = Integer.parseInt(mCurrentElement);
+						mHostInfo.timezone = Integer.parseInt(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("domain_name")) {
-						mHostInfo.domain_name = mCurrentElement;
+						mHostInfo.domain_name = getCurrentElement();
 					}
 					else if (localName.equalsIgnoreCase("ip_addr")) {
-						mHostInfo.ip_addr = mCurrentElement;
+						mHostInfo.ip_addr = getCurrentElement();
 					}
 					else if (localName.equalsIgnoreCase("host_cpid")) {
-						mHostInfo.host_cpid = mCurrentElement;
+						mHostInfo.host_cpid = getCurrentElement();
 					}
 					else if (localName.equalsIgnoreCase("p_ncpus")) {
-						mHostInfo.p_ncpus = Integer.parseInt(mCurrentElement);
+						mHostInfo.p_ncpus = Integer.parseInt(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("p_vendor")) {
-						mHostInfo.p_vendor = mCurrentElement;
+						mHostInfo.p_vendor = getCurrentElement();
 					}
 					else if (localName.equalsIgnoreCase("p_model")) {
-						mHostInfo.p_model = mCurrentElement;
+						mHostInfo.p_model = getCurrentElement();
 					}
 					else if (localName.equalsIgnoreCase("p_features")) {
-						mHostInfo.p_features = mCurrentElement;
+						mHostInfo.p_features = getCurrentElement();
 					}
 					else if (localName.equalsIgnoreCase("p_fpops")) {
-						mHostInfo.p_fpops = Double.parseDouble(mCurrentElement);
+						mHostInfo.p_fpops = Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("p_iops")) {
-						mHostInfo.p_iops = Double.parseDouble(mCurrentElement);
+						mHostInfo.p_iops = Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("p_membw")) {
-						mHostInfo.p_membw = Double.parseDouble(mCurrentElement);
+						mHostInfo.p_membw = Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("p_calculated")) {
-						mHostInfo.p_calculated = (long)Double.parseDouble(mCurrentElement);
+						mHostInfo.p_calculated = (long)Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("m_nbytes")) {
-						mHostInfo.m_nbytes = Double.parseDouble(mCurrentElement);
+						mHostInfo.m_nbytes = Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("m_cache")) {
-						mHostInfo.m_cache = Double.parseDouble(mCurrentElement);
+						mHostInfo.m_cache = Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("m_swap")) {
-						mHostInfo.m_swap = Double.parseDouble(mCurrentElement);
+						mHostInfo.m_swap = Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("d_total")) {
-						mHostInfo.d_total = Double.parseDouble(mCurrentElement);
+						mHostInfo.d_total = Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("d_free")) {
-						mHostInfo.d_free = Double.parseDouble(mCurrentElement);
+						mHostInfo.d_free = Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("os_name")) {
-						mHostInfo.os_name = mCurrentElement;
+						mHostInfo.os_name = getCurrentElement();
 					}
 					else if (localName.equalsIgnoreCase("os_version")) {
-						mHostInfo.os_version = mCurrentElement;
+						mHostInfo.os_version = getCurrentElement();
 					}
 					else if (localName.equalsIgnoreCase("virtualbox_version")) {
-						mHostInfo.virtualbox_version = mCurrentElement;
+						mHostInfo.virtualbox_version = getCurrentElement();
 					}
 				}
 			}

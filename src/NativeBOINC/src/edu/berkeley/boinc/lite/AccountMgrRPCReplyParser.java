@@ -73,9 +73,9 @@ public class AccountMgrRPCReplyParser extends BoincBaseParser {
 				else {
 					// Not the closing tag - we decode possible inner tags
 					if (localName.equalsIgnoreCase("error_num")) {
-						mPAR.error_num = Integer.parseInt(mCurrentElement);
+						mPAR.error_num = Integer.parseInt(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("message")) {
-						mPAR.messages.add(mCurrentElement);
+						mPAR.messages.add(getCurrentElement());
 					}
 				}
 			}

@@ -76,9 +76,9 @@ public class UpdateProjectAppsReplyParser extends BoincBaseParser {
 				else {
 					// Not the closing tag - we decode possible inner tags
 					if (localName.equalsIgnoreCase("error_num")) {
-						mUPAR.error_num = Integer.parseInt(mCurrentElement);
+						mUPAR.error_num = Integer.parseInt(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("message")) {
-						mUPAR.messages.add(mCurrentElement);
+						mUPAR.messages.add(getCurrentElement());
 					}
 				}
 			}

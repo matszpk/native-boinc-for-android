@@ -71,60 +71,64 @@ public class CcStatusParser extends BoincBaseParser {
 				else {
 					// Not the closing tag - we decode possible inner tags
 					if (localName.equalsIgnoreCase("task_mode")) {
-						mCcStatus.task_mode = Integer.parseInt(mCurrentElement);
+						mCcStatus.task_mode = Integer.parseInt(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("task_mode_perm")) {
-						mCcStatus.task_mode_perm = Integer.parseInt(mCurrentElement);
+						mCcStatus.task_mode_perm = Integer.parseInt(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("task_mode_delay")) {
-						mCcStatus.task_mode_delay = Double.parseDouble(mCurrentElement);
+						mCcStatus.task_mode_delay = Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("task_suspend_reason")) {
-						mCcStatus.task_suspend_reason = Integer.parseInt(mCurrentElement);
+						mCcStatus.task_suspend_reason = Integer.parseInt(getCurrentElement());
 					}
 					if (localName.equalsIgnoreCase("network_mode")) {
-						mCcStatus.network_mode = Integer.parseInt(mCurrentElement);
+						mCcStatus.network_mode = Integer.parseInt(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("network_mode_perm")) {
-						mCcStatus.network_mode_perm = Integer.parseInt(mCurrentElement);
+						mCcStatus.network_mode_perm = Integer.parseInt(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("network_mode_delay")) {
-						mCcStatus.network_mode_delay = Double.parseDouble(mCurrentElement);
+						mCcStatus.network_mode_delay = Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("network_suspend_reason")) {
-						mCcStatus.network_suspend_reason = Integer.parseInt(mCurrentElement);
+						mCcStatus.network_suspend_reason = Integer.parseInt(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("network_status")) {
-						mCcStatus.network_status = Integer.parseInt(mCurrentElement);
+						mCcStatus.network_status = Integer.parseInt(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("ams_password_error")) {
-						if (mCurrentElement.length() > 1) {
-							mCcStatus.ams_password_error = (0 != Integer.parseInt(mCurrentElement));
+						String current = getCurrentElement();
+						if (current.length() > 1) {
+							mCcStatus.ams_password_error = (0 != Integer.parseInt(current));
 						}
 						else {
 							mCcStatus.ams_password_error = true;
 						}
 					}
 					else if (localName.equalsIgnoreCase("manager_must_quit")) {
-						if (mCurrentElement.length() > 1) {
-							mCcStatus.manager_must_quit = (0 != Integer.parseInt(mCurrentElement));
+						String current = getCurrentElement();
+						if (current.length() > 1) {
+							mCcStatus.manager_must_quit = (0 != Integer.parseInt(current));
 						}
 						else {
 							mCcStatus.manager_must_quit = true;
 						}
 					}
 					else if (localName.equalsIgnoreCase("disallow_attach")) {
-						if (mCurrentElement.length() > 1) {
-							mCcStatus.disallow_attach = (0 != Integer.parseInt(mCurrentElement));
+						String current = getCurrentElement();
+						if (current.length() > 1) {
+							mCcStatus.disallow_attach = (0 != Integer.parseInt(current));
 						}
 						else {
 							mCcStatus.disallow_attach = true;
 						}
 					}
 					else if (localName.equalsIgnoreCase("simple_gui_only")) {
-						if (mCurrentElement.length() > 1) {
+						String current = getCurrentElement();
+						if (current.length() > 1) {
 							// handling stupid bug ?? (someone added 's' to integer)
-							String toParse = mCurrentElement;
+							String toParse = current;
 							if (toParse.endsWith("s"))
 								toParse = toParse.substring(0, toParse.length()-1);
 							mCcStatus.simple_gui_only = (0 != Integer.parseInt(toParse));

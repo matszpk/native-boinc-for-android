@@ -48,7 +48,7 @@ public class StringReplyParser extends BoincBaseParser {
 		super.endElement(localName);
 
 		if (localName.equalsIgnoreCase("value")) {
-			mString = mCurrentElement;
+			mString = getCurrentElement();
 		}
 	}
 }

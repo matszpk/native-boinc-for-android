@@ -64,11 +64,11 @@ public class AccountOutParser extends BoincBaseParser {
 		try {
 			if (mAccountOut != null) {
 				if (localName.equalsIgnoreCase("error_num")) {
-					mAccountOut.error_num = Integer.parseInt(mCurrentElement);
+					mAccountOut.error_num = Integer.parseInt(getCurrentElement());
 				} else if (localName.equalsIgnoreCase("error_msg")) {
-					mAccountOut.error_msg = mCurrentElement;
+					mAccountOut.error_msg = getCurrentElement();
 				} else if (localName.equalsIgnoreCase("authenticator")) {
-					mAccountOut.authenticator = mCurrentElement;
+					mAccountOut.authenticator = getCurrentElement();
 				}
 			}
 		} catch (NumberFormatException e) {

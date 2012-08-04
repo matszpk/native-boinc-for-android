@@ -123,31 +123,31 @@ public class CcStateParser extends BoincBaseParser {
 	}
 
 	@Override
-	public void characters(String chars) {
-		super.characters(chars);
+	public void characters(StringBuilder chars, int startPos, int endPos) {
+		super.characters(chars, startPos, endPos);
 		if (mInHostInfo) {
 			// We are inside <host_info>
-			mHostInfoParser.characters(chars);
+			mHostInfoParser.characters(chars, startPos, endPos);
 		}
 		if (mInProject) {
 			// We are inside <project>
-			mProjectsParser.characters(chars);
+			mProjectsParser.characters(chars, startPos, endPos);
 		}
 		if (mInApp) {
 			// We are inside <project>
-			mAppsParser.characters(chars);
+			mAppsParser.characters(chars, startPos, endPos);
 		}
 		if (mInAppVersion) {
 			// We are inside <project>
-			mAppVersionsParser.characters(chars);
+			mAppVersionsParser.characters(chars, startPos, endPos);
 		}
 		if (mInWorkunit) {
 			// We are inside <workunit>
-			mWorkunitsParser.characters(chars);
+			mWorkunitsParser.characters(chars, startPos, endPos);
 		}
 		if (mInResult) {
 			// We are inside <result>
-			mResultsParser.characters(chars);
+			mResultsParser.characters(chars, startPos, endPos);
 		}
 		// VersionInfo elements are handled in super.characters()
 	}
@@ -211,19 +211,19 @@ public class CcStateParser extends BoincBaseParser {
 			}
 			// VersionInfo?
 			if (localName.equalsIgnoreCase("core_client_major_version")) {
-				mVersionInfo.major = Integer.parseInt(mCurrentElement);
+				mVersionInfo.major = Integer.parseInt(getCurrentElement());
 			}
 			else if (localName.equalsIgnoreCase("core_client_minor_version")) {
-				mVersionInfo.minor = Integer.parseInt(mCurrentElement);
+				mVersionInfo.minor = Integer.parseInt(getCurrentElement());
 			}
 			else if (localName.equalsIgnoreCase("core_client_release")) {
-				mVersionInfo.release = Integer.parseInt(mCurrentElement);
+				mVersionInfo.release = Integer.parseInt(getCurrentElement());
 			}
 			else if (localName.equalsIgnoreCase("have_ati")) {
-				mCcState.have_ati = !mCurrentElement.equals("0");
+				mCcState.have_ati = !getCurrentElement().equals("0");
 			}
 			else if (localName.equalsIgnoreCase("have_cuda")) {
-				mCcState.have_cuda = !mCurrentElement.equals("0");
+				mCcState.have_cuda = !getCurrentElement().equals("0");
 			}
 		}
 		catch (NumberFormatException e) {

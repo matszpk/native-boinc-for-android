@@ -79,10 +79,10 @@ public class AppsParser extends BoincBaseParser {
 			else {
 				// Not the closing tag - we decode possible inner tags
 				if (localName.equalsIgnoreCase("name")) {
-					mApp.name = mCurrentElement;
+					mApp.name = getCurrentElement();
 				}
 				else if (localName.equalsIgnoreCase("user_friendly_name")) {
-					mApp.user_friendly_name = mCurrentElement;
+					mApp.user_friendly_name = getCurrentElement();
 				}
 			}
 		}

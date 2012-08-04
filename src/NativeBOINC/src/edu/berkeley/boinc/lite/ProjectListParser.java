@@ -88,22 +88,22 @@ public class ProjectListParser extends BoincBaseParser {
 					if (localName.equalsIgnoreCase("name")) {
 						if (mInsidePlatforms) {
 							/* platform name */
-							mProjectEntry.platforms.add(mCurrentElement);
+							mProjectEntry.platforms.add(getCurrentElement());
 						} else {
-							mProjectEntry.name = mCurrentElement;
+							mProjectEntry.name = getCurrentElement();
 						}
 					} else if (localName.equalsIgnoreCase("url")) {
-						mProjectEntry.url = mCurrentElement;
+						mProjectEntry.url = getCurrentElement();
 					} else if (localName.equalsIgnoreCase("general_area")) {
-						mProjectEntry.general_area = mCurrentElement;
+						mProjectEntry.general_area = getCurrentElement();
 					} else if (localName.equalsIgnoreCase("specific_area")) {
-						mProjectEntry.specific_area = mCurrentElement;
+						mProjectEntry.specific_area = getCurrentElement();
 					} else if (localName.equalsIgnoreCase("description")) {
-						mProjectEntry.description = mCurrentElement;
+						mProjectEntry.description = getCurrentElement();
 					} else if (localName.equalsIgnoreCase("home")) {
-						mProjectEntry.home = mCurrentElement;
+						mProjectEntry.home = getCurrentElement();
 					} else if (localName.equalsIgnoreCase("image")) {
-						mProjectEntry.image = mCurrentElement;
+						mProjectEntry.image = getCurrentElement();
 					}
 				}
 			}

@@ -98,112 +98,112 @@ public class ResultsParser extends BoincBaseParser {
 							mInActiveTask = false;
 						}
 						else if (localName.equalsIgnoreCase("active_task_state")) {
-							mResult.active_task_state = Integer.parseInt(mCurrentElement);
+							mResult.active_task_state = Integer.parseInt(getCurrentElement());
 						} 
 						else if (localName.equalsIgnoreCase("app_version_num")) {
-							mResult.app_version_num = Integer.parseInt(mCurrentElement);
+							mResult.app_version_num = Integer.parseInt(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("scheduler_state")) {
-							mResult.scheduler_state = Integer.parseInt(mCurrentElement);
+							mResult.scheduler_state = Integer.parseInt(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("checkpoint_cpu_time")) {
-							mResult.checkpoint_cpu_time = Double.parseDouble(mCurrentElement);
+							mResult.checkpoint_cpu_time = Double.parseDouble(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("current_cpu_time")) {
-							mResult.current_cpu_time = Double.parseDouble(mCurrentElement);
+							mResult.current_cpu_time = Double.parseDouble(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("fraction_done")) {
-							mResult.fraction_done = Float.parseFloat(mCurrentElement);
+							mResult.fraction_done = Float.parseFloat(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("elapsed_time")) {
-							mResult.elapsed_time = Double.parseDouble(mCurrentElement);
+							mResult.elapsed_time = Double.parseDouble(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("swap_size")) {
-							mResult.swap_size = Double.parseDouble(mCurrentElement);
+							mResult.swap_size = Double.parseDouble(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("working_set_size_smoothed")) {
-							mResult.working_set_size_smoothed = Double.parseDouble(mCurrentElement);
+							mResult.working_set_size_smoothed = Double.parseDouble(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("estimated_cpu_time_remaining")) {
-							mResult.estimated_cpu_time_remaining = Double.parseDouble(mCurrentElement);
+							mResult.estimated_cpu_time_remaining = Double.parseDouble(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("supports_graphics")) {
-							mResult.supports_graphics = !mCurrentElement.equals("0");
+							mResult.supports_graphics = !getCurrentElement().equals("0");
 						}
 						else if (localName.equalsIgnoreCase("graphic_mode_acked")) {
-							mResult.graphics_mode_acked = Integer.parseInt(mCurrentElement);
+							mResult.graphics_mode_acked = Integer.parseInt(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("too_large")) {
-							mResult.too_large = !mCurrentElement.equals("0");
+							mResult.too_large = !getCurrentElement().equals("0");
 						}
 						else if (localName.equalsIgnoreCase("needs_shmem")) {
-							mResult.needs_shmem = !mCurrentElement.equals("0");
+							mResult.needs_shmem = !getCurrentElement().equals("0");
 						}
 						else if (localName.equalsIgnoreCase("edf_scheduled")) {
-							mResult.edf_scheduled = !mCurrentElement.equals("0");
+							mResult.edf_scheduled = !getCurrentElement().equals("0");
 						}
 						else if (localName.equalsIgnoreCase("pid")) {
-							mResult.pid = Integer.parseInt(mCurrentElement);
+							mResult.pid = Integer.parseInt(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("slot")) {
-							mResult.slot = Integer.parseInt(mCurrentElement);
+							mResult.slot = Integer.parseInt(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("graphics_exec_path")) {
-							mResult.graphics_exec_path = mCurrentElement;
+							mResult.graphics_exec_path = getCurrentElement();
 						}
 						else if (localName.equalsIgnoreCase("slot_path")) {
-							mResult.slot_path = mCurrentElement;
+							mResult.slot_path = getCurrentElement();
 						}
 					}
 					else {
 					// Not in <active_task>
 						if (localName.equalsIgnoreCase("name")) {
-							mResult.name = mCurrentElement;
+							mResult.name = getCurrentElement();
 						}
 						else if (localName.equalsIgnoreCase("wu_name")) {
-							mResult.wu_name = mCurrentElement;
+							mResult.wu_name = getCurrentElement();
 						}
 						else if (localName.equalsIgnoreCase("project_url")) {
-							mResult.project_url = mCurrentElement;
+							mResult.project_url = getCurrentElement();
 						}
 						else if (localName.equalsIgnoreCase("version_num")) {
-							mResult.version_num = Integer.parseInt(mCurrentElement);
+							mResult.version_num = Integer.parseInt(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("ready_to_report")) {
-							mResult.ready_to_report = !mCurrentElement.equals("0");
+							mResult.ready_to_report = !getCurrentElement().equals("0");
 						}
 						else if (localName.equalsIgnoreCase("got_server_ack")) {
-							mResult.got_server_ack = !mCurrentElement.equals("0");
+							mResult.got_server_ack = !getCurrentElement().equals("0");
 						}
 						else if (localName.equalsIgnoreCase("final_cpu_time")) {
-							mResult.final_cpu_time = Double.parseDouble(mCurrentElement);
+							mResult.final_cpu_time = Double.parseDouble(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("final_elapsed_time")) {
-							mResult.final_elapsed_time = Double.parseDouble(mCurrentElement);
+							mResult.final_elapsed_time = Double.parseDouble(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("state")) {
-							mResult.state = Integer.parseInt(mCurrentElement);
+							mResult.state = Integer.parseInt(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("report_deadline")) {
-							mResult.report_deadline = (long)Double.parseDouble(mCurrentElement);
+							mResult.report_deadline = (long)Double.parseDouble(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("received_time")) {
-							mResult.received_time = (long)Double.parseDouble(mCurrentElement);
+							mResult.received_time = (long)Double.parseDouble(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("estimated_cpu_time_remaining")) {
-							mResult.estimated_cpu_time_remaining = Double.parseDouble(mCurrentElement);
+							mResult.estimated_cpu_time_remaining = Double.parseDouble(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("exit_status")) {
-							mResult.exit_status = Integer.parseInt(mCurrentElement);
+							mResult.exit_status = Integer.parseInt(getCurrentElement());
 						}
 						else if (localName.equalsIgnoreCase("suspended_via_gui")) {
-							mResult.suspended_via_gui = !mCurrentElement.equals("0");
+							mResult.suspended_via_gui = !getCurrentElement().equals("0");
 						}
 						else if (localName.equalsIgnoreCase("project_suspended_via_gui")) {
-							mResult.project_suspended_via_gui = !mCurrentElement.equals("0");
+							mResult.project_suspended_via_gui = !getCurrentElement().equals("0");
 						}
 						else if (localName.equalsIgnoreCase("resources")) {
-							mResult.resources = mCurrentElement;
+							mResult.resources = getCurrentElement();
 						}
 					}
 				}

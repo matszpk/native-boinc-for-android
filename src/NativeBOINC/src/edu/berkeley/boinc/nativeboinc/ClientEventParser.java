@@ -70,9 +70,9 @@ public class ClientEventParser extends BoincBaseParser {
 			if (mWithClientEvent) {
 				if (!localName.equalsIgnoreCase("reply")) {
 					if (localName.equalsIgnoreCase("type")) {
-						mClientEventType = Integer.parseInt(mCurrentElement);
+						mClientEventType = Integer.parseInt(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("project")) {
-						mProjectUrl = mCurrentElement;
+						mProjectUrl = getCurrentElement();
 					}
 				}
 			}

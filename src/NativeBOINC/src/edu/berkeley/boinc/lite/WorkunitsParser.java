@@ -79,25 +79,25 @@ public class WorkunitsParser extends BoincBaseParser {
 				else {
 					// Not the closing tag - we decode possible inner tags
 					if (localName.equalsIgnoreCase("name")) {
-						mWorkunit.name = mCurrentElement;
+						mWorkunit.name = getCurrentElement();
 					}
 					else if (localName.equalsIgnoreCase("app_name")) {
-						mWorkunit.app_name = mCurrentElement;
+						mWorkunit.app_name = getCurrentElement();
 					}
 					else if (localName.equalsIgnoreCase("version_num")) {
-						mWorkunit.version_num = Integer.parseInt(mCurrentElement);
+						mWorkunit.version_num = Integer.parseInt(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("rsc_fpops_est")) {
-						mWorkunit.rsc_fpops_est = Double.parseDouble(mCurrentElement);
+						mWorkunit.rsc_fpops_est = Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("rsc_fpops_bound")) {
-						mWorkunit.rsc_fpops_bound = Double.parseDouble(mCurrentElement);
+						mWorkunit.rsc_fpops_bound = Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("rsc_memory_bound")) {
-						mWorkunit.rsc_memory_bound = Double.parseDouble(mCurrentElement);
+						mWorkunit.rsc_memory_bound = Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("rsc_disk_bound")) {
-						mWorkunit.rsc_disk_bound = Double.parseDouble(mCurrentElement);
+						mWorkunit.rsc_disk_bound = Double.parseDouble(getCurrentElement());
 					}
 				}
 			}

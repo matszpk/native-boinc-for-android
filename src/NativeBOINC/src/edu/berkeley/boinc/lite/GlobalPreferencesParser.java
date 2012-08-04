@@ -90,90 +90,90 @@ public class GlobalPreferencesParser extends BoincBaseParser {
 					mInsideDayPrefs = false;
 				} else if (mInsideDayPrefs) {
 					if (localName.equalsIgnoreCase("day_of_week")) {
-						mDayOfWeek = Integer.parseInt(mCurrentElement);
+						mDayOfWeek = Integer.parseInt(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("start_hour")) {
 						if (mTempCpuTimeSpan == null)
 							mTempCpuTimeSpan = new TimePreferences.TimeSpan();
-						mTempCpuTimeSpan.start_hour = Double.parseDouble(mCurrentElement);
+						mTempCpuTimeSpan.start_hour = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("end_hour")) {
 						if (mTempCpuTimeSpan == null)
 							mTempCpuTimeSpan = new TimePreferences.TimeSpan();
-						mTempCpuTimeSpan.end_hour = Double.parseDouble(mCurrentElement);
+						mTempCpuTimeSpan.end_hour = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("net_start_hour")) {
 						if (mTempNetTimeSpan == null)
 							mTempNetTimeSpan = new TimePreferences.TimeSpan();
-						mTempNetTimeSpan.start_hour = Double.parseDouble(mCurrentElement);
+						mTempNetTimeSpan.start_hour = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("net_end_hour")) {
 						if (mTempNetTimeSpan == null)
 							mTempNetTimeSpan = new TimePreferences.TimeSpan();
-						mTempNetTimeSpan.end_hour = Double.parseDouble(mCurrentElement);
+						mTempNetTimeSpan.end_hour = Double.parseDouble(getCurrentElement());
 					}
 				} else {
 					// Not the closing tag - we decode possible inner tags
 					if (localName.equalsIgnoreCase("run_on_batteries")) {
-						mPreferences.run_on_batteries = Integer.parseInt(mCurrentElement) != 0;
+						mPreferences.run_on_batteries = Integer.parseInt(getCurrentElement()) != 0;
 					} else if (localName.equalsIgnoreCase("run_gpu_if_user_active")) {
-						mPreferences.run_gpu_if_user_active = Integer.parseInt(mCurrentElement) != 0;
+						mPreferences.run_gpu_if_user_active = Integer.parseInt(getCurrentElement()) != 0;
 					} else if (localName.equalsIgnoreCase("run_if_user_active")) {
-						mPreferences.run_if_user_active = Integer.parseInt(mCurrentElement) != 0;
+						mPreferences.run_if_user_active = Integer.parseInt(getCurrentElement()) != 0;
 					} else if (localName.equalsIgnoreCase("idle_time_to_run")) {
-						mPreferences.idle_time_to_run = Double.parseDouble(mCurrentElement);
+						mPreferences.idle_time_to_run = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("suspend_cpu_usage")) {
-						mPreferences.suspend_cpu_usage = Double.parseDouble(mCurrentElement);
+						mPreferences.suspend_cpu_usage = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("leave_apps_in_memory")) {
-						mPreferences.leave_apps_in_memory = Integer.parseInt(mCurrentElement) != 0;
+						mPreferences.leave_apps_in_memory = Integer.parseInt(getCurrentElement()) != 0;
 					} else if (localName.equalsIgnoreCase("dont_verify_images")) {
-						mPreferences.dont_verify_images = Integer.parseInt(mCurrentElement) != 0;
+						mPreferences.dont_verify_images = Integer.parseInt(getCurrentElement()) != 0;
 					} else if (localName.equalsIgnoreCase("work_buf_min_days")) {
-						mPreferences.work_buf_min_days = Double.parseDouble(mCurrentElement);
+						mPreferences.work_buf_min_days = Double.parseDouble(getCurrentElement());
 						if (mPreferences.work_buf_min_days < 0.00001)
 							mPreferences.work_buf_min_days = 0.00001;
 					} else if (localName.equalsIgnoreCase("work_buf_additional_days")) {
-						mPreferences.work_buf_additional_days = Double.parseDouble(mCurrentElement);
+						mPreferences.work_buf_additional_days = Double.parseDouble(getCurrentElement());
 						if (mPreferences.work_buf_additional_days < 0.0)
 							mPreferences.work_buf_additional_days = 0.0;
 					} else if (localName.equalsIgnoreCase("max_ncpus_pct")) {
-						mPreferences.max_ncpus_pct = Double.parseDouble(mCurrentElement);
+						mPreferences.max_ncpus_pct = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("cpu_scheduling_period_minutes")) {
-						mPreferences.cpu_scheduling_period_minutes = Double.parseDouble(mCurrentElement);
+						mPreferences.cpu_scheduling_period_minutes = Double.parseDouble(getCurrentElement());
 						if (mPreferences.cpu_scheduling_period_minutes < 0.00001)
 							mPreferences.cpu_scheduling_period_minutes = 60;
 					} else if (localName.equalsIgnoreCase("disk_interval")) {
-						mPreferences.disk_interval = Double.parseDouble(mCurrentElement);
+						mPreferences.disk_interval = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("disk_max_used_gb")) {
-						mPreferences.disk_max_used_gb = Double.parseDouble(mCurrentElement);
+						mPreferences.disk_max_used_gb = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("disk_max_used_pct")) {
-						mPreferences.disk_max_used_pct = Double.parseDouble(mCurrentElement);
+						mPreferences.disk_max_used_pct = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("disk_min_free_gb")) {
-						mPreferences.disk_min_free_gb = Double.parseDouble(mCurrentElement);
+						mPreferences.disk_min_free_gb = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("ram_max_used_busy_pct")) {
-						mPreferences.ram_max_used_busy_frac = Double.parseDouble(mCurrentElement);
+						mPreferences.ram_max_used_busy_frac = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("ram_max_used_idle_pct")) {
-						mPreferences.ram_max_used_idle_frac = Double.parseDouble(mCurrentElement);
+						mPreferences.ram_max_used_idle_frac = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("max_bytes_sec_up")) {
-						mPreferences.max_bytes_sec_up = Double.parseDouble(mCurrentElement);
+						mPreferences.max_bytes_sec_up = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("max_bytes_sec_down")) {
-						mPreferences.max_bytes_sec_down = Double.parseDouble(mCurrentElement);
+						mPreferences.max_bytes_sec_down = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("cpu_usage_limit")) {
-						mPreferences.cpu_usage_limit = Double.parseDouble(mCurrentElement);
+						mPreferences.cpu_usage_limit = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("daily_xfer_limit_mb")) {
-						mPreferences.daily_xfer_limit_mb = Double.parseDouble(mCurrentElement);
+						mPreferences.daily_xfer_limit_mb = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("daily_xfer_period_days")) {
-						mPreferences.daily_xfer_period_days = Integer.parseInt(mCurrentElement);
+						mPreferences.daily_xfer_period_days = Integer.parseInt(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("run_if_battery_nl_than")) {
-						mPreferences.run_if_battery_nl_than = Double.parseDouble(mCurrentElement);
+						mPreferences.run_if_battery_nl_than = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("run_if_temp_lt_than")) {
-						mPreferences.run_if_temp_lt_than = Double.parseDouble(mCurrentElement);
+						mPreferences.run_if_temp_lt_than = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("start_hour")) {
-						mPreferences.cpu_times.start_hour = Double.parseDouble(mCurrentElement);
+						mPreferences.cpu_times.start_hour = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("end_hour")) {
-						mPreferences.cpu_times.end_hour = Double.parseDouble(mCurrentElement);
+						mPreferences.cpu_times.end_hour = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("net_start_hour")) {
-						mPreferences.net_times.start_hour = Double.parseDouble(mCurrentElement);
+						mPreferences.net_times.start_hour = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("net_end_hour")) {
-						mPreferences.net_times.end_hour = Double.parseDouble(mCurrentElement);
+						mPreferences.net_times.end_hour = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("run_always_when_plugged")) {
-						mPreferences.run_always_when_plugged = Integer.parseInt(mCurrentElement) != 0;
+						mPreferences.run_always_when_plugged = Integer.parseInt(getCurrentElement()) != 0;
 					}
 				}
 			}

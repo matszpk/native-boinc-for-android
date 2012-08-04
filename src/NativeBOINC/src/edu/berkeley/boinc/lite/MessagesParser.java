@@ -26,117 +26,73 @@ import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
 
 
-public class MessagesParser {
+public class MessagesParser extends BoincBaseParser {
 	private static final String TAG = "MessagesParser";
 
 	private ArrayList<Message> mMessages = new ArrayList<Message>();
-	//private Message mMessage = null;
+	private Message mMessage = null;
 
+	public static ArrayList<Message> parse(String rpcResult) {
+		try {
+			MessagesParser parser = new MessagesParser();
+			BoincBaseParser.parse(parser, rpcResult);
+			return parser.getMessages();
+		}
+		catch (BoincParserException e) {
+			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
+			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
+			return null;
+		}
+	}
 
 	public final ArrayList<Message> getMessages() {
 		return mMessages;
 	}
 
-	/**
-	 * Parse the RPC result (app_version) and generate corresponding vector
-	 * @param rpcResult String returned by RPC call of core client
-	 * @return vector of application version
-	 */
-	public static ArrayList<Message> parse(String rpcResult) {
-		MessagesParser parser = new MessagesParser();
-		try {
-			parser.parseMessages(rpcResult);
-		} catch(Exception ex) {
-			return null;
+	@Override
+	public void startElement(String localName) {
+		super.startElement(localName);
+		if (localName.equalsIgnoreCase("msg")) {
+			mMessage = new Message();
 		}
-		return parser.getMessages();
 	}
 	
-	public void parseMessages(String xml) {
-		int pos = 0;
-		int end = xml.length();
-		boolean inMsgs = false;
-		
-		int newPos;
-		Message message = null;
-		
+	@Override
+	public void endElement(String localName) {
+		super.endElement(localName);
 		try {
-			while (pos < end) {
-				/* skip spaces */
-				while (pos < end) {
-					if (!Character.isSpace(xml.charAt(pos)))
-						break;
-					pos++;
-				}
-				if (!inMsgs) {
-					newPos = xml.indexOf("<msgs>");
-					if (newPos == -1)
-						throw new RuntimeException("Cant parse messages");
-					pos = newPos + 6;
-					inMsgs = true;
-				} else if (inMsgs && message == null && xml.startsWith("<msg>", pos)) {
-					pos += 5;
-					message = new Message();
-				} else if (message != null && xml.startsWith("</msg>", pos)) {
-					mMessages.add(message);
-					message = null;
-					pos += 6;
-				} else if (inMsgs && xml.startsWith("</msgs>", pos)) {
-					break; // end
-				} else if (message != null) {
-					if (xml.startsWith("<project>", pos)) {
-						pos += 9;
-						newPos = xml.indexOf("</project>", pos);
-						if (newPos == -1)
-							throw new RuntimeException("Cant parse messages");
-						message.project = xml.substring(pos, newPos).trim();
-						pos = newPos+10;
-					} else if (xml.startsWith("<seqno>", pos)) {
-						pos += 7;
-						newPos = xml.indexOf("</seqno>", pos);
-						if (newPos == -1)
-							throw new RuntimeException("Cant parse messages");
-						message.seqno = Integer.parseInt(xml.substring(pos, newPos).trim());
-						pos = newPos+8;
-					} else if (xml.startsWith("<pri>", pos)) {
-						pos += 5;
-						newPos = xml.indexOf("</pri>", pos);
-						if (newPos == -1)
-							throw new RuntimeException("Cant parse messages");
-						message.priority = Integer.parseInt(xml.substring(pos, newPos).trim());
-						pos = newPos+6;
-					} else if (xml.startsWith("<time>", pos)) {
-						pos += 6;
-						newPos = xml.indexOf("</time>", pos);
-						if (newPos == -1)
-							throw new RuntimeException("Cant parse messages");
-						message.timestamp = (long)Double.parseDouble(xml.substring(pos, newPos).trim());
-						pos = newPos+7;
-					} else if (xml.startsWith("<body>", pos)) {
-						pos += 6;
-						newPos = xml.indexOf("</body>", pos);
-						if (newPos == -1)
-							throw new RuntimeException("Cant parse messages");
-						message.body = xml.substring(pos, newPos).trim();
-						pos = newPos+7;
-					} else {
-						// skip unknown tag
-						pos++;
-						int endTagIndex = xml.indexOf(">", pos);
-						if (endTagIndex == -1)
-							throw new RuntimeException("Cant parse messages");
-						String tag = xml.substring(pos, endTagIndex);
-						pos = endTagIndex+1;
-						String endString = "</"+tag+">";
-						newPos = xml.indexOf(endString, pos);
-						if (newPos == -1)
-							throw new RuntimeException("Cant parse messages");
-						pos = newPos + endString.length();
+			if (mMessage != null) {
+				// We are inside <msg>
+				if (localName.equalsIgnoreCase("msg")) {
+					// Closing tag of <msg> - add to vector and be ready for next one
+					if (mMessage.seqno != 0) {
+						// seqno is a must
+						mMessages.add(mMessage);
 					}
-				} 
+					mMessage = null;
+				}
+				else {
+					// Not the closing tag - we decode possible inner tags
+					if (localName.equalsIgnoreCase("project")) {
+						mMessage.project = getCurrentElement();
+					}
+					else if (localName.equalsIgnoreCase("seqno")) {
+						mMessage.seqno = Integer.parseInt(getCurrentElement());
+					}
+					else if (localName.equalsIgnoreCase("pri")) {
+						mMessage.priority = Integer.parseInt(getCurrentElement());
+					}
+					else if (localName.equalsIgnoreCase("time")) {
+						mMessage.timestamp = (long)Double.parseDouble(getCurrentElement());
+					}
+					else if (localName.equalsIgnoreCase("body")) {
+						mMessage.body = getCurrentElement();
+					}
+				}
 			}
-		} catch (NumberFormatException e) {
-			if (Logging.INFO) Log.i(TAG, "Exception when decoding");
+		}
+		catch (NumberFormatException e) {
+			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
 		}
 	}
 }

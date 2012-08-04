@@ -73,15 +73,15 @@ public class AccountMgrInfoParser extends BoincBaseParser {
 				else {
 					// Not the closing tag - we decode possible inner tags
 					if (localName.equalsIgnoreCase("acct_mgr_name")) {
-						mAccountMgrInfo.acct_mgr_name = mCurrentElement;
+						mAccountMgrInfo.acct_mgr_name = getCurrentElement();
 					} else if (localName.equalsIgnoreCase("acct_mgr_url")) {
-						mAccountMgrInfo.acct_mgr_url = mCurrentElement;
+						mAccountMgrInfo.acct_mgr_url = getCurrentElement();
 					} else if (localName.equalsIgnoreCase("have_credentials")) {
-						mAccountMgrInfo.have_credentials = !mCurrentElement.equals("0");
+						mAccountMgrInfo.have_credentials = !getCurrentElement().equals("0");
 					} else if (localName.equalsIgnoreCase("cookie_required")) {
-						mAccountMgrInfo.cookie_required = !mCurrentElement.equals("0");
+						mAccountMgrInfo.cookie_required = !getCurrentElement().equals("0");
 					} else if (localName.equalsIgnoreCase("cookie_failure_url"))
-						mAccountMgrInfo.cookie_failure_url = mCurrentElement;
+						mAccountMgrInfo.cookie_failure_url = getCurrentElement();
 				}
 			}
 		} catch (NumberFormatException e) {

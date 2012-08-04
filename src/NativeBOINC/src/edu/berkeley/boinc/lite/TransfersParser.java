@@ -96,48 +96,48 @@ public class TransfersParser extends BoincBaseParser {
 				else {
 					// Not the closing tag - we decode possible inner tags
 					if (localName.equalsIgnoreCase("project_url")) {
-						mTransfer.project_url = mCurrentElement;
+						mTransfer.project_url = getCurrentElement();
 					}
 					else if (localName.equalsIgnoreCase("name")) {
-						mTransfer.name = mCurrentElement;
+						mTransfer.name = getCurrentElement();
 					}
 					else if (localName.equalsIgnoreCase("generated_locally")) {
-						mTransfer.generated_locally = !mCurrentElement.equals("0");
+						mTransfer.generated_locally = !getCurrentElement().equals("0");
 					}
 					else if (localName.equalsIgnoreCase("nbytes")) {
-						mTransfer.nbytes = (long)Double.parseDouble(mCurrentElement);
+						mTransfer.nbytes = (long)Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("status")) {
-						mTransfer.status = Integer.parseInt(mCurrentElement);
+						mTransfer.status = Integer.parseInt(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("time_so_far")) {
 						// inside <persistent_file_xfer>
-						mTransfer.time_so_far = (long)Double.parseDouble(mCurrentElement);
+						mTransfer.time_so_far = (long)Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("next_request_time")) {
 						// inside <persistent_file_xfer>
-						mTransfer.next_request_time = (long)Double.parseDouble(mCurrentElement);
+						mTransfer.next_request_time = (long)Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("last_bytes_xferred")) {
 						// inside <persistent_file_xfer>
 						// See also <bytes_xferred> below, both are setting the same parameters
 						if (mTransfer.bytes_xferred == 0) {
 							// Not set yet
-							mTransfer.bytes_xferred = (long)Double.parseDouble(mCurrentElement);
+							mTransfer.bytes_xferred = (long)Double.parseDouble(getCurrentElement());
 						}
 					}
 					else if (localName.equalsIgnoreCase("bytes_xferred")) {
 						// Total bytes transferred, but this info is not available if networking
 						// is suspended. This info is present only inside <file_xfer> (active transfer)
 						// In such case we overwrite value set by <last_bytes_xferred>
-						mTransfer.bytes_xferred = (long)Double.parseDouble(mCurrentElement);
+						mTransfer.bytes_xferred = (long)Double.parseDouble(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("xfer_speed")) {
 						// inside <file_xfer>
-						mTransfer.xfer_speed = Float.parseFloat(mCurrentElement);
+						mTransfer.xfer_speed = Float.parseFloat(getCurrentElement());
 					}
 					else if (localName.equalsIgnoreCase("project_backoff")) {
-						mTransfer.project_backoff = (long)Double.parseDouble(mCurrentElement);
+						mTransfer.project_backoff = (long)Double.parseDouble(getCurrentElement());
 					}
 				}
 			}

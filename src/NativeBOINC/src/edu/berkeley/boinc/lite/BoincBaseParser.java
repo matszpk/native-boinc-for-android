@@ -211,8 +211,10 @@ public class BoincBaseParser implements BoincContentHandler {
 						parser.startElement(tagName);
 						if (!endedTag)
 							tagStack.push(new TagElem(tagName, lnReader.sb.length()));
-						else
+						else {
+							parser.characters("");
 							parser.endElement(tagName);
+						}
 					}
 				}
 			}

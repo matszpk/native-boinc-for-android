@@ -21,18 +21,14 @@ package edu.berkeley.boinc.lite;
 
 import java.util.ArrayList;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
-import android.util.Xml;
 
 /**
  * @author mat
  *
  */
-public class ProjectListParser extends BaseParser {
+public class ProjectListParser extends BoincBaseParser {
 	private static final String TAG = "ProjectListParser";
 	
 	private ArrayList<ProjectListEntry> mProjectList = new ArrayList<ProjectListEntry>();
@@ -45,20 +41,11 @@ public class ProjectListParser extends BaseParser {
 	
 	public static ArrayList<ProjectListEntry> parse(String rpcResult) {
 		try {
-			String outResult;
-			int xmlHeaderStart = rpcResult.indexOf("<?xml");
-			if (xmlHeaderStart!=-1) { // remove xml header inside body
-				int xmlHeaderEnd = rpcResult.indexOf("?>");
-				outResult = rpcResult.substring(0, xmlHeaderStart);
-				outResult += rpcResult.substring(xmlHeaderEnd+2);
-			} else
-				outResult = rpcResult;
-				
 			ProjectListParser parser = new ProjectListParser();
-			Xml.parse(outResult, parser);
+			BoincBaseParser.parse(parser, rpcResult);
 			return parser.getProjectList();
 		}
-		catch (SAXException e) {
+		catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -66,8 +53,8 @@ public class ProjectListParser extends BaseParser {
 	}
 	
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName)  {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("project")) {
 			if (Logging.INFO) {
 				if (mProjectEntry != null) {
@@ -79,17 +66,12 @@ public class ProjectListParser extends BaseParser {
 		}
 		else if (localName.equalsIgnoreCase("platforms")) {
 			mInsidePlatforms = true;
-		} else {
-			// Another element, hopefully primitive and not constructor
-			// (although unknown constructor does not hurt, because there will be primitive start anyway)
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
 		}
 	}
 	
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 		try {
 			if (mProjectEntry != null) {
 				// We are inside <project>
@@ -103,32 +85,30 @@ public class ProjectListParser extends BaseParser {
 				} else if (localName.equalsIgnoreCase("platforms")) {
 					mInsidePlatforms = false;
 				} else {
-					trimEnd();
 					if (localName.equalsIgnoreCase("name")) {
 						if (mInsidePlatforms) {
 							/* platform name */
-							mProjectEntry.platforms.add(mCurrentElement.toString());
+							mProjectEntry.platforms.add(mCurrentElement);
 						} else {
-							mProjectEntry.name = mCurrentElement.toString();
+							mProjectEntry.name = mCurrentElement;
 						}
 					} else if (localName.equalsIgnoreCase("url")) {
-						mProjectEntry.url = mCurrentElement.toString();
+						mProjectEntry.url = mCurrentElement;
 					} else if (localName.equalsIgnoreCase("general_area")) {
-						mProjectEntry.general_area = mCurrentElement.toString();
+						mProjectEntry.general_area = mCurrentElement;
 					} else if (localName.equalsIgnoreCase("specific_area")) {
-						mProjectEntry.specific_area = mCurrentElement.toString();
+						mProjectEntry.specific_area = mCurrentElement;
 					} else if (localName.equalsIgnoreCase("description")) {
-						mProjectEntry.description = mCurrentElement.toString();
+						mProjectEntry.description = mCurrentElement;
 					} else if (localName.equalsIgnoreCase("home")) {
-						mProjectEntry.home = mCurrentElement.toString();
+						mProjectEntry.home = mCurrentElement;
 					} else if (localName.equalsIgnoreCase("image")) {
-						mProjectEntry.image = mCurrentElement.toString();
+						mProjectEntry.image = mCurrentElement;
 					}
 				}
 			}
 		} catch (NumberFormatException e) {
 			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
 		}
-		mElementStarted = false;
 	}
 }

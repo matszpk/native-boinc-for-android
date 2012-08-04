@@ -95,7 +95,7 @@ Na Teraz:
     gdy już jest wywołana aktywność (rob tez tak, by automatycznie przełączał na nativeboinc).
 / * dodaj long scrolling do taba messages
 / * popraw błąd w ConnectionBridge:792 (NPE)
-
+  * zrobić właściwy XML parser dla RpcClient (kompatybilny z BOINC GUI RPC). 
 
 / * automatyczne dodaj włączanie/wyłączanie opcji w ManageClientActivity
 / * dodaj opcję autostartu (gdy odpala się aplikację i gdy odpala się system)

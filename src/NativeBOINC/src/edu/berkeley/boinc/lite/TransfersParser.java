@@ -21,16 +21,12 @@ package edu.berkeley.boinc.lite;
 
 import java.util.ArrayList;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import sk.boinc.nativeboinc.debug.Logging;
 
 import android.util.Log;
-import android.util.Xml;
 
 
-public class TransfersParser extends BaseParser {
+public class TransfersParser extends BoincBaseParser {
 	private static final String TAG = "TransfersParser";
 
 	private ArrayList<Transfer> mTransfers = new ArrayList<Transfer>();
@@ -49,10 +45,10 @@ public class TransfersParser extends BaseParser {
 	public static ArrayList<Transfer> parse(String rpcResult) {
 		try {
 			TransfersParser parser = new TransfersParser();
-			Xml.parse(rpcResult, parser);
+			BoincBaseParser.parse(parser, rpcResult);
 			return parser.getTransfers();
 		}
-		catch (SAXException e) {
+		catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -60,8 +56,8 @@ public class TransfersParser extends BaseParser {
 	}
 
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName) {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("file_transfer")) {
 			if (Logging.INFO) {
 				if (mTransfer != null) {
@@ -79,25 +75,13 @@ public class TransfersParser extends BaseParser {
 		}
 		else if (localName.equalsIgnoreCase("persistent_file_xfer")) {
 			// Just constructor, but nothing to do here
-			// We just do not set mElementStarted flag here, so we will
-			// avoid unnecessary work in BaseParser.characters() 
-		}
-		else {
-			// Another element, hopefully primitive and not constructor
-			// (although unknown constructor does not hurt, because there will be primitive start anyway)
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
+			// We just do not set mElementStarted flag here, so we will 
 		}
 	}
 
-	// Method characters(char[] ch, int start, int length) is implemented by BaseParser,
-	// filling mCurrentElement (including stripping of leading whitespaces)
-	//@Override
-	//public void characters(char[] ch, int start, int length) throws SAXException { }
-
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 		try {
 			if (mTransfer != null) {
 				// We are inside <file_transfer>
@@ -111,50 +95,49 @@ public class TransfersParser extends BaseParser {
 				}
 				else {
 					// Not the closing tag - we decode possible inner tags
-					trimEnd();
 					if (localName.equalsIgnoreCase("project_url")) {
-						mTransfer.project_url = mCurrentElement.toString();
+						mTransfer.project_url = mCurrentElement;
 					}
 					else if (localName.equalsIgnoreCase("name")) {
-						mTransfer.name = mCurrentElement.toString();
+						mTransfer.name = mCurrentElement;
 					}
 					else if (localName.equalsIgnoreCase("generated_locally")) {
-						mTransfer.generated_locally = !mCurrentElement.toString().equals("0");
+						mTransfer.generated_locally = !mCurrentElement.equals("0");
 					}
 					else if (localName.equalsIgnoreCase("nbytes")) {
-						mTransfer.nbytes = (long)Double.parseDouble(mCurrentElement.toString());
+						mTransfer.nbytes = (long)Double.parseDouble(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("status")) {
-						mTransfer.status = Integer.parseInt(mCurrentElement.toString());
+						mTransfer.status = Integer.parseInt(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("time_so_far")) {
 						// inside <persistent_file_xfer>
-						mTransfer.time_so_far = (long)Double.parseDouble(mCurrentElement.toString());
+						mTransfer.time_so_far = (long)Double.parseDouble(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("next_request_time")) {
 						// inside <persistent_file_xfer>
-						mTransfer.next_request_time = (long)Double.parseDouble(mCurrentElement.toString());
+						mTransfer.next_request_time = (long)Double.parseDouble(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("last_bytes_xferred")) {
 						// inside <persistent_file_xfer>
 						// See also <bytes_xferred> below, both are setting the same parameters
 						if (mTransfer.bytes_xferred == 0) {
 							// Not set yet
-							mTransfer.bytes_xferred = (long)Double.parseDouble(mCurrentElement.toString());
+							mTransfer.bytes_xferred = (long)Double.parseDouble(mCurrentElement);
 						}
 					}
 					else if (localName.equalsIgnoreCase("bytes_xferred")) {
 						// Total bytes transferred, but this info is not available if networking
 						// is suspended. This info is present only inside <file_xfer> (active transfer)
 						// In such case we overwrite value set by <last_bytes_xferred>
-						mTransfer.bytes_xferred = (long)Double.parseDouble(mCurrentElement.toString());
+						mTransfer.bytes_xferred = (long)Double.parseDouble(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("xfer_speed")) {
 						// inside <file_xfer>
-						mTransfer.xfer_speed = Float.parseFloat(mCurrentElement.toString());
+						mTransfer.xfer_speed = Float.parseFloat(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("project_backoff")) {
-						mTransfer.project_backoff = (long)Double.parseDouble(mCurrentElement.toString());
+						mTransfer.project_backoff = (long)Double.parseDouble(mCurrentElement);
 					}
 				}
 			}
@@ -162,6 +145,5 @@ public class TransfersParser extends BaseParser {
 		catch (NumberFormatException e) {
 			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
 		}
-		mElementStarted = false;
 	}
 }

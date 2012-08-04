@@ -19,18 +19,14 @@
 
 package edu.berkeley.boinc.lite;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
-import android.util.Xml;
 
 /**
  * @author mat
  *
  */
-public class AccountMgrInfoParser extends BaseParser {
+public class AccountMgrInfoParser extends BoincBaseParser {
 	private static final String TAG = "AccountMgrInfoParser";
 
 	private AccountMgrInfo mAccountMgrInfo = null;
@@ -42,9 +38,9 @@ public class AccountMgrInfoParser extends BaseParser {
 	public static AccountMgrInfo parse(String rpcResult) {
 		try {
 			AccountMgrInfoParser parser = new AccountMgrInfoParser();
-			Xml.parse(rpcResult, parser);
+			BoincBaseParser.parse(parser, rpcResult);
 			return parser.getAccountMgrInfo();
-		} catch (SAXException e) {
+		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -52,8 +48,8 @@ public class AccountMgrInfoParser extends BaseParser {
 	}
 	
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName) {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("acct_mgr_info")) {
 			if (Logging.INFO) { 
 				if (mAccountMgrInfo != null) {
@@ -63,17 +59,11 @@ public class AccountMgrInfoParser extends BaseParser {
 			}
 			mAccountMgrInfo = new AccountMgrInfo();
 		}
-		else {
-			// Another element, hopefully primitive and not constructor
-			// (although unknown constructor does not hurt, because there will be primitive start anyway)
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
-		}
 	}
 	
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 		try {
 			if (mAccountMgrInfo != null) {
 				// we are inside <acct_mgr_info>
@@ -82,22 +72,20 @@ public class AccountMgrInfoParser extends BaseParser {
 				}
 				else {
 					// Not the closing tag - we decode possible inner tags
-					trimEnd();
 					if (localName.equalsIgnoreCase("acct_mgr_name")) {
-						mAccountMgrInfo.acct_mgr_name = mCurrentElement.toString();
+						mAccountMgrInfo.acct_mgr_name = mCurrentElement;
 					} else if (localName.equalsIgnoreCase("acct_mgr_url")) {
-						mAccountMgrInfo.acct_mgr_url = mCurrentElement.toString();
+						mAccountMgrInfo.acct_mgr_url = mCurrentElement;
 					} else if (localName.equalsIgnoreCase("have_credentials")) {
-						mAccountMgrInfo.have_credentials = !mCurrentElement.toString().equals("0");
+						mAccountMgrInfo.have_credentials = !mCurrentElement.equals("0");
 					} else if (localName.equalsIgnoreCase("cookie_required")) {
-						mAccountMgrInfo.cookie_required = !mCurrentElement.toString().equals("0");
+						mAccountMgrInfo.cookie_required = !mCurrentElement.equals("0");
 					} else if (localName.equalsIgnoreCase("cookie_failure_url"))
-						mAccountMgrInfo.cookie_failure_url = mCurrentElement.toString();
+						mAccountMgrInfo.cookie_failure_url = mCurrentElement;
 				}
 			}
 		} catch (NumberFormatException e) {
 			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
 		}
-		mElementStarted = false;
 	}
 }

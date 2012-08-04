@@ -19,18 +19,14 @@
 
 package edu.berkeley.boinc.lite;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
-import android.util.Xml;
 
 /**
  * @author mat
  *
  */
-public class GlobalPreferencesParser extends BaseParser {
+public class GlobalPreferencesParser extends BoincBaseParser {
 	private static final String TAG = "GlobalPreferencesParser";
 	
 	private GlobalPreferences mPreferences = null;
@@ -47,9 +43,9 @@ public class GlobalPreferencesParser extends BaseParser {
 	public static GlobalPreferences parse(String rpcResult) {
 		try {
 			GlobalPreferencesParser parser = new GlobalPreferencesParser();
-			Xml.parse(rpcResult, parser);
+			BoincBaseParser.parse(parser, rpcResult);
 			return parser.getGlobalPreferences();
-		} catch (SAXException e) {
+		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -57,8 +53,8 @@ public class GlobalPreferencesParser extends BaseParser {
 	}
 	
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName) {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("global_preferences")) {
 			if (Logging.INFO) { 
 				if (mPreferences!= null) {
@@ -71,17 +67,12 @@ public class GlobalPreferencesParser extends BaseParser {
 			if (mInsideDayPrefs) 
 				if (Logging.INFO) Log.i(TAG, "Dropping all <day_prefs>");
 			mInsideDayPrefs = true;
-		} else {
-			// Another element, hopefully primitive and not constructor
-			// (although unknown constructor does not hurt, because there will be primitive start anyway)
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
 		}
 	}
 	
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 		try {
 			if (mPreferences != null) {
 				// we are inside <global_preferences>
@@ -98,99 +89,96 @@ public class GlobalPreferencesParser extends BaseParser {
 					mTempNetTimeSpan = null;
 					mInsideDayPrefs = false;
 				} else if (mInsideDayPrefs) {
-					trimEnd();
 					if (localName.equalsIgnoreCase("day_of_week")) {
-						mDayOfWeek = Integer.parseInt(mCurrentElement.toString());
+						mDayOfWeek = Integer.parseInt(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("start_hour")) {
 						if (mTempCpuTimeSpan == null)
 							mTempCpuTimeSpan = new TimePreferences.TimeSpan();
-						mTempCpuTimeSpan.start_hour = Double.parseDouble(mCurrentElement.toString());
+						mTempCpuTimeSpan.start_hour = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("end_hour")) {
 						if (mTempCpuTimeSpan == null)
 							mTempCpuTimeSpan = new TimePreferences.TimeSpan();
-						mTempCpuTimeSpan.end_hour = Double.parseDouble(mCurrentElement.toString());
+						mTempCpuTimeSpan.end_hour = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("net_start_hour")) {
 						if (mTempNetTimeSpan == null)
 							mTempNetTimeSpan = new TimePreferences.TimeSpan();
-						mTempNetTimeSpan.start_hour = Double.parseDouble(mCurrentElement.toString());
+						mTempNetTimeSpan.start_hour = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("net_end_hour")) {
 						if (mTempNetTimeSpan == null)
 							mTempNetTimeSpan = new TimePreferences.TimeSpan();
-						mTempNetTimeSpan.end_hour = Double.parseDouble(mCurrentElement.toString());
+						mTempNetTimeSpan.end_hour = Double.parseDouble(mCurrentElement);
 					}
 				} else {
 					// Not the closing tag - we decode possible inner tags
-					trimEnd();
 					if (localName.equalsIgnoreCase("run_on_batteries")) {
-						mPreferences.run_on_batteries = Integer.parseInt(mCurrentElement.toString()) != 0;
+						mPreferences.run_on_batteries = Integer.parseInt(mCurrentElement) != 0;
 					} else if (localName.equalsIgnoreCase("run_gpu_if_user_active")) {
-						mPreferences.run_gpu_if_user_active = Integer.parseInt(mCurrentElement.toString()) != 0;
+						mPreferences.run_gpu_if_user_active = Integer.parseInt(mCurrentElement) != 0;
 					} else if (localName.equalsIgnoreCase("run_if_user_active")) {
-						mPreferences.run_if_user_active = Integer.parseInt(mCurrentElement.toString()) != 0;
+						mPreferences.run_if_user_active = Integer.parseInt(mCurrentElement) != 0;
 					} else if (localName.equalsIgnoreCase("idle_time_to_run")) {
-						mPreferences.idle_time_to_run = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.idle_time_to_run = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("suspend_cpu_usage")) {
-						mPreferences.suspend_cpu_usage = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.suspend_cpu_usage = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("leave_apps_in_memory")) {
-						mPreferences.leave_apps_in_memory = Integer.parseInt(mCurrentElement.toString()) != 0;
+						mPreferences.leave_apps_in_memory = Integer.parseInt(mCurrentElement) != 0;
 					} else if (localName.equalsIgnoreCase("dont_verify_images")) {
-						mPreferences.dont_verify_images = Integer.parseInt(mCurrentElement.toString()) != 0;
+						mPreferences.dont_verify_images = Integer.parseInt(mCurrentElement) != 0;
 					} else if (localName.equalsIgnoreCase("work_buf_min_days")) {
-						mPreferences.work_buf_min_days = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.work_buf_min_days = Double.parseDouble(mCurrentElement);
 						if (mPreferences.work_buf_min_days < 0.00001)
 							mPreferences.work_buf_min_days = 0.00001;
 					} else if (localName.equalsIgnoreCase("work_buf_additional_days")) {
-						mPreferences.work_buf_additional_days = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.work_buf_additional_days = Double.parseDouble(mCurrentElement);
 						if (mPreferences.work_buf_additional_days < 0.0)
 							mPreferences.work_buf_additional_days = 0.0;
 					} else if (localName.equalsIgnoreCase("max_ncpus_pct")) {
-						mPreferences.max_ncpus_pct = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.max_ncpus_pct = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("cpu_scheduling_period_minutes")) {
-						mPreferences.cpu_scheduling_period_minutes = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.cpu_scheduling_period_minutes = Double.parseDouble(mCurrentElement);
 						if (mPreferences.cpu_scheduling_period_minutes < 0.00001)
 							mPreferences.cpu_scheduling_period_minutes = 60;
 					} else if (localName.equalsIgnoreCase("disk_interval")) {
-						mPreferences.disk_interval = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.disk_interval = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("disk_max_used_gb")) {
-						mPreferences.disk_max_used_gb = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.disk_max_used_gb = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("disk_max_used_pct")) {
-						mPreferences.disk_max_used_pct = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.disk_max_used_pct = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("disk_min_free_gb")) {
-						mPreferences.disk_min_free_gb = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.disk_min_free_gb = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("ram_max_used_busy_pct")) {
-						mPreferences.ram_max_used_busy_frac = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.ram_max_used_busy_frac = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("ram_max_used_idle_pct")) {
-						mPreferences.ram_max_used_idle_frac = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.ram_max_used_idle_frac = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("max_bytes_sec_up")) {
-						mPreferences.max_bytes_sec_up = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.max_bytes_sec_up = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("max_bytes_sec_down")) {
-						mPreferences.max_bytes_sec_down = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.max_bytes_sec_down = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("cpu_usage_limit")) {
-						mPreferences.cpu_usage_limit = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.cpu_usage_limit = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("daily_xfer_limit_mb")) {
-						mPreferences.daily_xfer_limit_mb = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.daily_xfer_limit_mb = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("daily_xfer_period_days")) {
-						mPreferences.daily_xfer_period_days = Integer.parseInt(mCurrentElement.toString());
+						mPreferences.daily_xfer_period_days = Integer.parseInt(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("run_if_battery_nl_than")) {
-						mPreferences.run_if_battery_nl_than = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.run_if_battery_nl_than = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("run_if_temp_lt_than")) {
-						mPreferences.run_if_temp_lt_than = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.run_if_temp_lt_than = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("start_hour")) {
-						mPreferences.cpu_times.start_hour = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.cpu_times.start_hour = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("end_hour")) {
-						mPreferences.cpu_times.end_hour = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.cpu_times.end_hour = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("net_start_hour")) {
-						mPreferences.net_times.start_hour = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.net_times.start_hour = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("net_end_hour")) {
-						mPreferences.net_times.end_hour = Double.parseDouble(mCurrentElement.toString());
+						mPreferences.net_times.end_hour = Double.parseDouble(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("run_always_when_plugged")) {
-						mPreferences.run_always_when_plugged = Integer.parseInt(mCurrentElement.toString()) != 0;
+						mPreferences.run_always_when_plugged = Integer.parseInt(mCurrentElement) != 0;
 					}
 				}
 			}
 		} catch (NumberFormatException e) {
 			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
 		}
-		mElementStarted = false;
 	}
 }

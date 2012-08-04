@@ -21,22 +21,20 @@ package sk.boinc.nativeboinc.installer;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 
 import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
-import android.util.Xml;
 
-import edu.berkeley.boinc.lite.BaseParser;
+import edu.berkeley.boinc.lite.BoincBaseParser;
+import edu.berkeley.boinc.lite.BoincParserException;
 
 /**
  * @author mat
  *
  */
-public class ProjectsClientStateParser extends BaseParser {
+public class ProjectsClientStateParser extends BoincBaseParser {
 	private static final String TAG = "ProjectsFromClientRetriever";
 
 	private ProjectDescriptor mProjectDesc = null;
@@ -49,9 +47,10 @@ public class ProjectsClientStateParser extends BaseParser {
 	public static ProjectDescriptor[] parse(InputStream inputStream) {
 		try {
 			ProjectsClientStateParser parser = new ProjectsClientStateParser();
-			Xml.parse(inputStream, Xml.Encoding.UTF_8, parser);
+			InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8");
+			BoincBaseParser.parse(parser, reader);
 			return parser.getProjects();
-		} catch (SAXException e) {
+		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + inputStream);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -62,30 +61,24 @@ public class ProjectsClientStateParser extends BaseParser {
 	}
 	
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName) {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("project")) {
 			mProjectDesc = new ProjectDescriptor();
-		} else {
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
 		}
 	}
 	
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 		if (localName.equalsIgnoreCase("project")) {
 			mProjects.add(mProjectDesc);
 			mProjectDesc = null;
 		} else if (mProjectDesc != null) {
-			trimEnd();
-			
 			if (localName.equalsIgnoreCase("project_name"))
-				mProjectDesc.projectName = mCurrentElement.toString();
+				mProjectDesc.projectName = mCurrentElement;
 			else if (localName.equalsIgnoreCase("master_url"))
-				mProjectDesc.masterUrl = mCurrentElement.toString();
+				mProjectDesc.masterUrl = mCurrentElement;
 		}
-		mElementStarted = false;
 	}
 }

@@ -21,15 +21,11 @@ package edu.berkeley.boinc.lite;
 
 import java.util.ArrayList;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import sk.boinc.nativeboinc.debug.Logging;
 
 import android.util.Log;
-import android.util.Xml;
 
-public class WorkunitsParser extends BaseParser {
+public class WorkunitsParser extends BoincBaseParser {
 	private static final String TAG = "WorkunitsParser";
 
 	private ArrayList<Workunit> mWorkunits = new ArrayList<Workunit>();
@@ -48,10 +44,10 @@ public class WorkunitsParser extends BaseParser {
 	public static ArrayList<Workunit> parse(String rpcResult) {
 		try {
 			WorkunitsParser parser = new WorkunitsParser();
-			Xml.parse(rpcResult, parser);
+			BoincBaseParser.parse(parser, rpcResult);
 			return parser.getWorkunits();
 		}
-		catch (SAXException e) {
+		catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -59,27 +55,16 @@ public class WorkunitsParser extends BaseParser {
 	}
 
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName) {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("workunit")) {
 			mWorkunit = new Workunit();
 		}
-		else {
-			// Another element, hopefully primitive and not constructor
-			// (although unknown constructor does not hurt, because there will be primitive start anyway)
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
-		}
 	}
 
-	// Method characters(char[] ch, int start, int length) is implemented by BaseParser,
-	// filling mCurrentElement (including stripping of leading whitespaces)
-	//@Override
-	//public void characters(char[] ch, int start, int length) throws SAXException { }
-
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 		try {
 			if (mWorkunit != null) {
 				// We are inside <workunit>
@@ -93,27 +78,26 @@ public class WorkunitsParser extends BaseParser {
 				}
 				else {
 					// Not the closing tag - we decode possible inner tags
-					trimEnd();
 					if (localName.equalsIgnoreCase("name")) {
-						mWorkunit.name = mCurrentElement.toString();
+						mWorkunit.name = mCurrentElement;
 					}
 					else if (localName.equalsIgnoreCase("app_name")) {
-						mWorkunit.app_name = mCurrentElement.toString();
+						mWorkunit.app_name = mCurrentElement;
 					}
 					else if (localName.equalsIgnoreCase("version_num")) {
-						mWorkunit.version_num = Integer.parseInt(mCurrentElement.toString());
+						mWorkunit.version_num = Integer.parseInt(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("rsc_fpops_est")) {
-						mWorkunit.rsc_fpops_est = Double.parseDouble(mCurrentElement.toString());
+						mWorkunit.rsc_fpops_est = Double.parseDouble(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("rsc_fpops_bound")) {
-						mWorkunit.rsc_fpops_bound = Double.parseDouble(mCurrentElement.toString());
+						mWorkunit.rsc_fpops_bound = Double.parseDouble(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("rsc_memory_bound")) {
-						mWorkunit.rsc_memory_bound = Double.parseDouble(mCurrentElement.toString());
+						mWorkunit.rsc_memory_bound = Double.parseDouble(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("rsc_disk_bound")) {
-						mWorkunit.rsc_disk_bound = Double.parseDouble(mCurrentElement.toString());
+						mWorkunit.rsc_disk_bound = Double.parseDouble(mCurrentElement);
 					}
 				}
 			}
@@ -121,6 +105,5 @@ public class WorkunitsParser extends BaseParser {
 		catch (NumberFormatException e) {
 			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
 		}
-		mElementStarted = false;
 	}
 }

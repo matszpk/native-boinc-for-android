@@ -29,8 +29,6 @@ import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
 import android.util.Xml;
 
-import edu.berkeley.boinc.lite.BaseParser;
-
 /**
  * @author mat
  *

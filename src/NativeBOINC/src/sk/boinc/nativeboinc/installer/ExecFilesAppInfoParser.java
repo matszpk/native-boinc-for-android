@@ -21,22 +21,20 @@ package sk.boinc.nativeboinc.installer;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 
 import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
-import android.util.Xml;
 
-import edu.berkeley.boinc.lite.BaseParser;
+import edu.berkeley.boinc.lite.BoincBaseParser;
+import edu.berkeley.boinc.lite.BoincParserException;
 
 /**
  * @author mat
  *
  */
-public class ExecFilesAppInfoParser extends BaseParser {
+public class ExecFilesAppInfoParser extends BoincBaseParser {
 
 	private static final String TAG = "ExecFilesAppInfoParser";
 	
@@ -53,9 +51,10 @@ public class ExecFilesAppInfoParser extends BaseParser {
 	public static ArrayList<String> parse(InputStream result) {
 		try {
 			ExecFilesAppInfoParser parser = new ExecFilesAppInfoParser();
-			Xml.parse(result, Xml.Encoding.UTF_8, parser);
+			InputStreamReader reader = new InputStreamReader(result, "UTF-8");
+			BoincBaseParser.parse(parser, reader);
 			return parser.getExecFiles();
-		} catch (SAXException e) {
+		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + result);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -66,21 +65,16 @@ public class ExecFilesAppInfoParser extends BaseParser {
 	}
 	
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName) {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("file_info")) {
 			mInsideFileInfo = true;
-		} else {
-			// Another element, hopefully primitive and not constructor
-			// (although unknown constructor does not hurt, because there will be primitive start anyway)
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
 		}
 	}
 	
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 		if (mInsideFileInfo) {
 			if (localName.equalsIgnoreCase("file_info")) {
 				if (mFilename != null && mIsExecutable) {
@@ -92,9 +86,7 @@ public class ExecFilesAppInfoParser extends BaseParser {
 			} else if (localName.equalsIgnoreCase("executable"))
 				mIsExecutable = true;
 			else if (localName.equalsIgnoreCase("name"))
-				mFilename = mCurrentElement.toString();
+				mFilename = mCurrentElement;
 		}
-		
-		mElementStarted = false;
 	}
 }

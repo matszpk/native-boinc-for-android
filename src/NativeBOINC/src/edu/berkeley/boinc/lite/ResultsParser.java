@@ -21,15 +21,11 @@ package edu.berkeley.boinc.lite;
 
 import java.util.ArrayList;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import sk.boinc.nativeboinc.debug.Logging;
 
 import android.util.Log;
-import android.util.Xml;
 
-public class ResultsParser extends BaseParser {
+public class ResultsParser extends BoincBaseParser {
 	private static final String TAG = "ResultsParser";
 
 	private ArrayList<Result> mResults = new ArrayList<Result>();
@@ -50,9 +46,9 @@ public class ResultsParser extends BaseParser {
 	public static ArrayList<Result> parse(String rpcResult) {
 		try {
 			ResultsParser parser = new ResultsParser();
-			Xml.parse(rpcResult, parser);
+			BoincBaseParser.parse(parser, rpcResult);
 			return parser.getResults();
-		} catch (SAXException e) {
+		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -61,8 +57,8 @@ public class ResultsParser extends BaseParser {
 	}
 
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName) {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("result")) {
 			if (Logging.INFO) {
 				if (mResult != null) {
@@ -75,22 +71,11 @@ public class ResultsParser extends BaseParser {
 		else if (localName.equalsIgnoreCase("active_task")) {
 			mInActiveTask = true;
 		}
-		else {
-			// Another element, hopefully primitive and not constructor
-			// (although unknown constructor does not hurt, because there will be primitive start anyway)
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
-		}
 	}
-
-	// Method characters(char[] ch, int start, int length) is implemented by BaseParser,
-	// filling mCurrentElement (including stripping of leading whitespaces)
-	//@Override
-	//public void characters(char[] ch, int start, int length) throws SAXException { }
-
+ 
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 		try {
 			if (mResult != null) {
 				// We are inside <result>
@@ -105,7 +90,6 @@ public class ResultsParser extends BaseParser {
 				}
 				else {
 					// Not the closing tag - we decode possible inner tags
-					trimEnd();
 					if (mInActiveTask) {
 						// we are in <active_task>
 						if (localName.equalsIgnoreCase("active_task")) {
@@ -114,112 +98,112 @@ public class ResultsParser extends BaseParser {
 							mInActiveTask = false;
 						}
 						else if (localName.equalsIgnoreCase("active_task_state")) {
-							mResult.active_task_state = Integer.parseInt(mCurrentElement.toString());
+							mResult.active_task_state = Integer.parseInt(mCurrentElement);
 						} 
 						else if (localName.equalsIgnoreCase("app_version_num")) {
-							mResult.app_version_num = Integer.parseInt(mCurrentElement.toString());
+							mResult.app_version_num = Integer.parseInt(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("scheduler_state")) {
-							mResult.scheduler_state = Integer.parseInt(mCurrentElement.toString());
+							mResult.scheduler_state = Integer.parseInt(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("checkpoint_cpu_time")) {
-							mResult.checkpoint_cpu_time = Double.parseDouble(mCurrentElement.toString());
+							mResult.checkpoint_cpu_time = Double.parseDouble(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("current_cpu_time")) {
-							mResult.current_cpu_time = Double.parseDouble(mCurrentElement.toString());
+							mResult.current_cpu_time = Double.parseDouble(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("fraction_done")) {
-							mResult.fraction_done = Float.parseFloat(mCurrentElement.toString());
+							mResult.fraction_done = Float.parseFloat(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("elapsed_time")) {
-							mResult.elapsed_time = Double.parseDouble(mCurrentElement.toString());
+							mResult.elapsed_time = Double.parseDouble(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("swap_size")) {
-							mResult.swap_size = Double.parseDouble(mCurrentElement.toString());
+							mResult.swap_size = Double.parseDouble(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("working_set_size_smoothed")) {
-							mResult.working_set_size_smoothed = Double.parseDouble(mCurrentElement.toString());
+							mResult.working_set_size_smoothed = Double.parseDouble(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("estimated_cpu_time_remaining")) {
-							mResult.estimated_cpu_time_remaining = Double.parseDouble(mCurrentElement.toString());
+							mResult.estimated_cpu_time_remaining = Double.parseDouble(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("supports_graphics")) {
-							mResult.supports_graphics = !mCurrentElement.toString().equals("0");
+							mResult.supports_graphics = !mCurrentElement.equals("0");
 						}
 						else if (localName.equalsIgnoreCase("graphic_mode_acked")) {
-							mResult.graphics_mode_acked = Integer.parseInt(mCurrentElement.toString());
+							mResult.graphics_mode_acked = Integer.parseInt(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("too_large")) {
-							mResult.too_large = !mCurrentElement.toString().equals("0");
+							mResult.too_large = !mCurrentElement.equals("0");
 						}
 						else if (localName.equalsIgnoreCase("needs_shmem")) {
-							mResult.needs_shmem = !mCurrentElement.toString().equals("0");
+							mResult.needs_shmem = !mCurrentElement.equals("0");
 						}
 						else if (localName.equalsIgnoreCase("edf_scheduled")) {
-							mResult.edf_scheduled = !mCurrentElement.toString().equals("0");
+							mResult.edf_scheduled = !mCurrentElement.equals("0");
 						}
 						else if (localName.equalsIgnoreCase("pid")) {
-							mResult.pid = Integer.parseInt(mCurrentElement.toString());
+							mResult.pid = Integer.parseInt(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("slot")) {
-							mResult.slot = Integer.parseInt(mCurrentElement.toString());
+							mResult.slot = Integer.parseInt(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("graphics_exec_path")) {
-							mResult.graphics_exec_path = mCurrentElement.toString();
+							mResult.graphics_exec_path = mCurrentElement;
 						}
 						else if (localName.equalsIgnoreCase("slot_path")) {
-							mResult.slot_path = mCurrentElement.toString();
+							mResult.slot_path = mCurrentElement;
 						}
 					}
 					else {
 					// Not in <active_task>
 						if (localName.equalsIgnoreCase("name")) {
-							mResult.name = mCurrentElement.toString();
+							mResult.name = mCurrentElement;
 						}
 						else if (localName.equalsIgnoreCase("wu_name")) {
-							mResult.wu_name = mCurrentElement.toString();
+							mResult.wu_name = mCurrentElement;
 						}
 						else if (localName.equalsIgnoreCase("project_url")) {
-							mResult.project_url = mCurrentElement.toString();
+							mResult.project_url = mCurrentElement;
 						}
 						else if (localName.equalsIgnoreCase("version_num")) {
-							mResult.version_num = Integer.parseInt(mCurrentElement.toString());
+							mResult.version_num = Integer.parseInt(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("ready_to_report")) {
-							mResult.ready_to_report = !mCurrentElement.toString().equals("0");
+							mResult.ready_to_report = !mCurrentElement.equals("0");
 						}
 						else if (localName.equalsIgnoreCase("got_server_ack")) {
-							mResult.got_server_ack = !mCurrentElement.toString().equals("0");
+							mResult.got_server_ack = !mCurrentElement.equals("0");
 						}
 						else if (localName.equalsIgnoreCase("final_cpu_time")) {
-							mResult.final_cpu_time = Double.parseDouble(mCurrentElement.toString());
+							mResult.final_cpu_time = Double.parseDouble(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("final_elapsed_time")) {
-							mResult.final_elapsed_time = Double.parseDouble(mCurrentElement.toString());
+							mResult.final_elapsed_time = Double.parseDouble(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("state")) {
-							mResult.state = Integer.parseInt(mCurrentElement.toString());
+							mResult.state = Integer.parseInt(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("report_deadline")) {
-							mResult.report_deadline = (long)Double.parseDouble(mCurrentElement.toString());
+							mResult.report_deadline = (long)Double.parseDouble(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("received_time")) {
-							mResult.received_time = (long)Double.parseDouble(mCurrentElement.toString());
+							mResult.received_time = (long)Double.parseDouble(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("estimated_cpu_time_remaining")) {
-							mResult.estimated_cpu_time_remaining = Double.parseDouble(mCurrentElement.toString());
+							mResult.estimated_cpu_time_remaining = Double.parseDouble(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("exit_status")) {
-							mResult.exit_status = Integer.parseInt(mCurrentElement.toString());
+							mResult.exit_status = Integer.parseInt(mCurrentElement);
 						}
 						else if (localName.equalsIgnoreCase("suspended_via_gui")) {
-							mResult.suspended_via_gui = !mCurrentElement.toString().equals("0");
+							mResult.suspended_via_gui = !mCurrentElement.equals("0");
 						}
 						else if (localName.equalsIgnoreCase("project_suspended_via_gui")) {
-							mResult.project_suspended_via_gui = !mCurrentElement.toString().equals("0");
+							mResult.project_suspended_via_gui = !mCurrentElement.equals("0");
 						}
 						else if (localName.equalsIgnoreCase("resources")) {
-							mResult.resources = mCurrentElement.toString();
+							mResult.resources = mCurrentElement;
 						}
 					}
 				}
@@ -227,6 +211,5 @@ public class ResultsParser extends BaseParser {
 		} catch (NumberFormatException e) {
 			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
 		}
-		mElementStarted = false;
 	}
 }

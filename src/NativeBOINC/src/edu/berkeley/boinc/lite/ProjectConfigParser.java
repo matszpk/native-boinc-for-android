@@ -19,18 +19,14 @@
 
 package edu.berkeley.boinc.lite;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
-import android.util.Xml;
 
 /**
  * @author mat
  *
  */
-public class ProjectConfigParser extends BaseParser {
+public class ProjectConfigParser extends BoincBaseParser {
 	private static final String TAG = "ProjectConfigParser";
 	
 	private ProjectConfig mProjectConfig = null;
@@ -42,20 +38,11 @@ public class ProjectConfigParser extends BaseParser {
 	
 	public static ProjectConfig parse(String rpcResult) {
 		try {
-			String outResult;
-			int xmlHeaderStart = rpcResult.indexOf("<?xml");
-			if (xmlHeaderStart!=-1) { // remove xml header inside body
-				int xmlHeaderEnd = rpcResult.indexOf("?>");
-				outResult = rpcResult.substring(0, xmlHeaderStart);
-				outResult += rpcResult.substring(xmlHeaderEnd+2);
-			} else
-				outResult = rpcResult;
-				
 			ProjectConfigParser parser = new ProjectConfigParser();
-			Xml.parse(outResult, parser);
+			BoincBaseParser.parse(parser, rpcResult);
 			return parser.getProjectConfig();
 		}
-		catch (SAXException e) {
+		catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -63,8 +50,8 @@ public class ProjectConfigParser extends BaseParser {
 	}
 	
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName) {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("project_config")) {
 			if (Logging.INFO) {
 				if (mProjectConfig != null) {
@@ -75,17 +62,12 @@ public class ProjectConfigParser extends BaseParser {
 			mProjectConfig = new ProjectConfig();
 		} else if (localName.equalsIgnoreCase("platforms")) {
 			mInsidePlatforms = true;
-		} else {
-			// Another element, hopefully primitive and not constructor
-			// (although unknown constructor does not hurt, because there will be primitive start anyway)
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
 		}
 	}
 	
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 		try {
 			if (mProjectConfig != null) {
 				if (localName.equalsIgnoreCase("project_config")) {
@@ -95,43 +77,41 @@ public class ProjectConfigParser extends BaseParser {
 				}
 				else {
 					// Not the closing tag - we decode possible inner tags
-					trimEnd();
 					if (localName.equalsIgnoreCase("error_num")) {
-						mProjectConfig.error_num = Integer.parseInt(mCurrentElement.toString());
+						mProjectConfig.error_num = Integer.parseInt(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("error_msg")) {
-						mProjectConfig.error_msg = mCurrentElement.toString();
+						mProjectConfig.error_msg = mCurrentElement;
 					} else if (localName.equalsIgnoreCase("name")) {
-						mProjectConfig.name = mCurrentElement.toString();
+						mProjectConfig.name = mCurrentElement;
 					} else if (localName.equalsIgnoreCase("platform_name") && mInsidePlatforms) {
-						mProjectConfig.platforms.add(mCurrentElement.toString());
+						mProjectConfig.platforms.add(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("master_url")) {
-						mProjectConfig.master_url = mCurrentElement.toString();
+						mProjectConfig.master_url = mCurrentElement;
 					} else if (localName.equalsIgnoreCase("local_revision")) {
-						mProjectConfig.local_revision = Integer.parseInt(mCurrentElement.toString());
+						mProjectConfig.local_revision = Integer.parseInt(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("min_passwd_length")) {
-						mProjectConfig.min_passwd_length = Integer.parseInt(mCurrentElement.toString());
+						mProjectConfig.min_passwd_length = Integer.parseInt(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("account_manager")) {
-						mProjectConfig.account_manager = Integer.parseInt(mCurrentElement.toString())!=0;
+						mProjectConfig.account_manager = Integer.parseInt(mCurrentElement)!=0;
 					} else if (localName.equalsIgnoreCase("use_username")) {
-						mProjectConfig.use_username = Integer.parseInt(mCurrentElement.toString())!=0;
+						mProjectConfig.use_username = Integer.parseInt(mCurrentElement)!=0;
 					} else if (localName.equalsIgnoreCase("account_creation_disabled")) {
 						mProjectConfig.account_creation_disabled = true;
 					} else if (localName.equalsIgnoreCase("client_account_creation_disabled")) {
 						mProjectConfig.client_account_creation_disabled = true;
 					} else if (localName.equalsIgnoreCase("sched_stopped")) {
-						mProjectConfig.sched_stopped = Integer.parseInt(mCurrentElement.toString())!=0;
+						mProjectConfig.sched_stopped = Integer.parseInt(mCurrentElement)!=0;
 					} else if (localName.equalsIgnoreCase("web_stopped")) {
-						mProjectConfig.web_stopped = Integer.parseInt(mCurrentElement.toString())!=0;
+						mProjectConfig.web_stopped = Integer.parseInt(mCurrentElement)!=0;
 					} else if (localName.equalsIgnoreCase("min_client_version")) {
-						mProjectConfig.min_client_version = Integer.parseInt(mCurrentElement.toString());
+						mProjectConfig.min_client_version = Integer.parseInt(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("terms_of_use")) {
-						mProjectConfig.terms_of_use = mCurrentElement.toString();
+						mProjectConfig.terms_of_use = mCurrentElement;
 					}
 				}
 			}
 		} catch (NumberFormatException e) {
 			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
 		}
-		mElementStarted = false;
 	}
 }

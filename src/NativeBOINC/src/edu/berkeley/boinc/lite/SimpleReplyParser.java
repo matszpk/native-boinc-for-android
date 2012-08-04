@@ -19,15 +19,11 @@
 
 package edu.berkeley.boinc.lite;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import sk.boinc.nativeboinc.debug.Logging;
 
 import android.util.Log;
-import android.util.Xml;
 
-public class SimpleReplyParser extends BaseParser {
+public class SimpleReplyParser extends BoincBaseParser {
 	private static final String TAG = "SimpleReplyParser";
 
 	private boolean mParsed = false;
@@ -50,10 +46,10 @@ public class SimpleReplyParser extends BaseParser {
 	public static SimpleReplyParser parse(String reply) {
 		try {
 			SimpleReplyParser parser = new SimpleReplyParser();
-			Xml.parse(reply, parser);
+			BoincBaseParser.parse(parser, reply);
 			return parser;
 		}
-		catch (SAXException e) {
+		catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + reply);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -61,18 +57,16 @@ public class SimpleReplyParser extends BaseParser {
 	}
 
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName) {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("boinc_gui_rpc_reply")) {
 			mInReply = true;
-		} else {
-			mElementStarted = true;
 		}
 	}
 
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 
 		if (localName.equalsIgnoreCase("boinc_gui_rpc_reply")) {
 			mInReply = false;
@@ -85,10 +79,8 @@ public class SimpleReplyParser extends BaseParser {
 				mSuccess = false;
 				mParsed = true;
 			} else if (localName.equalsIgnoreCase("error")) {
-				trimEnd();
-				errorMessage = mCurrentElement.toString(); 
+				errorMessage = mCurrentElement; 
 			}
 		}
-		mElementStarted = false;
 	}
 }

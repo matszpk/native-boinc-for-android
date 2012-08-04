@@ -19,14 +19,10 @@
 
 package edu.berkeley.boinc.lite;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
-import android.util.Xml;
 
-public class CcStateParser extends BaseParser {
+public class CcStateParser extends BoincBaseParser {
 	private static final String TAG = "CcStateParser";
 
 	private CcState mCcState = new CcState();
@@ -56,10 +52,10 @@ public class CcStateParser extends BaseParser {
 	public static CcState parse(String rpcResult) {
 		try {
 			CcStateParser parser = new CcStateParser();
-			Xml.parse(rpcResult, parser);
+			BoincBaseParser.parse(parser, rpcResult);
 			return parser.getCcState();
 		}
-		catch (SAXException e) {
+		catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -80,100 +76,90 @@ public class CcStateParser extends BaseParser {
 	}
 
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName) {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("host_info")) {
 			// Just stepped inside <host_info>
 			mInHostInfo = true;
 		}
 		if (mInHostInfo) {
-			mHostInfoParser.startElement(uri, localName, qName, attributes);
+			mHostInfoParser.startElement(localName);
 		}
 		if (localName.equalsIgnoreCase("project")) {
 			// Just stepped inside <project>
 			mInProject = true;
 		}
 		if (mInProject) {
-			mProjectsParser.startElement(uri, localName, qName, attributes);
+			mProjectsParser.startElement(localName);
 		}
 		if (localName.equalsIgnoreCase("app")) {
 			// Just stepped inside <app>
 			mInApp = true;
 		}
 		if (mInApp) {
-			mAppsParser.startElement(uri, localName, qName, attributes);
+			mAppsParser.startElement(localName);
 		}
 		if (localName.equalsIgnoreCase("app_version")) {
 			// Just stepped inside <app_version>
 			mInAppVersion = true;
 		}
 		if (mInAppVersion) {
-			mAppVersionsParser.startElement(uri, localName, qName, attributes);
+			mAppVersionsParser.startElement(localName);
 		}
 		if (localName.equalsIgnoreCase("workunit")) {
 			// Just stepped inside <workunit>
 			mInWorkunit = true;
 		}
 		if (mInWorkunit) {
-			mWorkunitsParser.startElement(uri, localName, qName, attributes);
+			mWorkunitsParser.startElement(localName);
 		}
 		if (localName.equalsIgnoreCase("result")) {
 			// Just stepped inside <result>
 			mInResult = true;
 		}
 		if (mInResult) {
-			mResultsParser.startElement(uri, localName, qName, attributes);
-		}
-		if ( localName.equalsIgnoreCase("core_client_major_version") ||
-				localName.equalsIgnoreCase("core_client_minor_version") ||
-				localName.equalsIgnoreCase("core_client_release") ||
-				localName.equalsIgnoreCase("have_ati") ||
-				localName.equalsIgnoreCase("have_cuda")
-				) {
-			// VersionInfo elements
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
+			mResultsParser.startElement(localName);
 		}
 	}
 
 	@Override
-	public void characters(char[] ch, int start, int length) throws SAXException {
-		super.characters(ch, start, length);
+	public void characters(String chars) {
+		super.characters(chars);
 		if (mInHostInfo) {
 			// We are inside <host_info>
-			mHostInfoParser.characters(ch, start, length);
+			mHostInfoParser.characters(chars);
 		}
 		if (mInProject) {
 			// We are inside <project>
-			mProjectsParser.characters(ch, start, length);
+			mProjectsParser.characters(chars);
 		}
 		if (mInApp) {
 			// We are inside <project>
-			mAppsParser.characters(ch, start, length);
+			mAppsParser.characters(chars);
 		}
 		if (mInAppVersion) {
 			// We are inside <project>
-			mAppVersionsParser.characters(ch, start, length);
+			mAppVersionsParser.characters(chars);
 		}
 		if (mInWorkunit) {
 			// We are inside <workunit>
-			mWorkunitsParser.characters(ch, start, length);
+			mWorkunitsParser.characters(chars);
 		}
 		if (mInResult) {
 			// We are inside <result>
-			mResultsParser.characters(ch, start, length);
+			mResultsParser.characters(chars);
 		}
 		// VersionInfo elements are handled in super.characters()
 	}
 
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 		try {
 			if (mInHostInfo) {
 				// We are inside <host_info>
 				// parse it by sub-parser in any case (to parse also closing element)
-				mHostInfoParser.endElement(uri, localName, qName);
+				mHostInfoParser.endElement(localName);
 				if (localName.equalsIgnoreCase("host_info")) {
 					mInHostInfo = false;
 				}
@@ -181,7 +167,7 @@ public class CcStateParser extends BaseParser {
 			if (mInProject) {
 				// We are inside <project>
 				// parse it by sub-parser in any case (must parse also closing element!)
-				mProjectsParser.endElement(uri, localName, qName);
+				mProjectsParser.endElement(localName);
 				if (localName.equalsIgnoreCase("project")) {
 					// Closing tag of <project>
 					mInProject = false;
@@ -190,7 +176,7 @@ public class CcStateParser extends BaseParser {
 			if (mInApp) {
 				// We are inside <app>
 				// parse it by sub-parser in any case (must parse also closing element!)
-				mAppsParser.endElement(uri, localName, qName);
+				mAppsParser.endElement(localName);
 				if (localName.equalsIgnoreCase("app")) {
 					// Closing tag of <app>
 					mInApp = false;
@@ -199,7 +185,7 @@ public class CcStateParser extends BaseParser {
 			if (mInAppVersion) {
 				// We are inside <app_version>
 				// parse it by sub-parser in any case (must parse also closing element!)
-				mAppsParser.endElement(uri, localName, qName);
+				mAppsParser.endElement(localName);
 				if (localName.equalsIgnoreCase("app_version")) {
 					// Closing tag of <app_version>
 					mInAppVersion = false;
@@ -208,7 +194,7 @@ public class CcStateParser extends BaseParser {
 			if (mInWorkunit) {
 				// We are inside <workunit>
 				// parse it by sub-parser in any case (must parse also closing element!)
-				mWorkunitsParser.endElement(uri, localName, qName);
+				mWorkunitsParser.endElement(localName);
 				if (localName.equalsIgnoreCase("workunit")) {
 					// Closing tag of <workunit>
 					mInWorkunit = false;
@@ -217,31 +203,27 @@ public class CcStateParser extends BaseParser {
 			if (mInResult) {
 				// We are inside <result>
 				// parse it by sub-parser in any case (must parse also closing element!)
-				mResultsParser.endElement(uri, localName, qName);
+				mResultsParser.endElement(localName);
 				if (localName.equalsIgnoreCase("result")) {
 					// Closing tag of <result>
 					mInResult = false;
 				}
 			}
-			if (mElementStarted) {
-				trimEnd();
-				// VersionInfo?
-				if (localName.equalsIgnoreCase("core_client_major_version")) {
-					mVersionInfo.major = Integer.parseInt(mCurrentElement.toString());
-				}
-				else if (localName.equalsIgnoreCase("core_client_minor_version")) {
-					mVersionInfo.minor = Integer.parseInt(mCurrentElement.toString());
-				}
-				else if (localName.equalsIgnoreCase("core_client_release")) {
-					mVersionInfo.release = Integer.parseInt(mCurrentElement.toString());
-				}
-				else if (localName.equalsIgnoreCase("have_ati")) {
-					mCcState.have_ati = !mCurrentElement.toString().equals("0");
-				}
-				else if (localName.equalsIgnoreCase("have_cuda")) {
-					mCcState.have_cuda = !mCurrentElement.toString().equals("0");
-				}
-				mElementStarted = false;
+			// VersionInfo?
+			if (localName.equalsIgnoreCase("core_client_major_version")) {
+				mVersionInfo.major = Integer.parseInt(mCurrentElement);
+			}
+			else if (localName.equalsIgnoreCase("core_client_minor_version")) {
+				mVersionInfo.minor = Integer.parseInt(mCurrentElement);
+			}
+			else if (localName.equalsIgnoreCase("core_client_release")) {
+				mVersionInfo.release = Integer.parseInt(mCurrentElement);
+			}
+			else if (localName.equalsIgnoreCase("have_ati")) {
+				mCcState.have_ati = !mCurrentElement.equals("0");
+			}
+			else if (localName.equalsIgnoreCase("have_cuda")) {
+				mCcState.have_cuda = !mCurrentElement.equals("0");
 			}
 		}
 		catch (NumberFormatException e) {

@@ -10,13 +10,14 @@ import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
 import android.util.Xml;
 
-import edu.berkeley.boinc.lite.BaseParser;
+import edu.berkeley.boinc.lite.BoincBaseParser;
+import edu.berkeley.boinc.lite.BoincParserException;
 
 /**
  * @author mat
  *
  */
-public class StringReplyParser extends BaseParser {
+public class StringReplyParser extends BoincBaseParser {
 	private static final String TAG = "StringReplyParser";
 	
 	private String mString = null;
@@ -28,9 +29,9 @@ public class StringReplyParser extends BaseParser {
 	public static String parse(String rpcResult) {
 		try {
 			StringReplyParser parser = new StringReplyParser();
-			Xml.parse(rpcResult, parser);
+			BoincBaseParser.parse(parser, rpcResult);
 			return parser.getString();
-		} catch (SAXException e) {
+		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -38,20 +39,16 @@ public class StringReplyParser extends BaseParser {
 	}
 	
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
-		mElementStarted = true;
-		mCurrentElement.setLength(0);
+	public void startElement(String localName) {
+		super.startElement(localName);
 	}
 	
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 
 		if (localName.equalsIgnoreCase("value")) {
-			trimEnd();
-			mString = mCurrentElement.toString();
+			mString = mCurrentElement;
 		}
-		mElementStarted = false;
 	}
 }

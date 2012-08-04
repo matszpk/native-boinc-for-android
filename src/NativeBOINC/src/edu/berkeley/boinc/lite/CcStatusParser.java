@@ -19,15 +19,10 @@
 
 package edu.berkeley.boinc.lite;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
+import android.util.Log;
 import sk.boinc.nativeboinc.debug.Logging;
 
-import android.util.Log;
-import android.util.Xml;
-
-public class CcStatusParser extends BaseParser {
+public class CcStatusParser extends BoincBaseParser {
 	private static final String TAG = "CcStatusParser";
 
 	private CcStatus mCcStatus;
@@ -40,10 +35,10 @@ public class CcStatusParser extends BaseParser {
 	public static CcStatus parse(String rpcResult) {
 		try {
 			CcStatusParser parser = new CcStatusParser();
-			Xml.parse(rpcResult, parser);
+			BoincBaseParser.parse(parser, rpcResult);
 			return parser.getCcStatus();
 		}
-		catch (SAXException e) {
+		catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -51,8 +46,8 @@ public class CcStatusParser extends BaseParser {
 	}
 
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName) {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("cc_status")) {
 			if (Logging.INFO) { 
 				if (mCcStatus != null) {
@@ -62,22 +57,11 @@ public class CcStatusParser extends BaseParser {
 			}
 			mCcStatus = new CcStatus();
 		}
-		else {
-			// Another element, hopefully primitive and not constructor
-			// (although unknown constructor does not hurt, because there will be primitive start anyway)
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
-		}
 	}
 
-	// Method characters(char[] ch, int start, int length) is implemented by BaseParser,
-	// filling mCurrentElement (including stripping of leading whitespaces)
-	//@Override
-	//public void characters(char[] ch, int start, int length) throws SAXException { }
-
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 		try {
 			if (mCcStatus != null) {
 				// We are inside <cc_status>
@@ -85,38 +69,37 @@ public class CcStatusParser extends BaseParser {
 					// Closing tag of <cc_status> - nothing to do at the moment
 				}
 				else {
-					trimEnd();
 					// Not the closing tag - we decode possible inner tags
 					if (localName.equalsIgnoreCase("task_mode")) {
-						mCcStatus.task_mode = Integer.parseInt(mCurrentElement.toString());
+						mCcStatus.task_mode = Integer.parseInt(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("task_mode_perm")) {
-						mCcStatus.task_mode_perm = Integer.parseInt(mCurrentElement.toString());
+						mCcStatus.task_mode_perm = Integer.parseInt(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("task_mode_delay")) {
-						mCcStatus.task_mode_delay = Double.parseDouble(mCurrentElement.toString());
+						mCcStatus.task_mode_delay = Double.parseDouble(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("task_suspend_reason")) {
-						mCcStatus.task_suspend_reason = Integer.parseInt(mCurrentElement.toString());
+						mCcStatus.task_suspend_reason = Integer.parseInt(mCurrentElement);
 					}
 					if (localName.equalsIgnoreCase("network_mode")) {
-						mCcStatus.network_mode = Integer.parseInt(mCurrentElement.toString());
+						mCcStatus.network_mode = Integer.parseInt(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("network_mode_perm")) {
-						mCcStatus.network_mode_perm = Integer.parseInt(mCurrentElement.toString());
+						mCcStatus.network_mode_perm = Integer.parseInt(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("network_mode_delay")) {
-						mCcStatus.network_mode_delay = Double.parseDouble(mCurrentElement.toString());
+						mCcStatus.network_mode_delay = Double.parseDouble(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("network_suspend_reason")) {
-						mCcStatus.network_suspend_reason = Integer.parseInt(mCurrentElement.toString());
+						mCcStatus.network_suspend_reason = Integer.parseInt(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("network_status")) {
-						mCcStatus.network_status = Integer.parseInt(mCurrentElement.toString());
+						mCcStatus.network_status = Integer.parseInt(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("ams_password_error")) {
 						if (mCurrentElement.length() > 1) {
-							mCcStatus.ams_password_error = (0 != Integer.parseInt(mCurrentElement.toString()));
+							mCcStatus.ams_password_error = (0 != Integer.parseInt(mCurrentElement));
 						}
 						else {
 							mCcStatus.ams_password_error = true;
@@ -124,7 +107,7 @@ public class CcStatusParser extends BaseParser {
 					}
 					else if (localName.equalsIgnoreCase("manager_must_quit")) {
 						if (mCurrentElement.length() > 1) {
-							mCcStatus.manager_must_quit = (0 != Integer.parseInt(mCurrentElement.toString()));
+							mCcStatus.manager_must_quit = (0 != Integer.parseInt(mCurrentElement));
 						}
 						else {
 							mCcStatus.manager_must_quit = true;
@@ -132,7 +115,7 @@ public class CcStatusParser extends BaseParser {
 					}
 					else if (localName.equalsIgnoreCase("disallow_attach")) {
 						if (mCurrentElement.length() > 1) {
-							mCcStatus.disallow_attach = (0 != Integer.parseInt(mCurrentElement.toString()));
+							mCcStatus.disallow_attach = (0 != Integer.parseInt(mCurrentElement));
 						}
 						else {
 							mCcStatus.disallow_attach = true;
@@ -141,7 +124,7 @@ public class CcStatusParser extends BaseParser {
 					else if (localName.equalsIgnoreCase("simple_gui_only")) {
 						if (mCurrentElement.length() > 1) {
 							// handling stupid bug ?? (someone added 's' to integer)
-							String toParse = mCurrentElement.toString();
+							String toParse = mCurrentElement;
 							if (toParse.endsWith("s"))
 								toParse = toParse.substring(0, toParse.length()-1);
 							mCcStatus.simple_gui_only = (0 != Integer.parseInt(toParse));
@@ -156,6 +139,5 @@ public class CcStatusParser extends BaseParser {
 		catch (NumberFormatException e) {
 			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
 		}
-		mElementStarted = false;
 	}
 }

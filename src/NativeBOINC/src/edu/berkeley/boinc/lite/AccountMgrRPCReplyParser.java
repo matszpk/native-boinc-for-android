@@ -19,18 +19,14 @@
 
 package edu.berkeley.boinc.lite;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
-import android.util.Xml;
 
 /**
  * @author mat
  *
  */
-public class AccountMgrRPCReplyParser extends BaseParser {
+public class AccountMgrRPCReplyParser extends BoincBaseParser {
 	private static final String TAG = "AccountMgrRPCReplyParser";
 
 	private AccountMgrRPCReply mPAR;
@@ -42,9 +38,9 @@ public class AccountMgrRPCReplyParser extends BaseParser {
 	public static AccountMgrRPCReply parse(String rpcResult) {
 		try {
 			AccountMgrRPCReplyParser parser = new AccountMgrRPCReplyParser();
-			Xml.parse(rpcResult, parser);
+			BoincBaseParser.parse(parser, rpcResult);
 			return parser.getAccountMgrRPCReply();
-		} catch (SAXException e) {
+		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -52,8 +48,8 @@ public class AccountMgrRPCReplyParser extends BaseParser {
 	}
 	
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName) {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("acct_mgr_rpc_reply")) {
 			if (Logging.INFO) { 
 				if (mPAR != null) {
@@ -63,17 +59,11 @@ public class AccountMgrRPCReplyParser extends BaseParser {
 			}
 			mPAR = new AccountMgrRPCReply();
 		}
-		else {
-			// Another element, hopefully primitive and not constructor
-			// (although unknown constructor does not hurt, because there will be primitive start anyway)
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
-		}
 	}
 	
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 		try {
 			if (mPAR != null) {
 				// we are inside <acct_mgr_rpc_reply>
@@ -82,17 +72,15 @@ public class AccountMgrRPCReplyParser extends BaseParser {
 				}
 				else {
 					// Not the closing tag - we decode possible inner tags
-					trimEnd();
 					if (localName.equalsIgnoreCase("error_num")) {
-						mPAR.error_num = Integer.parseInt(mCurrentElement.toString());
+						mPAR.error_num = Integer.parseInt(mCurrentElement);
 					} else if (localName.equalsIgnoreCase("message")) {
-						mPAR.messages.add(mCurrentElement.toString());
+						mPAR.messages.add(mCurrentElement);
 					}
 				}
 			}
 		} catch (NumberFormatException e) {
 			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
 		}
-		mElementStarted = false;
 	}
 }

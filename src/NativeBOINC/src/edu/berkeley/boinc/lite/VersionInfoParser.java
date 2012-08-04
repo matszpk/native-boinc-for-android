@@ -19,14 +19,10 @@
 
 package edu.berkeley.boinc.lite;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
-import android.util.Xml;
 
-public class VersionInfoParser extends BaseParser {
+public class VersionInfoParser extends BoincBaseParser {
 	private static final String TAG = "VersionInfoParser";
 	private VersionInfo mVersionInfo = null;
 
@@ -42,10 +38,10 @@ public class VersionInfoParser extends BaseParser {
 	public static VersionInfo parse(String rpcResult) {
 		try {
 			VersionInfoParser parser = new VersionInfoParser();
-			Xml.parse(rpcResult, parser);
+			BoincBaseParser.parse(parser, rpcResult);
 			return parser.getVersionInfo();
 		}
-		catch (SAXException e) {
+		catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -53,8 +49,8 @@ public class VersionInfoParser extends BaseParser {
 	}
 
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName) {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("server_version")) {
 			if (Logging.INFO) { 
 				if (mVersionInfo != null) {
@@ -64,22 +60,11 @@ public class VersionInfoParser extends BaseParser {
 			}
 			mVersionInfo = new VersionInfo();
 		}
-		else {
-			// Another element, hopefully primitive and not constructor
-			// (although unknown constructor does not hurt, because there will be primitive start anyway)
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
-		}
 	}
 	
-	// Method characters(char[] ch, int start, int length) is implemented by BaseParser,
-	// filling mCurrentElement (including stripping of leading whitespaces)
-	//@Override
-	//public void characters(char[] ch, int start, int length) throws SAXException { }
-
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 		try {
 			if (mVersionInfo != null) {
 				// we are inside <server_version>
@@ -88,15 +73,14 @@ public class VersionInfoParser extends BaseParser {
 				}
 				else {
 					// Not the closing tag - we decode possible inner tags
-					trimEnd();
 					if (localName.equalsIgnoreCase("major")) {
-						mVersionInfo.major = Integer.parseInt(mCurrentElement.toString());
+						mVersionInfo.major = Integer.parseInt(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("minor")) {
-						mVersionInfo.minor = Integer.parseInt(mCurrentElement.toString());
+						mVersionInfo.minor = Integer.parseInt(mCurrentElement);
 					}
 					else if (localName.equalsIgnoreCase("release")) {
-						mVersionInfo.release = Integer.parseInt(mCurrentElement.toString());
+						mVersionInfo.release = Integer.parseInt(mCurrentElement);
 					}
 				}
 			}
@@ -104,6 +88,5 @@ public class VersionInfoParser extends BaseParser {
 		catch (NumberFormatException e) {
 			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
 		}
-		mElementStarted = false; // to be clean for next one
 	}
 }

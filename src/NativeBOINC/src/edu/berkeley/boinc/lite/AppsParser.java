@@ -21,16 +21,12 @@ package edu.berkeley.boinc.lite;
 
 import java.util.ArrayList;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import sk.boinc.nativeboinc.debug.Logging;
 
 import android.util.Log;
-import android.util.Xml;
 
 
-public class AppsParser extends BaseParser {
+public class AppsParser extends BoincBaseParser {
 	private static final String TAG = "AppsParser";
 
 	private ArrayList<App> mApps = new ArrayList<App>();
@@ -49,10 +45,10 @@ public class AppsParser extends BaseParser {
 	public static ArrayList<App> parse(String rpcResult) {
 		try {
 			AppsParser parser = new AppsParser();
-			Xml.parse(rpcResult, parser);
+			BoincBaseParser.parse(parser, rpcResult);
 			return parser.getApps();
 		}
-		catch (SAXException e) {
+		catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -60,27 +56,16 @@ public class AppsParser extends BaseParser {
 	}
 
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName) {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("app")) {
 			mApp = new App();
 		}
-		else {
-			// Another element, hopefully primitive and not constructor
-			// (although unknown constructor does not hurt, because there will be primitive start anyway)
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
-		}
 	}
 
-	// Method characters(char[] ch, int start, int length) is implemented by BaseParser,
-	// filling mCurrentElement (including stripping of leading whitespaces)
-	//@Override
-	//public void characters(char[] ch, int start, int length) throws SAXException { }
-
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 		if (mApp != null) {
 			// We are inside <app>
 			if (localName.equalsIgnoreCase("app")) {
@@ -93,15 +78,13 @@ public class AppsParser extends BaseParser {
 			}
 			else {
 				// Not the closing tag - we decode possible inner tags
-				trimEnd();
 				if (localName.equalsIgnoreCase("name")) {
-					mApp.name = mCurrentElement.toString();
+					mApp.name = mCurrentElement;
 				}
 				else if (localName.equalsIgnoreCase("user_friendly_name")) {
-					mApp.user_friendly_name = mCurrentElement.toString();
+					mApp.user_friendly_name = mCurrentElement;
 				}
 			}
 		}
-		mElementStarted = false;
 	}
 }

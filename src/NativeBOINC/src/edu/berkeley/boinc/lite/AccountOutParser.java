@@ -19,18 +19,14 @@
 
 package edu.berkeley.boinc.lite;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
-import android.util.Xml;
 
 /**
  * @author mat
  *
  */
-public class AccountOutParser extends BaseParser {
+public class AccountOutParser extends BoincBaseParser {
 	private static final String TAG = "AccountOutParser";
 
 	private AccountOut mAccountOut = null;
@@ -41,19 +37,10 @@ public class AccountOutParser extends BaseParser {
 	
 	public static AccountOut parse(String rpcResult) {
 		try {
-			String outResult;
-			int xmlHeaderStart = rpcResult.indexOf("<?xml");
-			if (xmlHeaderStart!=-1) { // remove xml header inside body
-				int xmlHeaderEnd = rpcResult.indexOf("?>");
-				outResult = rpcResult.substring(0, xmlHeaderStart);
-				outResult += rpcResult.substring(xmlHeaderEnd+2);
-			} else
-				outResult = rpcResult;
-			
 			AccountOutParser parser = new AccountOutParser();
-			Xml.parse(outResult, parser);
+			BoincBaseParser.parse(parser, rpcResult);
 			return parser.getAccountOut();
-		} catch (SAXException e) {
+		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);
 			else if (Logging.INFO) Log.i(TAG, "Malformed XML");
 			return null;
@@ -61,38 +48,31 @@ public class AccountOutParser extends BaseParser {
 	}
 	
 	@Override
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		super.startElement(uri, localName, qName, attributes);
+	public void startElement(String localName) {
+		super.startElement(localName);
 		if (localName.equalsIgnoreCase("error_num") ||
 				localName.equalsIgnoreCase("error_msg") ||
 				localName.equalsIgnoreCase("authenticator")) {
 			if (mAccountOut==null)
 				mAccountOut = new AccountOut();
-		} else {
-			// Another element, hopefully primitive and not constructor
-			// (although unknown constructor does not hurt, because there will be primitive start anyway)
-			mElementStarted = true;
-			mCurrentElement.setLength(0);
 		}
 	}
 	
 	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		super.endElement(uri, localName, qName);
+	public void endElement(String localName) {
+		super.endElement(localName);
 		try {
 			if (mAccountOut != null) {
-				trimEnd();
 				if (localName.equalsIgnoreCase("error_num")) {
-					mAccountOut.error_num = Integer.parseInt(mCurrentElement.toString());
+					mAccountOut.error_num = Integer.parseInt(mCurrentElement);
 				} else if (localName.equalsIgnoreCase("error_msg")) {
-					mAccountOut.error_msg = mCurrentElement.toString();
+					mAccountOut.error_msg = mCurrentElement;
 				} else if (localName.equalsIgnoreCase("authenticator")) {
-					mAccountOut.authenticator = mCurrentElement.toString();
+					mAccountOut.authenticator = mCurrentElement;
 				}
 			}
 		} catch (NumberFormatException e) {
 			if (Logging.INFO) Log.i(TAG, "Exception when decoding " + localName);
 		}
-		mElementStarted = false;
 	}
 }

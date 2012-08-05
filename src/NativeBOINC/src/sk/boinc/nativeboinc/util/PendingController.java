@@ -184,7 +184,7 @@ public class PendingController<Operation> {
 			if (Logging.DEBUG) Log.d(mTag, "Take error "+pendingOp+":"+pendingError);
 			return pendingError;
 		} else { // take from global queue
-			ErrorQueueEntry entry = mPendingErrorQueue.pollFirst();
+			ErrorQueueEntry entry = mPendingErrorQueue.poll();
 			if (entry != null) {
 				OpEntry opEntry = mPendingOutputsMap.get(entry.pendingOp);
 				opEntry.error = null;

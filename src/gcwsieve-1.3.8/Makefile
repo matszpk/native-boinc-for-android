@@ -32,6 +32,7 @@ ASSEMBLER=no
 #ARCH=x86-64-gcc430 # Same as ARCH=x86-64 but allow for bugs in GCC 4.3.0.
 #ARCH=x86-osx       # Intel x86 with Mac OS X
 #ARCH=x86-64-osx    # Intel x86_64 with Mac OS X
+ARCH=armv6-android  # ARMv6/ARMv7 with Android
 
 # To link with the BOINC library, uncomment these three lines:
 #

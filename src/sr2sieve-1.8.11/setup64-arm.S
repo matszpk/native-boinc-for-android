@@ -99,6 +99,9 @@ setup1_mulmod_arm_shifted:
                 ldrd r4,[r8,#16]        // SEQ.first/last
                 add r5,r9,r5,lsl #1
                 add r9,r9,r4,lsl #1
+                
+                cmp r9,r5
+                bhi .Lloopend1_1
 .Lloop1_1:
                 str r4,[r1]
                 ldrh r6,[r9]   // subseq_d[h]

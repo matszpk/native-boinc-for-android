@@ -210,20 +210,22 @@ public class CcStateParser extends BoincBaseParser {
 				}
 			}
 			// VersionInfo?
-			if (localName.equalsIgnoreCase("core_client_major_version")) {
-				mVersionInfo.major = Integer.parseInt(getCurrentElement());
-			}
-			else if (localName.equalsIgnoreCase("core_client_minor_version")) {
-				mVersionInfo.minor = Integer.parseInt(getCurrentElement());
-			}
-			else if (localName.equalsIgnoreCase("core_client_release")) {
-				mVersionInfo.release = Integer.parseInt(getCurrentElement());
-			}
-			else if (localName.equalsIgnoreCase("have_ati")) {
-				mCcState.have_ati = !getCurrentElement().equals("0");
-			}
-			else if (localName.equalsIgnoreCase("have_cuda")) {
-				mCcState.have_cuda = !getCurrentElement().equals("0");
+			if (!(mInHostInfo || mInProject || mInApp || mInAppVersion || mInWorkunit || mInResult)) {
+				if (localName.equalsIgnoreCase("core_client_major_version")) {
+					mVersionInfo.major = Integer.parseInt(getCurrentElement());
+				}
+				else if (localName.equalsIgnoreCase("core_client_minor_version")) {
+					mVersionInfo.minor = Integer.parseInt(getCurrentElement());
+				}
+				else if (localName.equalsIgnoreCase("core_client_release")) {
+					mVersionInfo.release = Integer.parseInt(getCurrentElement());
+				}
+				else if (localName.equalsIgnoreCase("have_ati")) {
+					mCcState.have_ati = !getCurrentElement().equals("0");
+				}
+				else if (localName.equalsIgnoreCase("have_cuda")) {
+					mCcState.have_cuda = !getCurrentElement().equals("0");
+				}
 			}
 		}
 		catch (NumberFormatException e) {

@@ -3,12 +3,8 @@
  */
 package edu.berkeley.boinc.nativeboinc;
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import sk.boinc.nativeboinc.debug.Logging;
 import android.util.Log;
-import android.util.Xml;
 
 import edu.berkeley.boinc.lite.BoincBaseParser;
 import edu.berkeley.boinc.lite.BoincParserException;

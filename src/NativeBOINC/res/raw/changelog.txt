@@ -1,3 +1,6 @@
+Version 0.3.9.9.3 (alpha) (2012-08-05)
+- fixed boinc xml parser (used during parsing gui rpc replies)
+
 Version 0.3.9.9.2 (alpha) (2012-07-21)
 - fixed wake lock acquiring/releasing for main activity
 

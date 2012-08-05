@@ -40,6 +40,11 @@
      3. If not, g <-- ga^(-m) mod n.
 */
 
+/* Info for ARM version:
+ * D64 and BJ64 are shifted by clzp-2 for speed improvements (no shift required
+ * during mulmods computations). hash operations honors this rule.
+ * Unfortunatelly this rule introduces limit p<=2^56
+ */
 
 static uint32_t m;            /* Current number of baby steps */
 static uint32_t M;            /* Current number of giant steps */

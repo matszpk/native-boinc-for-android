@@ -1,0 +1,44 @@
+MULTITHREADING
+==============
+
+As of version 1.7.0 the switch `-t --threads N' can be used to allow one
+instance of the program to use N threads for baby-steps giant-steps stage.
+This feature is experimental, known problems are:
+
+1. Running one multi-threaded instance of the program is LESS productive
+   than running multiple seperate non-threaded instances.
+
+2. The fork() system call is required, but is not supported by the MinGW
+   compiler used to build the Windows executables.
+
+3. CPU-time statistics are no longer supported, all reported times and
+   speeds are based on elapsed time, except the cpu_secs field in the
+   checkpoint file which is in CPU time but will be inaccurate when the -t
+   switch is used.
+
+4. Intermediate progress reports and checkpoints are based on whichever
+   thread has made the least progress, instead of waiting for all threads to
+   synchronise.
+
+5. If one child thread is terminated then the whole program will terminate,
+   instead of redistributing the work over the remaining threads.
+
+6. The exact factors found and the order in which they are reported is no
+   longer determined. This is unavoidable, but means that the factors files
+   produced by two runs of the program might not be identical. To check that
+   two factors files FILE1 and FILE2 have eliminated the same terms, do:
+     cat FILE1 | cut -f3 -d\ | sort | uniq > TMP1
+     cat FILE2 | cut -f3 -d\ | sort | uniq > TMP2
+     cmp TMP1 TMP2
+
+
+THREAD AFFINITY
+===============
+
+To set the CPU affinity for individual threads, use the `-A --affinity N'
+switch once for each thread. For example:
+
+  sr2sieve -t2 -A0 -A2 ...
+
+will start two child threads, one with affinity to CPU 0 and the other with
+affinity to CPU 2.

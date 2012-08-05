@@ -1,0 +1,40 @@
+Use a more accurate estimate for the expected number of factors in a range.
+Take the expected number of duplicates into account.
+
+Calculate SMALL_HASH_THRESHOLD based on number of sequences in the sieve.
+
+Allow reading of compressed input files.
+
+Add a self test before sieving begins.
+
+The value of POWER_RESIDUE_LCM is actually limited to 2^15 because of the
+use of int16_t for the divisor index in setup64(). Use int32_t for divisor
+index instead if POWER_RESIDUE_LCM is too large.
+
+Add the checkpoint-on-demand functionality to the Windows build. This
+requires figuring out how to send the Windows equivalent of a signal.
+
+For x86, check whether cpuid/rdtsc are available before use.
+
+Improve the benchmark routines. Benchmark times don't always accurately
+reflect actual sieving times, especially when other processes are running.
+
+Add multithreading for Windows.
+
+Add CPU-time statistics. This could be done by groping around in /proc on
+Linux, but a better way might be to signal each child process and wait for
+them to send their rusage() results  through a pipe opened for that purpose.
+
+Reorganise and flatten the subsequence congruence tables. Much of the memory
+used is taken up by pointers.
+
+Add `-o --output FILE' switch to write new sieve to FILE.
+
+Add support for ABC format files for use with newer versions of LLR.
+
+Improve the heuristic for choosing the subsequence base exponent Q to take
+into account the size of L2 cache. (or size of L3 cache?)
+
+On 32-bit little-endian machines align bitmaps on an 8-byte boundary and pad
+to a multiple of 8 bytes so that the Legendre symbol cache file can be made
+compatible with 64-bit machines.

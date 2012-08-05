@@ -1,0 +1,8 @@
+HOW TO COMPILE:
+
+run 'make ARCH=armv6-android'.
+
+ATTENTION!!!
+If you want to compile with VFP and NEON extensions please remove SKIP_VFP_SAVE macro
+(Makefile).
+

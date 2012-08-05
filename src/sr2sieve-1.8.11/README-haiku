@@ -1,0 +1,2 @@
+To compile for Haiku follow the instructions in INSTALL but replace "make"
+with the command "make CFLAGS=-fno-pic LDLIBS=".

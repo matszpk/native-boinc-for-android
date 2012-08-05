@@ -1,0 +1,67 @@
+The latest source and some binaries can be found at:
+
+  http://www.geocities.com/g_w_reynolds/sr5sieve/
+
+For discussion check the Sierpinski/Riesel Base 5 forum at
+
+  http://www.mersenneforum.org/
+
+To report bugs, email me (Geoff): g_w_reynolds at yahoo.co.nz.
+
+
+SR5SIEVE
+========
+
+Sr5sieve is a version of srsieve specialised for use with the Sierpinski /
+Riesel Base 5 projects. It expects a project data file 'sr5data.txt' and
+work file 'sr5work.txt' to be in the current directory when started.
+
+Each line of sr5work.txt should consist of the start and end of a sieving
+range, in billions, seperated by a comma, dash, or space. For example, the
+following two lines in sr5work.txt will sieve from 2,000,000,000,000 to
+2,001,000,000,000 and then from 2001,000,000,000 to 2002,000,000,000:
+
+2000,2001
+2001-2002
+
+Invoking sr5sieve without command line arguments will cause it to sieve each
+range in sr5work.txt in order, writing factors to the file factorsNNN.txt,
+where NNN is the start of the current range, and deleting the corresponding
+line in sr5work.txt when a range is finished.
+
+New lines can be added to the end of sr5work.txt without stopping sr5sieve.
+
+If sr5sieve is interrupted and restarted, it will resume sieving the current
+range where it left off.
+
+If a new version of sr5data.txt is downloaded, it is necessary to stop and
+restart sr5sieve before the new data file will take effect.
+
+To save downloading a new copy of sr5data.txt each time a new prime is
+found, the command 'sr5sieve -d <K>' will delete the candidate sequence
+K*5^n+/-1 from the existing sr5data.txt.
+
+To run multiple sr5sieve processes from the same directory, create work
+files sr5work-X.txt, sr5work-Y.txt, etc. and start each process as
+`sr5sieve -u X', sr5sieve -u Y', etc. All processes will use the same
+sr5data.txt and sr5cache.bin input files, but will write output files with
+-X, -Y, etc. appended to the file name base.
+
+To generate a file <K>.txt for prp testing a reserved candidate K*5^n+/-1
+over the range N0 <= n < N1, run:
+ 'sr5sieve -g <K> <N0> <N1>' for NewPGen format (for testing with LLR/PRP)
+ 'sr5sieve -a <K> <N0> <N1>' for ABC format (for testing with Phrot).
+
+To generate a Prime95 worktodo.ini file for P-1 factoring the candidate
+K*5^n+/-1 over the range N0 <= n < N1, first run `sr5sieve -g <K> <N0> <N1>'
+as above to generate <K>.txt, then run `srfile -p 1 <K>.txt > worktodo.ini'.
+
+To speed up the initialisation step, run `sr5sieve -c' once to create a
+cache file. Running sr5sieve thereafter (without the -c switch) will load
+some initialisation data from the cache instead of computing it from scratch.
+
+If no command line arguments are given but `sr5sieve-command-line.txt'
+exists in the current directory, then the command line will be as if the
+first line of this file had been used to invoke sr5sieve. This may be useful
+on some GUI machines where the command shell and batch files have been
+disabled for security reasons.

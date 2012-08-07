@@ -309,11 +309,33 @@ int main(int argc, char** argv)
 		int status;
 		if (t.poll(status))
 		{
-			int child_ret_val = WEXITSTATUS(status);
-			if (child_ret_val)
+			if (WIFEXITED(status))
 			{
-				std::cerr << "app error: " <<  status << std::endl;
-				boinc_finish(status);
+				int child_ret_val = WEXITSTATUS(status);
+				if (child_ret_val)
+				{
+					std::cerr << "app error: " <<  status << std::endl;
+					boinc_finish(status);
+				}
+			}
+			else if (WIFSIGNALED(status))
+			{
+				int signalid = WTERMSIG(status)&0xff;
+				if (signalid == SIGKILL || signalid == SIGSEGV ||
+					signalid == SIGBUS || signalid == SIGILL ||
+					signalid == SIGFPE || signalid == SIGABRT ||
+					signalid == SIGSYS || signalid == SIGXCPU ||
+					signalid == SIGSTKFLT)
+				{
+					std::cerr << "app error: " <<  status << std::endl;
+					boinc_finish(status);
+				}
+			}
+			// check if checkpoint.txt exists
+			if (access("checkpoint.txt",R_OK)==0)
+			{	// if exists (error)
+				std::cerr << "app error: 1000" << std::endl;
+				boinc_finish(1000);
 			}
 			break;
 		}

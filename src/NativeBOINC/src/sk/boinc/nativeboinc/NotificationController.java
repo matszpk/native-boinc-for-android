@@ -77,6 +77,7 @@ public class NotificationController {
 	private Notification mClientEventNotification = null;
 	
 	private Notification mNewsMessageNotification = null;
+	private Notification mNewBinariesNotification = null;
 	
 	public NotificationController(Context appContext) {
 		mAppContext = appContext;
@@ -549,15 +550,53 @@ public class NotificationController {
 		mNotificationManager.cancel(NotificationId.BOINC_CLIENT_EVENT);
 	}
 	
-	/*
+	/**
 	 * handling News notifications 
 	 */
-	public Notification getNewsMessageNotification(NewsMessage newsMessages) {
-		return null;
+	public void notifyNewsMessages(NewsMessage newsMessage) {
+		Intent intent = new Intent(mAppContext, NewsActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent,
+				PendingIntent.FLAG_UPDATE_CURRENT);
+		
+		String newsText = mAppContext.getString(R.string.newsNotifyText);
+		
+		if (mNewsMessageNotification != null)
+			mNewsMessageNotification.when = System.currentTimeMillis();
+		else
+			mNewsMessageNotification = new Notification(R.drawable.nativeboinc_alpha,
+				newsText, System.currentTimeMillis());
+		
+		mNewsMessageNotification.contentIntent = pendingIntent;
+		mNewsMessageNotification.tickerText = newsText;
+		mNewsMessageNotification.setLatestEventInfo(mAppContext, newsText, newsMessage.getTitle(),
+				pendingIntent);
+		
+		mNotificationManager.notify(NotificationId.NATIVE_BOINC_NEWS, mNewsMessageNotification);
 	}
 	
-	public void notifyNewsMessages(ArrayList<NewsMessage> newsMessages) {
+	/**
+	 * handling auto updates notifications
+	 */
+	public void notifyNewBinaries() {
+		Intent intent = new Intent(mAppContext, UpdateActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent,
+				PendingIntent.FLAG_UPDATE_CURRENT);
 		
+		String notifyText = mAppContext.getString(R.string.newBinariesAvailable);
+		
+		if (mNewBinariesNotification != null)
+			mNewBinariesNotification.when = System.currentTimeMillis();
+		else
+			mNewBinariesNotification = new Notification(R.drawable.nativeboinc_alpha, notifyText,
+					System.currentTimeMillis());
+		
+		mNewBinariesNotification.contentIntent = pendingIntent;
+		
+		mNewBinariesNotification.tickerText = notifyText;
+		mNewBinariesNotification.setLatestEventInfo(mAppContext, notifyText, notifyText, pendingIntent);
+		mNotificationManager.notify(NotificationId.NATIVE_NEW_BINARIES, mNewBinariesNotification);
 	}
 	
 	/**

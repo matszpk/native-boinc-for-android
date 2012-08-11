@@ -21,7 +21,6 @@ package sk.boinc.nativeboinc.installer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -194,10 +193,13 @@ public class InstalledDistribManager {
 	}
 	
 	public synchronized boolean save() {
+		if (Logging.DEBUG) Log.d(TAG, "Saving installed binaries list");
+		
 		OutputStreamWriter writer = null;
 		StringBuilder sB = new StringBuilder();
 		try {
-			writer = new FileWriter(mContext.getFileStreamPath("installed_distribs.xml"));
+			writer = new OutputStreamWriter(mContext.openFileOutput("installed_distribs.xml",
+					Context.MODE_PRIVATE), "UTF-8");
 			
 			writer.write("<distribs>\n");
 			
@@ -242,7 +244,9 @@ public class InstalledDistribManager {
 		
 		sB.setLength(0);
 		try {
-			writer = new FileWriter(mContext.getFileStreamPath("installed_client.xml"));
+			writer = new OutputStreamWriter(mContext.openFileOutput("installed_client.xml",
+					Context.MODE_PRIVATE), "UTF-8");
+			
 			sB.append("<client>\n  <version>");
 			sB.append(mInstalledClient.version);
 			sB.append("</version>\n  <description><![CDATA[");

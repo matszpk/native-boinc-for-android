@@ -25,6 +25,7 @@ import sk.boinc.nativeboinc.installer.InstallerProgressListener;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.nativeclient.MonitorListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
+import sk.boinc.nativeboinc.util.ScreenOrientationHandler;
 import sk.boinc.nativeboinc.util.StandardDialogs;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -49,6 +50,8 @@ public class InstalledBinariesActivity extends ListActivity implements Installer
 	public int getInstallerChannelId() {
 		return InstallerService.DEFAULT_CHANNEL_ID;
 	}
+	
+	private ScreenOrientationHandler mScreenOrientation;
 	
 	private InstalledBinary[] mInstalledBinaries = null;
 		
@@ -124,6 +127,8 @@ public class InstalledBinariesActivity extends ListActivity implements Installer
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		mScreenOrientation = new ScreenOrientationHandler(this);
+		
 		bindInstallerService();
 		bindRunnerService();
 		
@@ -141,7 +146,14 @@ public class InstalledBinariesActivity extends ListActivity implements Installer
 	}
 	
 	@Override
+	protected void onResume() {
+		super.onResume();
+		mScreenOrientation.setOrientation();
+	}
+	
+	@Override
 	protected void onDestroy() {
+		mScreenOrientation = null;
 		unbindInstallerService();
 		unbindRunnerService();
 		super.onDestroy();

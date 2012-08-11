@@ -710,6 +710,13 @@
 		&lt;b>Disk free:&lt;/b> %9$s&lt;br />
 	</string>
 
+	<!-- news, news -->
+	<string name="newsNotifyText">News was receveived now!</string>
+	<string name="newsMessage">Message</string>
+	<string name="noNewsAvailable">No news available</string>
+	
+	<string name="newBinariesAvailable">New binaries available!</string>
+	
 	<!-- install sources -->
 	<string name="PGPKey">CAD10E7D</string>
 	<string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>

@@ -125,6 +125,7 @@ Na Teraz:
 / * dodaj menu przy długim kliku w puste miejsce w aktywnościach z listy i multiselect
 
   * usuń wyświetlanie komuniktaów o błędach gdy klient wyłączany jest z mainactivity.
+  * sprawdź reakcję ściągania binariów i plików gdy się rozłączy sieć.
 
 następne wersje:
 * dodać obsługę screensavera.

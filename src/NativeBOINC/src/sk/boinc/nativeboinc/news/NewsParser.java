@@ -20,9 +20,7 @@ package sk.boinc.nativeboinc.news;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import org.xml.sax.Attributes;
@@ -47,8 +45,6 @@ public class NewsParser extends BaseParser {
 	public ArrayList<NewsMessage> getNewsMessages() {
 		return mNewsMessages;
 	}
-	
-	private static final DateFormat sDateFormat = new SimpleDateFormat("YYYY-MM-DD HH:mmZ");
 	
 	public static ArrayList<NewsMessage> parse(InputStream result) {
 		try {
@@ -98,7 +94,7 @@ public class NewsParser extends BaseParser {
 						mMessage.setTitle(mCurrentElement.toString());
 					} else if (localName.equalsIgnoreCase("time")) {
 						/* TODO: handle timezones */
-						mMessage.setTimestamp(sDateFormat.parse(mCurrentElement.toString()).getTime());
+						mMessage.setTimestamp(NewsUtil.sDateFormat.parse(mCurrentElement.toString()).getTime());
 					} else if (localName.equalsIgnoreCase("content")) {
 						mMessage.setContent(mCurrentElement.toString());
 					}

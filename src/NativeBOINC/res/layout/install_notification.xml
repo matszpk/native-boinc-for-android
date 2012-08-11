@@ -7,9 +7,10 @@
     android:padding="10dp">
     <TextView android:id="@+id/operationDesc"
     	android:textStyle="bold"
+    	android:textColor="@android:color/black"
     	android:layout_width="wrap_content"	
     	android:layout_height="wrap_content"
-    	android:text="Operation" />
+    	android:maxLines="1" />
    	<ProgressBar android:id="@+id/operationProgress"
     	android:progress="0"
     	android:indeterminate="false"

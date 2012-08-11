@@ -43,7 +43,7 @@ public class ClientEventParser extends BoincBaseParser {
 	public static ClientEvent parse(String rpcResult) {
 		try {
 			ClientEventParser parser = new ClientEventParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, false);
 			return parser.getClientEvent();
 		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);

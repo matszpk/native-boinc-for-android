@@ -46,7 +46,7 @@ public class ResultsParser extends BoincBaseParser {
 	public static ArrayList<Result> parse(String rpcResult) {
 		try {
 			ResultsParser parser = new ResultsParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getResults();
 		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);

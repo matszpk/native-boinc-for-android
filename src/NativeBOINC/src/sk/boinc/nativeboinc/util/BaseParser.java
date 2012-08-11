@@ -17,7 +17,7 @@
  * 
  */
 
-package sk.boinc.nativeboinc.installer;
+package sk.boinc.nativeboinc.util;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;

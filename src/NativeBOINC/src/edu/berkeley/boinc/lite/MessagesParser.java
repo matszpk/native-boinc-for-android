@@ -35,7 +35,7 @@ public class MessagesParser extends BoincBaseParser {
 	public static ArrayList<Message> parse(String rpcResult) {
 		try {
 			MessagesParser parser = new MessagesParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getMessages();
 		}
 		catch (BoincParserException e) {

@@ -370,6 +370,9 @@ public class RpcClient {
 				break;
 			}
 		} while (true);
+		
+		if (mResult.length() == 0) // if nothing received, trigger IO error
+			throw new IOException("Nothing received");
 
 		if (Debugging.PERFORMANCE) {
 			float duration = (System.nanoTime() - readStart)/1000000000.0F;

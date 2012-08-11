@@ -43,7 +43,7 @@ public class GlobalPreferencesParser extends BoincBaseParser {
 	public static GlobalPreferences parse(String rpcResult) {
 		try {
 			GlobalPreferencesParser parser = new GlobalPreferencesParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getGlobalPreferences();
 		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);

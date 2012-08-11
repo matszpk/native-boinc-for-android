@@ -26,6 +26,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.util.BaseParser;
 import android.util.Log;
 import android.util.Xml;
 

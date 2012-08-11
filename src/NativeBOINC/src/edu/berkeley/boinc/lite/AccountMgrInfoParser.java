@@ -38,7 +38,7 @@ public class AccountMgrInfoParser extends BoincBaseParser {
 	public static AccountMgrInfo parse(String rpcResult) {
 		try {
 			AccountMgrInfoParser parser = new AccountMgrInfoParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getAccountMgrInfo();
 		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);

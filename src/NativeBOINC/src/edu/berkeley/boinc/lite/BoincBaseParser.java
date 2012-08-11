@@ -33,6 +33,9 @@ public class BoincBaseParser implements BoincContentHandler {
 
 	protected boolean mTrimCharacters = true; // default is trimming
 	
+	private boolean mFirstTag = true;
+	private boolean mHaveBoincReplyTag = false;
+	
 	private static final class TagElem {
 		public String name;
 		public int charStartPos;
@@ -84,10 +87,10 @@ public class BoincBaseParser implements BoincContentHandler {
 		}
 	}
 	
-	public final static void parse(BoincBaseParser parser, String istr)
+	public final static void parse(BoincBaseParser parser, String istr, boolean checkBoincReplyTag)
 			throws BoincParserException {
 		StringReader reader = new StringReader(istr);
-		parse(parser, reader);
+		parse(parser, reader, checkBoincReplyTag);
 	}
 	
 	public final static String rtrim(String s) {
@@ -98,8 +101,11 @@ public class BoincBaseParser implements BoincContentHandler {
 		return s.substring(0, pos+1);
 	}
 	
-	public final static void parse(BoincBaseParser parser, Reader ir)
+	public final static void parse(BoincBaseParser parser, Reader ir, boolean checkBoincReplyTag)
 			throws BoincParserException {
+		
+		parser.mHaveBoincReplyTag = false;
+		parser.mFirstTag = true;
 		
 		LineCharBuferrer lnReader = new LineCharBuferrer(ir);
 		try {
@@ -239,6 +245,10 @@ public class BoincBaseParser implements BoincContentHandler {
 				throw new BoincParserException(lnReader.getLineNumber()+1,
 						"Unexpected end of document");
 			parser.endDocument();
+			
+			if (checkBoincReplyTag && !parser.mHaveBoincReplyTag)
+				throw new BoincParserException(lnReader.getLineNumber()+1,
+						"Reply dont have <boinc_gui_rpc_reply> tag.");
 		} catch(IOException ex) {
 			throw new BoincParserException(ex);
 		} finally {
@@ -272,7 +282,11 @@ public class BoincBaseParser implements BoincContentHandler {
 
 	@Override
 	public void startElement(String qName) {
-	
+		if (mFirstTag) {
+			if (qName.equals("boinc_gui_rpc_reply"))
+				mHaveBoincReplyTag = true;
+			mFirstTag = false;
+		}
 	}
 
 	@Override

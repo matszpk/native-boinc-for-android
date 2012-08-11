@@ -46,7 +46,7 @@ public class SimpleReplyParser extends BoincBaseParser {
 	public static SimpleReplyParser parse(String reply) {
 		try {
 			SimpleReplyParser parser = new SimpleReplyParser();
-			BoincBaseParser.parse(parser, reply);
+			BoincBaseParser.parse(parser, reply, true);
 			return parser;
 		}
 		catch (BoincParserException e) {

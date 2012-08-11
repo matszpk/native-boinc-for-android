@@ -44,7 +44,7 @@ public class AppVersionsParser extends BoincBaseParser {
 	public static ArrayList<AppVersion> parse(String rpcResult) {
 		try {
 			AppVersionsParser parser = new AppVersionsParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getAppVersions();
 		}
 		catch (BoincParserException e) {

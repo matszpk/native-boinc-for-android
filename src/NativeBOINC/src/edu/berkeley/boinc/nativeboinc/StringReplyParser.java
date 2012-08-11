@@ -25,7 +25,7 @@ public class StringReplyParser extends BoincBaseParser {
 	public static String parse(String rpcResult) {
 		try {
 			StringReplyParser parser = new StringReplyParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getString();
 		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);

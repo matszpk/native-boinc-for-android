@@ -52,7 +52,7 @@ public class ExecFilesAppInfoParser extends BoincBaseParser {
 		try {
 			ExecFilesAppInfoParser parser = new ExecFilesAppInfoParser();
 			InputStreamReader reader = new InputStreamReader(result, "UTF-8");
-			BoincBaseParser.parse(parser, reader);
+			BoincBaseParser.parse(parser, reader, false);
 			return parser.getExecFiles();
 		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + result);

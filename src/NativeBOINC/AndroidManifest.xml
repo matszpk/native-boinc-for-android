@@ -40,6 +40,12 @@
 		<service android:name=".nativeclient.NativeBoincService"
 				android:description="@string/nboinc_service_desc" />
 		
+		<receiver android:name=".news.NewsReceiver" android:label="@string/newsHandlerDesc">
+		    <intent-filter>
+		        <action android:name="sk.boinc.nativeboinc.news.UPDATE_NEWS"/>
+		    </intent-filter>
+		</receiver>
+		
 		<receiver android:name=".receivers.AutostartAtBootReceiver"
 		    android:label="@string/autostartReceiver">
 		    <intent-filter>

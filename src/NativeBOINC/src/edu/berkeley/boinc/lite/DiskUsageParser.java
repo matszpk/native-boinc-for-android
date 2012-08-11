@@ -41,7 +41,7 @@ public class DiskUsageParser extends BoincBaseParser {
 	public static boolean parse(String rpcResult, ArrayList<Project> projects) {
 		try {
 			DiskUsageParser parser = new DiskUsageParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			
 			parser.setUpDiskUsage(projects);
 			return true;

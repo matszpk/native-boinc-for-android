@@ -45,7 +45,7 @@ public class TransfersParser extends BoincBaseParser {
 	public static ArrayList<Transfer> parse(String rpcResult) {
 		try {
 			TransfersParser parser = new TransfersParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getTransfers();
 		}
 		catch (BoincParserException e) {

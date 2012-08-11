@@ -38,7 +38,7 @@ public class AccountOutParser extends BoincBaseParser {
 	public static AccountOut parse(String rpcResult) {
 		try {
 			AccountOutParser parser = new AccountOutParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getAccountOut();
 		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);

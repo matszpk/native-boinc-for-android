@@ -48,7 +48,7 @@ public class ProjectsClientStateParser extends BoincBaseParser {
 		try {
 			ProjectsClientStateParser parser = new ProjectsClientStateParser();
 			InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8");
-			BoincBaseParser.parse(parser, reader);
+			BoincBaseParser.parse(parser, reader, false);
 			return parser.getProjects();
 		} catch (BoincParserException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + inputStream);

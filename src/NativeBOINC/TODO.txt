@@ -9,7 +9,7 @@ Na Teraz:
 / * dodać opcję ustawiania dni w Local preferences
 / * przetestować Notices tab
 / * przetestować Transfers tab
-  * przetestować instalacje (także podczas działania) (na teraz!)
+/ * przetestować instalacje (także podczas działania) (na teraz!)
 / * poprawić refresh auto refresh (po resume)
   * przetestować obsługę zmiany orientacji
 / * poprawić obsługę ponownego łączenia po restarcie (np.: po zmianie w native client)
@@ -32,6 +32,7 @@ Na Teraz:
 / * popraw obslugę połaczen, po nacisnieciu home, gdy user był na dalszej aktywności (po głównej)
     (obsługe pola project_name) 
 / * popraw obsługę ProjectsFromClientRetriever i metod uzywających jej.
+  * dodac powiadamianie o nowych wersjach i komunikatach ze strony autora.
   
 ---------------------------------------------------------------
 

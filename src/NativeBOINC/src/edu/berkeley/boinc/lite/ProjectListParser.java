@@ -42,7 +42,7 @@ public class ProjectListParser extends BoincBaseParser {
 	public static ArrayList<ProjectListEntry> parse(String rpcResult) {
 		try {
 			ProjectListParser parser = new ProjectListParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getProjectList();
 		}
 		catch (BoincParserException e) {

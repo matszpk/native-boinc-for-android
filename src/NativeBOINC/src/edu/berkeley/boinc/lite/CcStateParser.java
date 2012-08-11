@@ -52,7 +52,7 @@ public class CcStateParser extends BoincBaseParser {
 	public static CcState parse(String rpcResult) {
 		try {
 			CcStateParser parser = new CcStateParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getCcState();
 		}
 		catch (BoincParserException e) {

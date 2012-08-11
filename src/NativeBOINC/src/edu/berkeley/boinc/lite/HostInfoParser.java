@@ -42,7 +42,7 @@ public class HostInfoParser extends BoincBaseParser {
 	public static HostInfo parse(String rpcResult) {
 		try {
 			HostInfoParser parser = new HostInfoParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getHostInfo();
 		}
 		catch (BoincParserException e) {

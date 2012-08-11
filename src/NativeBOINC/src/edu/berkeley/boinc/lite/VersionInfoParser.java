@@ -38,7 +38,7 @@ public class VersionInfoParser extends BoincBaseParser {
 	public static VersionInfo parse(String rpcResult) {
 		try {
 			VersionInfoParser parser = new VersionInfoParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getVersionInfo();
 		}
 		catch (BoincParserException e) {

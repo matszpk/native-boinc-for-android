@@ -39,7 +39,7 @@ public class ProjectConfigParser extends BoincBaseParser {
 	public static ProjectConfig parse(String rpcResult) {
 		try {
 			ProjectConfigParser parser = new ProjectConfigParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getProjectConfig();
 		}
 		catch (BoincParserException e) {

@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import sk.boinc.nativeboinc.installer.InstallerService;
+import sk.boinc.nativeboinc.news.NewsMessage;
 import sk.boinc.nativeboinc.util.NotificationId;
 import sk.boinc.nativeboinc.util.ProgressItem;
 import android.app.Notification;
@@ -74,7 +75,9 @@ public class NotificationController {
 			new HashMap<String, ProgressItem>();
 	
 	private Notification mClientEventNotification = null;
-		
+	
+	private Notification mNewsMessageNotification = null;
+	
 	public NotificationController(Context appContext) {
 		mAppContext = appContext;
 		mNotificationManager = (NotificationManager)appContext.getSystemService(
@@ -544,6 +547,17 @@ public class NotificationController {
 	
 	public void removeClientNotification() {
 		mNotificationManager.cancel(NotificationId.BOINC_CLIENT_EVENT);
+	}
+	
+	/*
+	 * handling News notifications 
+	 */
+	public Notification getNewsMessageNotification(NewsMessage newsMessages) {
+		return null;
+	}
+	
+	public void notifyNewsMessages(ArrayList<NewsMessage> newsMessages) {
+		
 	}
 	
 	/**

@@ -38,7 +38,7 @@ public class ProjectAttachReplyParser extends BoincBaseParser {
 	public static ProjectAttachReply parse(String rpcResult) {
 		try {
 			ProjectAttachReplyParser parser = new ProjectAttachReplyParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getProjectAttachReply();
 		} catch (BoincParserException  e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + rpcResult);

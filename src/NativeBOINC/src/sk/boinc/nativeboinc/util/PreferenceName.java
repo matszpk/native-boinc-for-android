@@ -58,4 +58,7 @@ public interface PreferenceName {
 	public static final String NATIVE_DUMP_BOINC_DIR = "nativeDumpBoincDir";
 	public static final String NATIVE_REINSTALL = "nativeReinstall";
 	public static final String NATIVE_SHOW_LOGS = "nativeShowLogs";
+	
+	/* news receiver */
+	public static final String NEWS_LATEST_UPDATE_TIME = "newsLatestUpdateTime";
 }

@@ -44,7 +44,7 @@ public class WorkunitsParser extends BoincBaseParser {
 	public static ArrayList<Workunit> parse(String rpcResult) {
 		try {
 			WorkunitsParser parser = new WorkunitsParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getWorkunits();
 		}
 		catch (BoincParserException e) {

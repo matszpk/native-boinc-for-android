@@ -45,7 +45,7 @@ public class AppsParser extends BoincBaseParser {
 	public static ArrayList<App> parse(String rpcResult) {
 		try {
 			AppsParser parser = new AppsParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getApps();
 		}
 		catch (BoincParserException e) {

@@ -45,7 +45,7 @@ public class ProjectsParser extends BoincBaseParser {
 	public static ArrayList<Project> parse(String rpcResult) {
 		try {
 			ProjectsParser parser = new ProjectsParser();
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getProjects();
 		}
 		catch (BoincParserException e) {

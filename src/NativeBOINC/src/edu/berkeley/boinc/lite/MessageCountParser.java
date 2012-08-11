@@ -40,7 +40,7 @@ public class MessageCountParser extends BoincBaseParser {
 	public static int getSeqno(String reply) {
 		try {
 			MessageCountParser parser = new MessageCountParser();
-			BoincBaseParser.parse(parser, reply);
+			BoincBaseParser.parse(parser, reply, true);
 			return parser.seqno();
 		}
 		catch (BoincParserException e) {

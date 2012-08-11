@@ -24,7 +24,7 @@ public class NoticesReplyParser extends BoincBaseParser {
 		try {
 			NoticesReplyParser parser = new NoticesReplyParser();
 			//parser.parseNotices(rpcResult);
-			BoincBaseParser.parse(parser, rpcResult);
+			BoincBaseParser.parse(parser, rpcResult, true);
 			return parser.getNotices();
 		}
 		catch (BoincParserException e) {

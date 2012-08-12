@@ -24,6 +24,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 import sk.boinc.nativeboinc.BoincManagerApplication;
@@ -60,6 +61,9 @@ public class NewsReceiver extends BroadcastReceiver {
 
 	private static final int INSTALLER_CHANNEL_ID = 2;
 	
+	/* four hours */
+	private static final long NEWS_UPDATE_PERIOD = 4*3600*1000;
+	
 	private static final String TAG = "NewsReceiver";
 	
 	private static final String UPDATE_NEWS_INTENT = "sk.boinc.nativeboinc.news.UPDATE_NEWS";
@@ -70,8 +74,9 @@ public class NewsReceiver extends BroadcastReceiver {
 		Intent intent = new Intent(UPDATE_NEWS_INTENT);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 		
-		alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime()+
-				AlarmManager.INTERVAL_HOUR, AlarmManager.INTERVAL_HOUR, pendingIntent);
+		alarmManager.cancel(pendingIntent); // remove old alarms
+		alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(),
+				NEWS_UPDATE_PERIOD, pendingIntent);
 	}
 	
 	/**
@@ -93,7 +98,8 @@ public class NewsReceiver extends BroadcastReceiver {
 			return mInstaller;
 		}
 		
-		public void awaitForConenction() {
+		public synchronized void awaitForConenction() {
+			if (Logging.DEBUG) Log.d(TAG, "Awaiting for installer connection");
 			try {
 				mWaitingSem.acquire();
 			} catch(InterruptedException ex) {
@@ -103,14 +109,14 @@ public class NewsReceiver extends BroadcastReceiver {
 			}
 		}
 		
-		public void destroy() {
+		public synchronized void destroy() {
 			mInstaller = null;
 			mWaitingSem.release();
 			mWaitingSem = null;
 		}
 		
 		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
+		public synchronized void onServiceConnected(ComponentName name, IBinder service) {
 			// TODO Auto-generated method stub
 			if (Logging.DEBUG) Log.d(TAG, "Installer connected");
 			mInstaller = ((InstallerService.LocalBinder)service).getService();
@@ -118,7 +124,7 @@ public class NewsReceiver extends BroadcastReceiver {
 		}
 
 		@Override
-		public void onServiceDisconnected(ComponentName name) {
+		public synchronized void onServiceDisconnected(ComponentName name) {
 			if (Logging.DEBUG) Log.d(TAG, "Installer disconnected");
 			mInstaller = null;
 		}
@@ -135,7 +141,8 @@ public class NewsReceiver extends BroadcastReceiver {
 			} catch(InterruptedException ex) { }
 		}
 		
-		public void awaitForResults() {
+		public synchronized void awaitForResults() {
+			if (Logging.DEBUG) Log.d(TAG, "Awaiting for results new binaries list");
 			try {
 				mWaitingSem.acquire();
 			} catch(InterruptedException ex) {
@@ -155,8 +162,10 @@ public class NewsReceiver extends BroadcastReceiver {
 		}
 
 		@Override
-		public boolean onOperationError(InstallOp installOp, String distribName, String errorMessage) {
+		public synchronized boolean onOperationError(InstallOp installOp,
+				String distribName, String errorMessage) {
 			// release it
+			if (Logging.WARNING) Log.d(TAG, "Error happens during downloading new binaries list");
 			mBinariesToUpdate = null;
 			mWaitingSem.release();
 			return false;
@@ -173,8 +182,8 @@ public class NewsReceiver extends BroadcastReceiver {
 		}
 
 		@Override
-		public void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
-			// TODO Auto-generated method stub
+		public synchronized void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
+			if (Logging.DEBUG) Log.d(TAG, "New binaries list is downloaded");
 			mBinariesToUpdate = updateItems;
 			mWaitingSem.release();
 		}
@@ -203,6 +212,7 @@ public class NewsReceiver extends BroadcastReceiver {
 		 * download and handle news
 		 */
 		private void handleNews() {
+			if (Logging.DEBUG) Log.d(TAG, "Updating news");
 			/* download manager file */
 			InputStream inStream = null;
 			List<NewsMessage> newsMessages = null;
@@ -216,7 +226,9 @@ public class NewsReceiver extends BroadcastReceiver {
 				inStream = urlConn.getInputStream();
 				newsMessages = NewsParser.parse(inStream);
 			} catch(IOException ex) {
+				if (Logging.DEBUG) Log.d(TAG, "Error in fetching news");
 				// if fail
+				return;
 			} finally {
 				try {
 					if (inStream != null)
@@ -224,43 +236,44 @@ public class NewsReceiver extends BroadcastReceiver {
 				} catch(IOException ex) { }
 			}
 			
+			if (Logging.DEBUG) Log.d(TAG, "Joinning old news with new news");
+			
 			if (newsMessages != null && !newsMessages.isEmpty()) {
 				/* firstly, we read old news */
-				ArrayList<NewsMessage> oldNews = null;
-				inStream = null;
-				oldNews = NewsParser.parse(inStream);
-				if (oldNews == null) {
-					// if fail
-					return;
-				}
+				ArrayList<NewsMessage> oldNews = NewsUtil.readNews(mApp);
+				if (oldNews == null) // if cant read news
+					oldNews = new ArrayList<NewsMessage>(1);
 				
 				/* now we join new News with old version */
 				SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(mApp);
 				long latestNewsTime = sharedPrefs.getLong(PreferenceName.LATEST_NEWS_TIME, 0);
 				
-				/* find oldest news */
-				int oldestMessageIndex;
-				for (oldestMessageIndex = 0; oldestMessageIndex < newsMessages.size();
-						oldestMessageIndex++)
-					if (latestNewsTime > newsMessages.get(oldestMessageIndex).getTimestamp()) {
-						oldestMessageIndex--;
-						break;
-					}
+				if (Logging.DEBUG) Log.d(TAG, "Latest news time:"+latestNewsTime);
 				
-				if (oldestMessageIndex == -1) // no news found
+				/* find oldest news */
+				int firstOldMessageIndex;
+				for (firstOldMessageIndex = 0; firstOldMessageIndex < newsMessages.size();
+						firstOldMessageIndex++)
+					if (latestNewsTime >= newsMessages.get(firstOldMessageIndex).getTimestamp())
+						break;
+				
+				if (firstOldMessageIndex == 0) { // no news found
+					if (Logging.DEBUG) Log.d(TAG, "No news has been found.");
 					return;
+				} 
 				
 				sharedPrefs.edit().putLong(PreferenceName.LATEST_NEWS_TIME,
-						newsMessages.get(0).getTimestamp());
+						newsMessages.get(0).getTimestamp()).commit();
 				
 				// join messages
-				newsMessages = newsMessages.subList(0, oldestMessageIndex+1);
+				newsMessages = new ArrayList<NewsMessage>(newsMessages.subList(0, firstOldMessageIndex));
 				newsMessages.addAll(oldNews);
+				if (newsMessages.size() > 200) // trim to 200 news
+					newsMessages = new ArrayList<NewsMessage>(newsMessages.subList(0, 200));
 				
 				// write to file
-				if (!NewsUtil.writeNews(mApp, newsMessages)) {
-					// if fail
-				}
+				if (!NewsUtil.writeNews(mApp, newsMessages))
+					if (Logging.WARNING) Log.w(TAG, "Cant write news.xml");
 				
 				mNotificationController.notifyNewsMessages(newsMessages.get(0));
 			}
@@ -270,6 +283,9 @@ public class NewsReceiver extends BroadcastReceiver {
 		 * handle update binaries
 		 */
 		private void handleUpdateBinaries() {
+			// current binaries
+			Map<String, String> currentVersions = NewsUtil.readCurrentBinaries(mApp);
+			
 			InstallerServiceConnection conn = new InstallerServiceConnection();
 			mApp.bindService(new Intent(mApp, InstallerService.class), conn, Context.BIND_AUTO_CREATE);
 			// awaiting for connection
@@ -284,7 +300,9 @@ public class NewsReceiver extends BroadcastReceiver {
 				installer.removeInstallerListener(listener);
 				UpdateItem[] binariesToUpdate = listener.getBinariesToUpdate();
 				
-				if (binariesToUpdate != null && binariesToUpdate.length != 0)
+				if (binariesToUpdate != null && binariesToUpdate.length != 0 &&
+						currentVersions != null && // only when older versionw has been readed
+						NewsUtil.versionsListHaveNewBinaries(currentVersions, binariesToUpdate))
 					mNotificationController.notifyNewBinaries();
 			} finally {
 				mApp.unbindService(conn);
@@ -294,8 +312,10 @@ public class NewsReceiver extends BroadcastReceiver {
 		
 		@Override
 		protected Void doInBackground(Void... params) {
-			handleNews();
-			handleUpdateBinaries();
+			synchronized(NewsReceiver.class) {
+				handleNews();
+				//handleUpdateBinaries();
+			}
 			return null;
 		}		
 	};

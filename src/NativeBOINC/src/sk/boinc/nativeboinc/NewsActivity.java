@@ -21,9 +21,11 @@ package sk.boinc.nativeboinc;
 import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.news.NewsMessage;
+import sk.boinc.nativeboinc.news.NewsUtil;
 import sk.boinc.nativeboinc.util.ScreenOrientationHandler;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,9 +48,11 @@ public class NewsActivity extends ListActivity {
 	private class NewsMessageAdapter extends BaseAdapter {
 
 		private Context mContext = null;
+		private BoincManagerApplication mApp = null;
 		
 		public NewsMessageAdapter(Context context) {
 			mContext = context;
+			mApp = (BoincManagerApplication)context.getApplicationContext();
 		}
 		
 		@Override
@@ -82,9 +86,9 @@ public class NewsActivity extends ListActivity {
 			TextView contentView = (TextView)view.findViewById(R.id.content);
 			
 			titleView.setText(message.getTitle());
-			timeView.setText(message.getFormattedTime());
-			contentView.setText(message.getContent());
+			timeView.setText(NewsUtil.formatDate(message.getTimestamp()));
 			
+			mApp.setHtmlText(contentView, message.getContent());
 			return view;
 		}
 	}
@@ -94,11 +98,23 @@ public class NewsActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 		mScreenOrientation = new ScreenOrientationHandler(this);
 		
+		getListView().setFastScrollEnabled(true);
+		
 		if (savedInstanceState != null)
 			mNewsMessages = savedInstanceState.getParcelableArrayList(MESSAGE_NEWS_STATE);
+		else
+			mNewsMessages = NewsUtil.readNews(this);
 		
 		if (mNewsMessages != null)
 			setListAdapter(new NewsMessageAdapter(this));
+	}
+	
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		// update news
+		mNewsMessages = NewsUtil.readNews(this);
+		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 	}
 	
 	@Override

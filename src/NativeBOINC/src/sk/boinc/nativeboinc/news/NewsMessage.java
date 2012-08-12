@@ -18,8 +18,6 @@
  */
 package sk.boinc.nativeboinc.news;
 
-import java.sql.Date;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -31,8 +29,7 @@ public class NewsMessage implements Parcelable {
 	private long timestamp = 0;
 	private String title = null;
 	private String content = null;
-	private String timeString = null;
-
+	
 	public static final Parcelable.Creator<NewsMessage> CREATOR
 		= new Parcelable.Creator<NewsMessage>() {
 			@Override
@@ -53,7 +50,6 @@ public class NewsMessage implements Parcelable {
 		timestamp = in.readLong();
 		title = in.readString();
 		content = in.readString();
-		timeString = in.readString();
 	}
 	
 	@Override
@@ -66,7 +62,6 @@ public class NewsMessage implements Parcelable {
 		dest.writeLong(timestamp);
 		dest.writeString(title);
 		dest.writeString(content);
-		dest.writeString(timeString);
 	}
 	
 	public long getTimestamp() {
@@ -75,11 +70,6 @@ public class NewsMessage implements Parcelable {
 	
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
-		timeString = NewsUtil.sDateFormat.format(new Date(timestamp));
-	}
-	
-	public String getFormattedTime() {
-		return timeString;
 	}
 	
 	public String getTitle() {
@@ -96,5 +86,9 @@ public class NewsMessage implements Parcelable {
 	
 	public void setContent(String content) {
 		this.content = content;
+	}
+	
+	public String toString() {
+		return "["+title+",time:"+timestamp+"]";
 	}
 }

@@ -23,6 +23,13 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:padding="5dip">
+    <TextView android:id="@+id/time"
+        android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:layout_alignParentTop="true"
+    	android:layout_alignParentRight="true"
+    	android:gravity="left"
+		android:lines="1" />
     <TextView android:id="@+id/title"
         android:layout_width="wrap_content"
     	android:layout_height="wrap_content"
@@ -32,16 +39,9 @@
     	android:gravity="left"
     	android:textStyle="bold"
     	android:lines="1" />
-    <TextView android:id="@+id/time"
-        android:layout_width="wrap_content"
-    	android:layout_height="wrap_content"
-    	android:layout_below="@+id/title"
-    	android:layout_alignParentRight="true"
-    	android:gravity="left"
-		android:lines="1" />
     <TextView android:id="@+id/content"
         android:layout_width="fill_parent"
        	android:layout_height="wrap_content"
        	android:layout_alignParentLeft="true"
-       	android:layout_below="@+id/time" />
+       	android:layout_below="@+id/title" />
 </RelativeLayout>

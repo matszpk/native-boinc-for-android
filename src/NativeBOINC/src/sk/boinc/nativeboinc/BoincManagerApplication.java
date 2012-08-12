@@ -30,6 +30,8 @@ import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
+import sk.boinc.nativeboinc.news.NewsReceiver;
+import sk.boinc.nativeboinc.news.NewsUtil;
 import sk.boinc.nativeboinc.service.ConnectionManagerService;
 import sk.boinc.nativeboinc.util.ActivityVisibilityTracker;
 import sk.boinc.nativeboinc.util.NativeClientAutostart;
@@ -226,6 +228,10 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		// register refreshWidgetHandler as preferences change listener
 		mGlobalPrefs.registerOnSharedPreferenceChangeListener(mRefreshWidgetHandler);
 		
+		// initialize news service
+		NewsUtil.initialize();
+		NewsReceiver.initialize(this);
+		
 		if (NativeClientAutostart.isAutostartsAtAppStartup(mGlobalPrefs))
 			autostartClient();
 	}
@@ -354,6 +360,14 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		mStringBuilder.append("<html>\n<body>\n");
 		mStringBuilder.append(trans2);
 		mStringBuilder.append("\n</body>\n</html>");
+		text.setText(Html.fromHtml(mStringBuilder.toString()));
+	}
+	
+	public void setHtmlText(TextView text, String content) {
+		mStringBuilder.setLength(0);
+		mStringBuilder.append("<html><body>");
+		mStringBuilder.append(content);
+		mStringBuilder.append("</body></html>");
 		text.setText(Html.fromHtml(mStringBuilder.toString()));
 	}
 	

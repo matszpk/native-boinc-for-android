@@ -107,6 +107,11 @@
 			android:persistent="true" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefCategoryAbout">
+	    <Preference
+			android:key="news"
+			android:title="@string/prefLatestNewsTitle"
+			android:summary="@string/prefLatestNewsSummary"
+			android:persistent="false" />
 		<Preference
 			android:key="aboutMe"
 			android:title="@string/prefAboutTitle"
@@ -121,5 +126,6 @@
 			android:title="@string/license"
 			android:summary="@string/prefLicenseSummary"
 			android:persistent="false" />
+		
 	</PreferenceCategory>
 </PreferenceScreen>

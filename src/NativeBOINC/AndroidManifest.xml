@@ -211,6 +211,11 @@
 		<activity android:name=".TimePreferencesActivity"
 			android:launchMode="singleTop"
 			android:theme="@style/Theme.NativeBoincActivity" />
+		
+		<activity android:name=".NewsActivity"
+		    android:label="@string/latestNews"
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity" />
 	</application>
     
 </manifest>

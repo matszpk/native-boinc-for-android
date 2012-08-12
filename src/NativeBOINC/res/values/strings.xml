@@ -180,6 +180,8 @@
 	<string name="prefNewsUpdatePeriodSummary">Update news every</string>
 	<string name="prefViewItemTypeTitle">View item type</string>
 	<string name="prefViewItemTypeSummary">View item type as</string>
+	<string name="prefLatestNewsTitle">Latest news</string>
+	<string name="prefLatestNewsSummary">Show latest news list</string>
 	
 	<!--  Local Preferences -->
 	<string name="localPreferences">Local preferences</string>
@@ -711,6 +713,7 @@
 	</string>
 
 	<!-- news, news -->
+	<string name="latestNews">Latest news</string>
 	<string name="newsNotifyText">News was receveived now!</string>
 	<string name="newsMessage">Message</string>
 	<string name="noNewsAvailable">No news available</string>
@@ -727,5 +730,6 @@
 	<!-- <string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/new/boinc_apps/</string>-->
 	
 	<!-- notification sources -->
-	<string name="newsRemoteFile">http://krzyszp.info/matszpk/notifications/latest.xml</string>
+	<!--<string name="newsRemoteFile">http://krzyszp.info/matszpk/news/news.xml</string>-->
+	<string name="newsRemoteFile">http://192.168.1.3:8080/examples/news.xml</string>
 </resources>

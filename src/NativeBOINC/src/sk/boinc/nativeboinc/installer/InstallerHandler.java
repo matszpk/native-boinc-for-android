@@ -49,6 +49,7 @@ import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUpdateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
 import sk.boinc.nativeboinc.nativeclient.WorkerOp;
+import sk.boinc.nativeboinc.news.NewsUtil;
 import sk.boinc.nativeboinc.util.Chmod;
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.HostListDbAdapter;
@@ -1592,6 +1593,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			/* client binary */
 			UpdateItem[] output = mInstallOps.getBinariesToUpdateOrInstall(mClientDistrib, mProjectDistribs,
 					attachedProjectUrls);
+			
+			// update current binaries (prevents obsolete notification)
+			NewsUtil.writeCurrentBinaries(mInstallerService, mClientDistrib, mProjectDistribs);
 			
 			// notify final result
 			if (output != null)

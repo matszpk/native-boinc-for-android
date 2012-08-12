@@ -245,6 +245,15 @@ public class AppPreferencesActivity extends PreferenceActivity implements OnShar
 				return true;
 			}
 		});
+		// Display latest news
+		pref = findPreference("news");
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				startActivity(new Intent(AppPreferencesActivity.this, NewsActivity.class));
+				return true;
+			}
+		});
 	}
 
 	@Override

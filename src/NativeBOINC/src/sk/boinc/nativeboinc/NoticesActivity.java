@@ -208,6 +208,7 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 		ListView lv = getListView();
 		lv.setStackFromBottom(true);
 		lv.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
+		lv.setFastScrollEnabled(true);
 		
 		lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 

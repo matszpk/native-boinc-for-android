@@ -147,4 +147,18 @@
 	    <item>User alert</item>
 	    <item>Błąd wewnętrzny</item>
 	</string-array>
+	
+	<string-array name="nativeAutostartLabels">
+	    <item>Bez autostartu</item>
+	    <item>Przy startowaniu aplikacji</item>
+	    <item>Przy rozruchu systemu</item>
+	    <item>Zawsze autostartuj</item>
+	</string-array>
+	
+	<string-array name="nativeAutostartValues">
+	    <item>0</item>
+	    <item>1</item>
+	    <item>2</item>
+	    <item>3</item>
+	</string-array>
 </resources>

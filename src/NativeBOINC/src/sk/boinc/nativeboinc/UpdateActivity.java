@@ -68,7 +68,7 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 	}
 	
 	private static class SavedState {
-		private  UpdateItem[] updateItems; 
+		private final UpdateItem[] updateItems; 
 		private final int getUpdateItemsProgressState;
 		
 		public SavedState(UpdateActivity activity) {

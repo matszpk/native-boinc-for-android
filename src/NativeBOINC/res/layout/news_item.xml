@@ -28,7 +28,6 @@
     	android:layout_height="wrap_content"
     	android:layout_alignParentTop="true"
     	android:layout_alignParentLeft="true"
-    	android:layout_toLeftOf="@+id/time"
     	android:gravity="left"
     	android:textStyle="bold"
     	android:lines="1" />

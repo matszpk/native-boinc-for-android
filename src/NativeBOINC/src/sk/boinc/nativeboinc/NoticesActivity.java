@@ -135,14 +135,21 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 				layout = convertView;
 			}
 			TextView tv;
+			NoticeInfo noticeInfo = mNotices.get(position); 
 			tv = (TextView)layout.findViewById(R.id.noticeCreateTime);
-			tv.setText(mNotices.get(position).create_time);
+			tv.setText(noticeInfo.create_time);
 			tv = (TextView)layout.findViewById(R.id.noticeTitle);
-			tv.setText(mNotices.get(position).title_project);
+			if (noticeInfo.title != null && noticeInfo.title.length() != 0) {
+				tv.setText(noticeInfo.title_project);
+				tv.setVisibility(View.VISIBLE);
+			} else {
+				tv.setVisibility(View.GONE);
+				tv.setText("");
+			}
 			tv = (TextView)layout.findViewById(R.id.noticeDescription);
-			tv.setText(Html.fromHtml(mNotices.get(position).description));
+			tv.setText(Html.fromHtml(noticeInfo.description));
 			tv = (TextView)layout.findViewById(R.id.noticeLink);
-			tv.setText(Html.fromHtml(mNotices.get(position).link_html));
+			tv.setText(Html.fromHtml(noticeInfo.link_html));
 			return layout;
 		}
 	}

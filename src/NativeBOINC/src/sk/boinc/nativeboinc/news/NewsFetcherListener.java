@@ -18,43 +18,11 @@
  */
 package sk.boinc.nativeboinc.news;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 /**
  * @author mat
  *
  */
-public class NewsMessage {
-	private long timestamp = 0;
-	private String title = null;
-	private String content = null;
-	
-	public long getTimestamp() {
-		return timestamp;
-	}
-	
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
-	}
-	
-	public String getTitle() {
-		return title;
-	}
-	
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	
-	public String getContent() {
-		return content;
-	}
-	
-	public void setContent(String content) {
-		this.content = content;
-	}
-	
-	public String toString() {
-		return "["+title+",time:"+timestamp+"]";
-	}
+public interface NewsFetcherListener {
+	public abstract void onNewsReceived(boolean isNewFetched);
+	public abstract void onNewsReceiveError();
 }

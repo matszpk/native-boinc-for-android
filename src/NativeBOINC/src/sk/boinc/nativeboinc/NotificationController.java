@@ -564,7 +564,7 @@ public class NotificationController {
 		if (mNewsMessageNotification != null)
 			mNewsMessageNotification.when = System.currentTimeMillis();
 		else
-			mNewsMessageNotification = new Notification(R.drawable.nativeboinc_alpha,
+			mNewsMessageNotification = new Notification(R.drawable.ic_news,
 				newsText, System.currentTimeMillis());
 		
 		mNewsMessageNotification.contentIntent = pendingIntent;
@@ -589,7 +589,7 @@ public class NotificationController {
 		if (mNewBinariesNotification != null)
 			mNewBinariesNotification.when = System.currentTimeMillis();
 		else
-			mNewBinariesNotification = new Notification(R.drawable.nativeboinc_alpha, notifyText,
+			mNewBinariesNotification = new Notification(R.drawable.ic_download5, notifyText,
 					System.currentTimeMillis());
 		
 		mNewBinariesNotification.contentIntent = pendingIntent;

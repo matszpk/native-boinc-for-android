@@ -20,16 +20,22 @@ package sk.boinc.nativeboinc;
 
 import java.util.ArrayList;
 
+import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.news.NewsFetcherListener;
 import sk.boinc.nativeboinc.news.NewsMessage;
+import sk.boinc.nativeboinc.news.NewsReceiver;
 import sk.boinc.nativeboinc.news.NewsUtil;
+import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.ScreenOrientationHandler;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
@@ -37,13 +43,66 @@ import android.widget.TextView;
  * @author mat
  *
  */
-public class NewsActivity extends ListActivity {
+public class NewsActivity extends ListActivity implements NewsFetcherListener {
 
-	private static final String MESSAGE_NEWS_STATE = "MessageNewsState";
+	private static final String TAG = "NewsActivity";
+	
+	private BoincManagerApplication mApp = null;
 	
 	private ScreenOrientationHandler mScreenOrientation = null;
 	
 	private ArrayList<NewsMessage> mNewsMessages = null;
+	
+	/* listener used outside activity (when rotated) and saved state */
+	private static class SavedState implements NewsFetcherListener {
+
+		public int mState = ProgressState.NOT_RUN;
+		public boolean mIsNewFetched = false;
+		private ArrayList<NewsMessage> mNewsMessages;
+		public boolean mIsNewsReaded = false; // if new readed 
+		
+		public SavedState(NewsActivity activity) {
+			mNewsMessages = activity.mNewsMessages;
+		}
+		
+		public synchronized void setInProgress() {
+			mState = ProgressState.IN_PROGRESS;
+		}
+		
+		public synchronized void setIsReaded() {
+			mIsNewsReaded  = true;
+		}
+		
+		public synchronized boolean isInProgress() {
+			return mState == ProgressState.IN_PROGRESS;
+		}
+		
+		public synchronized boolean isToUpdateNews() {
+			return mState == ProgressState.FINISHED && mIsNewFetched && !mIsNewsReaded;
+		}
+		
+		public void save(NewsActivity activity) {
+			mNewsMessages = activity.mNewsMessages;
+		}
+		
+		public void restore(NewsActivity activity) {
+			activity.mNewsMessages = mNewsMessages;
+		}
+		
+		@Override
+		public synchronized void onNewsReceived(boolean isNewFetched) {
+			mIsNewFetched = isNewFetched;
+			mIsNewsReaded = false;
+			mState = ProgressState.FINISHED;
+		}
+
+		@Override
+		public synchronized void onNewsReceiveError() {
+			mState = ProgressState.FAILED;
+		}
+	}
+	
+	private SavedState mSavedState = null;
 	
 	private class NewsMessageAdapter extends BaseAdapter {
 
@@ -93,20 +152,44 @@ public class NewsActivity extends ListActivity {
 		}
 	}
 	
+	/* async task */
+	private NewsReceiver.NewsFetcherTask mFetcherTask = null;
+	private NewsReceiver.NewsFetcherBridge mNewsFetcherBridge = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		// enable progress
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		
 		super.onCreate(savedInstanceState);
 		mScreenOrientation = new ScreenOrientationHandler(this);
 		
 		getListView().setFastScrollEnabled(true);
+		setListAdapter(new NewsMessageAdapter(this));
 		
-		if (savedInstanceState != null)
-			mNewsMessages = savedInstanceState.getParcelableArrayList(MESSAGE_NEWS_STATE);
-		else
+		mApp = (BoincManagerApplication)getApplication();
+		mNewsFetcherBridge = mApp.getNewsFetcherBridge();
+		
+		mSavedState = (SavedState)getLastNonConfigurationInstance();
+		if (savedInstanceState != null) {
+			mSavedState.restore(this);
+			mFetcherTask = mApp.getNewsFetcherTask();
+		} else { /* if real creation */
+			if (Logging.DEBUG) Log.d(TAG, "Create and start updating");
 			mNewsMessages = NewsUtil.readNews(this);
+			mSavedState = new SavedState(this);
+			
+			/* execute news fetcher */
+			mFetcherTask = new NewsReceiver.NewsFetcherTask(mApp, true);
+			mSavedState.setInProgress();
+			mNewsFetcherBridge.addListener(mSavedState);
+			mFetcherTask.execute(new Void[0]);
+			
+			// show progress
+			setProgressBarIndeterminateVisibility(true);
+		}
 		
-		if (mNewsMessages != null)
-			setListAdapter(new NewsMessageAdapter(this));
+		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 	}
 	
 	@Override
@@ -118,20 +201,93 @@ public class NewsActivity extends ListActivity {
 	}
 	
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putParcelableArrayList(MESSAGE_NEWS_STATE, mNewsMessages);
+	public Object onRetainNonConfigurationInstance() {
+		mSavedState.save(this);
+		return mSavedState;
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
 		mScreenOrientation.setOrientation();
+		if (mNewsFetcherBridge != null)
+			mNewsFetcherBridge.addListener(this);
+		if (mSavedState.isInProgress()) {
+			if (mFetcherTask != null) {// if in progress
+				if (Logging.DEBUG) Log.d(TAG, "During updating after resuming");
+				// show progress
+				setProgressBarIndeterminateVisibility(true);
+			} else
+				setProgressBarIndeterminateVisibility(false);
+		} else {
+			// if finished
+			if (mSavedState.isToUpdateNews()) {
+				if (Logging.DEBUG) Log.d(TAG, "Update after resuming");
+				mNewsMessages = NewsUtil.readNews(NewsActivity.this);
+				((BaseAdapter)getListAdapter()).notifyDataSetChanged();
+				mSavedState.setIsReaded();
+			}
+			// show progress
+			setProgressBarIndeterminateVisibility(false);
+			mFetcherTask = null;
+		}
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if (mNewsFetcherBridge != null)
+			mNewsFetcherBridge.removeListener(this);
+	}
+	
+	@Override
+	public void finish() {
+		if (mFetcherTask != null) {
+			if (Logging.DEBUG) Log.d(TAG, "cancel update task");
+			// if activity finished
+			mFetcherTask.cancel(true);
+			mFetcherTask = null;
+		}
+		if (mNewsFetcherBridge != null) {
+			mNewsFetcherBridge.removeListener(this); 
+			mNewsFetcherBridge.removeListener(mSavedState);
+		}
+		super.finish();
 	}
 	
 	@Override
 	protected void onDestroy() {
+		if (Logging.DEBUG) Log.d(TAG, "onDestroy");
+		if (mNewsFetcherBridge != null)
+			mNewsFetcherBridge.removeListener(this);
+		mFetcherTask = null;
+		mNewsFetcherBridge = null;
 		mScreenOrientation = null;
 		super.onDestroy();
+		mSavedState = null;
+	}
+
+	@Override
+	public void onNewsReceived(final boolean isNewFetched) {
+		// updating
+		if (isNewFetched) {
+			if (Logging.DEBUG) Log.d(TAG, "News update at activity live");
+			mNewsMessages = NewsUtil.readNews(NewsActivity.this);
+			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
+			mSavedState.setIsReaded();
+		} else
+			if (Logging.DEBUG) Log.d(TAG, "No update news at activity live");
+		// hide progress
+		setProgressBarIndeterminateVisibility(false);
+		// reset fetcher task
+		mFetcherTask = null;
+	}
+
+	@Override
+	public void onNewsReceiveError() {
+		// ignore errors but hide progress
+		setProgressBarIndeterminateVisibility(false);
+		// reset fetcher task
+		mFetcherTask = null;
 	}
 }

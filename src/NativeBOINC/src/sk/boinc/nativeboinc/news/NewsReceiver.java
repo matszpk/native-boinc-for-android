@@ -48,6 +48,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
@@ -61,8 +62,8 @@ public class NewsReceiver extends BroadcastReceiver {
 
 	private static final int INSTALLER_CHANNEL_ID = 2;
 	
-	/* four hours */
-	private static final long NEWS_UPDATE_PERIOD = 4*3600*1000;
+	/* six hours */
+	private static final long NEWS_UPDATE_PERIOD = 6*3600*1000;
 	
 	private static final String TAG = "NewsReceiver";
 	
@@ -98,7 +99,7 @@ public class NewsReceiver extends BroadcastReceiver {
 			return mInstaller;
 		}
 		
-		public synchronized void awaitForConenction() {
+		public void awaitForConenction() {
 			if (Logging.DEBUG) Log.d(TAG, "Awaiting for installer connection");
 			try {
 				mWaitingSem.acquire();
@@ -109,23 +110,23 @@ public class NewsReceiver extends BroadcastReceiver {
 			}
 		}
 		
-		public synchronized void destroy() {
+		public void destroy() {
 			mInstaller = null;
 			mWaitingSem.release();
 			mWaitingSem = null;
 		}
 		
 		@Override
-		public synchronized void onServiceConnected(ComponentName name, IBinder service) {
+		public void onServiceConnected(ComponentName name, IBinder service) {
 			// TODO Auto-generated method stub
-			if (Logging.DEBUG) Log.d(TAG, "Installer connected");
+			//if (Logging.DEBUG) Log.d(TAG, "Installer connected");
 			mInstaller = ((InstallerService.LocalBinder)service).getService();
 			mWaitingSem.release();
 		}
 
 		@Override
-		public synchronized void onServiceDisconnected(ComponentName name) {
-			if (Logging.DEBUG) Log.d(TAG, "Installer disconnected");
+		public void onServiceDisconnected(ComponentName name) {
+			//if (Logging.DEBUG) Log.d(TAG, "Installer disconnected");
 			mInstaller = null;
 		}
 	}
@@ -141,8 +142,7 @@ public class NewsReceiver extends BroadcastReceiver {
 			} catch(InterruptedException ex) { }
 		}
 		
-		public synchronized void awaitForResults() {
-			if (Logging.DEBUG) Log.d(TAG, "Awaiting for results new binaries list");
+		public void awaitForResults() {
 			try {
 				mWaitingSem.acquire();
 			} catch(InterruptedException ex) {
@@ -162,13 +162,12 @@ public class NewsReceiver extends BroadcastReceiver {
 		}
 
 		@Override
-		public synchronized boolean onOperationError(InstallOp installOp,
+		public boolean onOperationError(InstallOp installOp,
 				String distribName, String errorMessage) {
 			// release it
-			if (Logging.WARNING) Log.d(TAG, "Error happens during downloading new binaries list");
 			mBinariesToUpdate = null;
 			mWaitingSem.release();
-			return false;
+			return true;
 		}
 
 		@Override
@@ -182,8 +181,7 @@ public class NewsReceiver extends BroadcastReceiver {
 		}
 
 		@Override
-		public synchronized void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
-			if (Logging.DEBUG) Log.d(TAG, "New binaries list is downloaded");
+		public void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
 			mBinariesToUpdate = updateItems;
 			mWaitingSem.release();
 		}
@@ -198,24 +196,72 @@ public class NewsReceiver extends BroadcastReceiver {
 		}
 	}
 	
-	private static final class NewsReceiverTask extends AsyncTask<Void, Void, Void> {
-
-		private final BoincManagerApplication mApp;
-		private final NotificationController mNotificationController;
+	/**
+	 * this bridge used to redirect event to activities or other non local objects
+	 */
+	public static final class NewsFetcherBridge {
+		private Handler mHandler = null;
+		private ArrayList<NewsFetcherListener> mListeners = new ArrayList<NewsFetcherListener>();
 		
-		public NewsReceiverTask(BoincManagerApplication app) {
+		public NewsFetcherBridge(Handler handler) {
+			mHandler = handler;
+		}
+		
+		public synchronized void addListener(NewsFetcherListener listener) {
+			mListeners.add(listener);
+		}
+		public synchronized void removeListener(NewsFetcherListener listener) {
+			mListeners.remove(listener);
+		}
+		
+		/* handling events */
+		public synchronized void notifyNewsFetched(final boolean isNewFetched) {
+			mHandler.post(new Runnable() {
+				@Override
+				public void run() {
+					for (NewsFetcherListener listener: mListeners) {
+						listener.onNewsReceived(isNewFetched);
+					}
+				}
+			});
+		}
+		
+		public synchronized void notifyError() {
+			mHandler.post(new Runnable() {
+				@Override
+				public void run() {
+					for (NewsFetcherListener listener: mListeners) {
+						listener.onNewsReceiveError();
+					}
+				}
+			});
+		}
+	}
+	
+	public static final class NewsFetcherTask extends AsyncTask<Void, Void, Void> {
+
+		private final boolean mUsedOutsideReceiver;
+		private BoincManagerApplication mApp;
+		private NotificationController mNotificationController;
+				
+		public NewsFetcherTask(BoincManagerApplication app, boolean usedOutsideReceiver) {
 			mApp = app;
 			mNotificationController = app.getNotificationController();
+			mUsedOutsideReceiver = usedOutsideReceiver;
+			if (usedOutsideReceiver) // if used outside
+				app.setNewsFetcherTask(this);
 		}
 		
 		/**
 		 * download and handle news
 		 */
 		private void handleNews() {
+			NewsFetcherBridge bridge = mApp.getNewsFetcherBridge();
 			if (Logging.DEBUG) Log.d(TAG, "Updating news");
 			/* download manager file */
 			InputStream inStream = null;
 			List<NewsMessage> newsMessages = null;
+						
 			try {
 				URL url = new URL(mApp.getString(R.string.newsRemoteFile));
 				URLConnection urlConn = url.openConnection();
@@ -228,6 +274,7 @@ public class NewsReceiver extends BroadcastReceiver {
 			} catch(IOException ex) {
 				if (Logging.DEBUG) Log.d(TAG, "Error in fetching news");
 				// if fail
+				bridge.notifyError();
 				return;
 			} finally {
 				try {
@@ -235,6 +282,9 @@ public class NewsReceiver extends BroadcastReceiver {
 						inStream.close();
 				} catch(IOException ex) { }
 			}
+			
+			if (Thread.interrupted())
+				return;
 			
 			if (Logging.DEBUG) Log.d(TAG, "Joinning old news with new news");
 			
@@ -250,6 +300,9 @@ public class NewsReceiver extends BroadcastReceiver {
 				
 				if (Logging.DEBUG) Log.d(TAG, "Latest news time:"+latestNewsTime);
 				
+				if (Thread.interrupted())
+					return;
+				
 				/* find oldest news */
 				int firstOldMessageIndex;
 				for (firstOldMessageIndex = 0; firstOldMessageIndex < newsMessages.size();
@@ -259,8 +312,9 @@ public class NewsReceiver extends BroadcastReceiver {
 				
 				if (firstOldMessageIndex == 0) { // no news found
 					if (Logging.DEBUG) Log.d(TAG, "No news has been found.");
+					bridge.notifyNewsFetched(false);
 					return;
-				} 
+				}
 				
 				sharedPrefs.edit().putLong(PreferenceName.LATEST_NEWS_TIME,
 						newsMessages.get(0).getTimestamp()).commit();
@@ -275,8 +329,14 @@ public class NewsReceiver extends BroadcastReceiver {
 				if (!NewsUtil.writeNews(mApp, newsMessages))
 					if (Logging.WARNING) Log.w(TAG, "Cant write news.xml");
 				
-				mNotificationController.notifyNewsMessages(newsMessages.get(0));
-			}
+				if (!mUsedOutsideReceiver)
+					mNotificationController.notifyNewsMessages(newsMessages.get(0));
+				
+				// if new news available
+				bridge.notifyNewsFetched(true);
+				if (Logging.DEBUG) Log.d(TAG, "news "+ newsMessages.size() + " saved."); 
+			} else // nothing new fetched
+				bridge.notifyNewsFetched(false);
 		}
 		
 		/**
@@ -300,11 +360,15 @@ public class NewsReceiver extends BroadcastReceiver {
 				installer.removeInstallerListener(listener);
 				UpdateItem[] binariesToUpdate = listener.getBinariesToUpdate();
 				
-				if (binariesToUpdate != null && binariesToUpdate.length != 0 &&
-						currentVersions != null && // only when older versionw has been readed
-						NewsUtil.versionsListHaveNewBinaries(currentVersions, binariesToUpdate))
+				if (binariesToUpdate != null && binariesToUpdate.length != 0) {
+					if (currentVersions != null &&
+							!NewsUtil.versionsListHaveNewBinaries(currentVersions, binariesToUpdate))
+						return; // do nothing
+					
 					mNotificationController.notifyNewBinaries();
+				}
 			} finally {
+				if (Logging.DEBUG) Log.d(TAG, "Finish check updates");
 				mApp.unbindService(conn);
 				conn.destroy();
 			}
@@ -312,12 +376,32 @@ public class NewsReceiver extends BroadcastReceiver {
 		
 		@Override
 		protected Void doInBackground(Void... params) {
-			synchronized(NewsReceiver.class) {
+			synchronized (NewsReceiver.class) {
 				handleNews();
-				//handleUpdateBinaries();
+				if (!mUsedOutsideReceiver)
+					handleUpdateBinaries();
 			}
 			return null;
-		}		
+		}
+		
+		private synchronized void finish() {
+			if (mUsedOutsideReceiver) {
+				if (Logging.DEBUG) Log.d(TAG, "remove news fetcher from app");
+				mApp.removeNewsFetcherTask();
+			}
+			mApp = null;
+			mNotificationController = null;
+		}
+		
+		@Override
+		protected void onCancelled() {
+			finish();
+		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			finish();
+		}
 	};
 
 	@Override
@@ -325,8 +409,7 @@ public class NewsReceiver extends BroadcastReceiver {
 		if (intent.getAction() == null || !intent.getAction().equals(UPDATE_NEWS_INTENT))
 			return;
 		
-		new NewsReceiverTask((BoincManagerApplication)context.getApplicationContext())
+		new NewsFetcherTask((BoincManagerApplication)context.getApplicationContext(), false)
 				.execute(new Void[0]);
 	}
 }
-

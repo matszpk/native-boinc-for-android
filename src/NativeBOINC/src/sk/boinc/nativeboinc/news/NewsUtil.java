@@ -148,7 +148,7 @@ public class NewsUtil {
 			sb.append(InstallerService.BOINC_CLIENT_ITEM_NAME);
 			sb.append("</name>\n    <version>");
 			sb.append(clientDistrib.version);
-			sb.append("</version>\n  <binary>\n");
+			sb.append("</version>\n  </binary>\n");
 			
 			for (ProjectDistrib distrib: projectDistribs) {
 				sb.append("  <binary>\n    <name>");
@@ -157,7 +157,7 @@ public class NewsUtil {
 				sb.append(distrib.version);
 				sb.append("</version>\n  </binary>\n");
 			}
-			sb.append("<versions>\n");
+			sb.append("</versions>\n");
 			
 			writer.write(sb.toString());
 			writer.flush();

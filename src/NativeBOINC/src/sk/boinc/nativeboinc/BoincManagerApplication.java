@@ -119,6 +119,9 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	
 	private MyActivityVisibilityTracker mVisibilityTracker = null;
 	
+	private NewsReceiver.NewsFetcherTask mCurrentNewsFetcherTask = null;
+	private NewsReceiver.NewsFetcherBridge mNewsFetcherBridge = null;
+	
 	// restart after reinstall handling
 	private Object mRestartAfterReinstallSync = new Object();
 	private boolean mRunRestartAfterReinstall = false;
@@ -146,11 +149,12 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	
 	private SecondStartTryHandler mSecondTryStartHandler = null;
 	
+	private Handler mStandardHandler = null;
+	
 	/* max number of tries */
 	private static final int MAX_AUTOSTART_TRIES_N = 3;
 	
 	private int mAutostartTrialNumber = 0;
-	
 	
 	private RefreshWidgetHandler mRefreshWidgetHandler = null;
 	
@@ -225,12 +229,16 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		mRefreshWidgetHandler = new RefreshWidgetHandler(this);
 		mVisibilityTracker = new MyActivityVisibilityTracker();
 		
+		mStandardHandler = new Handler();
+		
 		// register refreshWidgetHandler as preferences change listener
 		mGlobalPrefs.registerOnSharedPreferenceChangeListener(mRefreshWidgetHandler);
 		
 		// initialize news service
 		NewsUtil.initialize();
 		NewsReceiver.initialize(this);
+		
+		mNewsFetcherBridge = new NewsReceiver.NewsFetcherBridge(mStandardHandler);
 		
 		if (NativeClientAutostart.isAutostartsAtAppStartup(mGlobalPrefs))
 			autostartClient();
@@ -556,5 +564,31 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	 */
 	public MyActivityVisibilityTracker getVisibilityTracker() {
 		return mVisibilityTracker;
+	}
+	
+	/**
+	 * news handling
+	 */
+	public synchronized void setNewsFetcherTask(NewsReceiver.NewsFetcherTask task) {
+		mCurrentNewsFetcherTask = task;
+	}
+	
+	public synchronized void removeNewsFetcherTask() {
+		mCurrentNewsFetcherTask = null;
+	}
+	
+	public synchronized NewsReceiver.NewsFetcherTask getNewsFetcherTask() {
+		return mCurrentNewsFetcherTask;
+	}
+	
+	public NewsReceiver.NewsFetcherBridge getNewsFetcherBridge() {
+		return mNewsFetcherBridge;
+	}
+	
+	/*
+	 * standard handler
+	 */
+	public Handler getStandardHandler() {
+		return mStandardHandler;
 	}
 }

@@ -162,6 +162,8 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		
 		super.onCreate(savedInstanceState);
+		
+		setContentView(R.layout.news_list);
 		mScreenOrientation = new ScreenOrientationHandler(this);
 		
 		getListView().setFastScrollEnabled(true);

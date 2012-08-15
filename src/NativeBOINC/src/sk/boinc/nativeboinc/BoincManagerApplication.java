@@ -121,6 +121,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	
 	private NewsReceiver.NewsFetcherTask mCurrentNewsFetcherTask = null;
 	private NewsReceiver.NewsFetcherBridge mNewsFetcherBridge = null;
+	private NewsReceiver mNewsReceiverPrefsListener = null;
 	
 	// restart after reinstall handling
 	private Object mRestartAfterReinstallSync = new Object();
@@ -235,6 +236,8 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		mGlobalPrefs.registerOnSharedPreferenceChangeListener(mRefreshWidgetHandler);
 		
 		// initialize news service
+		mNewsReceiverPrefsListener = new NewsReceiver(this);
+		mGlobalPrefs.registerOnSharedPreferenceChangeListener(mNewsReceiverPrefsListener);
 		NewsUtil.initialize();
 		NewsReceiver.initialize(this);
 		

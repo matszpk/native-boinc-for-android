@@ -1,3 +1,9 @@
+Version 0.4 (beta) (2012-08-15)
+- fixed unexpected behavior when connection broken
+- fixed and improved notice item list
+- added news features: News and Automatic update checks
+- fixed encoding at saving config files
+
 Version 0.3.9.9.3 (alpha) (2012-08-05)
 - fixed boinc xml parser (used during parsing gui rpc replies)
 

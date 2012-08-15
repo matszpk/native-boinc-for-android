@@ -47,6 +47,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
@@ -58,7 +59,7 @@ import android.util.Log;
  * @author mat
  *
  */
-public class NewsReceiver extends BroadcastReceiver {
+public class NewsReceiver extends BroadcastReceiver implements OnSharedPreferenceChangeListener {
 
 	private static final int INSTALLER_CHANNEL_ID = 2;
 	
@@ -69,7 +70,23 @@ public class NewsReceiver extends BroadcastReceiver {
 	
 	private static final String UPDATE_NEWS_INTENT = "sk.boinc.nativeboinc.news.UPDATE_NEWS";
 	
+	private Context mContext = null;
+	
+	/* constructor for receiver */
+	public NewsReceiver() {
+	}
+	
+	/* constructor for preferences changed listener */
+	public NewsReceiver(Context context) {
+		mContext = context;
+	}
+	
 	public static final void initialize(Context context) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		if (!prefs.getBoolean(PreferenceName.NATIVE_NEWS_UPDATE, true)) // if not enabled
+			return;
+		
+		if (Logging.DEBUG) Log.d(TAG, "Initializing");
 		AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
 		
 		Intent intent = new Intent(UPDATE_NEWS_INTENT);
@@ -78,6 +95,18 @@ public class NewsReceiver extends BroadcastReceiver {
 		alarmManager.cancel(pendingIntent); // remove old alarms
 		alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(),
 				NEWS_UPDATE_PERIOD, pendingIntent);
+	}
+	
+	public static final void shutdown(Context context) {
+		if (Logging.DEBUG) Log.d(TAG, "Shutdown");
+		
+		AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+		
+		Intent intent = new Intent(UPDATE_NEWS_INTENT);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+		
+		// canceling
+		alarmManager.cancel(pendingIntent);
 	}
 	
 	/**
@@ -100,7 +129,6 @@ public class NewsReceiver extends BroadcastReceiver {
 		}
 		
 		public void awaitForConenction() {
-			if (Logging.DEBUG) Log.d(TAG, "Awaiting for installer connection");
 			try {
 				mWaitingSem.acquire();
 			} catch(InterruptedException ex) {
@@ -411,5 +439,19 @@ public class NewsReceiver extends BroadcastReceiver {
 		
 		new NewsFetcherTask((BoincManagerApplication)context.getApplicationContext(), false)
 				.execute(new Void[0]);
+	}
+
+	/* when preferences changed */
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+			String key) {
+		if (key.equals(PreferenceName.NATIVE_NEWS_UPDATE)) {
+			boolean isEnabled = sharedPreferences.getBoolean(key, true);
+			if (Logging.INFO) Log.i(TAG, "Change notify about news:"+isEnabled);
+			if (isEnabled)
+				initialize(mContext);
+			else
+				shutdown(mContext);
+		}
 	}
 }

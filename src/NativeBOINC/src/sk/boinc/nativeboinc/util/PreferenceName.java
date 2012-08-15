@@ -47,6 +47,8 @@ public interface PreferenceName {
 	public static final String WAITING_FOR_BENCHMARK = "waitingForBenchmark";
 	
 	/* native client */
+	public static final String NATIVE_LATEST_NEWS = "latestNews";
+	public static final String NATIVE_NEWS_UPDATE = "nativeNewsUpdate";
 	public static final String NATIVE_AUTOSTART = "nativeAutostart";
 	public static final String NATIVE_HOSTNAME = "nativeHostname";
 	public static final String NATIVE_REMOTE_ACCESS = "nativeRemoteAccess";

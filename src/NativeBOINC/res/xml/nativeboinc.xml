@@ -20,6 +20,20 @@
  */
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/newsAndUpdates">
+    	<Preference
+			android:key="latestNews"
+			android:title="@string/nativeLatestNewsTitle"
+			android:summary="@string/nativeLatestNewsSummary"
+			android:persistent="false" />
+   	    <CheckBoxPreference
+            android:key="nativeNewsUpdate"
+            android:title="@string/notifyNewsUpdatesTitle"
+            android:summaryOn="@string/notifyNewsUpdatesSummaryOn"
+            android:summaryOff="@string/notifyNewsUpdatesSummaryOff"
+            android:defaultValue="true"
+            android:persistent="true" />
+	</PreferenceCategory>    	
     <PreferenceCategory android:title="@string/nativeAutostart">
         <ListPreference
             android:key="nativeAutostart"

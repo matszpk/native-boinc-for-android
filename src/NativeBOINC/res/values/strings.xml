@@ -180,8 +180,6 @@
 	<string name="prefNewsUpdatePeriodSummary">Update news every</string>
 	<string name="prefViewItemTypeTitle">View item type</string>
 	<string name="prefViewItemTypeSummary">View item type as</string>
-	<string name="prefLatestNewsTitle">Latest news</string>
-	<string name="prefLatestNewsSummary">Displays latest news list</string>
 	
 	<!--  Local Preferences -->
 	<string name="localPreferences">Local preferences</string>
@@ -291,6 +289,14 @@
 	<!--  NativeClient activity -->
 	<string name="nativeAutostart">Client starting</string>
 	<string name="nativeAutostartTitle">Autostart client</string>
+	
+	<string name="newsAndUpdates">News and updates</string>
+	<string name="nativeLatestNewsTitle">Latest news</string>
+	<string name="nativeLatestNewsSummary">Displays latest news list</string>
+	
+	<string name="notifyNewsUpdatesTitle">Notify about news and new binaries</string>
+	<string name="notifyNewsUpdatesSummaryOn">Notifications about news and new binaries every 6 hours enabled</string>
+	<string name="notifyNewsUpdatesSummaryOff">Notifications about news and new binaries every 6 hours disabled</string>
 	
 	<string name="nativeBoincClient">Native BOINC client</string>
 	<string name="nativeBoincNetwork">Network options</string>

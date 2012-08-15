@@ -179,8 +179,6 @@
 	<string name="prefNewsUpdatePeriodSummary">Update news every</string>
 	<string name="prefViewItemTypeTitle">Pokazuj typ elementu</string>
 	<string name="prefViewItemTypeSummary">Pokazuj typ elementu jako</string>
-	<string name="prefLatestNewsTitle">Ostatnie newsy</string>
-	<string name="prefLatestNewsSummary">Wyświetla listę ostatnich newsów</string>
 	
 	<!--  Local Preferences -->
 	<string name="localPreferences">Preferencje lokalne</string>
@@ -289,6 +287,14 @@
 	<!--  NativeClient activity -->
 	<string name="nativeAutostart">Startowanie klienta</string>
 	<string name="nativeAutostartTitle">Autostart klienta</string>
+	
+	<string name="newsAndUpdates">Newsy i aktualizacje</string>
+	<string name="nativeLatestNewsTitle">Ostatnie newsy</string>
+	<string name="nativeLatestNewsSummary">Wyświetla listę ostatnich newsów</string>
+	
+	<string name="notifyNewsUpdatesTitle">Powiadamiaj o newsach i nowych binariach</string>
+	<string name="notifyNewsUpdatesSummaryOn">Powiadomienia o newsach i nowych binariach co 6 godzin włączone</string>
+	<string name="notifyNewsUpdatesSummaryOff">Powiadomienia o newsach i nowych binariach co 6 godzin wyłączone</string>
 	
 	<string name="nativeBoincClient">Natywny klient BOINC</string>
 	<string name="nativeBoincNetwork">Opcje sieciowe</string>

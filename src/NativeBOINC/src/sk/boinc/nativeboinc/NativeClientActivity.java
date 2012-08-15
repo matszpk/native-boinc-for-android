@@ -223,6 +223,16 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 		mScreenOrientation = new ScreenOrientationHandler(this);
 		addPreferencesFromResource(R.xml.nativeboinc);
 		
+		// Display latest news
+		Preference pref = findPreference(PreferenceName.NATIVE_LATEST_NEWS);
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				startActivity(new Intent(NativeClientActivity.this, NewsActivity.class));
+				return true;
+			}
+		});
+		
 		/* native autostart */
 		ListPreference listPref = (ListPreference)findPreference(PreferenceName.NATIVE_AUTOSTART);
 		
@@ -298,7 +308,7 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 		});
 		
 		/* host list preference */
-		Preference pref = (Preference)findPreference(PreferenceName.NATIVE_HOST_LIST);
+		pref = (Preference)findPreference(PreferenceName.NATIVE_HOST_LIST);
 		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {

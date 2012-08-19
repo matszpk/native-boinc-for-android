@@ -1,0 +1,4 @@
+HOW TO COMPILE:
+
+go to 'bin' directory and run 'boinc_compile_android_arm_asmopt.sh' to create
+binaries.

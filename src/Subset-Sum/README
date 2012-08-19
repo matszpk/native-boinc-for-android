@@ -1,0 +1,57 @@
+To compile:
+    After cloning the git repository, be sure to do:
+        git submodule init
+        git submodule update
+    To make sure that you grab all the files in the undvc_common submodule.
+
+    Verbose version:
+        g++ -Wall -DVERBOSE -O3 -o subset_sum subset_sum_main.cpp
+
+    Quiet (fast) version:
+        g++ -Wall -O3 -o subset_sum subset_sum_main.cpp
+
+    For BOINC:
+        g++ -DVERBOSE -DFALSE_ONLY -DENABLE_CHECKPOINTING -D_BOINC_ -O3 -msse3
+            -funroll-loops -ftree-vectorize -Wall subset_sum_main.cpp
+            -o subset_sum
+
+Additional flags:
+    -DTIMESTAMP             -- enable printing the starting, ending and
+                               running time of the program
+    -DFALSE_ONLY            -- only print out the failed sets
+    -DENABLE_COLOR          -- enable ANSI colors. Sums that are required
+                               and found (1s) will be printed green, and
+                               sums that are required and not found (0s)
+                               will be red.
+    -DENABLE_CHECKPOINTING  -- Turns on checkpointing.
+    -DSHOW_SUM_CALCULATION  -- Turns on printing out how the subset sums
+                               are calculated. Useful for debugging and
+                               this might be nice for analysis.
+    -DHTML_OUTPUT           -- Output will be formatted for HTML, so it
+                               can be put in a webpage.
+
+To run:
+    ./subset_sum <M> <N>
+    Where <M> is the maximum set value, and <N> is the number of elements 
+    in the set.  This will calculate it for all subsets.
+
+    ./subset_sum <M> <N> <i> <count>
+    This will start from the <i>th subset of the problem for <M> and <N>,
+    and compute the next <count> subsets.
+
+
+TODO:
+    *   generate_ith_subset and the n_choose_k functions need to be
+        updated so they don't fail when M >= 68 and N >= 34.
+
+    *   Calculate the set sums (without a binary representation) and use
+        it to verify the results from the fast binary implementation.
+        *   Double check that the 'all_ones', 'or_single', 'or_equal' and 
+            'shift_left' functions are working correctly.
+
+    *   Update the code so that instead of checking all sums up to the 
+        sum of all set elements, we only need to check up to the sum 
+        of all set elements divided by 2 (as the sums are symmetric).
+
+BUGS:
+    *   No known bugs at the moment.

@@ -9,7 +9,7 @@ Project applications also available in this repository. We prepared applications
 * Enigma@Home - polish project maintained by TJM.
 * MilkyWay@Home - modeling MilkyWay galaxy (milkyway_separation).
 
-Binaries for this project available at http://krzyszp.info/matszpk/.
+Binaries for this project available at http://files.nativeboinc.org/.
 
 Structure of repository:
 

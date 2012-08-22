@@ -34,6 +34,9 @@ Na Teraz:
 / * popraw obsługę ProjectsFromClientRetriever i metod uzywających jej.
   * dodac powiadamianie o nowych wersjach i komunikatach ze strony autora.
 / * przenies opcje newsów do nativeclient screen, dodaj opcję wyłączania notyfikacji
+  * usuń błąd nieusuwania zawartości zakładek po odłączeniu klienta (np.: po wyjściu do home)
+  * usuń crash: BadTokenException - unable to add window, w StandardUtils.tryShowConnectionErrorDialog
+    BoincManagerActivity
   
 ---------------------------------------------------------------
 

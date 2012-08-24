@@ -205,14 +205,8 @@ test_subset_main_arm:
                 cmp r3,r7
                 blo .Loeloop2
                 
-                // last and or single
-                ldr r8,[r6]
                 sub r2,r2,#32    // or_single
-                orr r8,r8,r10
                 ldr r11,[lr,-r2, lsr #3]        // or_single
-                str r8,[r6]
-                
-                // or_single
                 orr r11,r11,#0x80000000
                 str r11,[lr,-r2, lsr #3]
                 

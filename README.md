@@ -1,4 +1,4 @@
-NativeBOINC for Android project.
+NativeBOINC for Android project. Website available at http://nativeboinc.org/
 
 This is fully-fledged the native BOINC client for Android and BOINC Manager (based on AndroBOINC)
 especially designed for working with this version of BOINC client.

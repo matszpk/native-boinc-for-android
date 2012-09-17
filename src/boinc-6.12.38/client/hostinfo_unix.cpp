@@ -263,6 +263,7 @@ double HOST_INFO::host_battery_level() {
 
 double HOST_INFO::host_battery_temp() {
     static bool use_semc_battery_data=false;
+    static bool use_temp_file=false;
     int present = 0;
     FILE* f = fopen("/sys/class/power_supply/battery/present","rb");
     if (f==NULL)    // not found
@@ -274,7 +275,7 @@ double HOST_INFO::host_battery_temp() {
     
     f = NULL;
     int temp=0;
-    if (!use_semc_battery_data) {
+    if (!use_semc_battery_data && !use_temp_file) {
         f = fopen("/sys/class/power_supply/battery/batt_temp","rb");
         if (f!=NULL) {
             fscanf(f,"%d",&temp);
@@ -285,6 +286,16 @@ double HOST_INFO::host_battery_temp() {
     }
     if (use_semc_battery_data) {
         f = fopen("/sys/class/power_supply/semc_battery_data/temp","rb");
+        if (f!=NULL) {
+            fscanf(f,"%d",&temp);
+            fclose(f);
+        } else {
+            use_semc_battery_data = false;
+            use_temp_file = true;
+        }
+    }
+    if (use_temp_file) {
+        f = fopen("/sys/class/power_supply/battery/temp","rb");
         if (f==NULL)
             return -10000.0;
         fscanf(f,"%d",&temp);
@@ -331,6 +342,7 @@ bool HOST_INFO::host_is_running_on_batteries() {
 #ifdef ANDROID
     static char path2[64] = "";
     static char path3[64] = "";
+    static char path4[64] = "";
 #endif
 
     if (Detect == method) {
@@ -374,6 +386,7 @@ bool HOST_INFO::host_is_running_on_batteries() {
         strcpy(path,"/sys/class/power_supply/ac/online");
         strcpy(path2,"/sys/class/power_supply/usb/online");
         strcpy(path3,"/sys/class/power_supply/hsusb_chg/online");
+        strcpy(path4,"/sys/class/power_supply/pm8921-dc/online");
         method=SysClass;
 #else
         // try SysFS
@@ -457,7 +470,13 @@ bool HOST_INFO::host_is_running_on_batteries() {
         {
             // use /sys/class/power_supply/*/online
             FILE *fsys = fopen(path, "r");
-            if (!fsys) return false;
+            if (!fsys) {
+#ifdef ANDROID
+                fsys = fopen(path4, "r");
+                if (!fsys)
+#endif
+                    return false;
+            }
 
             int online;
             (void) fscanf(fsys, "%d", &online);

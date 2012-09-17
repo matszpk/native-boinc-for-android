@@ -306,7 +306,7 @@
 							android:id="@+id/localPrefTransferPeriodDays"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							android:inputType="number"
+							android:inputType="numberDecimal"
 							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
@@ -328,7 +328,7 @@
 							android:id="@+id/localPrefConnectAboutEvery"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							android:inputType="number"
+							android:inputType="numberDecimal"
 							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"
@@ -350,7 +350,7 @@
 							android:id="@+id/localPrefAdditWorkBuffer"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							android:inputType="number"
+							android:inputType="numberDecimal"
 							android:maxWidth="@dimen/localPrefEditSize" />
 						<TextView
 							android:layout_width="wrap_content"

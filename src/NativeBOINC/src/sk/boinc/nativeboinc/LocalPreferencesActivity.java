@@ -19,6 +19,8 @@
 
 package sk.boinc.nativeboinc;
 
+import java.util.Locale;
+
 import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
 import sk.boinc.nativeboinc.clientconnection.VersionInfo;
@@ -561,36 +563,48 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		mApply.setEnabled(checkPreferences() && doEnabled);
 	}
 	
+	private static final String formatDouble(double d) {
+		String out = String.format(Locale.US, "%.6f", d);
+		
+		int cutted;
+		int length = out.length();
+		for (cutted = 1; cutted < 6; cutted++)
+			if (out.charAt(length-cutted) != '0')
+				break;
+				
+		return out.substring(0, length-cutted+1);
+	}
+	
 	private void updatePreferences(GlobalPreferences globalPrefs) {
 		mComputeInUse.setChecked(globalPrefs.run_if_user_active);
 		mRunAlwaysWhenPlugged.setChecked(globalPrefs.run_always_when_plugged);
 		mComputeOnBatteries.setChecked(globalPrefs.run_on_batteries);
 		mUseGPUInUse.setChecked(globalPrefs.run_gpu_if_user_active);
 		
-		mComputeIdleFor.setText(Double.toString(globalPrefs.idle_time_to_run));
-		mComputeUsageLessThan.setText(Double.toString(globalPrefs.suspend_cpu_usage));
-		mBatteryLevelNL.setText(Double.toString(globalPrefs.run_if_battery_nl_than));
-		mBatteryTempLT.setText(Double.toString(globalPrefs.run_if_temp_lt_than));
+		mComputeIdleFor.setText(formatDouble(globalPrefs.idle_time_to_run));
+		mComputeUsageLessThan.setText(formatDouble(globalPrefs.suspend_cpu_usage));
+		mBatteryLevelNL.setText(formatDouble(globalPrefs.run_if_battery_nl_than));
+		mBatteryTempLT.setText(formatDouble(globalPrefs.run_if_temp_lt_than));
 		
-		mSwitchBetween.setText(Double.toString(globalPrefs.cpu_scheduling_period_minutes));
-		mUseAtMostCPUs.setText(Double.toString(globalPrefs.max_ncpus_pct));
-		mUseAtMostCPUTime.setText(Double.toString(globalPrefs.cpu_usage_limit));
+		mSwitchBetween.setText(formatDouble(globalPrefs.cpu_scheduling_period_minutes));
+		mUseAtMostCPUs.setText(formatDouble(globalPrefs.max_ncpus_pct));
+		mUseAtMostCPUTime.setText(formatDouble(globalPrefs.cpu_usage_limit));
 		
-		mMaxDownloadRate.setText(Double.toString(globalPrefs.max_bytes_sec_down));
-		mMaxUploadRate.setText(Double.toString(globalPrefs.max_bytes_sec_up));
-		mTransferAtMost.setText(Double.toString(globalPrefs.daily_xfer_limit_mb));
+		mMaxDownloadRate.setText(formatDouble(globalPrefs.max_bytes_sec_down));
+		mMaxUploadRate.setText(formatDouble(globalPrefs.max_bytes_sec_up));
+		mTransferAtMost.setText(formatDouble(globalPrefs.daily_xfer_limit_mb));
 		mTransferPeriodDays.setText(Integer.toString(globalPrefs.daily_xfer_period_days));
-		mConnectAboutEvery.setText(Double.toString(globalPrefs.work_buf_min_days));
-		mAdditionalWorkBuffer.setText(Double.toString(globalPrefs.work_buf_additional_days));
+		mConnectAboutEvery.setText(formatDouble(globalPrefs.work_buf_min_days));
+		mAdditionalWorkBuffer.setText(formatDouble(globalPrefs.work_buf_additional_days));
 		mSkipVerifyImages.setChecked(globalPrefs.dont_verify_images);
 		
-		mUseAtMostDiskSpace.setText(Double.toString(globalPrefs.disk_max_used_gb));
-		mUseAtMostTotalDisk.setText(Double.toString(globalPrefs.disk_max_used_pct));
-		mLeaveAtLeastDiskFree.setText(Double.toString(globalPrefs.disk_min_free_gb));
-		mCheckpointToDisk.setText(Double.toString(globalPrefs.disk_interval));
+		mUseAtMostDiskSpace.setText(formatDouble(globalPrefs.disk_max_used_gb));
+		mUseAtMostTotalDisk.setText(formatDouble(globalPrefs.disk_max_used_pct));
+		mLeaveAtLeastDiskFree.setText(formatDouble(globalPrefs.disk_min_free_gb));
+		mCheckpointToDisk.setText(formatDouble(globalPrefs.disk_interval));
 		
-		mUseAtMostMemoryInIdle.setText(Double.toString(globalPrefs.ram_max_used_idle_frac));
-		mUseAtMostMemoryInUse.setText(Double.toString(globalPrefs.ram_max_used_busy_frac));
+		mUseAtMostMemoryInIdle.setText(formatDouble(globalPrefs.ram_max_used_idle_frac));
+		mUseAtMostMemoryInUse.setText(formatDouble(globalPrefs.ram_max_used_busy_frac));
 		mLeaveApplications.setChecked(globalPrefs.leave_apps_in_memory);
 		
 		mCPUTimePreferences = globalPrefs.cpu_times;

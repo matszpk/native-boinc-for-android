@@ -29,6 +29,7 @@ import java.util.TreeMap;
 import java.util.ArrayList;
 
 import sk.boinc.nativeboinc.R;
+import sk.boinc.nativeboinc.bridge.ClientBridge.ReplyHandler;
 import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.HostInfo;
@@ -1804,11 +1805,12 @@ public class ClientBridgeWorkerHandler extends Handler {
 		final boolean currentIsWorking = isWorking();
 		if (mPreviousStateOfIsWorking != currentIsWorking) {
 			mPreviousStateOfIsWorking = currentIsWorking;
-			mReplyHandler.post(new Runnable() {
+			final ReplyHandler replyHandler = mReplyHandler;
+			replyHandler.post(new Runnable() {
 				@Override
 				public void run() {
-					if (mReplyHandler != null)
-						mReplyHandler.onChangeIsWorking(currentIsWorking);
+					if (replyHandler != null) // TODO: fix this error!!!
+						replyHandler.onChangeIsWorking(currentIsWorking);
 				}
 			});
 		}

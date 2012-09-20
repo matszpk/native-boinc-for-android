@@ -31,14 +31,21 @@ void __libc_init(uintptr_t *elfdata, void (*onexit)(void),
 #ifdef DEBUG
     printf("lockfd:%d\n",lockfd);
 #endif
+
+#ifdef SLEEPING
+    sleep(10);
+#endif
     selfpath = malloc(PATH_MAX);
     if (selfpath != NULL)
     { // remove self exec
       readlink("/proc/self/exe",selfpath, PATH_MAX);
+      if (strncmp(selfpath,BOINCEXECDIR,BOINCEXECDIR_LEN)==0)
+      {
 #ifdef DEBUG
-      printf("remove self:%s\n",selfpath);
+        printf("remove self:%s\n",selfpath);
 #endif
-      remove(selfpath);
+        remove(selfpath);
+      }
       free(selfpath);
     }
   

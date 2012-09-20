@@ -20,104 +20,13 @@ static int (*real_execve)(const char* filename, char* const argv[], char* const 
 
 #define MYBUF_SIZE (1024)
 
-int execve(const char* filename, char* const argv[], char* const envp[])
+static char** setup_ldpreenvs(char* const envp[], int lockfd)
 {
   uint32_t i;
-  size_t readed,newpathlen;
-  int origfd = -1;
-  int copyfd = -1;
-  int lockfd = -1;
-  char newpath[128];
-  char newlockpath[128];
-  uint32_t newnumber;
   size_t newenvp_n;
   char** newenvp = NULL;
   char envfdstr[40]; // environment text for fd
   char* ldpre_envstr = NULL;
-  char* mybuf = NULL;
-  char* realfilename = NULL;
-  
-  struct timeval tv1;
-
-  if (real_execve == NULL)
-    real_execve = dlsym(RTLD_NEXT, "execve");
-
-  realfilename = malloc(PATH_MAX);
-  if (realfilename == NULL)
-    return -1;
-  if (realpath(filename, realfilename) == NULL)
-    return -1;
-  // check whether is execfile in /data directory
-  if (strncmp(realfilename,"/sdcard/",8)!=0 &&
-      strncmp(realfilename,"/mnt/sdcard/",12)!=0)
-  {
-#ifdef DEBUG
-    printf("exec directly:%s,%s,%s\n",realfilename,filename,argv[0]);
-#endif
-    free(realfilename);
-    return real_execve(filename,argv,envp); // exec it
-  }
-      
-  free(realfilename); // freeing it
-
-  ///////////////////////////////
-  // real execve wrapper
-  ////////////////////////////////   
-  if (access(BOINCEXECDIR,R_OK)!=0)
-  {
-#ifdef DEBUG
-    puts("Creating needed directory");
-#endif
-    mkdir(BOINCEXECDIR, 0700);
-  }
-  
-  // determine new paths
-  gettimeofday(&tv1,NULL);
-  srand(tv1.tv_usec);
-  newnumber = rand()%100;
-  newpathlen = snprintf(newpath, 128, BOINCEXECDIR "/%u", newnumber);
-  strcpy(newlockpath, newpath);
-  newlockpath[newpathlen] = 'l';
-  newlockpath[newpathlen+1] = 0;
-  
-#ifdef DEBUG
-  printf("newpath:%s,newlock:%s\n",newpath,newlockpath);
-#endif
-  
-  // lock lockfile
-  lockfd = open(newlockpath,O_CREAT|O_WRONLY,0600);
-  if (lockfd == -1)
-    goto error; // fail
-  flock(lockfd, LOCK_EX);
-  
-  mybuf = malloc(MYBUF_SIZE);
-  if (mybuf == NULL)
-    goto error;
-  
-  // copy file
-  origfd = open(filename,O_RDONLY);
-  copyfd = open(newpath,O_WRONLY|O_CREAT,0700);
-  
-  if (origfd == -1)
-    goto error;
-  if (copyfd == -1)
-    goto error;
-  
-  // copy loop
-  do { 
-    readed = read(origfd,mybuf,MYBUF_SIZE);
-    write(copyfd,mybuf,readed);
-  } while (readed == MYBUF_SIZE);
-  
-  close(origfd);
-  close(copyfd);
-  copyfd = origfd = -1;
-  
-  free(mybuf);
-  mybuf = NULL;
-  
-  // chmoding
-  //chmod(newpath,0700);
   
   // prepare envinonments
   // counting
@@ -128,32 +37,35 @@ int execve(const char* filename, char* const argv[], char* const envp[])
 #endif
   newenvp = malloc(sizeof(char*)*(newenvp_n+3));
   if (newenvp == NULL)
-    goto error;
+    goto error1;
   memcpy(newenvp,envp,sizeof(char*)*(newenvp_n+1));
   
   // pass lockfile fd
-  snprintf(envfdstr,32,FDENVNAME "=%d",lockfd);
+  if (lockfd != -1)
+  {
+    snprintf(envfdstr,32,FDENVNAME "=%d",lockfd);
 #ifdef DEBUG
-  printf("new fdenv:%s\n",envfdstr);
+    printf("new fdenv:%s\n",envfdstr);
 #endif
-  // search in envp FDENVNAME
-  for (i = 0; i < newenvp_n; i++)
-    if (strncmp(newenvp[i],FDENVNAME "=",FDENVNAME_LEN+1)==0)
-    { // if found, we replace it
-      newenvp[i] = envfdstr;
+    // search in envp FDENVNAME
+    for (i = 0; i < newenvp_n; i++)
+      if (strncmp(newenvp[i],FDENVNAME "=",FDENVNAME_LEN+1)==0)
+      { // if found, we replace it
+        newenvp[i] = envfdstr;
 #ifdef DEBUG
-      puts("fdenv replaced");
+        puts("fdenv replaced");
 #endif
-      break;
+        break;
+      }
+    
+    if (i == newenvp_n)
+    { // if not found, we adds
+#ifdef DEBUG
+        puts("fdenv added");
+#endif
+      newenvp[newenvp_n++] = envfdstr;
+      newenvp[newenvp_n] = NULL;
     }
-  
-  if (i == newenvp_n)
-  { // if not found, we adds
-#ifdef DEBUG
-      puts("fdenv added");
-#endif
-    newenvp[newenvp_n++] = envfdstr;
-    newenvp[newenvp_n] = NULL;
   }
   
   // check preload
@@ -176,11 +88,140 @@ int execve(const char* filename, char* const argv[], char* const envp[])
 #endif
     newenvp[i] = "LD_PRELOAD=" EW_PATH;
   }
+  return newenvp;
   
+error1:
+  if (newenvp!=NULL)
+    free(newenvp);
+  if (ldpre_envstr!=NULL)
+    free(ldpre_envstr);
+  return NULL;
+}
+
+int execve(const char* filename, char* const argv[], char* const envp[])
+{
+  size_t readed,newpathlen;
+  int origfd = -1;
+  int copyfd = -1;
+  int lockfd = -1;
+  char newpath[128];
+  char newlockpath[128];
+  uint32_t newnumber;
+  char* mybuf = NULL;
+  char* realfilename = NULL;
+  char** newenvp = NULL;
+  
+  char* extstorage = NULL;
+  size_t extstorage_len = 0;
+  
+  struct timeval tv1;
+
+  if (real_execve == NULL)
+    real_execve = dlsym(RTLD_NEXT, "execve");
+
+  realfilename = malloc(PATH_MAX);
+  if (realfilename == NULL)
+    return -1;
+  if (realpath(filename, realfilename) == NULL)
+    return -1;
+  
+  extstorage = getenv("EXTERNAL_STORAGE");
+  if (extstorage==NULL)
+    extstorage = "/mnt/sdcard";
+  extstorage_len = strlen(extstorage);
+  if (extstorage[extstorage_len-1]=='/')
+    extstorage_len--; // remove slash
+  
+#ifdef DEBUG
+  printf("extstorage:%s\n",extstorage);
+#endif
+  
+  // check whether is execfile in /data directory
+  if (strncmp(realfilename,"/sdcard/",8)!=0 &&
+      (strncmp(realfilename,extstorage,extstorage_len)!=0 ||
+       realfilename[extstorage_len]!='/'))
+  {
+#ifdef DEBUG
+    printf("exec directly:%s,%s,%s\n",realfilename,filename,argv[0]);
+#endif
+    free(realfilename);
+    
+    newenvp = setup_ldpreenvs(envp, lockfd);
+    if (newenvp==NULL)
+      goto error2;
+    return real_execve(filename,argv,newenvp); // exec it
+  }
+      
+  free(realfilename); // freeing it
+
+  ///////////////////////////////
+  // real execve wrapper
+  ////////////////////////////////   
+  if (access(BOINCEXECDIR,R_OK)!=0)
+  {
+#ifdef DEBUG
+    puts("Creating needed directory");
+#endif
+    mkdir(BOINCEXECDIR, 0700);
+  }
+  
+  // determine new paths
+#ifdef TESTING
+  newnumber = 7;
+#else
+  gettimeofday(&tv1,NULL);
+  srand(tv1.tv_usec);
+  newnumber = rand()%10;
+#endif
+  newpathlen = snprintf(newpath, 128, BOINCEXECDIR "/%u", newnumber);
+  strcpy(newlockpath, newpath);
+  newlockpath[newpathlen] = 'l';
+  newlockpath[newpathlen+1] = 0;
+  
+#ifdef DEBUG
+  printf("newpath:%s,newlock:%s\n",newpath,newlockpath);
+#endif
+  
+  // lock lockfile
+  lockfd = open(newlockpath,O_CREAT|O_WRONLY,0600);
+  if (lockfd == -1)
+    goto error2; // fail
+  flock(lockfd, LOCK_EX);
+  
+  mybuf = malloc(MYBUF_SIZE);
+  if (mybuf == NULL)
+    goto error2;
+  
+  // copy file
+  origfd = open(filename,O_RDONLY);
+  copyfd = open(newpath,O_WRONLY|O_CREAT,0700);
+  
+  if (origfd == -1)
+    goto error2;
+  if (copyfd == -1)
+    goto error2;
+  
+  // copy loop
+  do { 
+    readed = read(origfd,mybuf,MYBUF_SIZE);
+    write(copyfd,mybuf,readed);
+  } while (readed == MYBUF_SIZE);
+  
+  close(origfd);
+  close(copyfd);
+  copyfd = origfd = -1;
+  
+  free(mybuf);
+  mybuf = NULL;
+  
+  newenvp = setup_ldpreenvs(envp, lockfd);
+  if (newenvp==NULL)
+    goto error2;
+    
   // main exec
   return real_execve(newpath, argv, newenvp);
 
-error:
+error2:
   if (lockfd != -1)
   { // unlock lockfile
     flock(lockfd, LOCK_UN);
@@ -193,9 +234,5 @@ error:
   
   if (mybuf!=NULL)
     free(mybuf);
-  if (newenvp!=NULL)
-    free(newenvp);
-  if (ldpre_envstr!=NULL)
-    free(ldpre_envstr);
   return -1;
 }

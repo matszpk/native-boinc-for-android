@@ -4,6 +4,7 @@
  */
 
 #define BOINCEXECDIR "/data/local/tmp/execs"
+#define BOINCEXECDIR_LEN 21
 #define FDENVNAME "LIBEXECWRAPPER_FD"
 #define FDENVNAME_LEN 17
 

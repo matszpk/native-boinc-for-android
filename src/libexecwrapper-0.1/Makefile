@@ -3,9 +3,9 @@
 # Author: Mateusz Szpakowski
 ########################
 
-#DEFS=-DDEBUG=1 -DTESTING=1
+DEFS=-DDEBUG=1 -DTESTING=1 -DSLEEPING=1
 #DEFS=-DTESTING=1
-DEFS=
+#DEFS=
 
 LIBEW = libexecwrapper.so
 

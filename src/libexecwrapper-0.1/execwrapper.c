@@ -3,6 +3,9 @@
  * Author: Mateusz Szpakowski
  */
 
+#include <sys/param.h>
+#include <sys/types.h>
+#include <sys/uio.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -13,8 +16,224 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <dlfcn.h>
+#include <paths.h>
+#include <stdarg.h>
+#include <alloca.h>
+#include <limits.h>
 
 #include "config.h"
+
+/*
+ * wrapping other execs - ensure that execve will be executes always
+ * from bionic
+ */
+
+extern char **environ;
+
+int
+execl(const char *name, const char *arg, ...)
+{
+        va_list ap;
+        char **argv;
+        int n;
+
+        va_start(ap, arg);
+        n = 1;
+        while (va_arg(ap, char *) != NULL)
+                n++;
+        va_end(ap);
+        argv = alloca((n + 1) * sizeof(*argv));
+        if (argv == NULL) {
+                errno = ENOMEM;
+                return (-1);
+        }
+        va_start(ap, arg);
+        n = 1;
+        argv[0] = (char *)arg;
+        while ((argv[n] = va_arg(ap, char *)) != NULL)
+                n++;
+        va_end(ap);
+        return (execve(name, argv, environ));
+}
+
+int
+execle(const char *name, const char *arg, ...)
+{
+        va_list ap;
+        char **argv, **envp;
+        int n;
+
+        va_start(ap, arg);
+        n = 1;
+        while (va_arg(ap, char *) != NULL)
+                n++;
+        va_end(ap);
+        argv = alloca((n + 1) * sizeof(*argv));
+        if (argv == NULL) {
+                errno = ENOMEM;
+                return (-1);
+        }
+        va_start(ap, arg);
+        n = 1;
+        argv[0] = (char *)arg;
+        while ((argv[n] = va_arg(ap, char *)) != NULL)
+                n++;
+        envp = va_arg(ap, char **);
+        va_end(ap);
+        return (execve(name, argv, envp));
+}
+
+int
+execlp(const char *name, const char *arg, ...)
+{
+        va_list ap;
+        char **argv;
+        int n;
+
+        va_start(ap, arg);
+        n = 1;
+        while (va_arg(ap, char *) != NULL)
+                n++;
+        va_end(ap);
+        argv = alloca((n + 1) * sizeof(*argv));
+        if (argv == NULL) {
+                errno = ENOMEM;
+                return (-1);
+        }
+        va_start(ap, arg);
+        n = 1;
+        argv[0] = (char *)arg;
+        while ((argv[n] = va_arg(ap, char *)) != NULL)
+                n++;
+        va_end(ap);
+        return (execvp(name, argv));
+}
+
+int
+execv(const char *name, char * const *argv)
+{
+        (void)execve(name, argv, environ);
+        return (-1);
+}
+
+int
+execvp(const char *name, char * const *argv)
+{
+        char **memp;
+        int cnt, lp, ln, len;
+        char *p;
+        int eacces = 0;
+        char *bp, *cur, *path, buf[MAXPATHLEN];
+
+        /*
+         * Do not allow null name
+         */
+        if (name == NULL || *name == '\0') {
+                errno = ENOENT;
+                return (-1);
+        }
+
+        /* If it's an absolute or relative path name, it's easy. */
+        if (strchr(name, '/')) {
+                bp = (char *)name;
+                cur = path = NULL;
+                goto retry;
+        }
+        bp = buf;
+
+        /* Get the path we're searching. */
+        if (!(path = getenv("PATH")))
+                path = _PATH_DEFPATH;
+        len = strlen(path) + 1;
+        cur = alloca(len);
+        if (cur == NULL) {
+                errno = ENOMEM;
+                return (-1);
+        }
+        strlcpy(cur, path, len);
+        path = cur;
+        while ((p = strsep(&cur, ":"))) {
+                /*
+                 * It's a SHELL path -- double, leading and trailing colons
+                 * mean the current directory.
+                 */
+                if (!*p) {
+                        p = ".";
+                        lp = 1;
+                } else
+                        lp = strlen(p);
+                ln = strlen(name);
+
+                /*
+                 * If the path is too long complain.  This is a possible
+                 * security issue; given a way to make the path too long
+                 * the user may execute the wrong program.
+                 */
+                if (lp + ln + 2 > (int)sizeof(buf)) {
+                        struct iovec iov[3];
+
+                        iov[0].iov_base = "execvp: ";
+                        iov[0].iov_len = 8;
+                        iov[1].iov_base = p;
+                        iov[1].iov_len = lp;
+                        iov[2].iov_base = ": path too long\n";
+                        iov[2].iov_len = 16;
+                        (void)writev(STDERR_FILENO, iov, 3);
+                        continue;
+                }
+                memcpy(buf, p, lp);
+                buf[lp] = '/';
+                memcpy(buf + lp + 1, name, ln);
+                buf[lp + ln + 1] = '\0';
+
+retry:          (void)execve(bp, argv, environ);
+                switch(errno) {
+                case E2BIG:
+                        goto done;
+                case EISDIR:
+                case ELOOP:
+                case ENAMETOOLONG:
+                case ENOENT:
+                        break;
+                case ENOEXEC:
+                        for (cnt = 0; argv[cnt]; ++cnt)
+                                ;
+                        memp = alloca((cnt + 2) * sizeof(char *));
+                        if (memp == NULL)
+                                goto done;
+                        memp[0] = "sh";
+                        memp[1] = bp;
+                        memcpy(memp + 2, argv + 1, cnt * sizeof(char *));
+                        (void)execve(_PATH_BSHELL, memp, environ);
+                        goto done;
+                case ENOMEM:
+                        goto done;
+                case ENOTDIR:
+                        break;
+                case ETXTBSY:
+                        /*
+                         * We used to retry here, but sh(1) doesn't.
+                         */
+                        goto done;
+                case EACCES:
+                        eacces = 1;
+                        break;
+                default:
+                        goto done;
+                }
+        }
+        if (eacces)
+                errno = EACCES;
+        else if (!errno)
+                errno = ENOENT;
+done:
+        return (-1);
+}
+
+
+/*
+ * main execve wrapper
+ */
 
 static int (*real_execve)(const char* filename, char* const argv[], char* const envp[]) = NULL;
 
@@ -118,6 +337,10 @@ int execve(const char* filename, char* const argv[], char* const envp[])
 
   if (real_execve == NULL)
     real_execve = dlsym(RTLD_NEXT, "execve");
+
+#ifdef DEBUG
+  puts("realpathing");
+#endif
 
   realfilename = malloc(PATH_MAX);
   if (realfilename == NULL)

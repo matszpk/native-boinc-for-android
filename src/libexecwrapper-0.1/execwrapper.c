@@ -16,226 +16,38 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <dlfcn.h>
-#include <paths.h>
-#include <stdarg.h>
-#include <alloca.h>
-#include <limits.h>
 
 #include "config.h"
-
-/*
- * wrapping other execs - ensure that execve will be executes always
- * from bionic
- */
-
-extern char **environ;
-
-int
-execl(const char *name, const char *arg, ...)
-{
-        va_list ap;
-        char **argv;
-        int n;
-
-        va_start(ap, arg);
-        n = 1;
-        while (va_arg(ap, char *) != NULL)
-                n++;
-        va_end(ap);
-        argv = alloca((n + 1) * sizeof(*argv));
-        if (argv == NULL) {
-                errno = ENOMEM;
-                return (-1);
-        }
-        va_start(ap, arg);
-        n = 1;
-        argv[0] = (char *)arg;
-        while ((argv[n] = va_arg(ap, char *)) != NULL)
-                n++;
-        va_end(ap);
-        return (execve(name, argv, environ));
-}
-
-int
-execle(const char *name, const char *arg, ...)
-{
-        va_list ap;
-        char **argv, **envp;
-        int n;
-
-        va_start(ap, arg);
-        n = 1;
-        while (va_arg(ap, char *) != NULL)
-                n++;
-        va_end(ap);
-        argv = alloca((n + 1) * sizeof(*argv));
-        if (argv == NULL) {
-                errno = ENOMEM;
-                return (-1);
-        }
-        va_start(ap, arg);
-        n = 1;
-        argv[0] = (char *)arg;
-        while ((argv[n] = va_arg(ap, char *)) != NULL)
-                n++;
-        envp = va_arg(ap, char **);
-        va_end(ap);
-        return (execve(name, argv, envp));
-}
-
-int
-execlp(const char *name, const char *arg, ...)
-{
-        va_list ap;
-        char **argv;
-        int n;
-
-        va_start(ap, arg);
-        n = 1;
-        while (va_arg(ap, char *) != NULL)
-                n++;
-        va_end(ap);
-        argv = alloca((n + 1) * sizeof(*argv));
-        if (argv == NULL) {
-                errno = ENOMEM;
-                return (-1);
-        }
-        va_start(ap, arg);
-        n = 1;
-        argv[0] = (char *)arg;
-        while ((argv[n] = va_arg(ap, char *)) != NULL)
-                n++;
-        va_end(ap);
-        return (execvp(name, argv));
-}
-
-int
-execv(const char *name, char * const *argv)
-{
-        (void)execve(name, argv, environ);
-        return (-1);
-}
-
-int
-execvp(const char *name, char * const *argv)
-{
-        char **memp;
-        int cnt, lp, ln, len;
-        char *p;
-        int eacces = 0;
-        char *bp, *cur, *path, buf[MAXPATHLEN];
-
-        /*
-         * Do not allow null name
-         */
-        if (name == NULL || *name == '\0') {
-                errno = ENOENT;
-                return (-1);
-        }
-
-        /* If it's an absolute or relative path name, it's easy. */
-        if (strchr(name, '/')) {
-                bp = (char *)name;
-                cur = path = NULL;
-                goto retry;
-        }
-        bp = buf;
-
-        /* Get the path we're searching. */
-        if (!(path = getenv("PATH")))
-                path = _PATH_DEFPATH;
-        len = strlen(path) + 1;
-        cur = alloca(len);
-        if (cur == NULL) {
-                errno = ENOMEM;
-                return (-1);
-        }
-        strlcpy(cur, path, len);
-        path = cur;
-        while ((p = strsep(&cur, ":"))) {
-                /*
-                 * It's a SHELL path -- double, leading and trailing colons
-                 * mean the current directory.
-                 */
-                if (!*p) {
-                        p = ".";
-                        lp = 1;
-                } else
-                        lp = strlen(p);
-                ln = strlen(name);
-
-                /*
-                 * If the path is too long complain.  This is a possible
-                 * security issue; given a way to make the path too long
-                 * the user may execute the wrong program.
-                 */
-                if (lp + ln + 2 > (int)sizeof(buf)) {
-                        struct iovec iov[3];
-
-                        iov[0].iov_base = "execvp: ";
-                        iov[0].iov_len = 8;
-                        iov[1].iov_base = p;
-                        iov[1].iov_len = lp;
-                        iov[2].iov_base = ": path too long\n";
-                        iov[2].iov_len = 16;
-                        (void)writev(STDERR_FILENO, iov, 3);
-                        continue;
-                }
-                memcpy(buf, p, lp);
-                buf[lp] = '/';
-                memcpy(buf + lp + 1, name, ln);
-                buf[lp + ln + 1] = '\0';
-
-retry:          (void)execve(bp, argv, environ);
-                switch(errno) {
-                case E2BIG:
-                        goto done;
-                case EISDIR:
-                case ELOOP:
-                case ENAMETOOLONG:
-                case ENOENT:
-                        break;
-                case ENOEXEC:
-                        for (cnt = 0; argv[cnt]; ++cnt)
-                                ;
-                        memp = alloca((cnt + 2) * sizeof(char *));
-                        if (memp == NULL)
-                                goto done;
-                        memp[0] = "sh";
-                        memp[1] = bp;
-                        memcpy(memp + 2, argv + 1, cnt * sizeof(char *));
-                        (void)execve(_PATH_BSHELL, memp, environ);
-                        goto done;
-                case ENOMEM:
-                        goto done;
-                case ENOTDIR:
-                        break;
-                case ETXTBSY:
-                        /*
-                         * We used to retry here, but sh(1) doesn't.
-                         */
-                        goto done;
-                case EACCES:
-                        eacces = 1;
-                        break;
-                default:
-                        goto done;
-                }
-        }
-        if (eacces)
-                errno = EACCES;
-        else if (!errno)
-                errno = ENOENT;
-done:
-        return (-1);
-}
-
 
 /*
  * main execve wrapper
  */
 
+static int is_sdcard_dev_determined = 0;
+static dev_t sdcard_dev = -1;
+
+static int (*real_stat)(const char* path, struct stat* buf) = NULL;
+
 static int (*real_execve)(const char* filename, char* const argv[], char* const envp[]) = NULL;
+
+static int (*real_access)(const char* path, int flags) = NULL;
+static int (*real_mkdir)(const char* dirpath, mode_t mode) = NULL;
+
+static int (*real_open)(const char* file, int flags, ...) = NULL;
+
+static void init_handles(void)
+{
+  if (real_execve == NULL)
+  {
+    real_execve = dlsym(RTLD_NEXT, "execve");
+    real_stat = dlsym(RTLD_NEXT, "stat");
+    
+    real_access = dlsym(RTLD_NEXT, "access");
+    real_mkdir = dlsym(RTLD_NEXT, "mkdir");
+    
+    real_open = dlsym(RTLD_NEXT, "open");
+  }
+}
 
 #define MYBUF_SIZE (1024)
 
@@ -317,6 +129,28 @@ error1:
   return NULL;
 }
 
+static int check_sdcard(const char* pathname)
+{
+  struct stat stbuf;
+  if (!is_sdcard_dev_determined)
+  {
+    if (real_stat("/mnt/sdcard",&stbuf)==-1)
+      return 0;
+    sdcard_dev = stbuf.st_dev;
+#ifdef DEBUG
+    printf("sdcard dev=%d\n",sdcard_dev);
+#endif
+    is_sdcard_dev_determined = 1;
+  }
+  
+  if (real_stat(pathname,&stbuf)==-1)
+    return 0;
+#ifdef DEBUG
+  printf("dev for %s=%llu\n",pathname,stbuf.st_dev);
+#endif
+  return stbuf.st_dev==sdcard_dev;
+}
+
 int execve(const char* filename, char* const argv[], char* const envp[])
 {
   size_t readed,newpathlen;
@@ -326,66 +160,34 @@ int execve(const char* filename, char* const argv[], char* const envp[])
   char newpath[128];
   char newlockpath[128];
   uint32_t newnumber;
-  char* mybuf = NULL;
-  char* realfilename = NULL;
+  char mybuf[MYBUF_SIZE];
   char** newenvp = NULL;
-  
-  char* extstorage = NULL;
-  size_t extstorage_len = 0;
   
   struct timeval tv1;
 
-  if (real_execve == NULL)
-    real_execve = dlsym(RTLD_NEXT, "execve");
-
-#ifdef DEBUG
-  puts("realpathing");
-#endif
-
-  realfilename = malloc(PATH_MAX);
-  if (realfilename == NULL)
-    return -1;
-  if (realpath(filename, realfilename) == NULL)
-    return -1;
-  
-  extstorage = getenv("EXTERNAL_STORAGE");
-  if (extstorage==NULL)
-    extstorage = "/mnt/sdcard";
-  extstorage_len = strlen(extstorage);
-  if (extstorage[extstorage_len-1]=='/')
-    extstorage_len--; // remove slash
-  
-#ifdef DEBUG
-  printf("extstorage:%s\n",extstorage);
-#endif
+  init_handles();
   
   // check whether is execfile in /data directory
-  if (strncmp(realfilename,"/sdcard/",8)!=0 &&
-      (strncmp(realfilename,extstorage,extstorage_len)!=0 ||
-       realfilename[extstorage_len]!='/'))
+  if (!check_sdcard(filename))
   {
 #ifdef DEBUG
-    printf("exec directly:%s,%s,%s\n",realfilename,filename,argv[0]);
+    printf("exec directly:%s,%s\n",filename,argv[0]);
 #endif
-    free(realfilename);
-    
     newenvp = setup_ldpreenvs(envp, lockfd);
     if (newenvp==NULL)
       goto error2;
     return real_execve(filename,argv,newenvp); // exec it
   }
-      
-  free(realfilename); // freeing it
-
+  
   ///////////////////////////////
   // real execve wrapper
   ////////////////////////////////   
-  if (access(BOINCEXECDIR,R_OK)!=0)
+  if (real_access(BOINCEXECDIR,R_OK)!=0)
   {
 #ifdef DEBUG
     puts("Creating needed directory");
 #endif
-    mkdir(BOINCEXECDIR, 0700);
+    real_mkdir(BOINCEXECDIR, 0700);
   }
   
   // determine new paths
@@ -406,18 +208,14 @@ int execve(const char* filename, char* const argv[], char* const envp[])
 #endif
   
   // lock lockfile
-  lockfd = open(newlockpath,O_CREAT|O_WRONLY,0600);
+  lockfd = real_open(newlockpath,O_CREAT|O_WRONLY,0600);
   if (lockfd == -1)
     goto error2; // fail
   flock(lockfd, LOCK_EX);
   
-  mybuf = malloc(MYBUF_SIZE);
-  if (mybuf == NULL)
-    goto error2;
-  
   // copy file
-  origfd = open(filename,O_RDONLY);
-  copyfd = open(newpath,O_WRONLY|O_CREAT,0700);
+  origfd = real_open(filename,O_RDONLY);
+  copyfd = real_open(newpath,O_WRONLY|O_CREAT,0700);
   
   if (origfd == -1)
     goto error2;
@@ -433,9 +231,6 @@ int execve(const char* filename, char* const argv[], char* const envp[])
   close(origfd);
   close(copyfd);
   copyfd = origfd = -1;
-  
-  free(mybuf);
-  mybuf = NULL;
   
   newenvp = setup_ldpreenvs(envp, lockfd);
   if (newenvp==NULL)
@@ -454,8 +249,5 @@ error2:
     close(origfd);
   if (copyfd != -1)
     close(copyfd);
-  
-  if (mybuf!=NULL)
-    free(mybuf);
   return -1;
 }

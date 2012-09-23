@@ -14,7 +14,7 @@
 
 static void (*real_libc_init)(uintptr_t *elfdata,void (*onexit)(void),
     int (*slingshot)(int, char**, char**),void* structors) = NULL;
-
+static int (*real_remove)(const char* path) = NULL;
 
 void __libc_init(uintptr_t *elfdata, void (*onexit)(void),
     int (*slingshot)(int, char**, char**),void* structors)
@@ -23,7 +23,10 @@ void __libc_init(uintptr_t *elfdata, void (*onexit)(void),
   char* fdstr = NULL;
   char* selfpath = NULL;
   if (real_libc_init == NULL)
+  {
     real_libc_init = dlsym(RTLD_NEXT, "__libc_init");
+    real_remove = dlsym(RTLD_NEXT, "remove");
+  }
   
   fdstr=getenv(FDENVNAME);
   if (fdstr != NULL && sscanf(fdstr,"%d",&lockfd)==1)
@@ -44,7 +47,7 @@ void __libc_init(uintptr_t *elfdata, void (*onexit)(void),
 #ifdef DEBUG
         printf("remove self:%s\n",selfpath);
 #endif
-        remove(selfpath);
+        real_remove(selfpath);
       }
       free(selfpath);
     }

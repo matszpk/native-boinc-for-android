@@ -33,7 +33,7 @@ static int (*real_execve)(const char* filename, char* const argv[], char* const 
 static int (*real_access)(const char* path, int flags) = NULL;
 static int (*real_mkdir)(const char* dirpath, mode_t mode) = NULL;
 
-static int (*real_open)(const char* file, int flags, ...) = NULL;
+static int (*real___open)(const char* file, int flags, mode_t mode) = NULL;
 
 static void init_handles(void)
 {
@@ -45,7 +45,7 @@ static void init_handles(void)
     real_access = dlsym(RTLD_NEXT, "access");
     real_mkdir = dlsym(RTLD_NEXT, "mkdir");
     
-    real_open = dlsym(RTLD_NEXT, "open");
+    real___open = dlsym(RTLD_NEXT, "__open");
   }
 }
 
@@ -208,14 +208,14 @@ int execve(const char* filename, char* const argv[], char* const envp[])
 #endif
   
   // lock lockfile
-  lockfd = real_open(newlockpath,O_CREAT|O_WRONLY,0600);
+  lockfd = real___open(newlockpath,O_CREAT|O_WRONLY,0600);
   if (lockfd == -1)
     goto error2; // fail
   flock(lockfd, LOCK_EX);
   
   // copy file
-  origfd = real_open(filename,O_RDONLY);
-  copyfd = real_open(newpath,O_WRONLY|O_CREAT,0700);
+  origfd = real___open(filename,O_RDONLY,0600);
+  copyfd = real___open(newpath,O_WRONLY|O_CREAT|O_TRUNC,0700);
   
   if (origfd == -1)
     goto error2;

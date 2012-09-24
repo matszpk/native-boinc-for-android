@@ -15,6 +15,7 @@
 static void (*real_libc_init)(uintptr_t *elfdata,void (*onexit)(void),
     int (*slingshot)(int, char**, char**),void* structors) = NULL;
 static int (*real_unlink)(const char* path) = NULL;
+static int (*real_readlink)(const char* linkpath, char* buf, size_t bufsize) = NULL;
 
 void __libc_init(uintptr_t *elfdata, void (*onexit)(void),
     int (*slingshot)(int, char**, char**),void* structors)
@@ -26,6 +27,7 @@ void __libc_init(uintptr_t *elfdata, void (*onexit)(void),
   {
     real_libc_init = dlsym(RTLD_NEXT, "__libc_init");
     real_unlink = dlsym(RTLD_NEXT, "unlink");
+    real_readlink = dlsym(RTLD_NEXT, "readlink");
   }
   
   fdstr=getenv(FDENVNAME);
@@ -41,7 +43,11 @@ void __libc_init(uintptr_t *elfdata, void (*onexit)(void),
     selfpath = malloc(PATH_MAX);
     if (selfpath != NULL)
     { // remove self exec
-      readlink("/proc/self/exe",selfpath, PATH_MAX);
+      int size = real_readlink("/proc/self/exe",selfpath, PATH_MAX);
+      if (size != -1)
+        selfpath[size] = 0;
+      else
+        selfpath[0] = 0;
       if (strncmp(selfpath,BOINCEXECDIR,BOINCEXECDIR_LEN)==0)
       {
 #ifdef DEBUG

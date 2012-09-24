@@ -181,7 +181,10 @@ int execve(const char* filename, char* const argv[], char* const envp[])
   
   ///////////////////////////////
   // real execve wrapper
-  ////////////////////////////////   
+  ////////////////////////////////
+  if (access(filename,X_OK)!=0)
+    return -1;
+  
   if (real_access(BOINCEXECDIR,R_OK)!=0)
   {
 #ifdef DEBUG

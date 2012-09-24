@@ -15,8 +15,9 @@ COMMON_DEFS = -DWITH_ERRLIST            \
 	-I$(LOCAL_PATH)/private \
 	-DUSE_DL_PREFIX \
 	-DPOSIX_MISTAKE
-    
-DEFS=-DDEBUG=1 
+ 
+DEFS=
+#DEFS=-DDEBUG=1 
 #DEFS=-DDEBUG=1 -DTESTING=1 -DSLEEPING=1
 #DEFS=-DTESTING=1
 #DEFS=
@@ -29,10 +30,12 @@ clean:
 	rm -f *.o bionic/*.o bionic/stdio/*.o $(LIBEW)
 
 BIONICSRCS = bionic/creat.c bionic/exec.c bionic/open.c bionic/opendir.c \
-	bionic/popen.c bionic/realpath.c bionic/utime.c bionic/system.c
+	bionic/popen.c bionic/realpath.c bionic/utime.c bionic/system.c \
+	bionic/strtod.c
 
 BIONICOBJS = bionic/creat.o bionic/exec.o bionic/open.o bionic/opendir.o \
-	bionic/popen.o bionic/realpath.o bionic/utime.o bionic/system.o
+	bionic/popen.o bionic/realpath.o bionic/utime.o bionic/system.o \
+	bionic/strtod.o
 
 BIONICSTDSRCS = \
     bionic/stdio/asprintf.c \

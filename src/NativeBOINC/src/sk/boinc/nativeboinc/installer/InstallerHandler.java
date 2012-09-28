@@ -1208,6 +1208,12 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		if (zipFilename == null || zipFilename.length() == 0) {
 			// if project have applications on server
+			SharedPreferences sharedPrefs = PreferenceManager
+					.getDefaultSharedPreferences(mInstallerService);
+			// unset waiting for benchmark
+			sharedPrefs.edit().putBoolean(PreferenceName.WAITING_FOR_BENCHMARK, false)
+					.commit();
+			
 			notifyFinish(projectDistrib.projectName, projectUrl);
 			return;
 		}

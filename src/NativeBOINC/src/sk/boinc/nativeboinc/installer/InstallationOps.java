@@ -198,8 +198,10 @@ public class InstallationOps {
 			projectDistribs = ProjectDistribListParser.parse(inStream);
 			if (projectDistribs != null) {
 				for (ProjectDistrib distrib :projectDistribs) {
-					if (distrib.projectName.length() == 0 || distrib.filename.length() == 0 ||
-							distrib.projectUrl.length() == 0 || distrib.version.length() == 0) {
+					if (distrib.projectName.length() == 0 || // we dont check filename (handling project with builtin Android apps
+							distrib.projectUrl.length() == 0 ||
+							// check version when filename is specified
+							(distrib.version.length() == 0 && distrib.filename.length() != 0)) {
 						if (notify) // notify error (corrupted list)
 							mInstallerHandler.notifyError(channelId, installOp, "", "",
 									mContext.getString(R.string.badDataInProjectDistribs));
@@ -230,10 +232,10 @@ public class InstallationOps {
 	 */
 	public ArrayList<ProjectDistrib> updateProjectDistribList(int channelId, InstallOp installOp,
 			ArrayList<ProjectDistrib> previousDistribs) {
-		String appListUrl = mContext.getString(R.string.installAppsSourceUrl)+"apps.xml";
+		String appListUrl = mContext.getString(R.string.installAppsSourceUrl)+"apps2.xml";
 		
 		try {
-			mDownloader.downloadFile(appListUrl, "apps.xml",
+			mDownloader.downloadFile(appListUrl, "apps.xml",  // new file, we break compatibility in this version
 					mContext.getString(R.string.appListDownload),
 					mContext.getString(R.string.appListDownloadError), false, channelId, 
 					installOp, "", "");

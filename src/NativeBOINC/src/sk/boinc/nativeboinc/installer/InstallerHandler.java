@@ -1189,18 +1189,26 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		ProjectDistrib projectDistrib = null;
 		
+		boolean projectDistribFound = false;
 		String zipFilename = null;
 		/* search project, and retrieve project url */
 		for (ProjectDistrib distrib: mProjectDistribs)
 			if (distrib.projectUrl.equals(projectUrl)) {
 				zipFilename = distrib.filename;
 				projectDistrib = distrib;
+				projectDistribFound = true;
 				break;
 			}
 		
-		if (zipFilename == null) {
+		if (!projectDistribFound) {
 			notifyError(projectDistrib.projectName, projectUrl,
 					mInstallerService.getString(R.string.projectAppNotFound));
+			return;
+		}
+		
+		if (zipFilename == null || zipFilename.length() == 0) {
+			// if project have applications on server
+			notifyFinish(projectDistrib.projectName, projectUrl);
 			return;
 		}
 		

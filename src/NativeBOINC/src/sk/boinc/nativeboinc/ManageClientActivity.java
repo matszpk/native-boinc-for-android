@@ -241,6 +241,15 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 				return true;
 			}
 		});
+		
+		// Global preferences
+		pref = findPreference("globalPreferences");
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			public boolean onPreferenceClick(Preference preference) {
+				boincClearLocalPrefs();
+				return true;
+			}
+		});
 
 		// Run mode
 		listPref = (ListPreference)findPreference("actRunMode");
@@ -630,7 +639,8 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		case PROGRESS_XFER_STARTED:
 			break;
 		case PROGRESS_XFER_FINISHED:
-			if (boincOp.equals(BoincOp.RunBenchmarks) || boincOp.equals(BoincOp.DoNetworkComm))
+			if (boincOp.equals(BoincOp.RunBenchmarks) || boincOp.equals(BoincOp.DoNetworkComm) ||
+					boincOp.equals(BoincOp.GlobalPrefsOverride))
 				updateParticularPreferences();
 			break;
 		case PROGRESS_XFER_POLL:
@@ -876,6 +886,11 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		pref.setEnabled(false);
 	}
 	
+	private void disableGlobalPreferencesPreference() {
+		Preference pref = findPreference("globalPreferences");
+		pref.setEnabled(false);
+	}
+	
 	private void disableDoNetworkCommPreference() {
 		Preference pref = findPreference("doNetworkCommunication");
 		pref.setEnabled(false);
@@ -894,6 +909,9 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			Preference pref = findPreference("runBenchmark");
 			pref.setEnabled(!mConnectionManager.isOpBeingExecuted(BoincOp.RunBenchmarks));
 			
+			pref = findPreference("globalPreferences");
+			pref.setEnabled(!mConnectionManager.isOpBeingExecuted(BoincOp.GlobalPrefsOverride));
+			
 			pref = findPreference("doNetworkCommunication");
 			pref.setEnabled(!mConnectionManager.isOpBeingExecuted(BoincOp.DoNetworkComm));
 			
@@ -905,6 +923,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			pref = findPreference("stopUsingBAM");
 			pref.setEnabled(!bamIsWorking);
 		} else {
+			disableGlobalPreferencesPreference();
 			disableRunBenchmarkPreference();
 			disableDoNetworkCommPreference();
 			disableBAMPreferences();
@@ -1000,6 +1019,11 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		mConnectionManager.stopUsingBAM();
 		Toast.makeText(this, getString(R.string.clientStopBAMNotify), Toast.LENGTH_LONG).show();
 		disableBAMPreferences();
+	}
+	
+	private void boincClearLocalPrefs() {
+		mConnectionManager.setGlobalPrefsOverride("");
+		disableGlobalPreferencesPreference();
 	}
 	
 	private void boincChangeRunMode(int mode) {

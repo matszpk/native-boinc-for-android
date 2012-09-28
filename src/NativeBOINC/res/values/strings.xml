@@ -269,6 +269,8 @@
 	<string name="clientStopBAMNotify">Stopping using BAM manager</string>
 	<string name="clientLocalPrefsTitle">Local preferences</string>
 	<string name="clientLocalPrefsSummary">Local preferences for client</string>
+	<string name="clientGlobalPrefsTitle">Use global preferences</string>
+	<string name="clientGlobalPrefsSummary">Use global (web-based) preferences</string>
 	<string name="manageCategoryActivity">Activity</string>
 	<string name="clientActivityRunTitle">Run mode</string>
 	<string name="clientActivityRunDialogTitle">Run mode</string>

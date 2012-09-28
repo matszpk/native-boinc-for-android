@@ -55,6 +55,13 @@
 			android:shouldDisableView="true"
 			android:dependency="selectedHost"
 			android:persistent="false" />
+		<Preference
+			android:key="globalPreferences"
+			android:title="@string/clientGlobalPrefsTitle"
+			android:summary="@string/clientGlobalPrefsSummary"
+			android:shouldDisableView="true"
+			android:dependency="selectedHost"
+			android:persistent="false" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/manageCategoryActivity">
 		<ListPreference

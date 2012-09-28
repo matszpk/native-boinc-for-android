@@ -1341,8 +1341,8 @@ public class ClientBridgeWorkerHandler extends Handler {
 			changeIsHandlerWorking(false);
 			return;
 		}
-		notifyProgress(BoincOp.GlobalPrefsOverride, ClientReceiver.PROGRESS_XFER_FINISHED);
 		notifyGlobalPrefsChanged();
+		notifyProgress(BoincOp.GlobalPrefsOverride, ClientReceiver.PROGRESS_XFER_FINISHED);
 		changeIsHandlerWorking(false);
 	}
 	
@@ -1370,6 +1370,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			return;
 		} 
 		notifyGlobalPrefsChanged();
+		notifyProgress(BoincOp.GlobalPrefsOverride, ClientReceiver.PROGRESS_XFER_FINISHED);
 		changeIsHandlerWorking(false);
 	}
 	

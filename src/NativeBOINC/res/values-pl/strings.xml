@@ -267,6 +267,8 @@
 	<string name="clientStopBAMNotify">Przestawanie używania BAM Managera</string>
 	<string name="clientLocalPrefsTitle">Lokalne preferencje</string>
 	<string name="clientLocalPrefsSummary">Lokalne preferencje dla klienta</string>
+	<string name="clientGlobalPrefsTitle">Użyj globalnych preferencji</string>
+	<string name="clientGlobalPrefsSummary">Użyj globalnych (ze strony) preferencji</string>
 	<string name="manageCategoryActivity">Aktywność</string>
 	<string name="clientActivityRunTitle">Tryb pracy</string>
 	<string name="clientActivityRunDialogTitle">Tryb pracy</string>

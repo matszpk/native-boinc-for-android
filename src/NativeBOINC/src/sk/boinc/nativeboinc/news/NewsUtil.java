@@ -151,6 +151,8 @@ public class NewsUtil {
 			sb.append("</version>\n  </binary>\n");
 			
 			for (ProjectDistrib distrib: projectDistribs) {
+				if (distrib.filename == null || distrib.filename.length() == 0)
+					continue;
 				sb.append("  <binary>\n    <name>");
 				sb.append(distrib.projectName);
 				sb.append("</name>\n    <version>");

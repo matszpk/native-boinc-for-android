@@ -368,13 +368,13 @@ public class InstallationOps {
 			for (ProjectDistrib projectDistrib: projectDistribs)
 				if (projectDistrib.projectUrl.equals(installedDistrib.projectUrl) &&
 						/* if version newest than installed or distrib from sdcard */
-						(installedDistrib.fromSDCard || 
+						(installedDistrib.fromSDCard ||
 						 VersionUtil.compareVersion(projectDistrib.version, installedDistrib.version) > 0)) {
 					selected = projectDistrib;
 					break;
 				}
 			
-			if (selected != null) // if update found
+			if (selected != null && selected.filename != null && selected.filename.length()!=0) // if update found
 				updateItems.add(new UpdateItem(selected.projectName, selected.version, selected.filename,
 						selected.description, selected.changes, false));
 		}
@@ -398,7 +398,7 @@ public class InstallationOps {
 					break;
 				}
 			
-			if (selected != null)
+			if (selected != null && selected.filename != null && selected.filename.length()!=0)
 				updateItems.add(new UpdateItem(selected.projectName, selected.version, selected.filename,
 						selected.description, selected.changes, true));
 		}

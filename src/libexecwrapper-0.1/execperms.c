@@ -841,11 +841,13 @@ int rmdir(const char* dirpath)
   // buffering .__execs__ before rmdir
   if ((fd = real___open(execspath,O_RDONLY,0644))==0)
   {
+    flock(fd,LOCK_SH);
     if (stat(execspath,&stbuf)==0)
     {
       execscopy = malloc(stbuf.st_size);
       read(fd,execscopy,stbuf.st_size);
     }
+    flock(fd,LOCK_UN);
     close(fd);
   }
   
@@ -856,7 +858,9 @@ int rmdir(const char* dirpath)
   { // if fail, we recreate .__execs__
     if ((fd = real___open(execspath,O_CREAT|O_WRONLY,0600))==0)
     {
+      flock(fd,LOCK_EX);
       write(fd,execscopy,stbuf.st_size);
+      flock(fd,LOCK_UN);
       close(fd);
     }
   }

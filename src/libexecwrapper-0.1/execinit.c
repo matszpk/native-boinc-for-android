@@ -48,7 +48,7 @@ void __libc_init(uintptr_t *elfdata, void (*onexit)(void),
         selfpath[size] = 0;
       else
         selfpath[0] = 0;
-      if (strncmp(selfpath,BOINCEXECDIR,BOINCEXECDIR_LEN)==0)
+      if (strncmp(selfpath,BOINCEXECDIR "/",BOINCEXECDIR_LEN+1)==0)
       {
 #ifdef DEBUG
         printf("remove self:%s\n",selfpath);
@@ -63,8 +63,6 @@ void __libc_init(uintptr_t *elfdata, void (*onexit)(void),
   }
   // unset obsolete evnvars
   unsetenv(FDENVNAME);
-  
-  // checking and processing LD_PRELOAD
   unsetenv("LD_PRELOAD");
   
 #ifdef DEBUG

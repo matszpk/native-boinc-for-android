@@ -92,7 +92,7 @@ static char** setup_ldpreenvs(char* const envp[], int lockfd)
     if (i == newenvp_n)
     { // if not found, we adds
 #ifdef DEBUG
-        puts("fdenv added");
+      puts("fdenv added");
 #endif
       newenvp[newenvp_n++] = envfdstr;
       newenvp[newenvp_n] = NULL;

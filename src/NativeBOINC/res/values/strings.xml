@@ -324,6 +324,8 @@
 	<string name="nativeUpdateFromSDCardSummary">Update client and project apps from SDCard</string>
 	<string name="nativeReinstallTitle">Reinstall BOINC</string>
 	<string name="nativeReinstallSummary">Make BOINC reinstallation</string>
+	<string name="nativeDeleteProjectBinsTitle">Delete project binaries</string>
+	<string name="nativeDeleteProjectBinsSummary">Deletes project binaries (from app_info.xml)</string>
 	
 	<string name="nativeBoincDiagnostics">Diagnostics options</string>
 	
@@ -422,6 +424,9 @@
 	<string name="installWelcome">Welcome to NativeBOINC!</string>
 	<string name="installClientInstall">Please tap \'Next\' button to to download and install native BOINC client.</string>
 	<string name="versionToInstall">Version to install</string>
+	<string name="placeToInstall">Place to install</string>
+	<string name="internalMemory">Internal memory</string>
+	<string name="sdCardMemory">SDCard memory</string>
 	<string name="installSuccessfully">Native BOINC client has been installed successfully!</string>
 	<string name="installAddProject">Please tap \'Add  project\' button to add first BOINC project, or \'Synchronize BAM\' if you want to synchronize client with BAM.</string>
 	<string name="installFinished">Installation have been finished. Please tap \'Finish\' button.</string>
@@ -518,6 +523,10 @@
 	<string name="updateNoNew">No new binaries</string>
 	<string name="updateBoincClient">BOINC Client</string>
 	<string name="updateUpdating">Updating</string>
+	
+	<!-- Delete project binaries -->
+	<string name="deleteProjectBins">Delete project binaries</string>
+	<string name="noProjectsWithInstalledBins">No projects with installed binaries</string>
 	
 	<!-- TasksActivity -->
 	<string name="taskCtxMenuTitle">Commands</string>

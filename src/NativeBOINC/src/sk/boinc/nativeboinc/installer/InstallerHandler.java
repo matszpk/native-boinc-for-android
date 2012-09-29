@@ -1661,6 +1661,28 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	}
 	
 	/**
+	 * delete project binaries
+	 */
+	public void deleteProjectBinaries(int channelId, ArrayList<String> projectNames) {
+		synchronized (this) {
+			mCurrentChannelId = channelId;
+			mHandlerIsWorking = true;
+			notifyChangeOfIsWorking();
+		}
+		
+		try {
+			mInstallOps.deleteProjectBinaries(projectNames);
+			notifyDeleteProjectBinaries(channelId, InstallOp.DeleteProjectBinaries);
+		} finally {
+			synchronized(this) {
+				mCurrentChannelId = -1;
+				mHandlerIsWorking = false;
+				notifyChangeOfIsWorking();
+			}
+		}
+	}
+	
+	/**
 	 * dump boinc files (installation) to directory
 	 */
 	public class BoincFilesDumper extends AbstractWorker {
@@ -1869,6 +1891,15 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			@Override
 			public void run() {
 				mListenerHandler.notifyBinariesToUpdateFromSDCard(channelId, installOp, projectNames);
+			}
+		});
+	}
+	
+	public synchronized void notifyDeleteProjectBinaries(final int channelId, final InstallOp installOp) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.notifyDeleteProjectBinaries(channelId, installOp);
 			}
 		});
 	}

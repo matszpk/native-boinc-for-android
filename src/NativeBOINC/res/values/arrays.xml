@@ -167,4 +167,9 @@
 	    <item>2</item>
 	    <item>3</item>
 	</string-array>
+	
+	<string-array name="placesToInstallLabels">
+	    <item>Internal memory</item>
+	    <item>SDCard memory</item>
+	</string-array>
 </resources>

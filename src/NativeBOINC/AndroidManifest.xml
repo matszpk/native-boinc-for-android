@@ -190,6 +190,10 @@
 		<activity android:name=".UpdateFromSDCardActivity"
 			android:label="@string/updateFromSDCard"
 			android:launchMode="singleTop" />
+		
+		<activity android:name=".DeleteProjectBinsActivity"
+			android:label="@string/deleteProjectBins"
+			android:launchMode="singleTop" />
 			
 		<activity android:name=".ShutdownDialogActivity"
 			android:launchMode="singleInstance"

@@ -370,6 +370,16 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 			}
 		});
 		
+		/* delete project bins */
+		pref = (Preference)findPreference(PreferenceName.NATIVE_DELETE_PROJ_BINS);
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				startActivity(new Intent(NativeClientActivity.this, DeleteProjectBinsActivity.class));
+				return true;
+			}
+		});
+		
 		/* show logs preference */
 		pref = (Preference)findPreference(PreferenceName.NATIVE_SHOW_LOGS);
 		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {

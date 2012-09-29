@@ -13,6 +13,7 @@ public class InstallOp {
 	public static final int OP_UPDATE_PROJECT_DISTRIBS = 2;
 	public static final int OP_GET_BINARIES_TO_INSTALL = 3;
 	public static final int OP_GET_BINARIES_FROM_SDCARD = 4;
+	public static final int OP_DELETE_PROJECT_BINARIES = 5;
 	
 	public static final InstallOp ProgressOperation = new InstallOp(OP_PROGRESS_OP);
 	public static final InstallOp UpdateClientDistrib = new InstallOp(OP_UPDATE_CLIENT_DISTRIB);
@@ -26,6 +27,7 @@ public class InstallOp {
 			path = path.substring(0, path.length()-1);
 		return new InstallOp(OP_GET_BINARIES_FROM_SDCARD, path);
 	}
+	public static final InstallOp DeleteProjectBinaries = new InstallOp(OP_DELETE_PROJECT_BINARIES);
 	
 	public final int opCode;
 	public final String path;

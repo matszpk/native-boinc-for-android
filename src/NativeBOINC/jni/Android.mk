@@ -25,3 +25,10 @@ LOCAL_MODULE    := nativeboinc_utils
 LOCAL_SRC_FILES := chmod.c putils.c
 
 include $(BUILD_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE    := execwrapper
+LOCAL_SRC_FILES := libexecwrapper.so
+
+include $(BUILD_SHARED_LIBRARY)

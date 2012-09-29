@@ -45,6 +45,7 @@ public interface PreferenceName {
 	/* installation */
 	public static final String INSTALLER_STAGE = "installerStage";
 	public static final String WAITING_FOR_BENCHMARK = "waitingForBenchmark";
+	public static final String INSTALL_PLACE = "installPlace";
 	
 	/* native client */
 	public static final String NATIVE_LATEST_NEWS = "latestNews";
@@ -59,6 +60,7 @@ public interface PreferenceName {
 	public static final String NATIVE_UPDATE_FROM_SDCARD = "nativeUpdateFromSDCard";
 	public static final String NATIVE_DUMP_BOINC_DIR = "nativeDumpBoincDir";
 	public static final String NATIVE_REINSTALL = "nativeReinstall";
+	public static final String NATIVE_DELETE_PROJ_BINS = "nativeDeleteProjectBins";
 	public static final String NATIVE_SHOW_LOGS = "nativeShowLogs";
 	
 	/* news receiver */

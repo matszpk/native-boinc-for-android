@@ -66,6 +66,26 @@
 			  		android:layout_alignParentRight="true"
 			  		android:text="@string/info" />
 		  	</RelativeLayout>
+		  	<RelativeLayout android:id="@+id/installPlaceGroup"
+		  	    android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:paddingBottom="10dip">
+		  	    <TextView
+		  	        android:layout_width="wrap_content"
+		  	        android:layout_height="wrap_content"
+		  	        android:textSize="@dimen/labelTextSize"
+		  	        android:layout_centerVertical="true"
+		  	        android:layout_alignParentTop="false"
+			  		android:layout_alignParentRight="false"
+		  	        android:text="@string/placeToInstall" />
+		  	    <Spinner android:id="@+id/placeToInstall"
+		  	        android:layout_width="wrap_content"
+		  	        android:layout_height="wrap_content"
+		  	        android:layout_alignParentTop="true"
+			  		android:layout_alignParentRight="true"
+			  		android:prompt="@string/placeToInstall"
+			  		android:entries="@array/placesToInstallLabels" />
+		  	</RelativeLayout>
   		  	<TextView
 		  		android:layout_width="fill_parent"
 		  		android:layout_height="wrap_content"

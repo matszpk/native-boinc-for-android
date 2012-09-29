@@ -137,6 +137,18 @@ public class InstalledDistribManager {
 			}
 	}
 	
+	public synchronized void removeDistribsByProjectName(ArrayList<String> projectNames) {
+		for (String projectName: projectNames) {
+			for (int i = 0; i < mInstalledDistribs.size(); i++)
+				if (mInstalledDistribs.get(i).projectName.equals(projectName)) {
+					mInstalledDistribs.remove(i);
+					break;
+				}
+		}
+		save();
+	}
+	
+	
 	public synchronized void synchronizeWithProjectList(Context context) {
 		ArrayList<InstalledDistrib> newDistribs = new ArrayList<InstalledDistrib>();
 		
@@ -144,8 +156,9 @@ public class InstalledDistribManager {
 		
 		for (InstalledDistrib distrib: mInstalledDistribs) {
 			String escapedUrl = InstallerHandler.escapeProjectUrl(distrib.projectUrl);
-			/* check whether projects's directory exists */
-			if (new File(projectsPath+escapedUrl).isDirectory())
+			/* check whether projects's directory exists and app_info.xml */
+			if (new File(projectsPath+escapedUrl).isDirectory() && 
+					new File(projectsPath+escapedUrl+"/app_info.xml").exists())
 				newDistribs.add(distrib);
 		}
 		

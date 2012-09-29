@@ -37,6 +37,11 @@ Na Teraz:
   * usuń błąd nieusuwania zawartości zakładek po odłączeniu klienta (np.: po wyjściu do home)
   * usuń crash: BadTokenException - unable to add window, w StandardUtils.tryShowConnectionErrorDialog
     BoincManagerActivity
+    
+  WERSJA Z INSTALL ON THE SDCARD:
+/ * dodaj opcje usuwania anonymous platform (usuwanie app_info.xml i aplikacji)
+  * zaimplementuj install on the SDCard (WAZNE: libexecwrapper wsadz do APK)
+  * popraw błąd 'brak połączenia' przy odpaleniu main screen
   
 ---------------------------------------------------------------
 

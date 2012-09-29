@@ -179,6 +179,15 @@ public class InstallerThread extends Thread {
 		});
 	}
 	
+	public void deleteProjectBinaries(final int channelId, final ArrayList<String> projectNames) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.deleteProjectBinaries(channelId, projectNames);
+			}
+		});
+	}
+	
 	public void dumpBoincFiles(final String directory) {
 		mHandler.post(new Runnable() {
 			@Override

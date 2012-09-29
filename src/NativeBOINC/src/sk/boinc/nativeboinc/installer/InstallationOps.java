@@ -736,4 +736,52 @@ public class InstallationOps {
 							mContext.getString(R.string.unexpectedError));
 		}
 	}
+	
+	/**
+	 * deleting project binaries (from app_info.xml)
+	 */
+	
+	public void deleteProjectBinaries(ArrayList<String> projectNames) {
+		String projectsPath = mContext.getFilesDir().getAbsolutePath()+"/boinc/projects/";
+		
+		for (String projectName: projectNames) {
+			InstalledDistrib found = null;
+			for (InstalledDistrib distrib: mDistribManager.getInstalledDistribs())
+				if (distrib.projectName.equals(projectName)) {
+					found = distrib;
+					break;
+				}
+			
+			if (found != null) { // if found
+				String projPath = projectsPath+InstallerHandler.escapeProjectUrl(found.projectUrl);
+				FileInputStream inStream = null;
+				ArrayList<String> filenames = null;
+				File appInfoFile = new File(projPath, "app_info.xml");
+				try {
+					inStream = new FileInputStream(appInfoFile);
+					filenames = ExecFilesAppInfoParser.parse(inStream);
+				} catch(IOException ex) {
+				} finally {
+					try {
+						if (inStream!=null)
+							inStream.close();
+					} catch(IOException ex2) { }
+				}
+				
+				// deleting files
+				for (String filename: filenames)
+					new File(projPath,filename).delete();
+				appInfoFile.delete();
+			}
+		}
+		// update distribs list
+		mDistribManager.removeDistribsByProjectName(projectNames);
+	}
+	
+	/*
+	 * move installation to sdcard
+	 */
+	public void moveInstallationTo() {
+		
+	}
 }

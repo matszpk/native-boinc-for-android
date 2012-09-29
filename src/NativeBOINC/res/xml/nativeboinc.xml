@@ -91,6 +91,11 @@
        	    android:title="@string/nativeReinstallTitle"
        	    android:summary="@string/nativeReinstallSummary"
        	    android:persistent="false" />
+       	<Preference
+       	    android:key="nativeDeleteProjectBins"
+       	    android:title="@string/nativeDeleteProjectBinsTitle"
+       	    android:summary="@string/nativeDeleteProjectBinsSummary"
+       	    android:persistent="false" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/nativeBoincDiagnostics">
         <Preference

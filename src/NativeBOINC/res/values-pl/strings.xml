@@ -322,6 +322,8 @@
 	<string name="nativeUpdateFromSDCardSummary">Aktualizuj klienta i aplikacje projektów z karty SD</string>
 	<string name="nativeReinstallTitle">Reinstaluj BOINC\'a</string>
 	<string name="nativeReinstallSummary">Zrób reinstalację BOINC\'a</string>
+	<string name="nativeDeleteProjectBinsTitle">Usuń binaria projektów</string>
+	<string name="nativeDeleteProjectBinsSummary">Usuwa binaria projektów (z app_info.xml)</string>
 	
 	<string name="nativeBoincDiagnostics">Opcje diagnostyczne</string>
 	
@@ -517,6 +519,10 @@
 	<string name="updateNoNew">Brak nowych binarii</string>
 	<string name="updateBoincClient">BOINC Client</string>
 	<string name="updateUpdating">Aktualizowanie</string>
+	
+	<!-- Delete project binaries -->
+	<string name="deleteProjectBins">Usuń binaria projektów</string>
+	<string name="noProjectsWithInstalledBins">Brak projektów z binariami</string>
 	
 	<!-- TasksActivity -->
 	<string name="taskCtxMenuTitle">Komendy</string>

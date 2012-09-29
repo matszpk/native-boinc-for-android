@@ -245,12 +245,6 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 		updateActivityState();
 	}
 	
-	@Override
-	public void onRunnerConnected() {
-		Log.d(TAG, "onInstallerConnected");
-		updateActivityState();
-	}
-	
 	private void updateBinariesView() {
 		if (mUpdateItems == null || mUpdateItems.length == 0)
 			mAvailableText.setText(R.string.updateNoNew);
@@ -265,10 +259,8 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 		setProgressBarIndeterminateVisibility(mInstaller.isWorking());
 		
 		/* display error if pending */
-		if (mInstaller != null) {
-			if (mInstaller.handlePendingErrors(InstallOp.GetBinariesToInstall, this))
-				return;
-		}
+		if (mInstaller.handlePendingErrors(InstallOp.GetBinariesToInstall, this))
+			return;
 		
 		/* handle update items operation */
 		if (mUpdateItems == null) {

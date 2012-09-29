@@ -413,6 +413,17 @@ public class InstallerService extends Service {
 					((InstallerUpdateListener)listener).binariesToUpdateFromSDCard(projectNames);
 		}
 		
+		public void notifyDeleteProjectBinaries(int channelId, InstallOp installOp) {
+			PendingController<InstallOp> channel = mPendingChannels[channelId];
+			
+			channel.finish(installOp);
+			
+			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			for (AbstractInstallerListener listener: listeners)
+				if (listener.getInstallerChannelId() == channelId &&
+						listener instanceof DeleteProjectBinsListener)
+					((DeleteProjectBinsListener)listener).onDeleteProjectBinaries();
+		}
 		
 		public void onChangeIsWorking(boolean isWorking) {
 			for (AbstractInstallerListener listener: mListeners)
@@ -713,6 +724,26 @@ public class InstallerService extends Service {
 		
 		if (channel.begin(InstallOp.GetBinariesFromSDCard(path))) {
 			mInstallerThread.getBinariesToUpdateFromSDCard(channelId, path);
+			return true;
+		}
+		return false;
+	}
+	
+	/*
+	 * delete project binaries
+	 */
+	public boolean deleteProjectBinaries(ArrayList<String> projectNames) {
+		return deleteProjectBinaries(DEFAULT_CHANNEL_ID, projectNames);
+	}
+	
+	public boolean deleteProjectBinaries(int channelId, ArrayList<String> projectNames) {
+		if (mInstallerHandler == null)
+			return false;
+		
+		PendingController<InstallOp> channel = mPendingChannels[channelId];
+		
+		if (channel.begin(InstallOp.DeleteProjectBinaries)) {
+			mInstallerThread.deleteProjectBinaries(channelId, projectNames);
 			return true;
 		}
 		return false;

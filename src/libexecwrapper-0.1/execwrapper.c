@@ -49,7 +49,7 @@ static void init_handles(void)
   }
 }
 
-#define MYBUF_SIZE (1024)
+#define MYBUF_SIZE (256)
 
 static char** setup_ldpreenvs(char* const envp[], int lockfd)
 {

@@ -480,7 +480,7 @@ static int check_sdcard(const char* pathname)
       size_t len;
       
       if (*lastslash=='/') lastslash--;
-      while (lastslash != pathname-1 && *lastslash=='/')
+      while (lastslash != pathname-1 && *lastslash!='/')
         lastslash--;
       
       if (lastslash==pathname-1) //
@@ -489,7 +489,7 @@ static int check_sdcard(const char* pathname)
       {
         len = (ptrdiff_t)lastslash-(ptrdiff_t)pathname;
         memcpy(dirpath,pathname,len);
-        dirpath[len+1]=0;
+        dirpath[len]=0;
       }
       if (strcmp(dirpath,"/")==0) // is root
         return 0;
@@ -520,7 +520,7 @@ static int check_sdcard_link(const char* pathname)
       size_t len;
       
       if (*lastslash=='/') lastslash--;
-      while (lastslash != pathname-1 && *lastslash=='/')
+      while (lastslash != pathname-1 && *lastslash!='/')
         lastslash--;
       
       if (lastslash==pathname-1) //
@@ -529,7 +529,7 @@ static int check_sdcard_link(const char* pathname)
       {
         len = (ptrdiff_t)lastslash-(ptrdiff_t)pathname;
         memcpy(dirpath,pathname,len);
-        dirpath[len+1]=0;
+        dirpath[len]=0;
       }
       if (strcmp(dirpath,"/")==0) // is root
         return 0;
@@ -1048,7 +1048,7 @@ int unlink(const char* filename)
     return -1;
   }
   
-  if (stat(realpathname,&stbuf) == -1)
+  if (real_stat(realpathname,&stbuf) == -1)
     return real_unlink(filename);
   
   if (S_ISDIR(stbuf.st_mode)) // is directory, we use execs for files
@@ -1107,8 +1107,6 @@ int rmdir(const char* dirpath)
     flock(fd,LOCK_UN);
     close(fd);
   }
-  else
-    perror(execspath);
   
   real_unlink(execspath);
   ret = real_rmdir(dirpath);
@@ -1199,13 +1197,14 @@ int rename(const char* oldpath, const char*newpath)
   int ret;
   char oldrealpathname[PATH_MAX];
   char newrealpathname[PATH_MAX];
-  const char* oldrpp;
-  const char* newrpp;
+  char* oldrpp;
+  char* newrpp;
   int isexecs = 0;
   int oldexecsfd, newexecsfd;
   int sdcard_old, sdcard_new;
   char* oldslash;
   char* newslash;
+  size_t len;
   struct stat stbuf;
 #ifdef DEBUG
   printf("call rename(%s,%s)\n",oldpath,newpath);
@@ -1242,6 +1241,13 @@ int rename(const char* oldpath, const char*newpath)
     return real_rename(oldpath, newpath);
   if (newrpp==NULL)
     return real_rename(oldpath, newpath);
+  
+  len = strlen(oldrpp);
+  if (oldrpp[len-1]=='/' && len>1)
+    oldrpp[len-1] = 0;
+  len = strlen(newrpp);
+  if (newrpp[len-1]=='/' && len>1)
+    newrpp[len-1] = 0;
   
   oldslash = strrchr(oldrpp,'/');
   newslash = strrchr(newrpp,'/');
@@ -1286,13 +1292,14 @@ int link(const char* oldpath, const char*newpath)
   char newrealpathname[PATH_MAX];
   int ret;
   int isexecs;
-  const char* oldrpp;
-  const char* newrpp;
+  char* oldrpp;
+  char* newrpp;
   int oldexecsfd, newexecsfd;
   int sdcard_old, sdcard_new;
   struct stat stbuf;
   char* oldslash;
   char* newslash;
+  size_t len;
 #ifdef DEBUG
   printf("call link(%s,%s)\n",oldpath,newpath);
 #endif
@@ -1328,6 +1335,13 @@ int link(const char* oldpath, const char*newpath)
     return real_link(oldpath, newpath);
   if (newrpp==NULL)
     return real_link(oldpath, newpath);
+  
+  len = strlen(oldrpp);
+  if (oldrpp[len-1]=='/' && len>1)
+    oldrpp[len-1] = 0;
+  len = strlen(newrpp);
+  if (newrpp[len-1]=='/' && len>1)
+    newrpp[len-1] = 0;
   
   oldslash = strrchr(oldrpp,'/');
   newslash = strrchr(newrpp,'/');
@@ -1553,7 +1567,7 @@ int lstat(const char* pathname, struct stat* buf)
     buf->st_mode &= ~0111;
     buf->st_mode |= (check_execmode(execsfd,pathname) ? 0111 : 0);
   }
-  close_execs_lock(execsfd);
+  close_execs_lock(execsfd); 
   return ret;
 }
 

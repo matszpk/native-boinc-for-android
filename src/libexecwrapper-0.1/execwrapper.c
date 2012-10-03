@@ -144,7 +144,7 @@ static int check_sdcard(const char* pathname)
   }
   
   if (real_stat(pathname,&stbuf)==-1)
-    return 0;
+    return 0; // zero when doesnt exists (force real_execv)
 #ifdef DEBUG
   printf("dev for %s=%llu\n",pathname,stbuf.st_dev);
 #endif

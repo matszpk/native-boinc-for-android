@@ -379,12 +379,13 @@ static int check_sdcard(const char* pathname)
     is_sdcard_dev_determined = 1;
   }
   
+  if (strcmp(pathname,"/mnt/sdcard")==0 || strcmp(pathname,"/mnt/sdcard/")==0)
+    return 0;
+  
   if (real_stat(pathname,&stbuf)==-1)
   {
     if (real_access(pathname,F_OK)==-1)  // dir path is not available
     {
-      if (strcmp(pathname,"/mnt/sdcard")==0)
-        return 1;
       if (strncmp(pathname,"/mnt/sdcard/",12)==0)
         return 1;
     }
@@ -404,12 +405,13 @@ static int check_sdcard_link(const char* pathname)
     is_sdcard_dev_determined = 1;
   }
   
+  if (strcmp(pathname,"/mnt/sdcard")==0 || strcmp(pathname,"/mnt/sdcard/")==0)
+    return 0;
+  
   if (real_lstat(pathname,&stbuf)==-1)
   {
     if (real_access(pathname,F_OK)==-1) // dir path is not available
     {
-      if (strcmp(pathname,"/mnt/sdcard")==0)
-        return 1;
       if (strncmp(pathname,"/mnt/sdcard/",12)==0)
         return 1;
     }
@@ -479,7 +481,11 @@ static int open_execs_lock(const char* realpathname, int iswrite)
   int fd;
   size_t dirlen;
   
-  execsname = malloc(PATH_MAX);
+  if ((execsname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
 
   if (lastslash == NULL)
     lastslash = realpathname;
@@ -536,7 +542,11 @@ static int check_execmode(int fd, const char* realpathname)
   if (fd == -1)
     return 0;
 
-  line = malloc(FILENAME_MAX+1);
+  if ((line = malloc(FILENAME_MAX+1))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (lastslash == NULL)
     lastslash = realpathname;
@@ -575,7 +585,11 @@ static int set_execmode(int fd, const char* realpathname, int isexec)
     // returns 0 if unsetting isexec (no error)
     return (isexec)?-1:0;
   
-  line = malloc(FILENAME_MAX+1);
+  if ((line = malloc(FILENAME_MAX+1))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (lastslash == NULL)
     lastslash = realpathname;
@@ -651,7 +665,11 @@ int access(const char* pathname, int mode)
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (myrealpath(pathname, realpathname)==NULL)
   {
@@ -691,8 +709,20 @@ int access(const char* pathname, int mode)
   }
   
   execsfd = open_execs_lock(realpathname,0);
+  if (execsfd == -1 && errno != ENOENT)
+  {
+    free(realpathname);
+    return -1;
+  }
     
   hasexecmode = check_execmode(execsfd, realpathname);
+  if (hasexecmode==-1)
+  {
+    close_execs_lock(execsfd);
+    free(realpathname);
+    return -1;
+  }
+  
   ret = real_access(pathname, mode^X_OK); // if no flags, we check existence
   tmperrno = errno;
   if (ret == 0) // other is ok
@@ -728,7 +758,11 @@ int chmod(const char* pathname, mode_t mode)
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (myrealpath(pathname, realpathname)==NULL)
   {
@@ -762,6 +796,11 @@ int chmod(const char* pathname, mode_t mode)
   }
   
   execsfd = open_execs_lock(realpathname,1);
+  if (execsfd == -1)
+  {
+    free(realpathname);
+    return -1;
+  }
   ret = real_chmod(pathname,mode);
   tmperrno = errno;
   if (ret == 0)
@@ -792,7 +831,11 @@ int fchmod(int fd, mode_t mode)
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (!check_sdcard_fd(fd))
   {
@@ -826,6 +869,11 @@ int fchmod(int fd, mode_t mode)
   }
   
   execsfd = open_execs_lock(realpathname,1);
+  if (execsfd == -1)
+  {
+    free(realpathname);
+    return -1;
+  }
   ret = real_fchmod(fd, mode);
   tmperrno = errno;
   if (ret == 0)
@@ -852,7 +900,11 @@ int chown(const char* pathname, uid_t uid, gid_t gid)
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (myrealpath(pathname, realpathname)==NULL)
   {
@@ -886,7 +938,11 @@ int fchown(int fd, uid_t uid, gid_t gid)
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (!check_sdcard_fd(fd))
   {
@@ -920,7 +976,11 @@ int lchown(const char* pathname, uid_t uid, gid_t gid)
   printf("call lchown(%s,%u,%u\n",pathname,uid,gid);
 #endif
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (myrealpath(pathname, realpathname)==NULL)
   {
@@ -958,7 +1018,11 @@ int getdents(unsigned int fd, struct dirent* dirp, unsigned int count)
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (!check_sdcard_fd(fd))
   {
@@ -1019,7 +1083,11 @@ int mkdir(const char* dirpath, mode_t mode)
   printf("call mkdir(%s,%d)\n",dirpath,mode);
 #endif
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (myrealpath(dirpath, realpathname)==NULL)
   {
@@ -1058,7 +1126,11 @@ int unlink(const char* filename)
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (myrealpath(filename, realpathname)==NULL)
   {
@@ -1092,6 +1164,11 @@ int unlink(const char* filename)
   }
   
   execsfd = open_execs_lock(realpathname,1);
+  if (execsfd == -1)
+  {
+    free(realpathname);
+    return -1;
+  }
   ret = real_unlink(filename);
   tmperrno = errno;
   if (ret == 0)
@@ -1123,7 +1200,11 @@ int rmdir(const char* dirpath)
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX*2);
+  if ((realpathname = malloc(PATH_MAX*2))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   execspath = realpathname+PATH_MAX;
   
   if (myrealpath(dirpath, realpathname)==NULL)
@@ -1154,6 +1235,14 @@ int rmdir(const char* dirpath)
     if (real_stat(execspath,&stbuf)==0)
     {
       execscopy = malloc(stbuf.st_size);
+      if (execscopy == NULL)
+      {
+        flock(fd,LOCK_UN);
+        close(fd);
+        free(realpathname);
+        errno = ENOMEM;
+        return -1;
+      }
       read(fd,execscopy,stbuf.st_size);
     }
     flock(fd,LOCK_UN);
@@ -1191,7 +1280,11 @@ int readlink(const char* linkpath, char* buf, size_t bufsize)
 #endif
   init_handles();
   
-  refpath = malloc(PATH_MAX);
+  if ((refpath = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   size = real_readlink(linkpath, refpath, bufsize);
   
@@ -1235,7 +1328,11 @@ int __open(const char* filename, int flags, mode_t mode)
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (myrealpath(filename, realpathname)==NULL)
   {
@@ -1259,11 +1356,24 @@ int __open(const char* filename, int flags, mode_t mode)
   }
   
   execsfd = open_execs_lock(realpathname,1);
+  if (execsfd == -1)
+  {
+    free(realpathname);
+    return -1;
+  }
+  
   ret = real___open(filename, flags, mode);
   tmperrno = errno;
   if (ret != -1 && (flags & O_CREAT) != 0 &&
       file_exists == -1 && (mode & 0111) != 0)
-    set_execmode(execsfd,realpathname,1);
+  {
+    if (set_execmode(execsfd,realpathname,1)==-1)
+    {
+      close_execs_lock(execsfd);
+      free(realpathname);
+      return -1;
+    }
+  }
   close_execs_lock(execsfd);
   errno = tmperrno;
   free(realpathname);
@@ -1291,7 +1401,11 @@ int rename(const char* oldpath, const char*newpath)
   
   init_handles();
   
-  oldrealpathname = malloc(PATH_MAX*2);
+  if ((oldrealpathname = malloc(PATH_MAX*2))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   newrealpathname = oldrealpathname+PATH_MAX;
   
   oldrpp = myrealpath(oldpath, oldrealpathname);
@@ -1354,15 +1468,36 @@ int rename(const char* oldpath, const char*newpath)
       (ptrdiff_t)oldslash-(ptrdiff_t)oldrpp==(ptrdiff_t)newslash-(ptrdiff_t)newrpp)
   { // same dir
     oldexecsfd = open_execs_lock(oldrpp,1);
+    if (oldexecsfd == -1)
+    {
+      free(oldrealpathname);
+      return -1;
+    }
+    
     ret = real_rename(oldpath, newpath);
     tmperrno = errno;
     if (ret == 0)
     {
       isexecs = check_execmode(oldexecsfd, oldrpp);
-      set_execmode(oldexecsfd,oldrpp,0);
-      
-      if (isexecs)
-        set_execmode(oldexecsfd, newrpp, 1);
+      if (isexecs != -1)
+      {
+        if (set_execmode(oldexecsfd,oldrpp,0) == -1)
+        {
+          tmperrno = errno;
+          ret = -1;
+        }
+        else if (isexecs)
+          if (set_execmode(oldexecsfd, newrpp, 1) == -1)
+          {
+            tmperrno = errno;
+            ret = -1;
+          }
+      }
+      else // use current errno
+      {
+        tmperrno = errno;
+        ret = -1;
+      }
     }
     close_execs_lock(oldexecsfd);
     errno = tmperrno;
@@ -1370,17 +1505,43 @@ int rename(const char* oldpath, const char*newpath)
   else
   {
     oldexecsfd = open_execs_lock(oldrpp,1);
+    if (oldexecsfd == -1)
+    {
+      free(oldrealpathname);
+      return -1;
+    }
     newexecsfd = open_execs_lock(newrpp,1);
+    if (newexecsfd == -1)
+    {
+      close_execs_lock(oldexecsfd);
+      free(oldrealpathname);
+      return -1;
+    }
     
     ret = real_rename(oldpath, newpath);
     tmperrno = errno;
     if (ret == 0)
     {
       isexecs = check_execmode(oldexecsfd, oldrpp);
-      set_execmode(oldexecsfd,oldrpp,0);
-      
-      if (isexecs)
-        set_execmode(newexecsfd, newrpp, 1);
+      if (isexecs != -1)
+      {
+        if (set_execmode(oldexecsfd,oldrpp,0) == -1)
+        {
+          tmperrno = errno;
+          ret = -1;
+        }
+        else if (isexecs)
+          if (set_execmode(newexecsfd, newrpp, 1) == -1)
+          {
+            tmperrno = errno;
+            ret = -1;
+          }
+      }
+      else // use current errno
+      {
+        tmperrno = errno;
+        ret = -1;
+      }
     }
     close_execs_lock(oldexecsfd);
     close_execs_lock(newexecsfd);
@@ -1403,7 +1564,11 @@ int symlink(const char* oldpath, const char*newpath)
   
   init_handles();
   
-  oldrealpathname = malloc(PATH_MAX*2);
+  if ((oldrealpathname = malloc(PATH_MAX*2))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   newrealpathname = oldrealpathname+PATH_MAX;
   
   oldrpp = myrealpath(oldpath, oldrealpathname);
@@ -1455,7 +1620,11 @@ int truncate(const char* pathname, off_t length)
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (myrealpath(pathname, realpathname)==NULL)
   {
@@ -1489,7 +1658,11 @@ int ftruncate(int fd, off_t length)
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (!check_sdcard_fd(fd))
   {
@@ -1526,7 +1699,11 @@ int stat(const char* pathname, struct stat* buf)
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (myrealpath(pathname, realpathname)==NULL)
   {
@@ -1548,6 +1725,12 @@ int stat(const char* pathname, struct stat* buf)
   }
   
   execsfd = open_execs_lock(realpathname,0);
+  if (execsfd == -1 && errno != ENOENT)
+  {
+    free(realpathname);
+    return -1;
+  }
+  
   ret = real_stat(pathname,buf);
   tmperrno = errno;
   if (ret == -1)
@@ -1558,10 +1741,18 @@ int stat(const char* pathname, struct stat* buf)
     return -1;
   }
   
-  if (!S_ISDIR(buf->st_mode)) // is directory, we use execs for files
+  if (!S_ISDIR(buf->st_mode)) // is not directory, we use execs for files
   {
+    int isexecs;
+    if ((isexecs = check_execmode(execsfd,realpathname))==-1)
+    {
+      close_execs_lock(execsfd);
+      free(realpathname);
+      return -1;
+    }
+    
     buf->st_mode &= ~0111;
-    buf->st_mode |= (check_execmode(execsfd,realpathname) ? 0111 : 0);
+    buf->st_mode |= (isexecs ? 0111 : 0);
   }
   close_execs_lock(execsfd);
   errno = tmperrno;
@@ -1582,7 +1773,11 @@ int fstat(int fd, struct stat* buf)
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (!check_sdcard_fd(fd))
   {
@@ -1604,6 +1799,12 @@ int fstat(int fd, struct stat* buf)
   }
   
   execsfd = open_execs_lock(realpathname,0);
+  if (execsfd == -1 && errno != ENOENT)
+  {
+    free(realpathname);
+    return -1;
+  }
+  
   ret = real_fstat(fd, buf);
   tmperrno = errno;
   if (ret == -1)
@@ -1614,10 +1815,18 @@ int fstat(int fd, struct stat* buf)
     return -1;
   }
   
-  if (!S_ISDIR(buf->st_mode)) // is directory, we use execs for files
+  if (!S_ISDIR(buf->st_mode)) // is not directory, we use execs for files
   {
+    int isexecs;
+    if ((isexecs = check_execmode(execsfd,realpathname))==-1)
+    {
+      close_execs_lock(execsfd);
+      free(realpathname);
+      return -1;
+    }
+    
     buf->st_mode &= ~0111;
-    buf->st_mode |= (check_execmode(execsfd,realpathname) ? 0111 : 0);
+    buf->st_mode |= (isexecs ? 0111 : 0);
   }
   close_execs_lock(execsfd);
   errno = tmperrno;
@@ -1637,7 +1846,11 @@ int lstat(const char* pathname, struct stat* buf)
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (myrealpath(pathname, realpathname)==NULL)
   {
@@ -1659,6 +1872,12 @@ int lstat(const char* pathname, struct stat* buf)
   }
   
   execsfd = open_execs_lock(realpathname,0);
+  if (execsfd == -1 && errno != ENOENT)
+  {
+    free(realpathname);
+    return -1;
+  }
+  
   ret = real_lstat(pathname,buf);
   tmperrno = errno;
   if (ret == -1)
@@ -1669,10 +1888,18 @@ int lstat(const char* pathname, struct stat* buf)
     return -1;
   }
   
-  if (!S_ISDIR(buf->st_mode)) // is directory, we use execs for files
-  {
+  if (!S_ISDIR(buf->st_mode) && !S_ISLNK(buf->st_mode))
+  { // is not directory, we use execs for files
+    int isexecs;
+    if ((isexecs = check_execmode(execsfd,realpathname))==-1)
+    {
+      close_execs_lock(execsfd);
+      free(realpathname);
+      return -1;
+    }
+    
     buf->st_mode &= ~0111;
-    buf->st_mode |= (check_execmode(execsfd,realpathname) ? 0111 : 0);
+    buf->st_mode |= (isexecs ? 0111 : 0);
   }
   close_execs_lock(execsfd);
   errno = tmperrno;
@@ -1689,7 +1916,11 @@ int utimes(const char* pathname, const struct timeval times[2])
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (myrealpath(pathname, realpathname)==NULL)
   {
@@ -1723,7 +1954,11 @@ int futimes(int fd, const struct timeval times[2])
   
   init_handles();
   
-  realpathname = malloc(PATH_MAX);
+  if ((realpathname = malloc(PATH_MAX))==NULL)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
   
   if (!check_sdcard_fd(fd))
   {

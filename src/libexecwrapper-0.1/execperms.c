@@ -556,7 +556,12 @@ static int check_execmode(int fd, const char* realpathname)
   
   mygetline_init(&buf);
   
-  lseek(fd, 0, SEEK_SET); //rewind execs file
+  if (lseek(fd, 0, SEEK_SET)==-1) //rewind execs file
+  {
+    free(line);
+    return -1;
+  }
+  errno = 0;
   while (mygetline(&buf,fd,line,FILENAME_MAX)!=NULL)
   {
     if (strcmp(filename,line)==0) // if found
@@ -564,6 +569,11 @@ static int check_execmode(int fd, const char* realpathname)
       free(line);
       return 1;
     }
+  }
+  if (errno == EIO)
+  {
+    free(line);
+    return -1;
   }
   
   free(line);
@@ -602,7 +612,12 @@ static int set_execmode(int fd, const char* realpathname, int isexec)
   mygetline_init(&buf);
   
   tmppos = 0;
-  lseek(fd, 0, SEEK_SET); //rewind execs file
+  if (lseek(fd, 0, SEEK_SET) == -1) //rewind execs file
+  {
+    free(line);
+    return -1;
+  }
+  errno = 0;
   while (mygetline(&buf,fd,line,FILENAME_MAX)!=NULL)
   {
     if (strcmp(filename,line)==0)
@@ -612,14 +627,27 @@ static int set_execmode(int fd, const char* realpathname, int isexec)
     }
     tmppos += strlen(line)+1;
   }
+  if (errno == EIO)
+  {
+    free(line);
+    return -1;
+  }
   
   if (isexec)
   { // set exec
     if (execpos == -1)
     { // not yet set_exec
-      lseek(fd,0,SEEK_END);
-      write(fd,filename,filenamelen);
-      write(fd,"\n",1);
+      int ret;
+      ret = lseek(fd,0,SEEK_END);
+      if (ret != -1)
+        ret = write(fd,filename,filenamelen);
+      if (ret != -1)
+        ret = write(fd,"\n",1);
+      if (ret == -1)
+      {
+        free(line);
+        return -1;
+      }
     }
   }
   else
@@ -632,15 +660,26 @@ static int set_execmode(int fd, const char* realpathname, int isexec)
       
       // move to back
       do {
-        lseek(fd,ipos+filenamelen+1,SEEK_SET);
-        readed = read(fd,mybuf,256);
-        if (readed == -1)
-          break;
-        lseek(fd,ipos,SEEK_SET);
-        write(fd,mybuf,readed);
+        int ret;
+        ret = lseek(fd,ipos+filenamelen+1,SEEK_SET);
+        if (ret != -1)
+          ret = readed = read(fd,mybuf,256);
+        if (ret != -1)
+          ret = lseek(fd,ipos,SEEK_SET);
+        if (ret != -1)
+          ret = write(fd,mybuf,readed);
+        if (ret == -1)
+        {
+          free(line);
+          return -1;
+        }
         ipos += readed;
       } while(readed == 256);
-      real_ftruncate(fd,ipos); // delete obsolete
+      if (real_ftruncate(fd,ipos)==-1) // delete obsolete
+      {
+        free(line);
+        return -1;
+      }
     }
   }
   free(line);
@@ -848,6 +887,11 @@ int fchmod(int fd, mode_t mode)
     free(realpathname);
     return real_fchmod(fd, mode);
   }
+  if (strcmp(realpathname,"/mnt/sdcard")==0)
+  {
+    free(realpathname);
+    return real_fchmod(fd, mode);
+  }
   
   if (is_execsfile(realpathname))
   {
@@ -954,6 +998,11 @@ int fchown(int fd, uid_t uid, gid_t gid)
   {
     free(realpathname);
     return real_fchown(fd, uid, gid);  // cant determine realpath
+  }
+  if (strcmp(realpathname,"/mnt/sdcard")==0)
+  {
+    free(realpathname);
+    return real_fchown(fd, uid, gid);
   }
   
   if (is_execsfile(realpathname)) // we assume, that doesnt exists
@@ -1675,6 +1724,11 @@ int ftruncate(int fd, off_t length)
     free(realpathname);
     return real_ftruncate(fd, length);  // cant determine realpath
   }
+  if (strcmp(realpathname,"/mnt/sdcard")==0)
+  {
+    free(realpathname);
+    return real_ftruncate(fd, length);
+  }
   
   if (is_execsfile(realpathname)) // we assume, that doesnt exists
   {
@@ -1789,6 +1843,11 @@ int fstat(int fd, struct stat* buf)
   {
     free(realpathname);
     return real_fstat(fd, buf);  // cant determine realpath
+  }
+  if (strcmp(realpathname,"/mnt/sdcard")==0)
+  {
+    free(realpathname);
+    return real_fstat(fd, buf);
   }
   
   if (is_execsfile(realpathname)) // we assume, that doesnt exists
@@ -1970,6 +2029,11 @@ int futimes(int fd, const struct timeval times[2])
   {
     free(realpathname);
     return real_futimes(fd, times);  // cant determine realpath
+  }
+  if (strcmp(realpathname,"/mnt/sdcard")==0)
+  {
+    free(realpathname);
+    return real_futimes(fd, times);
   }
   
   if (is_execsfile(realpathname)) // we assume, that doesnt exists

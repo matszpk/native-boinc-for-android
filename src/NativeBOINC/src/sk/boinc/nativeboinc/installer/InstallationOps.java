@@ -741,7 +741,7 @@ public class InstallationOps {
 	 * deleting project binaries (from app_info.xml)
 	 */
 	
-	public void deleteProjectBinaries(ArrayList<String> projectNames) {
+	public void deleteProjectBinaries(int channelId, ArrayList<String> projectNames) {
 		String projectsPath = mContext.getFilesDir().getAbsolutePath()+"/boinc/projects/";
 		
 		for (String projectName: projectNames) {
@@ -761,6 +761,9 @@ public class InstallationOps {
 					inStream = new FileInputStream(appInfoFile);
 					filenames = ExecFilesAppInfoParser.parse(inStream);
 				} catch(IOException ex) {
+					mInstallerHandler.notifyError(channelId, InstallOp.DeleteProjectBinaries, "", "",
+							mContext.getString(R.string.cantDeleteProjectBins));
+					return;
 				} finally {
 					try {
 						if (inStream!=null)

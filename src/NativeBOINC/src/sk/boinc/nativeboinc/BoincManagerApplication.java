@@ -44,6 +44,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -593,5 +594,26 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	 */
 	public Handler getStandardHandler() {
 		return mStandardHandler;
+	}
+	
+	/**
+	 * installation on the SDCard (place info)
+	 */
+	public final static boolean isSDCardInstallation(Context context) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		return prefs.getBoolean(PreferenceName.INSTALL_PLACE, false);
+	}
+	
+	public final static String getBoincDirectory(Context context, boolean sdcard) {
+		if (!sdcard)
+			return context.getFilesDir().getAbsolutePath()+"/boinc";
+		else
+			return Environment.getExternalStorageDirectory().getAbsolutePath()+
+					"/Android/data/sk.boinc.nativeboinc/files/boinc";
+	}
+	
+	public final static String getBoincDirectory(Context context) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		return getBoincDirectory(context, prefs.getBoolean(PreferenceName.INSTALL_PLACE, false));
 	}
 }

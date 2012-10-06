@@ -454,6 +454,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 			SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(
 					NativeBoincService.this);
 			
+			boolean isSDCard = BoincManagerApplication.isSDCardInstallation(NativeBoincService.this);
+			String boincDir = BoincManagerApplication.getBoincDirectory(NativeBoincService.this, isSDCard);
+			
 			boolean usePartial = globalPrefs.getBoolean(PreferenceName.POWER_SAVING, false);
 			
 			mShutdownCommandWasPerformed = false;
@@ -469,9 +472,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 			if (allowRemoteAccess)
 				boincArgs = new String[] { "--parent_lifecycle", "--allow_remote_gui_rpc" };
 			
-			mBoincPid = ProcessUtils.exec(programName,
-					NativeBoincService.this.getFileStreamPath("boinc").getAbsolutePath(),
-					boincArgs);
+			if (isSDCard)
+				mBoincPid = ProcessUtils.execSD(programName, boincDir, boincArgs);
+			else
+				mBoincPid = ProcessUtils.exec(programName, boincDir, boincArgs);
 			
 			if (mBoincPid == -1) {
 				if (Logging.ERROR) Log.e(TAG, "Running boinc_client failed");

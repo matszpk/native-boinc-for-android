@@ -697,6 +697,8 @@
 	<string name="cantAuthorizeClientMonitor">Nie mogę autoryzować monitora klienta!</string>
 	<string name="cantAuthorizeClientMonitorMessage">Nie mogę autoryzować monitora klienta! Nie możesz automatycznie instalować binariów projektów (możesz użyć \'Aktualizuj binaria\' opcję po dodawaniu projektu) lub odbierać zdarzenia klienta. Możesz zrestartować klienta (zalecamy).</string>
 	
+	<string name="cantDeleteProjectBins">Nie mogę usunąc binariów projektów</string>
+	
 	<!-- HostInfo display -->
 	<string name="hostInfoPart1">
 		&lt;b>Nazwa domeny:&lt;/b> %1$s&lt;br />

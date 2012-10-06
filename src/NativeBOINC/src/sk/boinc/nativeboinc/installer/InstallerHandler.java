@@ -1671,7 +1671,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		}
 		
 		try {
-			mInstallOps.deleteProjectBinaries(projectNames);
+			mInstallOps.deleteProjectBinaries(channelId, projectNames);
 			notifyDeleteProjectBinaries(channelId, InstallOp.DeleteProjectBinaries);
 		} finally {
 			synchronized(this) {

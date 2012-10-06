@@ -24,6 +24,8 @@
 #include <sys/wait.h>
 #include <jni.h>
 
+extern char** environ;
+
 JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_exec(JNIEnv* env,
                 jclass thiz, jstring progPathStr, jstring dirPathStr, jobjectArray argsArray) {
 	int pid = 0;
@@ -48,9 +50,52 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_exec(JNIEnv* 
 
 		chdir(dirPath);
 		execv(program, args);
+		exit(0);
 	}
 	return pid;
 }
+
+JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_execSD(JNIEnv* env,
+                jclass thiz, jstring progPathStr, jstring dirPathStr, jobjectArray argsArray) {
+	int pid = 0;
+	pid = fork();
+	if (pid == 0) { // in new process
+		jsize i;
+		const char* program = (*env)->GetStringUTFChars(env, progPathStr, 0);
+		const char* dirPath = (*env)->GetStringUTFChars(env, dirPathStr, 0);
+		jsize argsLength = (*env)->GetArrayLength(env, argsArray);
+		jstring argStr;
+		char** args;
+		char** envp;
+		size_t envnum, j;
+
+		for (envnum = 0;environ[envnum] == NULL; envnum++);
+
+		envp = malloc(sizeof(char*)*(envnum+2));
+
+		for (j = 0;environ[j] == NULL; j++)
+			envp[j] = environ[j];
+
+		envp[envnum] = "LD_PRELOAD=/data/data/sk.boinc.nativeboinc/lib/libexecwrapper.so";
+		envp[envnum+1] = NULL;
+
+		args = malloc(sizeof(char*)*(argsLength+2));
+
+		args[0] = program;
+
+		for (i = 0; i < argsLength; i++) {
+			 argStr = (*env)->GetObjectArrayElement(env, argsArray, i);
+			 args[i+1] = (*env)->GetStringUTFChars(env, argStr, 0);
+		}
+		args[argsLength+1] = NULL;
+
+		chdir(dirPath);
+		execve(program, args, envp);
+		exit(0);
+	}
+	return pid;
+}
+
 
 #define EXIT_STATUS_MASK 0xff00
 #define NORMAL_EXIT 0

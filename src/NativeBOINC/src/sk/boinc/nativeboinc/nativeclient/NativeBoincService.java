@@ -708,9 +708,14 @@ public class NativeBoincService extends Service implements MonitorListener,
 		
 		String programName = context.getFileStreamPath("boinc_client").getAbsolutePath();
 		
-		boincPid = ProcessUtils.exec(programName,
-				context.getFileStreamPath("boinc").getAbsolutePath(),
-				new String[] { "--allow_remote_gui_rpc" });
+		boolean isSDCard = BoincManagerApplication.isSDCardInstallation(context);
+		String boincDir = BoincManagerApplication.getBoincDirectory(context, isSDCard);
+		if (isSDCard)
+			boincPid = ProcessUtils.execSD(programName, boincDir,
+					new String[] { "--allow_remote_gui_rpc" });
+		else
+			boincPid = ProcessUtils.exec(programName, boincDir,
+					new String[] { "--allow_remote_gui_rpc" });
 		
 		Log.d(TAG, "First start client, pid:"+boincPid);
 		

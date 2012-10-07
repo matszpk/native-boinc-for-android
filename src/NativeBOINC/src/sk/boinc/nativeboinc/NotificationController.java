@@ -68,6 +68,8 @@ public class NotificationController {
 	
 	private DistribNotification mReinstallNotification = null;
 	
+	private DistribNotification mMoveToNotification = null;
+	
 	private Map<String, DistribNotification> mProjectInstallNotifications =
 			new HashMap<String, DistribNotification>();
 	
@@ -479,11 +481,89 @@ public class NotificationController {
 				notification.notification.contentIntent);
 		mNotificationManager.notify(notification.notificationId, notification.notification);
 	}
+
+	/**
+	 * move installation from/to sdcard : notifications handling
+	 */
+	private DistribNotification getMoveToNotification(boolean emptyIntent) {
+		Intent intent = null;
+		if (!emptyIntent) {
+			intent = new Intent(mAppContext, ProgressActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		} else
+			intent = new Intent();
+		
+		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 0);
+		
+		if (mMoveToNotification != null) {
+			mMoveToNotification.notification.when = System.currentTimeMillis();
+			mMoveToNotification.notification.contentIntent = pendingIntent;
+			return mMoveToNotification;
+		}
+		
+		RemoteViews contentView = new RemoteViews(mAppContext.getPackageName(),
+				R.layout.install_notification);
+		
+		Notification notification = new Notification(R.drawable.ic_progress,
+				mAppContext.getString(R.string.moveToBegin),
+				System.currentTimeMillis());
+		mMoveToNotification = new DistribNotification(NotificationId.MOVE_INSTALLATION_TO,
+				notification, contentView);
+		
+		notification.contentIntent = pendingIntent;
+		
+		return mMoveToNotification;
+	}
+	
+	public synchronized void notifyMoveToOperation(String notifyText) {
+		DistribNotification moveToNotification = getMoveToNotification(false);
+		
+		moveToNotification.notification.tickerText = notifyText;
+		moveToNotification.notification.contentView = moveToNotification.contentView;
+		moveToNotification.contentView.setProgressBar(R.id.operationProgress,
+				10000, 0, true);
+		moveToNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
+		
+		moveToNotification.notification.flags &= ~Notification.FLAG_ONLY_ALERT_ONCE;
+		moveToNotification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
+		
+		mNotificationManager.notify(NotificationId.MOVE_INSTALLATION_TO,
+				moveToNotification.notification);
+	}
+	
+	public synchronized void notifyMoveToProgress(String filePath, int progress) {
+		String notifyText = mAppContext.getString(R.string.moveToProgress, filePath);
+		
+		DistribNotification moveToNotification = getMoveToNotification(false);
+		
+		moveToNotification.notification.tickerText = notifyText;
+		moveToNotification.notification.contentView = moveToNotification.contentView;
+		moveToNotification.contentView.setProgressBar(R.id.operationProgress,
+				10000, progress, false);
+		moveToNotification.contentView.setTextViewText(R.id.operationDesc, notifyText);
+		
+		moveToNotification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		moveToNotification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
+		
+		mNotificationManager.notify(NotificationId.MOVE_INSTALLATION_TO,
+				moveToNotification.notification);
+	}
+	
+	public synchronized void notifyMoveToFinish(String description) {
+		Notification notification = getMoveToNotification(true).notification;
+		
+		notification.tickerText = description;
+		notification.setLatestEventInfo(mAppContext, description, description,
+				notification.contentIntent);
+		
+		notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;
+		
+		mNotificationManager.notify(NotificationId.MOVE_INSTALLATION_TO, notification);
+	}
 	
 	/*
 	 * get current status methods
 	 */
-	
 	public synchronized ProgressItem[] getProgressItems() {
 		if (mDistribInstallProgresses.isEmpty())
 			return null;
@@ -612,6 +692,8 @@ public class NotificationController {
 			notifyDumpFilesOperation(opDescription);
 		else if (distribName.equals(InstallerService.BOINC_REINSTALL_ITEM_NAME))
 			notifyReinstallBoincOperation(opDescription);
+		else if (distribName.equals(InstallerService.BOINC_MOVETO_ITEM_NAME))
+			notifyMoveToOperation(opDescription);
 		// ignore non distrib notifications
 		else if (distribName.length()!=0)
 			notifyInstallProjectAppsOperation(distribName, opDescription);
@@ -626,6 +708,8 @@ public class NotificationController {
 			notifyInstallClientProgress(opDescription, progress);
 		else if (distribName.equals(InstallerService.BOINC_DUMP_ITEM_NAME))
 			notifyDumpFilesProgress(opDescription, progress);
+		else if (distribName.equals(InstallerService.BOINC_MOVETO_ITEM_NAME))
+			notifyMoveToProgress(opDescription, progress);
 		// ignore non distrib notifications
 		else if (distribName.length()!=0)
 			notifyInstallProjectAppsProgress(distribName, opDescription, progress);
@@ -641,6 +725,8 @@ public class NotificationController {
 			notifyDumpFilesFinish(mAppContext.getString(R.string.dumpFiles)+": "+errorMessage);
 		else if (distribName.equals(InstallerService.BOINC_REINSTALL_ITEM_NAME))
 			notifyReinstallFinish(mAppContext.getString(R.string.boincReinstall)+ ": "+errorMessage);
+		else if (distribName.equals(InstallerService.BOINC_MOVETO_ITEM_NAME))
+			notifyMoveToFinish(mAppContext.getString(R.string.boincMoveTo)+": "+errorMessage);
 		// ignore non distrib notifications
 		else if (distribName.length()!=0)
 			notifyInstallProjectAppsFinish(distribName, errorMessage);
@@ -658,6 +744,9 @@ public class NotificationController {
 		else if (distribName.equals(InstallerService.BOINC_REINSTALL_ITEM_NAME))
 			notifyReinstallFinish(mAppContext.getString(R.string.boincReinstall)+ ": "+
 						mAppContext.getString(R.string.operationCancelled));
+		else if (distribName.equals(InstallerService.BOINC_MOVETO_ITEM_NAME))
+			notifyMoveToFinish(mAppContext.getString(R.string.boincMoveTo)+ ": "+
+						mAppContext.getString(R.string.operationCancelled));
 		// ignore non distrib notifications
 		else if (distribName.length()!=0)
 			notifyInstallProjectAppsFinish(distribName, mAppContext.getString(R.string.operationCancelled));
@@ -673,6 +762,8 @@ public class NotificationController {
 			notifyDumpFilesFinish(mAppContext.getString(R.string.dumpBoincFinish));
 		else if (distribName.equals(InstallerService.BOINC_REINSTALL_ITEM_NAME))
 			notifyReinstallFinish(mAppContext.getString(R.string.reinstallFinish));
+		else if (distribName.equals(InstallerService.BOINC_MOVETO_ITEM_NAME))
+			notifyMoveToFinish(mAppContext.getString(R.string.moveToFinish));
 		// ignore non distrib notifications
 		else if (distribName.length()!=0)
 			notifyInstallProjectAppsFinish(distribName,

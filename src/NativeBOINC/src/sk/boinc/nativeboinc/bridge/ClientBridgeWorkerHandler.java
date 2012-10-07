@@ -1810,7 +1810,7 @@ public class ClientBridgeWorkerHandler extends Handler {
 			replyHandler.post(new Runnable() {
 				@Override
 				public void run() {
-					if (replyHandler != null) // TODO: fix this error!!!
+					if (replyHandler != null)
 						replyHandler.onChangeIsWorking(currentIsWorking);
 				}
 			});

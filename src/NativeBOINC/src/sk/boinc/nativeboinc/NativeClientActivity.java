@@ -262,9 +262,10 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 				else
 					pref.setSummary(R.string.nativeHostnameSummaryNone);
 				
-				try {
-					NativeBoincUtils.setHostname(NativeClientActivity.this, newHostName);
-				} catch(IOException ex) { }
+				if (newHostName != null && newHostName.length() != 0)
+					try {
+						NativeBoincUtils.setHostname(NativeClientActivity.this, newHostName);
+					} catch(IOException ex) { }
 				
 				return true;
 			}

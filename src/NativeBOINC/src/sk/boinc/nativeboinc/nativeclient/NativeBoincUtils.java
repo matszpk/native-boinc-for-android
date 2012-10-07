@@ -12,6 +12,8 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import sk.boinc.nativeboinc.BoincManagerApplication;
+
 import android.content.Context;
 
 /**
@@ -213,7 +215,7 @@ public class NativeBoincUtils {
 		BufferedReader inReader = null;
 		try {
 			inReader = new BufferedReader(new FileReader(
-					context.getFilesDir().getAbsolutePath()+"/boinc/gui_rpc_auth.cfg"));
+					BoincManagerApplication.getBoincDirectory(context)+"/gui_rpc_auth.cfg"));
 			String output = inReader.readLine();
 			if (output == null)
 				throw new IOException("Empty file!");
@@ -227,7 +229,7 @@ public class NativeBoincUtils {
 	public static void setAccessPassword(Context context,String password) throws IOException {
 		OutputStreamWriter writer = null;
 		try {
-			writer = new FileWriter(context.getFilesDir().getAbsolutePath()+"/boinc/gui_rpc_auth.cfg");
+			writer = new FileWriter(BoincManagerApplication.getBoincDirectory(context)+"/gui_rpc_auth.cfg");
 			writer.write(password);
 			
 			writer.flush();
@@ -244,7 +246,7 @@ public class NativeBoincUtils {
 		BufferedReader inReader = null;
 		try {
 			inReader = new BufferedReader(new FileReader(
-					context.getFilesDir().getAbsolutePath()+"/boinc/hostname.cfg"));
+					BoincManagerApplication.getBoincDirectory(context)+"/hostname.cfg"));
 			return inReader.readLine();
 		} finally {
 			if (inReader != null)
@@ -253,15 +255,15 @@ public class NativeBoincUtils {
 	}
 	
 	public static void setHostname(Context context, String hostname) throws IOException {
-		if (hostname == null || hostname.length() == 0) {
-			File fileToRemove = new File(context.getFilesDir().getAbsolutePath()+
-					"/boinc/hostname.cfg");
-			fileToRemove.delete();
-		}
+		if (hostname == null)
+			return;
+		
+		String hostnamePath = BoincManagerApplication.getBoincDirectory(context)+
+				"/hostname.cfg";
 		
 		OutputStreamWriter writer = null;
 		try {
-			writer = new FileWriter(context.getFilesDir().getAbsolutePath()+"/boinc/hostname.cfg");
+			writer = new FileWriter(hostnamePath);
 			writer.write(hostname);
 			
 			writer.flush();
@@ -277,16 +279,18 @@ public class NativeBoincUtils {
 	public static ArrayList<String> getRemoteHostList(Context context) throws IOException {
 		BufferedReader inReader = null;
 		ArrayList<String> list = null;
+		
+		String remoteHostsPath = BoincManagerApplication.getBoincDirectory(context)+
+				"/remote_hosts.cfg";
+		
 		try {
-			File remoteHostsFile = new File(context.getFilesDir().getAbsolutePath()+
-					"/boinc/remote_hosts.cfg");
+			File remoteHostsFile = new File(remoteHostsPath);
 			
 			/* return null if not exists (if anything host can connect with client) */
 			if (!remoteHostsFile.exists())
 				return null;
 				
-			inReader = new BufferedReader(new FileReader(
-					context.getFilesDir().getAbsolutePath()+"/boinc/remote_hosts.cfg"));
+			inReader = new BufferedReader(new FileReader(remoteHostsPath));
 			
 			list = new ArrayList<String>(1);
 			
@@ -309,7 +313,8 @@ public class NativeBoincUtils {
 	public static void setRemoteHostList(Context context, ArrayList<String> outList) throws IOException {
 		FileWriter writer = null;
 		try {
-			writer = new FileWriter(context.getFilesDir().getAbsolutePath()+"/boinc/remote_hosts.cfg");
+			writer = new FileWriter(BoincManagerApplication.getBoincDirectory(context)+
+					"/remote_hosts.cfg");
 			
 			StringBuilder sB = new StringBuilder();
 			

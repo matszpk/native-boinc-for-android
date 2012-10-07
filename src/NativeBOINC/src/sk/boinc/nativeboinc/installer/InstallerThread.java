@@ -205,4 +205,13 @@ public class InstallerThread extends Thread {
 			}
 		});
 	}
+	
+	public void moveInstallationTo() {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.moveInstallationTo();
+			}
+		});
+	}
 }

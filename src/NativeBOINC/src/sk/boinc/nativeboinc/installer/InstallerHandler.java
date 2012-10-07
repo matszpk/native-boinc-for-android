@@ -55,6 +55,7 @@ import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.HostListDbAdapter;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.RuntimeUtils;
+import sk.boinc.nativeboinc.util.SDCardExecs;
 import sk.boinc.nativeboinc.util.UpdateItem;
 
 import android.content.Context;
@@ -95,6 +96,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	
 	private boolean mDoDumpBoincFiles = false;
 	private boolean mDoBoincReinstall = false;
+	private boolean mDoInstallationMoveTo = false;
 	
 	private Downloader mDownloader = null;
 	
@@ -112,6 +114,11 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	
 	/* locks resources (such as wifi and CPU) */
 	private ResourcesLocker mResourcesLocker = null;
+	
+	/* determine where is boind installation (true - sdcard, false - internal memory) */
+	private boolean mInstallOnSDCard = false;
+	/* determine place where is boinc directory */ 
+	private String mInstallPlacePath = null;
 	
 	/*
 	 * 
@@ -188,6 +195,22 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mDistribManager = null;
 		mInstallOps.destroy();
 		mInstallOps = null;
+	}
+	
+	/*
+	 * install place handling
+	 */
+	private synchronized void updateInstallPlace() {
+		mInstallPlacePath = BoincManagerApplication.getBoincDirectory(mInstallerService);
+		mInstallOnSDCard = BoincManagerApplication.isSDCardInstallation(mInstallerService);
+	}
+	
+	public boolean isInstallOnSDCard() {
+		return mInstallOnSDCard;
+	}
+	
+	public String getInstallPlacePath() {
+		return mInstallPlacePath;
 	}
 	
 	public void setRunnerService(NativeBoincService service) {
@@ -474,7 +497,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				}
 			    
 			    /* create boinc directory */
-			    File boincDir = new File(mInstallerService.getFilesDir()+"/boinc");
+			    File boincDir = new File(mInstallPlacePath);
 			    if (!boincDir.isDirectory()) {
 			    	boincDir.delete();
 			    	boincDir.mkdir();
@@ -644,11 +667,11 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		long totalLength = 0;
 		
 		StringBuilder projectAppFilePath = new StringBuilder();
-		projectAppFilePath.append(mInstallerService.getFilesDir());
+		projectAppFilePath.append(mInstallPlacePath);
 		if (directInstallation)
-			projectAppFilePath.append("/boinc/projects/");
+			projectAppFilePath.append("/projects/");
 		else
-			projectAppFilePath.append("/boinc/updates/");
+			projectAppFilePath.append("/updates/");
 		
 		projectAppFilePath.append(escapeProjectUrl(projectDistrib.projectUrl));
 		projectAppFilePath.append("/");
@@ -805,14 +828,30 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		}
 		
 		if (execFilenames != null) {
-			for (String filename: execFilenames) {
-				projectAppFilePath.append(filename);
-				if (!Chmod.chmod(projectAppFilePath.toString(), 0700)) {
+			if (!mInstallOnSDCard) { // install on internal memory
+				for (String filename: execFilenames) {
+					projectAppFilePath.append(filename);
+					if (!Chmod.chmod(projectAppFilePath.toString(), 0700)) {
+						notifyError(projectDistrib.projectName, projectDistrib.projectUrl,
+								mInstallerService.getString(R.string.changePermissionsError));
+				    	return null;
+					}
+					projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
+				}
+			} else { // install on sdcard
+				int execsFd = -1;
+				try {
+					// open .__execs__ file
+					execsFd = SDCardExecs.openExecsLock(projectAppFilePath.toString(), true);
+					for (String filename: execFilenames) // add execs
+						SDCardExecs.setExecMode(execsFd, filename, true);
+				} catch(IOException ex) {
 					notifyError(projectDistrib.projectName, projectDistrib.projectUrl,
 							mInstallerService.getString(R.string.changePermissionsError));
-			    	return null;
+					return null;
+				} finally {
+					SDCardExecs.closeExecsLock(execsFd);
 				}
-				projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
 			}
 		}
 		
@@ -834,11 +873,11 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		ArrayList<String> fileList = new ArrayList<String>();
 		
 		StringBuilder projectAppFilePath = new StringBuilder();
-		projectAppFilePath.append(mInstallerService.getFilesDir());
+		projectAppFilePath.append(mInstallPlacePath);
 		if (directInstallation)
-			projectAppFilePath.append("/boinc/projects/");
+			projectAppFilePath.append("/projects/");
 		else
-			projectAppFilePath.append("/boinc/updates/");
+			projectAppFilePath.append("/updates/");
 		
 		projectAppFilePath.append(escapeProjectUrl(projectDistrib.projectUrl));
 		projectAppFilePath.append("/");
@@ -1099,13 +1138,13 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						
 						String escapedUrl = escapeProjectUrl(mProjectDistrib.projectUrl);
 						
-						updateAppFilePath.append(mInstallerService.getFilesDir());
-						updateAppFilePath.append("/boinc/updates/");
+						updateAppFilePath.append(mInstallPlacePath);
+						updateAppFilePath.append("/updates/");
 						updateAppFilePath.append(escapedUrl);
 						updateAppFilePath.append("/");
 						
-						projectAppFilePath.append(mInstallerService.getFilesDir());
-						projectAppFilePath.append("/boinc/projects/");
+						projectAppFilePath.append(mInstallPlacePath);
+						projectAppFilePath.append("/projects/");
 						projectAppFilePath.append(escapedUrl);
 						projectAppFilePath.append("/");
 						int projectDirPathLength = projectAppFilePath.length();
@@ -1122,10 +1161,35 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 							return;
 						}
 						
-						for (File file: filesToRename) {
-							projectAppFilePath.append(file.getName());
-							file.renameTo(new File(projectAppFilePath.toString()));
-							projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
+						if (!mInstallOnSDCard) {
+							for (File file: filesToRename) {
+								projectAppFilePath.append(file.getName());
+								file.renameTo(new File(projectAppFilePath.toString()));
+								projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
+							}
+						} else {
+							int updatesExecsFd = -1;
+							int projectsExecsFd = -1;
+							
+							try {
+								updatesExecsFd = SDCardExecs.openExecsLock(
+										updateAppFilePath.toString(), true);
+								projectsExecsFd = SDCardExecs.openExecsLock(
+										projectAppFilePath.toString(), true);
+								
+								/* it keep permissions (move permission to dest directory) */
+								for (File file: filesToRename) {
+									String filename = file.getName();
+									SDCardExecs.setExecMode(updatesExecsFd, filename, false);
+									SDCardExecs.setExecMode(projectsExecsFd, filename, true);
+								}
+							} catch(IOException ex) {
+								notifyError(mProjectDistrib.projectName, mProjectDistrib.projectUrl,
+										mInstallerService.getString(R.string.unexpectedError));
+							} finally {
+								SDCardExecs.closeExecsLock(updatesExecsFd);
+								SDCardExecs.closeExecsLock(projectsExecsFd);
+							}
 						}
 						removeSelf = false;
 						updatedProjectApps(mProjectDistrib.projectUrl);
@@ -1258,6 +1322,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				mInstallerService.getString(R.string.installProjectBegin));
 		
 		synchronized(this) {
+			updateInstallPlace();
 			mProjectAppsInstallers.put(projectDistrib.projectUrl, appInstaller);
 			notifyChangeOfIsWorking();
 			Future<?> future = mExecutorService.submit(appInstaller);
@@ -1285,6 +1350,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						mClientInstaller.setFuture(future);
 					}
 				}
+		
+		updateInstallPlace();
 		
 		/* next install project applications */
 		for (UpdateItem updateItem: updateItems) {
@@ -1356,6 +1423,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		if (mProjectDescs == null)
 			mProjectDescs = mProjectsRetriever.getProjectDescriptors();
+		
+		updateInstallPlace();
 		
 		/* next install project applications */
 		for (String distribName: distribNames) {
@@ -1528,6 +1597,19 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				notifyCancel(InstallerService.BOINC_REINSTALL_ITEM_NAME, ""); 
 		}
 		mBoincReinstaller = null;
+	}
+	
+	public synchronized void cancelMoveInstallationTo() {
+		if (mBoincInstallationMover != null) {
+			Future<?> future = mBoincInstallationMover.getFuture();
+			if (future != null)
+				future.cancel(true);
+			
+			if (mBoincInstallationMover != null && !mBoincInstallationMover.isRan()) 
+				// notify cancel if not ran yet
+				notifyCancel(InstallerService.BOINC_MOVETO_ITEM_NAME, ""); 
+		}
+		mBoincInstallationMover = null;
 	}
 	
 	public synchronized void cancelSimpleOperation(int channelId, Thread workingThread) {
@@ -1725,6 +1807,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		notifyOperation(InstallerService.BOINC_DUMP_ITEM_NAME, "",
 				mInstallerService.getString(R.string.dumpBoincBegin));
 		synchronized(this) {
+			updateInstallPlace();
+			
 			mBoincFilesDumper = new BoincFilesDumper(directory);
 			// notify that boinc dumper is working
 			notifyChangeOfIsWorking();
@@ -1774,6 +1858,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		notifyOperation(InstallerService.BOINC_REINSTALL_ITEM_NAME, "",
 				mInstallerService.getString(R.string.reinstallBegin));
 		synchronized(this) {
+			updateInstallPlace();
+			
 			mDoBoincReinstall = true;
 			mBoincReinstaller = new BoincReinstaller();
 			// notify that client reinstaller is working
@@ -1785,6 +1871,60 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	
 	public boolean isBeingReinstalled() {
 		return mDoBoincReinstall;
+	}
+	
+	/*
+	 * move BOINC installation to 
+	 */
+	
+	public class BoincInstallationMover extends AbstractWorker {
+
+		@Override
+		public void run() {
+			mIsRan = true;
+			synchronized(InstallerHandler.this) {
+				mDoInstallationMoveTo = true;
+				notifyChangeOfIsWorking();
+			}
+			
+			try {
+				mInstallOps.moveInstallationTo();
+			} catch(Exception ex) {
+				notifyError(InstallerService.BOINC_MOVETO_ITEM_NAME, "", 
+						mInstallerService.getString(R.string.unexpectedError));
+			} finally {
+				synchronized(InstallerHandler.this) {
+					mBoincInstallationMover = null;
+					mDoInstallationMoveTo = false;
+					notifyChangeOfIsWorking();
+				}
+			}
+		}
+	}
+	
+	public void moveInstallationTo() {
+		if (mDoInstallationMoveTo)
+			return;
+		
+		notifyOperation(InstallerService.BOINC_REINSTALL_ITEM_NAME, "",
+				mInstallerService.getString(R.string.moveToBegin));
+		
+		synchronized(this) {
+			updateInstallPlace();
+			
+			mDoInstallationMoveTo = true;
+			mBoincInstallationMover = new BoincInstallationMover();
+			// notify that client reinstaller is working
+			notifyChangeOfIsWorking();
+			Future<?> future = mExecutorService.submit(mBoincInstallationMover);
+			mBoincInstallationMover.setFuture(future);
+		}
+	}
+	
+	private BoincInstallationMover mBoincInstallationMover = null;
+	
+	public boolean isBeingInstallationMoved() {
+		return mDoInstallationMoveTo;
 	}
 	
 	/*
@@ -2000,7 +2140,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	public void onClientStop(int exitCode, boolean stoppedByManager) {
 		if (mIsClientBeingInstalled)
 			mDelayedClientShutdownSem.release();
-		if (mDoBoincReinstall)
+		if (mDoBoincReinstall && mDoInstallationMoveTo)
 			mInstallOps.notifyShutdownClient();
 	}
 

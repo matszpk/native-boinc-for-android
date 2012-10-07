@@ -19,13 +19,27 @@
  * 
  */
  -->
-<ListView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/logsList"
-    android:dividerHeight="0dip"
-    android:divider="@null"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:stackFromBottom="true"
-    android:transcriptMode="normal"
-    android:fastScrollEnabled="true">
-</ListView>
+    android:layout_height="fill_parent">
+    <ListView 
+	    android:id="@+id/logsList"
+	    android:dividerHeight="0dip"
+	    android:divider="@null"
+	    android:layout_weight="1"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:stackFromBottom="true"
+	    android:transcriptMode="normal"
+	    android:fastScrollEnabled="true">
+	</ListView>
+	<TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:paddingLeft="5dip"
+        android:paddingRight="5dip"
+        android:paddingBottom="5dip"
+        android:text="@string/nativeBoincLogsHelp"/>
+</LinearLayout>

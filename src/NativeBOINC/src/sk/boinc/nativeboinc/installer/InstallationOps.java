@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.concurrent.Semaphore;
 
 import sk.boinc.nativeboinc.BoincManagerApplication;
@@ -34,8 +35,10 @@ import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
+import sk.boinc.nativeboinc.util.Chmod;
 import sk.boinc.nativeboinc.util.FileUtils;
 import sk.boinc.nativeboinc.util.PreferenceName;
+import sk.boinc.nativeboinc.util.SDCardExecs;
 import sk.boinc.nativeboinc.util.UpdateItem;
 import sk.boinc.nativeboinc.util.VersionUtil;
 
@@ -71,6 +74,7 @@ public class InstallationOps {
 	
 	private InstallerHandler mInstallerHandler = null;
 	
+	private static final String EXECS_NAME = ".__execs__";
 	
 	public InstallationOps(InstallerHandler installerHandler, Context context, Downloader downloader,
 			InstalledDistribManager distribManager) {
@@ -198,7 +202,8 @@ public class InstallationOps {
 			projectDistribs = ProjectDistribListParser.parse(inStream);
 			if (projectDistribs != null) {
 				for (ProjectDistrib distrib :projectDistribs) {
-					if (distrib.projectName.length() == 0 || // we dont check filename (handling project with builtin Android apps
+					if (distrib.projectName.length() == 0 ||
+							// we dont check filename (handling project with builtin Android apps
 							distrib.projectUrl.length() == 0 ||
 							// check version when filename is specified
 							(distrib.version.length() == 0 && distrib.filename.length() != 0)) {
@@ -484,6 +489,9 @@ public class InstallationOps {
 			return -1;
 		
 		for (File file: dirFiles) {
+			if (file.getName().equals(EXECS_NAME))
+				continue; // skip '.__execs__' file
+			
 			if (file.isDirectory()) {
 				long childLength = calculateDirectorySize(file);
 				if (childLength == -1)
@@ -506,82 +514,136 @@ public class InstallationOps {
 	
 	private StringBuilder mStringBuilder = new StringBuilder();
 	
-	private long copyDirectory(File inDir, File outDir, String path, long copied, long inputSize)
-			throws IOException {
+	/* copyDir modes */
+	private static final int COPY_NORMALLY = 0;
+	private static final int COPY_TO_SDCARD = 1;
+	private static final int COPY_FROM_SDCARD = 2;
+	
+	private static interface ProgressNotifier {
+		public void notifyProgress(int progress);
+	}
+	
+	public class CopyDirectoryHelper {
 		
-		File[] inDirFiles = inDir.listFiles();
+		private final long mInputSize;
+		private final int mMode;
+		private final ProgressNotifier mProgressNotifier;
 		
-		if (inDirFiles == null)
-			throw new IOException("Cant access to directory!");
+		public CopyDirectoryHelper(long inputSize, int mode, ProgressNotifier progressNotifier) {
+			this.mInputSize = inputSize;
+			this.mMode = mode;
+			this.mProgressNotifier = progressNotifier;
+		}
 		
-		for (File file: inDirFiles) {
-			mStringBuilder.setLength(0);
-			mStringBuilder.append(outDir.getPath());
-			mStringBuilder.append("/");
-			mStringBuilder.append(file.getName());
-			File outFile = new File(mStringBuilder.toString());
+		public long copyDirectory(File inDir, File outDir, String path, long copied) throws IOException {
+			File[] inDirFiles = inDir.listFiles();
 			
-			mStringBuilder.setLength(0);
-			mStringBuilder.append(path);
-			mStringBuilder.append("/");
-			mStringBuilder.append(file.getName());
-			String newPath = mStringBuilder.toString();
+			if (inDirFiles == null)
+				throw new IOException("Cant access to directory!");
 			
-			if (file.isDirectory()) {
-				if (!outFile.exists())
-					outFile.mkdir();
+			for (File file: inDirFiles) {
+				if (file.getName().equals(EXECS_NAME))
+					continue; // skip '.__execs__' file
 				
-				copied = copyDirectory(file, outFile, newPath, copied, inputSize);
+				mStringBuilder.setLength(0);
+				mStringBuilder.append(outDir.getPath());
+				mStringBuilder.append("/");
+				mStringBuilder.append(file.getName());
+				File outFile = new File(mStringBuilder.toString());
 				
-				// keep interrupt state for parent method
-				if (Thread.currentThread().isInterrupted()) // cancel
-					return copied;
-			} else {
-				FileInputStream inStream = null;
-				FileOutputStream outStream = null;
+				mStringBuilder.setLength(0);
+				mStringBuilder.append(path);
+				mStringBuilder.append("/");
+				mStringBuilder.append(file.getName());
+				String newPath = mStringBuilder.toString();
 				
-				try {
-					inStream = new FileInputStream(file);
-					outStream = new FileOutputStream(outFile);
+				if (file.isDirectory()) {
+					if (!outFile.exists())
+						outFile.mkdir();
+					
+					copied = copyDirectory(file, outFile, newPath, copied);
 					
 					// keep interrupt state for parent method
 					if (Thread.currentThread().isInterrupted()) // cancel
 						return copied;
+				} else {
+					FileInputStream inStream = null;
+					FileOutputStream outStream = null;
 					
-					while(true) {
-						/* main copy routine */
-						int readed = inStream.read(mBuffer);
+					try {
+						inStream = new FileInputStream(file);
+						outStream = new FileOutputStream(outFile);
 						
-						copied += readed;
+						// keep interrupt state for parent method
+						if (Thread.currentThread().isInterrupted()) // cancel
+							return copied;
 						
-						long currentNotifyTime = System.currentTimeMillis();
-						if (currentNotifyTime-mPreviousNotifyTime>NOTIFY_PERIOD) {
-							// notify about progress
-							mInstallerHandler.notifyProgress(InstallerService.BOINC_DUMP_ITEM_NAME, "",
-									mContext.getString(R.string.dumpBoincProgress),
-									(int)(10000.0*(double)copied/(double)inputSize));
+						while(true) {
+							/* main copy routine */
+							int readed = inStream.read(mBuffer);
 							
-							mPreviousNotifyTime = currentNotifyTime;
+							copied += readed;
 							
-							if (Thread.interrupted()) // cancel
-								return copied;
+							long currentNotifyTime = System.currentTimeMillis();
+							if (currentNotifyTime-mPreviousNotifyTime>NOTIFY_PERIOD) {
+								// notify about progress
+								mProgressNotifier.notifyProgress((int)(10000.0*(double)copied/(double)mInputSize));
+								mPreviousNotifyTime = currentNotifyTime;
+								
+								if (Thread.interrupted()) // cancel
+									return copied;
+							}
+							
+							if (readed == -1)
+								break;
+							outStream.write(mBuffer, 0, readed);
 						}
 						
-						if (readed == -1)
-							break;
-						outStream.write(mBuffer, 0, readed);
+						outStream.flush();
+					} finally {
+						if (inStream != null)
+							inStream.close();
+						if (outStream != null)
+							outStream.close();
 					}
-					
-					outStream.flush();
-				} finally {
-					if (inStream != null)
-						inStream.close();
-					if (outStream != null)
-						outStream.close();
 				}
 			}
+			
+			int execsFd = -1;
+			try {
+				if (mMode == COPY_FROM_SDCARD) {
+					execsFd = SDCardExecs.openExecsLock(path, false);
+					HashSet<String> execsNames = new HashSet<String>();
+					SDCardExecs.readExecs(execsFd, execsNames);
+					
+					mStringBuilder.setLength(0);
+					mStringBuilder.append(path);
+					mStringBuilder.append("/");
+					int lastSlashIndex = mStringBuilder.length();
+					
+					/* grant permissions for destination files (in __execs__ file) */
+					for (String execName: execsNames) {
+						mStringBuilder.append(execName);
+						Chmod.chmod(mStringBuilder.toString(), 0755);
+						mStringBuilder.delete(lastSlashIndex, mStringBuilder.length());
+					}
+				} else if (mMode == COPY_TO_SDCARD) {
+					execsFd = SDCardExecs.openExecsLock(outDir.getPath(), true);
+					/* grant permissions for destination files (from __execs__ file) */
+					for (File inFile: inDirFiles) {
+						if (inFile.isDirectory())
+							continue;
+						
+						int filemode = Chmod.getmod(inFile.getPath());
+						if (filemode != -1)
+							SDCardExecs.setExecMode(execsFd, inFile.getName(), (filemode & 0111) != 0);
+					}
+				}
+			} finally {
+				SDCardExecs.closeExecsLock(execsFd);
+			}
+			return copied;
 		}
-		return copied;
 	}
 	
 	public static boolean isDestinationExists(String directory) {
@@ -604,7 +666,7 @@ public class InstallationOps {
 		deleteDirectory(fileDir);
 		fileDir.mkdirs();
 				
-		File boincDir = mContext.getFileStreamPath("boinc");
+		File boincDir = new File(mInstallerHandler.getInstallPlacePath());
 		long boincDirSize = calculateDirectorySize(boincDir);
 		if (boincDirSize == -1) {
 			mInstallerHandler.notifyError(InstallerService.BOINC_DUMP_ITEM_NAME, "",
@@ -619,7 +681,13 @@ public class InstallationOps {
 		
 		mPreviousNotifyTime = System.currentTimeMillis();
 		try {
-			copyDirectory(boincDir, fileDir, "", 0, boincDirSize);
+			new CopyDirectoryHelper(boincDirSize, COPY_NORMALLY, new ProgressNotifier() {
+						@Override
+						public void notifyProgress(int progress) {
+							mInstallerHandler.notifyProgress(InstallerService.BOINC_DUMP_ITEM_NAME, "",
+									mContext.getString(R.string.dumpBoincProgress), progress);
+						}
+					}).copyDirectory(boincDir, fileDir, "", 0);
 			
 			if (Thread.interrupted()) {
 				mInstallerHandler.notifyCancel(InstallerService.BOINC_DUMP_ITEM_NAME, "");
@@ -677,14 +745,14 @@ public class InstallationOps {
 			}
 		}
 		
-		deleteDirectory(mContext.getFileStreamPath("boinc"));
+		deleteDirectory(new File(mInstallerHandler.getInstallPlacePath()));
 		
 		if (Thread.interrupted()) {
 			mInstallerHandler.notifyCancel(InstallerService.BOINC_REINSTALL_ITEM_NAME, "");
 			return;
 		}
 		
-		mContext.getFileStreamPath("boinc").mkdir();
+		new File(mInstallerHandler.getInstallPlacePath()).mkdir();
 		
 		// now reinitialize boinc directory (first start and other operation) */
 		try {
@@ -742,7 +810,7 @@ public class InstallationOps {
 	 */
 	
 	public void deleteProjectBinaries(int channelId, ArrayList<String> projectNames) {
-		String projectsPath = mContext.getFilesDir().getAbsolutePath()+"/boinc/projects/";
+		String projectsPath = mInstallerHandler.getInstallPlacePath()+"/projects/";
 		
 		for (String projectName: projectNames) {
 			InstalledDistrib found = null;
@@ -772,8 +840,28 @@ public class InstallationOps {
 				}
 				
 				// deleting files
-				for (String filename: filenames)
-					new File(projPath,filename).delete();
+				int execsFd = -1;
+				
+				if (!mInstallerHandler.isInstallOnSDCard()) {
+					for (String filename: filenames)
+						new File(projPath,filename).delete();
+				} else {
+					/* removing files and granted permissions */
+					try {
+						execsFd = SDCardExecs.openExecsLock(projPath, true);
+						
+						for (String filename: filenames) {
+							SDCardExecs.setExecMode(execsFd, filename, false);
+							new File(projPath,filename).delete();
+						}
+						SDCardExecs.setExecMode(execsFd, "app_info.xml", false);
+					} catch(IOException ex) {
+						mInstallerHandler.notifyError(channelId, InstallOp.DeleteProjectBinaries, "", "",
+								mContext.getString(R.string.cantDeleteProjectBins));
+					} finally {
+						SDCardExecs.closeExecsLock(execsFd);
+					}
+				}
 				appInfoFile.delete();
 			}
 		}
@@ -782,9 +870,90 @@ public class InstallationOps {
 	}
 	
 	/*
-	 * move installation to sdcard
+	 * move installation from/to sdcard
 	 */
 	public void moveInstallationTo() {
+		boolean runBoinc = false;
 		
+		if (mRunner.isRun()) {
+			runBoinc = true;
+			mInstallerHandler.notifyOperation(InstallerService.BOINC_MOVETO_ITEM_NAME, "",
+					mContext.getString(R.string.waitingForShutdown));
+			
+			mShutdownClientSem.tryAcquire();
+			
+			mRunner.shutdownClient();
+			// awaiting for shutdown
+			try {
+				mShutdownClientSem.acquire();
+			} catch(InterruptedException ex) {
+				mInstallerHandler.notifyCancel(InstallerService.BOINC_MOVETO_ITEM_NAME, "");
+				return;
+			} finally {
+				mShutdownClientSem.release();
+			}
+		}
+		
+		if (Thread.interrupted()) {
+			mInstallerHandler.notifyCancel(InstallerService.BOINC_MOVETO_ITEM_NAME, "");
+			return;
+		}
+		
+		String intMemPath = BoincManagerApplication.getBoincDirectory(mContext, false);
+		String sdCardPath = BoincManagerApplication.getBoincDirectory(mContext, true);
+		if (mInstallerHandler.isInstallOnSDCard()) { // move to internal memory
+			File sdCardDir = new File(sdCardPath);
+			long boincDirSize = calculateDirectorySize(sdCardDir);
+			
+			try {
+				new CopyDirectoryHelper(boincDirSize, COPY_FROM_SDCARD, new ProgressNotifier() {
+					@Override
+					public void notifyProgress(int progress) {
+						// TODO Auto-generated method stub
+						mInstallerHandler.notifyProgress(InstallerService.BOINC_MOVETO_ITEM_NAME, "",
+								mContext.getString(R.string.moveToProgress), progress);
+					}
+				}).copyDirectory(sdCardDir, new File(intMemPath), "", 0);
+				
+				// delete previous place
+				deleteDirectory(sdCardDir);
+			} catch(IOException ex) {
+				mInstallerHandler.notifyError(InstallerService.BOINC_MOVETO_ITEM_NAME, "", ex.getMessage());
+				return;
+			}
+		} else { // move to sdcard memory
+			File intMemDir = new File(intMemPath);
+			long boincDirSize = calculateDirectorySize(intMemDir);
+			
+			try {
+				new CopyDirectoryHelper(boincDirSize, COPY_TO_SDCARD, new ProgressNotifier() {
+					@Override
+					public void notifyProgress(int progress) {
+						// TODO Auto-generated method stub
+						mInstallerHandler.notifyProgress(InstallerService.BOINC_MOVETO_ITEM_NAME, "",
+								mContext.getString(R.string.moveToProgress), progress);
+					}
+				}).copyDirectory(intMemDir, new File(sdCardPath), "", 0);
+				
+				// delete previous place
+				deleteDirectory(intMemDir);
+			} catch(IOException ex) {
+				mInstallerHandler.notifyError(InstallerService.BOINC_MOVETO_ITEM_NAME, "", ex.getMessage());
+				return;
+			}
+		}
+		
+		if (Thread.interrupted()) {
+			mInstallerHandler.notifyCancel(InstallerService.BOINC_MOVETO_ITEM_NAME, "");
+			return;
+		}
+		
+		/* change preferences (install place) */
+		BoincManagerApplication.setBoincPlace(mContext, !mInstallerHandler.isInstallOnSDCard());
+		
+		if (runBoinc) // if previusly run, we run now
+			mRunner.startClient(false);
+		
+		mInstallerHandler.notifyFinish(InstallerService.BOINC_MOVETO_ITEM_NAME, "");
 	}
 }

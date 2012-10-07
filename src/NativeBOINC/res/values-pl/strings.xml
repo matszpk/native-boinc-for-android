@@ -355,6 +355,12 @@
 	<string name="reinstallQuestion">Reinstalacja usuwa cały katalog BOINC\'a (włącznie z projektami). Czy chcesz naprawdę zrobić reinstalację BOINC\'a?</string>
 	<string name="waitingForShutdown">Czekanie na wyłączenie</string>
 	
+	<!-- move from/to sdcard -->
+	<string name="boincMoveTo">Przenoszenie instalacji BOINC</string>
+	<string name="moveToBegin">Rozpoczęcie przenoszenia instalacji BOINC</string>
+	<string name="moveToProgress">Przenoszenie instalacji BOINC</string>
+	<string name="moveToFinish">Przenoszenie instalacji BOINC zakończone</string>
+	
 	<!-- access host list activity -->
 	<string name="accessHostList">Lista dostępu dla hostów</string>
 	<string name="addHost">Dodaj hosta</string>

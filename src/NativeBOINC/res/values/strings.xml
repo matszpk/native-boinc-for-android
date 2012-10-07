@@ -335,6 +335,7 @@
 	<string name="nativeShowLogsSummary">Show last logs from BOINC client</string>
 	
 	<string name="nativeBoincLogs">BOINC last logs</string>
+	<string name="nativeBoincLogsHelp">To get options please press Menu button.</string>
 	
 	<string name="updateFromSDCard">Update binaries from SDCard</string>
 	<string name="enterUpdateDir">Enter update directory</string>
@@ -355,6 +356,12 @@
 	<string name="reinstallInProgress">Reinstalling BOINC</string>
 	<string name="reinstallQuestion">Reinstallation removes whole BOINC directory (including projects). Do you really want to reinstall BOINC?</string>
 	<string name="waitingForShutdown">Waiting for shutdown</string>
+	
+	<!-- move from/to sdcard -->
+	<string name="boincMoveTo">Moving BOINC installation</string>
+	<string name="moveToBegin">Begin moving BOINC installation</string>
+	<string name="moveToProgress">Moving BOINC installation</string>
+	<string name="moveToFinish">Moving BOINC installation finished</string>
 	
 	<!-- access host list activity -->
 	<string name="accessHostList">Access host list</string>
@@ -390,7 +397,7 @@
 	<string name="otherProjectDetails">Choose other project</string>
 	<string name="projectsFromClient">Show projects from client</string>
 	<string name="projectsFromClientDetails">Show projects list from BOINC client</string>
-	<string name="projectListHelp">To get info about project please longer tap entry.</string>
+	<string name="projectListHelp"> This is list of supported projects. To get info about project please longer tap entry.</string>
 
 	<string name="projectUrl">Enter project URL</string>
 		

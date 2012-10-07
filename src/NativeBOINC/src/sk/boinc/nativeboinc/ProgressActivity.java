@@ -79,6 +79,8 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 				mInstaller.cancelDumpFiles();
 			else if (mDistribName.equals(InstallerService.BOINC_REINSTALL_ITEM_NAME))
 				mInstaller.cancelReinstallation();
+			else if (mDistribName.equals(InstallerService.BOINC_MOVETO_ITEM_NAME))
+				mInstaller.cancelMoveInstallationTo();
 			else {
 				if (mProjectUrl == null || mProjectUrl.length()==0)
 					return;

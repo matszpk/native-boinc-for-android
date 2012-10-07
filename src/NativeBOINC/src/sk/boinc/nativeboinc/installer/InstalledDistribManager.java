@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
+import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.debug.Logging;
 
 import android.content.Context;
@@ -152,7 +153,7 @@ public class InstalledDistribManager {
 	public synchronized void synchronizeWithProjectList(Context context) {
 		ArrayList<InstalledDistrib> newDistribs = new ArrayList<InstalledDistrib>();
 		
-		String projectsPath = context.getFilesDir().getAbsolutePath()+"/boinc/projects/";
+		String projectsPath = BoincManagerApplication.getBoincDirectory(context)+"/projects/";
 		
 		for (InstalledDistrib distrib: mInstalledDistribs) {
 			String escapedUrl = InstallerHandler.escapeProjectUrl(distrib.projectUrl);

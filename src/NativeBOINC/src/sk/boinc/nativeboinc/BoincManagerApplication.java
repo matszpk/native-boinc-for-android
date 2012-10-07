@@ -616,4 +616,10 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		return getBoincDirectory(context, prefs.getBoolean(PreferenceName.INSTALL_PLACE, false));
 	}
+	
+	public final static void setBoincPlace(Context context, boolean inSDCard) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		prefs.edit().putBoolean(PreferenceName.INSTALL_PLACE, inSDCard)
+			.commit();
+	}
 }

@@ -61,6 +61,7 @@ public class InstallerService extends Service {
 	public static final String BOINC_CLIENT_ITEM_NAME = "BOINC client";
 	public static final String BOINC_DUMP_ITEM_NAME = "BOINC Dump Files";
 	public static final String BOINC_REINSTALL_ITEM_NAME = "BOINC Reinstall";
+	public static final String BOINC_MOVETO_ITEM_NAME = "BOINC MoveTo";
 	
 	public static String resolveItemName(Resources res, String name) {
 		if (name.equals(BOINC_CLIENT_ITEM_NAME))
@@ -631,24 +632,26 @@ public class InstallerService extends Service {
 	 * @return
 	 */
 	private static final String[] sRequiredFiles = {
-		"/boinc/client_state.xml",
-		"/boinc/client_state_prev.xml",
-		"/boinc/time_stats_log",
-		"/boinc/lockfile",
-		"/boinc/daily_xfer_history.xml",
-		"/boinc/gui_rpc_auth.cfg"
+		"/client_state.xml",
+		"/client_state_prev.xml",
+		"/time_stats_log",
+		"/lockfile",
+		"/daily_xfer_history.xml",
+		"/gui_rpc_auth.cfg"
 	};
 	
 	public static boolean isClientInstalled(Context context) {
-		File filesDir = context.getFilesDir();
+		String boincDirPath = BoincManagerApplication.getBoincDirectory(context);
+		
 		if (!context.getFileStreamPath("boinc_client").exists() ||
-			!context.getFileStreamPath("boinc").isDirectory())
+			!new File(boincDirPath).isDirectory())
 			return false;
-		File boincFile = new File(filesDir.getAbsolutePath()+"/boinc/gui_rpc_auth.cfg");
+		
+		File boincFile = new File(boincDirPath,"/gui_rpc_auth.cfg");
 		if (!boincFile.exists())
 			return false;
 		for (String path: sRequiredFiles) {
-			boincFile = new File(filesDir.getAbsolutePath()+path);
+			boincFile = new File(boincDirPath+path);
 			if (!boincFile.exists())
 				return false;	// if installation broken
 		}
@@ -660,7 +663,8 @@ public class InstallerService extends Service {
 		
 		InputStreamReader reader = null;
 		try {
-			String messagesFilePath = context.getFilesDir()+"/boinc/messages.log";
+			String boincDirPath = BoincManagerApplication.getBoincDirectory(context);
+			String messagesFilePath = boincDirPath+"/messages.log";
 			reader = new InputStreamReader(new FileInputStream(messagesFilePath), "UTF-8");
 			
 			char[] buffer = new char[4096];
@@ -782,6 +786,20 @@ public class InstallerService extends Service {
 		return mInstallerHandler.isBeingReinstalled();
 	}
 	
+	public void moveInstallationTo() {
+		if (mInstallerHandler == null) return;
+		
+		mPendingChannels[DEFAULT_CHANNEL_ID].begin(InstallOp.MoveInstallationTo);
+		mInstallerThread.moveInstallationTo();
+	}
+	
+	public boolean IsBeingInstallationMoved() {
+		if (mInstallerHandler == null)
+			return false;
+		
+		return mInstallerHandler.isBeingInstallationMoved();
+	}
+	
 	public boolean isWorking() {
 		if (mInstallerHandler == null) return false;
 		
@@ -820,6 +838,12 @@ public class InstallerService extends Service {
 		if (mInstallerHandler == null) return;
 		
 		mInstallerHandler.cancelReinstallation();
+	}
+	
+	public void cancelMoveInstallationTo() {
+		if (mInstallerHandler == null) return;
+		
+		mInstallerHandler.cancelMoveInstallationTo();
 	}
 	
 	public void cancelSimpleOperation() { // cancel in default channel

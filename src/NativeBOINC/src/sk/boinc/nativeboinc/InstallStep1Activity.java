@@ -37,6 +37,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 /**
@@ -56,6 +57,8 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	
 	private Button mInfoButton = null;
 	private Button mNextButton = null;
+	
+	private Spinner mInstallPlaceSpinner = null;
 	
 	@Override
 	public int getInstallerChannelId() {
@@ -91,7 +94,9 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 
 		mVersionToInstall = (TextView)findViewById(R.id.versionToInstall);
 		mNextButton = (Button)findViewById(R.id.installNext);
-		mInfoButton = (Button) findViewById(R.id.clientInfo);
+		mInfoButton = (Button)findViewById(R.id.clientInfo);
+		
+		mInstallPlaceSpinner = (Spinner)findViewById(R.id.placeToInstall);
 
 		Button cancelButton = (Button)findViewById(R.id.installCancel);
 		
@@ -100,7 +105,7 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 
 		mApp = (BoincManagerApplication) getApplication();
 		mApp.setInstallerStage(BoincManagerApplication.INSTALLER_CLIENT_STAGE);	// set as run
-
+		
 		mNextButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -225,8 +230,15 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 			return;
 		
 		mApp.setInstallerStage(BoincManagerApplication.INSTALLER_CLIENT_INSTALLING_STAGE);
+		
+		if (mInstallPlaceSpinner.getSelectedItemPosition() == 0) //: first internal memory
+			BoincManagerApplication.setBoincPlace(this, false);
+		else
+			BoincManagerApplication.setBoincPlace(this, true);
+		
 		mInstaller.installClientAutomatically();
 		finish();
+		
 		startActivity(new Intent(this, ProgressActivity.class));
 	}
 

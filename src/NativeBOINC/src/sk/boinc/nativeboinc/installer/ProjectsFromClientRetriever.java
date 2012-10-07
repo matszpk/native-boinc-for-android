@@ -29,6 +29,7 @@ import android.content.Context;
 import android.util.Log;
 
 import edu.berkeley.boinc.lite.Project;
+import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincProjectsListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
@@ -107,7 +108,7 @@ public class ProjectsFromClientRetriever implements NativeBoincProjectsListener,
 			
 			try {
 				inputStream = new FileInputStream(
-						mContext.getFileStreamPath("boinc").getAbsolutePath()+"/client_state.xml");
+						BoincManagerApplication.getBoincDirectory(mContext)+"/client_state.xml");
 				projDescs = ProjectsClientStateParser.parse(inputStream);
 			} catch(IOException ex) {
 				// do nothing

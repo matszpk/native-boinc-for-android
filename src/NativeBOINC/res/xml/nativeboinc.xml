@@ -72,6 +72,11 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/nativeBoincInstallation">
         <Preference
+            android:key="nativeMoveInstallation"
+            android:title="@string/nativeMoveToIntMemTitle"
+            android:summary="@string/nativeMoveToIntMemSummary"
+            android:persistent="false" />
+        <Preference
             android:key="nativeInstalledBinaries"
             android:title="@string/nativeInstalledBinariesTitle"
             android:summary="@string/nativeInstalledBinariesSummary" 

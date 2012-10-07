@@ -789,7 +789,7 @@ public class InstallerService extends Service {
 	public void moveInstallationTo() {
 		if (mInstallerHandler == null) return;
 		
-		mPendingChannels[DEFAULT_CHANNEL_ID].begin(InstallOp.MoveInstallationTo);
+		mPendingChannels[DEFAULT_CHANNEL_ID].begin(InstallOp.ProgressOperation);
 		mInstallerThread.moveInstallationTo();
 	}
 	

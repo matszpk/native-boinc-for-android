@@ -319,6 +319,18 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 			}
 		});
 		
+		/* move installation preference */
+		pref = (Preference)findPreference(PreferenceName.NATIVE_MOVE_INSTALLATION);
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				mInstaller.moveInstallationTo();
+				mDoRestart = false;
+				startActivity(new Intent(NativeClientActivity.this, ProgressActivity.class));
+				return true;
+			}
+		});
+		
 		/* installed binaries preference */
 		pref = (Preference)findPreference(PreferenceName.NATIVE_INSTALLED_BINARIES);
 		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -438,6 +450,20 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 		
 		pref = (Preference)findPreference(PreferenceName.NATIVE_REINSTALL);
 		pref.setEnabled(!mInstaller.isBeingReinstalled());
+		pref = findPreference(PreferenceName.NATIVE_MOVE_INSTALLATION);
+		pref.setEnabled(!mInstaller.IsBeingInstallationMoved());
+	}
+	
+	private void updateMoveToPreference() {
+		Preference pref = findPreference(PreferenceName.NATIVE_MOVE_INSTALLATION);
+		
+		if (BoincManagerApplication.isSDCardInstallation(this)) { // if in sdcard
+			pref.setTitle(R.string.nativeMoveToIntMemTitle);
+			pref.setSummary(R.string.nativeMoveToIntMemSummary);
+		} else { // if in internal memory
+			pref.setTitle(R.string.nativeMoveToSDCardTitle);
+			pref.setSummary(R.string.nativeMoveToSDCardSummary);
+		}
 	}
 	
 	@Override
@@ -468,6 +494,9 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 					": "+editPref.getText());
 		else
 			editPref.setSummary(R.string.nativeHostnameSummaryNone);
+		
+		/* move installation */
+		updateMoveToPreference();
 		
 		/* add listener */
 		if (mRunner != null) {
@@ -717,6 +746,9 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 			pref.setEnabled(true); // enable it
 		} else if (distribName.equals(InstallerService.BOINC_REINSTALL_ITEM_NAME)) {
 			Preference pref = (Preference)findPreference(PreferenceName.NATIVE_REINSTALL);
+			pref.setEnabled(true); // enable it
+		} else if (distribName.equals(InstallerService.BOINC_MOVETO_ITEM_NAME)) {
+			Preference pref = (Preference)findPreference(PreferenceName.NATIVE_MOVE_INSTALLATION);
 			pref.setEnabled(true); // enable it
 		}
 	}

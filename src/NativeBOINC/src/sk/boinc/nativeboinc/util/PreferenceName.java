@@ -55,6 +55,7 @@ public interface PreferenceName {
 	public static final String NATIVE_REMOTE_ACCESS = "nativeRemoteAccess";
 	public static final String NATIVE_ACCESS_PASSWORD = "nativeAccessPassword";
 	public static final String NATIVE_HOST_LIST = "nativeAccessList";
+	public static final String NATIVE_MOVE_INSTALLATION = "nativeMoveInstallation";
 	public static final String NATIVE_INSTALLED_BINARIES = "nativeInstalledBinaries";
 	public static final String NATIVE_UPDATE_BINARIES = "nativeUpdateBinaries";
 	public static final String NATIVE_UPDATE_FROM_SDCARD = "nativeUpdateFromSDCard";

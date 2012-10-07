@@ -316,6 +316,10 @@
 	
 	<string name="nativeBoincInstallation">Installation options</string>
 	
+	<string name="nativeMoveToSDCardTitle">Move to SDCard memory</string>
+	<string name="nativeMoveToSDCardSummary">Move BOINC to SDCard memory</string>
+	<string name="nativeMoveToIntMemTitle">Move to internal memory</string>
+	<string name="nativeMoveToIntMemSummary">Move BOINC to internal memory</string>
 	<string name="nativeInstalledBinariesTitle">Installed binaries</string>
 	<string name="nativeInstalledBinariesSummary">List of installed binaries</string>
 	<string name="nativeUpdateBinariesTitle">Update binaries</string>

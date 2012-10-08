@@ -20,6 +20,11 @@
 
 #include "config.h"
 
+#ifdef PROD_DEBUG
+#include <stdarg.h>
+#include <time.h>
+#endif
+
 static int (*real_access)(const char* path, int flags) = NULL;
 
 static int (*real_chmod)(const char* path, mode_t mode) = NULL;
@@ -201,6 +206,42 @@ static void init_handles(void)
     real_futimes = dlsym(RTLD_NEXT, "futimes");
   }
 }
+
+#ifdef PROD_DEBUG
+static void debug_printf(const char* fmt, ...)
+{
+  int fd;
+  int outsize;
+  char* out;
+  va_list ap;
+  out = malloc(4000);
+  fd = real___open("/mnt/sdcard/libew_debug.txt",O_CREAT|O_WRONLY|O_APPEND, 0666);
+  if (fd == -1)
+  {
+    free(out);
+    return;
+  }
+  
+  outsize = snprintf(out,4000,"%d:%lu: ",getpid(),time(NULL));
+  write(fd, out, outsize);
+  
+  va_start(ap, fmt);
+  outsize = vsnprintf(out,4000,fmt,ap);
+  write(fd, out, outsize);
+  
+  va_end(ap);
+  close(fd);
+  free(out);
+}
+#endif
+
+/* EPERM tester (for regular account processes)
+ * we are checking what operation can be done on the regular account processes */
+#ifdef CHECK_SD_PERMS
+void check_sd_perms(void)
+{
+}
+#endif
 
 /* my buffered IO */
 
@@ -591,6 +632,10 @@ static int set_execmode(int fd, const char* realpathname, int isexec)
   size_t dirlen;
   off_t tmppos,execpos = -1;
   
+#ifdef PROD_DEBUG
+  debug_printf("set_execmode (%s,%d)\n",realpathname,isexec);
+#endif
+  
   if (fd == -1)
     // returns 0 if unsetting isexec (no error)
     return (isexec)?-1:0;
@@ -796,6 +841,9 @@ int chmod(const char* pathname, mode_t mode)
 #endif
   
   init_handles();
+#ifdef PROD_DEBUG
+  debug_printf("chmod (%s,%o)\n",pathname,mode);
+#endif
   
   if ((realpathname = malloc(PATH_MAX))==NULL)
   {
@@ -842,7 +890,11 @@ int chmod(const char* pathname, mode_t mode)
   }
   ret = real_chmod(pathname,mode);
   tmperrno = errno;
-  if (ret == 0)
+#ifdef PROD_DEBUG
+  debug_printf("step3 chmod (%s,%o)=%d,%d\n",realpathname,mode,ret,errno);
+#endif
+  if (ret == 0 || (errno == EPERM))
+  {
     // set exec mode
     if(set_execmode(execsfd,realpathname,(mode&0111))==-1)
     {
@@ -851,6 +903,8 @@ int chmod(const char* pathname, mode_t mode)
       free(realpathname);
       return -1;
     }
+    ret = 0;
+  }
   close_execs_lock(execsfd);
   errno = tmperrno;
   free(realpathname);

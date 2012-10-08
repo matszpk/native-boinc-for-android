@@ -340,6 +340,8 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 			try {
 				hostname = NativeBoincUtils.getHostname(this);
 			} catch(IOException ex) { }
+			if (hostname == null)
+				hostname = "";
 			
 			edit.setText(hostname);
 			break;

@@ -212,9 +212,9 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 			/* fetch old hostname from boinc file */
 			try {
 				mOldHostname = NativeBoincUtils.getHostname(this);
-			} catch(IOException ex) {
+			} catch(IOException ex) { }
+			if (mOldHostname == null)
 				mOldHostname = "";
-			}
 		}
 		
 		bindRunnerService();
@@ -262,11 +262,9 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 				else
 					pref.setSummary(R.string.nativeHostnameSummaryNone);
 				
-				if (newHostName != null && newHostName.length() != 0)
-					try {
-						NativeBoincUtils.setHostname(NativeClientActivity.this, newHostName);
-					} catch(IOException ex) { }
-				
+				try {
+					NativeBoincUtils.setHostname(NativeClientActivity.this, newHostName);
+				} catch(IOException ex) { }
 				return true;
 			}
 		});
@@ -480,6 +478,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 		try {
 			hostName = NativeBoincUtils.getHostname(this);
 		} catch(IOException ex) { }
+		if (hostName == null)
+			hostName = "";
 		
 		EditTextPreference editPref = (EditTextPreference)findPreference(PreferenceName.NATIVE_HOSTNAME);
 		

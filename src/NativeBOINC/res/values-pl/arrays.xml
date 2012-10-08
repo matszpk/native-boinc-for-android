@@ -161,4 +161,9 @@
 	    <item>2</item>
 	    <item>3</item>
 	</string-array>
+	
+	<string-array name="placesToInstallLabels">
+	    <item>Pamięć wewn.</item>
+	    <item>Pamięć SDCard</item>
+	</string-array>
 </resources>

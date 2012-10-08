@@ -500,7 +500,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			    File boincDir = new File(mInstallPlacePath);
 			    if (!boincDir.isDirectory()) {
 			    	boincDir.delete();
-			    	boincDir.mkdir();
+			    	boincDir.mkdirs();
 			    }
 			    
 			    if (mSDCardPath == null) {
@@ -619,6 +619,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		notifyOperation(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
 				mInstallerService.getString(R.string.installClientNotifyBegin));
 		synchronized(this) {
+			updateInstallPlace();
 			mIsClientBeingInstalled = true;
 			mClientInstaller = new ClientInstaller(standalone, null);
 			// notify that client installer is working
@@ -1752,6 +1753,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			notifyChangeOfIsWorking();
 		}
 		
+		updateInstallPlace();
+		
 		try {
 			mInstallOps.deleteProjectBinaries(channelId, projectNames);
 			notifyDeleteProjectBinaries(channelId, InstallOp.DeleteProjectBinaries);
@@ -1906,7 +1909,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		if (mDoInstallationMoveTo)
 			return;
 		
-		notifyOperation(InstallerService.BOINC_REINSTALL_ITEM_NAME, "",
+		notifyOperation(InstallerService.BOINC_MOVETO_ITEM_NAME, "",
 				mInstallerService.getString(R.string.moveToBegin));
 		
 		synchronized(this) {
@@ -2140,7 +2143,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	public void onClientStop(int exitCode, boolean stoppedByManager) {
 		if (mIsClientBeingInstalled)
 			mDelayedClientShutdownSem.release();
-		if (mDoBoincReinstall && mDoInstallationMoveTo)
+		if (mDoBoincReinstall || mDoInstallationMoveTo)
 			mInstallOps.notifyShutdownClient();
 	}
 

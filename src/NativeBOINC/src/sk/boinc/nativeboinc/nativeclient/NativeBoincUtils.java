@@ -255,11 +255,15 @@ public class NativeBoincUtils {
 	}
 	
 	public static void setHostname(Context context, String hostname) throws IOException {
-		if (hostname == null)
-			return;
 		
 		String hostnamePath = BoincManagerApplication.getBoincDirectory(context)+
 				"/hostname.cfg";
+		
+		if (hostname == null || hostname.length() == 0) {
+			new File(hostnamePath).delete();
+			return;
+		}
+		
 		
 		OutputStreamWriter writer = null;
 		try {

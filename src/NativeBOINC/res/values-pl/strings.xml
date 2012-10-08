@@ -314,6 +314,10 @@
 	
 	<string name="nativeBoincInstallation">Opcje instalacji</string>
 	
+	<string name="nativeMoveToSDCardTitle">Przenieś do pamięci SDCard</string>
+	<string name="nativeMoveToSDCardSummary">Przenieś BOINC\'a do pamięci SDCard</string>
+	<string name="nativeMoveToIntMemTitle">Przenieś do pamięci wewnętrznej</string>
+	<string name="nativeMoveToIntMemSummary">Przenieś BOINC\'a do pamięci wewnętrznej</string>
 	<string name="nativeInstalledBinariesTitle">Zainstalowane binaria</string>
 	<string name="nativeInstalledBinariesSummary">Lista zainstalowanych binariów</string>
 	<string name="nativeUpdateBinariesTitle">Aktualizuj binaria</string>
@@ -395,7 +399,7 @@
 	<string name="otherProjectDetails">Wybierz inny projekt</string>
 	<string name="projectsFromClient">Pokaż projekty z klienta</string>
 	<string name="projectsFromClientDetails">Pokaż listę projektół z klienta BOINC</string>
-	<string name="projectListHelp">Przytrzymaj dłużej na wpisie projektu, by wyświetlić informacje.</string>
+	<string name="projectListHelp">To jest lista wspieranych projektów. Przytrzymaj dłużej na wpisie projektu, by wyświetlić informacje.</string>
 
 	<string name="projectUrl">Wpisz URL projektu</string>
 		

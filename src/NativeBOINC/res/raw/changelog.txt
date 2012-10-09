@@ -1,3 +1,12 @@
+Version 0.4.0.5 (beta) (2012-10-09):
+- added installation on SDCard!
+- fixed NPE on empty hostname (nativeclient screen)
+- fixed main screen resuming
+- added support for projects with hosted applications
+- added local preferences clearing
+- added deleting app_info.xml for attached projects
+- other minor fixes
+
 Version 0.4.0.2 (beta) (2012-09-17):
 - fixed local prefs and fix NPE
 

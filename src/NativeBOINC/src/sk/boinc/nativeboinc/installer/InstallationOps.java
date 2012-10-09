@@ -746,7 +746,7 @@ public class InstallationOps {
 			return;
 		}
 		
-		new File(mInstallerHandler.getInstallPlacePath()).mkdir();
+		new File(mInstallerHandler.getInstallPlacePath()).mkdirs();
 		
 		// now reinitialize boinc directory (first start and other operation) */
 		try {

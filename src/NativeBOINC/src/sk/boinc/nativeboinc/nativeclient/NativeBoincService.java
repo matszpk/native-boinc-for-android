@@ -702,8 +702,6 @@ public class NativeBoincService extends Service implements MonitorListener,
 	public static boolean firstStartClient(Context context) {
 		if (Logging.DEBUG) Log.d(TAG, "Starting FirstStartThread");
 		
-		//String[] envArray = getEnvArray();
-		
 		int boincPid = -1;
 		
 		String programName = context.getFileStreamPath("boinc_client").getAbsolutePath();

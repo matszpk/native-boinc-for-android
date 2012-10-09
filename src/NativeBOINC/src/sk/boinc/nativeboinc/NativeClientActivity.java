@@ -750,6 +750,7 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 		} else if (distribName.equals(InstallerService.BOINC_MOVETO_ITEM_NAME)) {
 			Preference pref = (Preference)findPreference(PreferenceName.NATIVE_MOVE_INSTALLATION);
 			pref.setEnabled(true); // enable it
+			updateMoveToPreference();
 		}
 	}
 	

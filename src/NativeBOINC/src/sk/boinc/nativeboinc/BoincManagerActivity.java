@@ -482,7 +482,6 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	 */
 	@Override
 	protected void onNewIntent(Intent intent) {
-		super.onNewIntent(intent);
 		if (intent.getBooleanExtra(PARAM_CONNECT_NATIVE_CLIENT, false)) {
 			// select native boinc client
 			HostListDbAdapter dbHelper = new HostListDbAdapter(this);

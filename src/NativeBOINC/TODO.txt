@@ -40,7 +40,7 @@ Na Teraz:
     
   WERSJA Z INSTALL ON THE SDCARD:
 / * dodaj opcje usuwania anonymous platform (usuwanie app_info.xml i aplikacji)
-  * zaimplementuj install on the SDCard (WAZNE: libexecwrapper wsadz do APK)
+/ * zaimplementuj install on the SDCard (WAZNE: libexecwrapper wsadz do APK)
   * popraw błąd 'brak połączenia' przy odpaleniu main screen
   
 ---------------------------------------------------------------

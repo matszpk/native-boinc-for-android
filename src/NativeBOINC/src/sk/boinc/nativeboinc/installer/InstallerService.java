@@ -44,6 +44,7 @@ import android.content.ServiceConnection;
 import android.content.res.Resources;
 import android.os.Binder;
 import android.os.ConditionVariable;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
@@ -643,7 +644,15 @@ public class InstallerService extends Service {
 	};
 	
 	public static boolean isClientInstalled(Context context) {
-		String boincDirPath = BoincManagerApplication.getBoincDirectory(context);
+		boolean isSDCard = BoincManagerApplication.isSDCardInstallation(context);
+		String boincDirPath = BoincManagerApplication.getBoincDirectory(context, isSDCard);
+		
+		if (isSDCard) {
+			String extState = Environment.getExternalStorageState();
+			if (!Environment.MEDIA_MOUNTED.equals(extState) &&
+					!Environment.MEDIA_MOUNTED_READ_ONLY.equals(extState))
+				return true; // when sdcard is not available
+		}
 		
 		if (!context.getFileStreamPath("boinc_client").exists() ||
 			!new File(boincDirPath).isDirectory())

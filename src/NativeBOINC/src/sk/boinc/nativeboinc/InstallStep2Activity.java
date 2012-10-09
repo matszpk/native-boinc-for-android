@@ -452,8 +452,9 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 	/* modify change */
 	private void changeHostname(String hostname) {
 		try {
-			if (hostname != null && hostname.length() != 0)
-				NativeBoincUtils.setHostname(this, hostname);
+			if (hostname == null)
+				hostname = "";
+			NativeBoincUtils.setHostname(this, hostname);
 			
 			if (Logging.DEBUG) Log.d(TAG, "Set to restart");
 			mDoRestart = DO_RESTART;

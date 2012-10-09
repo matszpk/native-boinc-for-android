@@ -1150,14 +1150,29 @@ public class NativeBoincService extends Service implements MonitorListener,
 	private boolean mIfProjectDistribsListUpdated = false;
 	private AtomicBoolean mProjectDistribsListUpdating = new AtomicBoolean(false);
 	
+	private void ifDistribNotFoundOrProvidedByProject(String projectUrl) {
+		if (Logging.DEBUG) Log.d(TAG, "again not found. to finish");
+		// simply finish autoinstallation
+		finishAutoInstallationIfNeeded();
+		// send notifyProjectsNotFound
+		List<String> toSend = new ArrayList<String>();
+		toSend.add(projectUrl);
+		notifyProjectsNotFound(toSend);
+		// we update waiting for benchmark (because we dont install it)
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		// unset waiting for benchmark
+		sharedPrefs.edit().putBoolean(PreferenceName.WAITING_FOR_BENCHMARK, false)
+				.commit();
+	}
+	
 	/**
 	 * real project installtion routine
 	 * @param projectUrl
 	 */
 	private void installProjectApplication(String projectUrl) {
-		String projectName = mInstaller.resolveProjectName(projectUrl);
+		ProjectDistrib projectDistrib = mInstaller.findProjectDistrib(projectUrl);
 		
-		if (projectName == null) {	// do nothing if not found
+		if (projectDistrib == null) {	// do nothing if not found
 			if (Logging.DEBUG) Log.d(TAG, "attached not found in distribs!!!");
 			if (!mIfProjectDistribsListUpdated) { // if not updated before
 				// add to pending tasks
@@ -1171,26 +1186,24 @@ public class NativeBoincService extends Service implements MonitorListener,
 					// update project distribs list
 					mInstaller.updateProjectDistribList(NATIVEBOINC_ID, true);
 				}
-			} else {
-				if (Logging.DEBUG) Log.d(TAG, "again not found. to finish");
-				// simply finish task
-				finishProjectApplicationInstallation(projectName);
-				// send notifyProjectsNotFound
-				List<String> toSend = new ArrayList<String>();
-				toSend.add(projectUrl);
-				notifyProjectsNotFound(toSend);
-			}
+			} else
+				ifDistribNotFoundOrProvidedByProject(projectUrl);
+			return;
+		}
+		
+		if (!projectDistrib.binariesProvidedByNativeBOINC()) { // end it if binaries provided by project
+			ifDistribNotFoundOrProvidedByProject(projectUrl); 
 			return;
 		}
 		
 		synchronized (mInstalledProjectApps) {
-			mInstalledProjectApps.put(projectName, projectUrl);
+			mInstalledProjectApps.put(projectDistrib.projectName, projectUrl);
 		}
 		
 		// notify event
 		notifyBeginProjectInstallation(projectUrl);
 		// go to install
-		mInstaller.installProjectApplicationsAutomatically(projectName, projectUrl);
+		mInstaller.installProjectApplicationsAutomatically(projectDistrib.projectName, projectUrl);
 	}
 	
 	private void startInstallProjectApplication(String projectUrl) {
@@ -1248,6 +1261,21 @@ public class NativeBoincService extends Service implements MonitorListener,
 		Intent intent = new Intent(NativeBoincService.this, ClientMonitorErrorActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(intent);
+	}
+	
+	private void finishAutoInstallationIfNeeded() {
+		boolean ifLast = false;
+		synchronized (mInstalledProjectApps) {
+			ifLast = mInstalledProjectApps.isEmpty();
+			if (Logging.DEBUG) Log.d(TAG, "is last:"+ifLast);
+		}
+		boolean pendingIsEmpty = false;
+		synchronized(mPendingProjectAppsToInstall) {
+			pendingIsEmpty = mPendingProjectAppsToInstall.isEmpty();
+		}
+
+		if (ifLast && pendingIsEmpty)
+			unboundInstallService();
 	}
 	
 	private void finishProjectApplicationInstallation(String projectName) {

@@ -481,8 +481,8 @@ public class InstallerService extends Service {
 	/**
 	 * resolve project name
 	 */
-	public String resolveProjectName(String projectUrl) {
-		return mInstallerHandler.resolveProjectName(projectUrl);
+	public ProjectDistrib findProjectDistrib(String projectUrl) {
+		return mInstallerHandler.findProjectDistrib(projectUrl);
 	}
 	
 	/**

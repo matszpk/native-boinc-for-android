@@ -32,4 +32,8 @@ public class ProjectDistrib {
 	public String changes = "";
 	
 	public ProjectDistrib() { }
+	
+	public boolean binariesProvidedByNativeBOINC() {
+		return filename != null && filename.length() != 0;
+	}
 }

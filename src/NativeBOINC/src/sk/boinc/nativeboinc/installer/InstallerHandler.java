@@ -219,13 +219,13 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mProjectsRetriever.setRunnerService(mRunner);
 	}
 	
-	public String resolveProjectName(String projectUrl) {
+	public ProjectDistrib findProjectDistrib(String projectUrl) {
 		if (mProjectDistribs == null)
 			return null;
 		
 		for (ProjectDistrib distrib: mProjectDistribs)
 			if (distrib.projectUrl.equals(projectUrl))
-				return distrib.projectName;
+				return distrib;
 		return null;
 	}
 	

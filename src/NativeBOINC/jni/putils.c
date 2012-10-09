@@ -22,6 +22,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <stdlib.h>
 #include <jni.h>
 
 extern char** environ;

@@ -124,7 +124,7 @@
 
 	<!-- About -->
 	<string name="aboutTitle">Basic Information</string>
-	<string name="aboutHomepageUrl">https://github.com/matszpk/native-boinc-for-android</string>
+	<string name="aboutHomepageUrl">http://nativeboinc.org/</string>
 	<string name="aboutText">
 		%1$s is fully fledged native BOINC client for Android integrated
 		with AndroBOINC manager v1.6.7b3.\n
@@ -362,7 +362,7 @@
 	<string name="waitingForShutdown">Waiting for shutdown</string>
 	
 	<!-- move from/to sdcard -->
-	<string name="boincMoveTo">Moving BOINC installation</string>
+	<string name="boincMoveTo">Moving BOINC</string>
 	<string name="moveToBegin">Begin moving BOINC installation</string>
 	<string name="moveToProgress">Moving BOINC installation</string>
 	<string name="moveToFinish">Moving BOINC installation finished</string>
@@ -435,14 +435,12 @@
 	<string name="installWelcome">Welcome to NativeBOINC!</string>
 	<string name="installClientInstall">Please tap \'Next\' button to to download and install native BOINC client.</string>
 	<string name="versionToInstall">Version to install</string>
-	<string name="placeToInstall">Place to install</string>
-	<string name="internalMemory">Internal memory</string>
-	<string name="sdCardMemory">SDCard memory</string>
+	<string name="placeToInstall">Installation place</string>
 	<string name="installSuccessfully">Native BOINC client has been installed successfully!</string>
 	<string name="installAddProject">Please tap \'Add  project\' button to add first BOINC project, or \'Synchronize BAM\' if you want to synchronize client with BAM.</string>
 	<string name="installFinished">Installation have been finished. Please tap \'Finish\' button.</string>
 	<string name="installWidgetFinished">Hint: We recommends to use NativeBOINC widget to control native client.</string>
-	<string name="installInfoFinished">Hint: You can also browse Project Wiki on \'https://github.com/matszpk/native-boinc-for-android/wiki\' to get help and informations.</string>
+	<string name="installInfoFinished">Hint: You can also browse Project Wiki on \'http://nativeboinc.org/\' to get help and informations.</string>
 	<string name="installFinishedBenchmark">During installing first project, BOINC can run benchmark, which works by 30 seconds.</string>
 
 	<string name="installReadBefore">READ BEFORE INSTALLATION:</string>

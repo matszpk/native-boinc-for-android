@@ -1178,11 +1178,22 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 								projectsExecsFd = SDCardExecs.openExecsLock(
 										projectAppFilePath.toString(), true);
 								
+								HashSet<String> updateExecNames = new HashSet<String>();
+								SDCardExecs.readExecs(updatesExecsFd, updateExecNames);
+								
 								/* it keep permissions (move permission to dest directory) */
 								for (File file: filesToRename) {
 									String filename = file.getName();
+									if (filename.equals(".__execs__"))
+										continue;
+									
+									projectAppFilePath.append(filename);
+									file.renameTo(new File(projectAppFilePath.toString()));
+									projectAppFilePath.delete(projectDirPathLength, projectAppFilePath.length());
+									
 									SDCardExecs.setExecMode(updatesExecsFd, filename, false);
-									SDCardExecs.setExecMode(projectsExecsFd, filename, true);
+									SDCardExecs.setExecMode(projectsExecsFd, filename,
+											updateExecNames.contains(filename));
 								}
 							} catch(IOException ex) {
 								notifyError(mProjectDistrib.projectName, mProjectDistrib.projectUrl,
@@ -1500,6 +1511,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			notifyChangeOfIsWorking();
 		}
 		try {
+			updateInstallPlace();
 			ArrayList<ProjectDistrib> projectDistribs = mInstallOps.updateProjectDistribList(channelId,
 					InstallOp.UpdateProjectDistribs, mProjectDistribs);
 			
@@ -1660,6 +1672,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			mHandlerIsWorking = true;
 			notifyChangeOfIsWorking();
 		}
+		updateInstallPlace();
+		
 		synchronizeInstalledProjects();
 		
 		mProjectDescs = mProjectsRetriever.getProjectDescriptors();
@@ -1719,6 +1733,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			notifyChangeOfIsWorking();
 		}
 		
+		updateInstallPlace();
 		InstallOp installOp = InstallOp.GetBinariesFromSDCard(path);
 		
 		try {

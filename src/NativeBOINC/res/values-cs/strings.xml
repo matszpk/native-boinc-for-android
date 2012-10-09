@@ -121,7 +121,7 @@
 
    <!-- About -->
    <string name="aboutTitle">Základní údaje</string>
-   <string name="aboutHomepageUrl">https://github.com/matszpk/native-boinc-for-android</string>
+   <string name="aboutHomepageUrl">http://nativeboinc.org/</string>
    <string name="aboutText">
       %1$s je plnohodnotný nativní BOINC klient pro Android s integrovaným
       AndroBOINC managerem v1.6.7b3.\n
@@ -410,7 +410,7 @@
    <string name="installAddProject">Prosím, klikněte na tlačítko \'Přidat projekt\' pro přidání prvního BOINC projektu, nebo na \'Synchronizovat s BAM\' pokud chete klienta synchronizovat s BAM.</string>
    <string name="installFinished">Instalace dokončena. Prosím, klikněte na tlačítko \'Dokončit\'.</string>
    <string name="installWidgetFinished">Tip: Doporučujeme pro ovládání nativního klienta používat widget NativeBOINC.</string>
-   <string name="installInfoFinished">Tip: Navštivte Wiki stránky projektu na \'https://github.com/matszpk/native-boinc-for-android/wiki\' pro další informace a nápovědu.</string>
+   <string name="installInfoFinished">Tip: Navštivte Wiki stránky projektu na \'http://nativeboinc.org/\' pro další informace a nápovědu.</string>
    <string name="installFinishedBenchmark">Během instalace prvního projektu může BOINC spustit výkonnostní testy, které budou trvat 30 sekund.</string>
 
    <string name="installReadBefore">ČTĚTE PŘED INSTALACÍ:</string>

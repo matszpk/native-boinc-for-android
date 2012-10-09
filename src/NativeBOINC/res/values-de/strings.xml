@@ -121,7 +121,7 @@
 
 	<!-- About -->
 	<string name="aboutTitle">Basis Information</string>
-	<string name="aboutHomepageUrl">https://github.com/matszpk/native-boinc-for-android</string>
+	<string name="aboutHomepageUrl">http://nativeboinc.org/</string>
 	<string name="aboutText">
 		%1$s ist ein vollwertiger Native BOINC Client für Android integriert
 		mit AndroBOINC Manager v1.6.7b3.\n
@@ -410,7 +410,7 @@
 	<string name="installAddProject">Bitte drücken Sie auf die \'Projekt hinzuf.\' Schaltfläche um das erste BOINC Projekt hinzuzufügen, oder \'BAM Sync.\' wenn Sie den Client mit BAM synchronisieren möchten.</string>
 	<string name="installFinished">Installation wurde abgeschlossen. Bitte drücken Sie auf die \'Fertig\' Schaltfläche.</string>
 	<string name="installWidgetFinished">Hinweis: Wir empfehlen Ihnen das NativeBOINC Widget zu nutzen um den Native Client zu konfigurieren.</string>
-	<string name="installInfoFinished">Hinweis: Sie können das Projekt Wiki auf \'https://github.com/matszpk/native-boinc-for-android/wiki\' durchsuchen um Hilfe und Informationen zu bekommen.</string>
+	<string name="installInfoFinished">Hinweis: Sie können das Projekt Wiki auf \'http://nativeboinc.org/\' durchsuchen um Hilfe und Informationen zu bekommen.</string>
 	<string name="installFinishedBenchmark">Während der Installation des ersten Projekts, kann BOINC Benchmarks ausführen, die 30 Sekunden arbeiten.</string>
 
 	<string name="installReadBefore">VOR DER INSTALLATION LESEN:</string>

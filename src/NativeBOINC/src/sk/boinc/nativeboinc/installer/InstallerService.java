@@ -70,6 +70,8 @@ public class InstallerService extends Service {
 			return res.getString(R.string.dumpFiles);
 		else if (name.equals(BOINC_REINSTALL_ITEM_NAME))
 			return res.getString(R.string.boincReinstall);
+		else if (name.equals(BOINC_MOVETO_ITEM_NAME))
+			return res.getString(R.string.boincMoveTo);
 		return name;
 	}
 	

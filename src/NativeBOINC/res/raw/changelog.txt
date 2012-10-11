@@ -1,3 +1,7 @@
+Version 0.4.0.5.1 (beta) (2012-10-11):
+- fixed exec for sdcard installation
+- fixed tabs behavior (fixing unhandled exceptions)  
+
 Version 0.4.0.5 (beta) (2012-10-09):
 - added installation on SDCard!
 - fixed NPE on empty hostname (nativeclient screen)

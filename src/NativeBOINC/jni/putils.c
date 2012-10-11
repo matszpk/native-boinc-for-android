@@ -69,16 +69,24 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_execSD(JNIEnv
 		char** args;
 		char** envp;
 		size_t envnum, j;
+		int found = 0;
 
 		for (envnum = 0;environ[envnum] != NULL; envnum++);
 
 		envp = malloc(sizeof(char*)*(envnum+2));
 
-		for (j = 0;environ[j] != NULL; j++)
-			envp[j] = environ[j];
+		for (j = 0;environ[j] != NULL; j++) {
+			if (strncmp(environ[j],"LD_PRELOAD=",11) == 0) {
+				// we replace if found
+				envp[j] = "LD_PRELOAD=/data/data/sk.boinc.nativeboinc/lib/libexecwrapper.so";
+				found = 1;
+			} else
+				envp[j] = environ[j];
+		}
 
-		envp[envnum] = "LD_PRELOAD=/data/data/sk.boinc.nativeboinc/lib/libexecwrapper.so";
-		envp[envnum+1] = NULL;
+		if (!found)
+			envp[envnum++] = "LD_PRELOAD=/data/data/sk.boinc.nativeboinc/lib/libexecwrapper.so";
+		envp[envnum] = NULL;
 
 		args = malloc(sizeof(char*)*(argsLength+2));
 

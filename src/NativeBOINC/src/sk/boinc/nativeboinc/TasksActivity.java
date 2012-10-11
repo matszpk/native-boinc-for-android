@@ -55,6 +55,7 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -100,6 +101,9 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 	private boolean mUpdateTasksInProgress = false;
 	private long mLastUpdateTime = -1;
 	private boolean mAfterRecreating = false;
+	private ClientId mPrevClientId = null;
+	private ClientId mOperationClientId = null;
+	private boolean mContextMenuOpened = false;
 	
 	private StringBuilder mSb = new StringBuilder(SB_INIT_CAPACITY);
 
@@ -112,6 +116,9 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 		private final boolean showWarnAbortDialog;
 		private final boolean updateTasksInProgress;
 		private final long lastUpdateTime;
+		private final ClientId prevClientId;
+		private final boolean contextMenuOpened;
+		private final ClientId operationClientId;
 
 		public SavedState(TasksActivity activity) {
 			tasks = activity.mTasks;
@@ -124,6 +131,9 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 			showWarnAbortDialog = activity.mShowWarnAbortDialog;
 			updateTasksInProgress = activity.mUpdateTasksInProgress;
 			lastUpdateTime = activity.mLastUpdateTime;
+			prevClientId = activity.mPrevClientId;
+			contextMenuOpened = activity.mContextMenuOpened;
+			operationClientId = activity.mOperationClientId;
 		}
 		public void restoreState(TasksActivity activity) {
 			activity.mTasks = tasks;
@@ -136,6 +146,9 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 			activity.mShowWarnAbortDialog = showWarnAbortDialog;
 			activity.mUpdateTasksInProgress = updateTasksInProgress;
 			activity.mLastUpdateTime = lastUpdateTime;
+			activity.mPrevClientId = prevClientId;
+			activity.mContextMenuOpened = contextMenuOpened;
+			activity.mOperationClientId = operationClientId;
 		}
 	}
 	
@@ -493,6 +506,9 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 	    					
 	    					onDismissWarnAbortDialog();
 	    					
+	    					if (!mOperationClientId.equals(mConnectedClient))
+	    						return; // do nothing
+	    					
 	    					if (mSelectedTasks.isEmpty()) {
 		    					mConnectionManager.taskOperation(ClientOp.TASK_ABORT,
 		    							mChoosenTask.projectUrl, mChoosenTask.taskName);
@@ -548,6 +564,9 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 		super.onCreateContextMenu(menu, v, menuInfo);
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
 		
+		mOperationClientId = mConnectedClient;
+		mContextMenuOpened = true;
+		
 		TaskInfo task = null;
 		if (info != null)
 			task = (TaskInfo)getListAdapter().getItem(info.position);
@@ -588,6 +607,10 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
+		
+		if (!mOperationClientId.equals(mConnectedClient)) // do nothing when other client
+			return super.onContextItemSelected(item);
+		
 		TaskInfo task = null;
 		if (info != null)
 			task = (TaskInfo)getListAdapter().getItem(info.position);
@@ -629,6 +652,11 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 		return super.onContextItemSelected(item);
 	}
 
+	@Override
+	public void onContextMenuClosed(Menu menu) {
+		if (Logging.DEBUG) Log.d(TAG, "Context menu closed");
+		mContextMenuOpened = false;
+	}
 
 	@Override
 	public void clientConnectionProgress(BoincOp boincOp, int progress) {
@@ -639,6 +667,15 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 	public void clientConnected(VersionInfo clientVersion) {
 		mConnectedClient = mConnectionManager.getClientId();
 		if (mConnectedClient != null) {
+			if (mPrevClientId != null && !mPrevClientId.equals(mConnectedClient)) {
+				if (Logging.DEBUG) Log.d(TAG, "Other client is connected");
+				if (mContextMenuOpened) {
+					closeContextMenu();
+				}
+				mSelectedTasks.clear();
+				mPrevClientId = mConnectedClient;
+			}
+			
 			// Connected client is retrieved
 			if (Logging.DEBUG) Log.d(TAG, "Client is connected");
 			if (mRequestUpdates) {
@@ -666,6 +703,7 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 	@Override
 	public void clientDisconnected(boolean disconnectedByManager) {
 		if (Logging.DEBUG) Log.d(TAG, "Client is disconnected");
+		mPrevClientId = mConnectedClient;
 		mConnectedClient = null;
 		mUpdateTasksInProgress = false;
 		mTasks.clear();

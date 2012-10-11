@@ -489,8 +489,9 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			ClientId nativeClient = dbHelper.fetchHost("nativeboinc");
 			dbHelper.close();
 			if (nativeClient != null &&
-					(mConnectedClient == null || !mConnectedClient.equals(nativeClient)))
+					(mConnectedClient == null || !mConnectedClient.equals(nativeClient))) {
 				mSelectedClient = nativeClient;
+			}
 		}
 	}
 

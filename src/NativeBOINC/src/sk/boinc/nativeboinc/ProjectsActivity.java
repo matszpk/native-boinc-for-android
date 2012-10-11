@@ -53,6 +53,7 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -102,6 +103,10 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 	
 	private StringBuilder mSb = new StringBuilder();
 	
+	private ClientId mPrevClientId = null;
+	private ClientId mOperationClientId = null;
+	private boolean mContextMenuOpened = false;
+	
 	private static class SavedState {
 		private final ArrayList<ProjectInfo> projs;
 		private final ArrayList<ProjectInfo> pendingProjs;
@@ -111,6 +116,9 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 		private final boolean showWarnDetachDialog;
 		private final boolean updateProjectsInProgress;
 		private final long lastUpdateTime;
+		private final ClientId prevClientId;
+		private final boolean contextMenuOpened;
+		private final ClientId operationClientId;
 
 		public SavedState(ProjectsActivity activity) {
 			projs = activity.mProjs;
@@ -122,6 +130,9 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 			showWarnDetachDialog = activity.mShowWarnDetachDialog;
 			updateProjectsInProgress = activity.mUpdateProjectsInProgress;
 			lastUpdateTime = activity.mLastUpdateTime;
+			prevClientId = activity.mPrevClientId;
+			contextMenuOpened = activity.mContextMenuOpened;
+			operationClientId = activity.mOperationClientId;
 		}
 		public void restoreState(ProjectsActivity activity) {
 			activity.mProjs = projs;
@@ -133,6 +144,9 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 			activity.mShowWarnDetachDialog = showWarnDetachDialog;
 			activity.mUpdateProjectsInProgress = updateProjectsInProgress;
 			activity.mLastUpdateTime = lastUpdateTime;
+			activity.mPrevClientId = prevClientId;
+			activity.mContextMenuOpened = contextMenuOpened;
+			activity.mOperationClientId = operationClientId;
 		}
 	}
 
@@ -453,6 +467,9 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 	    				public void onClick(DialogInterface dialog, int whichButton) {
 	    					onDismissWarnDetachDialog();
 	    					
+	    					if (!mOperationClientId.equals(mConnectedClient))
+	    						return; // do nothing
+	    					
 	    					if (mSelectedProjects.isEmpty()) {
 		    					mConnectionManager.projectOperation(ClientOp.PROJECT_DETACH,
 		    							mChoosenProject.masterUrl);
@@ -507,11 +524,17 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
+		
+		mOperationClientId = mConnectedClient;
+		mContextMenuOpened = true;
+		
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
 		ProjectInfo proj = null;
 		if (info != null)
 			proj = (ProjectInfo)getListAdapter().getItem(info.position);
 		menu.setHeaderTitle(R.string.projectCtxMenuTitle);
+		
+		if (Logging.DEBUG) Log.d(TAG, "Context menu opened");
 		
 		if (mSelectedProjects.size() != mProjs.size())
 			menu.add(0, SELECT_ALL, 0, R.string.selectAll);
@@ -555,6 +578,9 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
+		if (!mOperationClientId.equals(mConnectedClient)) // do nothing when other client
+			return super.onContextItemSelected(item);
+		
 		ProjectInfo proj = null;
 		if (info != null)
 			proj = (ProjectInfo)getListAdapter().getItem(info.position);
@@ -617,6 +643,11 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 		return super.onContextItemSelected(item);
 	}
 
+	@Override
+	public void onContextMenuClosed(Menu menu) {
+		if (Logging.DEBUG) Log.d(TAG, "Context menu closed");
+		mContextMenuOpened = false;
+	}
 
 	@Override
 	public void clientConnectionProgress(BoincOp boincOp, int progress) {
@@ -627,6 +658,15 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 	public void clientConnected(VersionInfo clientVersion) {
 		mConnectedClient = mConnectionManager.getClientId();
 		if (mConnectedClient != null) {
+			if (mPrevClientId != null && !mPrevClientId.equals(mConnectedClient)) {
+				if (Logging.DEBUG) Log.d(TAG, "Other client is connected");
+				if (mContextMenuOpened) {
+					closeContextMenu();
+				}
+				mSelectedProjects.clear();
+				mPrevClientId = mConnectedClient;
+			}
+			
 			// Connected client is retrieved
 			if (Logging.DEBUG) Log.d(TAG, "Client is connected");
 			if (mRequestUpdates) {
@@ -653,6 +693,7 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 	@Override
 	public void clientDisconnected(boolean disconnectedByManager) {
 		if (Logging.DEBUG) Log.d(TAG, "Client is disconnected");
+		mPrevClientId = mConnectedClient;
 		mConnectedClient = null;
 		mUpdateProjectsInProgress = false;
 		mProjs.clear();

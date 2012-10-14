@@ -584,7 +584,7 @@ public class InstallationOps {
 								mProgressNotifier.notifyProgress((int)(10000.0*(double)copied/(double)mInputSize));
 								mPreviousNotifyTime = currentNotifyTime;
 								
-								if (Thread.interrupted()) // cancel
+								if (Thread.currentThread().isInterrupted()) // cancel
 									return copied;
 							}
 							
@@ -901,20 +901,26 @@ public class InstallationOps {
 		if (mInstallerHandler.isInstallOnSDCard()) { // move to internal memory
 			long boincDirSize = calculateDirectorySize(sdCardDir);
 			
-			if (!intMemDir.isDirectory()) {
+			if (!intMemDir.isDirectory())
 				intMemDir.delete();
-				intMemDir.mkdirs();
-			}
+			else // delete existing directory
+				deleteDirectory(intMemDir);
+			intMemDir.mkdirs();
 			
 			try {
 				new CopyDirectoryHelper(boincDirSize, COPY_FROM_SDCARD, new ProgressNotifier() {
 					@Override
 					public void notifyProgress(int progress) {
-						// TODO Auto-generated method stub
 						mInstallerHandler.notifyProgress(InstallerService.BOINC_MOVETO_ITEM_NAME, "",
 								mContext.getString(R.string.moveToProgress), progress);
 					}
 				}).copyDirectory(sdCardDir, intMemDir, 0);
+				
+				if (Thread.interrupted()) {
+					deleteDirectory(intMemDir); // delete if cancelled
+					mInstallerHandler.notifyCancel(InstallerService.BOINC_MOVETO_ITEM_NAME, "");
+					return;
+				}
 			} catch(IOException ex) {
 				deleteDirectory(intMemDir);
 				mInstallerHandler.notifyError(InstallerService.BOINC_MOVETO_ITEM_NAME, "", ex.getMessage());
@@ -925,22 +931,26 @@ public class InstallationOps {
 		} else { // move to sdcard memory
 			long boincDirSize = calculateDirectorySize(intMemDir);
 			
-			if (!sdCardDir.isDirectory()) {
+			if (!sdCardDir.isDirectory())
 				sdCardDir.delete();
-				sdCardDir.mkdirs();
-			}
+			else // delete previous version
+				deleteDirectory(sdCardDir);
+			sdCardDir.mkdirs();
 			
 			try {
 				new CopyDirectoryHelper(boincDirSize, COPY_TO_SDCARD, new ProgressNotifier() {
 					@Override
 					public void notifyProgress(int progress) {
-						// TODO Auto-generated method stub
 						mInstallerHandler.notifyProgress(InstallerService.BOINC_MOVETO_ITEM_NAME, "",
 								mContext.getString(R.string.moveToProgress), progress);
 					}
 				}).copyDirectory(intMemDir, sdCardDir, 0);
 				
-				
+				if (Thread.interrupted()) {
+					deleteDirectory(sdCardDir); // delete if cancelled
+					mInstallerHandler.notifyCancel(InstallerService.BOINC_MOVETO_ITEM_NAME, "");
+					return;
+				}
 			} catch(IOException ex) {
 				deleteDirectory(sdCardDir);
 				mInstallerHandler.notifyError(InstallerService.BOINC_MOVETO_ITEM_NAME, "", ex.getMessage());

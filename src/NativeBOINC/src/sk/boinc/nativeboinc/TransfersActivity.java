@@ -34,6 +34,7 @@ import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.service.ConnectionManagerService;
 import sk.boinc.nativeboinc.util.ClientId;
 import sk.boinc.nativeboinc.util.ScreenOrientationHandler;
+import sk.boinc.nativeboinc.util.StandardDialogs;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -629,6 +630,10 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 				if (mContextMenuOpened) {
 					closeContextMenu();
 				}
+				mShowDetailsDialog = false;
+				mShowWarnAbortDialog = false;
+				StandardDialogs.dismissDialog(this, DIALOG_DETAILS);
+				StandardDialogs.dismissDialog(this, DIALOG_WARN_ABORT);
 				mSelectedTransfers.clear();
 				mPrevClientId = mConnectedClient;
 			}

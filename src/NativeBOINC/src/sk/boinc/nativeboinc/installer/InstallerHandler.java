@@ -1641,7 +1641,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	
 	public synchronized boolean isWorking() {
 		return  mIsClientBeingInstalled || !mProjectAppsInstallers.isEmpty() ||
-				mHandlerIsWorking || mDoDumpBoincFiles || mDoBoincReinstall;
+				mHandlerIsWorking || mDoDumpBoincFiles || mDoBoincReinstall || mDoInstallationMoveTo;
 	}
 	
 	public synchronized void cancelProjectAppsInstallation(String projectUrl) {

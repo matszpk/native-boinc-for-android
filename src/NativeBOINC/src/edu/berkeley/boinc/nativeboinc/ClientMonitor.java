@@ -93,10 +93,13 @@ public class ClientMonitor {
 			mOutput.flush();
 			
 			int readed = mInput.read(mReadBuffer);
-			mReply.append(new String(mReadBuffer, 0, readed));
-			if (mReadBuffer[readed-1] == '\003') {
-				mReply.setLength(mReply.length()-1);
-			}
+			if (readed != -1) {
+				mReply.append(new String(mReadBuffer, 0, readed));
+				if (mReadBuffer[readed-1] == '\003') {
+					mReply.setLength(mReply.length()-1);
+				}
+			} else
+				success = false;
 			
 			/* if return success */
 			success = mReply.toString().equals("<success/>");

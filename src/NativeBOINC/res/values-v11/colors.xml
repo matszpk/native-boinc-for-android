@@ -20,14 +20,5 @@
  */
 -->
 <resources>
-	<color name="active">#ff3fdf3f</color>
-	<color name="suspended">#ffdf3f3f</color>
-	<color name="nnw">#ffdfdf3f</color>
-	<color name="orange">#ffff7f00</color>
-	<color name="red">#ffff3f3f</color>
-	<color name="lockText">#ffc0c0c0</color>
-	<color name="localPrefGroup">#404040</color>
-	<color name="screenLockBar">#555555</color>
-	<color name="screenLockBarText">#ffffff</color>
-	<color name="notificationText">#080808</color>
+    <color name="notificationText">#f8f8f8</color>
 </resources>

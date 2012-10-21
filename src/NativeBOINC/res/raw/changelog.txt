@@ -1,4 +1,4 @@
-Version 0.4.0.5.2 (beta) (2012-10-21):
+Version 0.4.0.5.3 (beta) (2012-10-21):
 - fixed client monitor handling (exception)
 - fixed colors in the notifications
 

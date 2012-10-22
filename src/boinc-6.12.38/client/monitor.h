@@ -56,7 +56,7 @@ private:
     std::vector<char*> auth_codes;
     std::vector<MONITOR_CONN*> conns;
     
-    void show_connect_error(sockaddr_storage* addr, socklen_t addrlen);
+    void show_connect_error(sockaddr_storage* addr);
 public:
     int lsock;
     

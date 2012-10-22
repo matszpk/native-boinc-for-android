@@ -189,7 +189,7 @@ void MONITOR_INSTANCE::get_fdset(FDSET_GROUP& fg, FDSET_GROUP& all) {
 }
 
 
-void MONITOR_INSTANCE::show_connect_error(sockaddr_storage* addr, socklen_t addrlen) {
+void MONITOR_INSTANCE::show_connect_error(sockaddr_storage* addr) {
     static int lasttime = -1;
     static int conn_count = 0;
     
@@ -207,9 +207,9 @@ void MONITOR_INSTANCE::show_connect_error(sockaddr_storage* addr, socklen_t addr
     
 #ifdef _WIN32
     sockaddr_in* sin = (sockaddr_in*)addr;
-    strcpy(buf, inet_ntoa(sin->sin_addr));
+    strncpy(buf, inet_ntoa(sin->sin_addr),256);
 #else
-    inet_ntop(addr->ss_family, addr, addr_str, addrlen);
+    inet_ntop(addr->ss_family, addr, addr_str, 256);
 #endif
     if (conn_count<=1)
         msg_printf(NULL, MSG_INFO,
@@ -227,17 +227,17 @@ void MONITOR_INSTANCE::got_select(FDSET_GROUP& fg) {
         sockaddr_storage addr;
         socklen_t addrlen = sizeof(sockaddr_storage);
         int sock = accept(lsock,(sockaddr*)&addr,&addrlen);
-        if (sock < 0)
-            return;
+        if (sock >= 0) {
 #ifndef _WIN32
             fcntl(sock, F_SETFD, FD_CLOEXEC);
 #endif
-        if (is_localhost(addr)) {
-            MONITOR_CONN* conn = new MONITOR_CONN(sock);
-            conns.push_back(conn);
-        } else {
-            show_connect_error(&addr, addrlen);
-            boinc_close_socket(sock);
+            if (is_localhost(addr)) {
+                MONITOR_CONN* conn = new MONITOR_CONN(sock);
+                conns.push_back(conn);
+            } else {
+                show_connect_error(&addr);
+                boinc_close_socket(sock);
+            }
         }
     }
     

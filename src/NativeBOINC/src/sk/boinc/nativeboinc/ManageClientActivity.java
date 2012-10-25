@@ -277,11 +277,11 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			}
 		});
 
-		// preoxy settings
+		// proxy settings
 		pref = findPreference("proxySettings");
 		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			public boolean onPreferenceClick(Preference preference) {
-				//
+				startActivity(new Intent(ManageClientActivity.this, ProxySettingsActivity.class));
 				return true;
 			}
 		});

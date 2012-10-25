@@ -1234,7 +1234,9 @@ public class RpcClient {
 			mRequest.append(proxy.socks5_user_name);
 			mRequest.append("</socks5_user_name>\n    <socks5_user_passwd>");
 			mRequest.append(proxy.socks5_user_passwd);
-			mRequest.append("</socks5_user_passwd>\n  </proxy_info>\n</set_proxy_settings>\n");
+			mRequest.append("</socks5_user_passwd>\n    <no_proxy>");
+			mRequest.append(proxy.noproxy_hosts);
+			mRequest.append("</no_proxy>\n  </proxy_info>\n</set_proxy_settings>\n");
 			sendRequest(mRequest.toString());
 			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
 			if (parser == null)

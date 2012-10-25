@@ -69,9 +69,10 @@
 							android:inputType="text" />
 					</LinearLayout>
 					<LinearLayout
-				  	    android:layout_width="fill_parent"
+				  	    android:layout_width="wrap_content"
 				  	    android:layout_height="wrap_content"
-				  	    android:orientation="horizontal">
+				  	    android:orientation="horizontal"
+				  	    android:layout_gravity="right">
 						<TextView
 						    android:layout_width="wrap_content"
 						    android:layout_height="wrap_content"
@@ -85,6 +86,7 @@
 						    android:digits="0123456789"
 							android:maxLength="5"
 							android:maxLines="1"
+							android:inputType="number"
 							android:imeOptions="actionNext"/>
 					</LinearLayout>
 					<LinearLayout
@@ -140,7 +142,8 @@
 		  		<LinearLayout
 				  	android:orientation="vertical"
 				  	android:layout_width="fill_parent"
-				  	android:layout_height="wrap_content">
+				  	android:layout_height="wrap_content"
+				  	android:layout_gravity="right">
 					<CheckBox
 				  			android:id="@+id/proxyUseSocksProxy"
 				  			android:layout_width="fill_parent"
@@ -163,9 +166,10 @@
 							android:inputType="text" />
 					</LinearLayout>
 					<LinearLayout
-				  	    android:layout_width="fill_parent"
+				  	    android:layout_width="wrap_content"
 				  	    android:layout_height="wrap_content"
-				  	    android:orientation="horizontal">
+				  	    android:orientation="horizontal"
+				  	    android:layout_gravity="right">
 						<TextView
 						    android:layout_width="wrap_content"
 						    android:layout_height="wrap_content"
@@ -179,6 +183,7 @@
 						    android:digits="0123456789"
 							android:maxLength="5"
 							android:maxLines="1"
+							android:inputType="number"
 							android:imeOptions="actionNext"/>
 					</LinearLayout>
 					<LinearLayout

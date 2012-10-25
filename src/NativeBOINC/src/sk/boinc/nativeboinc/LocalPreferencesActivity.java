@@ -558,8 +558,8 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	public void setApplyButtonsEnabledAndCheckPreferences() {
 		boolean doEnabled = mConnectedClient != null && !mOtherGlobalPrefsSavingInProgress &&
 				!mGlobalPrefsSavingInProgress &&
-				(mGlobalPrefsFetchProgress != ProgressState.FAILED ||
-						mGlobalPrefsFetchProgress != ProgressState.FINISHED);
+				(mGlobalPrefsFetchProgress == ProgressState.FAILED ||
+						mGlobalPrefsFetchProgress == ProgressState.FINISHED);
 		
 		mApplyDefault.setEnabled((mConnectedClient != null && mConnectedClient.isNativeClient()) && doEnabled);
 		mApply.setEnabled(checkPreferences() && doEnabled);

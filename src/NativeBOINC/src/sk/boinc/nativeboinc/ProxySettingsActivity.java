@@ -28,6 +28,8 @@ import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.StandardDialogs;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -92,6 +94,8 @@ public class ProxySettingsActivity extends ServiceBoincActivity implements Clien
 		}
 	}
 	
+	private boolean mDontChangeNoProxy = false;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -131,11 +135,12 @@ public class ProxySettingsActivity extends ServiceBoincActivity implements Clien
 		mHttpProxyUser = (EditText)findViewById(R.id.proxyHttpServerUser);
 		mHttpProxyPassword = (EditText)findViewById(R.id.proxyHttpServerPassword);
 		mHttpNoForHosts = (EditText)findViewById(R.id.proxyHttpNoForHosts);
+		mUseSocksProxy = (CheckBox)findViewById(R.id.proxyUseSocksProxy);
 		mSocksProxyAddress = (EditText)findViewById(R.id.proxySocksServerAddress);
 		mSocksProxyPort = (EditText)findViewById(R.id.proxySocksServerPort);
 		mSocksProxyUser = (EditText)findViewById(R.id.proxySocksServerUser);
 		mSocksProxyPassword = (EditText)findViewById(R.id.proxySocksServerPassword);
-		mHttpNoForHosts = (EditText)findViewById(R.id.proxySocksNoForHosts);
+		mSocksNoForHosts = (EditText)findViewById(R.id.proxySocksNoForHosts);
 		
 		mUseHttpProxy.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
@@ -167,8 +172,53 @@ public class ProxySettingsActivity extends ServiceBoincActivity implements Clien
 			}
 		});
 		
+		TextWatcher httpNoProxyWatcher = new TextWatcher() {
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				if (!mDontChangeNoProxy) {
+					mDontChangeNoProxy = true;
+					mSocksNoForHosts.setText(mHttpNoForHosts.getText());
+				} else
+					mDontChangeNoProxy = false;
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+			}
+		};
+		
+		TextWatcher socksNoProxyWatcher = new TextWatcher() {
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				if (!mDontChangeNoProxy) {
+					mDontChangeNoProxy = true;
+					mHttpNoForHosts.setText(mSocksNoForHosts.getText());
+				} else
+					mDontChangeNoProxy = false;
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+			}
+		};
+		
+		mHttpNoForHosts.addTextChangedListener(httpNoProxyWatcher);
+		mSocksNoForHosts.addTextChangedListener(socksNoProxyWatcher);
+		
 		// hide keyboard
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+		
+		updateEditsEnabled();
 	}
 	
 	private void updateActivityState() {
@@ -280,17 +330,14 @@ public class ProxySettingsActivity extends ServiceBoincActivity implements Clien
 			proxyInfo.socks5_user_name = mSocksProxyUser.getText().toString();
 			proxyInfo.socks5_user_passwd = mSocksProxyPassword.getText().toString();
 			
-			// to be implemented
-			if (mTabHost.getCurrentTab() == 0)
-				proxyInfo.noproxy_hosts = mHttpNoForHosts.getText().toString();
-			else // second SOCKS tab
-				proxyInfo.noproxy_hosts = mSocksNoForHosts.getText().toString();
+			proxyInfo.noproxy_hosts = mHttpNoForHosts.getText().toString();
 		} catch(NumberFormatException ex) {
 			return;	// do nothing
 		}
 		
 		mProxySettingsSavingInProgress = true;
-		//mConnectionManager
+		mConnectionManager.setProxySettings(proxyInfo);
+		setApplyButtonEnabled();
 	}
 	
 	private void updateProxySettings(ProxyInfo proxyInfo) {
@@ -309,13 +356,14 @@ public class ProxySettingsActivity extends ServiceBoincActivity implements Clien
 		mSocksNoForHosts.setText(proxyInfo.noproxy_hosts);
 		
 		updateEditsEnabled();
+		setApplyButtonEnabled();
 	}
 	
 	private void setApplyButtonEnabled() {
 		boolean doEnabled = mConnectedClient != null && !mOtherProxySettingsSavingInProgress &&
 				!mProxySettingsSavingInProgress &&
-				(mProxySettingsFetchProgress != ProgressState.FAILED ||
-						mProxySettingsFetchProgress != ProgressState.FINISHED);
+				(mProxySettingsFetchProgress == ProgressState.FAILED ||
+						mProxySettingsFetchProgress == ProgressState.FINISHED);
 		mApply.setEnabled(doEnabled);
 	}
 

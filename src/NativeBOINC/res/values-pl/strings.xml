@@ -294,7 +294,7 @@
 	<string name="proxyHttpProxy">HTTP Proxy</string>
 	<string name="proxySocksProxy">SOCKS Proxy</string>
 	<string name="proxyUseHttpProxy">Użyj serwera HTTP Proxy</string>
-	<string name="proxyUseSocksProxy">użyj serwera SOCKS Proxy</string>
+	<string name="proxyUseSocksProxy">Użyj serwera SOCKS Proxy</string>
 	<string name="proxyServerAddress">Adres serwera</string>
 	<string name="proxyServerPort">Port serwera</string>
 	<string name="proxyServerUserName">Nazwa uż.</string>

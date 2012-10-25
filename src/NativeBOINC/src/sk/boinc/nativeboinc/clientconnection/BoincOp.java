@@ -62,6 +62,9 @@ public class BoincOp {
 	public static final int OP_TASK_OP = 26;
 	public static final int OP_TRANSFER_OP = 27;
 	
+	public static final int OP_SET_PROXY_SETTINGS = 28;
+	public static final int OP_GET_PROXY_SETTINGS = 29;
+	
 	public static final BoincOp Connect = new BoincOp(OP_CONNECT);
 	public static final BoincOp Disconnect = new BoincOp(OP_DISCONNECT);
 	public static final BoincOp UpdateClientMode = new BoincOp(OP_UPDATE_CLIENT_MODE);
@@ -95,6 +98,9 @@ public class BoincOp {
 	public static final BoincOp ProjectOperation = new BoincOp(OP_PROJECT_OP);
 	public static final BoincOp TaskOperation = new BoincOp(OP_TASK_OP);
 	public static final BoincOp TransferOperation = new BoincOp(OP_TRANSFER_OP);
+	
+	public static final BoincOp SetProxySettings = new BoincOp(OP_SET_PROXY_SETTINGS);
+	public static final BoincOp GetProxySettings = new BoincOp(OP_GET_PROXY_SETTINGS);
 	
 	public final int opCode;
 	

@@ -70,6 +70,7 @@ import edu.berkeley.boinc.lite.Project;
 import edu.berkeley.boinc.lite.ProjectAttachReply;
 import edu.berkeley.boinc.lite.ProjectConfig;
 import edu.berkeley.boinc.lite.ProjectListEntry;
+import edu.berkeley.boinc.lite.ProxyInfo;
 import edu.berkeley.boinc.lite.Result;
 import edu.berkeley.boinc.lite.RpcClient;
 import edu.berkeley.boinc.lite.Transfer;
@@ -1351,7 +1352,6 @@ public class ClientBridgeWorkerHandler extends Handler {
 		changeIsHandlerWorking(true);
 		notifyProgress(BoincOp.GlobalPrefsOverride, ClientReceiver.PROGRESS_XFER_STARTED);
 		boolean success = mRpcClient.setGlobalPrefsOverrideStruct(globalPrefs);
-		notifyProgress(BoincOp.GlobalPrefsOverride, ClientReceiver.PROGRESS_XFER_FINISHED);
 		
 		if (!success) {
 			if (Logging.INFO) Log.i(TAG, "RPC failed in setGlobalPrefsOverride()");
@@ -1390,6 +1390,44 @@ public class ClientBridgeWorkerHandler extends Handler {
 			notifyOperationFinish(BoincOp.RunBenchmarks);
 			notifyProgress(BoincOp.RunBenchmarks, ClientReceiver.PROGRESS_XFER_FINISHED);
 		}
+		changeIsHandlerWorking(false);
+	}
+	
+	public void getProxySettings() {
+		if (mDisconnecting) return;  // already in disconnect phase
+		changeIsHandlerWorking(true);
+		notifyProgress(BoincOp.GetProxySettings, ClientReceiver.PROGRESS_XFER_STARTED);
+		ProxyInfo proxyInfo = mRpcClient.getProxySettings();
+		if (proxyInfo == null) {
+			if (Logging.INFO) Log.i(TAG, "RPC failed in getProxySettings()");
+			notifyError(BoincOp.GetProxySettings, 0, mContext.getString(R.string.boincOperationError));
+			rpcFailed();
+			if (Logging.DEBUG) Log.d(TAG, "Finish GetProxySettings with error");
+			changeIsHandlerWorking(false);
+			return;
+		}
+		currentProxySettings(proxyInfo);
+		if (Logging.DEBUG) Log.d(TAG, "Finish GetProxySettings");
+		notifyProgress(BoincOp.GetProxySettings, ClientReceiver.PROGRESS_XFER_FINISHED);
+		changeIsHandlerWorking(false);
+	}
+	
+	public void setProxySettings(ProxyInfo proxyInfo) {
+		if (mDisconnecting) return;  // already in disconnect phase
+		changeIsHandlerWorking(true);
+		notifyProgress(BoincOp.SetProxySettings, ClientReceiver.PROGRESS_XFER_STARTED);
+		boolean success = mRpcClient.setProxySettings(proxyInfo);
+		
+		if (!success) {
+			if (Logging.INFO) Log.i(TAG, "RPC failed in setProxySettings()");
+			notifyError(BoincOp.SetProxySettings, 0, mContext.getString(R.string.boincOperationError));
+			rpcFailed();
+			changeIsHandlerWorking(false);
+			return;
+		}
+		
+		notifyProxySettingsChanged();
+		notifyProgress(BoincOp.SetProxySettings, ClientReceiver.PROGRESS_XFER_FINISHED);
 		changeIsHandlerWorking(false);
 	}
 
@@ -1718,6 +1756,26 @@ public class ClientBridgeWorkerHandler extends Handler {
 			@Override
 			public void run() {
 				mReplyHandler.onGlobalPreferencesChanged();
+			}
+		});
+	}
+	
+	private synchronized void currentProxySettings(final ProxyInfo proxyInfo) {
+		if (mDisconnecting) return;
+		mReplyHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mReplyHandler.currentProxySettings(proxyInfo);
+			}
+		});
+	}
+	
+	private synchronized void notifyProxySettingsChanged() {
+		if (mDisconnecting) return;
+		mReplyHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mReplyHandler.onProxySettingsChanged();
 			}
 		});
 	}

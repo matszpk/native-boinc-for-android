@@ -77,6 +77,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 	private EditText mSwitchBetween;
 	private EditText mUseAtMostCPUs;
 	private EditText mUseAtMostCPUTime;
+	private CheckBox mXferOnlyWhenWifi;
 	private EditText mMaxDownloadRate;
 	private EditText mMaxUploadRate;
 	private EditText mTransferAtMost;
@@ -180,6 +181,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		mSwitchBetween = (EditText)findViewById(R.id.localPrefSwitchBetween);
 		mUseAtMostCPUs = (EditText)findViewById(R.id.localPrefUseAtMostCPUs);
 		mUseAtMostCPUTime = (EditText)findViewById(R.id.localPrefUseAtMostCPUTime);
+		mXferOnlyWhenWifi = (CheckBox)findViewById(R.id.localPrefOnlyWhenWifi);
 		mMaxDownloadRate = (EditText)findViewById(R.id.localPrefMaxDownloadRate);
 		mMaxUploadRate = (EditText)findViewById(R.id.localPrefMaxUploadRate);
 		mTransferAtMost = (EditText)findViewById(R.id.localPrefTransferAtMost);
@@ -590,6 +592,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		mUseAtMostCPUs.setText(formatDouble(globalPrefs.max_ncpus_pct));
 		mUseAtMostCPUTime.setText(formatDouble(globalPrefs.cpu_usage_limit));
 		
+		mXferOnlyWhenWifi.setChecked(globalPrefs.xfer_only_when_wifi);
 		mMaxDownloadRate.setText(formatDouble(globalPrefs.max_bytes_sec_down));
 		mMaxUploadRate.setText(formatDouble(globalPrefs.max_bytes_sec_up));
 		mTransferAtMost.setText(formatDouble(globalPrefs.daily_xfer_limit_mb));
@@ -638,6 +641,7 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 			globalPrefs.max_ncpus_pct = Double.parseDouble(mUseAtMostCPUs.getText().toString());
 			globalPrefs.cpu_usage_limit = Double.parseDouble(mUseAtMostCPUTime.getText().toString());
 			
+			globalPrefs.xfer_only_when_wifi = mXferOnlyWhenWifi.isChecked();
 			globalPrefs.max_bytes_sec_down = Double.parseDouble(mMaxDownloadRate.getText().toString());
 			globalPrefs.max_bytes_sec_up = Double.parseDouble(mMaxUploadRate.getText().toString());
 			globalPrefs.daily_xfer_limit_mb = Double.parseDouble(mTransferAtMost.getText().toString());

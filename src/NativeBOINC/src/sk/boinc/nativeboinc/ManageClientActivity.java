@@ -277,6 +277,15 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			}
 		});
 
+		// preoxy settings
+		pref = findPreference("proxySettings");
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			public boolean onPreferenceClick(Preference preference) {
+				//
+				return true;
+			}
+		});
+		
 		// Run CPU benchmarks
 		pref = findPreference("runBenchmark");
 		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {

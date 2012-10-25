@@ -174,6 +174,8 @@ public class GlobalPreferencesParser extends BoincBaseParser {
 						mPreferences.net_times.end_hour = Double.parseDouble(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("run_always_when_plugged")) {
 						mPreferences.run_always_when_plugged = Integer.parseInt(getCurrentElement()) != 0;
+					} else if(localName.equalsIgnoreCase("xfer_only_when_wifi")) {
+						mPreferences.xfer_only_when_wifi = Integer.parseInt(getCurrentElement()) != 0;
 					}
 				}
 			}

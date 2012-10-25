@@ -25,6 +25,7 @@ import java.util.Set;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.GlobalPreferences;
+import edu.berkeley.boinc.lite.ProxyInfo;
 
 import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.bridge.ClientBridge;
@@ -585,7 +586,23 @@ public class ConnectionManagerService extends Service implements
 		}
 		return false;
 	}
-
+	
+	@Override
+	public boolean getProxySettings() {
+		if (mClientBridge != null) {
+			return mClientBridge.getProxySettings();
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean setProxySettings(ProxyInfo proxyInfo) {
+		if (mClientBridge != null) {
+			return mClientBridge.setProxySettings(proxyInfo);
+		}
+		return false;
+	}
+	
 	@Override
 	public boolean setRunMode(int mode) {
 		if (mClientBridge != null) {

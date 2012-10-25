@@ -1062,7 +1062,9 @@ public class RpcClient {
 			mRequest.append(globalPrefs.run_if_temp_lt_than);
 			mRequest.append("</run_if_temp_lt_than>\n  <run_always_when_plugged>");
 			mRequest.append(globalPrefs.run_always_when_plugged ? 1 : 0);
-			mRequest.append("</run_always_when_plugged>\n");
+			mRequest.append("</run_always_when_plugged>\n  <xfer_only_when_wifi>");
+			mRequest.append(globalPrefs.xfer_only_when_wifi ? 1 : 0);
+			mRequest.append("</xfer_only_when_wifi>\n");
 			
 			// write days prefs
 			TimePreferences.TimeSpan[] weekPrefs = globalPrefs.cpu_times.week_prefs;
@@ -1201,7 +1203,64 @@ public class RpcClient {
 			return false;
 		}
 	}
+	
+	/**
+	 * set proxy settings
+	 * @return true for success, false for failure
+	 */
+	public boolean setProxySettings(ProxyInfo proxy) {
+		try {
+			mRequest.setLength(0);
+			mRequest.append("<set_proxy_settings>\n  <proxy_info>\n");
+			if (proxy.use_http_proxy)
+				mRequest.append("    <use_http_proxy/>\n");
+			if (proxy.use_socks_proxy)
+				mRequest.append("    <use_socks_proxy/>\n");
+			if (proxy.use_http_auth)
+				mRequest.append("    <use_http_auth/>\n");
+			mRequest.append("    <http_server_name>");
+			mRequest.append(proxy.http_server_name);
+			mRequest.append("</http_server_name>\n    <http_server_port>");
+			mRequest.append(proxy.http_server_port);
+			mRequest.append("</http_server_port>\n    <http_user_name>");
+			mRequest.append(proxy.http_user_name);
+			mRequest.append("</http_user_name>\n    <http_user_passwd>");
+			mRequest.append(proxy.http_user_passwd);
+			mRequest.append("</http_user_passwd>\n    <socks_server_name>");
+			mRequest.append(proxy.socks_server_name);
+			mRequest.append("</socks_server_name>\n    <socks_server_port>");
+			mRequest.append(proxy.socks_server_port);
+			mRequest.append("</socks_server_port>\n    <socks5_user_name>");
+			mRequest.append(proxy.socks5_user_name);
+			mRequest.append("</socks5_user_name>\n    <socks5_user_passwd>");
+			mRequest.append(proxy.socks5_user_passwd);
+			mRequest.append("</socks5_user_passwd>\n  </proxy_info>\n</set_proxy_settings>\n");
+			sendRequest(mRequest.toString());
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
+		} catch(IOException e) {
+			if (Logging.WARNING) Log.w(TAG, "error in setProxySettings()", e);
+			return false;
+		}
+	}
 
+	/**
+	 * get proxy settings
+	 * @return proxy info for success, null when failure
+	 */
+	public ProxyInfo getProxySettings() {
+		try {
+			sendRequest("<get_proxy_settings/>");
+			return ProxyInfoParser.parse(receiveReply());
+		} catch(IOException e) {
+			if (Logging.WARNING) Log.w(TAG, "error in getProxySettings()", e);
+			return null;
+		}
+	}
+	
 	/**
 	 * Set the network mode
 	 * @param mode 1 = always, 2 = auto, 3 = never, 4 = restore

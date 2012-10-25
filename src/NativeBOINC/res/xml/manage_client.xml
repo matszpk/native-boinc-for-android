@@ -88,6 +88,13 @@
 			android:persistent="false" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/manageCategoryAdvanced">
+	    <Preference
+	        android:key="proxySettings"
+	        android:title="@string/clientProxySettingsTitle"
+	        android:summary="@string/clientProxySettingsSummary"
+	        android:shouldDisableView="true"
+			android:dependency="localPreferences"
+			android:persistent="false" />
 		<Preference
 			android:key="runBenchmark"
 			android:title="@string/clientRunBenchTitle"

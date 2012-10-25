@@ -28,6 +28,7 @@ import edu.berkeley.boinc.lite.AccountMgrInfo;
 import edu.berkeley.boinc.lite.GlobalPreferences;
 import edu.berkeley.boinc.lite.ProjectConfig;
 import edu.berkeley.boinc.lite.ProjectListEntry;
+import edu.berkeley.boinc.lite.ProxyInfo;
 
 import sk.boinc.nativeboinc.clientconnection.BoincOp;
 import sk.boinc.nativeboinc.clientconnection.ClientAllProjectsListReceiver;
@@ -36,6 +37,7 @@ import sk.boinc.nativeboinc.clientconnection.ClientError;
 import sk.boinc.nativeboinc.clientconnection.ClientPollReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientPreferencesReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientProjectReceiver;
+import sk.boinc.nativeboinc.clientconnection.ClientProxyReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientManageReceiver;
 import sk.boinc.nativeboinc.clientconnection.ClientRequestHandler;
@@ -316,6 +318,27 @@ public class ClientBridge implements ClientRequestHandler {
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientPreferencesReceiver)
 					((ClientPreferencesReceiver)observer).onGlobalPreferencesChanged();
+			}
+		}
+		
+		public void currentProxySettings(final ProxyInfo proxyInfo) {
+			mClientPendingController.finishWithOutput(BoincOp.GetProxySettings, proxyInfo);
+			
+			// First, check whether callback is still present in observers
+			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			for (ClientReceiver observer: observers) {
+				if (observer instanceof ClientProxyReceiver)
+					((ClientProxyReceiver)observer).currentProxySettings(proxyInfo);
+			}
+		}
+		
+		public void onProxySettingsChanged() {
+			mClientPendingController.finish(BoincOp.SetProxySettings);
+			
+			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			for (ClientReceiver observer: observers) {
+				if (observer instanceof ClientProxyReceiver)
+					((ClientProxyReceiver)observer).onProxySettingsChanged();
 			}
 		}
 
@@ -884,6 +907,26 @@ public class ClientBridge implements ClientRequestHandler {
 		
 		mClientPendingController.begin(BoincOp.RunBenchmarks);
 		mWorker.runBenchmarks();
+		return true;
+	}
+	
+	@Override
+	public boolean getProxySettings() {
+		if (mRemoteClient == null || mClientPendingController == null)
+			return false; // not connected
+		
+		mClientPendingController.begin(BoincOp.GetProxySettings);
+		mWorker.getProxySettings();
+		return true;
+	}
+	
+	@Override
+	public boolean setProxySettings(ProxyInfo proxyInfo) {
+		if (mRemoteClient == null || mClientPendingController == null)
+			return false; // not connected
+		
+		mClientPendingController.begin(BoincOp.SetProxySettings);
+		mWorker.setProxySettings(proxyInfo);
 		return true;
 	}
 

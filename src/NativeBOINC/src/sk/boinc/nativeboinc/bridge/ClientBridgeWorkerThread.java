@@ -22,6 +22,7 @@ package sk.boinc.nativeboinc.bridge;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.GlobalPreferences;
+import edu.berkeley.boinc.lite.ProxyInfo;
 import sk.boinc.nativeboinc.clientconnection.TaskDescriptor;
 import sk.boinc.nativeboinc.clientconnection.TransferDescriptor;
 import sk.boinc.nativeboinc.debug.Logging;
@@ -336,6 +337,24 @@ public class ClientBridgeWorkerThread extends Thread {
 			@Override
 			public void run() {
 				mHandler.runBenchmarks();
+			}
+		});
+	}
+	
+	public void getProxySettings() {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.getProxySettings();
+			}
+		});
+	}
+	
+	public void setProxySettings(final ProxyInfo proxyInfo) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.setProxySettings(proxyInfo);
 			}
 		});
 	}

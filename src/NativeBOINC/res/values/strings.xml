@@ -204,6 +204,7 @@
 	
 	<string name="localPrefNetworkUsage">Network</string>
 	
+	<string name="localPrefXferOnlyWhenWifi">Transfer only when WiFi enabled</string>
 	<string name="localPrefMaxDownloadRate">Maximum download rate</string>
 	<string name="localPrefMaxUploadRate">Maximum upload rate</string>
 	<string name="localPrefConnectAboutEvery">Connect about every</string>
@@ -277,6 +278,8 @@
 	<string name="clientActivityNetworkTitle">Network activity</string>
 	<string name="clientActivityNetworkDialogTitle">Network activity</string>
 	<string name="manageCategoryAdvanced">Advanced</string>
+	<string name="clientProxySettingsTitle">Proxy settings</string>
+	<string name="clientProxySettingsSummary">Allow to connect via proxy</string>
 	<string name="clientRunBenchTitle">Run CPU benchmarks</string>
 	<string name="clientRunBenchSummary">Runs BOINC CPU benchmarks</string>
 	<string name="clientRunBenchNotify">Starting CPU benchmarks</string>
@@ -287,6 +290,18 @@
 	<string name="clientShutdownSummary">Shut down the currently connected core client</string>
 	<string name="clientShutdownNotify">Shutting down the currently connected core client</string>
 	<string name="warnShutdownText">The connected core client will be shut down. This manager cannot start the client afterwards.</string>
+	
+	<!-- proxy settings -->
+	<string name="proxySettings">Proxy settings</string>
+	<string name="proxyHttpProxy">HTTP Proxy</string>
+	<string name="proxySocksProxy">SOCKS Proxy</string>
+	<string name="proxyUseHttpProxy">Use HTTP Proxy server</string>
+	<string name="proxyUseSocksProxy">Use SOCKS Proxy server</string>
+	<string name="proxyServerAddress">Server address</string>
+	<string name="proxyServerPort">Server port</string>
+	<string name="proxyServerUserName">User name</string>
+	<string name="proxyServerUserPassword">Password</string>
+	<string name="proxyNoForHosts">Don\'t use for</string>
 	
 	<!--  NativeClient activity -->
 	<string name="nativeAutostart">Client starting</string>

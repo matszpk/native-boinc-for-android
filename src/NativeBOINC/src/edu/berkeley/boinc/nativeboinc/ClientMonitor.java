@@ -98,11 +98,10 @@ public class ClientMonitor {
 				if (mReadBuffer[readed-1] == '\003') {
 					mReply.setLength(mReply.length()-1);
 				}
+				/* if return success */
+				success = mReply.toString().equals("<success/>");
 			} else
 				success = false;
-			
-			/* if return success */
-			success = mReply.toString().equals("<success/>");
 		} catch(IOException ex) {
 			if (Logging.ERROR) Log.e(TAG, "Cant authorize access to monitor: "+ ex.getMessage());
 			close();

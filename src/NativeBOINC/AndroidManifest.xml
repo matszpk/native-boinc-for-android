@@ -212,6 +212,11 @@
 			android:launchMode="singleTop"
 			android:theme="@style/Theme.NativeBoincActivity" />
 		
+		<activity android:name=".ProxySettingsActivity"
+		    android:label="@string/proxySettings"
+		    android:launchMode="singleTop"
+		    android:theme="@style/Theme.NativeBoincActivity" />
+		
 		<activity android:name=".TimePreferencesActivity"
 			android:launchMode="singleTop"
 			android:theme="@style/Theme.NativeBoincActivity" />

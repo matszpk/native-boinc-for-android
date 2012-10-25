@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* 
+ * NativeBOINC - Native BOINC Client with Manager
+ * Copyright (C) 2011, Mateusz Szpakowski
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+ -->
+ <TabHost xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@android:id/tabhost"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<LinearLayout
+		android:orientation="vertical"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+		
+	    <TabWidget
+			android:id="@android:id/tabs"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="0" />
+	    
+	    <FrameLayout android:id="@android:id/tabcontent"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="1" >
+			
+		    <!--  computing options -->
+		    <ScrollView  android:id="@+id/proxyHttpServer"
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="fill_parent">
+		  		<LinearLayout
+				  	android:orientation="vertical"
+				  	android:layout_width="fill_parent"
+				  	android:layout_height="wrap_content">
+				  	<CheckBox
+			  			android:id="@+id/proxyUseHttpProxy"
+			  			android:layout_width="fill_parent"
+			  			android:layout_height="wrap_content"
+			  			android:text="@string/proxyUseHttpProxy" />
+				  	<LinearLayout
+				  	    android:layout_width="fill_parent"
+				  	    android:layout_height="wrap_content"
+				  	    android:orientation="horizontal">
+					  	<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content" 
+							android:text="@string/proxyServerAddress"
+							android:textSize="@dimen/labelTextSize"
+							android:paddingRight="5dip" />
+						<EditText
+							android:id="@+id/proxyHttpServerAddress"
+							android:layout_width="fill_parent"
+							android:layout_height="wrap_content"
+							android:inputType="text" />
+					</LinearLayout>
+					<LinearLayout
+				  	    android:layout_width="fill_parent"
+				  	    android:layout_height="wrap_content"
+				  	    android:orientation="horizontal">
+						<TextView
+						    android:layout_width="wrap_content"
+						    android:layout_height="wrap_content"
+						    android:text="@string/proxyServerPort"
+						    android:textSize="@dimen/labelTextSize"
+							android:paddingRight="5dip" />
+						<EditText 
+						    android:id="@+id/proxyHttpServerPort"
+						    android:layout_width="wrap_content"
+						    android:layout_height="wrap_content"
+						    android:digits="0123456789"
+							android:maxLength="5"
+							android:maxLines="1"
+							android:imeOptions="actionNext"/>
+					</LinearLayout>
+					<LinearLayout
+					    android:layout_width="fill_parent"
+					    android:layout_height="wrap_content">
+					    <TextView
+						    android:layout_width="wrap_content"
+						    android:layout_height="wrap_content"
+						    android:text="@string/proxyServerUserName"
+						    android:textSize="@dimen/labelTextSize"
+							android:paddingRight="5dip" />
+					    <EditText
+							android:id="@+id/proxyHttpServerUser"
+							android:layout_width="fill_parent"
+							android:layout_height="wrap_content"
+							android:inputType="text" />
+					</LinearLayout>
+					<LinearLayout
+					    android:layout_width="fill_parent"
+					    android:layout_height="wrap_content">
+					    <TextView
+						    android:layout_width="wrap_content"
+						    android:layout_height="wrap_content"
+						    android:text="@string/proxyServerUserPassword"
+						    android:textSize="@dimen/labelTextSize"
+							android:paddingRight="5dip" />
+					    <EditText
+							android:id="@+id/proxyHttpServerPassword"
+							android:layout_width="fill_parent"
+							android:layout_height="wrap_content"
+							android:inputType="textPassword" />
+					</LinearLayout>
+					<LinearLayout
+					    android:layout_width="fill_parent"
+					    android:layout_height="wrap_content">
+					    <TextView
+						    android:layout_width="wrap_content"
+						    android:layout_height="wrap_content"
+						    android:text="@string/proxyNoForHosts"
+						    android:textSize="@dimen/labelTextSize"
+							android:paddingRight="5dip" />
+					    <EditText
+							android:id="@+id/proxyHttpNoForHosts"
+							android:layout_width="fill_parent"
+							android:layout_height="wrap_content"
+							android:inputType="text" />
+					</LinearLayout>
+			 	</LinearLayout>
+	  		</ScrollView>
+	  		<ScrollView  android:id="@+id/proxySocksServer"
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="fill_parent">
+		  		<LinearLayout
+				  	android:orientation="vertical"
+				  	android:layout_width="fill_parent"
+				  	android:layout_height="wrap_content">
+					<CheckBox
+				  			android:id="@+id/proxyUseSocksProxy"
+				  			android:layout_width="fill_parent"
+				  			android:layout_height="wrap_content"
+				  			android:text="@string/proxyUseSocksProxy" />
+				  	<LinearLayout
+				  	    android:layout_width="fill_parent"
+				  	    android:layout_height="wrap_content"
+				  	    android:orientation="horizontal">
+					  	<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content" 
+							android:text="@string/proxyServerAddress"
+							android:textSize="@dimen/labelTextSize"
+							android:paddingRight="5dip" />
+						<EditText
+							android:id="@+id/proxySocksServerAddress"
+							android:layout_width="fill_parent"
+							android:layout_height="wrap_content"
+							android:inputType="text" />
+					</LinearLayout>
+					<LinearLayout
+				  	    android:layout_width="fill_parent"
+				  	    android:layout_height="wrap_content"
+				  	    android:orientation="horizontal">
+						<TextView
+						    android:layout_width="wrap_content"
+						    android:layout_height="wrap_content"
+						    android:text="@string/proxyServerPort"
+						    android:textSize="@dimen/labelTextSize"
+							android:paddingRight="5dip" />
+						<EditText 
+						    android:id="@+id/proxySocksServerPort"
+						    android:layout_width="wrap_content"
+						    android:layout_height="wrap_content"
+						    android:digits="0123456789"
+							android:maxLength="5"
+							android:maxLines="1"
+							android:imeOptions="actionNext"/>
+					</LinearLayout>
+					<LinearLayout
+					    android:layout_width="fill_parent"
+					    android:layout_height="wrap_content">
+					    <TextView
+						    android:layout_width="wrap_content"
+						    android:layout_height="wrap_content"
+						    android:text="@string/proxyServerUserName"
+						    android:textSize="@dimen/labelTextSize"
+							android:paddingRight="5dip" />
+					    <EditText
+							android:id="@+id/proxySocksServerUser"
+							android:layout_width="fill_parent"
+							android:layout_height="wrap_content"
+							android:inputType="text" />
+					</LinearLayout>
+					<LinearLayout
+					    android:layout_width="fill_parent"
+					    android:layout_height="wrap_content">
+					    <TextView
+						    android:layout_width="wrap_content"
+						    android:layout_height="wrap_content"
+						    android:text="@string/proxyServerUserPassword"
+						    android:textSize="@dimen/labelTextSize"
+							android:paddingRight="5dip" />
+					    <EditText
+							android:id="@+id/proxySocksServerPassword"
+							android:layout_width="fill_parent"
+							android:layout_height="wrap_content"
+							android:inputType="textPassword" />
+					</LinearLayout>	
+					<LinearLayout
+					    android:layout_width="fill_parent"
+					    android:layout_height="wrap_content">
+					    <TextView
+						    android:layout_width="wrap_content"
+						    android:layout_height="wrap_content"
+						    android:text="@string/proxyNoForHosts"
+						    android:textSize="@dimen/labelTextSize"
+							android:paddingRight="5dip" />
+					    <EditText
+							android:id="@+id/proxySocksNoForHosts"
+							android:layout_width="fill_parent"
+							android:layout_height="wrap_content"
+							android:inputType="text" />
+					</LinearLayout>
+			 	</LinearLayout>
+	  		</ScrollView>
+		</FrameLayout>
+	    
+		<LinearLayout android:orientation="horizontal"
+	  		android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:paddingTop="10dip"
+			android:paddingLeft="10dip"
+			android:paddingRight="10dip"
+			android:layout_gravity="right"
+			android:layout_weight="0" >
+			<Button
+				android:id="@+id/proxyCancel" 
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/cancel" />
+			<Button
+				android:id="@+id/proxyApply" 
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="10dip"
+				android:paddingLeft="10dip"
+				android:paddingRight="10dip"
+				android:text="@string/apply" />
+	    </LinearLayout>
+	</LinearLayout>
+</TabHost>

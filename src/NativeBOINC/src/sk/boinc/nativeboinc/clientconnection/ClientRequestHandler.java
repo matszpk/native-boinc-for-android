@@ -22,6 +22,7 @@ package sk.boinc.nativeboinc.clientconnection;
 
 import edu.berkeley.boinc.lite.AccountIn;
 import edu.berkeley.boinc.lite.GlobalPreferences;
+import edu.berkeley.boinc.lite.ProxyInfo;
 import sk.boinc.nativeboinc.util.ClientId;
 
 
@@ -93,6 +94,10 @@ public interface ClientRequestHandler {
 	
 	/* this tasks should be enqueued always because changes state of the client */
 	public abstract boolean runBenchmarks();
+	
+	public abstract boolean getProxySettings();
+	public abstract boolean setProxySettings(ProxyInfo proxyInfo);
+	
 	public abstract boolean setRunMode(int mode);
 	public abstract boolean setNetworkMode(int mode);
 	public abstract boolean doNetworkCommunication();

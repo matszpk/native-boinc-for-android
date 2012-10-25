@@ -202,6 +202,7 @@
 	
 	<string name="localPrefNetworkUsage">Sieć</string>
 	
+	<string name="localPrefXferOnlyWhenWifi">Transferuj tylko gdy WiFi włączona</string>
 	<string name="localPrefMaxDownloadRate">Maks. prędkość ściągania</string>
 	<string name="localPrefMaxUploadRate">Maks. prędkość wysyłania</string>
 	<string name="localPrefConnectAboutEvery">Łącz się z siecią co</string>
@@ -275,6 +276,8 @@
 	<string name="clientActivityNetworkTitle">Aktywność sieciowa</string>
 	<string name="clientActivityNetworkDialogTitle">Aktywność sieciowa</string>
 	<string name="manageCategoryAdvanced">Zaawansowane</string>
+	<string name="clientProxySettingsTitle">Ustawienia proxy</string>
+	<string name="clientProxySettingsSummary">Pozwala na połączenie przez proxy</string>
 	<string name="clientRunBenchTitle">Uruchom benchmarki CPU</string>
 	<string name="clientRunBenchSummary">Uruchamiaj benchmarki CPU BOINC\'a</string>
 	<string name="clientRunBenchNotify">Rozpoczęcie benchmarków CPU</string>
@@ -285,6 +288,18 @@
 	<string name="clientShutdownSummary">Wyłącz aktualnie połączonego klienta</string>
 	<string name="clientShutdownNotify">Wyłączanie aktualnie połączonego klienta</string>
 	<string name="warnShutdownText">Połączony klient będzie wyłączony. Ten manager nie może wystartować klienta po tym.</string>
+	
+	<!-- proxy settings -->
+	<string name="proxySettings">Ustawienia proxy</string>
+	<string name="proxyHttpProxy">HTTP Proxy</string>
+	<string name="proxySocksProxy">SOCKS Proxy</string>
+	<string name="proxyUseHttpProxy">Użyj serwera HTTP Proxy</string>
+	<string name="proxyUseSocksProxy">użyj serwera SOCKS Proxy</string>
+	<string name="proxyServerAddress">Adres serwera</string>
+	<string name="proxyServerPort">Port serwera</string>
+	<string name="proxyServerUserName">Nazwa uż.</string>
+	<string name="proxyServerUserPassword">Hasło</string>
+	<string name="proxyNoForHosts">Nie używaj dla</string>
 	
 	<!--  NativeClient activity -->
 	<string name="nativeAutostart">Startowanie klienta</string>

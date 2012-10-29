@@ -120,6 +120,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	/* determine place where is boinc directory */ 
 	private String mInstallPlacePath = null;
 	
+	
+	/* install op blocker */
+	private InstallOpLock mInstallOpLock = new InstallOpLock();
 	/*
 	 * 
 	 */
@@ -195,6 +198,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mDistribManager = null;
 		mInstallOps.destroy();
 		mInstallOps = null;
+		mInstallOpLock.unlockAll();
 	}
 	
 	/*
@@ -276,28 +280,33 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		public void run() {
 			Thread currentThread = Thread.currentThread();
 			
-			boolean clientToUpdate = InstallerService.isClientInstalled(mInstallerService);
-			
-			if (mStandalone)	{// if standalone called from InstallerService
-				if (Logging.DEBUG) Log.d(TAG, "Install client standalone");
-			}
-			
-			boolean previouslyClientIsRan = mRunner.isRun();
-			String boincClientFilename = "boinc_client";
-			if (previouslyClientIsRan) {
-				if (Logging.DEBUG) Log.d(TAG, "Install client when ran.");
-				mDelayedClientShutdownSem.tryAcquire();
-				mRunner.shutdownClient();
-				boincClientFilename = "boinc_client_new";
-			}
-			
-			// should be run during installation
-			mClientShouldBeRun = previouslyClientIsRan || !clientToUpdate;
-			
-			/* acquire resources (wifi, CPU) during installation */
-			mResourcesLocker.acquireAllLocks();
-			
 			try {
+				mInstallOpLock.lockOp(InstallOpLock.OP_CLIENT_INSTALL);
+				
+				boolean clientToUpdate = InstallerService.isClientInstalled(mInstallerService);
+				
+				if (mStandalone)	{// if standalone called from InstallerService
+					if (Logging.DEBUG) Log.d(TAG, "Install client standalone");
+				}
+				
+				boolean previouslyClientIsRan = mRunner.isRun();
+				String boincClientFilename = "boinc_client";
+				if (previouslyClientIsRan) {
+					if (Logging.DEBUG) Log.d(TAG, "Install client when ran.");
+					mDelayedClientShutdownSem.tryAcquire();
+					mRunner.shutdownClient();
+					boincClientFilename = "boinc_client_new";
+				}
+				
+				// should be run during installation
+				mClientShouldBeRun = previouslyClientIsRan || !clientToUpdate;
+				
+				/* acquire resources (wifi, CPU) during installation */
+				mResourcesLocker.acquireAllLocks();
+				
+				// update install place
+				updateInstallPlace();
+				
 				String zipFilename = null;
 				
 				mIsRan = true;
@@ -608,6 +617,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					mClientInstaller = null;
 					notifyChangeOfIsWorking();
 				}
+				
+				mInstallOpLock.unlockOp(InstallOpLock.OP_CLIENT_INSTALL);
 			}
 		}
 	}
@@ -619,7 +630,6 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		notifyOperation(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
 				mInstallerService.getString(R.string.installClientNotifyBegin));
 		synchronized(this) {
-			updateInstallPlace();
 			mIsClientBeingInstalled = true;
 			mClientInstaller = new ClientInstaller(standalone, null);
 			// notify that client installer is working
@@ -997,6 +1007,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			
 			Thread currentThread = Thread.currentThread();
 			try {
+				mInstallOpLock.lockOp(InstallOpLock.OP_PROJECT_INSTALL);
+				
+				updateInstallPlace();
+				
 				if (Logging.DEBUG) Log.d(TAG, "Runned installer for:"+mProjectDistrib.projectUrl);
 				
 				mIsRan = true;
@@ -1226,6 +1240,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				
 				// notify change of is working
 				notifyChangeOfIsWorking();
+				
+				mInstallOpLock.unlockOp(InstallOpLock.OP_PROJECT_INSTALL);
 			}
 		}
 		
@@ -1334,7 +1350,6 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				mInstallerService.getString(R.string.installProjectBegin));
 		
 		synchronized(this) {
-			updateInstallPlace();
 			mProjectAppsInstallers.put(projectDistrib.projectUrl, appInstaller);
 			notifyChangeOfIsWorking();
 			Future<?> future = mExecutorService.submit(appInstaller);
@@ -1362,8 +1377,6 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 						mClientInstaller.setFuture(future);
 					}
 				}
-		
-		updateInstallPlace();
 		
 		/* next install project applications */
 		for (UpdateItem updateItem: updateItems) {
@@ -1435,8 +1448,6 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		if (mProjectDescs == null)
 			mProjectDescs = mProjectsRetriever.getProjectDescriptors();
-		
-		updateInstallPlace();
 		
 		/* next install project applications */
 		for (String distribName: distribNames) {
@@ -1768,9 +1779,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			notifyChangeOfIsWorking();
 		}
 		
-		updateInstallPlace();
-		
 		try {
+			mInstallOpLock.lockOp(InstallOpLock.OP_CLEAR_APP_INFO);
+			updateInstallPlace();
+			
 			mInstallOps.deleteProjectBinaries(channelId, projectNames);
 			notifyDeleteProjectBinaries(channelId, InstallOp.DeleteProjectBinaries);
 		} finally {
@@ -1779,6 +1791,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				mHandlerIsWorking = false;
 				notifyChangeOfIsWorking();
 			}
+			mInstallOpLock.unlockOp(InstallOpLock.OP_CLEAR_APP_INFO);
 		}
 	}
 	
@@ -1802,6 +1815,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			}
 			
 			try {
+				mInstallOpLock.lockOp(InstallOpLock.OP_BOINC_DUMP);
+				updateInstallPlace();
+				
 				mInstallOps.dumpBoincFiles(mDirectory);
 			} catch(Exception ex) {
 				notifyError(InstallerService.BOINC_DUMP_ITEM_NAME, "", 
@@ -1812,6 +1828,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					mDoDumpBoincFiles = false;
 					notifyChangeOfIsWorking();
 				}
+				mInstallOpLock.unlockOp(InstallOpLock.OP_BOINC_DUMP);
 			}
 		}
 	}
@@ -1825,8 +1842,6 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		notifyOperation(InstallerService.BOINC_DUMP_ITEM_NAME, "",
 				mInstallerService.getString(R.string.dumpBoincBegin));
 		synchronized(this) {
-			updateInstallPlace();
-			
 			mBoincFilesDumper = new BoincFilesDumper(directory);
 			// notify that boinc dumper is working
 			notifyChangeOfIsWorking();
@@ -1853,6 +1868,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			}
 			
 			try {
+				// lock operation
+				mInstallOpLock.lockOp(InstallOpLock.OP_BOINC_REINSTALL);
+				
+				updateInstallPlace();
 				mInstallOps.reinstallBoinc();
 			} catch(Exception ex) {
 				notifyError(InstallerService.BOINC_REINSTALL_ITEM_NAME, "", 
@@ -1863,6 +1882,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					mDoBoincReinstall = false;
 					notifyChangeOfIsWorking();
 				}
+				// lock operation
+				mInstallOpLock.unlockOp(InstallOpLock.OP_BOINC_REINSTALL);
 			}
 		}
 	}
@@ -1876,8 +1897,6 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		notifyOperation(InstallerService.BOINC_REINSTALL_ITEM_NAME, "",
 				mInstallerService.getString(R.string.reinstallBegin));
 		synchronized(this) {
-			updateInstallPlace();
-			
 			mDoBoincReinstall = true;
 			mBoincReinstaller = new BoincReinstaller();
 			// notify that client reinstaller is working
@@ -1906,6 +1925,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			}
 			
 			try {
+				// lock operation
+				mInstallOpLock.lockOp(InstallOpLock.OP_BOINC_MOVETO);
+				
+				updateInstallPlace();
 				mInstallOps.moveInstallationTo();
 			} catch(Exception ex) {
 				notifyError(InstallerService.BOINC_MOVETO_ITEM_NAME, "", 
@@ -1916,6 +1939,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					mDoInstallationMoveTo = false;
 					notifyChangeOfIsWorking();
 				}
+				// unlock operation
+				mInstallOpLock.unlockOp(InstallOpLock.OP_BOINC_MOVETO);
 			}
 		}
 	}
@@ -1928,8 +1953,6 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				mInstallerService.getString(R.string.moveToBegin));
 		
 		synchronized(this) {
-			updateInstallPlace();
-			
 			mDoInstallationMoveTo = true;
 			mBoincInstallationMover = new BoincInstallationMover();
 			// notify that client reinstaller is working

@@ -974,6 +974,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		/* should be released after benchmark */
 		private Semaphore mBenchmarkFinishSem = new Semaphore(1);
 		
+		private boolean mIsFinished = false;
+		
 		/**
 		 * 
 		 * @param input - path zip or directory or zipFileName
@@ -1236,12 +1238,12 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					mResourcesLocker.releaseAllLocks();
 					
 					mProjectAppsInstallers.remove(mProjectDistrib.projectUrl);
+					mInstallOpLock.unlockOp(InstallOpLock.OP_PROJECT_INSTALL);
 				}
 				
+				mIsFinished = true;
 				// notify change of is working
 				notifyChangeOfIsWorking();
-				
-				mInstallOpLock.unlockOp(InstallOpLock.OP_PROJECT_INSTALL);
 			}
 		}
 		
@@ -1251,6 +1253,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		public synchronized void notifyIfBenchmarkFinished() {
 			mBenchmarkFinishSem.release();
+		}
+		
+		public boolean isFinished() {
+			return mIsFinished;
 		}
 	}
 	
@@ -1665,6 +1671,16 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			if (!appsInstaller.isRan()) { // notify cancel if not ran yet
 				ProjectDistrib distrib = appsInstaller.getProjectDistrib();
 				notifyCancel(distrib.projectName, distrib.projectUrl);
+			}
+			
+			if (appsInstaller.isFinished()) {
+				notifyCancel(appsInstaller.mProjectDistrib.projectName, projectUrl);
+				
+				/* release resources (wifi, CPU) during installation */
+				mResourcesLocker.releaseAllLocks();
+				
+				notifyChangeOfIsWorking();
+				mInstallOpLock.unlockOp(InstallOpLock.OP_PROJECT_INSTALL);
 			}
 		}
 	}
@@ -2126,9 +2142,9 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mResourcesLocker.releaseAllLocks();
 		
 		notifyChangeOfIsWorking();
+		mInstallOpLock.unlockOp(InstallOpLock.OP_PROJECT_INSTALL);
 	}
 	
-	@Override
 	public synchronized void updateProjectAppsError(String projectUrl) {
 		ProjectAppsInstaller appsInstaller = mProjectAppsInstallers.remove(projectUrl);
 		if (Logging.DEBUG) Log.d(TAG, "After update on client side error: "+
@@ -2141,6 +2157,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mResourcesLocker.releaseAllLocks();
 		
 		notifyChangeOfIsWorking();
+		mInstallOpLock.unlockOp(InstallOpLock.OP_PROJECT_INSTALL);
 	}
 
 	@Override

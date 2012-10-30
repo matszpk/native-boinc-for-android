@@ -41,6 +41,7 @@ public class InstallOpLock {
 	public static final int OP_CLEAR_APP_INFO = 32;
 	
 	private int mCurrentOp = OP_NONE;
+	private int mProjectInstallCount = 0;
 	private ReentrantLock mLock = new ReentrantLock();
 	private Condition mCondition = mLock.newCondition();
 	
@@ -72,6 +73,8 @@ public class InstallOpLock {
 				}
 				mCondition.await();
 			}
+			if (installOp == OP_PROJECT_INSTALL)
+				mProjectInstallCount++;
 			mCurrentOp |= installOp;
 		} catch(InterruptedException ex) {
 		} finally {
@@ -82,8 +85,11 @@ public class InstallOpLock {
 	public void unlockOp(int installOp) {
 		try {
 			mLock.lock();
+			if (installOp == OP_PROJECT_INSTALL && mProjectInstallCount > 0)
+				mProjectInstallCount--;
 			mCurrentOp &= ~installOp;
 			mCondition.signalAll();
+			if (Logging.DEBUG) Log.d(TAG, "Unlock otherop: "+installOp);
 		} finally {
 			mLock.unlock();
 		}
@@ -92,6 +98,7 @@ public class InstallOpLock {
 	public void unlockAll() {
 		try {
 			mLock.lock();
+			mProjectInstallCount = 0;
 			mCurrentOp = OP_NONE;
 			mCondition.signalAll();
 		} finally {

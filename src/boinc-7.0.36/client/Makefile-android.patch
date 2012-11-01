@@ -1,0 +1,96 @@
+*** client/Makefile.orig	2012-10-19 16:38:41.380894430 +0200
+--- client/Makefile	2012-10-19 16:38:44.802836782 +0200
+***************
+*** 107,113 ****
+--- 107,117 ----
+  	boinc_client-cs_updateapps.$(OBJEXT) \
+  	boinc_client-current_version.$(OBJEXT) \
+  	boinc_client-dhrystone.$(OBJEXT) \
++ 	boinc_client-dhrystone-vfp.$(OBJEXT) \
++ 	boinc_client-dhrystone-neon.$(OBJEXT) \
+  	boinc_client-dhrystone2.$(OBJEXT) \
++ 	boinc_client-dhrystone2-vfp.$(OBJEXT) \
++ 	boinc_client-dhrystone2-neon.$(OBJEXT) \
+  	boinc_client-file_names.$(OBJEXT) \
+  	boinc_client-file_xfer.$(OBJEXT) \
+  	boinc_client-gpu_amd.$(OBJEXT) \
+***************
+*** 129,134 ****
+--- 133,140 ----
+  	boinc_client-scheduler_op.$(OBJEXT) \
+  	boinc_client-time_stats.$(OBJEXT) \
+  	boinc_client-whetstone.$(OBJEXT) \
++ 	boinc_client-whetstone-vfp.$(OBJEXT) \
++ 	boinc_client-whetstone-neon.$(OBJEXT) \
+  	boinc_client-work_fetch.$(OBJEXT)
+  boinc_client_OBJECTS = $(am_boinc_client_OBJECTS)
+  am__DEPENDENCIES_1 =
+***************
+*** 999,1004 ****
+--- 1005,1024 ----
+  #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+  #	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-dhrystone.obj `if test -f 'dhrystone.cpp'; then $(CYGPATH_W) 'dhrystone.cpp'; else $(CYGPATH_W) '$(srcdir)/dhrystone.cpp'; fi`
+  
++ boinc_client-dhrystone-vfp.o: dhrystone.cpp
++ 	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -DCPU_ARMV6_WITH_VFP=1 -mhard-float -mfpu=vfp -mfloat-abi=softfp -MT boinc_client-dhrystone-vfp.o -MD -MP -MF $(DEPDIR)/boinc_client-dhrystone.Tpo -c -o boinc_client-dhrystone-vfp.o `test -f 'dhrystone.cpp' || echo '$(srcdir)/'`dhrystone.cpp
++ 	$(am__mv) $(DEPDIR)/boinc_client-dhrystone.Tpo $(DEPDIR)/boinc_client-dhrystone.Po
++ #       source='dhrystone.cpp' object='boinc_client-dhrystone-vfp.o' libtool=no \
++ #       DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
++ #       $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-dhrystone-vfp.o `test -f 'dhrystone.cpp' || echo '$(srcdir)/'`dhrystone.cpp
++ 
++ boinc_client-dhrystone-neon.o: dhrystone.cpp
++ 	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -DCPU_ARMV7_WITH_NEON=1 -march=armv7-a -mhard-float -mfpu=neon -mtune=cortex-a9 -mfloat-abi=softfp -MT boinc_client-dhrystone-neon.o -MD -MP -MF $(DEPDIR)/boinc_client-dhrystone.Tpo -c -o boinc_client-dhrystone-neon.o `test -f 'dhrystone.cpp' || echo '$(srcdir)/'`dhrystone.cpp
++ 	$(am__mv) $(DEPDIR)/boinc_client-dhrystone.Tpo $(DEPDIR)/boinc_client-dhrystone.Po
++ #       source='dhrystone.cpp' object='boinc_client-dhrystone-neon.o' libtool=no \
++ #       DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
++ #       $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-dhrystone-neon.o `test -f 'dhrystone.cpp' || echo '$(srcdir)/'`dhrystone.cpp
++ 
+  boinc_client-dhrystone2.o: dhrystone2.cpp
+  	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT boinc_client-dhrystone2.o -MD -MP -MF $(DEPDIR)/boinc_client-dhrystone2.Tpo -c -o boinc_client-dhrystone2.o `test -f 'dhrystone2.cpp' || echo '$(srcdir)/'`dhrystone2.cpp
+  	$(am__mv) $(DEPDIR)/boinc_client-dhrystone2.Tpo $(DEPDIR)/boinc_client-dhrystone2.Po
+***************
+*** 1013,1018 ****
+--- 1033,1052 ----
+  #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+  #	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-dhrystone2.obj `if test -f 'dhrystone2.cpp'; then $(CYGPATH_W) 'dhrystone2.cpp'; else $(CYGPATH_W) '$(srcdir)/dhrystone2.cpp'; fi`
+  
++ boinc_client-dhrystone2-vfp.o: dhrystone2.cpp
++ 	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -DCPU_ARMV6_WITH_VFP=1 -mhard-float -mfpu=vfp -mfloat-abi=softfp -MT boinc_client-dhrystone2-vfp.o -MD -MP -MF $(DEPDIR)/boinc_client-dhrystone2.Tpo -c -o boinc_client-dhrystone2-vfp.o `test -f 'dhrystone2.cpp' || echo '$(srcdir)/'`dhrystone2.cpp
++ 	$(am__mv) $(DEPDIR)/boinc_client-dhrystone2.Tpo $(DEPDIR)/boinc_client-dhrystone2.Po
++ #       source='dhrystone2.cpp' object='boinc_client-dhrystone2-vfp.o' libtool=no \
++ #       DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
++ #       $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-dhrystone2-vfp.o `test -f 'dhrystone2.cpp' || echo '$(srcdir)/'`dhrystone2.cpp
++ 
++ boinc_client-dhrystone2-neon.o: dhrystone2.cpp
++ 	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -DCPU_ARMV7_WITH_NEON=1 -march=armv7-a -mhard-float -mfpu=neon -mtune=cortex-a9 -mfloat-abi=softfp -MT boinc_client-dhrystone2-neon.o -MD -MP -MF $(DEPDIR)/boinc_client-dhrystone2.Tpo -c -o boinc_client-dhrystone2-neon.o `test -f 'dhrystone2.cpp' || echo '$(srcdir)/'`dhrystone2.cpp
++ 	$(am__mv) $(DEPDIR)/boinc_client-dhrystone2.Tpo $(DEPDIR)/boinc_client-dhrystone2.Po
++ #       source='dhrystone2.cpp' object='boinc_client-dhrystone2-neon.o' libtool=no \
++ #       DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
++ #       $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-dhrystone2-neon.o `test -f 'dhrystone2.cpp' || echo '$(srcdir)/'`dhrystone2.cpp
++ 
+  boinc_client-file_names.o: file_names.cpp
+  	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT boinc_client-file_names.o -MD -MP -MF $(DEPDIR)/boinc_client-file_names.Tpo -c -o boinc_client-file_names.o `test -f 'file_names.cpp' || echo '$(srcdir)/'`file_names.cpp
+  	$(am__mv) $(DEPDIR)/boinc_client-file_names.Tpo $(DEPDIR)/boinc_client-file_names.Po
+***************
+*** 1349,1354 ****
+--- 1383,1402 ----
+  #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+  #	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-whetstone.obj `if test -f 'whetstone.cpp'; then $(CYGPATH_W) 'whetstone.cpp'; else $(CYGPATH_W) '$(srcdir)/whetstone.cpp'; fi`
+  
++ boinc_client-whetstone-vfp.o: whetstone.cpp
++ 	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -DCPU_ARMV6_WITH_VFP=1 -mhard-float -mfpu=vfp -mfloat-abi=softfp -MT boinc_client-whetstone-vfp.o -MD -MP -MF $(DEPDIR)/boinc_client-whetstone.Tpo -c -o boinc_client-whetstone-vfp.o `test -f 'whetstone.cpp' || echo '$(srcdir)/'`whetstone.cpp
++ 	$(am__mv) $(DEPDIR)/boinc_client-whetstone.Tpo $(DEPDIR)/boinc_client-whetstone.Po
++ #       source='whetstone.cpp' object='boinc_client-whetstone-vfp.o' libtool=no \
++ #       DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
++ #       $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-whetstone-vfp.o `test -f 'whetstone.cpp' || echo '$(srcdir)/'`whetstone.cpp
++ 
++ boinc_client-whetstone-neon.o: whetstone.cpp
++ 	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -DCPU_ARMV7_WITH_NEON=1 -march=armv7-a -mhard-float -mfpu=neon -mtune=cortex-a9 -mfloat-abi=softfp -MT boinc_client-whetstone-neon.o -MD -MP -MF $(DEPDIR)/boinc_client-whetstone.Tpo -c -o boinc_client-whetstone-neon.o `test -f 'whetstone.cpp' || echo '$(srcdir)/'`whetstone.cpp
++ 	$(am__mv) $(DEPDIR)/boinc_client-whetstone.Tpo $(DEPDIR)/boinc_client-whetstone.Po
++ #       source='whetstone.cpp' object='boinc_client-whetstone-neon.o' libtool=no \
++ #       DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
++ #       $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o boinc_client-whetstone-neon.o `test -f 'whetstone.cpp' || echo '$(srcdir)/'`whetstone.cpp
++ 
+  boinc_client-work_fetch.o: work_fetch.cpp
+  	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(boinc_client_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT boinc_client-work_fetch.o -MD -MP -MF $(DEPDIR)/boinc_client-work_fetch.Tpo -c -o boinc_client-work_fetch.o `test -f 'work_fetch.cpp' || echo '$(srcdir)/'`work_fetch.cpp
+  	$(am__mv) $(DEPDIR)/boinc_client-work_fetch.Tpo $(DEPDIR)/boinc_client-work_fetch.Po

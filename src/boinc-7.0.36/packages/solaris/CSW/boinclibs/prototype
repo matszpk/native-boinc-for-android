@@ -1,0 +1,16 @@
+i pkginfo
+i copyright
+i depend
+d none /home/mat/docs/src/android/boinc7/installdir/lib 0755 root bin
+f none /home/mat/docs/src/android/boinc7/installdir/lib/libboinc_api.so.7.0.36 0755 root bin
+s none /home/mat/docs/src/android/boinc7/installdir/lib/libboinc_api.so.7=libboinc_api.so.7.0.36
+s none /home/mat/docs/src/android/boinc7/installdir/lib/libboinc_api.so=libboinc_api.so.7.0.36
+f none /home/mat/docs/src/android/boinc7/installdir/lib/libboinc_graphics2.so.7.0.36 0755 root bin
+s none /home/mat/docs/src/android/boinc7/installdir/lib/libboinc_graphics2.so.7=libboinc_graphics2.so.7.0.36
+s none /home/mat/docs/src/android/boinc7/installdir/lib/libboinc_graphics2.so=libboinc_graphics2.so.7.0.36
+f none /home/mat/docs/src/android/boinc7/installdir/lib/libboinc.so.7.0.36 0755 root bin
+s none /home/mat/docs/src/android/boinc7/installdir/lib/libboinc.so.7=libboinc.so.7.0.36
+s none /home/mat/docs/src/android/boinc7/installdir/lib/libboinc.so=libboinc.so.7.0.36
+f none /home/mat/docs/src/android/boinc7/installdir/lib/libboinc_zip.so.7.0.36 0755 root bin
+s none /home/mat/docs/src/android/boinc7/installdir/lib/libboinc_zip.so.7=libboinc_zip.so.7.0.36
+s none /home/mat/docs/src/android/boinc7/installdir/lib/libboinc_zip.so=libboinc_zip.so.7.0.36

@@ -1,0 +1,23 @@
+i pkginfo
+i copyright
+i depend
+i preinstall
+i postinstall
+d none /etc 0755 root bin
+d none /etc/init.d 0755 root bin
+f none /etc/init.d/cswboinc-client 0755 root bin
+d none /etc/default 0755 root bin
+f none /etc/default/boinc-client 0755 root bin
+d none /home/mat/docs/src/android/boinc7/installdir 0755 root bin
+d none /home/mat/docs/src/android/boinc7/installdir/etc 0755 root bin
+d none /home/mat/docs/src/android/boinc7/installdir/bin 0755 root bin
+f none /home/mat/docs/src/android/boinc7/installdir/bin/boinccmd 0755 root bin
+f none /home/mat/docs/src/android/boinc7/installdir/bin/boinc_client 0755 root bin
+l none /home/mat/docs/src/android/boinc7/installdir/bin/boinc=boinc_client
+f none /home/mat/docs/src/android/boinc7/installdir/bin/switcher 0755 root bin
+d none /home/mat/docs/src/android/boinc7/installdir/share 0755 root bin
+d none /home/mat/docs/src/android/boinc7/installdir/share/man 0755 root bin
+d none /home/mat/docs/src/android/boinc7/installdir/share/man/man1 0755 root bin
+f none /home/mat/docs/src/android/boinc7/installdir/share/man/man1/boinc.1 0755 root bin
+f none /home/mat/docs/src/android/boinc7/installdir/share/man/man1/boinccmd.1 0755 root bin
+f none /home/mat/docs/src/android/boinc7/installdir/share/man/man1/boinc_client.1 0755 root bin

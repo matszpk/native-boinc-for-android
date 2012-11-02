@@ -1,3 +1,8 @@
+Version 0.4.1 (beta) (2012-11-02):
+- added proxy settings
+- fixed project installation canceling
+- preventing the running of the two operation at same time (installhandler)
+
 Version 0.4.0.5.3 (beta) (2012-10-21):
 - fixed client monitor handling (exception)
 - fixed colors in the notifications

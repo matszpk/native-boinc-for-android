@@ -117,13 +117,13 @@ public class ProxySettingsActivity extends ServiceBoincActivity implements Clien
 		
 		TabHost.TabSpec tabSpec1 = mTabHost.newTabSpec("computeOptions");
 		tabSpec1.setContent(R.id.proxyHttpServer);
-		tabSpec1.setIndicator(getString(R.string.localPrefComputeOptions),
+		tabSpec1.setIndicator(getString(R.string.proxyHttpProxy),
 				res.getDrawable(R.drawable.ic_tab_network));
 		mTabHost.addTab(tabSpec1);
 		
 		TabHost.TabSpec tabSpec2 = mTabHost.newTabSpec("networkUsage");
 		tabSpec2.setContent(R.id.proxySocksServer);
-		tabSpec2.setIndicator(getString(R.string.localPrefNetworkUsage),
+		tabSpec2.setIndicator(getString(R.string.proxySocksProxy),
 				res.getDrawable(R.drawable.ic_tab_network));
 		mTabHost.addTab(tabSpec2);
 		

@@ -66,7 +66,7 @@
 							android:id="@+id/proxyHttpServerAddress"
 							android:layout_width="fill_parent"
 							android:layout_height="wrap_content"
-							android:inputType="text" />
+							android:inputType="textUri" />
 					</LinearLayout>
 					<LinearLayout
 				  	    android:layout_width="wrap_content"
@@ -163,7 +163,7 @@
 							android:id="@+id/proxySocksServerAddress"
 							android:layout_width="fill_parent"
 							android:layout_height="wrap_content"
-							android:inputType="text" />
+							android:inputType="textUri" />
 					</LinearLayout>
 					<LinearLayout
 				  	    android:layout_width="wrap_content"

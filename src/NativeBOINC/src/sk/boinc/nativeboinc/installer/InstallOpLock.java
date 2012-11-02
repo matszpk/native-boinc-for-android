@@ -85,8 +85,11 @@ public class InstallOpLock {
 	public void unlockOp(int installOp) {
 		try {
 			mLock.lock();
-			if (installOp == OP_PROJECT_INSTALL && mProjectInstallCount > 0)
+			if (installOp == OP_PROJECT_INSTALL && mProjectInstallCount > 0) {
 				mProjectInstallCount--;
+				if (mProjectInstallCount > 0)
+					installOp &= ~OP_PROJECT_INSTALL; // do not unmask OP_PROJECT_INSTALL
+			}
 			mCurrentOp &= ~installOp;
 			mCondition.signalAll();
 			if (Logging.DEBUG) Log.d(TAG, "Unlock otherop: "+installOp);

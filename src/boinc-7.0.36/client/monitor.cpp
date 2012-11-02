@@ -229,17 +229,17 @@ void MONITOR_INSTANCE::got_select(FDSET_GROUP& fg) {
         sockaddr_storage addr;
         socklen_t addrlen = sizeof(sockaddr_storage);
         int sock = accept(lsock,(sockaddr*)&addr,&addrlen);
-        if (sock < 0)
-            return;
+        if (sock >= 0) {
 #ifndef _WIN32
-        fcntl(sock, F_SETFD, FD_CLOEXEC);
+            fcntl(sock, F_SETFD, FD_CLOEXEC);
 #endif
-        if (is_localhost(addr)) {
-            MONITOR_CONN* conn = new MONITOR_CONN(sock);
-            conns.push_back(conn);
-        } else {
-            show_connect_error(&addr);
-            boinc_close_socket(sock);
+            if (is_localhost(addr)) {
+                MONITOR_CONN* conn = new MONITOR_CONN(sock);
+                conns.push_back(conn);
+            } else {
+                show_connect_error(&addr);
+                boinc_close_socket(sock);
+            }
         }
     }
     

@@ -104,6 +104,7 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 
 		Button cancelButton = (Button)findViewById(R.id.installCancel);
 		mSelectOlder = (CheckBox)findViewById(R.id.selectOlderVersion);
+		mSelectOlder.setChecked(BoincManagerApplication.isClientOlderVersion(this));
 		
 		if (mClientDistrib == null)
 			mVersionToInstall.setText(getString(R.string.versionToInstall) + ": ...");

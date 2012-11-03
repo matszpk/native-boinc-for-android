@@ -449,6 +449,7 @@
 	<string name="installWizard">Installation Wizard</string>
 	<string name="installWelcome">Welcome to NativeBOINC!</string>
 	<string name="installClientInstall">Please tap \'Next\' button to to download and install native BOINC client.</string>
+	<string name="haveProblemsSelectOlder">I have problems with client version 0.5.9x, select 0.4.9x</string>
 	<string name="versionToInstall">Version to install</string>
 	<string name="placeToInstall">Installation place</string>
 	<string name="installSuccessfully">Native BOINC client has been installed successfully!</string>

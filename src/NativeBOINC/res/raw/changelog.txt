@@ -1,3 +1,6 @@
+Version 0.4.1.1 (beta) (2012-11-03):
+- added selection client version before installation (if you have problems with 0.5.9x)
+
 Version 0.4.1 (beta) (2012-11-02):
 - added proxy settings
 - fixed project installation canceling

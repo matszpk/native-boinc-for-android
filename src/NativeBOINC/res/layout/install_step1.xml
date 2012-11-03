@@ -44,6 +44,10 @@
 		  		android:layout_height="wrap_content"
 		  		android:textSize="@dimen/labelTextSize"
 		  		android:text="@string/installClientInstall" />
+		  	<CheckBox android:id="@+id/selectOlderVersion"
+		  	    android:layout_width="fill_parent"
+		  	    android:layout_height="wrap_content"
+		  	    android:text="@string/haveProblemsSelectOlder"/>
 		  	<RelativeLayout
 		  		android:layout_width="fill_parent"
 			  	android:layout_height="wrap_content"

@@ -622,4 +622,15 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		prefs.edit().putBoolean(PreferenceName.INSTALL_PLACE, inSDCard)
 			.commit();
 	}
+	
+	public final static boolean isClientOlderVersion(Context context) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		return prefs.getBoolean(PreferenceName.SELECT_OLDER_CLIENT, false);
+	}
+	
+	public final static void setClientOlderVersion(Context context, boolean older) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		prefs.edit().putBoolean(PreferenceName.SELECT_OLDER_CLIENT, older)
+			.commit();
+	}
 }

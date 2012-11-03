@@ -37,6 +37,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -51,12 +53,14 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 
 	private BoincManagerApplication mApp = null;
 	
+	private boolean mReUpdateClientDistrib = false;
 	// if true, then client distrib shouldnot be updated
 	private ClientDistrib mClientDistrib = null;
 	private int mClientDistribProgressState = ProgressState.NOT_RUN; 
 	
 	private Button mInfoButton = null;
 	private Button mNextButton = null;
+	private CheckBox mSelectOlder = null;
 	
 	private Spinner mInstallPlaceSpinner = null;
 	
@@ -99,12 +103,27 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 		mInstallPlaceSpinner = (Spinner)findViewById(R.id.placeToInstall);
 
 		Button cancelButton = (Button)findViewById(R.id.installCancel);
+		mSelectOlder = (CheckBox)findViewById(R.id.selectOlderVersion);
 		
 		if (mClientDistrib == null)
 			mVersionToInstall.setText(getString(R.string.versionToInstall) + ": ...");
 
 		mApp = (BoincManagerApplication) getApplication();
 		mApp.setInstallerStage(BoincManagerApplication.INSTALLER_CLIENT_STAGE);	// set as run
+		
+		mSelectOlder.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				// update client older version
+				BoincManagerApplication.setClientOlderVersion(InstallStep1Activity.this, isChecked);
+				
+				if (mInstaller != null) {
+					reUpdateClientDistrib();
+				}
+				else
+					mReUpdateClientDistrib = true;
+			}
+		});
 		
 		mNextButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -128,6 +147,20 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 						mClientDistrib.description, mClientDistrib.changes);
 			}
 		});
+	}
+	
+	private void reUpdateClientDistrib() {
+		mVersionToInstall.setText("");
+
+		mInfoButton.setEnabled(false);
+		mNextButton.setEnabled(false);
+		
+		mClientDistrib = null;
+		if (mClientDistribProgressState == ProgressState.IN_PROGRESS)
+			mInstaller.cancelSimpleOperation();
+		mClientDistribProgressState = ProgressState.IN_PROGRESS;
+		// ignore if doesnt run, because we reusing previous result
+		mInstaller.updateClientDistrib();
 	}
 
 	@Override
@@ -181,6 +214,10 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	
 	@Override
 	protected void onInstallerConnected() {
+		if (mReUpdateClientDistrib) {
+			mReUpdateClientDistrib = false;
+			reUpdateClientDistrib();
+		}
 		updateActivityState();
 	}
 	

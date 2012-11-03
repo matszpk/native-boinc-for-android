@@ -104,7 +104,11 @@ public class InstallationOps {
 	 * retrieve client distrib
 	 */
 	public ClientDistrib updateClientDistrib(int channelId, InstallOp installOp) {
-		String clientListUrl = mContext.getString(R.string.installClientSourceUrl)+"client.xml";
+		String clientListUrl = mContext.getString(R.string.installClientSourceUrl);
+		if (BoincManagerApplication.isClientOlderVersion(mContext))
+			clientListUrl += "client6.12.xml";
+		else
+			clientListUrl += "client.xml";
 		
 		ClientDistrib clientDistrib = null;
 			

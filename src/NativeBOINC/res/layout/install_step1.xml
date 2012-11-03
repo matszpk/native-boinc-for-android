@@ -47,6 +47,7 @@
 		  	<CheckBox android:id="@+id/selectOlderVersion"
 		  	    android:layout_width="fill_parent"
 		  	    android:layout_height="wrap_content"
+		  	    android:enabled="false"
 		  	    android:text="@string/haveProblemsSelectOlder"/>
 		  	<RelativeLayout
 		  		android:layout_width="fill_parent"

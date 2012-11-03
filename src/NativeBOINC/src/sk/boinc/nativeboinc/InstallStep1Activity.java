@@ -103,12 +103,13 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 		mInstallPlaceSpinner = (Spinner)findViewById(R.id.placeToInstall);
 
 		Button cancelButton = (Button)findViewById(R.id.installCancel);
+		
 		mSelectOlder = (CheckBox)findViewById(R.id.selectOlderVersion);
 		mSelectOlder.setChecked(BoincManagerApplication.isClientOlderVersion(this));
 		
 		if (mClientDistrib == null)
 			mVersionToInstall.setText(getString(R.string.versionToInstall) + ": ...");
-
+		
 		mApp = (BoincManagerApplication) getApplication();
 		mApp.setInstallerStage(BoincManagerApplication.INSTALLER_CLIENT_STAGE);	// set as run
 		
@@ -151,8 +152,9 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	}
 	
 	private void reUpdateClientDistrib() {
-		mVersionToInstall.setText("");
+		mVersionToInstall.setText(R.string.versionToInstall);
 
+		mSelectOlder.setEnabled(false);
 		mInfoButton.setEnabled(false);
 		mNextButton.setEnabled(false);
 		
@@ -186,6 +188,7 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	private void updateClientVersionText() {
 		mVersionToInstall.setText(getString(R.string.versionToInstall) + ": " +
 				mClientDistrib.version);
+		mSelectOlder.setEnabled(true);
 
 		mInfoButton.setEnabled(true);
 		mNextButton.setEnabled(true);

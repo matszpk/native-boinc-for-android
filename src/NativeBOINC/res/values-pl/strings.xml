@@ -625,6 +625,13 @@
 	<string name="clientError">Błąd klienta</string>
 	<string name="clientErrorNum">Numer błędu:</string>
 	
+	<!-- tablet widget and widget -->
+	<string name="widgetStart">Rozpocznij</string>
+	<string name="widgetShutdown">Wyłącz</string>
+	<string name="widgetManager">Menedżer</string>
+	<string name="widgetScreenLock">Blokada</string>
+	<string name="widgetNetComm">Kom. z siecią</string>
+	
 	<!-- operation strings -->
 	<string name="downloadPGPKey">Ściąganie klucza PGP</string>
 	<string name="verifySignature">Weryfikowanie signatury</string>

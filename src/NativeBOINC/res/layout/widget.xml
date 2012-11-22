@@ -36,6 +36,7 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:textSize="1dip"
+			android:hint="@string/widgetStart"
 			android:drawableRight="@android:drawable/ic_media_play" />
 		<Button
 			android:id="@+id/widgetStop" 
@@ -43,6 +44,7 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:textSize="1dip"
+			android:hint="@string/widgetShutdown"
 			android:drawableRight="@android:drawable/ic_media_pause" />
 		<Button
 			android:id="@+id/widgetManager" 
@@ -50,6 +52,7 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:textSize="1dip"
+			android:hint="@string/widgetManager"
 			android:drawableRight="@drawable/nativeboinc_alpha" />
 		<Button
 			android:id="@+id/widgetLock"
@@ -57,6 +60,7 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:textSize="1dip"
+			android:hint="@string/widgetScreenLock"
 			android:drawableRight="@android:drawable/ic_lock_lock" />
 	</LinearLayout>
 	<RelativeLayout	android:id="@+id/widgetProgress"

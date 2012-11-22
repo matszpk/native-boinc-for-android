@@ -627,6 +627,13 @@
 	<string name="clientError">Client error</string>
 	<string name="clientErrorNum">Error number:</string>
 	
+	<!-- tablet widget and widget -->
+	<string name="widgetStart">Start up</string>
+	<string name="widgetShutdown">Shutdown</string>
+	<string name="widgetManager">Manager</string>
+	<string name="widgetScreenLock">Screen lock</string>
+	<string name="widgetNetComm">Network comm.</string>
+	
 	<!-- operation strings -->
 	<string name="downloadPGPKey">Downloading PGP key</string>
 	<string name="verifySignature">Verifying signature</string>

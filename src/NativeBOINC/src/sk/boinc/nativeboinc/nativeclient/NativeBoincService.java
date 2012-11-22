@@ -264,7 +264,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 					new AbstractNativeBoincListener[0]);
 			
 			for (AbstractNativeBoincListener listener: listeners)
-				if (listener instanceof NativeBoincUpdateListener) {
+				if (listener instanceof NativeBoincNetCommListener) {
 					NativeBoincNetCommListener callback = (NativeBoincNetCommListener)listener;
 					if (callback.getRunnerServiceChannelId() == channelId)
 						callback.onNetworkCommunicationDone();

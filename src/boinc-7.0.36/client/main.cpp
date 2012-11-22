@@ -153,6 +153,7 @@ static void signal_handler(int signum) {
         shutdown(gstate.gui_rpcs.lsock, 2);
 #endif
         break;
+    case SIGILL:
     case SIGSEGV:
     case SIGBUS:
     case SIGFPE:
@@ -234,6 +235,7 @@ static void init_core_client(int argc, char** argv) {
     boinc_set_signal_handler(SIGINT, signal_handler);
     boinc_set_signal_handler(SIGQUIT, signal_handler);
     boinc_set_signal_handler(SIGTERM, signal_handler);
+    boinc_set_signal_handler(SIGILL, signal_handler);
     boinc_set_signal_handler(SIGSEGV, signal_handler);
     boinc_set_signal_handler(SIGFPE, signal_handler);
     boinc_set_signal_handler(SIGBUS, signal_handler);

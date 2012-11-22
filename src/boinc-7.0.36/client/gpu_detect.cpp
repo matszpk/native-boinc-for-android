@@ -95,7 +95,16 @@ void COPROCS::get(
         warnings.push_back("Caught SIGSEGV in OpenCL detection");
     }
 #else
+#ifdef HAVE_SIGACTION
+    struct sigaction oldsa,newsa;
+    sigaction(SIGSEGV, NULL, &oldsa);
+    newsa.sa_handler = segv_handler;
+    sigemptyset(&newsa.sa_mask);
+    newsa.sa_flags = 0;
+    sigaction(SIGSEGV, &newsa, NULL);
+#else
     void (*old_sig)(int) = signal(SIGSEGV, segv_handler);
+#endif
     if (setjmp(resume)) {
         warnings.push_back("Caught SIGSEGV in NVIDIA GPU detection");
     } else {
@@ -113,7 +122,11 @@ void COPROCS::get(
     } else {
         get_opencl(use_all, warnings, ignore_ati_dev, ignore_nvidia_dev);
     }
+#ifdef HAVE_SIGACTION
+    sigaction(SIGSEGV, &oldsa, NULL);
+#else
     signal(SIGSEGV, old_sig);
+#endif
 #endif
 
     for (i=0; i<nvidia_gpus.size(); i++) {

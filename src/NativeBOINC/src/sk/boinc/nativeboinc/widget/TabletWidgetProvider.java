@@ -43,6 +43,7 @@ import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 /**
  * @author mat
@@ -207,8 +208,10 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			if (Logging.DEBUG) Log.d(TAG, "Client network comm from widget receive");
 			
 			final NativeBoincService runner = appContext.getRunnerService();
-			if (runner != null && runner.isRun())
+			if (runner != null && runner.isRun()) {
 				runner.doNetworkCommunication(RefreshWidgetHandler.WIDGET_REFRESHER_ID);
+				Toast.makeText(appContext, appContext.getString(R.string.clientDoNetCommNotify), Toast.LENGTH_LONG).show();
+			}
 		} else {
 			StringBuilder sb = new StringBuilder();
 			sb.append(NATIVE_BOINC_CLIENT_TASK_INFO);

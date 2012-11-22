@@ -1,7 +1,6 @@
 Version 0.4.1.2 (beta) (2012-11-22):
 - fixed client startup
 - added 'network communication' button in tablet widget 
-- added hint to widget buttons 
 
 Version 0.4.1.1 (beta) (2012-11-03):
 - added selection client version before installation (if you have problems with 0.5.9x)

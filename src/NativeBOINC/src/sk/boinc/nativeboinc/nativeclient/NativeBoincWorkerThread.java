@@ -122,6 +122,15 @@ public class NativeBoincWorkerThread extends Thread {
 		});
 	}
 	
+	public void doNetworkCommunication(final int channelId) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.doNetworkCommunication(channelId);
+			}
+		});
+	}
+	
 	public void stopThread() {
 		mHandler.post(new Runnable() {
 			@Override

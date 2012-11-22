@@ -1601,5 +1601,11 @@
 			android:layout_height="wrap_content"
 			android:textSize="1dip"
 			android:drawableRight="@android:drawable/ic_lock_lock" />
+		<Button
+			android:id="@+id/widgetNetComm"
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			android:textSize="1dip"
+			android:drawableRight="@android:drawable/ic_popup_sync" />
     </LinearLayout>
 </LinearLayout>

@@ -270,7 +270,7 @@ public class NativeBoincWorkerHandler extends Handler {
 		if (!mRpcClient.updateProjectApps(projectUrl)) {
 			if (Logging.WARNING) Log.w(TAG, "updatProjectApps error "+projectUrl);
 			notifyNativeBoincServiceError(channelId, WorkerOp.UpdateProjectApps(projectUrl),
-					mContext.getString(R.string.nativeClientResultsError)+" "+projectUrl);
+					mContext.getString(R.string.nativeClientUpdateAppsError)+" "+projectUrl);
 		} else
 			mUpdatingProjects.add(projectUrl);
 		
@@ -281,6 +281,23 @@ public class NativeBoincWorkerHandler extends Handler {
 		}
 	}
 	
+	/**
+	 * do network communication
+	 */
+	
+	public void doNetworkCommunication(int channelId) {
+		if (Logging.DEBUG) Log.d(TAG, "Do network communication");
+		
+		if (mRpcClient == null)
+			return;
+		
+		if (!mRpcClient.networkAvailable()) {
+			notifyNativeBoincServiceError(channelId, WorkerOp.DoNetComm,
+					mContext.getString(R.string.nativeClientNetCommError));
+			return;
+		}
+		notifyNetworkCommunication(channelId);
+	}
 	
 	/**
 	 * shutdowns client
@@ -342,6 +359,16 @@ public class NativeBoincWorkerHandler extends Handler {
 			public void run() {
 				if (mListenerHandler != null)
 					mListenerHandler.updatedProjectApps(channelId, projectUrl);
+			}
+		});
+	}
+	
+	private synchronized void notifyNetworkCommunication(final int channelId) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				if (mListenerHandler != null)
+					mListenerHandler.networkCommunicationDone(channelId);
 			}
 		});
 	}

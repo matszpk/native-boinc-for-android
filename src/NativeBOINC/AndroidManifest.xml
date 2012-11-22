@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="sk.boinc.nativeboinc"
-      android:versionCode="52"
-      android:versionName="0.4.1.1b">
+      android:versionCode="53"
+      android:versionName="0.4.1.2b">
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="11"/>
 
 	<supports-screens
@@ -72,6 +72,7 @@
 		    	<action android:name="sk.boinc.nativeboinc.widget.TABLET_WIDGET_UPDATE" />
 		    	<action android:name="sk.boinc.nativeboinc.widget.TABLET_WIDGET_PREPARE_UPDATE" />
 		    	<action android:name="sk.boinc.nativeboinc.widget.TABLET_CLIENT_START_STOP" />
+		    	<action android:name="sk.boinc.nativeboinc.widget.TABLET_CLIENT_NET_COMM" />
 		    	<action android:name="sk.boinc.nativeboinc.widget.TABLET_CLIENT_TASK_INFO_0"/>
 		    	<action android:name="sk.boinc.nativeboinc.widget.TABLET_CLIENT_TASK_INFO_1"/>
 		    	<action android:name="sk.boinc.nativeboinc.widget.TABLET_CLIENT_TASK_INFO_2"/>

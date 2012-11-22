@@ -700,6 +700,8 @@
 	<string name="nativeAuthorizeError">Unable to authorize access</string>
 	
 	<string name="nativeClientConfigError">Unable to configure native client</string>
+	<string name="nativeClientUpdateAppsError">Unable to update apps</string>
+	<string name="nativeClientNetCommError">Unable to network communication</string>
 	<string name="nativeClientResultsError">Unable to get results from native client</string>
 	<string name="nativeClientProjectsError">Unable to get projects from native client</string>
 	

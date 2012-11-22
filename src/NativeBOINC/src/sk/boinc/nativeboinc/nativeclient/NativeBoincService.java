@@ -257,6 +257,22 @@ public class NativeBoincService extends Service implements MonitorListener,
 			channel.finish(WorkerOp.UpdateProjectApps(projectUrl));
 		}
 		
+		public void networkCommunicationDone(int channelId) {
+			PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
+			
+			AbstractNativeBoincListener[] listeners = mListeners.toArray(
+					new AbstractNativeBoincListener[0]);
+			
+			for (AbstractNativeBoincListener listener: listeners)
+				if (listener instanceof NativeBoincUpdateListener) {
+					NativeBoincNetCommListener callback = (NativeBoincNetCommListener)listener;
+					if (callback.getRunnerServiceChannelId() == channelId)
+						callback.onNetworkCommunicationDone();
+				}
+			
+			channel.finish(WorkerOp.DoNetComm);
+		}
+		
 		public void notifyChangeIsWorking(boolean isWorking) {
 			AbstractNativeBoincListener[] listeners = mListeners.toArray(
 					new AbstractNativeBoincListener[0]);
@@ -485,7 +501,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 			}
 			
 			try {
-				Thread.sleep(400); // sleep 0.4 seconds
+				Thread.sleep(500); // sleep 0.5 seconds
 			} catch(InterruptedException ex) { }
 			/* open client */
 			if (Logging.DEBUG) Log.d(TAG, "Connecting with native client");
@@ -498,7 +514,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 					break;
 				} else {
 					try {
-						Thread.sleep(300); // sleep 0.3 seconds
+						Thread.sleep(500); // sleep 0.5 seconds
 					} catch(InterruptedException ex) { }
 				}
 			}
@@ -946,6 +962,21 @@ public class NativeBoincService extends Service implements MonitorListener,
 		if (mWorkerThread != null) {
 			if (channel.begin(workerOp)) {
 				mWorkerThread.updateProjectApps(channelId, projectUrl);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean doNetworkCommunication(int channelId) {
+		if (Logging.DEBUG) Log.d(TAG, "do network communicartion");
+		
+		PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
+		
+		WorkerOp workerOp = WorkerOp.DoNetComm;
+		if (mWorkerThread != null) {
+			if (channel.begin(workerOp)) {
+				mWorkerThread.doNetworkCommunication(channelId);
 				return true;
 			}
 		}

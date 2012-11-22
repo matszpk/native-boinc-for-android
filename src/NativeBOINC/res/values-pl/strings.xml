@@ -697,6 +697,8 @@
 	<string name="nativeAuthorizeError">Nie mogę autoryzować dostępu</string>
 	
 	<string name="nativeClientConfigError">Nie mogę skonfigurować natywnego klienta</string>
+	<string name="nativeClientUpdateAppsError">Nie mogę zrobić update apps</string>
+	<string name="nativeClientNetCommError">Nie mogę wykonać komunikacji z siecią</string>
 	<string name="nativeClientResultsError">Nie mogę pobrać wyników z natywnego klienta</string>
 	<string name="nativeClientProjectsError">Nie mogę pobrać projektów z natywnego klienta</string>
 	

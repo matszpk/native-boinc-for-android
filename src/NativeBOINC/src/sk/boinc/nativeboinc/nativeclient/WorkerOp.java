@@ -28,10 +28,12 @@ public class WorkerOp {
 	public final static int OP_GET_TASKS = 2;
 	public final static int OP_GET_PROJECTS = 3;
 	public final static int OP_UPDATE_PROJECT_APPS = 4;
+	public final static int OP_DO_NET_COMM = 5;
 	
 	public final static WorkerOp GetGlobalProgress = new WorkerOp(OP_GET_GLOBAL_PROGRESS);
 	public final static WorkerOp GetTasks = new WorkerOp(OP_GET_TASKS);
 	public final static WorkerOp GetProjects = new WorkerOp(OP_GET_PROJECTS);
+	public final static WorkerOp DoNetComm = new WorkerOp(OP_DO_NET_COMM);
 	
 	public final static WorkerOp UpdateProjectApps(String projectUrl) {
 		return new WorkerOp(OP_UPDATE_PROJECT_APPS, projectUrl);

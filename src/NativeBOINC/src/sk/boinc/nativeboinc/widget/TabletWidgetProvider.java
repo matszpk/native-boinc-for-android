@@ -55,6 +55,7 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 	public static final String NATIVE_BOINC_WIDGET_UPDATE = "sk.boinc.nativeboinc.widget.TABLET_WIDGET_UPDATE";
 	public static final String NATIVE_BOINC_CLIENT_START_STOP = "sk.boinc.nativeboinc.widget.TABLET_CLIENT_START_STOP";
 	public static final String NATIVE_BOINC_CLIENT_TASK_INFO = "sk.boinc.nativeboinc.widget.TABLET_CLIENT_TASK_INFO_";
+	public static final String NATIVE_BOINC_CLIENT_NET_COMM = "sk.boinc.nativeboinc.widget.TABLET_CLIENT_NET_COMM";
 	
 	@Override
 	public void onEnabled(Context context) {
@@ -155,6 +156,10 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			views.setOnClickPendingIntent(R.id.widgetStart, pendingIntent);
 			views.setOnClickPendingIntent(R.id.widgetStop, pendingIntent);
 			
+			intent = new Intent(NATIVE_BOINC_CLIENT_NET_COMM);
+			pendingIntent = PendingIntent.getBroadcast(appContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+			views.setOnClickPendingIntent(R.id.widgetNetComm, pendingIntent);
+			
 			/* update task list */
 			final NativeBoincService runner = appContext.getRunnerService();
 			boolean isRun = runner != null && runner.isRun();
@@ -170,9 +175,11 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			if (isRun) {
 				views.setViewVisibility(R.id.widgetStart, View.GONE);
 				views.setViewVisibility(R.id.widgetStop, View.VISIBLE);
+				views.setViewVisibility(R.id.widgetNetComm, View.VISIBLE);
 			} else {
 				views.setViewVisibility(R.id.widgetStart, View.VISIBLE);
 				views.setViewVisibility(R.id.widgetStop, View.GONE);
+				views.setViewVisibility(R.id.widgetNetComm, View.GONE);
 			}
 			
 			ComponentName thisAppWidget = new ComponentName(context.getPackageName(), getClass().getName());
@@ -196,6 +203,12 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			} else {
 				appContext.bindRunnerAndStart();
 			}
+		} else if (inputIntent.getAction().equals(NATIVE_BOINC_CLIENT_NET_COMM)) { 
+			if (Logging.DEBUG) Log.d(TAG, "Client network comm from widget receive");
+			
+			final NativeBoincService runner = appContext.getRunnerService();
+			if (runner != null && runner.isRun())
+				runner.doNetworkCommunication(RefreshWidgetHandler.WIDGET_REFRESHER_ID);
 		} else {
 			StringBuilder sb = new StringBuilder();
 			sb.append(NATIVE_BOINC_CLIENT_TASK_INFO);

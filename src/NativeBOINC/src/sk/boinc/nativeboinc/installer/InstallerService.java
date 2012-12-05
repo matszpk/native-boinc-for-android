@@ -430,9 +430,11 @@ public class InstallerService extends Service {
 		}
 		
 		public void onChangeIsWorking(boolean isWorking) {
-			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
-			for (AbstractInstallerListener listener: listeners)
-				listener.onChangeInstallerIsWorking(isWorking);
+			if (mListeners != null) {
+				AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+				for (AbstractInstallerListener listener: listeners)
+					listener.onChangeInstallerIsWorking(isWorking);
+			}
 		}
 	}
 	

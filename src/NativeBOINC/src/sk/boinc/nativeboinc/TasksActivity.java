@@ -353,6 +353,7 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 		registerForContextMenu(getListView());
 		View emptyView = findViewById(R.id.emptyContent);
 		registerForContextMenu(emptyView);
+		getListView().setFastScrollEnabled(true);
 		
 		mScreenOrientation = new ScreenOrientationHandler(this);
 		doBindService();

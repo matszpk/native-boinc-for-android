@@ -1,3 +1,7 @@
+Version 0.4.1.3 (beta) (2012-12-05):
+- fixed the checking installation during mainscreen start up
+- fixed context menu on the project tab
+
 Version 0.4.1.2 (beta) (2012-11-22):
 - fixed client startup
 - added 'network communication' button in tablet widget 

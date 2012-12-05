@@ -543,10 +543,10 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 		if (!mSelectedProjects.isEmpty())
 			menu.add(0, UNSELECT_ALL, 0, R.string.unselectAll);
 		
-		if (proj != null)
-			menu.add(0, UPDATE, 0, R.string.projectUpdate);
 		if (mSelectedProjects.isEmpty()) {
 			if (proj != null) { // if not clicked in empty view
+				menu.add(0, UPDATE, 0, R.string.projectUpdate);
+				
 				if ((proj.statusId & ProjectInfo.SUSPENDED) == ProjectInfo.SUSPENDED) {
 					// project is suspended
 					menu.add(0, RESUME, 0, R.string.projectResume);
@@ -566,6 +566,7 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 				}
 			}
 		} else {
+			menu.add(0, UPDATE, 0, R.string.projectUpdate);
 			menu.add(0, RESUME, 0, R.string.projectResume);
 			menu.add(0, SUSPEND, 0, R.string.projectSuspend);
 			menu.add(0, DETACH, 0, R.string.projectDetach);

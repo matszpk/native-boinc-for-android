@@ -816,6 +816,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 			try {
 				dbAdapter.open();
 				ClientId clientId = dbAdapter.fetchHost("nativeboinc");
+				if (clientId == null) {
+					notifyClientError(getString(R.string.getAccessPasswordError));
+					return; // no client id, do nothing
+				}
 				String password = NativeBoincUtils.getAccessPassword(this);
 				clientId.setPassword(password);
 				dbAdapter.updateHost(clientId);

@@ -166,6 +166,8 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 		
 		@Override
 		public void onClick(View view) {
+			if (mTasks.size() >= mItemPosition)
+				return; // do nothing
 			TaskInfo task = mTasks.get(mItemPosition);
 			if (Logging.DEBUG) Log.d(TAG, "Task "+task.taskName+" change checked:"+mItemPosition);
 			

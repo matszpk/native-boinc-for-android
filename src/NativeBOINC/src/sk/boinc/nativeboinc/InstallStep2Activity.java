@@ -397,6 +397,9 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 		if (Logging.WARNING) Log.w(TAG, "Client disconnected");
 		// if after try (failed)
 		setProgressBarIndeterminateVisibility(false);
+		
+		mAddProjectButton.setEnabled(false);
+		mSyncBAMButton.setEnabled(false);
 
 		if (mDoRestart == NO_RESTART)
 			StandardDialogs.tryShowDisconnectedErrorDialog(this, mConnectionManager, mRunner,

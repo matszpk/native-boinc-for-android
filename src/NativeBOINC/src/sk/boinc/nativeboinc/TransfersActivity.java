@@ -157,7 +157,7 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 		
 		@Override
 		public void onClick(View view) {
-			if (mTransfers.size() >= mItemPosition)
+			if (mTransfers.size() <= mItemPosition)
 				return; // do nothing
 			TransferInfo transfer = mTransfers.get(mItemPosition);
 			if (Logging.DEBUG) Log.d(TAG, "Transfer "+transfer.fileName+" change checked:"+mItemPosition);

@@ -164,7 +164,7 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 		
 		@Override
 		public void onClick(View view) {
-			if (mProjs.size() >= mItemPosition)
+			if (mProjs.size() <= mItemPosition)
 				return; // do nothing
 			ProjectInfo project = mProjs.get(mItemPosition);
 			if (Logging.DEBUG) Log.d(TAG, "Project "+project.masterUrl+" change checked:"+mItemPosition);

@@ -218,7 +218,7 @@ public class NativeBoincUtils {
 					BoincManagerApplication.getBoincDirectory(context)+"/gui_rpc_auth.cfg"));
 			String output = inReader.readLine();
 			if (output == null)
-				throw new IOException("Empty file!");
+				output = "";	// empty password
 			return output;
 		} finally {
 			if (inReader != null)

@@ -110,6 +110,12 @@ string hostid_projet;
 string str_version_num;
 string platform;
 int version_num;
+
+#ifdef ANDROID
+string product_model;
+string product_name;
+string product_manufacturer;
+#endif
 	
 #if defined _WIN32
 typedef unsigned __int32 uint32;
@@ -854,6 +860,71 @@ void check_file()
 	}
 }
 
+#ifdef ANDROID
+#define BUILD_PROP_MAX_SIZE (4096)
+int read_build_prop()
+{
+	FILE* f = fopen("/system/build.prop","rb");
+	if (f==NULL)
+	{
+		product_manufacturer="";
+		product_model="";
+		product_name="";
+		return -1;
+	}
+	
+	char* buf = new char[BUILD_PROP_MAX_SIZE];
+	
+	bool model_is_set = false;
+	bool name_is_set = false;
+	bool manufacturer_is_set = false;
+	while(fgets(buf,BUILD_PROP_MAX_SIZE,f)!=NULL)
+	{
+		if (*buf == '#' || *buf == 0) // comment
+			continue;
+		char* bufp = buf;
+		while(isspace(*bufp)) bufp++;
+		if (*bufp==0) // empty line
+			continue;
+		
+		char* propname = bufp;
+		char* endp = bufp;
+		while(*endp != '=' && *endp != 0 && *endp != '\r' && *endp != '\n') endp++;
+		
+		if (*endp != '=')
+			continue; // broken line
+		
+		*endp=0; // terminate propname
+		endp++;
+		char* value = endp;
+		while(*endp != '\r' && *endp != '\n' && *endp != 0) endp++;
+		
+		//terminate value
+		if (*endp == '\r' || *endp == '\n') *endp = 0;
+		
+		if (!strcmp(propname,"ro.product.model") && !model_is_set)
+		{
+			product_model = value;
+			model_is_set = true;
+		}
+		if (!strcmp(propname,"ro.product.name") && !name_is_set)
+		{
+			product_name = value;
+			name_is_set = true;
+		}
+		if (!strcmp(propname,"ro.product.manufacturer") && !manufacturer_is_set)
+		{
+			product_manufacturer = value;
+			manufacturer_is_set = true;
+		}
+	}
+	
+	fclose(f);
+	delete[] buf;
+	return 0;
+}
+#endif
+
 int main(int argc, char** argv)
 {
 	int retval;
@@ -921,7 +992,7 @@ int main(int argc, char** argv)
   		test=true;
   	}
   }
-	
+  
 	//initialisation de BOINC
 	retval = boinc_init();
 	if (retval) 
@@ -1063,6 +1134,25 @@ int main(int argc, char** argv)
 					continue;
 				}
 			}	//p_model
+			if (product_model=="" || product_name == "" || product_manufacturer == "")
+			{
+				retval=read_build_prop();
+				if (retval!=0)
+				{
+					fprintf(stderr,"%s Erreur reception build.prop\n",boinc_msg_prefix(buf, sizeof(buf)));
+					dernier_chargement=time(NULL);
+				}
+				else
+				{
+					dernier_chargement=0;
+					if (product_model!="" && product_name!="" && product_manufacturer!="")
+					{
+						out.printf("product_model;%s\n",product_model.c_str());
+						out.printf("product_name;%s\n",product_name.c_str());
+						out.printf("product_manufacturer;%s\n",product_manufacturer.c_str());
+					}
+				}
+			}
 			out.flush();
 			chargement_state=false;
 			retval=reception_active_result();

@@ -1,4 +1,16 @@
-﻿---------------------------------
+﻿----------------------------------------
+POPRAWKI BŁĘDÓW
+-----------------------------------------
+
+Popraw i zindetyfikuj błąd w:
+12-17 23:42:31.564: E/AndroidRuntime(22534): java.lang.IndexOutOfBoundsException: Invalid index 0, size is 0
+12-17 23:42:31.564: E/AndroidRuntime(22534):    at java.util.ArrayList.throwIndexOutOfBoundsException(ArrayList.java:257)
+12-17 23:42:31.564: E/AndroidRuntime(22534):    at java.util.ArrayList.get(ArrayList.java:311)
+12-17 23:42:31.564: E/AndroidRuntime(22534):    at sk.boinc.nativeboinc.TasksActivity$TaskOnClickListener.onClick(TasksActivity.java:169)
+12-17 23:42:31.564: E/AndroidRuntime(22534):    at android.view.View.performClick(View.java:2501)
+
+
+---------------------------------
 NativeBOINC 0.4 TODO
 ---------------------------------
 

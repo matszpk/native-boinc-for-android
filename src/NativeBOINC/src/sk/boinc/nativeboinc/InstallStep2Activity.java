@@ -465,6 +465,8 @@ public class InstallStep2Activity extends ServiceBoincActivity implements Client
 	}
 	
 	private void changePassword(String password) {
+		if (password == null || password.length() == 0)
+			return; // do nothing
 		try {
 			NativeBoincUtils.setAccessPassword(this, password);
 			if (Logging.DEBUG) Log.d(TAG, "Set to restart");

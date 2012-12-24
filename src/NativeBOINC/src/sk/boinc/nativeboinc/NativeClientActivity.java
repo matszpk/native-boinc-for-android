@@ -294,7 +294,7 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 				
 				String newPassword = (String)newValue;
 				
-				if (!newPassword.equals(oldPassword)) { // if not same password
+				if (!newPassword.equals(oldPassword) && newPassword.length() != 0) { // if not same password and not empty
 					Log.d(TAG, "In changing password");
 					try {
 						NativeBoincUtils.setAccessPassword(NativeClientActivity.this, newPassword);

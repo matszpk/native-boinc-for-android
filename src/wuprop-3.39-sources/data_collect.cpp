@@ -1,3 +1,9 @@
+#if defined _WIN32
+#include "boinc_win.h"
+#include <winsock.h>
+#include <cstring>
+#include <time.h>
+#else
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/socket.h>
@@ -19,7 +25,7 @@
 #include <time.h>
 #include <sys/poll.h>
 #include <sstream>
-
+#endif
 #include "boinc_api.h"
 #include "filesys.h"
 #include "util.h"
@@ -54,6 +60,7 @@ map<string, double> dict_size_file_result;
 map<string, double> dict_ecart_releve;
 map<string, double> dict_prochain_releve;
 map<string, string> dict_dir;
+map<string, long> dict_run;
 list<string> list_active_project;
 int nb_cycle=0;
 int port=31416;
@@ -64,6 +71,7 @@ int last_new_wu=0;
 pugi::xml_document doc_state;	//state
 map<string,string>::iterator it;
 map<string,int>::iterator it_int;
+map<string,long>::iterator it_long;
 map<string,double>::iterator it_double;
 list<string>::iterator it_liste;
 MFILE out;
@@ -110,19 +118,20 @@ string hostid_projet;
 string str_version_num;
 string platform;
 int version_num;
+ostringstream strs;
 
 #ifdef ANDROID
 string product_model;
 string product_name;
 string product_manufacturer;
 #endif
-	
+
 #if defined _WIN32
 typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
 double uint64_to_double (const uint64 x)
 {
-  return (double)x;
+	return (double)x;
 }
 
 double RDTSC(void)
@@ -131,9 +140,9 @@ double RDTSC(void)
 	double x;
 	__asm
 	{
-    RDTSC
-    mov [a],eax
-    mov [b],edx
+		RDTSC
+		mov [a],eax
+		mov [b],edx
 	}
 	x  = b;
 	x *= 4294967296;
@@ -144,29 +153,29 @@ double RDTSC(void)
 
 int frequence ()
 {
-uint64 Fwin;
-  uint64 Twin_avant, Twin_apres;
-  double Tcpu_avant, Tcpu_apres;
-  double Fcpu;
-
-  if (!QueryPerformanceFrequency((LARGE_INTEGER*)&Fwin)) return 0;
-  
-  // Avant
-  Tcpu_avant = RDTSC();
-  QueryPerformanceCounter((LARGE_INTEGER*)&Twin_avant);
-
-  do
-  {
-    QueryPerformanceCounter((LARGE_INTEGER*)&Twin_apres);
-  } while (Twin_apres-Twin_avant < 10000);
-
-  Tcpu_apres = RDTSC();
-  QueryPerformanceCounter((LARGE_INTEGER*)&Twin_apres);
-
-  Fcpu  = (Tcpu_apres - Tcpu_avant);
-  Fcpu *= uint64_to_double(Fwin);
-  Fcpu /= uint64_to_double(Twin_apres - Twin_avant);
-  return int(Fcpu/1000000);
+	uint64 Fwin;
+	uint64 Twin_avant, Twin_apres;
+	double Tcpu_avant, Tcpu_apres;
+	double Fcpu;
+	
+	if (!QueryPerformanceFrequency((LARGE_INTEGER*)&Fwin)) return 0;
+	
+	// Avant
+	Tcpu_avant = RDTSC();
+	QueryPerformanceCounter((LARGE_INTEGER*)&Twin_avant);
+	
+	do
+	{
+		QueryPerformanceCounter((LARGE_INTEGER*)&Twin_apres);
+	} while (Twin_apres-Twin_avant < 10000);
+	
+	Tcpu_apres = RDTSC();
+	QueryPerformanceCounter((LARGE_INTEGER*)&Twin_apres);
+	
+	Fcpu  = (Tcpu_apres - Tcpu_avant);
+	Fcpu *= uint64_to_double(Fwin);
+	Fcpu /= uint64_to_double(Twin_apres - Twin_avant);
+	return int(Fcpu/1000000);
 }
 #elif defined __i386 || defined __amd64
 unsigned long long int rdtsc(void)
@@ -204,7 +213,7 @@ int frequence()
 
 int do_cache()
 {
-  int retval = cache.open(cache_path, "wb");
+	int retval = cache.open(cache_path, "wb");
 	if (retval) return 1;
 	for ( it=dict_delai.begin() ; it != dict_delai.end(); it++)
 	{
@@ -287,6 +296,10 @@ int do_cache()
 	{
 		cache.printf( "Active_project\t%s\n", (*it_liste).c_str());
 	}
+  	for ( it_long=dict_run.begin() ; it_long !=dict_run.end(); it_long++)
+	{
+		cache.printf( "Run\t%s\t%d\n", (*it_long).first.c_str(), (*it_long).second);
+	}
 	cache.flush();
 	cache.close();
 	return 0;
@@ -350,6 +363,7 @@ void restore_cache()
 				if (strcmp(param1,"Last_new_wu")==0) last_new_wu=atoi(param2);
 				if (strcmp(param1,"App")==0) dict_app[param2]=param3;
 				if (strcmp(param1,"Platform")==0) dict_platform[param2]=param3;
+				if (strcmp(param1,"Run")==0) dict_run[param2]=atoi(param3);
 			}
 		}
 		memset(data,0,100000);
@@ -379,10 +393,10 @@ int reception_cc_status()
 		fprintf(stderr, "%s Mise en veille (derniere requete date de moins de 30 secondes\n",boinc_msg_prefix(buf, sizeof(buf)));
 	}
 	retval = rpc.init("127.0.0.1", port);
-  if (retval) {
+	if (retval) {
 		fprintf(stderr, "%s can't connect to localhost",boinc_msg_prefix(buf, sizeof(buf)));
-    return -1;
-  }
+		return -1;
+	}
 	retval = rpc.get_cc_status(cs);
 	return retval;
 }
@@ -397,11 +411,11 @@ int reception_host_info()
 		fprintf(stderr, "%s Mise en veille (derniere requete date de moins de 30 secondes\n",boinc_msg_prefix(buf, sizeof(buf)));
 	}
 	retval = rpc.init("127.0.0.1", port);
-  if (retval) {
+	if (retval) {
 		fprintf(stderr, "%s can't connect to localhost",boinc_msg_prefix(buf, sizeof(buf)));
-    return -1;
-  }
-  retval = rpc.get_host_info(hi);
+		return -1;
+	}
+	retval = rpc.get_host_info(hi);
 	return retval;
 }
 
@@ -415,11 +429,11 @@ int reception_active_result()
 		fprintf(stderr, "%s Mise en veille (derniere requete date de moins de 30 secondes\n",boinc_msg_prefix(buf, sizeof(buf)));
 	}
 	retval = rpc.init("127.0.0.1", port);
-  if (retval) {
+	if (retval) {
 		fprintf(stderr, "%s can't connect to localhost",boinc_msg_prefix(buf, sizeof(buf)));
-    return -1;
-  }
-  retval = rpc.get_results(results,true);
+		return -1;
+	}
+	retval = rpc.get_results(results,true);
 	return retval;
 }
 
@@ -433,11 +447,11 @@ int reception_result()
 		fprintf(stderr, "%s Mise en veille (derniere requete date de moins de 30 secondes\n",boinc_msg_prefix(buf, sizeof(buf)));
 	}
 	retval = rpc.init("127.0.0.1", port);
-  if (retval) {
+	if (retval) {
 		fprintf(stderr, "%s can't connect to localhost\n",boinc_msg_prefix(buf, sizeof(buf)));
-    return -1;
-  }
-  retval = rpc.get_results(results_all,false);
+		return -1;
+	}
+	retval = rpc.get_results(results_all,false);
 	return retval;
 }
 
@@ -451,11 +465,11 @@ int reception_state()
 		fprintf(stderr, "%s Mise en veille (derniere requete date de moins de 30 secondes\n",boinc_msg_prefix(buf, sizeof(buf)));
 	}
 	retval = rpc.init("127.0.0.1", port);
-  if (retval) {
+	if (retval) {
 		fprintf(stderr, "%s can't connect to localhost",boinc_msg_prefix(buf, sizeof(buf)));
-    return -1;
-  }
-  retval = rpc.get_state(gstate);
+		return -1;
+	}
+	retval = rpc.get_state(gstate);
 	return retval;
 }
 
@@ -501,7 +515,7 @@ void recherche_nom_projet()
 	{
 		for (int i=0; i<gstate.projects.size(); i++) 
 		{
-      if (!strcmp(gstate.projects[i]->master_url, project_url.c_str()))
+			if (!strcmp(gstate.projects[i]->master_url, project_url.c_str()))
 			{
 				project_name=gstate.projects[i]->project_name;
 				cout << project_name << endl;
@@ -520,10 +534,9 @@ void recherche_hostid_projet()
 	else
 	{
 		int hostidprojet;
-		ostringstream strs;
 		for (int i=0; i<gstate.projects.size(); i++) 
 		{
-      if (!strcmp(gstate.projects[i]->master_url, project_url.c_str()))
+			if (!strcmp(gstate.projects[i]->master_url, project_url.c_str()))
 			{
 				hostidprojet=gstate.projects[i]->hostid;
 				strs.str("");
@@ -546,7 +559,7 @@ void recherche_nom_application()
 	{
 		for (int i=0; i<gstate.wus.size(); i++) 
 		{
-      if (!strcmp(gstate.wus[i]->name, wu_name.c_str()))
+			if (!strcmp(gstate.wus[i]->name, wu_name.c_str()))
 			{
 				app_name=gstate.wus[i]->app_name;
 				cout << app_name << endl;
@@ -566,7 +579,7 @@ void recherche_nom_courant_application()
 	{
 		for (int i=0; i<gstate.apps.size(); i++) 
 		{
-      if (!strcmp(gstate.apps[i]->name, app_name.c_str()))
+			if (!strcmp(gstate.apps[i]->name, app_name.c_str()))
 			{
 				user_friendly_name=gstate.apps[i]->user_friendly_name;
 				cout << user_friendly_name << endl;
@@ -619,7 +632,7 @@ void recherche_plateforme()
 	{
 		for (int i=0; i<gstate.app_versions.size(); i++) 
 		{
-      if ((!strcmp(gstate.app_versions[i]->app_name, app_name.c_str())) and (gstate.app_versions[i]->version_num==version_num))
+			if ((!strcmp(gstate.app_versions[i]->app_name, app_name.c_str())) && (gstate.app_versions[i]->version_num==version_num))
 			{
 				platform=gstate.app_versions[i]->platform;
 				cout << platform << endl;
@@ -638,9 +651,11 @@ void recherche_new_wu()
 	if (retval!=0)
 	{
 		fprintf(stderr,"%s Erreur reception result (new WU)\n",boinc_msg_prefix(buf, sizeof(buf)));
+		dernier_chargement=time(NULL);
 	}
 	else
 	{
+		dernier_chargement=0;
 		if (chargement_client_state()==true)
 		{
 			for (int i=0;i<results_all.results.size();i++)
@@ -711,16 +726,17 @@ void recherche_new_wu()
 int wu_terminee(string result_name)
 {
 	int retval;
-	ostringstream strs;
 	if (chargement_state==false)
 	{
 		retval=reception_result();
 		if (retval!=0)
 		{
 			fprintf(stderr,"%s Erreur reception state\n",boinc_msg_prefix(buf, sizeof(buf)));
+			dernier_chargement=time(NULL);
 		}
 		else
 		{
+			dernier_chargement=0;			
 			chargement_state=true;
 		}
 	}
@@ -766,7 +782,7 @@ int wu_terminee(string result_name)
 					{
 						dict_upload[result_name]=dict_result[result_name]+";"+dict_tmp_upload[result_name]+";"+str_final_cpu_time;
 						dict_tmp_upload.erase(result_name);
-	  			}
+					}
 					if (dict_download.find(result_name)!=dict_download.end())
 					{
 						if (dict_download[result_name]!="inconnu")
@@ -809,7 +825,6 @@ void path_boinc(string &path)
 {
 	char path_boinc[256];
 	string boinc_path;
-	ostringstream strs;
 	size_t found;
 	
 	boinc_getcwd(path_boinc);
@@ -872,36 +887,36 @@ int read_build_prop()
 		product_name="";
 		return -1;
 	}
-	
+
 	char* buf = new char[BUILD_PROP_MAX_SIZE];
-	
+
 	bool model_is_set = false;
 	bool name_is_set = false;
 	bool manufacturer_is_set = false;
 	while(fgets(buf,BUILD_PROP_MAX_SIZE,f)!=NULL)
 	{
 		if (*buf == '#' || *buf == 0) // comment
-			continue;
+		continue;
 		char* bufp = buf;
 		while(isspace(*bufp)) bufp++;
 		if (*bufp==0) // empty line
-			continue;
-		
+		continue;
+
 		char* propname = bufp;
 		char* endp = bufp;
 		while(*endp != '=' && *endp != 0 && *endp != '\r' && *endp != '\n') endp++;
-		
+
 		if (*endp != '=')
-			continue; // broken line
-		
+		continue; // broken line
+
 		*endp=0; // terminate propname
 		endp++;
 		char* value = endp;
 		while(*endp != '\r' && *endp != '\n' && *endp != 0) endp++;
-		
+
 		//terminate value
 		if (*endp == '\r' || *endp == '\n') *endp = 0;
-		
+
 		if (!strcmp(propname,"ro.product.model") && !model_is_set)
 		{
 			product_model = value;
@@ -918,7 +933,7 @@ int read_build_prop()
 			manufacturer_is_set = true;
 		}
 	}
-	
+
 	fclose(f);
 	delete[] buf;
 	return 0;
@@ -956,43 +971,45 @@ int main(int argc, char** argv)
 	string str_current_cpu_time;
 	string str_elapsed_time;
 	string str_slot;
-
+	
 	int hostid;
 	double size_dir=0.0;
 	char path_rel[512];
 	char path_abs[512];
 	char * pointeur_slash;
-	ostringstream strs;
+	#if defined _WIN32
+	WSADATA WSADATA;
+	WSAStartup(MAKEWORD(2,0),&WSADATA);
+	#endif
 	bool test=false;
-	
 	cycle=60;
 	nb_cycle_max=180;
 	granted_credit=7.0;
 	for (int i=0; i<argc; i++) 
 	{
-  	if (!strcmp(argv[i], "-p"))
-  	{
-  		port = atoi(argv[++i]);
-  	}
-    if (!strcmp(argv[i], "-c"))
-    {
-  		cycle = atoi(argv[++i]);
-  	}
-  	if (!strcmp(argv[i], "-n"))
-    {
-  		nb_cycle_max = atoi(argv[++i]);
-  	}
-  	if (!strcmp(argv[i], "-g"))
-    {
-  		granted_credit = atof(argv[++i]);
-  	}
-  	if (!strcmp(argv[i], "-t"))
-    {
-  		path_state = argv[++i];
-  		test=true;
-  	}
-  }
-  
+		if (!strcmp(argv[i], "-p"))
+		{
+			port = atoi(argv[++i]);
+		}
+		if (!strcmp(argv[i], "-c"))
+		{
+			cycle = atoi(argv[++i]);
+		}
+		if (!strcmp(argv[i], "-n"))
+		{
+			nb_cycle_max = atoi(argv[++i]);
+		}
+		if (!strcmp(argv[i], "-g"))
+		{
+			granted_credit = atof(argv[++i]);
+		}
+		if (!strcmp(argv[i], "-t"))
+		{
+			path_state = argv[++i];
+			test=true;
+		}
+	}
+	
 	//initialisation de BOINC
 	retval = boinc_init();
 	if (retval) 
@@ -1024,7 +1041,7 @@ int main(int argc, char** argv)
 	if (retval) 
 	{
 		fprintf(stderr, "%s output open failed:\n",boinc_msg_prefix(buf, sizeof(buf)));
-		fprintf(stderr, "%s resolved name %s, retval %d\n",boinc_msg_prefix(buf, sizeof(buf)), output_path, strerror(retval));
+		fprintf(stderr, "%s resolved name %s, retval %s\n",boinc_msg_prefix(buf, sizeof(buf)), output_path, strerror(retval));
 		perror("open");
 		exit(1);
 	}
@@ -1055,9 +1072,11 @@ int main(int argc, char** argv)
 		if (retval!=0)
 		{
 			fprintf(stderr,"%s Erreur reception cc_status\n",boinc_msg_prefix(buf, sizeof(buf)));
+			dernier_chargement=time(NULL);
 		}
 		else
 		{
+			dernier_chargement=0;			
 			if (cs.network_suspend_reason!=0)
 			{
 				fprintf(stderr,"%s Activite reseau suspendue\n",boinc_msg_prefix(buf, sizeof(buf)));
@@ -1110,7 +1129,7 @@ int main(int argc, char** argv)
 						{
 							gpu=hi.coprocs.ati.name;
 							out.printf("gpu_model;%s;%d;%d;%d;%d\n",gpu.c_str(),hi.coprocs.ati.attribs.numberOfSIMD,hi.coprocs.ati.attribs.wavefrontSize,hi.coprocs.ati.attribs.engineClock,hi.coprocs.ati.attribs.target);	
-			
+							
 						}
 						else
 						{
@@ -1134,7 +1153,7 @@ int main(int argc, char** argv)
 					continue;
 				}
 			}	//p_model
-#ifdef ANDROID
+			#ifdef ANDROID
 			if (product_model=="" || product_name == "" || product_manufacturer == "")
 			{
 				retval=read_build_prop();
@@ -1154,7 +1173,7 @@ int main(int argc, char** argv)
 					}
 				}
 			}
-#endif
+			#endif
 			out.flush();
 			chargement_state=false;
 			retval=reception_active_result();
@@ -1280,6 +1299,7 @@ int main(int argc, char** argv)
 								out.printf("%d;delai;%s;%s;;%s;%s\n", start, project_name.c_str(),dict_app[app_name].c_str(),str_received_time.c_str(),str_report_deadline.c_str());
 							}
 							dict_result[name]=p_model+";"+project_name+";"+dict_app[app_name]+";"+dict_platform[app_name+"_"+str_version_num]+";"+plan_class;
+              dict_run[name+";"+dict_result[name]]=0;
 						}
 						else
 						{
@@ -1311,102 +1331,104 @@ int main(int argc, char** argv)
 					if (wu_state==2)
 					{
 						if ((!results.results[i]->suspended_via_gui) && (!results.results[i]->project_suspended_via_gui))
+						{
+							if (results.results[i]->active_task)
 							{
-								if (results.results[i]->active_task)
+								slot=results.results[i]->slot;
+								strs.str("");
+								strs << slot;
+								str_slot=strs.str();
+								if (results.results[i]->active_task_state==1)
 								{
-									slot=results.results[i]->slot;
-									strs.str("");
-									strs << slot;
-									str_slot=strs.str();
-									if (results.results[i]->active_task_state==1)
+									if (find(list_active_project.begin(),list_active_project.end(),project_name)==list_active_project.end())
 									{
-										if (find(list_active_project.begin(),list_active_project.end(),project_name)==list_active_project.end())
+										if (chargement_client_state()==true)
 										{
-											if (chargement_client_state()==true)
+											recherche_hostid_projet();
+											out.printf("%d;active_project;%s;%s;%d;%d;%s\n", start, project_name.c_str(), p_model.c_str(), p_ncpus, frequence(), hostid_projet.c_str());
+											out.printf("projet;%s;%s\n", project_url.c_str(), project_name.c_str());
+											list_active_project.push_back(project_name);
+										}
+										else
+										{
+											break;
+										}
+									}
+									dict_run[name+";"+dict_result[name]]++;
+									if (dict_ecart_releve.find(name)==dict_ecart_releve.end())
+									{
+										elapsed_time=results.results[i]->elapsed_time;
+										estimated_cpu_time_remaining=results.results[i]->estimated_cpu_time_remaining;
+										double ecart_releve=(elapsed_time+estimated_cpu_time_remaining) / 1000;
+										dict_ecart_releve[name]=ecart_releve;
+										dict_prochain_releve[name]=0;
+									}
+									if (dict_prochain_releve[name]<end)
+									{
+										dict_prochain_releve[name]=end+dict_ecart_releve[name];
+										memset(path_abs,0,512);
+										boinc_getcwd(path_rel);
+										for (unsigned int chr=0; chr<strlen(path_rel); chr++)
+										{
+											if (path_rel[chr]=='\\')
 											{
-												recherche_hostid_projet();
-												out.printf("%d;active_project;%s;%s;%d;%d;%s\n", start, project_name.c_str(), p_model.c_str(), p_ncpus, frequence(), hostid_projet.c_str());
-												list_active_project.push_back(project_name);
-											}
-											else
-											{
-												break;
+												path_rel[chr]='/';
 											}
 										}
-										if (dict_ecart_releve.find(name)==dict_ecart_releve.end())
+										pointeur_slash=strrchr(path_rel,'/');
+										if (pointeur_slash)
 										{
-											elapsed_time=results.results[i]->elapsed_time;
-											estimated_cpu_time_remaining=results.results[i]->estimated_cpu_time_remaining;
-											double ecart_releve=(elapsed_time+estimated_cpu_time_remaining) / 1000;
-											dict_ecart_releve[name]=ecart_releve;
-											dict_prochain_releve[name]=0;
+											strncpy(path_abs, path_rel,strlen(path_rel)-strlen(pointeur_slash));
+											strcat(path_abs,("/"+str_slot).c_str());
+											dir_size(path_abs,size_dir,true);
+											strs.str("");
+											strs << size_dir/1024;
+											occupation=strs.str();
+											if (dict_occupation.find(name)==dict_occupation.end())
+											{
+												dict_occupation[name]=dict_result[name]+";"+occupation;
+											}
+											else
+											{
+												dict_occupation[name]=dict_occupation[name]+";"+occupation;
+											}
 										}
-										if (dict_prochain_releve[name]<end)
+										working_set_size=results.results[i]->working_set_size_smoothed;
+										strs.str("");
+										strs << (int)working_set_size;
+										str_working_set_size=strs.str();
+										if (dict_conso.find(name)==dict_conso.end())
 										{
-											dict_prochain_releve[name]=end+dict_ecart_releve[name];
-											memset(path_abs,0,512);
-											boinc_getcwd(path_rel);
-											for (unsigned int chr=0; chr<strlen(path_rel); chr++)
+											dict_conso[name]=dict_result[name]+";"+str_working_set_size;
+										}
+										else
+										{
+											dict_conso[name]=dict_conso[name]+";"+str_working_set_size;
+										}
+										checkpoint_cpu_time=results.results[i]->checkpoint_cpu_time;
+										strs.str("");
+										strs << (int)checkpoint_cpu_time;
+										str_checkpoint_cpu_time=strs.str();
+										current_cpu_time=results.results[i]->current_cpu_time;
+										strs.str("");
+										strs << (int)current_cpu_time;
+										str_current_cpu_time=strs.str();
+										if (dict_check.find(name)==dict_check.end())
+										{
+											if (p_model!="")
 											{
-												if (path_rel[chr]=='\\')
-												{
-													path_rel[chr]='/';
-												}
+												dict_check[name]=dict_result[name]+";"+str_current_cpu_time+"|"+str_checkpoint_cpu_time;
 											}
-											pointeur_slash=strrchr(path_rel,'/');
-											if (pointeur_slash)
-											{
-												strncpy(path_abs, path_rel,strlen(path_rel)-strlen(pointeur_slash));
-												strcat(path_abs,("/"+str_slot).c_str());
-												dir_size(path_abs,size_dir,true);
-												strs.str("");
-												strs << size_dir/1024;
-												occupation=strs.str();
-												if (dict_occupation.find(name)==dict_occupation.end())
-												{
-													dict_occupation[name]=dict_result[name]+";"+occupation;
-												}
-												else
-												{
-													dict_occupation[name]=dict_occupation[name]+";"+occupation;
-												}
-											}
-											working_set_size=results.results[i]->working_set_size_smoothed;
-											strs.str("");
-											strs << (int)working_set_size;
-											str_working_set_size=strs.str();
-											if (dict_conso.find(name)==dict_conso.end())
-											{
-												dict_conso[name]=dict_result[name]+";"+str_working_set_size;
-											}
-											else
-											{
-												dict_conso[name]=dict_conso[name]+";"+str_working_set_size;
-											}
-											checkpoint_cpu_time=results.results[i]->checkpoint_cpu_time;
-											strs.str("");
-											strs << (int)checkpoint_cpu_time;
-											str_checkpoint_cpu_time=strs.str();
-											current_cpu_time=results.results[i]->current_cpu_time;
-											strs.str("");
-											strs << (int)current_cpu_time;
-											str_current_cpu_time=strs.str();
-											if (dict_check.find(name)==dict_check.end())
-											{
-												if (p_model!="")
-												{
-													dict_check[name]=dict_result[name]+";"+str_current_cpu_time+"|"+str_checkpoint_cpu_time;
-												}
-											}
-											else
-											{
-												dict_check[name]=dict_check[name]+";"+str_current_cpu_time+"|"+str_checkpoint_cpu_time;
-											}
+										}
+										else
+										{
+											dict_check[name]=dict_check[name]+";"+str_current_cpu_time+"|"+str_checkpoint_cpu_time;
 										}
 									}
 								}
 							}
 						}
+					}
 				}				
 				liste.clear();
 				chargement_state=false;
@@ -1462,6 +1484,11 @@ int main(int argc, char** argv)
 								out.printf("%d;duree|%s;%s;\n", start, wu_name.c_str(), dict_duree[name].c_str());
 								dict_duree.erase(name);
 							}
+							if (dict_run.find(name+";"+dict_result[name])!=dict_run.end())
+							{
+								out.printf("%d;run;%s;%s;%d\n", start, name.c_str(), dict_result[name].c_str(), dict_run[name+";"+dict_result[name]]);
+								dict_run.erase(name+";"+dict_result[name]);
+							}
 							dict_delai.erase(name);
 							dict_dir.erase(name);
 							dict_ecart_releve.erase(name);
@@ -1490,7 +1517,7 @@ int main(int argc, char** argv)
 			out.flush();
 			boinc_fraction_done((float)nb_cycle/(nb_cycle_max+1));
 			end=time(NULL);
-						
+			
 			retval = do_checkpoint();
 			if (retval) 
 			{
@@ -1516,7 +1543,7 @@ int main(int argc, char** argv)
 							string num;
 							sprintf(param,"%d",i);
 							num=param;
-						
+							
 							retval=file_size((dict_dir[name]+"/"+name+"_"+num).c_str(),tmp_taille);
 							if (retval)
 							{
@@ -1577,9 +1604,11 @@ int main(int argc, char** argv)
 			if (retval!=0)
 			{
 				fprintf(stderr,"%s Erreur reception cc_status\n",boinc_msg_prefix(buf, sizeof(buf)));
+				dernier_chargement=time(NULL);
 			}
 			else
 			{
+				dernier_chargement=0;
 				if (cs.network_suspend_reason!=0)
 				{
 					fprintf(stderr,"%s Activite reseau suspendue\n",boinc_msg_prefix(buf, sizeof(buf)));
@@ -1593,6 +1622,10 @@ int main(int argc, char** argv)
 	{
 		out.printf( "%d;Dl_app;%s;\n", start, (*it).second.c_str());
 	}
+	for ( it_long=dict_run.begin() ; it_long !=dict_run.end(); it_long++)
+	{
+		out.printf("%d;Pending run;%s;%d\n", start, (*it_long).first.c_str(), (*it_long).second);
+	}  
 	check_file();
 	do_checkpoint();
 	out.flush();

@@ -291,9 +291,9 @@ public class ConnectionManagerService extends Service implements
 		synchronized(mWakeLocker) {
 			// Create new bridge first
 			if (!host.isNativeClient()) // if not native client
-				mClientBridge = new ClientBridge(this, mNetStats);
+				mClientBridge = new ClientBridge(this, mNetStats, false);
 			else // if native we dont attach net statistics
-				mClientBridge = new ClientBridge(this, null);
+				mClientBridge = new ClientBridge(this, null, true);
 			// Propagate all current observers to bridge, so they will be informed about status
 			Iterator<ClientReceiver> it = mObservers.iterator();
 			while (it.hasNext()) {

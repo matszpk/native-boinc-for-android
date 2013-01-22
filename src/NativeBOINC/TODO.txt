@@ -44,7 +44,7 @@ Na Teraz:
 / * popraw obslugę połaczen, po nacisnieciu home, gdy user był na dalszej aktywności (po głównej)
     (obsługe pola project_name) 
 / * popraw obsługę ProjectsFromClientRetriever i metod uzywających jej.
-  * dodac powiadamianie o nowych wersjach i komunikatach ze strony autora.
+/ * dodac powiadamianie o nowych wersjach i komunikatach ze strony autora.
 / * przenies opcje newsów do nativeclient screen, dodaj opcję wyłączania notyfikacji
   * usuń błąd nieusuwania zawartości zakładek po odłączeniu klienta (np.: po wyjściu do home)
   * usuń crash: BadTokenException - unable to add window, w StandardUtils.tryShowConnectionErrorDialog

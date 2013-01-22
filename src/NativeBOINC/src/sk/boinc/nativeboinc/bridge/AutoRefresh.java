@@ -126,36 +126,44 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 	private Set<UpdateRequest> mScheduledUpdates = new HashSet<UpdateRequest>();
 	private int mConnectionType = ConnectivityManager.TYPE_MOBILE;
 	private int mAutoRefresh = 0;
+	private boolean mConnectedWithNativeClient = false;
 
-
-	public AutoRefresh(final Context context, final ClientRequestHandler clientRequests) {
+	public AutoRefresh(final Context context, final ClientRequestHandler clientRequests, boolean nativeClient) {
 		mClientRequests = clientRequests;
 		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		globalPrefs.registerOnSharedPreferenceChangeListener(this);
 		final ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		final NetworkInfo ni = (cm == null) ? null : cm.getActiveNetworkInfo();
 		mConnectionType = (ni == null) ? NO_CONNECTIVITY : ni.getType();
-		if (mConnectionType == ConnectivityManager.TYPE_WIFI) {
-			// The current connection type is WiFi
-			mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_WIFI, "10"));
-			if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval is set to: " + mAutoRefresh + " seconds (WiFi)");
-		}
-		else if (mConnectionType == ConnectivityManager.TYPE_MOBILE) {
-			mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_MOBILE, "10"));
-			if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval is set to: " + mAutoRefresh + " seconds (Mobile)");
-		}
-		else if (mConnectionType == NO_CONNECTIVITY) {
-			// This is the case when ni == null or cm == null
-			//mAutoRefresh = 0;      // auto-refresh is disabled
-			// mConnectionType = -1 means no further change on preferences update
-			//if (Logging.INFO) Log.i(TAG, "Networking not active, disabled auto-refresh");
+		mConnectedWithNativeClient = nativeClient;
+		
+		if (mConnectedWithNativeClient) {
+			// if native client
 			mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_LOCALHOST, "10"));
 			if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval is set to: " + mAutoRefresh + " seconds (Localhost)");
-		}
-		else {
-			mConnectionType = ConnectivityManager.TYPE_MOBILE;
-			mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_MOBILE, "10"));
-			if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval is set to: " + mAutoRefresh + " seconds (other connection, default to Mobile)");			
+		} else {
+			if (mConnectionType == ConnectivityManager.TYPE_WIFI) {
+				// The current connection type is WiFi
+				mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_WIFI, "10"));
+				if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval is set to: " + mAutoRefresh + " seconds (WiFi)");
+			}
+			else if (mConnectionType == ConnectivityManager.TYPE_MOBILE) {
+				mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_MOBILE, "10"));
+				if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval is set to: " + mAutoRefresh + " seconds (Mobile)");
+			}
+			else if (mConnectionType == NO_CONNECTIVITY) {
+				// This is the case when ni == null or cm == null
+				//mAutoRefresh = 0;      // auto-refresh is disabled
+				// mConnectionType = -1 means no further change on preferences update
+				//if (Logging.INFO) Log.i(TAG, "Networking not active, disabled auto-refresh");
+				mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_LOCALHOST, "10"));
+				if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval is set to: " + mAutoRefresh + " seconds (Localhost)");
+			}
+			else {
+				mConnectionType = ConnectivityManager.TYPE_MOBILE;
+				mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_MOBILE, "10"));
+				if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval is set to: " + mAutoRefresh + " seconds (other connection, default to Mobile)");			
+			}
 		}
 	}
 
@@ -180,6 +188,10 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 		else if (key.equals(PreferenceName.AUTO_UPDATE_MOBILE) && (mConnectionType == ConnectivityManager.TYPE_MOBILE)) {
 			mAutoRefresh = Integer.parseInt(sharedPreferences.getString(PreferenceName.AUTO_UPDATE_MOBILE, "0"));
 			if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval for Mobile changed to: " + mAutoRefresh + " seconds");
+		}
+		else if (key.equals(PreferenceName.AUTO_UPDATE_LOCALHOST) && (mConnectionType == NO_CONNECTIVITY || mConnectedWithNativeClient)) {
+			mAutoRefresh = Integer.parseInt(sharedPreferences.getString(PreferenceName.AUTO_UPDATE_LOCALHOST, "0"));
+			if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval for Localhost changed to: " + mAutoRefresh + " seconds");
 		}
 	}
 

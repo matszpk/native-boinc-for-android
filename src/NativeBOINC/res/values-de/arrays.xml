@@ -100,6 +100,12 @@
 		<item>Netzwerkaktivität nach Eistellungen</item>
 		<item>Netzwerkaktivität angehalten</item>
 	</string-array>
+	<!-- GPU modes for client (display) -->
+	<string-array name="clientModeGpu">
+		<item>GPU immer verfügbar</item>
+		<item>GPU nach Einstellungen</item>
+		<item>GPU anhalten</item>
+	</string-array>
 	<!-- Modes for client (values) - both run and network -->
 	<string-array name="clientModeValues">
 		<item>1</item>
@@ -131,6 +137,12 @@
 		<item>Zum ausführen bereit</item>  <!-- 9 PROCESS_SUSPENDED (we've sent it a "suspend" message)        -->
 	</string-array>
 	
+	<string-array name="PGPkeyservers">
+	    <item>pgp.zdv.uni-mainz.de</item>
+	    <item>keyserver.stack.nl</item>
+	    <item>subkeys.pgp.net</item>
+	</string-array>
+	
 	<string-array name="pollOps">
 	    <item>Mit BAM verknüpfen</item>
 	    <item>Mit BAM synchronisieren</item>
@@ -152,5 +164,24 @@
 	    <item>Info</item>
 	    <item>Benutzerbenachrichtigung</item>
 	    <item>Interner Fehler</item>
+	</string-array>
+	
+	<string-array name="nativeAutostartLabels">
+	    <item>Nicht automatisch starten</item>
+	    <item>Bei Anwendungsstart</item>
+	    <item>Bei Systemstart</item>
+	    <item>Immer automatisch starten</item>
+	</string-array>
+	
+	<string-array name="nativeAutostartValues">
+	    <item>0</item>
+	    <item>1</item>
+	    <item>2</item>
+	    <item>3</item>
+	</string-array>
+	
+	<string-array name="placesToInstallLabels">
+	    <item>Interner Speicher</item>
+	    <item>SD-Karten Speicher</item>
 	</string-array>
 </resources>

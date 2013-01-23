@@ -42,6 +42,7 @@
 		<item>1s</item>
 		<item>5s</item>
 		<item>10s</item>
+		<item>30s</item>
 		<item>60s</item>
 	</string-array>
 	<string-array name="prefAutoUpdatesValues">
@@ -49,6 +50,7 @@
 		<item>1</item>
 		<item>5</item>
 		<item>10</item>
+		<item>30</item>
 		<item>60</item>
 	</string-array>
 
@@ -57,6 +59,7 @@
 		<item>1s</item>
 		<item>5s</item>
 		<item>10s</item>
+		<item>30s</item>
 		<item>60s</item>
 	</string-array>
 	
@@ -64,6 +67,7 @@
 		<item>1</item>
 		<item>5</item>
 		<item>10</item>
+		<item>30</item>
 		<item>60</item>
 	</string-array>
 	
@@ -72,6 +76,7 @@
 		<item>1s</item>
 		<item>5s</item>
 		<item>10s</item>
+		<item>30s</item>
 		<item>60s</item>
 	</string-array>
 	
@@ -79,6 +84,7 @@
 		<item>1</item>
 		<item>5</item>
 		<item>10</item>
+		<item>30</item>
 		<item>60</item>
 	</string-array>
 

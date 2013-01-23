@@ -484,13 +484,13 @@ public class ClientBridge implements ClientRequestHandler {
 	 * 
 	 * @throws RuntimeException if worker thread cannot start in a timely fashion
 	 */
-	public ClientBridge(ClientBridgeCallback callback, NetStats netStats, boolean nativeClient)
+	public ClientBridge(ClientBridgeCallback callback, NetStats netStats, boolean localhost)
 			throws RuntimeException {
 		mCallback = callback;
 		if (Logging.DEBUG) Log.d(TAG, "Starting ClientBridgeWorkerThread");
 		ConditionVariable lock = new ConditionVariable(false);
 		Context context = (Context)callback;
-		mAutoRefresh = new AutoRefresh(context, this, nativeClient);
+		mAutoRefresh = new AutoRefresh(context, this, localhost);
 		mWorker = new ClientBridgeWorkerThread(lock, mReplyHandler, context, netStats);
 		mWorker.start();
 		boolean runningOk = lock.block(2000); // Locking until new thread fully runs

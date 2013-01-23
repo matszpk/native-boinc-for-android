@@ -524,7 +524,6 @@ public class ClientBridgeWorkerHandler extends Handler {
 	}
 	
 	public void updateNotices(boolean runInternally) {
-		// TODO: do it
 		if (mDisconnecting) return;  // already in disconnect phase
 		synchronized (mUpdateCancelSync) {
 			if ((mUpdateCancelMask & (1<<AutoRefresh.NOTICES)) != 0) {

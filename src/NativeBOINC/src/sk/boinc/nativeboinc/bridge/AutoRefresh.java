@@ -126,18 +126,18 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 	private Set<UpdateRequest> mScheduledUpdates = new HashSet<UpdateRequest>();
 	private int mConnectionType = ConnectivityManager.TYPE_MOBILE;
 	private int mAutoRefresh = 0;
-	private boolean mConnectedWithNativeClient = false;
+	private boolean mConnectedWithLocalhost = false;
 
-	public AutoRefresh(final Context context, final ClientRequestHandler clientRequests, boolean nativeClient) {
+	public AutoRefresh(final Context context, final ClientRequestHandler clientRequests, boolean localhost) {
 		mClientRequests = clientRequests;
 		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(context);
 		globalPrefs.registerOnSharedPreferenceChangeListener(this);
 		final ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		final NetworkInfo ni = (cm == null) ? null : cm.getActiveNetworkInfo();
 		mConnectionType = (ni == null) ? NO_CONNECTIVITY : ni.getType();
-		mConnectedWithNativeClient = nativeClient;
+		mConnectedWithLocalhost = localhost;
 		
-		if (mConnectedWithNativeClient) {
+		if (mConnectedWithLocalhost) {
 			// if native client
 			mAutoRefresh = Integer.parseInt(globalPrefs.getString(PreferenceName.AUTO_UPDATE_LOCALHOST, "10"));
 			if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval is set to: " + mAutoRefresh + " seconds (Localhost)");
@@ -189,7 +189,7 @@ public class AutoRefresh implements OnSharedPreferenceChangeListener {
 			mAutoRefresh = Integer.parseInt(sharedPreferences.getString(PreferenceName.AUTO_UPDATE_MOBILE, "0"));
 			if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval for Mobile changed to: " + mAutoRefresh + " seconds");
 		}
-		else if (key.equals(PreferenceName.AUTO_UPDATE_LOCALHOST) && (mConnectionType == NO_CONNECTIVITY || mConnectedWithNativeClient)) {
+		else if (key.equals(PreferenceName.AUTO_UPDATE_LOCALHOST) && (mConnectionType == NO_CONNECTIVITY || mConnectedWithLocalhost)) {
 			mAutoRefresh = Integer.parseInt(sharedPreferences.getString(PreferenceName.AUTO_UPDATE_LOCALHOST, "0"));
 			if (Logging.DEBUG) Log.d(TAG, "Auto-refresh interval for Localhost changed to: " + mAutoRefresh + " seconds");
 		}

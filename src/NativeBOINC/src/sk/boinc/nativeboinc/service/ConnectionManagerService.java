@@ -290,7 +290,7 @@ public class ConnectionManagerService extends Service implements
 		// wake lock syncing
 		synchronized(mWakeLocker) {
 			// Create new bridge first
-			if (!host.isNativeClient()) // if not native client
+			if (!host.isLocalHost()) // if not native client
 				mClientBridge = new ClientBridge(this, mNetStats, false);
 			else // if native we dont attach net statistics
 				mClientBridge = new ClientBridge(this, null, true);

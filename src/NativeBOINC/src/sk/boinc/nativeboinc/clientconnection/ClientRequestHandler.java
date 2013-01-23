@@ -100,6 +100,7 @@ public interface ClientRequestHandler {
 	
 	public abstract boolean setRunMode(int mode);
 	public abstract boolean setNetworkMode(int mode);
+	public abstract boolean setGpuMode(int mode);
 	public abstract boolean doNetworkCommunication();
 	
 	public abstract void shutdownCore();

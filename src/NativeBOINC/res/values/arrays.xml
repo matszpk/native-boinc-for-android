@@ -100,6 +100,12 @@
 		<item>Network activity based on preferences</item>
 		<item>Network activity suspended</item>
 	</string-array>
+	<!-- GPU modes for client (display) -->
+	<string-array name="clientModeGpu">
+		<item>GPU always available</item>
+		<item>GPU based on preferences</item>
+		<item>GPU suspended</item>
+	</string-array>
 	<!-- Modes for client (values) - both run and network -->
 	<string-array name="clientModeValues">
 		<item>1</item>

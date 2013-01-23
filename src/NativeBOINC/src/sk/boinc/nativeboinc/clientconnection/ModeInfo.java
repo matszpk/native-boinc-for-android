@@ -26,4 +26,5 @@ package sk.boinc.nativeboinc.clientconnection;
 public class ModeInfo {
 	public int task_mode    = -1;  // run-mode of BOINC-client
 	public int network_mode = -1;  // network-mode of BOINC-client
+	public int gpu_mode 	= -1;  // gpu mode of BOINC-client
 }

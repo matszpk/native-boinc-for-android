@@ -618,6 +618,14 @@ public class ConnectionManagerService extends Service implements
 		}
 		return false;
 	}
+	
+	@Override
+	public boolean setGpuMode(int mode) {
+		if (mClientBridge != null) {
+			return mClientBridge.setGpuMode(mode);
+		}
+		return false;
+	}
 
 	@Override
 	public void shutdownCore() {

@@ -55,15 +55,16 @@ public class BoincOp {
 	public static final int OP_RUN_BENCHMARKS = 20;
 	public static final int OP_SET_RUN_MODE = 21;
 	public static final int OP_SET_NETWORK_MODE = 22;
-	public static final int OP_SHUTDOWN_CORE = 23;
-	public static final int OP_DO_NETWORK_COMM = 24;
+	public static final int OP_SET_GPU_MODE = 23;
+	public static final int OP_SHUTDOWN_CORE = 24;
+	public static final int OP_DO_NETWORK_COMM = 25;
 	
-	public static final int OP_PROJECT_OP = 25;
-	public static final int OP_TASK_OP = 26;
-	public static final int OP_TRANSFER_OP = 27;
+	public static final int OP_PROJECT_OP = 26;
+	public static final int OP_TASK_OP = 27;
+	public static final int OP_TRANSFER_OP = 28;
 	
-	public static final int OP_SET_PROXY_SETTINGS = 28;
-	public static final int OP_GET_PROXY_SETTINGS = 29;
+	public static final int OP_SET_PROXY_SETTINGS = 29;
+	public static final int OP_GET_PROXY_SETTINGS = 30;
 	
 	public static final BoincOp Connect = new BoincOp(OP_CONNECT);
 	public static final BoincOp Disconnect = new BoincOp(OP_DISCONNECT);
@@ -92,6 +93,7 @@ public class BoincOp {
 	public static final BoincOp RunBenchmarks = new BoincOp(OP_RUN_BENCHMARKS);
 	public static final BoincOp SetRunMode = new BoincOp(OP_SET_RUN_MODE);
 	public static final BoincOp SetNetworkMode = new BoincOp(OP_SET_NETWORK_MODE);
+	public static final BoincOp SetGpuMode = new BoincOp(OP_SET_GPU_MODE);
 	public static final BoincOp ShutdownCore = new BoincOp(OP_SHUTDOWN_CORE);
 	public static final BoincOp DoNetworkComm = new BoincOp(OP_DO_NETWORK_COMM);
 	

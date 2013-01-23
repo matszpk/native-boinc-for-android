@@ -1455,6 +1455,19 @@ public class ClientBridgeWorkerHandler extends Handler {
 		// If there is problem with socket, it will be handled there
 		updateClientMode(true);
 	}
+	
+	public void setGpuMode(int mode) {
+		if (mDisconnecting) return;  // already in disconnect phase
+		changeIsHandlerWorking(true);
+		notifyProgress(BoincOp.SetGpuMode, ClientReceiver.PROGRESS_XFER_STARTED);
+		mRpcClient.setGpuMode(mode, 0);
+		notifyOperationFinish(BoincOp.SetGpuMode);
+		notifyProgress(BoincOp.SetGpuMode, ClientReceiver.PROGRESS_XFER_FINISHED);
+		changeIsHandlerWorking(false);
+		// Regardless of success we run update of client mode
+		// If there is problem with socket, it will be handled there
+		updateClientMode(true);
+	}
 
 	public void shutdownCore() {
 		if (mDisconnecting) return;  // already in disconnect phase

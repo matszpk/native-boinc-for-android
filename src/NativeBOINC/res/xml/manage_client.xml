@@ -86,6 +86,17 @@
 			android:dependency="actRunMode"
 			android:shouldDisableView="true"
 			android:persistent="false" />
+		<ListPreference
+			android:key="actGpuMode"
+			android:defaultValue="preferred"
+			android:title="@string/clientActivityGpuTitle"
+			android:summary="@string/unknown"
+			android:entries="@array/clientModeGpu"
+			android:entryValues="@array/clientModeValues"
+			android:dialogTitle="@string/clientActivityGpuDialogTitle"
+			android:dependency="actRunMode"
+			android:shouldDisableView="true"
+			android:persistent="false" />
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/manageCategoryAdvanced">
 	    <Preference

@@ -1289,6 +1289,33 @@ public class RpcClient {
 			return false;
 		}
 	}
+	
+	/**
+	 * Set the gpu mode
+	 * @param mode 1 = always, 2 = auto, 3 = never, 4 = restore
+	 * @param duration If duration is zero, mode is permanent. Otherwise revert to
+	 *        last permanent mode after duration seconds elapse.
+	 * @return true for success, false for failure
+	 */
+	public boolean setGpuMode(int mode, double duration) {
+		final String request =
+			"<set_gpu_mode>\n" +
+			modeName(mode) + "\n" +
+			"<duration>" + duration + "</duration>\n" +
+			"</set_gpu_mode>\n";
+		try {
+			sendRequest(request);
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
+		}
+		catch (IOException e) {
+			if (Logging.WARNING) Log.w(TAG, "error in setGpuMode()", e);
+			return false;
+		}
+	}
 
 	/**
 	 * Set the run mode

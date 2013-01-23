@@ -378,6 +378,16 @@ public class ClientBridgeWorkerThread extends Thread {
 			}
 		});
 	}
+	
+	public void setGpuMode(final int mode) {
+		// Execute in worker thread
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.setGpuMode(mode);
+			}
+		});
+	}
 
 	public void shutdownCore() {
 		// Execute in worker thread

@@ -277,6 +277,8 @@
 	<string name="clientActivityRunDialogTitle">Run mode</string>
 	<string name="clientActivityNetworkTitle">Network activity</string>
 	<string name="clientActivityNetworkDialogTitle">Network activity</string>
+	<string name="clientActivityGpuTitle">GPU activity</string>
+	<string name="clientActivityGpuDialogTitle">GPU activity</string>
 	<string name="manageCategoryAdvanced">Advanced</string>
 	<string name="clientProxySettingsTitle">Proxy settings</string>
 	<string name="clientProxySettingsSummary">Allow to connect via proxy</string>

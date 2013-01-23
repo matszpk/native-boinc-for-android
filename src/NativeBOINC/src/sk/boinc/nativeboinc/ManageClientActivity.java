@@ -276,6 +276,19 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 				return true;
 			}
 		});
+		
+		// GPU mode
+		listPref = (ListPreference)findPreference("actGpuMode");
+		listPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
+				ListPreference listPref = (ListPreference)preference;
+				CharSequence[] actGpuDesc = listPref.getEntries();
+				int idx = listPref.findIndexOfValue((String)newValue);
+				listPref.setSummary(actGpuDesc[idx]);
+				boincChangeGpuMode(Integer.parseInt((String)newValue));
+				return true;
+			}
+		});
 
 		// proxy settings
 		pref = findPreference("proxySettings");
@@ -838,6 +851,12 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			idx = listPref.findIndexOfValue(Integer.toString(mClientMode.network_mode));
 			listPref.setValueIndex(idx);
 			listPref.setSummary(runDesc[idx]);
+			// 3. The GPU mode of currently connected client
+			listPref = (ListPreference)findPreference("actGpuMode");
+			runDesc = listPref.getEntries();
+			idx = listPref.findIndexOfValue(Integer.toString(mClientMode.gpu_mode));
+			listPref.setValueIndex(idx);
+			listPref.setSummary(runDesc[idx]);
 		}
 		else {
 			// Has not not retrieved mode yet
@@ -849,6 +868,9 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			pref.setEnabled(false);
 			// actNetworkMode preference
 			pref = findPreference("actNetworkMode");
+			pref.setSummary(getString(R.string.noHostConnected));
+			// actGpuMode preference
+			pref = findPreference("actGpuMode");
 			pref.setSummary(getString(R.string.noHostConnected));
 		}
 	}
@@ -875,6 +897,12 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			idx = listPref.findIndexOfValue(Integer.toString(mClientMode.network_mode));
 			listPref.setValueIndex(idx);
 			listPref.setSummary(runDesc[idx]);
+			// actGpuMode preference
+			listPref = (ListPreference)findPreference("actGpuMode");
+			runDesc = listPref.getEntries();
+			idx = listPref.findIndexOfValue(Integer.toString(mClientMode.gpu_mode));
+			listPref.setValueIndex(idx);
+			listPref.setSummary(runDesc[idx]);
 		}
 		else {
 			// No info available (i.e. client never connected or disconnected)
@@ -883,7 +911,9 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			// actNetworkMode preference
 			pref = findPreference("actNetworkMode");
 			pref.setSummary(getString(R.string.retrievingData));
-		
+			// actGpuMode preference
+			pref = findPreference("actGpuMode");
+			pref.setSummary(getString(R.string.retrievingData));
 		}
 	}
 	
@@ -1041,6 +1071,10 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 
 	private void boincChangeNetworkMode(int mode) {
 		mConnectionManager.setNetworkMode(mode);
+	}
+	
+	private void boincChangeGpuMode(int mode) {
+		mConnectionManager.setGpuMode(mode);
 	}
 	
 	private void boincRunCpuBenchmarks() {

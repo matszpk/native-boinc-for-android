@@ -952,6 +952,17 @@ public class ClientBridge implements ClientRequestHandler {
 		mWorker.setNetworkMode(mode);
 		return true;
 	}
+	
+	@Override
+	public boolean setGpuMode(final int mode) {
+		if (mRemoteClient == null || mClientPendingController == null)
+			return false; // not connected
+		
+		// this call always enqueued
+		mClientPendingController.begin(BoincOp.SetGpuMode);
+		mWorker.setGpuMode(mode);
+		return true;
+	}
 
 	@Override
 	public void shutdownCore() {

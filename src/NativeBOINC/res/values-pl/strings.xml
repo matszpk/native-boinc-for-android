@@ -275,6 +275,8 @@
 	<string name="clientActivityRunDialogTitle">Tryb pracy</string>
 	<string name="clientActivityNetworkTitle">Aktywność sieciowa</string>
 	<string name="clientActivityNetworkDialogTitle">Aktywność sieciowa</string>
+	<string name="clientActivityGpuTitle">Aktywność GPU</string>
+	<string name="clientActivityGpuDialogTitle">Aktywność GPU</string>
 	<string name="manageCategoryAdvanced">Zaawansowane</string>
 	<string name="clientProxySettingsTitle">Ustawienia proxy</string>
 	<string name="clientProxySettingsSummary">Pozwala na połączenie przez proxy</string>

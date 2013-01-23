@@ -35,6 +35,7 @@ public class ModeInfoCreator {
 		ModeInfo mi = new ModeInfo();
 		mi.task_mode = ccStatus.task_mode;
 		mi.network_mode = ccStatus.network_mode;
+		mi.gpu_mode = ccStatus.gpu_mode;
 		return mi;
 	}
 }

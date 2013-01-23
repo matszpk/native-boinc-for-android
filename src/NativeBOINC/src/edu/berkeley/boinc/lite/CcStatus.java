@@ -34,6 +34,10 @@ public class CcStatus {
 	public double  network_mode_delay     =  0;
 	public int     network_suspend_reason = -1;
 	public int     network_status         = -1;
+	public int     gpu_mode           	  = -1;
+	public int     gpu_mode_perm          = -1;
+	public double  gpu_mode_delay         =  0;
+	public int     gpu_suspend_reason     = -1;
 	public boolean ams_password_error = false;
 	public boolean manager_must_quit  = false;
 	public boolean disallow_attach    = false;

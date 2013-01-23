@@ -97,6 +97,18 @@ public class CcStatusParser extends BoincBaseParser {
 					else if (localName.equalsIgnoreCase("network_status")) {
 						mCcStatus.network_status = Integer.parseInt(getCurrentElement());
 					}
+					if (localName.equalsIgnoreCase("gpu_mode")) {
+						mCcStatus.gpu_mode = Integer.parseInt(getCurrentElement());
+					}
+					else if (localName.equalsIgnoreCase("gpu_mode_perm")) {
+						mCcStatus.gpu_mode_perm = Integer.parseInt(getCurrentElement());
+					}
+					else if (localName.equalsIgnoreCase("gpu_mode_delay")) {
+						mCcStatus.gpu_mode_delay = Double.parseDouble(getCurrentElement());
+					}
+					else if (localName.equalsIgnoreCase("gpu_suspend_reason")) {
+						mCcStatus.gpu_suspend_reason = Integer.parseInt(getCurrentElement());
+					}
 					else if (localName.equalsIgnoreCase("ams_password_error")) {
 						String current = getCurrentElement();
 						if (current.length() > 1) {

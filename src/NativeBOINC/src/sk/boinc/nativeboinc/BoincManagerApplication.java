@@ -376,6 +376,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	}
 	
 	public void setHtmlText(TextView text, String content) {
+		if (mStringBuilder == null) mStringBuilder = new StringBuilder(32);
 		mStringBuilder.setLength(0);
 		mStringBuilder.append("<html><body>");
 		mStringBuilder.append(content);
@@ -384,6 +385,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	}
 	
 	public void setHtmlText(TextView text, String header, String content) {
+		if (mStringBuilder == null) mStringBuilder = new StringBuilder(32);
 		mStringBuilder.setLength(0);
 		mStringBuilder.append("<html><body>");
 		mStringBuilder.append(header);

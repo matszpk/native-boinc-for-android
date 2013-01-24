@@ -418,7 +418,7 @@
 	<string name="otherProjectDetails">Choose other project</string>
 	<string name="projectsFromClient">Show projects from client</string>
 	<string name="projectsFromClientDetails">Show projects list from BOINC client</string>
-	<string name="projectListHelp"> This is list of supported projects. To get info about project please longer tap entry.</string>
+	<string name="projectListHelp">This is a list of supported projects. To get info about project please longer tap entry.</string>
 
 	<string name="projectUrl">Enter project URL</string>
 		
@@ -456,7 +456,7 @@
 	<string name="placeToInstall">Installation place</string>
 	<string name="installSuccessfully">Native BOINC client has been installed successfully!</string>
 	<string name="installAddProject">Please tap \'Add  project\' button to add first BOINC project, or \'Synchronize BAM\' if you want to synchronize client with BAM.</string>
-	<string name="installFinished">Installation have been finished. Please tap \'Finish\' button.</string>
+	<string name="installFinished">Installation has finished. Please tap \'Finish\' button.</string>
 	<string name="installWidgetFinished">Hint: We recommends to use NativeBOINC widget to control native client.</string>
 	<string name="installInfoFinished">Hint: You can also browse Project Wiki on \'http://nativeboinc.org/\' to get help and informations.</string>
 	<string name="installFinishedBenchmark">During installing first project, BOINC can run benchmark, which works by 30 seconds.</string>
@@ -488,7 +488,7 @@
 	<string name="changes">Changes</string>
 	
 	<string name="noInstallOpsText">No operations in background.</string>
-	<string name="installProgressText">NativeBOINC are performing some operations in background.</string>
+	<string name="installProgressText">NativeBOINC is performing some operations in background.</string>
 	<string name="operationsProgress">Operations progress</string>
 	
 	<!-- ProjectsActivity -->

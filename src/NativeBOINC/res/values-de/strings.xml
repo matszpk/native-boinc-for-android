@@ -27,9 +27,12 @@
 	<string name="install_service_desc">Native Client und BOINC Anwendungsinstallations-Dienst</string>
 	<string name="nboinc_service_desc">Native BOINC Client-Dienst</string>
 
+	<string name="newsHandlerDesc">Neuigkeitenverwlter</string>
 	<!-- widget names -->
 	<string name="widget2x1">NativeBOINC klein</string>
 	<string name="widgetTablet">NativeBOINC groß</string>
+
+	<string name="autostartReceiver">Empfänger automatisch starten</string>
 	
 	<!-- Some common, generic strings -->
 	<string name="back">Zurück</string>
@@ -57,7 +60,7 @@
 	<string name="retrievingInitialData">Ursprünglich Daten abrufen&#8230;</string>
 	<string name="sent">Gesendet</string>
 	<string name="shutdown">Ausschalten</string>
-	<string name="sources">Quell-Code</string>
+	<string name="sources">Quellcode</string>
 	<string name="taskSuspendedByUser">Aufgabe vom Benutzer angehalten</string>
 	<string name="unknown">unbekannt</string>
 	<string name="upgradedTo">Aktualisiert zu</string>
@@ -120,20 +123,20 @@
 	<string name="menuNativeClient">Native Client</string>
 
 	<!-- About -->
-	<string name="aboutTitle">Basis Information</string>
+	<string name="aboutTitle">Basis Informationen</string>
 	<string name="aboutHomepageUrl">http://nativeboinc.org/</string>
 	<string name="aboutText">
 		%1$s ist ein vollwertiger Native BOINC Client für Android integriert
 		mit AndroBOINC Manager v1.6.7b3.\n
-		Danke, dass Sie meine Software nutzen.\n
+		Danke, dass Sie meine Software benutzen.\n
 		Copyright &#169; 2012 matszpk\n
 		Original AndroBOINC von Pavel Michalec (Paulo M.)\n
 		\n
-		Danke für:\n
+		Danke an:\n
 		Troll81 - für Logo Design.\n
 		BOINC@Poland - für Unterstützung.\n
-		Haer und eLPeCKo (CNT) - Tschechische Übersetzung.\n
-		Daniel Winzen - Deutsch Übersetzung.\n
+		Haer und eLPeCKo (CNT) - tschechische Übersetzung.\n
+		Daniel Winzen - deutsche Übersetzung.\n
 	</string>
 
 	<!-- Preferences -->
@@ -147,8 +150,8 @@
 	<string name="prefAutoConnectEnabled">Mit kürzlich verbundenen Client beim Start verbinden</string>
 	<string name="prefCategoryNativeBoinc">Native BOINC Client</string>
 	<string name="prefPowerSaving">Strom sparen</string>
-	<string name="prefPowerSavingOnDisabled">Vom Bildschirm sperren und CPU untertakten abhalten</string>
-	<string name="prefPowerSavingOnEnabled">Bildschirm sperren und CPU untertakten erlauben</string>
+	<string name="prefPowerSavingOnDisabled">Von Bildschirmsperre und CPU-Untertaktung abhalten</string>
+	<string name="prefPowerSavingOnEnabled">Bildschirmsperre und CPU-Untertaktung erlauben</string>
 	<string name="prefScreenLockUpdateInterval">Bildschirmsperre Aktualisierungsintervall</string>
 	<string name="prefScreenLockUpdateIntervalSummary">Bildschirmsperre aktualisieren alle</string>
 	<string name="prefWidgetUpdateInterval">Widget Aktualisierungsintervall</string>
@@ -165,7 +168,7 @@
 	<string name="prefNetworkUsageDisabled">Statistiken werden NICHT gesammelt</string>
 	<string name="prefNetworkUsageNull">Empfangen: 0B, Gesendet: 0B</string>
 	<string name="prefNetworkUsageDisclaimer">
-		Die Zahl, die in der Netzwerknutzung hier angezeigt wird  sind nicht genau.
+		Die Zahlen, die in der Netzwerknutzung hier angezeigt werden, sind nicht genau.
 		Verlassen Sie sich nicht auf diese.
 	</string>
 	<string name="prefOptOutText">Diese Meldung nicht erneut anzeigen.</string>
@@ -173,10 +176,10 @@
 	<string name="prefAboutTitle">Über diese Anwendung</string>
 	<string name="prefChangelogSummary">Änderungsprtokoll</string>
 	<string name="prefLicenseSummary">Lizeztext</string>
-	<string name="prefNewsUpdatePeriodTitle">Neuigkeiteten aktualisieren alle</string>
+	<string name="prefNewsUpdatePeriodTitle">Neuigkeiten Aktualisierungsintervall</string>
 	<string name="prefNewsUpdatePeriodSummary">Neuigkeiten aktualisieren alle</string>
 	<string name="prefViewItemTypeTitle">Elementtyp anzeigen</string>
-	<string name="prefViewItemTypeSummary">Elementtype anzeigen als</string>
+	<string name="prefViewItemTypeSummary">Elementtyp anzeigen als</string>
 	
 	<!--  Local Preferences -->
 	<string name="localPreferences">Lokale Einstellungen</string>
@@ -184,6 +187,7 @@
 	<string name="localPrefComputeOptions">Berechnen</string>
 	
 	<string name="localPrefComputeOnBatteries">Während Gerät im Batteriebetrieb ist</string>
+	<string name="localPrefRunAlwaysWhenPlugged">Immer ausführen, wenn angeschlossen</string>
 	<string name="localPrefComputeInUse">Während Gerät benutzt wird</string>
 	<string name="localPrefUseGPUInUse">Nutze GPU während Gerät benutzt wird</string>
 	<string name="localPrefComputeIdleFor">Nur wenn Gerät nicht beschäftigt für</string>
@@ -200,6 +204,7 @@
 	
 	<string name="localPrefNetworkUsage">Netzwerk</string>
 	
+	<string name="localPrefXferOnlyWhenWifi">Nur übertragen, wenn WiFi aktiviert ist</string>
 	<string name="localPrefMaxDownloadRate">Maximale Download-Rate</string>
 	<string name="localPrefMaxUploadRate">Maximale Upload-Rate</string>
 	<string name="localPrefConnectAboutEvery">Verbinde alle</string>
@@ -215,14 +220,14 @@
 	<string name="localPrefLeaveAtLeast">Lasse mindestens</string>
 	<string name="localPrefGBDisk">GB Speicherplatz</string>
 	<string name="localPrefGBDiskFree">GB Speicherplatz frei</string>
-	<string name="localPrefPercentTotalDisk">% Gesamten Speicher</string>
+	<string name="localPrefPercentTotalDisk">% gesamten Speicher frei</string>
 	
 	<string name="localPrefMemoryWhenInUse">% wenn Gerät benutzt</string>
 	<string name="localPrefMemoryWhenInIdle">% wenn Gerät nicht benutzt</string>
 	<string name="localPrefCheckpointToDisk">Sicherungspunkt max. alle</string>
 	<string name="seconds">Sek</string>
 	<string name="localPrefWrong">Falscher Wert!</string>
-	<string name="localPrefLeaveApplications">Lasse Anwendungen im Arbeitsspeicher, wenn sie pausiert</string>
+	<string name="localPrefLeaveApplications">Lasse Anwendung im Arbeitsspeicher, wenn sie pausiert</string>
 	<string name="applyDefault">Standard</string>
 
 	<!-- time preferences -->
@@ -265,12 +270,18 @@
 	<string name="clientStopBAMNotify">Stoppe die Nutzung von BAM Verwaltung</string>
 	<string name="clientLocalPrefsTitle">Lokale Einstellungen</string>
 	<string name="clientLocalPrefsSummary">Lokale Einstellungen für den Client</string>
+	<string name="clientGlobalPrefsTitle">Globale Einstellungen nutzen</string>
+	<string name="clientGlobalPrefsSummary">Globale (Web-basierende) Einstellungen nutzen</string>
 	<string name="manageCategoryActivity">Aktivität</string>
 	<string name="clientActivityRunTitle">Ausführmodus</string>
 	<string name="clientActivityRunDialogTitle">Ausführmodus</string>
 	<string name="clientActivityNetworkTitle">Netzwerk Aktivität</string>
 	<string name="clientActivityNetworkDialogTitle">Netzwerk Aktivität</string>
+	<string name="clientActivityGpuTitle">GPU Aktivität</string>
+	<string name="clientActivityGpuDialogTitle">GPU Aktivität</string>
 	<string name="manageCategoryAdvanced">Erweitert</string>
+	<string name="clientProxySettingsTitle">Proxy Einstellungen</string>
+	<string name="clientProxySettingsSummary">Verbindung über einen proxy erlauben</string>
 	<string name="clientRunBenchTitle">CPU-Benchmarks ausführen</string>
 	<string name="clientRunBenchSummary">Führt BOINC CPU-Benchmarks aus</string>
 	<string name="clientRunBenchNotify">Starte CPU-Benchmarks</string>
@@ -281,8 +292,31 @@
 	<string name="clientShutdownSummary">Den aktuell verbundenen Client ausschalen</string>
 	<string name="clientShutdownNotify">Der aktuell verbundene Client wird ausgeschaltet</string>
 	<string name="warnShutdownText">Der verbundene Client wird ausgeschaltet werden. Dieser Verwalter kann den Client danach nicht starten.</string>
+
+	<!-- proxy settings -->
+	<string name="proxySettings">Proxy Einstellungen</string>
+	<string name="proxyHttpProxy">HTTP Proxy</string>
+	<string name="proxySocksProxy">SOCKS Proxy</string>
+	<string name="proxyUseHttpProxy">HTTP Proxy Server benutzen</string>
+	<string name="proxyUseSocksProxy">SOCKS Proxy server benutzen</string>
+	<string name="proxyServerAddress">Serveradresse</string>
+	<string name="proxyServerPort">Serverport</string>
+	<string name="proxyServerUserName">Benutzername</string>
+	<string name="proxyServerUserPassword">Passwort</string>
+	<string name="proxyNoForHosts">Nicht benutzen für</string>
 	
 	<!--  NativeClient activity -->
+	<string name="nativeAutostart">Client starten</string>
+	<string name="nativeAutostartTitle">Client automatisch starten</string>
+	
+	<string name="newsAndUpdates">Neuigkeiten und Aktualisierungen</string>
+	<string name="nativeLatestNewsTitle">Aktuellste Neuigkeiten</string>
+	<string name="nativeLatestNewsSummary">Zeigt die aktuellste Liste an Neuigkeiten an</string>
+	
+	<string name="notifyNewsUpdatesTitle">Über Neuigkeiten und neue Anwendungen benachrichtigen</string>
+	<string name="notifyNewsUpdatesSummaryOn">Benachrichtigungen über Neuigkeiten und neue Anwendungen alle 6 Stunden anzeigen</string>
+	<string name="notifyNewsUpdatesSummaryOff">Keine Benachrichtigungen über Neuigkeiten und neue Anwendungen alle 6 Stunden anzeigen</string>
+	
 	<string name="nativeBoincClient">Native BOINC Client</string>
 	<string name="nativeBoincNetwork">Netzwerkoptionen</string>
 	
@@ -290,23 +324,29 @@
 	<string name="nativeHostnameSummaryNone">Vom Netzwerksystem abgerufen</string>
 	<string name="nativeHostnameSummaryCurrent">Aktueller Rechnername</string>
 	<string name="nativeRemoteAccessTitle">Remotezugriff zulassen</string>
-	<string name="nativeRemoteAccessSummaryOn">Remotezugriff für andere Rechnerzulassen</string>
+	<string name="nativeRemoteAccessSummaryOn">Remotezugriff für andere Rechner zulassen</string>
 	<string name="nativeRemoteAccessSummaryOff">Remotezugriff für andere Rechner verweigern</string>
 	<string name="nativeAccessPasswordTitle">Zugriffspasswort</string>
 	<string name="nativeAccessPasswordSummary">Zugriffspasswort für den Client ändern</string>
 	<string name="nativeAccessListTitle">Rechnerzugriffsliste</string>
-	<string name="nativeAccessListSummary">Liste der Rechner, die zugriff auf den BOINC Client haben</string>
+	<string name="nativeAccessListSummary">Liste der Rechner, die Zugriff auf den BOINC Client haben</string>
 	
 	<string name="nativeBoincInstallation">Installationsoptionen</string>
 	
+	<string name="nativeMoveToSDCardTitle">Auf SD-Karte verschieben</string>
+	<string name="nativeMoveToSDCardSummary">BOINC auf SD-Karte verschieben</string>
+	<string name="nativeMoveToIntMemTitle">In internen Speicher verschieben</string>
+	<string name="nativeMoveToIntMemSummary">BOINC in internen Speicher verschieben</string>
 	<string name="nativeInstalledBinariesTitle">Installierte Anwendungen</string>
 	<string name="nativeInstalledBinariesSummary">Liste der installierten Anwendungen</string>
 	<string name="nativeUpdateBinariesTitle">Anwendungen aktualisieren</string>
 	<string name="nativeUpdateBinariesSummary">Client und Anwendungen aktualisieren</string>
-	<string name="nativeUpdateFromSDCardTitle">Von SDCard aktualisieren</string>
+	<string name="nativeUpdateFromSDCardTitle">Von SD-Karte aktualisieren</string>
 	<string name="nativeUpdateFromSDCardSummary">Client und Projektanwendungen von SDCard aktualisieren</string>
 	<string name="nativeReinstallTitle">BOINC neu installieren</string>
 	<string name="nativeReinstallSummary">BOINC Neuinstallation machen</string>
+	<string name="nativeDeleteProjectBinsTitle">Projektanwendungen löschen</string>
+	<string name="nativeDeleteProjectBinsSummary">Projektanwendungen löschen (aus app_info.xml)</string>
 	
 	<string name="nativeBoincDiagnostics">Diagnoseoptionen</string>
 	
@@ -316,8 +356,9 @@
 	<string name="nativeShowLogsSummary">Letzten Protokolle vom BOINC Client anzeigen</string>
 	
 	<string name="nativeBoincLogs">BOINC letzen Protokolle</string>
+	<string name="nativeBoincLogsHelp">Um Optionen anzuzeigen, drücken Sie bitte die Menütaste.</string>
 	
-	<string name="updateFromSDCard">Anwendungen von SDCard aktualisieren</string>
+	<string name="updateFromSDCard">Anwendungen von SD-Karte aktualisieren</string>
 	<string name="enterUpdateDir">Aktualisierungsordner eingeben</string>
 	<string name="applyAfterRestart">Änderungen werden nach Neustart wirksam. Möchten Sie den Client jetzt neu starten?</string>
 	
@@ -328,15 +369,21 @@
 	<string name="dumpBoincBegin">Beginne die BOINC Dateien zu kopieren</string>
 	<string name="dumpBoincProgress">Kopiere BOINC Dateien</string>
 	<string name="dumpBoincFinish">Kopieren der BOINC Dateien abgeschlossen</string>
-	<string name="dumpBoincWarn">Ordner %s existiert. Während dem Kopieren wird er gelöscht! Möchten Sie wirklich fortfahren die BOINC Dateien zu kopieren?</string>
+	<string name="dumpBoincWarn">Ordner %s existiert bereits. Während dem Kopieren wird er gelöscht! Möchten Sie wirklich fortfahren die BOINC Dateien zu kopieren?</string>
 	
 	<!-- reinstall boinc -->
 	<string name="boincReinstall">BOINC Neuinstallation</string>
     <string name="reinstallBegin">Starte Neuinstallation von BOINC</string>
 	<string name="reinstallInProgress">BOINC neu installieren</string>
 	<string name="reinstallFinish">Neuinstallation abgeschlossen</string>
-	<string name="reinstallQuestion">Neuinstallation entfernt den kompletten BOINC Ordnet (mit Projekten). Möchten Sie BOINC wirklich neu installieren?</string>
+	<string name="reinstallQuestion">Neuinstallation entfernt den kompletten BOINC Ordner (mit Projekten). Möchten Sie BOINC wirklich neu installieren?</string>
 	<string name="waitingForShutdown">Warte auf Ausschalten</string>
+	
+	<!-- move from/to sdcard -->
+	<string name="boincMoveTo">Verschiebe BOINC</string>
+	<string name="moveToBegin">BOINC verschieben wird gestartet</string>
+	<string name="moveToProgress">BOINC Installation wird verschoben</string>
+	<string name="moveToFinish">BOINC Installation verschieben abgeschlossen</string>
 	
 	<!-- access host list activity -->
 	<string name="accessHostList">Rechnerzugriffsliste</string>
@@ -352,27 +399,27 @@
 	
 	<!-- logs -->
 	<string name="enterOutputFilePath">Geben Sie den Ausgabedatei-Pfad ein</string>
-	<string name="boincLogsSaveError">Konnte BOINC Protokolle nicht auf SDCard speichern</string>
+	<string name="boincLogsSaveError">Konnte BOINC Protokolle nicht auf SD-Karte speichern</string>
 	
 	<!-- HostList Activity -->
 	<string name="selectHost">Rechner wählen</string>
 	<string name="hostAddNew">Neuen Rechner hinzufügen</string>
 	<string name="hostEdit">Rechner bearbeiten</string>
 	<string name="hostDelete">Rechner löschen</string>
-	<string name="hostSetDefault">Standardrechner setzen</string>
+	<string name="hostSetDefault">Standardrechner festlegen</string>
 	<string name="noHostDefined">Kein Rechner definiert</string>
 	<string name="hostNone">Kein Rechner</string>
-	<string name="hostNoneSummary">Vom aktuellen Rechner getrennt</string>
+	<string name="hostNoneSummary">Vom aktuellen Rechner trennen</string>
 	<string name="hostOperation">Rechneroperationen</string>
 	
 	<!-- ProjectList Activity -->
-	<string name="projectList">Wählen Sie ein Projekt</string>
+	<string name="projectList">Ein Projekt wählen</string>
 	<string name="noProjects">Projektliste ist leer</string>
 	<string name="otherProject">Anderes Projekt</string>
-	<string name="otherProjectDetails">Wählen Sie ein anderes Projekt</string>
-	<string name="projectsFromClient">Projekts vom Client anzeigen</string>
+	<string name="otherProjectDetails">Anderes Projekt wählen</string>
+	<string name="projectsFromClient">Projekte vom Client anzeigen</string>
 	<string name="projectsFromClientDetails">Projektliste vom BOINC Client anzeigen</string>
-	<string name="projectListHelp">Um Info über das Projekt zu bekommen, drücken Sie bitte länger auf den Eintrag.</string>
+	<string name="projectListHelp">Dies ist eine Liste unterstützter Projekte. Um Infos über das Projekt zu bekommen, drücken Sie bitte länger auf den Eintrag.</string>
 
 	<string name="projectUrl">Geben Sie die Projekt-URL ein</string>
 		
@@ -405,20 +452,22 @@
 	<string name="installWizard">Installationsassistent</string>
 	<string name="installWelcome">Willkommen bei NativeBOINC!</string>
 	<string name="installClientInstall">Bitte drücken Sie auf die \'Weiter\' Schaltfläche um den Native BOINC Client herunterzuladen und zu installieren.</string>
+	<string name="haveProblemsSelectOlder">Ich habe Probleme mit der Client Version 0.5.9x, wähle 0.4.9x</string>
 	<string name="versionToInstall">Version zu installieren</string>
+	<string name="placeToInstall">Installationsort</string>
 	<string name="installSuccessfully">Native BOINC Client wurde erfolgreich installiert!</string>
 	<string name="installAddProject">Bitte drücken Sie auf die \'Projekt hinzuf.\' Schaltfläche um das erste BOINC Projekt hinzuzufügen, oder \'BAM Sync.\' wenn Sie den Client mit BAM synchronisieren möchten.</string>
 	<string name="installFinished">Installation wurde abgeschlossen. Bitte drücken Sie auf die \'Fertig\' Schaltfläche.</string>
-	<string name="installWidgetFinished">Hinweis: Wir empfehlen Ihnen das NativeBOINC Widget zu nutzen um den Native Client zu konfigurieren.</string>
+	<string name="installWidgetFinished">Hinweis: Wir empfehlen Ihnen das NativeBOINC Widget zu nutzen um den Native Client zu kontrollieren.</string>
 	<string name="installInfoFinished">Hinweis: Sie können das Projekt Wiki auf \'http://nativeboinc.org/\' durchsuchen um Hilfe und Informationen zu bekommen.</string>
 	<string name="installFinishedBenchmark">Während der Installation des ersten Projekts, kann BOINC Benchmarks ausführen, die 30 Sekunden arbeiten.</string>
 
 	<string name="installReadBefore">VOR DER INSTALLATION LESEN:</string>
 	<string name="installAttention2">Wenn die Anwendung unerwartet beendet wird, nutzen Sie bitte \'Schließen erzwingen\' und starten Sie sie erneut.
-	    Anwendung beendet alle Client beim Start.</string>
-	<string name="installAttention3">BOINC Client wird im Hintergrund arbeiten. Bitte nutzen Sie die \'Ausschalten\'Option um den Client auszuschalten.</string>
+	    Anwendung beendet alle Clienten beim Start.</string>
+	<string name="installAttention3">BOINC Client wird im Hintergrund ausgeführt. Bitte nutzen Sie die \'Ausschalten\'-Option um den Client auszuschalten.</string>
 	
-	<string name="installNetworkAccess1">BOINC Client erlaubt es Ihen sich mit ihm über das Netzwerk mit BOINC Manager zu verbinden.</string>
+	<string name="installNetworkAccess1">BOINC Client erlaubt es Ihnen sich mit ihm über das Netzwerk mit BOINC Manager zu verbinden.</string>
 	
 	<string name="installClientNotifyBegin">BOINC Client installieren</string>
 	<string name="installClientNotifyFinish">BOINC Client wurde installiert</string>
@@ -459,7 +508,7 @@
 	<string name="warnDetachProject">Sind Sie sicher, dass Sie das Projekt (%1$s) entfernen möchten?</string>
 	<string name="warnDetachProjects">Sind Sie sicher, dass Sie die ausgewählten Projekte entfernen möchten?</string>
 	
-	<string name="projectCredits">Gesamt:%1$.0f RAC:%2$.0f Rechner:%3$.0f RechnerRAC:%4$.0f</string>
+	<string name="projectCredits">Gesamt:%1$.0f RAC:%2$.0f Rechner:%3$.0f Rechner RAC:%4$.0f</string>
 	<string name="projectDetailedInfo">
 		&lt;b>Projekt:&lt;/b> %1$s&lt;br>\n
 		&lt;b>Konto:&lt;/b> %2$s&lt;br>\n
@@ -502,6 +551,10 @@
 	<string name="updateNoNew">Keine neuen Anwendungen</string>
 	<string name="updateBoincClient">BOINC Client</string>
 	<string name="updateUpdating">Aktualisiere</string>
+
+	<!-- Delete project binaries -->
+	<string name="deleteProjectBins">Projektanwendungen löschen</string>
+	<string name="noProjectsWithInstalledBins">Keine Projekte mit installierten Anwendungen</string>
 	
 	<!-- TasksActivity -->
 	<string name="taskCtxMenuTitle">Befehle</string>
@@ -546,7 +599,7 @@
 	<string name="downloadFailed">Herunterladen fehlgeschlagen</string>
 	<string name="downloading">Am Herunterladen</string>
 	<string name="downloadPending">Herunterladen ausstehend</string>
-	<string name="projectBackoff">Projekt backoff</string>
+	<string name="projectBackoff">Projekt zurückgesetzt</string>
 	<string name="retryIn">Erneut versuchen in</string>
 	<string name="transferAbort">Abbrechen</string>
 	<string name="transferProperties">Eigenschaften</string>
@@ -608,14 +661,14 @@
 	<string name="nativeClientNormalExitWithCode">Native Client wurde beendet mit Code</string>
 	<string name="nativeClientSignaled">Native Client wurde beendet durch Signal</string>
 	<string name="nativeClientStoppedByForeign">Native Client wurde durch eine fremde Anwendung gestoppt!</string>
-	<string name="nativeClientStopUnknownReason">Unbekannter Grund, wiso Native Client selber gestoppt hat</string>
+	<string name="nativeClientStopUnknownReason">Unbekannter Grund, wiso Native Client sich selbst gestoppt hat</string>
 	
 	<!-- native client events -->
 	<string name="eventAttachedProject">Neues Projekt wurde hinzugefügt</string>
 	<string name="eventAttachedProjectMessage">Projekt von %s wurde hinzugefügt</string>
 	<string name="eventDetachedProject">Projekt wurde entfernt</string>
 	<string name="eventDetachedProjectMessage">Projekt von %s wurde entfernt</string>
-	<string name="eventBencharkRun">Benchmark wurde ausgeführt</string>
+	<string name="eventBencharkRun">Benchmark wurde gestartet</string>
 	<string name="eventBencharkFinished">Benchmark wurde abgeschlossen</string>
 	<string name="eventSuspendAll">Alle Aufgaben wurden angehalten</string>
 	<string name="eventRunTasks">Aufgaben wurden fortgesetzt</string>
@@ -639,16 +692,19 @@
 	<string name="verifySignatureFailed">Signaturverifikation fehlgeschlagen</string>
 	<string name="unpackNativeClientError">Konnte Native Client nicht entpacken</string>
 	<string name="unpackApplicationError">Konnte Projektanwendungen nicht entpacken</string>
+	<string name="copyApplicationError">Konnte Projektanwendungen nicht kopieren</string>
 	<string name="changePermissionsError">Konnte die Rechte nicht ändern</string>
 	<string name="copyNativeClientError">Konnte Native Client nicht kopieren</string>
 	
 	<string name="runNativeClientError">Konnte Native Client nicht ausführen</string>
 	<string name="connectNativeClientError">Konnte nicht mit dem Native Client verbinden</string>
 	<string name="getAccessPasswordError">Konnte Zugriffspasswort nicht bekommen</string>
-	<string name="setAccessPasswordError">Konnte Zugriffspasswort nicht setzen</string>
+	<string name="setAccessPasswordError">Konnte Zugriffspasswort nicht festlegen</string>
 	<string name="nativeAuthorizeError">Konnte den Zugriff nicht autorisieren</string>
 	
 	<string name="nativeClientConfigError">Konnte Native Client nicht konfigurieren</string>
+	<string name="nativeClientUpdateAppsError">Konnte Anwendungen nicht aktualisieren</string>
+	<string name="nativeClientNetCommError">Konnte Netzwerkkommunikation nicht ausführen</string>
 	<string name="nativeClientResultsError">Konnte kein Ergebnis von Native Client bekommen</string>
 	<string name="nativeClientProjectsError">Konnte keine Projekte vom Native Client bekommen</string>
 	
@@ -664,17 +720,19 @@
 	<string name="boincOperationError">Ein Fehler ist während der BOINC Operation aufgetreten</string>
 	<string name="boincPollError">Ein Fehler ist während der BOINC Abfrageoperation aufgetreten</string>
 	
-	<string name="binSDCardDirReadError">Konnte SDCard Ordner nicht lesen</string>
-    <string name="getProjectsFromClientError">Konnte Projekte vom Client nicht abrufen</string>
-    <string name="badDataInClientDistrib">Client-Verteilung hat unvollständige Informationen!</string>
-    <string name="badDataInProjectDistribs">Projekt-Verteilung hat unvollständige Informationen!</string>
-    <string name="copyApplicationError">Konnte die Projektanwendungen nicht kopieren</string>
-     
+	<string name="binSDCardDirReadError">Konnte SD-Karten Ordner nicht lesen</string>
+	<string name="getProjectsFromClientError">Konnte Projekte vom Client nicht abrufen</string>
+	<string name="badDataInClientDistrib">Client-Verteilung hat unvollständige Informationen!</string>
+	<string name="badDataInProjectDistribs">Projekt-Verteilung hat unvollständige Informationen!</string>
 	
 	<string name="unexpectedError">Unerwarteter Fehler</string>
 	
 	<string name="errorNumFormat">(Fehler: %d)</string>
+		
+	<string name="cantAuthorizeClientMonitor">Konnte Clientüberwachungnicht autorisieren!</string>
+	<string name="cantAuthorizeClientMonitorMessage">Konnte Clientüberwachungnicht autorisieren! Sie können nicht automatisch Projektanwendungen installieren (Sie können die Anwendungen aktualisieren Option nach dem Hinzufügen des Projekts benutzen) oder Client Ereignisse empfangen. Sie können den BOINC Client neustarten (empfohlen).</string>
 	
+	<string name="cantDeleteProjectBins">Konnte Projektanwendungen nicht löschen</string>
 	<!-- HostInfo display -->
 	<string name="hostInfoPart1">
 		&lt;b>Domain Name:&lt;/b> %1$s&lt;br />
@@ -695,10 +753,34 @@
 		&lt;b>MIPS:&lt;/b> %2$s&lt;br />
 		&lt;b>Speicher Bandbreite:&lt;/b> %3$s&lt;br />
 		&lt;b>Benchmarks haben berechnet:&lt;/b> %4$s&lt;br />
-		&lt;b>Arbeitsspeichergröße:&lt;/b> %5$s&lt;br />
+		&lt;b>Arbeitsspeicher-Größe:&lt;/b> %5$s&lt;br />
 		&lt;b>Cache-Größe:&lt;/b> %6$s&lt;br />
 		&lt;b>Swap-Größe:&lt;/b> %7$s&lt;br />
-		&lt;b>Speicher-Größe:&lt;/b> %8$s&lt;br />
+		&lt;b>Speichergröße:&lt;/b> %8$s&lt;br />
 		&lt;b>Speicher frei:&lt;/b> %9$s&lt;br />
 	</string>
+
+	<!-- news, news -->
+	<string name="latestNews">Aktuellste Neuigkeiten</string>
+	<string name="newsNotifyText">Neuigkeiten wurden empfangen!</string>
+	<string name="newsMessage">Nachricht</string>
+	<string name="noNewsAvailable">Keine Neuigkeiten verfügbar</string>
+	
+	<string name="newBinariesAvailable">Neue Anwendungen verfügbar!</string>
+	
+	<!-- install sources -->
+	<string name="PGPKey">CAD10E7D</string>
+	<string name="installClientSourceUrl">http://files.nativeboinc.org/boinc_client/</string>
+	<!-- <string name="installClientSourceUrl">http://krzyszp.info/matszpk/boinc_client/</string>-->
+	<!-- <string name="installClientSourceUrl">http://192.168.1.3:8080/examples/boinc_client/</string>-->
+	<!-- <string name="installClientSourceUrl">http://192.168.1.3:8080/examples/new/boinc_client/</string>-->
+	<string name="installAppsSourceUrl">http://files.nativeboinc.org/boinc_apps/</string>
+	<!-- <string name="installAppsSourceUrl">http://krzyszp.info/matszpk/boinc_apps/</string>-->
+	<!-- <string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/boinc_apps/</string>-->
+	<!-- <string name="installAppsSourceUrl">http://192.168.1.3:8080/examples/new/boinc_apps/</string>-->
+	
+	<!-- notification sources -->
+	<string name="newsRemoteFile">http://files.nativeboinc.org/news/news.xml</string>
+	<!-- <string name="newsRemoteFile">http://krzyszp.info/matszpk/news/news.xml</string>-->
+	<!-- <string name="newsRemoteFile">http://192.168.1.3:8080/examples/news.xml</string>-->
 </resources>

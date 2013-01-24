@@ -1,4 +1,8 @@
-Version 0.4.2 (beta) (2013-01.23):
+Version 0.4.2.1 (beta) (2013-01-24):
+- updated Germanish translations (Daniel Winzen)
+- fixed some 'bugs' in texts (Daniel Winzen)
+
+Version 0.4.2 (beta) (2013-01-23):
 - fixed localhost autorefresh policy
 - extended autorefresh options
 - added set GPU mode in 'Manage client' screen

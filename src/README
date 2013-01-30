@@ -1,7 +1,24 @@
 boinc-6.XX.XX - BOINC source codes
-gcwsieve-1.3.8 - gcwsieve application source codes
+boinc-7.0.XX - BOINC source codes (version 7.0.X)
 curl-7.XX.XX - required library by BOINC
 openssl-7.XX.XX - required library by BOINC
+libexecwrapper-0.1 - exec wrapper which enables executing programs on the sdcard (by simulating)
 init.sh - setup script
 
+gcwsieve-1.3.8 - gcwsieve (Primegrid) application source codes
+enigma-suite-0.76 - Enigma (Enigma@Home) main application source codes
+enigma-wrapper - Enigma app wrapper for BOINC
+harmtree-0.1 - HarmoniousTree (Yoyo@Home) application source codes
+milkyway_separation_X.XX - MilkyWay@Home Separation app source codes
+sr2sieve-1.8.11 - sr2sieve (Primegrid) application source codes
+sr2sieve-wrapper - sr2sieve wrapper source codes
+Subset-Sum - SubsetSum@Home application source codes
+wuprop-3.3X - WUProp@Home application source codes
+
 Before building anything program please setup init.sh and run 'source init.sh' from shell.
+
+You should compile packages in the following order:
+* openssl
+* curl
+* boinc
+* boinc applications

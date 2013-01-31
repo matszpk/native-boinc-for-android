@@ -59,13 +59,19 @@ public class MonitorThread extends Thread {
 		}
 		
 		public void onMonitorEvent(ClientEvent event) {
-			MonitorListener[] listeners = mListeners.toArray(new MonitorListener[0]);
+			MonitorListener[] listeners = null;
+			synchronized (this) {
+				listeners = mListeners.toArray(new MonitorListener[0]);
+			}
 			for (MonitorListener callback: listeners)
 				callback.onMonitorEvent(event);
 		}
 		
 		public void onMonitorDoesntWork() {
-			MonitorListener[] listeners = mListeners.toArray(new MonitorListener[0]);
+			MonitorListener[] listeners = null;
+			synchronized (this) {
+				listeners = mListeners.toArray(new MonitorListener[0]);
+			}
 			for (MonitorListener callback: listeners)
 				callback.onMonitorDoesntWork();
 		}

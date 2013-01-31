@@ -130,8 +130,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 				});
 			}
 			
-			AbstractNativeBoincListener[] listeners = mListeners.toArray(
-					new AbstractNativeBoincListener[0]);
+			AbstractNativeBoincListener[] listeners = null;
+			synchronized (NativeBoincService.this) {
+				listeners = mListeners.toArray(new AbstractNativeBoincListener[0]);
+			}
 			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincStateListener)
 					((NativeBoincStateListener)listener).onClientStart();
@@ -158,8 +160,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 			// notify about error
 			mNotificationController.notifyClientEvent(message, message, true);
 			
-			AbstractNativeBoincListener[] listeners = mListeners.toArray(
-					new AbstractNativeBoincListener[0]);
+			AbstractNativeBoincListener[] listeners = null;
+			synchronized (NativeBoincService.this) {
+				listeners = mListeners.toArray(new AbstractNativeBoincListener[0]);
+			}
 			for (AbstractNativeBoincListener listener: listeners)
 				if (listener.onNativeBoincClientError(message))
 					called = true;
@@ -177,8 +181,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 			PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
 			channel.finish(workerOp);
 			
-			AbstractNativeBoincListener[] listeners = mListeners.toArray(
-					new AbstractNativeBoincListener[0]);
+			AbstractNativeBoincListener[] listeners = null;
+			synchronized (NativeBoincService.this) {
+				listeners = mListeners.toArray(new AbstractNativeBoincListener[0]);
+			}
 			
 			boolean called = false;
 			for (AbstractNativeBoincListener listener: listeners)
@@ -196,8 +202,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 		public void onProgressChange(int channelId, double progress) {
 			PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
 			
-			AbstractNativeBoincListener[] listeners = mListeners.toArray(
-					new AbstractNativeBoincListener[0]); 
+			AbstractNativeBoincListener[] listeners = null;
+			synchronized (NativeBoincService.this) {
+				listeners = mListeners.toArray(new AbstractNativeBoincListener[0]);
+			} 
 			
 			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincReplyListener) {
@@ -212,8 +220,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 		public void getTasks(int channelId, ArrayList<TaskItem> tasks) {
 			PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
 			
-			AbstractNativeBoincListener[] listeners = mListeners.toArray(
-					new AbstractNativeBoincListener[0]); 
+			AbstractNativeBoincListener[] listeners = null;
+			synchronized (NativeBoincService.this) {
+				listeners = mListeners.toArray(new AbstractNativeBoincListener[0]);
+			} 
 			
 			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincTasksListener) {
@@ -228,8 +238,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 		public void getProjects(int channelId, ArrayList<Project> projects) {
 			PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
 			
-			AbstractNativeBoincListener[] listeners = mListeners.toArray(
-					new AbstractNativeBoincListener[0]); 
+			AbstractNativeBoincListener[] listeners = null;
+			synchronized (NativeBoincService.this) {
+				listeners = mListeners.toArray(new AbstractNativeBoincListener[0]);
+			}
 			
 			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincProjectsListener) {
@@ -244,8 +256,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 		public void updatedProjectApps(int channelId, String projectUrl) {
 			PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
 			
-			AbstractNativeBoincListener[] listeners = mListeners.toArray(
-					new AbstractNativeBoincListener[0]);
+			AbstractNativeBoincListener[] listeners = null;
+			synchronized (NativeBoincService.this) {
+				listeners = mListeners.toArray(new AbstractNativeBoincListener[0]);
+			}
 			
 			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincUpdateListener) {
@@ -260,8 +274,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 		public void networkCommunicationDone(int channelId) {
 			PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
 			
-			AbstractNativeBoincListener[] listeners = mListeners.toArray(
-					new AbstractNativeBoincListener[0]);
+			AbstractNativeBoincListener[] listeners = null;
+			synchronized (NativeBoincService.this) {
+				listeners = mListeners.toArray(new AbstractNativeBoincListener[0]);
+			}
 			
 			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincNetCommListener) {
@@ -274,8 +290,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 		}
 		
 		public void notifyChangeIsWorking(boolean isWorking) {
-			AbstractNativeBoincListener[] listeners = mListeners.toArray(
-					new AbstractNativeBoincListener[0]);
+			AbstractNativeBoincListener[] listeners = null;
+			synchronized (NativeBoincService.this) {
+				listeners = mListeners.toArray(new AbstractNativeBoincListener[0]);
+			}
 			
 			for (AbstractNativeBoincListener listener: listeners)
 				listener.onChangeRunnerIsWorking(isWorking);
@@ -283,8 +301,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 		
 		/* automatic installation events */
 		public void beginProjectInstallation(String projectUrl) {
-			AbstractNativeBoincListener[] listeners = mListeners.toArray(
-					new AbstractNativeBoincListener[0]);
+			AbstractNativeBoincListener[] listeners = null;
+			synchronized (NativeBoincService.this) {
+				listeners = mListeners.toArray(new AbstractNativeBoincListener[0]);
+			}
 			
 			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincAutoInstallListener)
@@ -292,8 +312,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 		}
 		
 		public void projectsNotFound(List<String> projectUrls) {
-			AbstractNativeBoincListener[] listeners = mListeners.toArray(
-					new AbstractNativeBoincListener[0]);
+			AbstractNativeBoincListener[] listeners = null;
+			synchronized (NativeBoincService.this) {
+				listeners = mListeners.toArray(new AbstractNativeBoincListener[0]);
+			}
 			
 			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincAutoInstallListener)
@@ -397,7 +419,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 		if (mMonitorThread != null)
 			mMonitorThread.quitFromThread();
 		
-		mListeners.clear();
+		synchronized(this) {
+			mListeners.clear();
+		}
 		if (mDimWakeLock.isHeld()) {
 			if (Logging.DEBUG) Log.d(TAG, "release screen lock");
 			mDimWakeLock.release();

@@ -115,7 +115,10 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 
 		public void notifyProgress(BoincOp boincOp, int progress) {
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers)
 				observer.clientConnectionProgress(boincOp, progress);
 		}
@@ -137,7 +140,10 @@ public class ClientBridge implements ClientRequestHandler {
 			mClientPendingController.finish(boincOp);
 			
 			boolean called = false;
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer.clientError(boincOp, errorNum, errorMessage))
 					called = true;
@@ -157,7 +163,10 @@ public class ClientBridge implements ClientRequestHandler {
 			
 			boolean called = false;
 			
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientPollReceiver) {
 					if (((ClientPollReceiver)observer).onPollError(errorNum, operation,
@@ -178,7 +187,10 @@ public class ClientBridge implements ClientRequestHandler {
 			mConnected = true;
 			mRemoteClientVersion = clientVersion;
 			
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers)
 				observer.clientConnected(mRemoteClientVersion);
 		}
@@ -186,14 +198,19 @@ public class ClientBridge implements ClientRequestHandler {
 		public void notifyDisconnected(boolean disconnectedByManager) {
 			mConnected = false;
 			mRemoteClientVersion = null;
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				observer.clientDisconnected(disconnectedByManager);
 				if (Logging.DEBUG) Log.d(TAG, "Detached observer: " + observer.toString()); // see below clearing of all observers
 			}
 			// before clearing observers inform is client connection finish work
 			onChangeIsWorking(false);
-			mObservers.clear();
+			synchronized(this) {
+				mObservers.clear();
+			}
 			mClientPendingController = null;
 		}
 
@@ -205,7 +222,10 @@ public class ClientBridge implements ClientRequestHandler {
 		public void updatedClientMode(final ModeInfo modeInfo) {
 			mClientPendingController.finishWithOutput(BoincOp.UpdateClientMode, modeInfo);
 			
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientManageReceiver) {
 					ClientManageReceiver callback = (ClientManageReceiver)observer;
@@ -220,7 +240,10 @@ public class ClientBridge implements ClientRequestHandler {
 		public void updatedHostInfo(final HostInfo hostInfo) {
 			mClientPendingController.finishWithOutput(BoincOp.UpdateHostInfo, hostInfo);
 			
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientManageReceiver)
 					((ClientManageReceiver)observer).updatedHostInfo(hostInfo);
@@ -230,7 +253,10 @@ public class ClientBridge implements ClientRequestHandler {
 		public void currentBAMInfo(final AccountMgrInfo bamInfo) {
 			mClientPendingController.finishWithOutput(BoincOp.GetBAMInfo, bamInfo);
 			
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientAccountMgrReceiver)
 					((ClientAccountMgrReceiver)observer).currentBAMInfo(bamInfo);
@@ -240,7 +266,10 @@ public class ClientBridge implements ClientRequestHandler {
 		public void currentAllProjectsList(final ArrayList<ProjectListEntry> projects) {
 			mClientPendingController.finishWithOutput(BoincOp.GetAllProjectList, projects);
 			
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientAllProjectsListReceiver)
 					((ClientAllProjectsListReceiver)observer).currentAllProjectsList(projects);
@@ -253,7 +282,10 @@ public class ClientBridge implements ClientRequestHandler {
 				// if not add project (standalone calls)
 				mClientPendingController.finish(BoincOp.AddProject);
 			
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientProjectReceiver)
 					((ClientProjectReceiver)observer).currentAuthCode(projectUrl, authCode);
@@ -268,7 +300,10 @@ public class ClientBridge implements ClientRequestHandler {
 		public void currentProjectConfig(String projectUrl, final ProjectConfig projectConfig) {
 			mClientPendingController.finishWithOutput(BoincOp.GetProjectConfig, projectConfig);
 			
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientProjectReceiver)
 					((ClientProjectReceiver)observer).currentProjectConfig(projectUrl,
@@ -280,7 +315,10 @@ public class ClientBridge implements ClientRequestHandler {
 			mClientPendingController.finishWithOutput(BoincOp.GlobalPrefsWorking, globalPrefs);
 			
 			// First, check whether callback is still present in observers
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientPreferencesReceiver)
 					((ClientPreferencesReceiver)observer).currentGlobalPreferences(globalPrefs);
@@ -291,7 +329,10 @@ public class ClientBridge implements ClientRequestHandler {
 			mClientPendingController.finish(BoincOp.SyncWithBAM);
 			
 			// First, check whether callback is still present in observers
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientAccountMgrReceiver)
 					((ClientAccountMgrReceiver)observer).onAfterAccountMgrRPC();
@@ -304,7 +345,10 @@ public class ClientBridge implements ClientRequestHandler {
 			
 			mClientPendingController.finish(BoincOp.AddProject);
 			mJoinedAddProjectUrl = null;
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientProjectReceiver)
 					((ClientProjectReceiver)observer).onAfterProjectAttach(projectUrl);
@@ -314,7 +358,10 @@ public class ClientBridge implements ClientRequestHandler {
 		public void onGlobalPreferencesChanged() {
 			mClientPendingController.finish(BoincOp.GlobalPrefsOverride);
 			
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientPreferencesReceiver)
 					((ClientPreferencesReceiver)observer).onGlobalPreferencesChanged();
@@ -325,7 +372,10 @@ public class ClientBridge implements ClientRequestHandler {
 			mClientPendingController.finishWithOutput(BoincOp.GetProxySettings, proxyInfo);
 			
 			// First, check whether callback is still present in observers
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientProxyReceiver)
 					((ClientProxyReceiver)observer).currentProxySettings(proxyInfo);
@@ -335,7 +385,10 @@ public class ClientBridge implements ClientRequestHandler {
 		public void onProxySettingsChanged() {
 			mClientPendingController.finish(BoincOp.SetProxySettings);
 			
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientProxyReceiver)
 					((ClientProxyReceiver)observer).onProxySettingsChanged();
@@ -345,7 +398,10 @@ public class ClientBridge implements ClientRequestHandler {
 		public void updatedProjects(final ArrayList <ProjectInfo> projects) {
 			mClientPendingController.finishWithOutput(BoincOp.UpdateProjects, projects);
 			
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientUpdateProjectsReceiver) {
 					ClientUpdateProjectsReceiver callback = (ClientUpdateProjectsReceiver)observer;
@@ -360,7 +416,10 @@ public class ClientBridge implements ClientRequestHandler {
 		public void updatedTasks(final ArrayList <TaskInfo> tasks) {
 			mClientPendingController.finishWithOutput(BoincOp.UpdateTasks, tasks);
 			
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientUpdateTasksReceiver) {
 					ClientUpdateTasksReceiver callback = (ClientUpdateTasksReceiver)observer;
@@ -375,7 +434,10 @@ public class ClientBridge implements ClientRequestHandler {
 		public void updatedTransfers(final ArrayList <TransferInfo> transfers) {
 			mClientPendingController.finishWithOutput(BoincOp.UpdateTransfers, transfers);
 			
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientUpdateTransfersReceiver) {
 					ClientUpdateTransfersReceiver callback = (ClientUpdateTransfersReceiver)observer;
@@ -390,7 +452,10 @@ public class ClientBridge implements ClientRequestHandler {
 		public void updatedMessages(final ArrayList <MessageInfo> messages) {
 			mClientPendingController.finishWithOutput(BoincOp.UpdateMessages, messages);
 			
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientUpdateMessagesReceiver) {
 					ClientUpdateMessagesReceiver callback = (ClientUpdateMessagesReceiver)observer;
@@ -405,7 +470,10 @@ public class ClientBridge implements ClientRequestHandler {
 		public void updatedNotices(final ArrayList <NoticeInfo> notices) {
 			mClientPendingController.finishWithOutput(BoincOp.UpdateNotices, notices);
 			
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientUpdateNoticesReceiver) {
 					ClientUpdateNoticesReceiver callback = (ClientUpdateNoticesReceiver)observer;
@@ -418,7 +486,10 @@ public class ClientBridge implements ClientRequestHandler {
 		}
 		
 		public void onChangeIsWorking(boolean isWorking) {
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers)
 				observer.onClientIsWorking(isWorking);
 		}
@@ -449,7 +520,10 @@ public class ClientBridge implements ClientRequestHandler {
 			});
 			
 			// send notification to observers about cancelling
-			ClientReceiver[] observers = mObservers.toArray(new ClientReceiver[0]);
+			ClientReceiver[] observers = null;
+			synchronized(ClientBridge.this) {
+				observers = mObservers.toArray(new ClientReceiver[0]);
+			}
 			for (ClientReceiver observer: observers) {
 				if (observer instanceof ClientPollReceiver) {
 					((ClientPollReceiver)observer).onPollCancel(opFlags);
@@ -511,7 +585,9 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public void registerStatusObserver(ClientReceiver observer) {
 		// Another observer wants to be notified - add him into collection of observers
-		mObservers.add(observer);
+		synchronized(this) {
+			mObservers.add(observer);
+		}
 		if (Logging.DEBUG) Log.d(TAG, "Attached new observer: " + observer.toString());
 		if (mConnected) {
 			// New observer is attached while we are already connected
@@ -523,7 +599,9 @@ public class ClientBridge implements ClientRequestHandler {
 	@Override
 	public void unregisterStatusObserver(ClientReceiver observer) {
 		// Observer does not want to receive notifications anymore - remove him
-		mObservers.remove(observer);
+		synchronized(this) {
+			mObservers.remove(observer);
+		}
 		if (mConnected) {
 			// The observer could have automatic refresh pending
 			// Remove it now

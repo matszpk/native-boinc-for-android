@@ -245,7 +245,10 @@ public class InstallerService extends Service {
 			
 			mNotificationController.handleOnOperation(distribName, projectUrl, opDescription);
 			
-			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			AbstractInstallerListener[] listeners = null;
+			synchronized(InstallerService.this) {
+				listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			}
 			for (AbstractInstallerListener listener: listeners)
 				if (listener instanceof InstallerProgressListener)
 					((InstallerProgressListener)listener).onOperation(distribName, opDescription);
@@ -261,7 +264,10 @@ public class InstallerService extends Service {
 			mNotificationController.handleOnOperationProgress(distribName, projectUrl,
 					opDescription, progress);
 			
-			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			AbstractInstallerListener[] listeners = null;
+			synchronized(InstallerService.this) {
+				listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			}
 			for (AbstractInstallerListener listener: listeners)
 				if (listener instanceof InstallerProgressListener)
 					((InstallerProgressListener)listener).onOperationProgress(
@@ -289,7 +295,10 @@ public class InstallerService extends Service {
 			
 			boolean called = false;
 			
-			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			AbstractInstallerListener[] listeners = null;
+			synchronized(InstallerService.this) {
+				listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			}
 			for (AbstractInstallerListener listener: listeners) {
 				if (listener.getInstallerChannelId() != channelId)
 					continue;
@@ -319,7 +328,10 @@ public class InstallerService extends Service {
 				mNotificationController.handleOnOperationCancel(distribName, projectUrl);
 			}
 						
-			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			AbstractInstallerListener[] listeners = null;
+			synchronized(InstallerService.this) {
+				listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			}
 			for (AbstractInstallerListener listener: listeners)
 				if (listener.getInstallerChannelId() == channelId &&
 						listener instanceof InstallerProgressListener)
@@ -346,7 +358,10 @@ public class InstallerService extends Service {
 				mNotificationController.handleOnOperationFinish(distribName, projectUrl);
 			}
 			
-			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			AbstractInstallerListener[] listeners = null;
+			synchronized(InstallerService.this) {
+				listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			}
 			for (AbstractInstallerListener listener: listeners)
 				if (listener instanceof InstallerProgressListener)
 					((InstallerProgressListener)listener).onOperationFinish(installOp, distribName);
@@ -366,7 +381,10 @@ public class InstallerService extends Service {
 			
 			channel.finishWithOutput(installOp, projectDistribs);
 			
-			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			AbstractInstallerListener[] listeners = null;
+			synchronized(InstallerService.this) {
+				listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			}
 			for (AbstractInstallerListener listener: listeners)
 				if (listener.getInstallerChannelId() == channelId &&
 						listener instanceof InstallerUpdateListener)
@@ -382,7 +400,10 @@ public class InstallerService extends Service {
 			
 			channel.finishWithOutput(installOp, clientDistrib);
 			
-			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			AbstractInstallerListener[] listeners = null;
+			synchronized(InstallerService.this) {
+				listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			}
 			for (AbstractInstallerListener listener: listeners)
 				if (listener.getInstallerChannelId() == channelId &&
 						listener instanceof InstallerUpdateListener)
@@ -395,7 +416,10 @@ public class InstallerService extends Service {
 			
 			channel.finishWithOutput(installOp, updateItems);
 			
-			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			AbstractInstallerListener[] listeners = null;
+			synchronized(InstallerService.this) {
+				listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			}
 			
 			for (AbstractInstallerListener listener: listeners)
 				if (listener.getInstallerChannelId() == channelId &&
@@ -409,7 +433,10 @@ public class InstallerService extends Service {
 			
 			channel.finishWithOutput(installOp, projectNames);
 			
-			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			AbstractInstallerListener[] listeners = null;
+			synchronized(InstallerService.this) {
+				listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			}
 			
 			for (AbstractInstallerListener listener: listeners)
 				if (listener.getInstallerChannelId() == channelId &&
@@ -422,7 +449,10 @@ public class InstallerService extends Service {
 			
 			channel.finish(installOp);
 			
-			AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			AbstractInstallerListener[] listeners = null;
+			synchronized(InstallerService.this) {
+				listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+			}
 			for (AbstractInstallerListener listener: listeners)
 				if (listener.getInstallerChannelId() == channelId &&
 						listener instanceof DeleteProjectBinsListener)
@@ -431,9 +461,13 @@ public class InstallerService extends Service {
 		
 		public void onChangeIsWorking(boolean isWorking) {
 			if (mListeners != null) {
-				AbstractInstallerListener[] listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+				AbstractInstallerListener[] listeners = null;
+				synchronized(InstallerService.this) {
+					listeners = mListeners.toArray(new AbstractInstallerListener[0]);
+				}
 				for (AbstractInstallerListener listener: listeners)
-					listener.onChangeInstallerIsWorking(isWorking);
+					if (listener != null)
+						listener.onChangeInstallerIsWorking(isWorking);
 			}
 		}
 	}
@@ -474,7 +508,9 @@ public class InstallerService extends Service {
 		handler.cancelAllProgressOperations();
 		mInstallerThread.stopThread();
 		mInstallerThread = null;
-		mListeners.clear();
+		synchronized(this) {
+			mListeners.clear();
+		}
 		try {
 			Thread.sleep(200);
 		} catch(InterruptedException ex) { }

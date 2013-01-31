@@ -1,3 +1,6 @@
+Version 0.4.2.2 (beta) (2013-01-31):
+- fix for improper event handling
+
 Version 0.4.2.1 (beta) (2013-01-24):
 - updated Germanish translations (Daniel Winzen)
 - fixed some 'bugs' in texts (Daniel Winzen)

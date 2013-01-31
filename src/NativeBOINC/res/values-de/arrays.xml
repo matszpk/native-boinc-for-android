@@ -137,12 +137,6 @@
 		<item>Zum ausführen bereit</item>  <!-- 9 PROCESS_SUSPENDED (we've sent it a "suspend" message)        -->
 	</string-array>
 	
-	<string-array name="PGPkeyservers">
-	    <item>pgp.zdv.uni-mainz.de</item>
-	    <item>keyserver.stack.nl</item>
-	    <item>subkeys.pgp.net</item>
-	</string-array>
-	
 	<string-array name="pollOps">
 	    <item>Mit BAM verknüpfen</item>
 	    <item>Mit BAM synchronisieren</item>

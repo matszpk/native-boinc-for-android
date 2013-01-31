@@ -247,7 +247,11 @@ public class NewsReceiver extends BroadcastReceiver implements OnSharedPreferenc
 			mHandler.post(new Runnable() {
 				@Override
 				public void run() {
-					for (NewsFetcherListener listener: mListeners) {
+					NewsFetcherListener[] listeners = null;
+					synchronized(NewsFetcherBridge.this) {
+						listeners = mListeners.toArray(new NewsFetcherListener[0]);
+					}
+					for (NewsFetcherListener listener: listeners) {
 						listener.onNewsReceived(isNewFetched);
 					}
 				}
@@ -258,7 +262,11 @@ public class NewsReceiver extends BroadcastReceiver implements OnSharedPreferenc
 			mHandler.post(new Runnable() {
 				@Override
 				public void run() {
-					for (NewsFetcherListener listener: mListeners) {
+					NewsFetcherListener[] listeners = null;
+					synchronized(NewsFetcherBridge.this) {
+						listeners = mListeners.toArray(new NewsFetcherListener[0]);
+					}
+					for (NewsFetcherListener listener: listeners) {
 						listener.onNewsReceiveError();
 					}
 				}

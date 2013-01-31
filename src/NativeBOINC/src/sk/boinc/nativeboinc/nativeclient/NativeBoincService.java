@@ -147,8 +147,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 					ExitCode.getExitCodeMessage(NativeBoincService.this,
 							exitCode, stoppedByManager), true);
 			
-			AbstractNativeBoincListener[] listeners = mListeners.toArray(
-					new AbstractNativeBoincListener[0]);
+			AbstractNativeBoincListener[] listeners = null;
+			synchronized (NativeBoincService.this) {
+				listeners = mListeners.toArray(new AbstractNativeBoincListener[0]);
+			}
 			for (AbstractNativeBoincListener listener: listeners)
 				if (listener instanceof NativeBoincStateListener)
 					((NativeBoincStateListener)listener).onClientStop(exitCode, stoppedByManager);

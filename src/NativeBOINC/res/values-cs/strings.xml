@@ -1,128 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
 /* 
-* AndroBOINC - BOINC Manager for Android
-* Copyright (C) 2010, Pavol Michalec
-* 
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* 
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* 
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-* 
-*/
+ * AndroBOINC - BOINC Manager for Android
+ * Copyright (C) 2010, Pavol Michalec
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
 -->
 <resources>
-   <!-- Basic application stuff -->
-   <string name="app_name">NativeBOINC</string>
-   <string name="app_desc">Nativní BOINC pro Android s AndroBOINCem</string>
-   <string name="service_desc">Umožňuje zapojit se do BOINC projektů na zařízeních s Androidem</string>
-   <string name="install_service_desc">Služba nativního klienta a služba instalátoru BOINC aplikace</string>
-   <string name="nboinc_service_desc">Služba nativního klienta BOINC</string>
+	<!-- Basic application stuff -->
+	<string name="app_name">NativeBOINC</string>
+    <string name="app_desc">Nativní BOINC pro Android s AndroBOINCem</string>
+    <string name="service_desc">Umožňuje zapojit se do BOINC projektů na zařízeních s Androidem</string>
+    <string name="install_service_desc">Služba nativního klienta a služba instalátoru BOINC aplikace</string>
+    <string name="nboinc_service_desc">Služba nativního klienta BOINC</string>
 
-   <!-- widget names -->
-   <string name="widget2x1">NativeBOINC malý</string>
-   <string name="widgetTablet">NativeBOINC velký</string>
+	<string name="newsHandlerDesc">Seznam novinek</string>
+	<!-- widget names -->
+	<string name="widget2x1">NativeBOINC malý</string>
+	<string name="widgetTablet">NativeBOINC velký</string>
 
-   <!-- Some common, generic strings -->
-   <string name="back">Zpět</string>
-   <string name="next">Další</string>
-   <string name="finish">Dokončit</string>
-   <string name="info">Info</string>
-   <string name="authorization">Autorizace&#8230;</string>
-   <string name="cancel">Zrušit</string>
-   <string name="cancelAll">Zrušit vše</string>
-   <string name="changelog">ChangeLog</string>
-   <string name="close">Zavřít</string>
-   <string name="connecting">Připojuji se&#8230;</string>
-   <string name="disabled">Zakázaný</string>
-   <string name="dismiss">Odmítnout</string>
-   <string name="error">Chyba</string>
-   <string name="homepage">Domovská stránka</string>
-   <string name="license">Licence</string>
-   <string name="notConnected">Nepřipojen</string>
-   <string name="notice">Poznámka</string>
-   <string name="ok">OK</string>
-   <string name="apply">Použít</string>
-   <string name="projectSuspendedByUser">Projekt pozastaven uživatelem</string>
-   <string name="received">Přijato</string>
-   <string name="retrievingData">Stahuji data&#8230;</string>
-   <string name="retrievingInitialData">Stahuji výchozí data&#8230;</string>
-   <string name="sent">Odeslat</string>
-   <string name="shutdown">Vypnout</string>
-   <string name="sources">Zdrojový kód</string>
-   <string name="taskSuspendedByUser">Úkol pozastaven uživatelem</string>
-   <string name="unknown">Neznámý</string>
-   <string name="upgradedTo">Aktualizovat na</string>
-   <string name="warning">Varování</string>
-   <string name="now">Nyní</string>
-   <string name="battery">Baterie</string>
-   <string name="defaultText">Výchozí</string>
-   <string name="copy">Kopírovat</string>
-   <string name="saveToSDCard">Uložit na SD kartu</string>
+	<string name="autostartReceiver">Autostart přijímač</string>
 
-   <string name="restart">Restartovat</string>
-   <string name="clientRestarting">Restartuji nativního klienta&#8230;</string>
+	<!-- Some common, generic strings -->
+    <string name="back">Zpět</string>
+    <string name="next">Další</string>
+    <string name="finish">Dokončit</string>
+    <string name="info">Info</string>
+    <string name="authorization">Autorizace&#8230;</string>
+    <string name="cancel">Zrušit</string>
+    <string name="cancelAll">Zrušit vše</string>
+    <string name="changelog">ChangeLog</string>
+    <string name="close">Zavřít</string>
+    <string name="connecting">Připojuji se&#8230;</string>
+    <string name="disabled">Zakázaný</string>
+    <string name="dismiss">Odmítnout</string>
+    <string name="error">Chyba</string>
+    <string name="homepage">Domovská stránka</string>
+    <string name="license">Licence</string>
+    <string name="notConnected">Nepřipojen</string>
+    <string name="notice">Poznámka</string>
+    <string name="ok">OK</string>
+    <string name="apply">Použít</string>
+    <string name="projectSuspendedByUser">Projekt pozastaven uživatelem</string>
+    <string name="received">Přijato</string>
+    <string name="retrievingData">Stahuji data&#8230;</string>
+    <string name="retrievingInitialData">Stahuji výchozí data&#8230;</string>
+    <string name="sent">Odeslat</string>
+    <string name="shutdown">Vypnout</string>
+    <string name="sources">Zdrojový kód</string>
+    <string name="taskSuspendedByUser">Úkol pozastaven uživatelem</string>
+    <string name="unknown">Neznámý</string>
+    <string name="upgradedTo">Aktualizovat na</string>
+    <string name="warning">Varování</string>
+    <string name="now">Nyní</string>
+    <string name="battery">Baterie</string>
+    <string name="defaultText">Výchozí</string>
+    <string name="copy">Kopírovat</string>
+    <string name="saveToSDCard">Uložit na SD kartu</string>
 
-   <string name="selectAll">Označit vše</string>
-   <string name="unselectAll">Odznačit vše</string>
+	<string name="restart">Restartovat</string>
+    <string name="clientRestarting">Restartuji nativního klienta&#8230;</string>
 
-   <string name="yesText">Ano</string>
-   <string name="noText">Ne</string>
-   <string name="orText">nebo</string>
+    <string name="selectAll">Označit vše</string>
+    <string name="unselectAll">Odznačit vše</string>
 
-   <string name="installedBinaries">Nainstalované programy</string>
+    <string name="yesText">Ano</string>
+    <string name="noText">Ne</string>
+    <string name="orText">nebo</string>
+
+    <string name="installedBinaries">Nainstalované programy</string>
    
-   <string name="boincClient">BOINC klient</string>
-   
-   <!-- Units -->
-   <string name="unitKiB">KiB</string>
-   <string name="unitMiB">MiB</string>
-   <string name="unitGiB">GiB</string>
-   <string name="unitB">B</string>
-   <string name="unitKB">KB</string>
-   <string name="unitMB">MB</string>
-   <string name="unitGB">GB</string>
-   <string name="unitBps">B/s</string>
-   <string name="unitKBps">KB/s</string>
-   <string name="unitMBps">MB/s</string>
-   <string name="gflops">GFLOPS</string>
+    <string name="boincClient">BOINC klient</string>
 
-   <!-- Main Activity -->
-   <string name="temp_info">Stiskněte tlačítko Menu</string>
-   <string name="projects">Projekty</string>
-   <string name="tasks">Úkoly</string>
-   <string name="transfers">Přenosy</string>
-   <string name="messages">Zprávy</string>
-   <string name="notices">Oznámení</string>
-   <string name="closeWarning">Pro ukončení opětovně stiskněte Zpět (do 5 sekund)</string>
+	<!-- Units -->
+	<string name="unitKiB">KiB</string>
+	<string name="unitMiB">MiB</string>
+	<string name="unitGiB">GiB</string>
+	<string name="unitB">B</string>
+	<string name="unitKB">KB</string>
+	<string name="unitMB">MB</string>
+	<string name="unitGB">GB</string>
+	<string name="unitBps">B/s</string>
+	<string name="unitKBps">KB/s</string>
+	<string name="unitMBps">MB/s</string>
+	<string name="gflops">GFLOPS</string>
 
-   <!-- Menu items -->
-   <string name="menuStartUp">Zapnout</string>
-   <string name="menuShutdown">Vypnout</string>
-   <string name="menuAbout">O aplikaci</string>
-   <string name="menuAddNewHost">Přidat nové zařízení</string>
-   <string name="menuConnect">Připojit</string>
-   <string name="menuDisconnect">Odpojit</string>
-   <string name="menuHosts">Spravovat zařízení</string>
-   <string name="menuHostInfo">Informace o zařízení</string>
-   <string name="menuManage">Spravovat klienta</string>
-   <string name="menuPreferences">Předvolby</string>
-   <string name="menuReconnect">Znovu připojit</string>
-   <string name="menuRefresh">Obnovit</string>
-   <string name="menuNativeClient">Nativní klient</string>
+	<!-- Main Activity -->
+	<string name="temp_info">Stiskněte tlačítko Menu</string>
+    <string name="projects">Projekty</string>
+    <string name="tasks">Úkoly</string>
+    <string name="transfers">Přenosy</string>
+    <string name="messages">Zprávy</string>
+    <string name="notices">Oznámení</string>
+    <string name="closeWarning">Pro ukončení opětovně stiskněte Zpět (do 5 sekund)</string>
 
-   <!-- About -->
-   <string name="aboutTitle">Základní údaje</string>
-   <string name="aboutHomepageUrl">http://nativeboinc.org/</string>
-   <string name="aboutText">
+	<!-- Menu items -->
+	<string name="menuStartUp">Zapnout</string>
+    <string name="menuShutdown">Vypnout</string>
+    <string name="menuAbout">O aplikaci</string>
+    <string name="menuAddNewHost">Přidat nové zařízení</string>
+    <string name="menuConnect">Připojit</string>
+    <string name="menuDisconnect">Odpojit</string>
+    <string name="menuHosts">Spravovat zařízení</string>
+    <string name="menuHostInfo">Informace o zařízení</string>
+    <string name="menuManage">Spravovat klienta</string>
+    <string name="menuPreferences">Předvolby</string>
+    <string name="menuReconnect">Znovu připojit</string>
+    <string name="menuRefresh">Obnovit</string>
+    <string name="menuNativeClient">Nativní klient</string>
+
+	<!-- About -->
+	<string name="aboutTitle">Základní údaje</string>
+    <string name="aboutHomepageUrl">http://nativeboinc.org/</string>
+    <string name="aboutText">
       %1$s je plnohodnotný nativní BOINC klient pro Android s integrovaným
       AndroBOINC managerem v1.6.7b3.\n
       Děkuji, že používáte můj software.\n
@@ -134,333 +137,378 @@
       BOINC@Poland - za podporu.\n
       Haer a eLPeCKo (CNT) - český překlad.\n
       Daniel Winzen - německý překlad.\n
-   </string>
+    </string>
 
-   <!-- Preferences -->
-   <string name="prefCategoryUI">Uživatelské rozhraní</string>
-   <string name="prefScreenOrientation">Orientace obrazovky</string>
-   <string name="prefKeepScreenOn">Udržovat obrazovku zapnutou</string>
-   <string name="prefKeepScreenOnEnabled">Zamezit vypnutí obrazovky</string>
-   <string name="prefKeepScreenOnDisabled">Vypínat obrazovku při neaktivitě</string>
-   <string name="prefAutoConnectTitle">Připojovat automaticky</string>
-   <string name="prefAutoConnectDisabled">Nepřipojovat automaticky po startu</string>
-   <string name="prefAutoConnectEnabled">Připojit po startu posledně připojeného klienta</string>
-   <string name="prefCategoryNativeBoinc">Nativní BOINC klient</string>
-   <string name="prefPowerSaving">Šetřit energií</string>
-   <string name="prefPowerSavingOnDisabled">Zamezit zamčení obrazovky a podtaktování CPU</string>
-   <string name="prefPowerSavingOnEnabled">Povolit zamčení obrazovky a podtaktování CPU</string>
-   <string name="prefScreenLockUpdateInterval">Pravidelná obnova zámku obrazovky</string>
-   <string name="prefScreenLockUpdateIntervalSummary">Zámek obrazovky obnovit každých</string>
-   <string name="prefWidgetUpdateInterval">Pravidelná obnova widgetu</string>
-   <string name="prefWidgetUpdateIntervalSummary">Widget obnovit každých</string>
-   <string name="prefCategoryNetworkBW">Rychlost připojení</string>
-   <string name="prefAutoUpdateIntervalWiFi">Pravidelná obnova WiFi</string>
-   <string name="prefAutoUpdateIntervalMobile">Pravidelná obnova mobilního zařízení</string>
-   <string name="prefAutoUpdateIntervalLocalhost">Pravidelná obnova místního zařízení</string>
-   <string name="prefAutoUpdateIntervalSummary">Automaticky obnovit každých</string>
-   <string name="prefLimitMessagesTitle">Omezit počet zpráv</string>
-   <string name="prefLimitMessagesDisabled">Stáhnout při připojení všechny zprávy (může přenést velký objem dat)</string>
-   <string name="prefLimitMessagesEnabled">Stáhnout při připojení max 50 nejnovějších zpráv (šetří množství přenesených dat)</string>
-   <string name="prefNetworkUsageStats">Využití sítě</string>
-   <string name="prefNetworkUsageDisabled">Statistiky NEJSOU sloučené</string>
-   <string name="prefNetworkUsageNull">Přijato: 0B, Odesláno: 0B</string>
-   <string name="prefNetworkUsageDisclaimer">
+	<!-- Preferences -->
+	<string name="prefCategoryUI">Uživatelské rozhraní</string>
+    <string name="prefScreenOrientation">Orientace obrazovky</string>
+    <string name="prefKeepScreenOn">Udržovat obrazovku zapnutou</string>
+    <string name="prefKeepScreenOnEnabled">Zamezit vypnutí obrazovky</string>
+    <string name="prefKeepScreenOnDisabled">Vypínat obrazovku při neaktivitě</string>
+    <string name="prefAutoConnectTitle">Připojovat automaticky</string>
+    <string name="prefAutoConnectDisabled">Nepřipojovat automaticky po startu</string>
+    <string name="prefAutoConnectEnabled">Připojit po startu posledně připojeného klienta</string>
+	<string name="prefCategoryNativeBoinc">Nativní BOINC klient</string>
+    <string name="prefPowerSaving">Šetřit energií</string>
+    <string name="prefPowerSavingOnDisabled">Zamezit zamčení obrazovky a podtaktování CPU</string>
+    <string name="prefPowerSavingOnEnabled">Povolit zamčení obrazovky a podtaktování CPU</string>
+    <string name="prefScreenLockUpdateInterval">Pravidelná obnova zámku obrazovky</string>
+    <string name="prefScreenLockUpdateIntervalSummary">Zámek obrazovky obnovit každých</string>
+    <string name="prefWidgetUpdateInterval">Pravidelná obnova widgetu</string>
+    <string name="prefWidgetUpdateIntervalSummary">Widget obnovit každých</string>
+	<string name="prefCategoryNetworkBW">Rychlost připojení</string>
+    <string name="prefAutoUpdateIntervalWiFi">Pravidelná obnova WiFi</string>
+    <string name="prefAutoUpdateIntervalMobile">Pravidelná obnova mobilního zařízení</string>
+    <string name="prefAutoUpdateIntervalLocalhost">Pravidelná obnova místního zařízení</string>
+    <string name="prefAutoUpdateIntervalSummary">Automaticky obnovit každých</string>
+    <string name="prefLimitMessagesTitle">Omezit počet zpráv</string>
+    <string name="prefLimitMessagesDisabled">Stáhnout při připojení všechny zprávy (může přenést velký objem dat)</string>
+    <string name="prefLimitMessagesEnabled">Stáhnout při připojení max 50 nejnovějších zpráv (šetří množství přenesených dat)</string>
+    <string name="prefNetworkUsageStats">Využití sítě</string>
+    <string name="prefNetworkUsageDisabled">Statistiky NEJSOU sloučené</string>
+    <string name="prefNetworkUsageNull">Přijato: 0B, Odesláno: 0B</string>
+    <string name="prefNetworkUsageDisclaimer">
       Uváděná data o využití sítě jsou nepřesná.
       Nespoléhejte na ně.
-   </string>
-   <string name="prefOptOutText">Příště tuto zprávu již nezobrazovat.</string>
-   <string name="prefCategoryAbout">O</string>
-   <string name="prefAboutTitle">O aplikaci</string>
-   <string name="prefChangelogSummary">Historie změn</string>
-   <string name="prefLicenseSummary">Licenční ujednání</string>
-   <string name="prefNewsUpdatePeriodTitle">Pravidelná obnova zpráv</string>
-   <string name="prefNewsUpdatePeriodSummary">Obnovit zprávy každých</string>
-   <string name="prefViewItemTypeTitle">Zobrazit položku</string>
-   <string name="prefViewItemTypeSummary">Zobrazit položku jako</string>
+    </string>
+	<string name="prefOptOutText">Příště tuto zprávu již nezobrazovat.</string>
+    <string name="prefCategoryAbout">O</string>
+    <string name="prefAboutTitle">O aplikaci</string>
+    <string name="prefChangelogSummary">Historie změn</string>
+    <string name="prefLicenseSummary">Licenční ujednání</string>
+    <string name="prefNewsUpdatePeriodTitle">Pravidelná obnova zpráv</string>
+    <string name="prefNewsUpdatePeriodSummary">Obnovit zprávy každých</string>
+    <string name="prefViewItemTypeTitle">Zobrazit položku</string>
+    <string name="prefViewItemTypeSummary">Zobrazit položku jako</string>
 
-   <!--  Local Preferences -->
-   <string name="localPreferences">Lokální předvolby</string>
+	<!--  Local Preferences -->
+	<string name="localPreferences">Lokální předvolby</string>
 
-   <string name="localPrefComputeOptions">Výpočty</string>
+    <string name="localPrefComputeOptions">Výpočty</string>
 
-   <string name="localPrefComputeOnBatteries">Když zařízení pracuje na baterii</string>
-   <string name="localPrefComputeInUse">Pokud se zařízení používá</string>
-   <string name="localPrefUseGPUInUse">Využívat GPU i když se zařízení používá</string>
-   <string name="localPrefComputeIdleFor">Až po nečinnosti</string>
-   <string name="minutes">minut</string>
-   <string name="localPrefComputeUsageLessThan">Je-li využití CPU nižší než</string>
-   <string name="percent">%</string>
-   <string name="localPrefSwitchBetween">Přepínat mezi aplikacemi každých</string>
-   <string name="localPrefBatteryNL">Není-li stav baterie nižší než</string>
-   <string name="localPrefTempLT">Je-li teplota baterie nižší než</string>
-   <string name="degreeC">°C</string>
-   <string name="localPrefUseAtMost">Použít max</string>
-   <string name="localPrefPercentCPUTime">% CPU času</string>
-   <string name="localPrefPercentCPUs">% CPU jader</string>
+	<string name="localPrefComputeOnBatteries">Když zařízení pracuje na baterii</string>
+	<string name="localPrefRunAlwaysWhenPlugged">Vždy když je připojeno k nabíječce</string>
+	<string name="localPrefComputeInUse">Pokud se zařízení používá</string>
+    <string name="localPrefUseGPUInUse">Využívat GPU i když se zařízení používá</string>
+    <string name="localPrefComputeIdleFor">Až po nečinnosti</string>
+    <string name="minutes">minut</string>
+    <string name="localPrefComputeUsageLessThan">Je-li využití CPU nižší než</string>
+    <string name="percent">%</string>
+    <string name="localPrefSwitchBetween">Přepínat mezi aplikacemi každých</string>
+    <string name="localPrefBatteryNL">Není-li stav baterie nižší než</string>
+	<string name="localPrefTempLT">Je-li teplota baterie nižší než</string>
+    <string name="degreeC">°C</string>
+    <string name="localPrefUseAtMost">Použít max</string>
+    <string name="localPrefPercentCPUTime">% CPU času</string>
+    <string name="localPrefPercentCPUs">% CPU jader</string>
 
-   <string name="localPrefNetworkUsage">Síť</string>
+	<string name="localPrefNetworkUsage">Síť</string>
 
-   <string name="localPrefMaxDownloadRate">Max rychlost stahování</string>
-   <string name="localPrefMaxUploadRate">Max rychlost odesílání</string>
-   <string name="localPrefConnectAboutEvery">Připojit každých</string>
-   <string name="localPrefAdditWorkBuffer">Dodatečná zásoba jednotek</string>
-   <string name="kBytesSec">KBytes/sec</string>
-   <string name="localPrefTransferAtMost">Přenést max</string>
-   <string name="localPrefmBytesEvery">MB každých</string>
-   <string name="days">dnů</string>
-   <string name="localPrefSkipImageVerify">Vynechat kontrolu obrázků</string>
+	<string name="localPrefXferOnlyWhenWifi">Přenos dat pouze přes WiFi</string>
+	<string name="localPrefMaxDownloadRate">Max rychlost stahování</string>
+    <string name="localPrefMaxUploadRate">Max rychlost odesílání</string>
+    <string name="localPrefConnectAboutEvery">Připojit každých</string>
+    <string name="localPrefAdditWorkBuffer">Dodatečná zásoba jednotek</string>
+    <string name="kBytesSec">KBytes/sec</string>
+    <string name="localPrefTransferAtMost">Přenést max</string>
+    <string name="localPrefmBytesEvery">MB každých</string>
+    <string name="days">dnů</string>
+    <string name="localPrefSkipImageVerify">Vynechat kontrolu obrázků</string>
 
-   <string name="localPrefDiskRAMUsage">Disk &amp; RAM</string>
+	<string name="localPrefDiskRAMUsage">Disk &amp; RAM</string>
 
-   <string name="localPrefLeaveAtLeast">Nechat min</string>
-   <string name="localPrefGBDisk">GB místa na disku</string>
-   <string name="localPrefGBDiskFree">GB volného místa na disku</string>
-   <string name="localPrefPercentTotalDisk">% volného disku</string>
+	<string name="localPrefLeaveAtLeast">Nechat min</string>
+    <string name="localPrefGBDisk">GB místa na disku</string>
+    <string name="localPrefGBDiskFree">GB volného místa na disku</string>
+    <string name="localPrefPercentTotalDisk">% volného disku</string> 
 
-   <string name="localPrefMemoryWhenInUse">% RAM je-li používán</string>
-   <string name="localPrefMemoryWhenInIdle">% RAM není-li používán</string>
-   <string name="localPrefCheckpointToDisk">Zapisovat záchytné body max každých</string>
-   <string name="seconds">s</string>
-   <string name="localPrefWrong">Špatná hodnota!</string>
-   <string name="localPrefLeaveApplications">Ponechat pozastavenou aplikaci v paměti</string>
-   <string name="applyDefault">Použít výchozí</string>
+    <string name="localPrefMemoryWhenInUse">% RAM je-li používán</string>
+    <string name="localPrefMemoryWhenInIdle">% RAM není-li používán</string>
+    <string name="localPrefCheckpointToDisk">Zapisovat záchytné body max každých</string>
+    <string name="seconds">s</string>
+    <string name="localPrefWrong">Špatná hodnota!</string>
+    <string name="localPrefLeaveApplications">Ponechat pozastavenou aplikaci v paměti</string>
+    <string name="applyDefault">Použít výchozí</string>
 
-   <!-- time preferences -->
-   <string name="cpuTimePrefTitle">Předvolby využití CPU</string>
-   <string name="netTimePrefTitle">Předvolby využití sítě</string>
+    <!-- time preferences -->
+    <string name="cpuTimePrefTitle">Předvolby využití CPU</string>
+    <string name="netTimePrefTitle">Předvolby využití sítě</string>
 
-   <string name="timePrefEveryDay">Každý den</string>
-   <string name="monday">Pondělí</string>
-   <string name="tuesday">Úterý</string>
-   <string name="wednesday">Středa</string>
-   <string name="thursday">Čtvrtek</string>
-   <string name="friday">Pátek</string>
-   <string name="saturday">Sobota</string>
-   <string name="sunday">Neděle</string>
+    <string name="timePrefEveryDay">Každý den</string>
+    <string name="monday">Pondělí</string>
+    <string name="tuesday">Úterý</string>
+    <string name="wednesday">Středa</string>
+    <string name="thursday">Čtvrtek</string>
+    <string name="friday">Pátek</string>
+    <string name="saturday">Sobota</string>
+    <string name="sunday">Neděle</string>
 
-   <string name="setHour">Nastavit hodiny</string>
+    <string name="setHour">Nastavit hodiny</string>
 
-   <!-- Network status -->
-   <string name="networkUnavailable">Síťové spojení nedostupné.</string>
+	<!-- Network status -->
+	<string name="networkUnavailable">Síťové spojení nedostupné.</string>
 
-   <!-- ManageClient Activity -->
-   <string name="currentHostTitle">Současné zařízení</string>
-   <string name="noHostConnected">Nepřipojeno žádné zařízení</string>
-   <string name="clientConnecting">Klient se připojuje&#8230;</string>
-   <string name="selectHostTitle">Současné zařízení</string>
-   <string name="selectHostNoneAvailable">Nenakonfigurován žádný klient.</string>
-   <string name="selectHostDialogTitle">Vyberte zařízení</string>
-   <string name="clientNameNone">Žádné</string>
-   <string name="clientIdNone">0</string>
-   <string name="manageCategoryOptions">Možnosti</string>
-   <string name="clientAddProjectTitle">Přidat projekt BOINC</string>
-   <string name="clientAddProjectSummary">Přidat projekt BOINC</string>
-   <string name="clientUpdateTitle">Aktualizovat programy</string>
-   <string name="clientUpdateSummary">Aktualizovat BOINC klienta nebo projektové aplikace</string>
-   <string name="clientSyncBAMTitle">Synchronizovat s BAM</string>
-   <string name="clientSyncBAMSummary">Pokouším se synchronizovat s BAM Managerem</string>
-   <string name="clientSyncBAMNotify">Synchronizuji s BAM managerem</string>
-   <string name="clientStopBAMTitle">Ukončit používání BAM</string>
-   <string name="clientStopBAMSummary">Ukončit používání BAM Managera</string>
-   <string name="clientStopBAMNotify">Ukončuji používání BAM managera</string>
-   <string name="clientLocalPrefsTitle">Lokální předvolby</string>
-   <string name="clientLocalPrefsSummary">Lokální předvolby klienta</string>
-   <string name="manageCategoryActivity">Aktivita</string>
-   <string name="clientActivityRunTitle">Pracovní režim</string>
-   <string name="clientActivityRunDialogTitle">Pracovní režim</string>
-   <string name="clientActivityNetworkTitle">Síťová aktivita</string>
-   <string name="clientActivityNetworkDialogTitle">Síťová aktivita</string>
-   <string name="manageCategoryAdvanced">Pokročilé</string>
-   <string name="clientRunBenchTitle">Spustit CPU výkonnostní testy</string>
-   <string name="clientRunBenchSummary">Běží BOINC CPU výkonnostní testy</string>
-   <string name="clientRunBenchNotify">Startuji CPU výkonnostní testy</string>
-   <string name="clientDoNetCommTitle">Vyřídit síťovou komunikaci</string>
-   <string name="clientDoNetCommSummary">Vyřídit veškerou čekající síťovou komunikaci</string>
-   <string name="clientDoNetCommNotify">Zahajuji síťovou komunikaci</string>
-   <string name="clientShutdownTitle">Vypnout klienta</string>
-   <string name="clientShutdownSummary">Vypnout aktuálně připojeného klienta</string>
-   <string name="clientShutdownNotify">Vypínám aktuálně připojeného klienta</string>
-   <string name="warnShutdownText">Připojený klient bude vypnut. Tento manager neumožňuje následně nastartovat klienta.</string>
+	<!-- ManageClient Activity -->
+	<string name="currentHostTitle">Současné zařízení</string>
+    <string name="noHostConnected">Nepřipojeno žádné zařízení</string>
+    <string name="clientConnecting">Klient se připojuje&#8230;</string>
+    <string name="selectHostTitle">Současné zařízení</string>
+    <string name="selectHostNoneAvailable">Nenakonfigurován žádný klient.</string>
+    <string name="selectHostDialogTitle">Vyberte zařízení</string>
+    <string name="clientNameNone">Žádné</string>
+    <string name="clientIdNone">0</string>
+	<string name="manageCategoryOptions">Možnosti</string>
+    <string name="clientAddProjectTitle">Přidat projekt BOINC</string>
+    <string name="clientAddProjectSummary">Přidat projekt BOINC</string>
+    <string name="clientUpdateTitle">Aktualizovat programy</string>
+    <string name="clientUpdateSummary">Aktualizovat BOINC klienta nebo projektové aplikace</string>
+    <string name="clientSyncBAMTitle">Synchronizovat s BAM</string>
+    <string name="clientSyncBAMSummary">Pokouším se synchronizovat s BAM Managerem</string>
+    <string name="clientSyncBAMNotify">Synchronizuji s BAM managerem</string>
+    <string name="clientStopBAMTitle">Ukončit používání BAM</string>
+    <string name="clientStopBAMSummary">Ukončit používání BAM Managera</string>
+    <string name="clientStopBAMNotify">Ukončuji používání BAM managera</string>
+    <string name="clientLocalPrefsTitle">Lokální předvolby</string>
+    <string name="clientLocalPrefsSummary">Lokální předvolby klienta</string>
+	<string name="clientGlobalPrefsTitle">Použít globální předvolby</string>
+	<string name="clientGlobalPrefsSummary">Použít globální (webové) předvolby</string>
+	<string name="manageCategoryActivity">Aktivita</string>
+    <string name="clientActivityRunTitle">Pracovní režim</string>
+    <string name="clientActivityRunDialogTitle">Pracovní režim</string>
+    <string name="clientActivityNetworkTitle">Síťová aktivita</string>
+    <string name="clientActivityNetworkDialogTitle">Síťová aktivita</string>
+	<string name="clientActivityGpuTitle">GPU aktivita</string>
+	<string name="clientActivityGpuDialogTitle">GPU aktivita</string>
+	<string name="manageCategoryAdvanced">Pokročilé</string>
+	<string name="clientProxySettingsTitle">Nastavení proxy</string>
+	<string name="clientProxySettingsSummary">Povolit připojení přes proxy</string>
+	<string name="clientRunBenchTitle">Spustit CPU výkonnostní testy</string>
+    <string name="clientRunBenchSummary">Běží BOINC CPU výkonnostní testy</string>
+    <string name="clientRunBenchNotify">Startuji CPU výkonnostní testy</string>
+    <string name="clientDoNetCommTitle">Vyřídit síťovou komunikaci</string>
+    <string name="clientDoNetCommSummary">Vyřídit veškerou čekající síťovou komunikaci</string>
+    <string name="clientDoNetCommNotify">Zahajuji síťovou komunikaci</string>
+    <string name="clientShutdownTitle">Vypnout klienta</string>
+    <string name="clientShutdownSummary">Vypnout aktuálně připojeného klienta</string>
+    <string name="clientShutdownNotify">Vypínám aktuálně připojeného klienta</string>
+    <string name="warnShutdownText">Připojený klient bude vypnut. Tento manager neumožňuje následně nastartovat klienta.</string>
 
-   <!--  NativeClient activity -->
-   <string name="nativeBoincClient">Nativní BOINC klient</string>
-   <string name="nativeBoincNetwork">Možnosti sítě</string>
+	<!-- proxy settings -->
+	<string name="proxySettings">Nastavení proxy</string>
+	<string name="proxyHttpProxy">HTTP Proxy</string>
+	<string name="proxySocksProxy">SOCKS Proxy</string>
+	<string name="proxyUseHttpProxy">Použít HTTP Proxy server</string>
+	<string name="proxyUseSocksProxy">Použít SOCKS Proxy server</string>
+	<string name="proxyServerAddress">Adresu servru</string>
+	<string name="proxyServerPort">Port na servru</string>
+	<string name="proxyServerUserName">Uživatelské jméno</string>
+	<string name="proxyServerUserPassword">Heslo</string>
+	<string name="proxyNoForHosts">Nepoužívať pre</string>
 
-   <string name="nativeHostnameTitle">Nastavit jméno zařízení</string>
-   <string name="nativeHostnameSummaryNone">Staženo ze síťového systému</string>
-   <string name="nativeHostnameSummaryCurrent">Současné jméno zařízení</string>
-   <string name="nativeRemoteAccessTitle">Povolit vzdálený přístup</string>
-   <string name="nativeRemoteAccessSummaryOn">Povolit vzdálený přístup pro ostatní zařízení</string>
-   <string name="nativeRemoteAccessSummaryOff">Zakázat vzdálený přístup pro ostatní zařízení</string>
-   <string name="nativeAccessPasswordTitle">Přístupové heslo</string>
-   <string name="nativeAccessPasswordSummary">Změnit přístupopvé heslo na klientovi</string>
-   <string name="nativeAccessListTitle">Seznam přístupových zařízení</string>
-   <string name="nativeAccessListSummary">Seznam zařízení s přístupem na BOINC klienta</string>
+	<!--  NativeClient activity -->
+	<string name="nativeAutostart">Klient se zapíná</string>
+	<string name="nativeAutostartTitle">Automaticky zapni klienta</string>
 
-   <string name="nativeBoincInstallation">Možnosti instalace</string>
+	<string name="newsAndUpdates">Novinky a aktualizace</string>
+	<string name="nativeLatestNewsTitle">Nejnovější zprávy</string>
+	<string name="nativeLatestNewsSummary">Zobrazit seznam nejnovějších zpráv</string>
 
-   <string name="nativeInstalledBinariesTitle">Nainstalované programy</string>
-   <string name="nativeInstalledBinariesSummary">Seznam nainstalovaných programů</string>
-   <string name="nativeUpdateBinariesTitle">Aktualizovat programy</string>
-   <string name="nativeUpdateBinariesSummary">Aktualizovat klienta a aplikační programy</string>
-   <string name="nativeUpdateFromSDCardTitle">Aktualizovat z SD karty</string>
-   <string name="nativeUpdateFromSDCardSummary">Aktualizovat klienta a projektové programy z SD karty</string>
-   <string name="nativeReinstallTitle">Přeinstalovat BOINC</string>
-   <string name="nativeReinstallSummary">Přeinstalace BOINC</string>
+	<string name="notifyNewsUpdatesTitle">Upozornit na novinky a nové aplikace</string>
+	<string name="notifyNewsUpdatesSummaryOn">Upozornění na novinky a nové aplikace každých 6 hodin zapnuto</string>
+	<string name="notifyNewsUpdatesSummaryOff">Upozornění na novinky a nové aplikace každých 6 hodin vypnuto</string>
 
-   <string name="nativeBoincDiagnostics">Možnosti diagnostiky</string>
+	<string name="nativeBoincClient">Nativní BOINC klient</string>
+    <string name="nativeBoincNetwork">Možnosti sítě</string>
 
-   <string name="nativeDumpBoincDirTitle">Vypsat BOINC soubory</string>
-   <string name="nativeDumpBoincDirSummary">Vypsat celý adresář BOINC na SD kartu</string>
-   <string name="nativeShowLogsTitle">Zobrazit logy</string>
-   <string name="nativeShowLogsSummary">Zobrazit poslední logy z BOINC klienta</string>
+	<string name="nativeHostnameTitle">Nastavit jméno zařízení</string>
+    <string name="nativeHostnameSummaryNone">Staženo ze síťového systému</string>
+    <string name="nativeHostnameSummaryCurrent">Současné jméno zařízení</string>
+    <string name="nativeRemoteAccessTitle">Povolit vzdálený přístup</string>
+    <string name="nativeRemoteAccessSummaryOn">Povolit vzdálený přístup pro ostatní zařízení</string>
+    <string name="nativeRemoteAccessSummaryOff">Zakázat vzdálený přístup pro ostatní zařízení</string>
+    <string name="nativeAccessPasswordTitle">Přístupové heslo</string>
+    <string name="nativeAccessPasswordSummary">Změnit přístupopvé heslo na klientovi</string>
+    <string name="nativeAccessListTitle">Seznam přístupových zařízení</string>
+    <string name="nativeAccessListSummary">Seznam zařízení s přístupem na BOINC klienta</string>
 
-   <string name="nativeBoincLogs">Poslední logy BOINC</string>
+    <string name="nativeBoincInstallation">Možnosti instalace</string>
 
-   <string name="updateFromSDCard">Aktualizovat programy z SD karty</string>
-   <string name="enterUpdateDir">Zadejte adresář aktualizace</string>
-   <string name="applyAfterRestart">Změny se uplatní po restartování. Chcete nyní klienta restartovat?</string>
+	<string name="nativeMoveToSDCardTitle">Přesunout na paměťovou kartu SD</string>
+	<string name="nativeMoveToSDCardSummary">Přesunout BOINC na paměťovou kartu SD</string>
+	<string name="nativeMoveToIntMemTitle">Přesunout do vnitřní paměti</string>
+	<string name="nativeMoveToIntMemSummary">Přesunout BOINC do vnitřní paměti</string>
+	<string name="nativeInstalledBinariesTitle">Nainstalované programy</string>
+    <string name="nativeInstalledBinariesSummary">Seznam nainstalovaných programů</string>
+    <string name="nativeUpdateBinariesTitle">Aktualizovat programy</string>
+    <string name="nativeUpdateBinariesSummary">Aktualizovat klienta a aplikační programy</string>
+    <string name="nativeUpdateFromSDCardTitle">Aktualizovat z SD karty</string>
+    <string name="nativeUpdateFromSDCardSummary">Aktualizovat klienta a projektové programy z SD karty</string>
+    <string name="nativeReinstallTitle">Přeinstalovat BOINC</string>
+    <string name="nativeReinstallSummary">Přeinstalace BOINC</string>
+	<string name="nativeDeleteProjectBinsTitle">Smazat aplikační programy</string>
+	<string name="nativeDeleteProjectBinsSummary">Smazat aplikační programy (z app_info.xml)</string>
 
-   <!-- dump boinc files -->
-   <string name="enterDumpDir">Zadejte adresář pro výpisy</string>
+	<string name="nativeBoincDiagnostics">Možnosti diagnostiky</string>
 
-   <string name="dumpFiles">Vypsat soubory</string>
-   <string name="dumpBoincBegin">Zahajuji vypisování BOINC soborů</string>
-   <string name="dumpBoincProgress">Vypisuji BOINC soubory</string>
-   <string name="dumpBoincFinish">Výpis BOINC souborů dokončen</string>
-   <string name="dumpBoincWarn">Adresář %s existuje. Během výpisu bude smazán! Chcete pokračovat ve výpisu BOINC souborů?</string>
+	<string name="nativeDumpBoincDirTitle">Vypsat BOINC soubory</string>
+    <string name="nativeDumpBoincDirSummary">Vypsat celý adresář BOINC na SD kartu</string>
+    <string name="nativeShowLogsTitle">Zobrazit logy</string>
+    <string name="nativeShowLogsSummary">Zobrazit poslední logy z BOINC klienta</string>
 
-   <!-- reinstall boinc -->
-   <string name="boincReinstall">Reinstalace BOINCu</string>
-   <string name="reinstallBegin">Zahájit reinstalaci BOINCu</string>
-   <string name="reinstallInProgress">Přeinstalovávám BOINC</string>
-   <string name="reinstallFinish">Přeinstalace dokončena</string>
-   <string name="reinstallQuestion">Přeinstalace odstraní celý BOINC adresář (včetně dat projektů). Opravdu chcete přeinstalovat BOINC?</string>
-   <string name="waitingForShutdown">Čekám na ukončení</string>
+	<string name="nativeBoincLogs">Poslední logyBOINC</string>
+	<string name="nativeBoincLogsHelp">Pro zobrazení možností zmáčkněte tlačítko Menu.</string>
 
-   <!-- access host list activity -->
-   <string name="accessHostList">Přístup na seznam zařízení</string>
-   <string name="addHost">Přidat zařízení</string>
-   <string name="remoteHostsLoadError">Nezdařilo se stáhnout seznam vzdálených zařízení</string>
-   <string name="remoteHostsSaveError">Nezdařilo se uložit seznam vzdálených zařízení</string>
+	<string name="updateFromSDCard">Aktualizovat programy z SD karty</string>
+    <string name="enterUpdateDir">Zadejte adresář aktualizace</string>
+    <string name="applyAfterRestart">Změny se uplatní po restartování. Chcete nyní klienta restartovat?</string>
 
-   <string name="synchronizeBAM">Synchronizovat s BAM</string>
-   <!--  progress dialog messages -->
-   <string name="synchronizingBAM">Synchronizuji s BAM&#8230;</string>
+	<!-- dump boinc files -->
+	<string name="enterDumpDir">Zadejte adresář pro výpisy</string>
 
-   <string name="shutdownAskText">Chcete ukončit nativního klienta?</string>
+	<string name="dumpFiles">Vypsat soubory</string>
+    <string name="dumpBoincBegin">Zahajuji vypisování BOINC soborů</string>
+    <string name="dumpBoincProgress">Vypisuji BOINC soubory</string>
+    <string name="dumpBoincFinish">Výpis BOINC souborů dokončen</string>
+    <string name="dumpBoincWarn">Adresář %s existuje. Během výpisu bude smazán! Chcete pokračovat ve výpisu BOINC souborů?</string>
 
-   <!-- logs -->
-   <string name="enterOutputFilePath">Vložte cestu pro výstupní soubor</string>
-   <string name="boincLogsSaveError">Nezdařilo se uložit BOINC logy na SD kartu</string>
+	<!-- reinstall boinc -->
+	<string name="boincReinstall">Reinstalace BOINCu</string>
+    <string name="reinstallBegin">Zahájit reinstalaci BOINCu</string>
+    <string name="reinstallInProgress">Přeinstalovávám BOINC</string>
+    <string name="reinstallQuestion">Přeinstalace odstraní celý BOINC adresář (včetně dat projektů). Opravdu chcete přeinstalovat BOINC?</string>
+    <string name="waitingForShutdown">Čekám na ukončení</string>
 
-   <!-- HostList Activity -->
-   <string name="selectHost">Vybrat zařízení</string>
-   <string name="hostAddNew">Přidat nové zařízení</string>
-   <string name="hostEdit">Upravit zařízení</string>
-   <string name="hostDelete">Smazat zařízení</string>
-   <string name="hostSetDefault">Nastavit výchozí zařízení</string>
-   <string name="noHostDefined">Není definováno žádné zařízení</string>
-   <string name="hostNone">Žádné zařízení</string>
-   <string name="hostNoneSummary">Odpojit od současného zařízení</string>
-   <string name="hostOperation">Operace se zařízením</string>
+	<!-- move from/to sdcard -->
+	<string name="boincMoveTo">Přesouvám BOINC</string>
+	<string name="moveToBegin">Začni přesouvat BOINC instalaci</string>
+	<string name="moveToProgress">Přesouvám BOINC instalaci</string>
+	<string name="moveToFinish">Přesouvání BOINC instalace dokončeno</string>
 
-   <!-- ProjectList Activity -->
-   <string name="projectList">Vybrat projekt</string>
-   <string name="noProjects">Seznam projektů je prázdný</string>
-   <string name="otherProject">Další projekt</string>
-   <string name="otherProjectDetails">Vyberte další projekt</string>
-   <string name="projectsFromClient">Zobrazit projekty v klientovi</string>
-   <string name="projectsFromClientDetails">Zobrazit seznam projektů z BOINC klienta</string>
-   <string name="projectListHelp">K získání informací o projektu přidržte déle jeho jméno.</string>
+	<!-- access host list activity -->
+	<string name="accessHostList">Přístup na seznam zařízení</string>
+    <string name="addHost">Přidat zařízení</string>
+    <string name="remoteHostsLoadError">Nezdařilo se stáhnout seznam vzdálených zařízení</string>
+    <string name="remoteHostsSaveError">Nezdařilo se uložit seznam vzdálených zařízení</string>
 
-   <string name="projectUrl">Vložte projektové URL</string>
+	<string name="synchronizeBAM">Synchronizovat s BAM</string>
+	<!--  progress dialog messages -->
+	<string name="synchronizingBAM">Synchronizuji s BAM&#8230;</string>
 
-   <!-- Host edit dialog -->
-   <string name="editHostNickname">Jméno zařízení</string>
-   <string name="editHostAddress">Adresa</string>
-   <string name="editHostPort">Port</string>
-   <string name="editHostPassword">Heslo</string>
+	<string name="shutdownAskText">Chcete ukončit nativního klienta?</string>
 
-   <!-- BAM edit dialog -->
-   <string name="editBAM">Editovat BAM Manager</string>
-   <string name="editBAMName">Uživatelské jméno</string>
-   <string name="editBAMUrl">URL</string>
-   <string name="editBAMPassword">heslo</string>
-   <string name="editBAMDefaultUrl">http://bam.boincstats.com/</string>
-   <string name="attachBAMInProgress">Připojuji se k BAM&#8230;</string>
+	<!-- logs -->
+	<string name="enterOutputFilePath">Vložte cestu pro výstupní soubor</string>
+    <string name="boincLogsSaveError">Nezdařilo se uložit BOINC logy na SD kartu</string>
 
-   <!-- Add Project dialog  -->
-   <string name="addProject">Přidat projekt</string>
-   <string name="addProjectCreate">Vytvořit účet</string>
-   <string name="addProjectUse">Připojit se k účtu</string>
-   <string name="addProjectName">uživatelské jméno</string>
-   <string name="addProjectEmail">Emailová adresa</string>
-   <string name="addProjectPassword">Heslo</string>
-   <string name="addProjectMinPassword">Min. délka hesla</string>
-   <string name="termsOfUse">Podmínky použití</string>
-   <string name="addingProject">Přidávám projekt&#8230;</string>
+	<!-- HostList Activity -->
+	<string name="selectHost">Vybrat zařízení</string>
+    <string name="hostAddNew">Přidat nové zařízení</string>
+    <string name="hostEdit">Upravit zařízení</string>
+    <string name="hostDelete">Smazat zařízení</string>
+    <string name="hostSetDefault">Nastavit výchozí zařízení</string>
+    <string name="noHostDefined">Není definováno žádné zařízení</string>
+    <string name="hostNone">Žádné zařízení</string>
+    <string name="hostNoneSummary">Odpojit od současného zařízení</string>
+    <string name="hostOperation">Operace se zařízením</string>
 
-   <!-- Install Wizard Activity -->
-   <string name="installWizard">Instalační pomocník</string>
-   <string name="installWelcome">Vítejte v NativeBOINC!</string>
-   <string name="installClientInstall">Prosím, klikněte na tlačítko \'Další\' pro stažení a nainstalování nativního klienta BOINC.</string>
-   <string name="versionToInstall">Instalovaná verze</string>
-   <string name="installSuccessfully">Nativní BOINC klient byl úspěšně nainstalován!</string>
-   <string name="installAddProject">Prosím, klikněte na tlačítko \'Přidat projekt\' pro přidání prvního BOINC projektu, nebo na \'Synchronizovat s BAM\' pokud chete klienta synchronizovat s BAM.</string>
-   <string name="installFinished">Instalace dokončena. Prosím, klikněte na tlačítko \'Dokončit\'.</string>
-   <string name="installWidgetFinished">Tip: Doporučujeme pro ovládání nativního klienta používat widget NativeBOINC.</string>
-   <string name="installInfoFinished">Tip: Navštivte Wiki stránky projektu na \'http://nativeboinc.org/\' pro další informace a nápovědu.</string>
-   <string name="installFinishedBenchmark">Během instalace prvního projektu může BOINC spustit výkonnostní testy, které budou trvat 30 sekund.</string>
+	<!-- ProjectList Activity -->
+	<string name="projectList">Vybrat projekt</string>
+    <string name="noProjects">Seznam projektů je prázdný</string>
+    <string name="otherProject">Další projekt</string>
+    <string name="otherProjectDetails">Vyberte další projekt</string>
+    <string name="projectsFromClient">Zobrazit projekty v klientovi</string>
+    <string name="projectsFromClientDetails">Zobrazit seznam projektů z BOINC klienta</string>
+    <string name="projectListHelp">Toto je seznam podporovaných projektů.Pro získání informací o projektu přidržte déle jeho jméno.</string>
 
-   <string name="installReadBefore">ČTĚTE PŘED INSTALACÍ:</string>
-   <string name="installAttention2">Pokud se aplikace nečekaně ukončí, použijte prosím \'Vynutit ukončení\' a spusťte ji znovu.
-       Aplikace při startu zruší všechny běžící klienty.</string>
-   <string name="installAttention3">BOINC klient bude pracovat na pozadí. Prosím použijte volbu \'Vypnout\' k vypnutí klienta.</string>
+	<string name="projectUrl">Vložte URL projektu</string>
 
-   <string name="installNetworkAccess1">BOINC klient může být ovládán po síti pomocí BOINC Managera.</string>
+	<!-- Host edit dialog -->
+	<string name="editHostNickname">Jméno zařízení</string>
+    <string name="editHostAddress">Adresa</string>
+    <string name="editHostPort">Port</string>
+    <string name="editHostPassword">Heslo</string>
 
-   <string name="installClientNotifyBegin">Instaluji BOINC klienta</string>
-   <string name="installClientNotifyFinish">BOINC klient nainstalován</string>
-   <string name="installProjectNotifyBegin">Instaluji aplikace pro</string>
-   <string name="installProjectBegin">Instaluji aplikace</string>
-   <string name="installProjectNotifyFinish">Aplikace byly nainstalovány</string>
+	<!-- BAM edit dialog -->
+	<string name="editBAM">Editovat BAM Manager</string>
+    <string name="editBAMName">Uživatelské jméno</string>
+    <string name="editBAMUrl">URL</string>
+    <string name="editBAMPassword">heslo</string>
+    <string name="editBAMDefaultUrl">http://bam.boincstats.com/</string>
+    <string name="attachBAMInProgress">Připojuji se k BAM&#8230;</string>
 
-   <string name="youCanChange">Nyní můžete změnit:</string>
+	<!-- Add Project dialog  -->
+	<string name="addProject">Přidat projekt</string>
+    <string name="addProjectCreate">Vytvořit účet</string>
+    <string name="addProjectUse">Připojit se k účtu</string>
+    <string name="addProjectName">uživatelské jméno</string>
+    <string name="addProjectEmail">Emailová adresa</string>
+    <string name="addProjectPassword">Heslo</string>
+    <string name="addProjectMinPassword">Min. délka hesla</string>
+    <string name="termsOfUse">Podmínky použití</string>
+    <string name="addingProject">Přidávám projekt&#8230;</string>
 
-   <!-- Change password activity -->
-   <string name="accessPassword">Přístupové heslo</string>
-   <string name="hostname">Jméno zařízení</string>
+	<!-- Install Wizard Activity -->
+	<string name="installWizard">Instalační pomocník</string>
+    <string name="installWelcome">Vítejte v NativeBOINC!</string>
+    <string name="installClientInstall">Prosím, klikněte na tlačítko \'Další\' pro stažení a nainstalování nativního klienta BOINC.</string>
+	<string name="haveProblemsSelectOlder">Mám problémy s klientem verze 0.5.9x, stáhni 0.4.9x</string>
+	<string name="versionToInstall">Instalovaná verze</string>
+	<string name="placeToInstall">Umístění instalace</string>
+	<string name="installSuccessfully">Nativní BOINC klient byl úspěšně nainstalován!</string>
+    <string name="installAddProject">Prosím, klikněte na tlačítko \'Přidat projekt\' pro přidání prvního BOINC projektu, nebo na \'Synchronizovat s BAM\' pokud chete klienta synchronizovat s BAM.</string>
+    <string name="installFinished">Instalace dokončena. Prosím, klikněte na tlačítko \'Dokončit\'.</string>
+    <string name="installWidgetFinished">Tip: Doporučujeme pro ovládání nativního klienta používat widget NativeBOINC.</string>
+    <string name="installInfoFinished">Tip: Navštivte Wiki stránky projektu na \'http://nativeboinc.org/\' pro další informace a nápovědu.</string>
+    <string name="installFinishedBenchmark">Během instalace prvního projektu může BOINC spustit výkonnostní testy, které budou trvat 30 sekund.</string>
 
-   <!--  info ..... -->
-   <string name="clientInfo">Informace o klientu</string>
-   <string name="appInfo">Informace o aplikacích</string>
-   <string name="clientVersion">Verze klienta</string>
-   <string name="description">Popis</string>
-   <string name="changes">Změny</string>
+	<string name="installReadBefore">ČTĚTE PŘED INSTALACÍ:</string>
+    <string name="installAttention2">Pokud se aplikace nečekaně ukončí, použijte prosím \'Vynutit ukončení\' a spusťte ji znovu.
+        Aplikace při startu zruší všechny běžící klienty.</string>
+    <string name="installAttention3">BOINC klient bude pracovat na pozadí. Prosím použijte volbu \'Vypnout\' k vypnutí klienta.</string>
 
-   <string name="noInstallOpsText">Nepracovat na pozadí.</string>
-   <string name="installProgressText">NativeBOINC provádí některé operace na pozadí.</string>
-   <string name="operationsProgress">Průběh práce</string>
+	<string name="installNetworkAccess1">BOINC klient může být ovládán po síti pomocí BOINC Managera.</string>
 
-   <!-- ProjectsActivity -->
-   <string name="projectCtxMenuTitle">Příkazy</string>
-   <string name="projectUpdate">Aktualizovat</string>
-   <string name="projectSuspend">Pozastavit</string>
-   <string name="projectResume">Obnovit</string>
-   <string name="projectDetach">Odpojit</string>
-   <string name="projectNNW">Žádnou další práci</string>
-   <string name="projectANW">Povolit další práci</string>
-   <string name="projectProperties">Vlastnosti</string>
-   <string name="projectStatusActive">Aktivní</string>
-   <string name="projectStatusSuspended">Pozastaven uživatelem</string>
-   <string name="projectStatusNNW">Nedostane nové úkoly</string>
+	<string name="installClientNotifyBegin">Instaluji BOINC klienta</string>
+    <string name="installClientNotifyFinish">BOINC klient nainstalován</string>
+    <string name="installProjectNotifyBegin">Instaluji aplikace pro</string>
+    <string name="installProjectBegin">Instaluji aplikace</string>
+    <string name="installProjectNotifyFinish">Aplikace byly nainstalovány</string>
 
-   <string name="warnDetachProject">Jste si jisti, že chcete odpojit tento projekt  (%1$s)?</string>
-   <string name="warnDetachProjects">Jste si jisti, že chcete odpojit vybrané projekty?</string>
+	<string name="youCanChange">Nyní můžete změnit:</string>
 
-   <string name="projectCredits">Celkem:%1$.0f RAC:%2$.0f Host:%3$.0f HostRAC:%4$.0f</string>
-   <string name="projectDetailedInfo">
+	<!-- Change password activity -->
+	<string name="accessPassword">Přístupové heslo</string>
+    <string name="hostname">Jméno zařízení</string>
+
+	<!--  info ..... -->
+	<string name="clientInfo">Informace o klientu</string>
+    <string name="appInfo">Informace o aplikacích</string>
+    <string name="clientVersion">Verze klienta</string>
+    <string name="description">Popis</string>
+    <string name="changes">Změny</string>
+
+    <string name="noInstallOpsText">Nepracovat na pozadí.</string>
+    <string name="installProgressText">NativeBOINC provádí některé operace na pozadí.</string>
+    <string name="operationsProgress">Průběh práce</string>
+
+	<!-- ProjectsActivity -->
+	<string name="projectCtxMenuTitle">Příkazy</string>
+    <string name="projectUpdate">Aktualizovat</string>
+    <string name="projectSuspend">Pozastavit</string>
+    <string name="projectResume">Obnovit</string>
+    <string name="projectDetach">Odpojit</string>
+    <string name="projectNNW">Žádnou další práci</string>
+    <string name="projectANW">Povolit další práci</string>
+    <string name="projectProperties">Vlastnosti</string>
+    <string name="projectStatusActive">Aktivní</string>
+    <string name="projectStatusSuspended">Pozastaven uživatelem</string>
+    <string name="projectStatusNNW">Nedostane nové úkoly</string>
+
+    <string name="warnDetachProject">Jste si jisti, že chcete odpojit tento projekt  (%1$s)?</string>
+    <string name="warnDetachProjects">Jste si jisti, že chcete odpojit vybrané projekty?</string>
+
+    <string name="projectCredits">Celkem:%1$.0f RAC:%2$.0f Zařízení:%3$.0f RACzařízení:%4$.0f</string> 
+    <string name="projectDetailedInfo">
       &lt;b>Projekt:&lt;/b> %1$s&lt;br>\n
       &lt;b>Účet:&lt;/b> %2$s&lt;br>\n
       &lt;b>Tým:&lt;/b> %3$s&lt;br>\n
@@ -473,231 +521,249 @@
       &lt;b>Využití disku:&lt;/b> %10$s&lt;br>\n
       &lt;b>ID zařízení:&lt;/b> %11$d&lt;br>\n
       &lt;b>Umístění zařízení:&lt;/b> %12$s&lt;br>\n
-   </string>
-   <string name="projectDetailedInfoNormal">
-       &lt;b>CPU priorita plánování:&lt;/b> %1$.2f&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoNormal">
+      &lt;b>CPU priorita plánování:&lt;/b> %1$.2f&lt;br>\n
       &lt;b>CPU priorita stahování práce:&lt;/b> %2$.2f&lt;br>\n
-   </string>
-   <string name="projectDetailedInfoATI">
-       &lt;b>ATI priorita plánování:&lt;/b> %1$.2f&lt;br>\n
+    </string>
+    <string name="projectDetailedInfoATI">
+      &lt;b>ATI priorita plánování:&lt;/b> %1$.2f&lt;br>\n
       &lt;b>ATI priorita stahování práce:&lt;/b> %2$.2f&lt;br>\n
-   </string>
-   <string name="projectDetailedInfoNVIDIA">
-       &lt;b>nVidia priorita plánování:&lt;/b> %1$.2f&lt;br>\n
+    </string>
+    <string name="projectDetailedInfoNVIDIA">
+      &lt;b>nVidia priorita plánování:&lt;/b> %1$.2f&lt;br>\n
       &lt;b>nVidia priorita stahování práce:&lt;/b> %2$.2f&lt;br>\n
-   </string>
-   <string name="projectDetailedInfoNormalEnd">
+    </string>
+    <string name="projectDetailedInfoNormalEnd">
       &lt;b>Korekční faktor trvání:&lt;/b> %1$.4f&lt;br>\n
-   </string>
-   <string name="projectDetailedInfoEnd">
-       &lt;b>Stav:&lt;/b> %1$s
-   </string>
-
-   <!--  messages activity -->
-   <string name="messageFilters">Filtry zpráv</string>
-
-   <!-- Update activity -->
-   <string name="updateBinaries">Aktualizovat programy</string>
-   <string name="updateNewAvailable">Jsou k dispozici nové programy</string>
-   <string name="updateNoNew">Žádné nové programy</string>
-   <string name="updateBoincClient">BOINC klient</string>
-   <string name="updateUpdating">Aktualizuji</string>
-
-   <!-- TasksActivity -->
-   <string name="taskCtxMenuTitle">Příkazy</string>
-   <string name="taskSuspend">Pozastavit</string>
-   <string name="taskResume">Obnovit</string>
-   <string name="taskAbort">Zrušit</string>
-   <string name="taskProperties">Vlastnosti</string>
-   <string name="warnAbortTask">Jste si jisti, že chcete zrušit tento úkol (%1$s)?</string>
-   <string name="warnAbortTasks">Jste si jisti, že chcete zrušit vybrané úkoly?</string>
-   <string name="taskDetailedInfoCommon">
-      &lt;b>Úkol:&lt;/b> %1$s&lt;br>\n
-      &lt;b>Projekt:&lt;/b> %2$s&lt;br>\n
-      &lt;b>Aplikace:&lt;/b> %3$s&lt;br>\n
-      &lt;b>Přijato:&lt;/b> %4$s&lt;br>\n
-      &lt;b>Průběh:&lt;/b> %5$s&lt;br>\n
-      &lt;b>Uplynulý čas:&lt;/b> %6$s&lt;br>\n
-      &lt;b>Zbývající čas:&lt;/b> %7$s&lt;br>\n
-      &lt;b>Odevzdat do:&lt;/b> %8$s&lt;br>\n
-      &lt;b>Odhadovaná velikost úkolu:&lt;/b> %9$s&lt;br>\n
-      &lt;b>Max využití RAM:&lt;/b> %10$s&lt;br>\n
-   </string>
-   <string name="taskDetailedInfoRun">
-      &lt;b>Velikost virtuální paměti:&lt;/b> %1$s&lt;br>\n
-      &lt;b>Velikost pracovní sady:&lt;/b> %2$s&lt;br>\n
-      &lt;b>CPU čas:&lt;/b> %3$s&lt;br>\n
-      &lt;b>Poslední bod uložení (CPU čas):&lt;/b> %4$s&lt;br>\n
-   </string>
-   <string name="taskDetailedInfoRunPid">
-      &lt;b>Proces ID:&lt;/b> %1$d&lt;br>\n
-   </string>
-   <string name="taskDetailedInfoRunDir">
-       &lt;b>Adresář:&lt;/b> %1$s&lt;br>\n
-   </string>
-   <string name="taskDetailedInfoRes">
-      &lt;b>Zdroje:&lt;/b> %1$s&lt;br>\n
-   </string>
-   <string name="taskDetailedInfoEnd">
+    </string>
+    <string name="projectDetailedInfoEnd">
       &lt;b>Stav:&lt;/b> %1$s
-   </string>
+    </string>
 
-   <!-- TransfersActivity -->
-   <string name="downloadFailed">Stahování se nezdařilo</string>
-   <string name="downloading">Stahuji</string>
-   <string name="downloadPending">Stahování nevyřízeno</string>
-   <string name="projectBackoff">projekt odložen</string>
-   <string name="retryIn">Opakovat za</string>
-   <string name="transferAbort">Zrušen</string>
-   <string name="transferProperties">Vlastnosti</string>
-   <string name="transferRetry">Opakovat</string>
-   <string name="uploadFailed">Odeslání selhalo</string>
-   <string name="uploading">Odesílám</string>
-   <string name="uploadPending">Odeslání nevyřízeno</string>
-   <string name="warnAbortTransfer">Jste si jisti, že chcete zrušit tento přenos (%1$s)?</string>
-   <string name="warnAbortTransfers">Jste si jisti, že chcete zrušit přenosy vybraných souborů?</string>
-   <string name="transferDetailedInfo">
-      &lt;b>Soubor:&lt;/b> %1$s&lt;br>\n
-      &lt;b>Projekt:&lt;/b> %2$s&lt;br>\n
-      &lt;b>Velikost:&lt;/b> %3$s&lt;br>\n
-      &lt;b>Průběh:&lt;/b> %4$s&lt;br>\n
-      &lt;b>Uplynulo:&lt;/b> %5$s&lt;br>\n
-      &lt;b>Rychlost:&lt;/b> %6$s&lt;br>\n
-      &lt;b>Stav:&lt;/b> %7$s
-   </string>
+	<!--  messages activity -->
+	<string name="messageFilters">Filtry zpráv</string>
 
-   <!-- Screen Lock activity -->
-   <string name="lockWeAreComputing">Počítáme&#8230;</string>
-   <string name="lockNotRan">Neběžel</string>
-   <string name="lockTasksSuspended">Úkol pozastaven</string>
-   <string name="lockToUnlock">Stiskněte tlačítko HOME pro odemčení</string>
+	<!-- Update activity -->
+	<string name="updateBinaries">Aktualizovat programy</string>
+    <string name="updateNewAvailable">Jsou k dispozici nové programy</string>
+    <string name="updateNoNew">Žádné nové programy</string>
+    <string name="updateBoincClient">BOINC klient</string>
+    <string name="updateUpdating">Aktualizuji</string>
 
-   <string name="clientDisconnected">Klient odpojen</string>
-   <!-- Client Error display -->
-   <string name="clientError">Chyba klienta</string>
-   <string name="clientErrorNum">Chyba číslo:</string>
+	<!-- Delete project binaries -->
+	<string name="deleteProjectBins">Smaž aplikace projektu</string>
+	<string name="noProjectsWithInstalledBins">Žádné projekty s nainstalovanými aplikacemi</string>
 
-   <!-- operation strings -->
-   <string name="downloadPGPKey">Stahuji klíč PGP</string>
-   <string name="verifySignature">Kontroluji podpis</string>
-   <string name="downloadNativeClient">Stahuji nativního klienta</string>
-   <string name="unpackNativeClient">Rozbaluji nativního klienta</string>
-   <string name="unpackApplication">Rozbaluji projektové aplikace</string>
+	<!-- TasksActivity -->
+	<string name="taskCtxMenuTitle">Příkazy</string>
+    <string name="taskSuspend">Pozastavit</string>
+    <string name="taskResume">Obnovit</string>
+    <string name="taskAbort">Zrušit</string>
+    <string name="taskProperties">Vlastnosti</string>
+    <string name="warnAbortTask">Jste si jisti, že chcete zrušit tento úkol (%1$s)?</string>
+    <string name="warnAbortTasks">Jste si jisti, že chcete zrušit vybrané úkoly?</string>
+	<string name="taskDetailedInfoCommon">
+		&lt;b>Úkol:&lt;/b> %1$s&lt;br>\n
+        &lt;b>Projekt:&lt;/b> %2$s&lt;br>\n
+        &lt;b>Aplikace:&lt;/b> %3$s&lt;br>\n
+        &lt;b>Přijato:&lt;/b> %4$s&lt;br>\n
+        &lt;b>Průběh:&lt;/b> %5$s&lt;br>\n
+        &lt;b>Uplynulý čas:&lt;/b> %6$s&lt;br>\n
+        &lt;b>Zbývající čas:&lt;/b> %7$s&lt;br>\n
+        &lt;b>Odevzdat do:&lt;/b> %8$s&lt;br>\n
+        &lt;b>Odhadovaná velikost úkolu:&lt;/b> %9$s&lt;br>\n
+        &lt;b>Max využití RAM:&lt;/b> %10$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoRun">
+		&lt;b>Velikost virtuální paměti:&lt;/b> %1$s&lt;br>\n
+        &lt;b>Velikost pracovní sady:&lt;/b> %2$s&lt;br>\n
+        &lt;b>CPU čas:&lt;/b> %3$s&lt;br>\n
+        &lt;b>Poslední bod uložení (CPU čas):&lt;/b> %4$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoRunPid">
+		&lt;b>ID procesu:&lt;/b> %1$d&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoRunDir">
+	    &lt;b>Adresář:&lt;/b> %1$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoRes">
+		&lt;b>Zdroje:&lt;/b> %1$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoEnd">
+		&lt;b>Stav:&lt;/b> %1$s
+	</string>
 
-   <string name="downloadApplication">Stahuji projektové aplikace</string>
+	<!-- TransfersActivity -->
+	<string name="downloadFailed">Stahování se nezdařilo</string>
+    <string name="downloading">Stahuji</string>
+    <string name="downloadPending">Nevyřízené stahování</string>
+    <string name="projectBackoff">projekt odložen</string>
+    <string name="retryIn">Opakovat za</string>
+    <string name="transferAbort">Zrušen</string>
+    <string name="transferProperties">Vlastnosti</string>
+    <string name="transferRetry">Opakovat</string>
+    <string name="uploadFailed">Odeslání selhalo</string>
+    <string name="uploading">Odesílám</string>
+    <string name="uploadPending">Nevyřízené odeslání</string>
+    <string name="warnAbortTransfer">Jste si jisti, že chcete zrušit tento přenos (%1$s)?</string>
+    <string name="warnAbortTransfers">Jste si jisti, že chcete zrušit přenosy vybraných souborů?</string>
+	<string name="transferDetailedInfo">
+		&lt;b>Soubor:&lt;/b> %1$s&lt;br>\n
+        &lt;b>Projekt:&lt;/b> %2$s&lt;br>\n
+        &lt;b>Velikost:&lt;/b> %3$s&lt;br>\n
+        &lt;b>Průběh:&lt;/b> %4$s&lt;br>\n
+        &lt;b>Uplynulo:&lt;/b> %5$s&lt;br>\n
+        &lt;b>Rychlost:&lt;/b> %6$s&lt;br>\n
+        &lt;b>Stav:&lt;/b> %7$s
+	</string>
 
-   <string name="operationCancelled">Operace zrušena</string>
-   <string name="operationFinished">Operace dokončena</string>
+	<!-- Screen Lock activity -->
+	<string name="lockWeAreComputing">Počítáme&#8230;</string>
+    <string name="lockNotRan">Neběžel</string>
+    <string name="lockTasksSuspended">Úkol pozastaven</string>
+    <string name="lockToUnlock">Stiskněte tlačítko HOME pro odemčení</string>
 
-   <string name="nativeClientFirstStart">První spuštění nativního klienta</string>
-   <string name="nativeClientFirstStartError">První spuštění nativního klient selhalo</string>
-   <string name="nativeClientFirstKill">První ukončení nativního klienta</string>
-   <string name="nativeClientAwaitForShutdown">Čekám na ukončení</string>
+	<string name="clientDisconnected">Klient odpojen</string>
+	<!-- Client Error display -->
+	<string name="clientError">Chyba klienta</string>
+    <string name="clientErrorNum">Chyba číslo:</string>
 
-   <string name="nativeClientConfigured">Nativní klient nastaven</string>
+	<!-- operation strings -->
+	<string name="downloadPGPKey">Stahuji klíč PGP</string>
+    <string name="verifySignature">Kontroluji podpis</string>
+    <string name="downloadNativeClient">Stahuji nativního klienta</string>
+    <string name="unpackNativeClient">Rozbaluji nativního klienta</string>
+    <string name="unpackApplication">Rozbaluji projektové aplikace</string>
 
-   <string name="nativeClientStarting">Startuji nativního klienta</string>
-   <string name="nativeClientStart">Nativní klient nastartován</string>
-   <string name="nativeClientStopping">Zastavuji nativního klient</string>
-   <string name="nativeClientShutdown">Nativní klient zastaven</string>
+    <string name="downloadApplication">Stahuji projektové aplikace</string>
 
-   <string name="nativeClientWorking">Nativní klient pracuje</string>
+    <string name="operationCancelled">Operace zrušena</string>
+    <string name="operationFinished">Operace dokončena</string>
 
-   <!-- boinc Exit code text -->
-   <string name="nativeClientWaitFailed">Ztracena vazba na klienta (přesto stále běží)!</string>
-   <string name="nativeClientNormalExitWithCode">Nativní klient ukončen s návratovým kódem</string>
-   <string name="nativeClientSignaled">Nativní klient ukončen signálem</string>
-   <string name="nativeClientStoppedByForeign">Nativní klient zastaven jinou aplikací!</string>
-   <string name="nativeClientStopUnknownReason">Nativní klient zastaven z neznámých důvodů</string>
+	<string name="nativeClientFirstStart">První spuštění nativního klienta</string>
+    <string name="nativeClientFirstStartError">První spuštění nativního klient selhalo</string>
+    <string name="nativeClientFirstKill">První ukončení nativního klienta</string>
+    <string name="nativeClientAwaitForShutdown">Čekám na ukončení</string>
 
-   <!-- native client events -->
-   <string name="eventAttachedProject">Připojen nový projekt</string>
-   <string name="eventAttachedProjectMessage">Projekt z %s byl připojen</string>
-   <string name="eventDetachedProject">Projekt byl odpojen</string>
-   <string name="eventDetachedProjectMessage">Projekt z %s byl odpojen</string>
-   <string name="eventBencharkRun">Výkonnostní testy dopočítány</string>
-   <string name="eventBencharkFinished">Výkonnostní testy dokončeny</string>
-   <string name="eventSuspendAll">Všechny úkoly pozastaveny</string>
-   <string name="eventRunTasks">Úkoly obnoveny</string>
+	<string name="nativeClientConfigured">Native client has been configured</string>
 
-   <string name="appListDownload">Stahuji seznam projektových aplikací</string>
-   <string name="clientListDownload">Stahuji seznam klientů</string>
-   <string name="waitingForClientUpdateAndRun">Čekám na aktualizaci a spuštění klienta</string>
-   <string name="finalizeProjectAppInstall">Dokončuji instalaci projektové aplikace</string>
+	<string name="nativeClientStarting">Startuji nativního klienta</string>
+    <string name="nativeClientStart">Nativní klient spuštěn</string>
+    <string name="nativeClientStopping">Zastavuji nativního klient</string>
+    <string name="nativeClientShutdown">Nativní klient zastaven</string>
 
-   <string name="waitingForBenchmarkFinish">Čekám na dokončení výkonnostních testů</string>
+    <string name="nativeClientWorking">Nativní klient pracuje</string>
 
-   <!-- Error strings -->
-   <string name="clientDistribNotFound">Neúspěšná detekce distribuce klienta</string>
-   <string name="installError">Chyba instalace</string>
-   <string name="downloadPGPKeyError">Nezdařilo se stažení klíče PGP</string>
-   <string name="loadPGPKeyError">Nezdařilo se nahrát klíč PGP</string>
-   <string name="downloadNativeClientError">Nezdařilo se stažení nativního klienta</string>
-   <string name="downloadApplicationError">Nezdařilo se stáhnout projektové aplikace</string>
-   <string name="downloadSignatureError">Nezdařilo se stáhnout podpis</string>
-   <string name="verifySignatureError">Nezdařilo se potvrdit podpis</string>
-   <string name="verifySignatureFailed">Potvrzení podpisu selhalo</string>
-   <string name="unpackNativeClientError">Nezdařilo se rozbalit nativního klienta</string>
-   <string name="unpackApplicationError">Nezdařilo se rozbalit projektové aplikace</string>
-   <string name="copyApplicationError">Nezdařilo se zkopírovat aplikace projektu</string>
-   <string name="changePermissionsError">Nezdařilo se změnit oprávnění</string>
-   <string name="copyNativeClientError">Nezdařilo se zkopírovat nativního klienta</string>
+	<!-- boinc Exit code text -->
+	<string name="nativeClientWaitFailed">Ztracena vazba na klienta (přesto stále běží)!</string>
+    <string name="nativeClientNormalExitWithCode">Nativní klient ukončen s návratovým kódem</string>
+    <string name="nativeClientSignaled">Nativní klient ukončen signálem</string>
+    <string name="nativeClientStoppedByForeign">Nativní klient zastaven jinou aplikací!</string>
+    <string name="nativeClientStopUnknownReason">Nativní klient zastaven z neznámých důvodů</string>
 
-   <string name="runNativeClientError">Neúspěšné spuštění nativního klienta</string>
-   <string name="connectNativeClientError">Nezdařilo se připojení na nativního klienta</string>
-   <string name="getAccessPasswordError">Nezdařilo se získat přístupové heslo</string>
-   <string name="setAccessPasswordError">Nezdařilo se nastavit přístupové heslo</string>
-   <string name="nativeAuthorizeError">Nezdařilo se ověřit přístup</string>
+	<!-- native client events -->
+	<string name="eventAttachedProject">Připojen nový projekt</string>
+    <string name="eventAttachedProjectMessage">Projekt z %s byl připojen</string>
+    <string name="eventDetachedProject">Projekt byl odpojen</string>
+    <string name="eventDetachedProjectMessage">Projekt z %s byl odpojen</string>
+    <string name="eventBencharkRun">Výkonnostní testy dopočítány</string>
+    <string name="eventBencharkFinished">Výkonnostní testy dokončeny</string>
+    <string name="eventSuspendAll">Všechny úkoly pozastaveny</string>
+    <string name="eventRunTasks">Úkoly obnoveny</string>
 
-   <string name="nativeClientConfigError">Nezdařila se konfigurace nativního klienta</string>
-   <string name="nativeClientResultsError">Neobdrženy výsledky od nativního klienta</string>
-   <string name="nativeClientProjectsError">Neobdrženy projekty od nativního klienta</string>
+	<string name="appListDownload">Stahuji seznam projektových aplikací</string>
+    <string name="clientListDownload">Stahuji seznam klientů</string>
+    <string name="waitingForClientUpdateAndRun">Čekám na aktualizaci a spuštění klienta</string>
+    <string name="finalizeProjectAppInstall">Dokončuji instalaci projektové aplikace</string>
 
-   <string name="appListDownloadError">Nezdařilo se stažení seznamu projektových aplikací</string>
-   <string name="appListParseError">Nezdařilo se zpracování seznamu projektových aplikací</string>
-   <string name="clientListDownloadError">Nezdařilo se stažení seznamu klientů</string>
-   <string name="clientListParseError">Nezdařilo se zpracování seznamu klientů</string>
-   <string name="projectAppNotFound">Nenalezena aplikace pro tento projekt</string>
+    <string name="waitingForBenchmarkFinish">Čekám na dokončení výkonnostních testů</string>
 
-   <string name="updateProjectAppError">Neúspěšná aktualizace projektových aplikací pro</string>
+	<!-- Error strings -->
+	<string name="clientDistribNotFound">Neúspěšná detekce distribuce klienta</string>
+    <string name="installError">Chyba instalace</string>
+    <string name="downloadPGPKeyError">Nezdařilo se stažení klíče PGP</string>
+    <string name="loadPGPKeyError">Nezdařilo se nahrát klíč PGP</string>
+    <string name="downloadNativeClientError">Nezdařilo se stažení nativního klienta</string>
+    <string name="downloadApplicationError">Nezdařilo se stáhnout projektové aplikace</string>
+    <string name="downloadSignatureError">Nezdařilo se stáhnout podpis</string>
+    <string name="verifySignatureError">Nezdařilo se potvrdit podpis</string>
+    <string name="verifySignatureFailed">Potvrzení podpisu selhalo</string>
+    <string name="unpackNativeClientError">Nezdařilo se rozbalit nativního klienta</string>
+    <string name="unpackApplicationError">Nezdařilo se rozbalit projektové aplikace</string>
+    <string name="copyApplicationError">Nezdařilo se zkopírovat aplikace projektu</string>
+    <string name="changePermissionsError">Nezdařilo se změnit oprávnění</string>
+    <string name="copyNativeClientError">Nezdařilo se zkopírovat nativního klienta</string>
 
-   <string name="updateClientModeError">Chyba obnovy módu klienta</string>
-   <string name="boincOperationError">Chyba činnosti BOINC</string>
-   <string name="boincPollError">Chyba dotazování na BOINC</string>
-   
-   <string name="binSDCardDirReadError">Nezdařilo se přečíst adresář na SD kartě</string>
-   <string name="getProjectsFromClientError">Nezdařilo se z klienta získat projekty</string>
-   <string name="badDataInClientDistrib">Distribuce klienta neobsahuje dostatečné údaje!</string>
-   <string name="badDataInProjectDistribs">Distribuce projektu neobsahuje dostatečné údaje!</string>
+	<string name="runNativeClientError">Neúspěšné spuštění nativního klienta</string>
+    <string name="connectNativeClientError">Nezdařilo se připojení na nativního klienta</string>
+    <string name="getAccessPasswordError">Nezdařilo se získat přístupové heslo</string>
+    <string name="setAccessPasswordError">Nezdařilo se nastavit přístupové heslo</string>
+    <string name="nativeAuthorizeError">Nezdařilo se ověřit přístup</string>
 
-   <string name="unexpectedError">Neočekávaná chyba</string>
+	<string name="nativeClientConfigError">Nezdařila se konfigurace nativního klienta</string>
+	<string name="nativeClientUpdateAppsError">Nezdařila se aktualizace aplikací</string>
+	<string name="nativeClientNetCommError">Nezdařila se síťová komunikace</string>
+	<string name="nativeClientResultsError">Neobdrženy výsledky od nativního klienta</string>
+    <string name="nativeClientProjectsError">Neobdrženy projekty od nativního klienta</string>
 
-   <string name="errorNumFormat">(chyba: %d)</string>
+	<string name="appListDownloadError">Nezdařilo se stažení seznamu projektových aplikací</string>
+    <string name="appListParseError">Nezdařilo se zpracování seznamu projektových aplikací</string>
+    <string name="clientListDownloadError">Nezdařilo se stažení seznamu klientů</string>
+    <string name="clientListParseError">Nezdařilo se zpracování seznamu klientů</string>
+    <string name="projectAppNotFound">Nenalezena aplikace pro tento projekt</string>
 
-   <!-- HostInfo display -->
-   <string name="hostInfoPart1">
-      &lt;b>Název Domény:&lt;/b> %1$s&lt;br />
-      &lt;b>IP adresa:&lt;/b> %2$s&lt;br />
-      &lt;b>CPID:&lt;/b> %3$s&lt;br />
-      &lt;b>Název OS:&lt;/b> %4$s&lt;br />
-      &lt;b>Verze OS:&lt;/b> %5$s&lt;br />
-      &lt;b>Počet CPU:&lt;/b> %6$s&lt;br />
-      &lt;b>Výrobce:&lt;/b> %7$s&lt;br />
-      &lt;b>Model:&lt;/b> %8$s&lt;br />
-      &lt;b>Dostupné funkce:&lt;/b> %9$s&lt;br />
-   </string>
-   <string name="hostInfoVB">
-       &lt;b>Verze VirtualBox:&lt;/b> %1$s&lt;br />
-   </string>
-   <string name="hostInfoPart2">
-      &lt;b>MFLOPS:&lt;/b> %1$s&lt;br />
-      &lt;b>MIPS:&lt;/b> %2$s&lt;br />
-      &lt;b>Rychlost pamětí:&lt;/b> %3$s&lt;br />
-      &lt;b>Výkonnostní testy:&lt;/b> %4$s&lt;br />
-      &lt;b>Velikost paměti:&lt;/b> %5$s&lt;br />
-      &lt;b>Velikost vyrovnávací paměti:&lt;/b> %6$s&lt;br />
-      &lt;b>Velikost odkládacího prostoru:&lt;/b> %7$s&lt;br />
-      &lt;b>Velikost disku:&lt;/b> %8$s&lt;br />
-      &lt;b>Volné místo:&lt;/b> %9$s&lt;br />
-   </string>
+	<string name="updateProjectAppError">Neúspěšná aktualizace projektových aplikací pro</string>
+
+	<string name="updateClientModeError">Chyba obnovy módu klienta</string>
+    <string name="boincOperationError">Chyba činnosti BOINC</string>
+    <string name="boincPollError">Chyba dotazování na BOINC</string>
+
+	<string name="binSDCardDirReadError">Nezdařilo se přečíst adresář na SD kartě</string>
+    <string name="getProjectsFromClientError">Nezdařilo se z klienta získat projekty</string>
+    <string name="badDataInClientDistrib">Distribuce klienta neobsahuje dostatečné údaje!</string>
+    <string name="badDataInProjectDistribs">Distribuce projektu neobsahuje dostatečné údaje!</string>
+
+	<string name="unexpectedError">Neočekávaná chyba</string>
+
+    <string name="errorNumFormat">(chyba: %d)</string>
+
+	<string name="cantAuthorizeClientMonitor">Nezdařila se autorizace klient monitoru!</string>
+	<string name="cantAuthorizeClientMonitorMessage">Nezdařila se autorizace klient monitoru! Nemůžete automaticky instalovat aplikace projektů(Můžete použít možnost aktualizace aplikací po přidání projektu) nebo přijímat události klienta. Můžete restartovat BOINC klienta (doporučujeme to).</string>
+
+	<string name="cantDeleteProjectBins">Nezdařilo se mazání aplikací projektu</string>
+	<!-- HostInfo display -->
+	<string name="hostInfoPart1">
+		&lt;b>Název Domény:&lt;/b> %1$s&lt;br />
+        &lt;b>IP adresa:&lt;/b> %2$s&lt;br />
+        &lt;b>CPID:&lt;/b> %3$s&lt;br />
+        &lt;b>Název OS:&lt;/b> %4$s&lt;br />
+        &lt;b>Verze OS:&lt;/b> %5$s&lt;br />
+        &lt;b>Počet CPU:&lt;/b> %6$s&lt;br />
+        &lt;b>Výrobce:&lt;/b> %7$s&lt;br />
+        &lt;b>Model:&lt;/b> %8$s&lt;br />
+        &lt;b>Dostupné funkce:&lt;/b> %9$s&lt;br />
+	</string>
+	<string name="hostInfoVB">
+	    &lt;b>Verze VirtualBox:&lt;/b> %1$s&lt;br />
+	</string>
+	<string name="hostInfoPart2">
+		&lt;b>MFLOPS:&lt;/b> %1$s&lt;br />
+        &lt;b>MIPS:&lt;/b> %2$s&lt;br />
+        &lt;b>Rychlost pamětí:&lt;/b> %3$s&lt;br />
+        &lt;b>Výkonnostní testy:&lt;/b> %4$s&lt;br />
+        &lt;b>Velikost paměti:&lt;/b> %5$s&lt;br />
+        &lt;b>Velikost vyrovnávací paměti:&lt;/b> %6$s&lt;br />
+        &lt;b>Velikost odkládacího prostoru:&lt;/b> %7$s&lt;br />
+        &lt;b>Velikost disku:&lt;/b> %8$s&lt;br />
+        &lt;b>Volné místo:&lt;/b> %9$s&lt;br />
+	</string>
+
+	<!-- news, news -->
+	<string name="latestNews">Nejnovější zprávy</string>
+	<string name="newsNotifyText">Právě byli přijaty novinky!</string>
+	<string name="newsMessage">Zpráva</string>
+	<string name="noNewsAvailable">Nejsou dostupné žádné novinky</string>
+
+	<string name="newBinariesAvailable">Jsou dostupné nové aplikace!</string>
 </resources>

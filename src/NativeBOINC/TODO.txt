@@ -2,6 +2,8 @@
 POPRAWKI BŁĘDÓW
 -----------------------------------------
 
+* Popraw brak włączania opcji BAM w Manage Client po stop using Bam.
+
 Popraw i zindetyfikuj błąd w:
 12-17 23:42:31.564: E/AndroidRuntime(22534): java.lang.IndexOutOfBoundsException: Invalid index 0, size is 0
 12-17 23:42:31.564: E/AndroidRuntime(22534):    at java.util.ArrayList.throwIndexOutOfBoundsException(ArrayList.java:257)

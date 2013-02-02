@@ -662,7 +662,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 			break;
 		case PROGRESS_XFER_FINISHED:
 			if (boincOp.equals(BoincOp.RunBenchmarks) || boincOp.equals(BoincOp.DoNetworkComm) ||
-					boincOp.equals(BoincOp.GlobalPrefsOverride))
+					boincOp.equals(BoincOp.StopUsingBAM) || boincOp.equals(BoincOp.GlobalPrefsOverride))
 				updateParticularPreferences();
 			break;
 		case PROGRESS_XFER_POLL:

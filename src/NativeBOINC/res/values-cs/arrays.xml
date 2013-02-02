@@ -1,156 +1,181 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
 /* 
-* AndroBOINC - BOINC Manager for Android
-* Copyright (C) 2010, Pavol Michalec
-* 
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* 
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* 
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-* 
-*/
+ * AndroBOINC - BOINC Manager for Android
+ * Copyright (C) 2010, Pavol Michalec
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
 -->
 <resources>
 
-   <!-- Screen rotation mode -->
-   <string-array name="prefScreenOrientationDisplay">
-      <item>Převzít ze systému</item>
-      <item>Na výšku</item>
-      <item>Na šířku</item>
-      <item>Rotovat automaticky</item>
-   </string-array>
-   <string-array name="prefScreenOrientationValues"> 
-                       <!-- values from android.content.pm.ActivityInfo: -->
-      <item>-1</item>  <!-- SCREEN_ORIENTATION_UNSPECIFIED -->
-      <item>1</item>   <!-- SCREEN_ORIENTATION_PORTRAIT    -->
-      <item>0</item>   <!-- SCREEN_ORIENTATION_LANDSCAPE   -->
-      <item>4</item>   <!-- SCREEN_ORIENTATION_SENSOR      -->
-   </string-array>
+	<!-- Screen rotation mode -->
+	<string-array name="prefScreenOrientationDisplay">
+		<item>Převzít ze systému</item>
+        <item>Na výšku</item>
+        <item>Na šířku</item>
+        <item>Automatické otočení</item>
+	</string-array>
+	<string-array name="prefScreenOrientationValues"> 
+		                 <!-- values from android.content.pm.ActivityInfo: -->
+		<item>-1</item>  <!-- SCREEN_ORIENTATION_UNSPECIFIED -->
+		<item>1</item>   <!-- SCREEN_ORIENTATION_PORTRAIT    -->
+		<item>0</item>   <!-- SCREEN_ORIENTATION_LANDSCAPE   -->
+		<item>4</item>   <!-- SCREEN_ORIENTATION_SENSOR      -->
+	</string-array>
 
-   <!-- Automatic updates of display -->
-   <string-array name="prefAutoUpdatesDisplay">
-      <item>Zakázat</item>
-      <item>1s</item>
-      <item>5s</item>
-      <item>10s</item>
-      <item>30s</item>
-      <item>60s</item>
-   </string-array>
-   <string-array name="prefAutoUpdatesValues">
-      <item>0</item>
-      <item>1</item>
-      <item>5</item>
-      <item>10</item>
-      <item>30</item>
-      <item>60</item>
-   </string-array>
+	<!-- Automatic updates of display -->
+	<string-array name="prefAutoUpdatesDisplay">
+		<item>Vypnuto</item>
+		<item>1s</item>
+		<item>5s</item>
+		<item>10s</item>
+		<item>30s</item>
+		<item>60s</item>
+	</string-array>
+	<string-array name="prefAutoUpdatesValues">
+		<item>0</item>
+		<item>1</item>
+		<item>5</item>
+		<item>10</item>
+		<item>30</item>
+		<item>60</item>
+	</string-array>
 
-   <!-- screen lock update -->
-   <string-array name="prefScreenLockUpdateDisplay">
-      <item>1s</item>
-      <item>5s</item>
-      <item>10s</item>
-      <item>30s</item>
-      <item>60s</item>
-   </string-array>
-   
-   <string-array name="prefScreenLockUpdateValues">
-      <item>1</item>
-      <item>5</item>
-      <item>10</item>
-      <item>30</item>
-      <item>60</item>
-   </string-array>
+	<!-- screen lock update -->
+	<string-array name="prefScreenLockUpdateDisplay">
+		<item>1s</item>
+		<item>5s</item>
+		<item>10s</item>
+		<item>30s</item>
+		<item>60s</item>
+	</string-array>
 
-   <!-- widget update -->
-   <string-array name="prefWidgetUpdateDisplay">
-      <item>1s</item>
-      <item>5s</item>
-      <item>10s</item>
-      <item>30s</item>
-      <item>60s</item>
-   </string-array>
-   
-   <string-array name="prefWidgetUpdateValues">
-      <item>1</item>
-      <item>5</item>
-      <item>10</item>
-      <item>30</item>
-      <item>60</item>
-   </string-array>
+	<string-array name="prefScreenLockUpdateValues">
+		<item>1</item>
+		<item>5</item>
+		<item>10</item>
+		<item>30</item>
+		<item>60</item>
+	</string-array>
 
-   <!-- Run modes for client (display) -->
-   <string-array name="clientModeRun">
-      <item>Počítat vždy</item>
-      <item>Počítat podle předvoleb</item>
-      <item>Pozastavit</item>
-   </string-array>
-   <!-- Network modes for client (display) -->
-   <string-array name="clientModeNetwork">
-      <item>Vždy povolit přístup k Internetu </item>
-      <item>Přístup k Internetu podle předvoleb</item>
-      <item>Nepoužívat přístup k Internetu</item>
-   </string-array>
-   <!-- Modes for client (values) - both run and network -->
-   <string-array name="clientModeValues">
-      <item>1</item>
-      <item>2</item>
-      <item>3</item>
-   </string-array>
+	<!-- widget update -->
+	<string-array name="prefWidgetUpdateDisplay">
+		<item>1s</item>
+		<item>5s</item>
+		<item>10s</item>
+		<item>30s</item>
+		<item>60s</item>
+	</string-array>
 
-   <!-- States of task (all tasks) -->
-   <string-array name="resultStates">
-      <item>Nový</item>                 <!-- 0 RESULT_NEW               -->
-      <item>Stahuji</item>              <!-- 1 RESULT_FILES_DOWNLOADING -->
-      <item>Staženo</item>              <!-- 2 RESULT_FILES_DOWNLOADED  -->
-      <item>Chyba při výpočtu</item>    <!-- 3 RESULT_COMPUTE_ERROR     -->
-      <item>Odesílám</item>             <!-- 4 RESULT_FILES_UPLOADING   -->
-      <item>Připraven k ohlášení</item> <!-- 5 RESULT_FILES_UPLOADED    -->
-      <item>Zrušen</item>               <!-- 6 RESULT_ABORTED           -->
-   </string-array>
-   <!-- States of task (active tasks only) -->
-   <string-array name="activeTaskStates">
-      <item>Připraven</item>          <!-- 0 PROCESS_UNINITIALIZED (process doesn't exist yet) -->
-      <item>Počítám</item>            <!-- 1 PROCESS_EXECUTING (process is running, as far as we know) -->
-      <item>Ukončen</item>            <!-- 2 *PROCESS_EXITED -->
-      <item>Ukončen</item>            <!-- 3 *PROCESS_WAS_SIGNALED     -->
-      <item>Ukončen</item>            <!-- 4 *PROCESS_EXIT_UNKNOWN   -->
-      <item>Zrušen</item>             <!-- 5 PROCESS_ABORT_PENDING (process exceeded limits; send "abort" message, waiting to exit)   -->
-      <item>Zrušen</item>             <!-- 6 *PROCESS_ABORTED          -->
-      <item>Nemohu nastartovat</item> <!-- 7 *PROCESS_COULDNT_START   -->
-      <item>Ukončuji</item>           <!-- 8 PROCESS_QUIT_PENDING (we've sent it a "quit" message, waiting to exit) -->
-      <item>Čekám na spuštění</item>  <!-- 9 PROCESS_SUSPENDED (we've sent it a "suspend" message)        -->
-   </string-array>
+	<string-array name="prefWidgetUpdateValues">
+		<item>1</item>
+		<item>5</item>
+		<item>10</item>
+		<item>30</item>
+		<item>60</item>
+	</string-array>
 
-   <string-array name="pollOps">
-       <item>Připojit k BAM</item>
-       <item>Synchronizovat s BAM</item>
-       <item>Vyhledat účet na projektu</item>
-       <item>Vytvořit účet na projektu</item>
-       <item>Připojit projekt</item>
-       <item>Stáhnout konfiguraci projektu</item>
-   </string-array>
+	<!-- Run modes for client (display) -->
+	<string-array name="clientModeRun">
+		<item>Počítat vždy</item>
+        <item>Počítat podle předvoleb</item>
+        <item>Pozastavit</item>
+	</string-array>
+	<!-- Network modes for client (display) -->
+	<string-array name="clientModeNetwork">
+		<item>Vždy povolit přístup k Internetu </item>
+        <item>Přístup k Internetu podle předvoleb</item>
+        <item>Nepoužívat přístup k Internetu</item>
+	</string-array>
+	<!-- GPU modes for client (display) -->
+	<string-array name="clientModeGpu">
+		<item>GPU používat vždy</item>
+		<item>GPU používat podle předvoleb</item>
+		<item>GPU nepoužívat</item>
+	</string-array>
+	<!-- Modes for client (values) - both run and network -->
+	<string-array name="clientModeValues">
+		<item>1</item>
+		<item>2</item>
+		<item>3</item>
+	</string-array>
 
-   <string-array name="messageFilterLabels">
-       <item>Filtr: Neznámé</item>
-       <item>Filtr: Info</item>
-       <item>Filtr: Výstraha</item>
-       <item>Filtr: Vnitřní chyba</item>
-   </string-array>
+	<!-- States of task (all tasks) -->
+	<string-array name="resultStates">
+		<item>Nový</item>                 <!-- 0 RESULT_NEW               -->
+        <item>Stahuji</item>              <!-- 1 RESULT_FILES_DOWNLOADING -->
+        <item>Staženo</item>              <!-- 2 RESULT_FILES_DOWNLOADED  -->
+        <item>Chyba při výpočtu</item>    <!-- 3 RESULT_COMPUTE_ERROR     -->
+        <item>Odesílám</item>             <!-- 4 RESULT_FILES_UPLOADING   -->
+        <item>Připraven k ohlášení</item> <!-- 5 RESULT_FILES_UPLOADED    -->
+        <item>Zrušen</item>               <!-- 6 RESULT_ABORTED           -->
+	</string-array>
+	<!-- States of task (active tasks only) -->
+	<string-array name="activeTaskStates">
+		<item>Připraven</item>          <!-- 0 PROCESS_UNINITIALIZED (process doesn't exist yet) -->
+        <item>Počítám</item>            <!-- 1 PROCESS_EXECUTING (process is running, as far as we know) -->
+        <item>Ukončen</item>            <!-- 2 *PROCESS_EXITED -->
+        <item>Ukončen</item>            <!-- 3 *PROCESS_WAS_SIGNALED     -->
+        <item>Ukončen</item>            <!-- 4 *PROCESS_EXIT_UNKNOWN   -->
+        <item>Zrušen</item>             <!-- 5 PROCESS_ABORT_PENDING (process exceeded limits; send "abort" message, waiting to exit)   -->
+        <item>Zrušen</item>             <!-- 6 *PROCESS_ABORTED          -->
+        <item>Nemohu nastartovat</item> <!-- 7 *PROCESS_COULDNT_START   -->
+        <item>Ukončuji</item>           <!-- 8 PROCESS_QUIT_PENDING (we've sent it a "quit" message, waiting to exit) -->
+        <item>Čekám na spuštění</item>  <!-- 9 PROCESS_SUSPENDED (we've sent it a "suspend" message)        -->
+	</string-array>
 
-   <string-array name="messageFilterMenuItems">
-       <item>Neznámé</item>
-       <item>Info</item>
-       <item>Výstraha</item>
-       <item>Vnitřní chyba</item>
-   </string-array>
+	<string-array name="pollOps">
+	    <item>Připojit k BAM</item>
+        <item>Synchronizovat s BAM</item>
+        <item>Vyhledat účet na projektu</item>
+        <item>Vytvořit účet na projektu</item>
+        <item>Připojit projekt</item>
+        <item>Stáhnout konfiguraci projektu</item>
+	</string-array>
+
+	<string-array name="messageFilterLabels">
+	    <item>Filtr: Neznámé</item>
+        <item>Filtr: Info</item>
+        <item>Filtr: Výstraha</item>
+        <item>Filtr: Vnitřní chyba</item>
+	</string-array>
+
+	<string-array name="messageFilterMenuItems">
+	    <item>Neznámé</item>
+        <item>Info</item>
+        <item>Výstraha</item>
+        <item>Vnitřní chyba</item>
+	</string-array>
+
+	<string-array name="nativeAutostartLabels">
+	    <item>Automatické zapnutí zakázáno</item>
+	    <item>Při startu aplikace</item>
+	    <item>Při startu systému</item>
+	    <item>Automatické zapnutí vždy povoleno</item>
+	</string-array>
+
+	<string-array name="nativeAutostartValues">
+	    <item>0</item>
+	    <item>1</item>
+	    <item>2</item>
+	    <item>3</item>
+	</string-array>
+
+	<string-array name="placesToInstallLabels">
+	    <item>Interní úložiště</item>
+	    <item>Paměťová karta SD</item>
+	</string-array>
 </resources>

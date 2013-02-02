@@ -1,7 +1,8 @@
-Version 0.4.2.2 (beta) (2013-02-02):
+Version 0.4.2.3 (beta) (2013-02-02):
 - fixed 'Stop using BAM' option
 - enable fast scrolling in boinc project list
 - update Czech translations (thanks eLPeCKo from CNT)
+- small update in Poland translations
 
 Version 0.4.2.2 (beta) (2013-01-31):
 - fix for improper event handling

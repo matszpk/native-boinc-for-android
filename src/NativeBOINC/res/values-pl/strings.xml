@@ -354,6 +354,7 @@
 	<string name="nativeShowLogsSummary">Pokaż ostatnie logi z klienta BOINC</string>
 	
 	<string name="nativeBoincLogs">Ostatnie logi BOINC\'a</string>
+	<string name="nativeBoincLogsHelp">By zobaczyć opcję proszę wciśnąć przycisk Menu.</string>
 	
 	<string name="updateFromSDCard">Aktualizuj binaria z karty SD</string>
 	<string name="enterUpdateDir">Wpisz katalog z aktualizacjami</string>

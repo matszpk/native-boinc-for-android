@@ -375,6 +375,7 @@
 	<string name="boincReinstall">BOINC Reinstall</string>
 	<string name="reinstallBegin">Begin reinstalling BOINC</string>
 	<string name="reinstallInProgress">Reinstalling BOINC</string>
+	<string name="reinstallFinish">Reinstallation finished</string>
 	<string name="reinstallQuestion">Reinstallation removes whole BOINC directory (including projects). Do you really want to reinstall BOINC?</string>
 	<string name="waitingForShutdown">Waiting for shutdown</string>
 	

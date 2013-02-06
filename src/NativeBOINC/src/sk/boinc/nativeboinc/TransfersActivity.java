@@ -327,6 +327,7 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 		registerForContextMenu(getListView());
 		View emptyView = findViewById(R.id.emptyContent);
 		registerForContextMenu(emptyView);
+		getListView().setFastScrollEnabled(true);
 		
 		mScreenOrientation = new ScreenOrientationHandler(this);
 		doBindService();

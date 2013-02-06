@@ -314,6 +314,7 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 		registerForContextMenu(getListView());
 		View emptyView = findViewById(R.id.emptyContent);
 		registerForContextMenu(emptyView);
+		getListView().setFastScrollEnabled(true);
 		
 		mScreenOrientation = new ScreenOrientationHandler(this);
 		doBindService();

@@ -303,7 +303,7 @@
 	<string name="proxyServerPort">Port na servru</string>
 	<string name="proxyServerUserName">Uživatelské jméno</string>
 	<string name="proxyServerUserPassword">Heslo</string>
-	<string name="proxyNoForHosts">Nepoužívať pre</string>
+	<string name="proxyNoForHosts">Nepoužívat pro</string>
 
 	<!--  NativeClient activity -->
 	<string name="nativeAutostart">Klient se zapíná</string>
@@ -559,7 +559,7 @@
 	<string name="taskCtxMenuTitle">Příkazy</string>
     <string name="taskSuspend">Pozastavit</string>
     <string name="taskResume">Obnovit</string>
-    <string name="taskAbort">Zrušit</string>
+    <string name="taskAbort">Přerušit úkol</string>
     <string name="taskProperties">Vlastnosti</string>
     <string name="warnAbortTask">Jste si jisti, že chcete zrušit tento úkol (%1$s)?</string>
     <string name="warnAbortTasks">Jste si jisti, že chcete zrušit vybrané úkoly?</string>

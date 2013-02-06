@@ -1,5 +1,6 @@
 Version 0.4.2.4 (beta) (2013-02-06):
 - fixed crash on the finishing BOINC reinstallation
+- fixed NPEs on displaying project/task/transfer info
 - added fast scroll for all tabs in main screen
 - updated Czech translations
 

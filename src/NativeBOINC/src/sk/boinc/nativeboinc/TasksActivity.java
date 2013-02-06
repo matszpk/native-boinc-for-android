@@ -544,7 +544,8 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 		switch (id) {
 		case DIALOG_DETAILS:
 			text = (TextView)dialog.findViewById(R.id.dialogText);
-			text.setText(Html.fromHtml(prepareTaskDetails(mChoosenTask)));
+			if (mChoosenTask!=null)
+				text.setText(Html.fromHtml(prepareTaskDetails(mChoosenTask)));
 			break;
 		case DIALOG_WARN_ABORT:
 			text = (TextView)dialog.findViewById(R.id.dialogText);

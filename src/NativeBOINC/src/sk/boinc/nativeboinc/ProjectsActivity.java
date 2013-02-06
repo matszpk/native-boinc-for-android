@@ -504,7 +504,8 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 		switch (id) {
 		case DIALOG_DETAILS:
 			TextView text = (TextView)dialog.findViewById(R.id.dialogText);
-			text.setText(Html.fromHtml(prepareProjectDetails(mChoosenProject)));
+			if (mChoosenProject != null)
+				text.setText(Html.fromHtml(prepareProjectDetails(mChoosenProject)));
 			break;
 		case DIALOG_WARN_DETACH:
 			text = (TextView)dialog.findViewById(R.id.dialogText);

@@ -516,7 +516,8 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 		switch (id) {
 		case DIALOG_DETAILS:
 			text = (TextView)dialog.findViewById(R.id.dialogText);
-			text.setText(Html.fromHtml(prepareTransferDetails(mChoosenTransfer)));
+			if (mChoosenTransfer!=null)
+				text.setText(Html.fromHtml(prepareTransferDetails(mChoosenTransfer)));
 			break;
 		case DIALOG_WARN_ABORT:
 			text = (TextView)dialog.findViewById(R.id.dialogText);

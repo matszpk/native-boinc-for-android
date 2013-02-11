@@ -93,15 +93,17 @@ int CLIENT_STATE::do_update_project_apps() {
                 break;
             }
         }
+        dir_close(dir);
         
         if (!success) {
+            dir = dir_open(updatepath);
             // deleting remaining files
             while (!dir_scan(filename, dir, 256)) {
                 strlcpy(updatepath+ulen+1,filename,1024-ulen-1);
                 strlcpy(projpath+plen+1,filename,1024-plen-1);
                 ::remove(updatepath);
             }
-            
+            dir_close(dir);
             p->suspended_during_update = false;
             updated_projects++;
             continue;

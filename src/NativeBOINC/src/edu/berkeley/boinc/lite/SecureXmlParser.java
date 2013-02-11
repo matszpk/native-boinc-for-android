@@ -42,6 +42,26 @@ public class SecureXmlParser {
 		}
 		
 		@Override
+		public int available() throws IOException {
+			try {
+				return in.available();
+			} catch(IOException ex) {
+				ioEx = ex;
+				return -1;
+			}
+		}
+		
+		@Override
+		public void mark(int readLimit) {
+			in.mark(readLimit);
+		}
+		
+		@Override
+		public boolean markSupported() {
+			return in.markSupported();
+		}
+		
+		@Override
 		public int read(byte[] buffer) throws IOException {
 			try {
 				return in.read(buffer);
@@ -68,6 +88,25 @@ public class SecureXmlParser {
 			} catch(IOException ex) {
 				ioEx = ex;
 				return -1;
+			}
+		}
+		
+		@Override
+		public void reset() throws IOException {
+			try {
+				in.reset();
+			} catch(IOException ex) {
+				ioEx = ex;
+			}
+		}
+		
+		@Override
+		public long skip(long skipCount) throws IOException {
+			try {
+				return in.skip(skipCount);
+			} catch(IOException ex) {
+				ioEx = ex;
+				return 0;
 			}
 		}
 		

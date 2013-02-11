@@ -26,6 +26,8 @@ import java.util.Map;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import edu.berkeley.boinc.lite.SecureXmlParser;
+
 import android.util.Log;
 import android.util.Xml;
 
@@ -50,7 +52,7 @@ public class BinaryVersionsParser extends BaseParser {
 	public static Map<String, String> parse(InputStream result) {
 		try {
 			BinaryVersionsParser parser = new BinaryVersionsParser();
-			Xml.parse(result, Xml.Encoding.UTF_8, parser);
+			SecureXmlParser.parse(result, Xml.Encoding.UTF_8, parser);
 			return parser.getBinaryVersions();
 		} catch(SAXException ex) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + result);

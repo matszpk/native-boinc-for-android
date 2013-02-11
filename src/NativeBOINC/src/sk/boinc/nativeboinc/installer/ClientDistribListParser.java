@@ -25,6 +25,8 @@ import java.io.InputStream;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import edu.berkeley.boinc.lite.SecureXmlParser;
+
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.BaseParser;
 import android.util.Log;
@@ -46,7 +48,7 @@ public class ClientDistribListParser extends BaseParser {
 	public static ClientDistrib parse(InputStream result) {
 		try {
 			ClientDistribListParser parser = new ClientDistribListParser();
-			Xml.parse(result, Xml.Encoding.UTF_8, parser);
+			SecureXmlParser.parse(result, Xml.Encoding.UTF_8, parser);
 			return parser.getClientDistribs();
 		} catch (SAXException e) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + result);

@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
+import edu.berkeley.boinc.lite.SecureXmlParser;
+
 import android.util.Log;
 import android.util.Xml;
 
@@ -49,7 +51,7 @@ public class NewsParser extends BaseParser {
 	public static ArrayList<NewsMessage> parse(InputStream result) {
 		try {
 			NewsParser newsParser = new NewsParser();
-			Xml.parse(result, Xml.Encoding.UTF_8, newsParser);
+			SecureXmlParser.parse(result, Xml.Encoding.UTF_8, newsParser);
 			return newsParser.getNewsMessages();
 		} catch(SAXException ex) {
 			if (Logging.DEBUG) Log.d(TAG, "Malformed XML:\n" + result);

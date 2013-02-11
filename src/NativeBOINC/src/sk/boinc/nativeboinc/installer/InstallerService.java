@@ -674,7 +674,6 @@ public class InstallerService extends Service {
 	 */
 	private static final String[] sRequiredFiles = {
 		"/client_state.xml",
-		"/client_state_prev.xml",
 		"/time_stats_log",
 		"/lockfile",
 		"/daily_xfer_history.xml",
@@ -712,7 +711,7 @@ public class InstallerService extends Service {
 		if (doSecondTrial) {
 			// small time interval for waiting
 			try {
-				Thread.sleep(100);
+				Thread.sleep(150);
 			} catch(InterruptedException ex) { }
 			// second trial
 			for (String path: sRequiredFiles) {

@@ -1,3 +1,6 @@
+Version 0.4.2.4.1 (beta) (2013-02-12):
+- fixed crash on a fail during a Xml parsing
+
 Version 0.4.2.4 (beta) (2013-02-06):
 - fixed crash on the finishing BOINC reinstallation
 - fixed NPEs on displaying project/task/transfer info

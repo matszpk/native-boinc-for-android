@@ -93,12 +93,20 @@ int CLIENT_STATE::do_update_project_apps() {
         }
         
         if (!success) {
+            // deleting remaining files
+            while (!dir_scan(filename, dir, 256)) {
+                strlcpy(updatepath+ulen+1,filename,1024-ulen-1);
+                strlcpy(projpath+plen+1,filename,1024-plen-1);
+                ::remove(updatepath);
+            }
             p->suspended_during_update = false;
             updated_projects++;
             continue;
         }
         // update client state
         strlcpy(projpath+plen+1,APP_INFO_FILE_NAME, 1024-1-plen);
+        // update app_info path
+        strlcpy(updatepath+ulen+1,APP_INFO_FILE_NAME, 1024-1-ulen);
         
         vector<FILE_INFO*> ofis;
         vector<APP*> oapps;
@@ -108,16 +116,28 @@ int CLIENT_STATE::do_update_project_apps() {
         if (appinfo_file!=NULL) {
             get_old_app_info(p, appinfo_file, ofis, oapps, oavps);
             fclose(appinfo_file);
+            if (retval) { // error happens
+                ::remove(updatepath);
+                p->suspended_during_update = false;
+                updated_projects++;
+                continue;
+            }
         }
         size_t old_apps_count = oapps.size();
         
         /* update */
-        strlcpy(updatepath+ulen+1,APP_INFO_FILE_NAME, 1024-1-ulen);
         appinfo_file=fopen(updatepath,"rb");
         if (appinfo_file!=NULL) {
-            update_app_info(p, appinfo_file, ofis, oapps, oavps);
+            int retval = update_app_info(p, appinfo_file, ofis, oapps, oavps);
             fclose(appinfo_file);
+            if (retval) { // error happens
+                ::remove(updatepath);
+                p->suspended_during_update = false;
+                updated_projects++;
+                continue;
+            }
         } else {
+            ::remove(updatepath);
             p->suspended_during_update = false;
             updated_projects++;
             continue;
@@ -129,6 +149,7 @@ int CLIENT_STATE::do_update_project_apps() {
                         updatepath, projpath);
         
         if (::rename(updatepath, projpath)) {
+            ::remove(updatepath);
             msg_printf(p, MSG_INFO, "[update_apps] Cant copy %s to %s",
                            updatepath, projpath);
             p->suspended_during_update = false;
@@ -350,7 +371,6 @@ int CLIENT_STATE::update_app_info(PROJECT* p, FILE* in, vector<FILE_INFO*>& oldf
             return ERR_XML_PARSE;
         }
     }
-    fclose(in);
     
     /* delete not-updated file_infos */
     unsigned int i,j;

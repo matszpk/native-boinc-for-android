@@ -94,11 +94,13 @@ int CLIENT_STATE::do_update_project_apps() {
         dir_close(dir);
         
         if (!success) {
+            updatepath[ulen]=0; // end of strlen
             dir = dir_open(updatepath);
+            updatepath[ulen]='/';
             // deleting remaining files
             while (!dir_scan(filename, dir, 256)) {
                 strlcpy(updatepath+ulen+1,filename,1024-ulen-1);
-                strlcpy(projpath+plen+1,filename,1024-plen-1);
+                upda
                 ::remove(updatepath);
             }
             dir_close(dir);
@@ -117,7 +119,7 @@ int CLIENT_STATE::do_update_project_apps() {
         
         FILE* appinfo_file=fopen(projpath,"rb");
         if (appinfo_file!=NULL) {
-            get_old_app_info(p, appinfo_file, ofis, oapps, oavps);
+            int retval = get_old_app_info(p, appinfo_file, ofis, oapps, oavps);
             fclose(appinfo_file);
             if (retval) { // error happens
                 ::remove(updatepath);

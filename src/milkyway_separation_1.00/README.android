@@ -1,0 +1,9 @@
+HOW TO COMPILE:
+
+Please run:
+  cd handmade
+  make
+
+ATTENTION!!!
+If you want to compile with VFP and NEON extensions please remove SKIP_VFP_SAVE macro
+(handmade/Makefile).

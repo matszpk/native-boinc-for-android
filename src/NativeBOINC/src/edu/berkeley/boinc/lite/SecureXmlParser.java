@@ -130,7 +130,14 @@ public class SecureXmlParser {
 	public static void parse(InputStream inStream, Xml.Encoding encoding, ContentHandler contentHandler)
             throws IOException, SAXException {
 		SecureInputStream secIn = new SecureInputStream(inStream);
-		Xml.parse(secIn ,encoding, contentHandler);
+		SAXException saxEx = null;
+		try {
+			Xml.parse(secIn ,encoding, contentHandler);
+		} catch(SAXException ex) {
+			saxEx = ex;
+		}
 		secIn.throwIOException();
+		if (saxEx != null)
+			throw saxEx;
     }
 }

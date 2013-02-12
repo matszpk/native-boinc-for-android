@@ -699,26 +699,10 @@ public class InstallerService extends Service {
 		if (!boincFile.exists())
 			return false;
 		
-		boolean doSecondTrial = false;
 		for (String path: sRequiredFiles) {
 			boincFile = new File(boincDirPath+path);
-			if (!boincFile.exists()) {
-				doSecondTrial = true;
-				break;
-			}
-		}
-		
-		if (doSecondTrial) {
-			// small time interval for waiting
-			try {
-				Thread.sleep(150);
-			} catch(InterruptedException ex) { }
-			// second trial
-			for (String path: sRequiredFiles) {
-				boincFile = new File(boincDirPath+path);
-				if (!boincFile.exists())
-					return false;	// if installation broken
-			}
+			if (!boincFile.exists())
+				return false;
 		}
 		return true;
 	}

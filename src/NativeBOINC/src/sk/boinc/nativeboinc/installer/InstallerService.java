@@ -695,10 +695,7 @@ public class InstallerService extends Service {
 			!new File(boincDirPath).isDirectory())
 			return false;
 		
-		File boincFile = new File(boincDirPath,"/gui_rpc_auth.cfg");
-		if (!boincFile.exists())
-			return false;
-		
+		File boincFile;
 		for (String path: sRequiredFiles) {
 			boincFile = new File(boincDirPath+path);
 			if (!boincFile.exists())

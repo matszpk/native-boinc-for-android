@@ -1,3 +1,6 @@
+Version 0.4.2.4.2 (beta) (2013-02-13):
+- fixed news activity crash (hot fix)
+
 Version 0.4.2.4.1 (beta) (2013-02-12):
 - fixed crash on a fail during a Xml parsing
 - fixed unexpected install wizard display

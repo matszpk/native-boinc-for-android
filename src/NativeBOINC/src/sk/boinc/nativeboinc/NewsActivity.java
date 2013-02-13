@@ -173,7 +173,7 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 		mNewsFetcherBridge = mApp.getNewsFetcherBridge();
 		
 		mSavedState = (SavedState)getLastNonConfigurationInstance();
-		if (savedInstanceState != null) {
+		if (mSavedState != null) {
 			mSavedState.restore(this);
 			mFetcherTask = mApp.getNewsFetcherTask();
 		} else { /* if real creation */

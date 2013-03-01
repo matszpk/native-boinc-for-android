@@ -19,6 +19,7 @@
 
 package sk.boinc.nativeboinc.nativeclient;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -766,9 +767,20 @@ public class NativeBoincService extends Service implements MonitorListener,
 		
 		/* waiting and killing */
 		try {
-			Thread.sleep(500); // sleep 0.5 seconds
+			Thread.sleep(700); // sleep 0.7 seconds
 		} catch(InterruptedException ex) { }
 		/* killing boinc client */
+		File guiRPCPathFile = new File(boincDir+"/gui_rpc_auth.cfg");
+		if (!guiRPCPathFile.exists()) {
+			if (Logging.WARNING) Log.w(TAG, "gui_rpc_auth.cfg at the first start doesnt exists!");
+			try {
+				Thread.sleep(500); // sleep 0.5 seconds
+			} catch(InterruptedException ex) { }
+		}
+		
+		if (!guiRPCPathFile.exists()) {
+			if (Logging.WARNING) Log.w(TAG, "gui_rpc_auth.cfg at the first start doesnt exists again!");
+		}
 		
 		android.os.Process.sendSignal(boincPid, 2);
 		try {

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+* AndroBOINC - BOINC Manager for Android
+* Copyright (C) 2010, Pavol Michalec
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+*/
+-->
+<resources>
+
+    <!-- Screen rotation mode -->
+    <string-array name="prefScreenOrientationDisplay">
+        <item>Predefinita</item>
+        <item>Forza in verticale</item>
+        <item>Forza in orizzontale</item>
+        <item>Rotazione automatica</item>
+    </string-array>
+    <string-array name="prefScreenOrientationValues">
+
+        <!-- values from android.content.pm.ActivityInfo: -->
+        <item>-1</item> <!-- SCREEN_ORIENTATION_UNSPECIFIED -->
+        <item>1</item> <!-- SCREEN_ORIENTATION_PORTRAIT -->
+        <item>0</item> <!-- SCREEN_ORIENTATION_LANDSCAPE -->
+        <item>4</item> <!-- SCREEN_ORIENTATION_SENSOR -->
+    </string-array>
+
+    <!-- Automatic updates of display -->
+    <string-array name="prefAutoUpdatesDisplay">
+        <item>Disabilitato</item>
+        <item>1s</item>
+        <item>5s</item>
+        <item>10s</item>
+        <item>30s</item>
+        <item>60s</item>
+    </string-array>
+    <string-array name="prefAutoUpdatesValues">
+        <item>0</item>
+        <item>1</item>
+        <item>5</item>
+        <item>10</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
+
+    <!-- screen lock update -->
+    <string-array name="prefScreenLockUpdateDisplay">
+        <item>1s</item>
+        <item>5s</item>
+        <item>10s</item>
+        <item>30s</item>
+        <item>60s</item>
+    </string-array>
+    <string-array name="prefScreenLockUpdateValues">
+        <item>1</item>
+        <item>5</item>
+        <item>10</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
+
+    <!-- widget update -->
+    <string-array name="prefWidgetUpdateDisplay">
+        <item>1s</item>
+        <item>5s</item>
+        <item>10s</item>
+        <item>30s</item>
+        <item>60s</item>
+    </string-array>
+    <string-array name="prefWidgetUpdateValues">
+        <item>1</item>
+        <item>5</item>
+        <item>10</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
+
+    <!-- Run modes for client (display) -->
+    <string-array name="clientModeRun">
+        <item>Elaborazione continua</item>
+        <item>Elaborazione in base alle preferenze</item>
+        <item>Elaborazione sospesa</item>
+    </string-array>
+    <!-- Network modes for client (display) -->
+    <string-array name="clientModeNetwork">
+        <item>Attività di rete sempre disponibile</item>
+        <item>Attività di rete in base alle preferenze</item>
+        <item>Attività di rete sospesa</item>
+    </string-array>
+    <!-- GPU modes for client (display) -->
+    <string-array name="clientModeGpu">
+        <item>Elaborazione GPU continua</item>
+        <item>Elaborazione GPU in base alle preferenze</item>
+        <item>Elaborazione GPU sospesa</item>
+    </string-array>
+    <!-- Modes for client (values) - both run and network -->
+    <string-array name="clientModeValues">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <!-- States of task (all tasks) -->
+    <string-array name="resultStates">
+        <item>Nuovo</item> <!-- 0 RESULT_NEW -->
+        <item>Scaricamento in corso</item> <!-- 1 RESULT_FILES_DOWNLOADING -->
+        <item>Scaricato</item> <!-- 2 RESULT_FILES_DOWNLOADED -->
+        <item>Errore di calcolo</item> <!-- 3 RESULT_COMPUTE_ERROR -->
+        <item>Invio in corso</item> <!-- 4 RESULT_FILES_UPLOADING -->
+        <item>Pronto da riportare</item> <!-- 5 RESULT_FILES_UPLOADED -->
+        <item>Annullato</item> <!-- 6 RESULT_ABORTED -->
+    </string-array>
+    <!-- States of task (active tasks only) -->
+    <string-array name="activeTaskStates">
+        <item>Pronto per l\'elaborazione</item> <!-- 0 PROCESS_UNINITIALIZED (process doesn't exist yet) -->
+        <item>In elaborazione</item> <!-- 1 PROCESS_EXECUTING (process is running, as far as we know) -->
+        <item>Terminato</item> <!-- 2 *PROCESS_EXITED -->
+        <item>Terminato</item> <!-- 3 *PROCESS_WAS_SIGNALED -->
+        <item>Terminato</item> <!-- 4 *PROCESS_EXIT_UNKNOWN -->
+        <item>Annullamento in corso</item> <!-- 5 PROCESS_ABORT_PENDING (process exceeded limits; send "abort" message, waiting to exit) -->
+        <item>Annullato</item> <!-- 6 *PROCESS_ABORTED -->
+        <item>Impossibile avviare l\'esecuzione</item> <!-- 7 *PROCESS_COULDNT_START -->
+        <item>Chiusura in corso</item> <!-- 8 PROCESS_QUIT_PENDING (we've sent it a "quit" message, waiting to exit) -->
+        <item>In attesa di esecuzione</item> <!-- 9 PROCESS_SUSPENDED (we've sent it a "suspend" message) -->
+    </string-array>
+    <string-array name="pollOps">
+        <item>Connessione a BAM</item>
+        <item>Sincronizza con BAM</item>
+        <item>Usa l\'account sul progetto</item>
+        <item>Crea un account sul progetto</item>
+        <item>Connessione al progetto</item>
+        <item>Ottieni la configurazione dal progetto</item>
+    </string-array>
+    <string-array name="messageFilterLabels">
+        <item>Filtro: Nessuno</item>
+        <item>Filtro: Info</item>
+        <item>Filtro: Avvisi all\'utente</item>
+        <item>Filtro: Errori interni</item>
+    </string-array>
+    <string-array name="messageFilterMenuItems">
+        <item>Nessuno</item>
+        <item>Info</item>
+        <item>Avvisi all\'utente</item>
+        <item>Errori interni</item>
+    </string-array>
+    <string-array name="nativeAutostartLabels">
+        <item>Nessun avvio automatico</item>
+        <item>All\'avvio dell\'applicazione</item>
+        <item>All\'avvio del sistema</item>
+        <item>Avvia sempre in automatico</item>
+    </string-array>
+    <string-array name="nativeAutostartValues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+    <string-array name="placesToInstallLabels">
+        <item>Memoria interna</item>
+        <item>Memoria SDCard</item>
+    </string-array>
+
+</resources>

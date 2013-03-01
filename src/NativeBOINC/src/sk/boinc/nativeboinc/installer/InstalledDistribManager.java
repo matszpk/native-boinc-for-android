@@ -174,6 +174,7 @@ public class InstalledDistribManager {
 			/* parse file */
 			mInstalledDistribs = InstalledDistribListParser.parse(inStream);
 			if (mInstalledDistribs == null) {
+				mInstalledDistribs = new ArrayList<InstalledDistrib>();
 				if (Logging.ERROR) Log.e(TAG, "Cant load installedDistribs");
 				return false;
 			}
@@ -192,6 +193,7 @@ public class InstalledDistribManager {
 			/* parse file */
 			mInstalledClient = InstalledClientParser.parse(inStream);
 			if (mInstalledClient == null) {
+				mInstalledClient = new InstalledClient();
 				if (Logging.ERROR) Log.e(TAG, "Cant load installedClient");
 				return false;
 			}

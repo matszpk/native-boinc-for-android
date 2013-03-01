@@ -66,7 +66,8 @@ public class BoincLogsActivity extends AbstractBoincActivity {
 			mLogsString = InstallerService.getBoincLogs(this);
 			if (mLogsString != null) {
 				mLogsArray = mLogsString.split("\n");
-			}
+			} else
+				mLogsArray = new String[0];
 		}
 		
 		ListView logsList = (ListView)findViewById(R.id.logsList);

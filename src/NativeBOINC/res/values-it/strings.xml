@@ -407,7 +407,7 @@ Paolo (bax) - traduzione in italiano.\n</string>
     <!-- Add Project dialog -->
     <string name="addProject">Aggiungi il progetto</string>
     <string name="addProjectCreate">Crea account</string>
-    <string name="addProjectUse">Usa account esistente</string>
+    <string name="addProjectUse">Usa account</string>
     <string name="addProjectName">Nome utente</string>
     <string name="addProjectEmail">Indirizzo Email</string>
     <string name="addProjectPassword">Password</string>

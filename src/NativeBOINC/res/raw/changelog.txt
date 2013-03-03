@@ -1,4 +1,4 @@
-Version 0.4.3 (beta) (2013-03-03):
+Version 0.4.3.1 (beta) (2013-03-03):
 - added italian translations
 - fixed NPE at Boinc Logs Screen (when no logs)
 - fixed NPE at startup when files are broken

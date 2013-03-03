@@ -145,14 +145,14 @@ Paolo (bax) - traduzione in itialano.\n</string>
     <string name="prefPowerSaving">Risparmio energetico</string>
     <string name="prefPowerSavingOnDisabled">Previeni il blocco dello schermo a l\'underclock della CPU</string>
     <string name="prefPowerSavingOnEnabled">Permetti il blocco dello schermo a l\'underclock della CPU</string>
-    <string name="prefScreenLockUpdateInterval">Aggiornamento periodico dello schermo (sblocco)</string>
+    <string name="prefScreenLockUpdateInterval">Aggior. periodico dello schermo (sblocco)</string>
     <string name="prefScreenLockUpdateIntervalSummary">Aggiorna lo schermo ogni</string>
-    <string name="prefWidgetUpdateInterval">Aggiornamento periodico del widget</string>
+    <string name="prefWidgetUpdateInterval">Aggior. periodico del widget</string>
     <string name="prefWidgetUpdateIntervalSummary">Aggiorna il widget ogni</string>
     <string name="prefCategoryNetworkBW">Parametri di rete</string>
-    <string name="prefAutoUpdateIntervalWiFi">Aggiornamento periodico della connessione WiFi</string>
-    <string name="prefAutoUpdateIntervalMobile">Aggiornamento periodico della connessione mobile</string>
-    <string name="prefAutoUpdateIntervalLocalhost">Aggiornamento periodico della connessione con l\'host locale</string>
+    <string name="prefAutoUpdateIntervalWiFi">Aggior. periodico della connessione WiFi</string>
+    <string name="prefAutoUpdateIntervalMobile">Aggior. periodico della connessione mobile</string>
+    <string name="prefAutoUpdateIntervalLocalhost">Aggior. periodico della connessione con l\'host locale</string>
     <string name="prefAutoUpdateIntervalSummary">Aggiornamento automatico ogni</string>
     <string name="prefLimitMessagesTitle">Limite del numero di messaggi</string>
     <string name="prefLimitMessagesDisabled">Recupera tutti i messaggi alla connessione (potrebbe trasferire molti dati)</string>
@@ -185,7 +185,7 @@ Non farci affidamento.</string>
     <string name="percent">%</string>
     <string name="localPrefSwitchBetween">Alterna i progetti ogni</string>
     <string name="localPrefBatteryNL">Quando il livello della batteria è superiore al</string>
-    <string name="localPrefTempLT">QUando la temperatura della batteria è inferiore a</string>
+    <string name="localPrefTempLT">Quando la temper. della batteria è inferiore a</string>
     <string name="degreeC">°C</string>
     <string name="localPrefUseAtMost">Usa al massimo</string>
     <string name="localPrefPercentCPUTime">% del tempo CPU</string>
@@ -212,7 +212,7 @@ Non farci affidamento.</string>
     <string name="seconds">sec</string>
     <string name="localPrefWrong">Valore non corretto!</string>
     <string name="localPrefLeaveApplications">Lascia le elaborazioni in memoria quando sono sospese</string>
-    <string name="applyDefault">Applica i valori predefiniti</string>
+    <string name="applyDefault">Predefinito</string>
 
     <!-- time preferences -->
     <string name="cpuTimePrefTitle">Preferenze sugli orari di elaborazione</string>
@@ -408,7 +408,7 @@ Non farci affidamento.</string>
     <!-- Add Project dialog -->
     <string name="addProject">Aggiungi un progetto</string>
     <string name="addProjectCreate">Crea un account</string>
-    <string name="addProjectUse">Usa un account esistente</string>
+    <string name="addProjectUse">Usa un account</string>
     <string name="addProjectName">Nome utente</string>
     <string name="addProjectEmail">Indirizzo Email</string>
     <string name="addProjectPassword">Password</string>

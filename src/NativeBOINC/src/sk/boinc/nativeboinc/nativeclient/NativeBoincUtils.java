@@ -53,7 +53,7 @@ public class NativeBoincUtils {
 			"<daily_xfer_limit_mb>0.000000</daily_xfer_limit_mb>\n" +
 			"<daily_xfer_period_days>0</daily_xfer_period_days>\n" +
 			"<run_if_battery_nl_than>10</run_if_battery_nl_than>\n" +
-			"<run_if_temp_lt_than>100</run_if_temp_lt_than>\n" +
+			"<run_if_temp_lt_than>60</run_if_temp_lt_than>\n" +
 			"</global_preferences>";
 	
 	/* kill processes routines */

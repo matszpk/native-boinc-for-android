@@ -1,7 +1,43 @@
 ﻿----------------------------------------
+PLANY WERSJI 0.4.4/0.4.5
+-----------------------------------------
+
+--- Poprawki
+  * poprawienie obsLugi widgeta gdy boinc zakończy pracę (ma być zawsze odświeżenie)
+  * gdy ściąganie pliku ma być odświeżanie widgeta (opcjonalne)
+  * (trudna poprawka) poprawienie obsługi przerywania komunikacji podczas instalacji/ściągania
+  * przepisanie installservice (????)
+  * wprowadzenie pobierania informacji o stanie baterii poprzez NativeBOINC (zamiast wewn., gdy nie
+    można wykryć)
+  * jeśli niemożliwa detekcja mechanizmu baterii lub wysyłanie ich, to suspend wszystkich projektów
+    (opcjonalnie)
+  * wykrywanie wyłączenia ekranu przez boinc (uwzględnienie przy odświeżaniu widget)
+--- Usprawnienia
+  * wprowadzenie info o pobieraniu danych z mobilnego internetu (opcjonalnie)
+  * podświetlanie nowych informacji w newsach
+  * kolorowanie logów w boinc logs
+  * filtrowanie logów w boinc logs
+--- Interfejs użytkownika (prawdobodobnie większość w wersji 0.4.5)
+  * wprowadzenie nowego elementu w mainscreen: sidebar/downbar
+    * z listą szybkich opcji
+    * w sidebar/downbar w tabletach dodać pokazywanie ekranów preferencji/zarządzanie klientem/natywny klient
+    * w sidebar/downbar dodanie statystyk 
+  * możliwość wyboru nowego/starego UI
+--- nowe opcje/funkcje
+  * dodanie możliwości wgrania/ustawienia cc_config.xml (mozliwe nowe okno z opcjami)
+  * screensaver dla aplikacji (opcjonalnie)
+  * renderscript/opencl do liczenia w aplikacjach (pewnie w następnych wersjach)
+  * dodanie wysyłania informacji o zainstalowanych wersjach (jako opcja do włączenia)
+  * dodanie informacji o nagrzewaniu urządzenia (wg  lokalnych preferencji boinc)
+  * skróty połączeń do hostów w desktop
+
+................................
+
+----------------------------------------
 POPRAWKI BŁĘDÓW
 -----------------------------------------
 
+// poprawione:
 * Popraw brak włączania opcji BAM w Manage Client po stop using Bam.
 
 Popraw i zindetyfikuj błąd w:

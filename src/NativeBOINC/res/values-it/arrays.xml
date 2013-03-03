@@ -23,7 +23,7 @@
 
     <!-- Screen rotation mode -->
     <string-array name="prefScreenOrientationDisplay">
-        <item>Predefinita</item>
+        <item>Predefinito</item>
         <item>Forza in verticale</item>
         <item>Forza in orizzontale</item>
         <item>Rotazione automatica</item>
@@ -156,10 +156,10 @@
         <item>Errori interni</item>
     </string-array>
     <string-array name="nativeAutostartLabels">
-        <item>Nessun avvio automatico</item>
+        <item>Mai in automatico</item>
         <item>All\'avvio dell\'applicazione</item>
         <item>All\'avvio del sistema</item>
-        <item>Avvia sempre in automatico</item>
+        <item>Sempre in automatico</item>
     </string-array>
     <string-array name="nativeAutostartValues">
         <item>0</item>

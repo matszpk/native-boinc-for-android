@@ -169,7 +169,7 @@ int old_futimes(int fd, const struct timeval times[2])
 }
 #endif
 
-static void init_handles(void)
+void libexecwrapper_execperms_init_handles(void)
 {
   if (real_access == NULL)
   {
@@ -747,8 +747,6 @@ int access(const char* pathname, int mode)
   printf("call access(%s,%d)\n",pathname,mode);
 #endif
   
-  init_handles();
-  
   if ((realpathname = malloc(PATH_MAX))==NULL)
   {
     errno = ENOMEM;
@@ -840,7 +838,6 @@ int chmod(const char* pathname, mode_t mode)
   printf("call chmod(%s,%d)\n",pathname,mode);
 #endif
   
-  init_handles();
 #ifdef PROD_DEBUG
   debug_printf("chmod (%s,%o)\n",pathname,mode);
 #endif
@@ -922,8 +919,6 @@ int fchmod(int fd, mode_t mode)
   printf("call fchmod(%d,%d)\n",fd,mode);
 #endif
   
-  init_handles();
-  
   if ((realpathname = malloc(PATH_MAX))==NULL)
   {
     errno = ENOMEM;
@@ -996,8 +991,6 @@ int chown(const char* pathname, uid_t uid, gid_t gid)
   printf("call chown(%s,%u,%u)\n",pathname,uid,gid);
 #endif
   
-  init_handles();
-  
   if ((realpathname = malloc(PATH_MAX))==NULL)
   {
     errno = ENOMEM;
@@ -1033,8 +1026,6 @@ int fchown(int fd, uid_t uid, gid_t gid)
 #ifdef DEBUG
   printf("call fchown(%d,%u,%u)\n",fd,uid,gid);
 #endif
-  
-  init_handles();
   
   if ((realpathname = malloc(PATH_MAX))==NULL)
   {
@@ -1073,7 +1064,6 @@ int fchown(int fd, uid_t uid, gid_t gid)
 int lchown(const char* pathname, uid_t uid, gid_t gid)
 {
   char* realpathname;
-  init_handles();
   
 #ifdef DEBUG
   printf("call lchown(%s,%u,%u\n",pathname,uid,gid);
@@ -1118,8 +1108,6 @@ int getdents(unsigned int fd, struct dirent* dirp, unsigned int count)
 #ifdef DEBUG
   printf("call getdents(%d,%p,%u)\n",fd,dirp,count);
 #endif
-  
-  init_handles();
   
   if ((realpathname = malloc(PATH_MAX))==NULL)
   {
@@ -1227,8 +1215,6 @@ int unlink(const char* filename)
   printf("call unlink(%s)\n",filename);
 #endif
   
-  init_handles();
-  
   if ((realpathname = malloc(PATH_MAX))==NULL)
   {
     errno = ENOMEM;
@@ -1300,8 +1286,6 @@ int rmdir(const char* dirpath)
 #ifdef DEBUG
   printf("call rmdir(%s)\n",dirpath);
 #endif
-  
-  init_handles();
   
   if ((realpathname = malloc(PATH_MAX*2))==NULL)
   {
@@ -1381,7 +1365,6 @@ int readlink(const char* linkpath, char* buf, size_t bufsize)
 #ifdef DEBUG
   printf("call readlink(%s,%p,%u)\n",linkpath,buf,bufsize);
 #endif
-  init_handles();
   
   if ((refpath = malloc(PATH_MAX))==NULL)
   {
@@ -1428,8 +1411,6 @@ int __open(const char* filename, int flags, mode_t mode)
 #ifdef DEBUG
   printf("call __open(%s,%d,%d)\n",filename,flags,mode);
 #endif
-  
-  init_handles();
   
   if ((realpathname = malloc(PATH_MAX))==NULL)
   {
@@ -1501,8 +1482,6 @@ int rename(const char* oldpath, const char*newpath)
 #ifdef DEBUG
   printf("call rename(%s,%s)\n",oldpath,newpath);
 #endif
-  
-  init_handles();
   
   if ((oldrealpathname = malloc(PATH_MAX*2))==NULL)
   {
@@ -1665,8 +1644,6 @@ int symlink(const char* oldpath, const char*newpath)
   printf("call symlink(%s,%s)\n",oldpath,newpath);
 #endif
   
-  init_handles();
-  
   if ((oldrealpathname = malloc(PATH_MAX*2))==NULL)
   {
     errno = ENOMEM;
@@ -1721,8 +1698,6 @@ int truncate(const char* pathname, off_t length)
   printf("call truncate(%s,%lu)\n",pathname,length);
 #endif
   
-  init_handles();
-  
   if ((realpathname = malloc(PATH_MAX))==NULL)
   {
     errno = ENOMEM;
@@ -1758,8 +1733,6 @@ int ftruncate(int fd, off_t length)
 #ifdef DEBUG
   printf("call ftruncate(%d,%lu)\n",fd,length);
 #endif
-  
-  init_handles();
   
   if ((realpathname = malloc(PATH_MAX))==NULL)
   {
@@ -1804,8 +1777,6 @@ int stat(const char* pathname, struct stat* buf)
 #ifdef DEBUG
   printf("call stat(%s,%p)\n",pathname,buf);
 #endif
-  
-  init_handles();
   
   if ((realpathname = malloc(PATH_MAX))==NULL)
   {
@@ -1878,8 +1849,6 @@ int fstat(int fd, struct stat* buf)
   write(1,"call fstat\n",11);
   //printf("call fstat(%d,%p)\n",fd,buf);
 #endif
-  
-  init_handles();
   
   if ((realpathname = malloc(PATH_MAX))==NULL)
   {
@@ -1957,8 +1926,6 @@ int lstat(const char* pathname, struct stat* buf)
   printf("call lstat(%s,%p)\n",pathname,buf);
 #endif
   
-  init_handles();
-  
   if ((realpathname = malloc(PATH_MAX))==NULL)
   {
     errno = ENOMEM;
@@ -2027,8 +1994,6 @@ int utimes(const char* pathname, const struct timeval times[2])
   printf("call utimes(%s,%p)\n",pathname,times);
 #endif
   
-  init_handles();
-  
   if ((realpathname = malloc(PATH_MAX))==NULL)
   {
     errno = ENOMEM;
@@ -2064,8 +2029,6 @@ int futimes(int fd, const struct timeval times[2])
 #ifdef DEBUG
   printf("call futimes(%d,%p)\n",fd,times);
 #endif
-  
-  init_handles();
   
   if ((realpathname = malloc(PATH_MAX))==NULL)
   {

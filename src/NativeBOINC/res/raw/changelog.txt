@@ -1,4 +1,4 @@
-Version 0.4.3.2 (beta) (2013-03-15):
+Version 0.4.3.2 (beta) (2013-03-14):
 - added certificates for https access (World Community Grid)
 - fixed behaviour when a distriblist files was broken
 - fixed libexecwrapper (multithreading safety) 

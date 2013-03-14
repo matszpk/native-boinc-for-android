@@ -308,6 +308,8 @@ public class InstallationOps {
 		if (installedClient.version.length() == 0 && !installedClient.fromSDCard) { // if not initialized
 			// update client version from prefs
 			installedClient.version = clientVersion;
+			if (installedClient.version == null)
+				installedClient.version = "unknown";
 			// update distribs
 			mDistribManager.save();
 		}

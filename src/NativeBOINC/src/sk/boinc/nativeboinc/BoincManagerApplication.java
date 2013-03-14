@@ -214,6 +214,13 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 			doBindRunnerService();
 	}
 	
+	private boolean mIsInstalledClient = false;
+	
+	/* used by new receiver to determine whether display new binaries available notification */
+	public boolean isInstalledClientAtStart() {
+		return mIsInstalledClient;
+	}
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -243,12 +250,13 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		NewsUtil.initialize();
 		NewsReceiver.initialize(this);
 		
-		mNewsFetcherBridge = new NewsReceiver.NewsFetcherBridge(mStandardHandler);
-		
-		if (InstallerService.isClientInstalled(this))
+		mIsInstalledClient = InstallerService.isClientInstalled(this);
+		if (mIsInstalledClient)
 			InstallerService.prepareCaBundleFileIfNeeded(this, true);
 		
-		if (NativeClientAutostart.isAutostartsAtAppStartup(mGlobalPrefs))
+		mNewsFetcherBridge = new NewsReceiver.NewsFetcherBridge(mStandardHandler);
+		
+		if (mIsInstalledClient && NativeClientAutostart.isAutostartsAtAppStartup(mGlobalPrefs))
 			autostartClient();
 	}
 	

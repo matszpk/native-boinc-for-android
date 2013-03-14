@@ -1,3 +1,8 @@
+Version 0.4.3.2 (beta) (2013-03-15):
+- added certificates for https access (World Community Grid)
+- fixed behaviour when a distriblist files was broken
+- fixed libexecwrapper (multithreading safety) 
+
 Version 0.4.3.1 (beta) (2013-03-03):
 - added italian translations
 - fixed NPE at Boinc Logs Screen (when no logs)

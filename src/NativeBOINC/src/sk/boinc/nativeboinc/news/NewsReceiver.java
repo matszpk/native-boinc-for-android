@@ -379,7 +379,7 @@ public class NewsReceiver extends BroadcastReceiver implements OnSharedPreferenc
 		 * handle update binaries
 		 */
 		private void handleUpdateBinaries() {
-			if (!mApp.isInstalledClientAtStart())
+			if (!InstallerService.isClientInstalled(mApp))
 				return; // do nothing at installation
 			
 			// current binaries

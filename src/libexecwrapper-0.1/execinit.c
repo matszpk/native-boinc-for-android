@@ -33,8 +33,8 @@ void __libc_init(uintptr_t *elfdata, void (*onexit)(void),
     real_readlink = dlsym(RTLD_NEXT, "readlink");
   }
   // for multithread safety
-  libexecwrapper_execwrapper_init_handles(void);
-  libexecwrapper_execperms_init_handles(void);
+  libexecwrapper_execwrapper_init_handles();
+  libexecwrapper_execperms_init_handles();
   
   fdstr=getenv(FDENVNAME);
   if (fdstr != NULL && sscanf(fdstr,"%d",&lockfd)==1)

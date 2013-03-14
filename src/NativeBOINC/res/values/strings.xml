@@ -478,6 +478,7 @@
 
 	<string name="youCanChange">Now, you can change:</string>
 	
+	<string name="distribsLoadFailed">FATAL ERROR!!! Loading distributions failed! Please Update binaries!</string>
 	<!-- ca-bundle.crt -->
 	<string name="caCertInstalling">Installing certificates</string>
 	<string name="caCertInstallFailed">Unable to installing certificates!</string>

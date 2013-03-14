@@ -502,6 +502,8 @@ public class InstallerService extends Service {
 		}
 		if (Logging.DEBUG) Log.d(TAG, "InstallerThread started successfully");
 		mInstallerHandler = mInstallerThread.getInstallerHandler();
+		if (!mInstallerHandler.isDistribLoaded())
+			Toast.makeText(this, R.string.distribsLoadFailed, Toast.LENGTH_LONG).show();
 	}
 	
 	public void stopInstaller() {

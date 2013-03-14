@@ -169,6 +169,7 @@ public class InstalledDistribManager {
 
 	public synchronized boolean load() {
 		InputStream inStream = null;
+		boolean failed = false;
 		try {
 			inStream = mContext.openFileInput("installed_distribs.xml");
 			/* parse file */
@@ -176,7 +177,7 @@ public class InstalledDistribManager {
 			if (mInstalledDistribs == null) {
 				mInstalledDistribs = new ArrayList<InstalledDistrib>();
 				if (Logging.ERROR) Log.e(TAG, "Cant load installedDistribs");
-				return false;
+				failed = true;
 			}
 		} catch(FileNotFoundException ex) { 
 			/* set as empty installed Distrib */
@@ -205,7 +206,7 @@ public class InstalledDistribManager {
 					inStream.close();
 			} catch(IOException ex2) { }
 		}
-		return true;
+		return !failed;
 	}
 	
 	public synchronized boolean save() {

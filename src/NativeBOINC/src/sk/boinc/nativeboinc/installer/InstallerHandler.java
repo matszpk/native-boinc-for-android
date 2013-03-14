@@ -120,6 +120,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	/* determine place where is boinc directory */ 
 	private String mInstallPlacePath = null;
 	
+	private boolean mDistribsLoaded = false;
 	
 	/* install op blocker */
 	private InstallOpLock mInstallOpLock = new InstallOpLock();
@@ -169,7 +170,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mProjectsRetriever = new ProjectsFromClientRetriever(installerService);
 		mListenerHandler = listenerHandler;
 		mDistribManager = new InstalledDistribManager(installerService);
-		mDistribManager.load();
+		mDistribsLoaded = mDistribManager.load();
 		mInstallOps = new InstallationOps(this, installerService, mDownloader, mDistribManager);
 		
 		mResourcesLocker = new ResourcesLocker(mInstallerService);
@@ -199,6 +200,10 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		mInstallOps.destroy();
 		mInstallOps = null;
 		mInstallOpLock.unlockAll();
+	}
+	
+	public boolean isDistribLoaded() {
+		return mDistribsLoaded;
 	}
 	
 	/*

@@ -358,12 +358,15 @@ public class InstallationOps {
 			clientVersion = installedClient.version;
 		} else { // if not initialized
 			installedClient.version = clientVersion;
+			if (installedClient.version == null)
+				installedClient.version = "unknown";
 			// update
 			mDistribManager.save();
 		}
 		
 		/* always update when client from sdcard */
 		if ((installedClient != null && installedClient.fromSDCard) ||
+				installedClient.version.equals("unknown") ||
 				VersionUtil.compareVersion(clientDistrib.version, clientVersion) > 0) {
 			updateItems.add(new UpdateItem(InstallerService.BOINC_CLIENT_ITEM_NAME,
 					clientDistrib.version, null, clientDistrib.description,

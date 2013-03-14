@@ -713,7 +713,17 @@ public class InstallerService extends Service {
 	 * 
 	 */
 	public static void prepareCaBundleFileIfNeeded(Context context, boolean toasts) {
-		File caOutFile = new File(BoincManagerApplication.getBoincDirectory(context)+"/ca-bundle.crt");
+		boolean isSDCard = BoincManagerApplication.isSDCardInstallation(context);
+		String boincDirPath = BoincManagerApplication.getBoincDirectory(context, isSDCard);
+		
+		if (isSDCard) {
+			String extState = Environment.getExternalStorageState();
+			if (!Environment.MEDIA_MOUNTED.equals(extState) &&
+					!Environment.MEDIA_MOUNTED_READ_ONLY.equals(extState))
+				return; // when sdcard is not available (we do nothing)
+		}
+		
+		File caOutFile = new File(boincDirPath+"/ca-bundle.crt");
 		if (caOutFile.exists())
 			return; // dont need
 		

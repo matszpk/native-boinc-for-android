@@ -27,6 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincStateListener;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincUtils;
@@ -243,6 +244,9 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		NewsReceiver.initialize(this);
 		
 		mNewsFetcherBridge = new NewsReceiver.NewsFetcherBridge(mStandardHandler);
+		
+		if (InstallerService.isClientInstalled(this))
+			InstallerService.prepareCaBundleFileIfNeeded(this, true);
 		
 		if (NativeClientAutostart.isAutostartsAtAppStartup(mGlobalPrefs))
 			autostartClient();

@@ -21,7 +21,9 @@ package sk.boinc.nativeboinc.installer;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +50,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * @author mat
@@ -702,6 +705,49 @@ public class InstallerService extends Service {
 				return false;
 		}
 		return true;
+	}
+	
+	/*
+	 * 
+	 */
+	public static void prepareCaBundleFileIfNeeded(Context context, boolean toasts) {
+		File caOutFile = new File(BoincManagerApplication.getBoincDirectory(context)+"/ca-bundle.crt");
+		if (caOutFile.exists())
+			return; // dont need
+		
+		FileOutputStream fos = null;
+		InputStream caInStream = context.getResources().openRawResource(R.raw.cabundle);
+		if (toasts)
+			Toast.makeText(context, "NativeBOINC: "+context.getString(R.string.caCertInstalling),
+					Toast.LENGTH_SHORT).show();
+		try {
+			fos = new FileOutputStream(caOutFile);
+			
+			byte[] buffer = new byte[1024];
+			while (true) {
+				int readed = caInStream.read(buffer);
+				if (readed == -1)
+					break;
+				fos.write(buffer, 0, readed);
+			}
+			fos.flush();
+		} catch(IOException ex) {
+			if (toasts)
+				Toast.makeText(context, "NativeBOINC: "+context.getString(R.string.caCertInstallFailed),
+						Toast.LENGTH_SHORT).show();
+			return;
+		} finally {
+			if (caInStream != null) {
+				try {
+					caInStream.close();
+				} catch(IOException ex) { }
+			}
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch(IOException ex ) { }
+			}
+		}
 	}
 	
 	public static String getBoincLogs(Context context) {

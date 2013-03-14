@@ -755,6 +755,10 @@ public class InstallationOps {
 		// now reinitialize boinc directory (first start and other operation) */
 		try {
 			mInstallerHandler.notifyOperation(InstallerService.BOINC_REINSTALL_ITEM_NAME, "",
+					mContext.getString(R.string.caCertInstalling));
+			InstallerService.prepareCaBundleFileIfNeeded(mContext, false);
+			
+			mInstallerHandler.notifyOperation(InstallerService.BOINC_REINSTALL_ITEM_NAME, "",
 					mContext.getString(R.string.nativeClientFirstStart));
 			
 			if (!NativeBoincService.firstStartClient(mContext)) {

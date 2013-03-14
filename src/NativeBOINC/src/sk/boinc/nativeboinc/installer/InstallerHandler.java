@@ -520,6 +520,11 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			    
 			    /* running and killing boinc client (run in this client) */
 			    if (!clientToUpdate) {
+			    	notifyOperation(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
+			    			mInstallerService.getString(R.string.caCertInstalling));
+				    // prepare ca-bundle file
+				    InstallerService.prepareCaBundleFileIfNeeded(mInstallerService, false);
+			    	
 			    	if (Logging.DEBUG) Log.d(TAG, "First start client");
 			    	
 			    	notifyOperation(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
@@ -532,7 +537,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 				    	return;
 				    }
 				    notifyOperation(InstallerService.BOINC_CLIENT_ITEM_NAME, "",
-			    			mInstallerService.getString(R.string.nativeClientFirstKill));	    	
+			    			mInstallerService.getString(R.string.nativeClientFirstKill));
+				    
 			    }
 			    
 			    if (previouslyClientIsRan) {

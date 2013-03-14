@@ -478,6 +478,10 @@
 
 	<string name="youCanChange">Now, you can change:</string>
 	
+	<!-- ca-bundle.crt -->
+	<string name="caCertInstalling">Installing certificates</string>
+	<string name="caCertInstallFailed">Unable to installing certificates!</string>
+	
 	<!-- Change password activity -->
 	<string name="accessPassword">Access password</string>
 	<string name="hostname">Hostname</string>

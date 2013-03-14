@@ -866,6 +866,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 				dbAdapter.close();
 			}
 			
+			// last chance to install certificates (when sdcard was removed before start)
+			InstallerService.prepareCaBundleFileIfNeeded(this, true);
+			
 			mNativeBoincThread = new NativeBoincThread(secondStart);
 			mNativeBoincThread.start();
 			mWakeLockHolder = new WakeLockHolder(this, mPartialWakeLock, mDimWakeLock);

@@ -17,9 +17,6 @@ static void (*real_libc_init)(uintptr_t *elfdata,void (*onexit)(void),
 static int (*real_unlink)(const char* path) = NULL;
 static int (*real_readlink)(const char* linkpath, char* buf, size_t bufsize) = NULL;
 
-extern void libexecwrapper_execwrapper_init_handles(void);
-extern void libexecwrapper_execperms_init_handles(void);
-
 void __libc_init(uintptr_t *elfdata, void (*onexit)(void),
     int (*slingshot)(int, char**, char**),void* structors)
 {
@@ -32,9 +29,6 @@ void __libc_init(uintptr_t *elfdata, void (*onexit)(void),
     real_unlink = dlsym(RTLD_NEXT, "unlink");
     real_readlink = dlsym(RTLD_NEXT, "readlink");
   }
-  // for multithread safety
-  libexecwrapper_execwrapper_init_handles();
-  libexecwrapper_execperms_init_handles();
   
   fdstr=getenv(FDENVNAME);
   if (fdstr != NULL && sscanf(fdstr,"%d",&lockfd)==1)

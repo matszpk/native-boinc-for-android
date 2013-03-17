@@ -35,7 +35,7 @@ static int (*real_mkdir)(const char* dirpath, mode_t mode) = NULL;
 
 static int (*real___open)(const char* file, int flags, mode_t mode) = NULL;
 
-void libexecwrapper_execwrapper_init_handles(void)
+static void init_handles(void)
 {
   if (real_execve == NULL)
   {
@@ -49,7 +49,7 @@ void libexecwrapper_execwrapper_init_handles(void)
   }
 }
 
-#define MYBUF_SIZE (256)
+#define MYBUF_SIZE (1024)
 
 static char** setup_ldpreenvs(char* const envp[], int lockfd)
 {
@@ -144,7 +144,7 @@ static int check_sdcard(const char* pathname)
   }
   
   if (real_stat(pathname,&stbuf)==-1)
-    return 0; // zero when doesnt exists (force real_execv)
+    return 0;
 #ifdef DEBUG
   printf("dev for %s=%llu\n",pathname,stbuf.st_dev);
 #endif
@@ -165,6 +165,8 @@ int execve(const char* filename, char* const argv[], char* const envp[])
   
   struct timeval tv1;
 
+  init_handles();
+  
   // check whether is execfile in /data directory
   if (!check_sdcard(filename))
   {

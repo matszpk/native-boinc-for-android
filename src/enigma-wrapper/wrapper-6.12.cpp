@@ -47,7 +47,7 @@
 #include "filesys.h"
 #include "parse.h"
 #include "str_util.h"
-#include "str_replace.h"
+//#include "str_replace.h"
 #include "util.h"
 #include "error_numbers.h"
 
@@ -527,7 +527,7 @@ int main(int argc, char** argv) {
     BOINC_OPTIONS options;
     int retval, ntasks_completed;
     unsigned int i;
-    double total_weight=0, weight_completed=0;
+    double total_weight=0, w=0;
     double checkpoint_cpu_time;
         // overall CPU time at last checkpoint
 
@@ -573,6 +573,7 @@ int main(int argc, char** argv) {
     double frac_new = 0;
     for (i=0; i<tasks.size(); i++) {
         TASK& task = tasks[i];
+        w += task.weight;
         if ((int)i<ntasks_completed) continue;
         double frac_done = frac_new;
         frac_new = w/total_weight;
@@ -610,7 +611,6 @@ int main(int argc, char** argv) {
         }
         checkpoint_cpu_time = task.starting_cpu + task.final_cpu_time;
         write_checkpoint(i+1, checkpoint_cpu_time);
-        weight_completed += task.weight;
     }
     boinc_finish(0);
 }

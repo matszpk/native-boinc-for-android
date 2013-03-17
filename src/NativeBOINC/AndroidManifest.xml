@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="sk.boinc.nativeboinc"
-      android:versionCode="65"
-      android:versionName="0.4.3.2b">
+      android:versionCode="66"
+      android:versionName="0.4.3.2.1b">
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="11"/>
 
 	<supports-screens

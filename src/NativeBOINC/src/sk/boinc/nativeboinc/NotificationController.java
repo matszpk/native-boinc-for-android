@@ -647,6 +647,8 @@ public class NotificationController {
 			mNewsMessageNotification = new Notification(R.drawable.ic_news,
 				newsText, System.currentTimeMillis());
 		
+		// auto cancelling
+		mNewsMessageNotification.flags = Notification.FLAG_AUTO_CANCEL;
 		mNewsMessageNotification.contentIntent = pendingIntent;
 		mNewsMessageNotification.tickerText = newsText;
 		mNewsMessageNotification.setLatestEventInfo(mAppContext, newsText, newsMessage.getTitle(),
@@ -677,6 +679,10 @@ public class NotificationController {
 		mNewBinariesNotification.tickerText = notifyText;
 		mNewBinariesNotification.setLatestEventInfo(mAppContext, notifyText, notifyText, pendingIntent);
 		mNotificationManager.notify(NotificationId.NATIVE_NEW_BINARIES, mNewBinariesNotification);
+	}
+	
+	public void removeNewBinaries() {
+		mNotificationManager.cancel(NotificationId.NATIVE_NEW_BINARIES);
 	}
 	
 	/**

@@ -656,7 +656,7 @@ void recherche_plateforme()
 			}
 			else
 			{
-				fprintf(stderr,"Erreur assignation taille application\n",boinc_msg_prefix(buf, sizeof(buf)));
+				fprintf(stderr,"Erreur assignation taille application (%s)\n",boinc_msg_prefix(buf, sizeof(buf)));
 			}
 		}
 		platform = app_version.child_value("platform");
@@ -1354,7 +1354,7 @@ int main(int argc, char** argv)
 								}
 								else
 								{
-									fprintf(stderr,"Erreur assignation taille wu\n",boinc_msg_prefix(buf, sizeof(buf)));
+									fprintf(stderr,"Erreur assignation taille wu (%s)\n",boinc_msg_prefix(buf, sizeof(buf)));
 								}
 							}
 							version_num=results.results[i]->version_num;

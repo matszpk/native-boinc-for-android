@@ -154,7 +154,7 @@ static FUNC_PTR timer_callback = 0;
     // This determines the resolution of fraction done and CPU time reporting
     // to the core client, and of checkpoint enabling.
     // It doesn't influence graphics, so 1 sec is enough.
-#define HEARTBEAT_GIVEUP_COUNT ((int)(30/TIMER_PERIOD))
+#define HEARTBEAT_GIVEUP_COUNT ((int)(60/TIMER_PERIOD))
     // quit if no heartbeat from core in this #interrupts
 #define LOCKFILE_TIMEOUT_PERIOD 35
     // quit if we cannot aquire slot lock file in this #secs after startup
@@ -194,7 +194,9 @@ static void block_sigalrm();
 static int start_worker_signals();
 
 char* boinc_msg_prefix(char* sbuf, int len) {
+#ifndef ANDROID
     char buf[256];
+#endif
     struct tm tm;
     int n;
 
@@ -203,6 +205,9 @@ char* boinc_msg_prefix(char* sbuf, int len) {
         strcpy(sbuf, "time() failed");
         return sbuf;
     }
+#ifdef ANDROID
+    n = snprintf(sbuf, len, "%d (%d):", x, getpid());
+#else
 #ifdef _WIN32
     if (localtime_s(&tm, &x) == EINVAL) {
 #else
@@ -219,6 +224,7 @@ char* boinc_msg_prefix(char* sbuf, int len) {
     n = _snprintf(sbuf, len, "%s (%d):", buf, GetCurrentProcessId());
 #else
     n = snprintf(sbuf, len, "%s (%d):", buf, getpid());
+#endif
 #endif
     if (n < 0) {
         strcpy(sbuf, "sprintf() failed");
@@ -1013,7 +1019,7 @@ static void timer_handler() {
     if (in_critical_section==0 && options.check_heartbeat) {
         if (heartbeat_giveup_time < interrupt_count) {
             fprintf(stderr,
-                "%s No heartbeat from core client for 30 sec - exiting\n",
+                "%s No heartbeat from core client for 60 sec - exiting\n",
                 boinc_msg_prefix(buf, sizeof(buf))
             );
             if (options.direct_process_action) {

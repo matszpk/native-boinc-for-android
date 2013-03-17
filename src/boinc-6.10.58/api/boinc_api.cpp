@@ -178,7 +178,7 @@ char* boinc_msg_prefix() {
 
     time_t x = time(0);
 #ifdef ANDROID
-    sprintf(sbuf, "%d (%d):", x, getpid());
+    sprintf(sbuf, "%ld (%d):", x, getpid());
 #else
     struct tm* tm = localtime(&x);
     strftime(buf, sizeof(buf)-1, "%H:%M:%S", tm);

@@ -204,9 +204,9 @@ static int start_worker_signals();
 char* boinc_msg_prefix(char* sbuf, int len) {
 #ifndef ANDROID
     char buf[256];
-#endif
     struct tm tm;
     struct tm *tmp = &tm;
+#endif
     int n;
 
     time_t x = time(0);
@@ -215,7 +215,7 @@ char* boinc_msg_prefix(char* sbuf, int len) {
         return sbuf;
     }
 #ifdef ANDROID
-    n = snprintf(sbuf, len, "%d (%d):", x, getpid());
+    n = snprintf(sbuf, len, "%ld (%d):", x, getpid());
 #else
 #ifdef _WIN32
 #ifdef __MINGW32__

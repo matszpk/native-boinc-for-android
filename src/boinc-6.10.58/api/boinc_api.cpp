@@ -172,6 +172,8 @@ static int start_worker_signals();
 
 char* boinc_msg_prefix() {
     static char sbuf[256];
+    /* print only unix time instead time.
+     * localtime crashes applications in timer thread */
 #ifndef ANDROID
     char buf[256];
 #endif

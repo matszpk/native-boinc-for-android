@@ -202,6 +202,8 @@ static void block_sigalrm();
 static int start_worker_signals();
 
 char* boinc_msg_prefix(char* sbuf, int len) {
+    /* print only unix time instead time.
+     * localtime crashes applications in timer thread */
 #ifndef ANDROID
     char buf[256];
     struct tm tm;

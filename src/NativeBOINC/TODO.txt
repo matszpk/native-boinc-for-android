@@ -31,6 +31,11 @@ PLANY WERSJI 0.4.4/0.4.5
   * dodanie informacji o nagrzewaniu urządzenia (wg  lokalnych preferencji boinc)
   * skróty połączeń do hostów w desktop
 
+Klient:
+* poprawic wychodzenie z programu (czasami jest zbyt powolne)
+* zbadać dlaczego projekty znikają po aktualizacjach
+* dodac mechanizm pobierania danych o baterii z innego programu
+
 ................................
 
 ----------------------------------------

@@ -143,8 +143,20 @@ static inline void doBoincCheckpoint(EvaluationState* es,
 
         mw_checkpoint_completed();
     }
-
+#ifdef WRITE_PROGRESS
+    {
+        real p = progress(es, ia, total_calc_probs);
+        FILE* file = fopen("progress.txt","wb");
+        if (file!=NULL)
+        {
+            fprintf(file,"Progress:%3.5f\n",p*100.0);
+            fclose(file);
+        }
+        mw_fraction_done(p);
+    }
+#else
     mw_fraction_done(progress(es, ia, total_calc_probs));
+#endif
 }
 
 #endif /* BOINC_APPLICATION */

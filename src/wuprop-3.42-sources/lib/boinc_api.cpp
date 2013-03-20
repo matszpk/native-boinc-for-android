@@ -194,10 +194,8 @@ static void block_sigalrm();
 static int start_worker_signals();
 
 char* boinc_msg_prefix(char* sbuf, int len) {
-#ifndef ANDROID
     char buf[256];
     struct tm tm;
-#endif
     int n;
 
     time_t x = time(0);
@@ -205,9 +203,6 @@ char* boinc_msg_prefix(char* sbuf, int len) {
         strcpy(sbuf, "time() failed");
         return sbuf;
     }
-#ifdef ANDROID
-    n = snprintf(sbuf, len, "%ld (%d):", x, getpid());
-#else
 #ifdef _WIN32
     if (localtime_s(&tm, &x) == EINVAL) {
 #else
@@ -225,7 +220,6 @@ char* boinc_msg_prefix(char* sbuf, int len) {
 #else
     n = snprintf(sbuf, len, "%s (%d):", buf, getpid());
 #endif
-#endif
     if (n < 0) {
         strcpy(sbuf, "sprintf() failed");
         return sbuf;
@@ -233,6 +227,28 @@ char* boinc_msg_prefix(char* sbuf, int len) {
     sbuf[len-1] = 0;    // just in case
     return sbuf;
 }
+
+/* fix for android */
+#ifdef ANDROID
+char* boinc_msg_prefix_fix(char* sbuf, int len) {
+    int n;
+
+    time_t x = time(0);
+    if (x == -1) {
+        strcpy(sbuf, "time() failed");
+        return sbuf;
+    }
+    n = snprintf(sbuf, len, "%ld (%d):", x, getpid());
+    if (n < 0) {
+        strcpy(sbuf, "sprintf() failed");
+        return sbuf;
+    }
+    sbuf[len-1] = 0;    // just in case
+    return sbuf;
+}
+
+#define boinc_msg_prefix boinc_msg_prefix_fix
+#endif
 
 static int setup_shared_mem() {
     char buf[256];

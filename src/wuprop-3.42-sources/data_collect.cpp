@@ -522,7 +522,7 @@ bool chargement_client_state()
 			retval=reception_state();
 			if (retval!=0)
 			{	
-				fprintf(stderr, "Erreur reception state (%s)\n",boinc_msg_prefix(buf, sizeof(buf)));
+				fprintf(stderr, "%s Erreur reception state\n",boinc_msg_prefix(buf, sizeof(buf)));
 				dernier_chargement=time(NULL);
 				return false;	
 			}
@@ -656,7 +656,7 @@ void recherche_plateforme()
 			}
 			else
 			{
-				fprintf(stderr,"Erreur assignation taille application (%s)\n",boinc_msg_prefix(buf, sizeof(buf)));
+				fprintf(stderr,":%s Erreur assignation taille application\n",boinc_msg_prefix(buf, sizeof(buf)));
 			}
 		}
 		platform = app_version.child_value("platform");

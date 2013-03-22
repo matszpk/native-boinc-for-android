@@ -79,7 +79,6 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 		
 		public synchronized void setIsReaded() {
 			mIsNewsReaded  = true;
-			
 		}
 		
 		public synchronized boolean isInProgress() {
@@ -88,6 +87,10 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 		
 		public synchronized boolean isToUpdateNews() {
 			return mState == ProgressState.FINISHED && mIsNewFetched && !mIsNewsReaded;
+		}
+		
+		public synchronized boolean isToUpdatePreviousTime() {
+			return mState == ProgressState.FINISHED && !mIsNewsReaded;
 		}
 		
 		public void save(NewsActivity activity) {
@@ -204,8 +207,7 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 		} else { /* if real creation */
 			if (Logging.DEBUG) Log.d(TAG, "Create and start updating");
 			// get previous new time
-			mPreviousNewsTime = mSharedPrefs.getLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE);
-			mNewsMessages = NewsUtil.readNews(this);
+			readNews();
 			mSavedState = new SavedState(this);
 			
 			/* execute news fetcher */
@@ -221,13 +223,26 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 	}
 	
+	private void readNews() {
+		mPreviousNewsTime = mSharedPrefs.getLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE);
+		mNewsMessages = NewsUtil.readNews(this);
+		if (mNewsMessages == null)
+			mNewsMessages = new ArrayList<NewsMessage>(1);
+	}
+	
+	private void updatePreviousNewsTime() {
+		long prevTimestamp = 0;
+		if (mNewsMessages != null && mNewsMessages.size() != 0)
+			prevTimestamp = mNewsMessages.get(0).getTimestamp();
+		// set as no new news (when exiting from news)
+		mSharedPrefs.edit().putLong(PreferenceName.PREVIOUS_NEWS_TIME,
+				prevTimestamp).commit();
+	}
+	
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
-		// get previous new time
-		mPreviousNewsTime = mSharedPrefs.getLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE);
-		// update news
-		mNewsMessages = NewsUtil.readNews(this);
+		readNews();
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 	}
 	
@@ -254,15 +269,15 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 			// if finished
 			if (mSavedState.isToUpdateNews()) {
 				if (Logging.DEBUG) Log.d(TAG, "Update after resuming");
-				// get previous new time
-				mPreviousNewsTime = mSharedPrefs.getLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE);
-				mNewsMessages = NewsUtil.readNews(NewsActivity.this);
+				readNews();
 				((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 				mSavedState.setIsReaded();
+			}
+			if (mSavedState.isToUpdatePreviousTime()) {
 				// remove notification
 				mApp.getNotificationController().removeNewsMessages();
 				// set as no new news (when exiting from news)
-				mSharedPrefs.edit().putLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE).commit();
+				updatePreviousNewsTime();
 			}
 			
 			// show progress
@@ -310,18 +325,15 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 		// updating
 		if (isNewFetched) {
 			if (Logging.DEBUG) Log.d(TAG, "News update at activity live");
-			// get previous new time
-			mPreviousNewsTime = mSharedPrefs.getLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE);
-			mNewsMessages = NewsUtil.readNews(NewsActivity.this);
+			readNews();
 			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 			mSavedState.setIsReaded();
-			// remove notification
-			mApp.getNotificationController().removeNewsMessages();
-			// set as no new news (when exiting from news)
-			mSharedPrefs.edit().putLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE).commit();
-		} else {
+		} else
 			if (Logging.DEBUG) Log.d(TAG, "No update news at activity live");
-		}
+		// remove notification
+		mApp.getNotificationController().removeNewsMessages();
+		// set as no new news (when exiting from news)
+		updatePreviousNewsTime();
 		// hide progress
 		setProgressBarIndeterminateVisibility(false);
 		// reset fetcher task

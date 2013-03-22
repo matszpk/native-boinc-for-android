@@ -191,18 +191,18 @@ public class NewsUtil {
 		return false;
 	}
 	
-	public static boolean versionsListHaveNewBinaries(Map<String, String> currentBinaries,
+	public static boolean currentBinariesHaveUnupdatedBinaries(Map<String, String> currentBinaries,
 			InstalledClient installedClient, ArrayList<InstalledDistrib> installedDistribs) {
 		
 		String version = currentBinaries.get(InstallerService.BOINC_CLIENT_ITEM_NAME);
 		if (installedClient.version != null && version!=null && 
-				VersionUtil.compareVersion(installedClient.version, version) > 0)
+				VersionUtil.compareVersion(installedClient.version, version) < 0)
 			return true;
 		
 		for (InstalledDistrib distrib: installedDistribs) {
 			version = currentBinaries.get(distrib.projectName);
 			if (version != null && distrib.version != null &&
-					VersionUtil.compareVersion(distrib.version, version) > 0)
+					VersionUtil.compareVersion(distrib.version, version) < 0)
 				return true;
 		}
 		return false;

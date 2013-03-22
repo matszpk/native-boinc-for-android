@@ -250,8 +250,8 @@ public class RefreshWidgetHandler extends Handler implements NativeBoincStateLis
 			break;
 		case ClientEvent.EVENT_SUSPEND_ALL_TASKS:
 			detachAutoRefresh();
-			// update state of widgets after 0.5 seconds
-			postDelayed(mDelayedRefresher, 500);
+			// update state of widgets after 0.3 seconds
+			postDelayed(mDelayedRefresher, 300);
 			break;
 		default:
 			// do update widgets

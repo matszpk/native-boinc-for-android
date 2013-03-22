@@ -214,7 +214,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			return false;
 		InstalledClient installedClient = mDistribManager.getInstalledClient();
 		ArrayList<InstalledDistrib> installedDistribs = mDistribManager.getInstalledDistribs();
-		return NewsUtil.versionsListHaveNewBinaries(currentBinaries, installedClient, installedDistribs);
+		return NewsUtil.currentBinariesHaveUnupdatedBinaries(currentBinaries, installedClient, installedDistribs);
 	}
 	
 	/*

@@ -14,7 +14,8 @@ PLANY WERSJI 0.4.4/0.4.5
   * wykrywanie wyłączenia ekranu przez boinc (uwzględnienie przy odświeżaniu widget)
 --- Usprawnienia
   * wprowadzenie info o pobieraniu danych z mobilnego internetu (opcjonalnie)
-  * podświetlanie nowych informacji w newsach
+/ * podświetlanie nowych informacji w newsach
+  * opcja zabicia klienta boinc (mozliwa moze byc utrata kontroli na boinc) (przemysl)
   * kolorowanie logów w boinc logs (niemozliwe)
   * filtrowanie logów w boinc logs (niemozliwe)
 --- Interfejs użytkownika (prawdobodobnie większość w wersji 0.4.5)

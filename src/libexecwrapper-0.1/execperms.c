@@ -169,10 +169,13 @@ int old_futimes(int fd, const struct timeval times[2])
 }
 #endif
 
+static volatile int handles_inited = 0;
+
 static void init_handles(void)
 {
-  if (real_access == NULL)
+  if (handles_inited == 0)
   {
+    handles_inited = 1;
     real_access = dlsym(RTLD_NEXT, "access");
   
     real_chmod = dlsym(RTLD_NEXT, "chmod");
@@ -204,7 +207,11 @@ static void init_handles(void)
     
     real_utimes = dlsym(RTLD_NEXT, "utimes");
     real_futimes = dlsym(RTLD_NEXT, "futimes");
+    
+    handles_inited = 2; // finish
   }
+  else
+    while (handles_inited == 1);
 }
 
 #ifdef PROD_DEBUG

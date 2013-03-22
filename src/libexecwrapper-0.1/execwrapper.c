@@ -35,9 +35,11 @@ static int (*real_mkdir)(const char* dirpath, mode_t mode) = NULL;
 
 static int (*real___open)(const char* file, int flags, mode_t mode) = NULL;
 
+static volatile int handles_inited = 0;
+
 static void init_handles(void)
 {
-  if (real_execve == NULL)
+  if (handles_inited == 0)
   {
     real_execve = dlsym(RTLD_NEXT, "execve");
     real_stat = dlsym(RTLD_NEXT, "stat");
@@ -46,7 +48,11 @@ static void init_handles(void)
     real_mkdir = dlsym(RTLD_NEXT, "mkdir");
     
     real___open = dlsym(RTLD_NEXT, "__open");
+    
+    handles_inited = 2; // finish
   }
+  else
+    while (handles_inited == 1);
 }
 
 #define MYBUF_SIZE (256)

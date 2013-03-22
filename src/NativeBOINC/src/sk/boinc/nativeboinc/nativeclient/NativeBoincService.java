@@ -487,6 +487,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 		private boolean mIsRun = false;
 		private boolean mSecondStart = false; 
 		private int mBoincPid = -1;
+		private boolean mBoincIsKilled = false;
 		
 		public NativeBoincThread(boolean secondStart) {
 			this.mSecondStart = secondStart;
@@ -659,8 +660,11 @@ public class NativeBoincService extends Service implements MonitorListener,
 			
 			if (Logging.DEBUG) Log.d(TAG, "boinc_client has been finished");
 			
-			killNativeBoinc();
-			NativeBoincUtils.killAllBoincZombies();
+			if (!mBoincIsKilled) {
+				if (Logging.DEBUG) Log.d(TAG, "Killing");
+				killNativeBoinc();
+				NativeBoincUtils.killAllBoincZombies();
+			}
 			
 			if (Logging.DEBUG) Log.d(TAG, "Release wake lock");
 			if (mDimWakeLock != null && mDimWakeLock.isHeld())
@@ -681,6 +685,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 			/* fallback killing (by using SIGKILL signal) */
 			android.os.Process.sendSignal(mBoincPid, 9);
 		}
+		
+		public void setBoincIsKilled() {
+			mBoincIsKilled = true;
+		}
 	};
 	
 	private class NativeKillerThread extends Thread {
@@ -689,12 +697,14 @@ public class NativeBoincService extends Service implements MonitorListener,
 		@Override
 		public void run() {
 			try {
-				Thread.sleep(10000);
+				Thread.sleep(40000); // wait long time to kill
 			} catch(InterruptedException ex) { }
 			
 			if (!mDontKill && mNativeBoincThread != null) {
 				if (Logging.DEBUG) Log.d(TAG, "Killer:Killing native boinc");
-				mNativeBoincThread.interrupt();
+				mNativeBoincThread.setBoincIsKilled();
+				mNativeBoincThread.killNativeBoinc();
+				NativeBoincUtils.killAllBoincZombies();
 			}
 			else {
 				if (Logging.DEBUG) Log.d(TAG, "Killer:Dont Killing native boinc");

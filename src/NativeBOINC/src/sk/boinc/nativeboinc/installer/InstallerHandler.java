@@ -207,6 +207,17 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	}
 	
 	/*
+	 * check whether no updates in current_updates.xml
+	 */
+	public boolean isUpdatesInCurrentBinaries(Map<String, String> currentBinaries) {
+		if (currentBinaries == null)
+			return false;
+		InstalledClient installedClient = mDistribManager.getInstalledClient();
+		ArrayList<InstalledDistrib> installedDistribs = mDistribManager.getInstalledDistribs();
+		return NewsUtil.versionsListHaveNewBinaries(currentBinaries, installedClient, installedDistribs);
+	}
+	
+	/*
 	 * install place handling
 	 */
 	private synchronized void updateInstallPlace() {
@@ -1745,6 +1756,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 			
 			// update current binaries (prevents obsolete notification)
 			NewsUtil.writeCurrentBinaries(mInstallerService, mClientDistrib, mProjectDistribs);
+			mInstallerService.updateCurrentBinaries(mClientDistrib, mProjectDistribs);
 			
 			// notify final result
 			if (output != null)

@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import sk.boinc.nativeboinc.installer.ClientDistrib;
+import sk.boinc.nativeboinc.installer.InstalledClient;
+import sk.boinc.nativeboinc.installer.InstalledDistrib;
 import sk.boinc.nativeboinc.installer.InstallerService;
 import sk.boinc.nativeboinc.installer.ProjectDistrib;
 import sk.boinc.nativeboinc.util.UpdateItem;
@@ -182,7 +184,25 @@ public class NewsUtil {
 			UpdateItem[] updateItems) {
 		for (UpdateItem item: updateItems) {
 			String version = currentBinaries.get(item.name);
-			if (version != null && VersionUtil.compareVersion(item.version, version) > 0)
+			if (version != null && item.version != null &&
+					VersionUtil.compareVersion(item.version, version) > 0)
+				return true;
+		}
+		return false;
+	}
+	
+	public static boolean versionsListHaveNewBinaries(Map<String, String> currentBinaries,
+			InstalledClient installedClient, ArrayList<InstalledDistrib> installedDistribs) {
+		
+		String version = currentBinaries.get(InstallerService.BOINC_CLIENT_ITEM_NAME);
+		if (installedClient.version != null && version!=null && 
+				VersionUtil.compareVersion(installedClient.version, version) > 0)
+			return true;
+		
+		for (InstalledDistrib distrib: installedDistribs) {
+			version = currentBinaries.get(distrib.projectName);
+			if (version != null && distrib.version != null &&
+					VersionUtil.compareVersion(distrib.version, version) > 0)
 				return true;
 		}
 		return false;

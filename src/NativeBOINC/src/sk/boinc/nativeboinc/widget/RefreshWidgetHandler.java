@@ -71,6 +71,7 @@ public class RefreshWidgetHandler extends Handler implements NativeBoincStateLis
 		// initial value of update period
 		mWidgetUpdatePeriod = Integer.parseInt(globalPrefs.getString(
 				PreferenceName.WIDGET_UPDATE, "10"))*1000;
+		mDelayedRefresher = new DelayedRefresher();
 	}
 	
 	private void prepareUpdateWidgets() {
@@ -134,7 +135,15 @@ public class RefreshWidgetHandler extends Handler implements NativeBoincStateLis
 		}
 	};
 	
+	public class DelayedRefresher implements Runnable {
+		@Override
+		public void run() {
+			prepareUpdateWidgets();
+		}
+	};
+	
 	private AutoRefresher mAutoRefresher = null;
+	private DelayedRefresher mDelayedRefresher = null;
 	
 	private synchronized void tryAttachAutoRefresher() {
 		if (NativeBoincWidgetProvider.isWidgetEnabled(mContext) ||
@@ -236,12 +245,13 @@ public class RefreshWidgetHandler extends Handler implements NativeBoincStateLis
 		if (Logging.DEBUG) Log.d(TAG, "Handle client event:"+ event.type);
 		switch (event.type) {
 		case ClientEvent.EVENT_RUN_TASKS:
+			removeCallbacks(mDelayedRefresher); // cancel delayed refresher
 			tryAttachAutoRefresher();
 			break;
 		case ClientEvent.EVENT_SUSPEND_ALL_TASKS:
 			detachAutoRefresh();
-			// update state of widgets
-			prepareUpdateWidgets();
+			// update state of widgets after 0.5 seconds
+			postDelayed(mDelayedRefresher, 500);
 			break;
 		default:
 			// do update widgets

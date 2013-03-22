@@ -353,7 +353,8 @@ public class NewsReceiver extends BroadcastReceiver implements OnSharedPreferenc
 				}
 				
 				sharedPrefs.edit().putLong(PreferenceName.LATEST_NEWS_TIME,
-						newsMessages.get(0).getTimestamp()).commit();
+						newsMessages.get(0).getTimestamp())
+					.putLong(PreferenceName.PREVIOUS_NEWS_TIME,latestNewsTime).commit();
 				
 				// join messages
 				newsMessages = new ArrayList<NewsMessage>(newsMessages.subList(0, firstOldMessageIndex));

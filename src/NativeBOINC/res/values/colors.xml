@@ -30,4 +30,6 @@
 	<color name="screenLockBar">#555555</color>
 	<color name="screenLockBarText">#ffffff</color>
 	<color name="notificationText">#080808</color>
+	
+	<color name="newNewsColor">#ffffff</color>
 </resources>

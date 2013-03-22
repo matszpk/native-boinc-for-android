@@ -25,12 +25,15 @@ import sk.boinc.nativeboinc.news.NewsFetcherListener;
 import sk.boinc.nativeboinc.news.NewsMessage;
 import sk.boinc.nativeboinc.news.NewsReceiver;
 import sk.boinc.nativeboinc.news.NewsUtil;
+import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.ScreenOrientationHandler;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,6 +55,7 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 	private ScreenOrientationHandler mScreenOrientation = null;
 	
 	private ArrayList<NewsMessage> mNewsMessages = null;
+	private long mPreviousNewsTime = -1;
 	
 	/* listener used outside activity (when rotated) and saved state */
 	private static class SavedState implements NewsFetcherListener {
@@ -60,9 +64,11 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 		public boolean mIsNewFetched = false;
 		private ArrayList<NewsMessage> mNewsMessages;
 		public boolean mIsNewsReaded = false; // if new readed 
+		public long mPreviousNewsTime; 
 		
 		public SavedState(NewsActivity activity) {
 			mNewsMessages = activity.mNewsMessages;
+			mPreviousNewsTime = activity.mPreviousNewsTime;
 		}
 		
 		public synchronized void setInProgress() {
@@ -71,6 +77,7 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 		
 		public synchronized void setIsReaded() {
 			mIsNewsReaded  = true;
+			
 		}
 		
 		public synchronized boolean isInProgress() {
@@ -83,10 +90,12 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 		
 		public void save(NewsActivity activity) {
 			mNewsMessages = activity.mNewsMessages;
+			mPreviousNewsTime = activity.mPreviousNewsTime;
 		}
 		
 		public void restore(NewsActivity activity) {
 			activity.mNewsMessages = mNewsMessages;
+			activity.mPreviousNewsTime = mPreviousNewsTime;
 		}
 		
 		@Override
@@ -143,6 +152,20 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 			TextView titleView = (TextView)view.findViewById(R.id.title);
 			TextView timeView = (TextView)view.findViewById(R.id.time);
 			TextView contentView = (TextView)view.findViewById(R.id.content);
+			
+			int color = mContext.getResources().getColorStateList(android.R.color.secondary_text_dark).getDefaultColor();
+			
+			if (message.getTimestamp() > mPreviousNewsTime) {
+				// if new news (we highlighting)
+				titleView.setTextColor(R.color.newNewsColor);
+				timeView.setTextColor(R.color.newNewsColor);
+				contentView.setTextColor(R.color.newNewsColor);
+			} else {
+				// old news
+				titleView.setTextColor(color);
+				timeView.setTextColor(color);
+				contentView.setTextColor(color);
+			}
 			
 			titleView.setText(message.getTitle());
 			timeView.setText(NewsUtil.formatDate(message.getTimestamp()));
@@ -228,6 +251,8 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 				mNewsMessages = NewsUtil.readNews(NewsActivity.this);
 				((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 				mSavedState.setIsReaded();
+				// remove notification
+				mApp.getNotificationController().removeNewsMessages();
 			}
 			// show progress
 			setProgressBarIndeterminateVisibility(false);
@@ -275,8 +300,16 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 		if (isNewFetched) {
 			if (Logging.DEBUG) Log.d(TAG, "News update at activity live");
 			mNewsMessages = NewsUtil.readNews(NewsActivity.this);
+			// get previous new time
+			SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+			mPreviousNewsTime = sharedPrefs.getLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE);
+			// set as no new news 
+			sharedPrefs.edit().putLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE).commit();
+			
 			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 			mSavedState.setIsReaded();
+			// remove notification
+			mApp.getNotificationController().removeNewsMessages();
 		} else
 			if (Logging.DEBUG) Log.d(TAG, "No update news at activity live");
 		// hide progress

@@ -68,4 +68,5 @@ public interface PreferenceName {
 	
 	/* news receiver */
 	public static final String LATEST_NEWS_TIME = "latestNewsTime";
+	public static final String PREVIOUS_NEWS_TIME = "previousNewsTime";
 }

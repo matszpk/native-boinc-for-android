@@ -657,6 +657,10 @@ public class NotificationController {
 		mNotificationManager.notify(NotificationId.NATIVE_BOINC_NEWS, mNewsMessageNotification);
 	}
 	
+	public void removeNewsMessages() {
+		mNotificationManager.cancel(NotificationId.NATIVE_BOINC_NEWS);
+	}
+	
 	/**
 	 * handling auto updates notifications
 	 */

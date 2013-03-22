@@ -26,13 +26,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.NotificationController;
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.nativeclient.NativeBoincService;
+import sk.boinc.nativeboinc.news.NewsUtil;
 import sk.boinc.nativeboinc.util.PendingController;
 import sk.boinc.nativeboinc.util.PendingErrorHandler;
 import sk.boinc.nativeboinc.util.ProgressItem;
@@ -77,6 +80,20 @@ public class InstallerService extends Service {
 		else if (name.equals(BOINC_MOVETO_ITEM_NAME))
 			return res.getString(R.string.boincMoveTo);
 		return name;
+	}
+	
+	/* current binaries for remove notifications */
+	private Map<String, String> mCurrentBins = null;
+	
+	/* helper for managing current binaries: direct acces without reading files */
+	public synchronized void updateCurrentBinaries(ClientDistrib clientDistrib,
+			ArrayList<ProjectDistrib> projectDistribs) {
+		synchronized(mCurrentBins) {
+			mCurrentBins.clear();
+			mCurrentBins.put(BOINC_CLIENT_ITEM_NAME, clientDistrib.version);
+			for (ProjectDistrib projectDistrib: projectDistribs)
+				mCurrentBins.put(projectDistrib.projectName, projectDistrib.version);
+		}
 	}
 	
 	private InstallerThread mInstallerThread = null;
@@ -145,6 +162,10 @@ public class InstallerService extends Service {
 		mApp = (BoincManagerApplication)getApplication();
 		mNotificationController = mApp.getNotificationController();
 		mListenerHandler = new ListenerHandler();
+		// read current binaries
+		mCurrentBins = NewsUtil.readCurrentBinaries(this);
+		if (mCurrentBins == null)
+			mCurrentBins = new HashMap<String, String>();
 		
 		mPendingChannels = new PendingController[MAX_CHANNEL_ID];
 		for (int i = 0; i < MAX_CHANNEL_ID; i++)
@@ -359,6 +380,22 @@ public class InstallerService extends Service {
 					mApp.setInstallerStage(BoincManagerApplication.INSTALLER_FINISH_STAGE);
 			
 				mNotificationController.handleOnOperationFinish(distribName, projectUrl);
+				
+				if (distribName.equals(BOINC_CLIENT_ITEM_NAME) ||
+						(projectUrl != null && projectUrl.length() != 0)) { // if install/update client/project
+					if (mInstallerHandler != null) {
+						if (Logging.DEBUG) Log.d(TAG,
+								"Checking updates in current versions after "+distribName);
+						
+						boolean toRemoveNewBinariesNotification = false;
+						synchronized(mCurrentBins) {
+							toRemoveNewBinariesNotification = !mInstallerHandler
+									.isUpdatesInCurrentBinaries(mCurrentBins);
+						}
+						if (toRemoveNewBinariesNotification)
+							mNotificationController.removeNewBinaries(); // no updates in current versions
+					}
+				}
 			}
 			
 			AbstractInstallerListener[] listeners = null;
@@ -370,7 +407,6 @@ public class InstallerService extends Service {
 					((InstallerProgressListener)listener).onOperationFinish(installOp, distribName);
 			
 			channel.finish(installOp);
-			
 		}
 		
 		/**

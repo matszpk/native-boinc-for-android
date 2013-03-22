@@ -41,6 +41,8 @@ static void init_handles(void)
 {
   if (handles_inited == 0)
   {
+    handles_inited = 1;
+    
     real_execve = dlsym(RTLD_NEXT, "execve");
     real_stat = dlsym(RTLD_NEXT, "stat");
     

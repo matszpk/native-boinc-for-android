@@ -32,6 +32,7 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -51,6 +52,7 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 	private static final String TAG = "NewsActivity";
 	
 	private BoincManagerApplication mApp = null;
+	private SharedPreferences mSharedPrefs = null;
 	
 	private ScreenOrientationHandler mScreenOrientation = null;
 	
@@ -117,9 +119,11 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 
 		private Context mContext = null;
 		private BoincManagerApplication mApp = null;
+		private Resources mRes = null;
 		
 		public NewsMessageAdapter(Context context) {
 			mContext = context;
+			mRes = mContext.getResources();
 			mApp = (BoincManagerApplication)context.getApplicationContext();
 		}
 		
@@ -153,19 +157,15 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 			TextView timeView = (TextView)view.findViewById(R.id.time);
 			TextView contentView = (TextView)view.findViewById(R.id.content);
 			
-			int color = mContext.getResources().getColorStateList(android.R.color.secondary_text_dark).getDefaultColor();
+			int color;
+			if (message.getTimestamp() > mPreviousNewsTime)
+				color = mRes.getColor(R.color.newNewsColor);
+			else
+				color = mRes.getColorStateList(android.R.color.secondary_text_dark).getDefaultColor();
 			
-			if (message.getTimestamp() > mPreviousNewsTime) {
-				// if new news (we highlighting)
-				titleView.setTextColor(R.color.newNewsColor);
-				timeView.setTextColor(R.color.newNewsColor);
-				contentView.setTextColor(R.color.newNewsColor);
-			} else {
-				// old news
-				titleView.setTextColor(color);
-				timeView.setTextColor(color);
-				contentView.setTextColor(color);
-			}
+			titleView.setTextColor(color);
+			timeView.setTextColor(color);
+			contentView.setTextColor(color);
 			
 			titleView.setText(message.getTitle());
 			timeView.setText(NewsUtil.formatDate(message.getTimestamp()));
@@ -185,6 +185,8 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		
 		super.onCreate(savedInstanceState);
+		// shared prefs
+		mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		
 		setContentView(R.layout.news_list);
 		mScreenOrientation = new ScreenOrientationHandler(this);
@@ -201,6 +203,8 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 			mFetcherTask = mApp.getNewsFetcherTask();
 		} else { /* if real creation */
 			if (Logging.DEBUG) Log.d(TAG, "Create and start updating");
+			// get previous new time
+			mPreviousNewsTime = mSharedPrefs.getLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE);
 			mNewsMessages = NewsUtil.readNews(this);
 			mSavedState = new SavedState(this);
 			
@@ -220,6 +224,8 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
+		// get previous new time
+		mPreviousNewsTime = mSharedPrefs.getLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE);
 		// update news
 		mNewsMessages = NewsUtil.readNews(this);
 		((BaseAdapter)getListAdapter()).notifyDataSetChanged();
@@ -248,12 +254,17 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 			// if finished
 			if (mSavedState.isToUpdateNews()) {
 				if (Logging.DEBUG) Log.d(TAG, "Update after resuming");
+				// get previous new time
+				mPreviousNewsTime = mSharedPrefs.getLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE);
 				mNewsMessages = NewsUtil.readNews(NewsActivity.this);
 				((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 				mSavedState.setIsReaded();
 				// remove notification
 				mApp.getNotificationController().removeNewsMessages();
+				// set as no new news (when exiting from news)
+				mSharedPrefs.edit().putLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE).commit();
 			}
+			
 			// show progress
 			setProgressBarIndeterminateVisibility(false);
 			mFetcherTask = null;
@@ -299,19 +310,18 @@ public class NewsActivity extends ListActivity implements NewsFetcherListener {
 		// updating
 		if (isNewFetched) {
 			if (Logging.DEBUG) Log.d(TAG, "News update at activity live");
-			mNewsMessages = NewsUtil.readNews(NewsActivity.this);
 			// get previous new time
-			SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-			mPreviousNewsTime = sharedPrefs.getLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE);
-			// set as no new news 
-			sharedPrefs.edit().putLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE).commit();
-			
+			mPreviousNewsTime = mSharedPrefs.getLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE);
+			mNewsMessages = NewsUtil.readNews(NewsActivity.this);
 			((BaseAdapter)getListAdapter()).notifyDataSetChanged();
 			mSavedState.setIsReaded();
 			// remove notification
 			mApp.getNotificationController().removeNewsMessages();
-		} else
+			// set as no new news (when exiting from news)
+			mSharedPrefs.edit().putLong(PreferenceName.PREVIOUS_NEWS_TIME, Long.MAX_VALUE).commit();
+		} else {
 			if (Logging.DEBUG) Log.d(TAG, "No update news at activity live");
+		}
 		// hide progress
 		setProgressBarIndeterminateVisibility(false);
 		// reset fetcher task

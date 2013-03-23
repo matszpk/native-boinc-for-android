@@ -1,3 +1,9 @@
+Version 0.4.3.3 (beta) (2013-03-17):
+- fixed severe bug in NativeBOINC (fallback shutdown didnt work)
+- added a new news highlighting
+- removing update binaries notification when all updates installed
+- fixed widget refreshing
+
 Version 0.4.3.2.1 (beta) (2013-03-17):
 - revert libexecwrapper (doesnt work with theSkyNet POGS)
 

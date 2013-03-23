@@ -228,6 +228,7 @@ public class RefreshWidgetHandler extends Handler implements NativeBoincStateLis
 	@Override
 	public void onClientStop(int exitCode, boolean stoppedByManager) {
 		if (Logging.DEBUG) Log.d(TAG, "On client stop");
+		removeCallbacks(mDelayedRefresher); // cancel delayedrefresh
 		// detach autorefresh
 		detachAutoRefresh();
 		// update widgets

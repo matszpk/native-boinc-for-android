@@ -191,6 +191,9 @@ public class NewsUtil {
 		return false;
 	}
 	
+	/**
+	 * @return true if currentBinaries have unupdated binaries (by installer)
+	 */
 	public static boolean currentBinariesHaveUnupdatedBinaries(Map<String, String> currentBinaries,
 			InstalledClient installedClient, ArrayList<InstalledDistrib> installedDistribs) {
 		

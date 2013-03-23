@@ -198,7 +198,7 @@ public class NewsUtil {
 			InstalledClient installedClient, ArrayList<InstalledDistrib> installedDistribs) {
 		
 		String version = currentBinaries.get(InstallerService.BOINC_CLIENT_ITEM_NAME);
-		if (installedClient.version != null && version!=null && !installedClient.fromSDCard &&  
+		if (installedClient.version != null && version!=null && !installedClient.fromSDCard &&
 				VersionUtil.compareVersion(installedClient.version, version) < 0)
 			return true;
 		

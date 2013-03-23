@@ -1,11 +1,12 @@
-Version 0.4.3.3 (beta) (2013-03-17):
+Version 0.4.3.3 (beta) (2013-03-23):
 - fixed severe bug in NativeBOINC (fallback shutdown didnt work)
 - added a new news highlighting
 - removing update binaries notification when all updates installed
 - fixed widget refreshing
+- fixed libexecwrapper (real fix for multithreading)
 
 Version 0.4.3.2.1 (beta) (2013-03-17):
-- revert libexecwrapper (doesnt work with theSkyNet POGS)
+- revert libexecwrapper (didnt work with theSkyNet POGS)
 
 Version 0.4.3.2 (beta) (2013-03-14):
 - added certificates for https access (World Community Grid)

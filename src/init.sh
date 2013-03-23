@@ -11,6 +11,8 @@ export PATH="$PATH:$SDKPATH:$SDKPATH/platform-tools:$NDKTOOLPATH"
 export CC=$NDKTOOLPATH/arm-linux-androideabi-gcc
 export CXX=$NDKTOOLPATH/arm-linux-androideabi-g++
 export LD=$NDKTOOLPATH/arm-linux-androideabi-ld
+export AR=$NDKTOOLPATH/arm-linux-androideabi-ar
+export RANLIB=$NDKTOOLPATH/arm-linux-androideabi-ranlib
 
 #export CFLAGS="--sysroot=$SYSROOT -Wall"
 #export CFLAGS="--sysroot=$SYSROOT -Wall -O3 -mhard-float -mfpu=vfp -mfloat-abi=softfp -fomit-frame-pointer"

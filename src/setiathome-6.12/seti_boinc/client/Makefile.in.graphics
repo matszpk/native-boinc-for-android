@@ -1,0 +1,151 @@
+#  $Id: Makefile.in.graphics,v 1.4.2.1 2006/12/14 22:21:43 korpela Exp $
+#
+#
+
+@SET_MAKE@
+
+EXEEXT = @EXEEXT@
+OBJEXT = @OBJEXT@
+LIBEXT = @LIBEXT@
+DLLEXT = @DLLEXT@
+DOTEXEEXT = @DOTEXEEXT@
+
+
+SUFFIXES = .cpp .c .@OBJEXT@ .@DLLEXT@ .@LIBEXT@ @DOTEXEEXT@
+
+VERSION_MAJOR = @MAJOR_VERSION@
+VERSION_MINOR = @MINOR_VERSION@
+
+BOINCDIR = @BOINCDIR@
+
+CC = @CC@ 
+CFLAGS = @CFLAGS@ @DEFS@ -DTEXT_UI -DNDEBUG -DCLIENT -DBOINC_APP_GRAPHICS
+
+CXX = @CXX@ 
+CXXFLAGS = $(CFLAGS) 
+
+BOINC_INC= -I$(BOINCDIR)/api -I$(BOINCDIR)/lib -I$(BOINCDIR)/image_libs/ -I/usr/openwin/share/include/ -I../jpeglib
+
+.cpp.@OBJEXT@:
+	$(CXX) -g $(CXXFLAGS) $(BOINC_INC) -I.. -I../db -c -o $*.@OBJEXT@ $<
+
+.C.@OBJEXT@:
+	$(CXX) -g $(CXXFLAGS) $(BOINC_INC) -I.. -I../db -c -o $*.@OBJEXT@ $<
+
+.c.@OBJEXT@:
+	$(CC) -g $(CFLAGS) $(BOINC_INC) -I.. -I../db -c -o $*.@OBJEXT@ $<
+
+LDFLAGS = @LDFLAGS@
+
+CLIBS = @LIBS@
+
+SUFFIXES = .cpp .@OBJEXT@
+PROG = setiathome-$(VERSION_MAJOR).$(VERSION_MINOR).@host@$(DOTEXEEXT)
+GUIPROG = xsetiathome-$(VERSION_MAJOR).$(VERSION_MINOR).@host@$(DOTEXEEXT)
+PROGS = $(PROG) setiathome_test$(DOTEXEEXT) 
+
+../aclocal.m4: ../m4/*.m4
+	@CAT@ ../m4/*.m4 >../aclocal.m4
+
+../configure: ../configure.ac ../aclocal.m4 ../sah_config.h.in
+	(cd ..; make sah_config.h)
+
+OBJS = \
+    analyzeFuncs.$(OBJEXT) \
+    analyzeReport.$(OBJEXT) \
+    analyzePoT.$(OBJEXT) \
+    pulsefind.$(OBJEXT) \
+    gaussfit.$(OBJEXT) \
+    lcgamm.$(OBJEXT) \
+    malloc_a.$(OBJEXT) \
+    seti.$(OBJEXT) \
+    seti_header.$(OBJEXT) \
+    timecvt.$(OBJEXT) \
+    s_util.$(OBJEXT) \
+    version.$(OBJEXT) \
+    worker.$(OBJEXT)  \
+    chirpfft.$(OBJEXT) \
+    spike.$(OBJEXT) \
+    progress.$(OBJEXT) \
+    ../db/schema_master_client.$(OBJEXT) \
+    ../db/sqlrow_client.$(OBJEXT) \
+    ../db/sqlblob.$(OBJEXT) \
+    ../db/xml_util.$(OBJEXT)
+
+BOINC_OBJS = -L$(BOINCDIR)/lib -lboinc
+
+GUIOBJS = \
+    analyzeFuncs.$(OBJEXT) \
+    analyzeReport.$(OBJEXT) \
+    analyzePoT.$(OBJEXT) \
+    pulsefind.$(OBJEXT) \
+    gaussfit.$(OBJEXT) \
+    lcgamm.$(OBJEXT) \
+    malloc_a.$(OBJEXT) \
+    seti.$(OBJEXT) \
+    seti_header.$(OBJEXT) \
+    timecvt.$(OBJEXT) \
+    s_util.$(OBJEXT) \
+    version.$(OBJEXT) \
+    worker.$(OBJEXT)  \
+    chirpfft.$(OBJEXT) \
+    spike.$(OBJEXT) \
+    progress.$(OBJEXT) \
+    sah_gfx_base.$(OBJEXT) \
+    sah_gfx.$(OBJEXT) \
+    gdata.$(OBJEXT) \
+    ../db/schema_master_client.$(OBJEXT) \
+    ../db/sqlrow_client.$(OBJEXT) \
+    ../db/sqlblob.$(OBJEXT) \
+    ../db/xml_util.$(OBJEXT)
+
+GUILIBS = -lX11 -lXmu @GRXLIBS@ -L../jpeglib/ -ljpeg -L/usr/X11R6/lib -L/usr/openwin/lib/ -lGL -lGLU -lglut \
+    -L../../boinc/api -lboinc_api -lboinc_graphics_api
+
+LIBS = -L. \
+    -looura
+
+all: Makefile dependencies $(GUIPROG)
+
+clean:
+	rm -f *.$(OBJEXT) libooura.$(LIBEXT)  $(PROGS) dependencies config.log config.cache
+
+OOURAOBS = fft8g.$(OBJEXT)
+
+libooura.$(LIBEXT): $(OOURAOBS)
+	@AR@ r libooura.$(LIBEXT) $(OOURAOBS)
+	@RANLIB@ libooura.$(LIBEXT)
+
+$(PROG): main.$(OBJEXT) libooura.$(LIBEXT)  $(OBJS) 
+	$(CXX) main.$(OBJEXT) $(OBJS) $(LIBS) $(CLIBS) -o $(PROG) $(BOINC_OBJS)
+	strip $(PROG)
+
+$(GUIPROG): main.$(OBJEXT) $(GUIOBJS) libooura.$(LIBEXT)
+	$(CXX) main.$(OBJEXT) ../../boinc/api/gutil.$(OBJEXT) ../../boinc/api/reduce.$(OBJEXT) $(GUIOBJS) $(GUILIBS) $(LIBS) $(CLIBS) -lpthread -o $(GUIPROG).debug $(BOINC_OBJS)
+	cp $(GUIPROG).debug $(GUIPROG)
+	strip $(GUIPROG)
+
+# The following is because version.$(OBJEXT) depends on
+# VERSION_MAJOR and VERSION_MINOR, defined in the Makefile.
+# Is there a cleaner way of doing this?
+version.$(OBJEXT): version.cpp ../sah_config.h version.h
+
+main_test.$(OBJEXT): main.cpp
+	$(CXX) $(CXXFLAGS) $(BOINC_INC) -I.. -I../db -DTEST_VERSION -c -o main_test.$(OBJEXT) main.cpp
+
+setiathome_test$(DOTEXEEXT): main_test.$(OBJEXT) $(OBJS) libooura.$(LIBEXT)
+	$(CXX) main_test.$(OBJEXT) $(OBJS) $(LIBS) $(CLIBS) -o setiathome_test$(DOTEXEEXT) $(BOINC_OBJS)
+
+../db/sqlrow_client.$(OBJEXT): ../db/sqlrow.cpp ../db/sqlrow.h
+	(cd ../db; $(MAKE) sqlrow_client.$(OBJEXT))
+
+../db/schema_master_client.$(OBJEXT): ../db/schema_master.cpp ../db/db_table.h 
+	(cd ../db; $(MAKE) schema_master_client.$(OBJEXT))
+
+../db/schema_master.cpp: ../db/schema_master.sql ../db/schema_to_class.awk 
+	(cd ../db; $(MAKE) schema_master.cpp)
+
+dependencies: ../sah_config.h *.cpp Makefile
+	$(CXX) $(CXXFLAGS) -I.. -I/ -I../db $(BOINC_INC) -M *.cpp > dependencies
+
+include dependencies

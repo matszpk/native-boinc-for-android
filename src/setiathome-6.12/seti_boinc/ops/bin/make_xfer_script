@@ -1,0 +1,12 @@
+#! /bin/csh
+
+# make_xfer_script - makes file_to_thumper script for all ??????? files in current directory
+
+set CURDIR = `/bin/pwd`
+
+echo '#! /bin/csh'
+echo " "
+
+foreach i (`/bin/ls -1 [0-9][0-9][a-z][a-z][0-9][0-9][a-z][a-z]`)
+  echo /disks/thumper/raid5_d/users/seti/dr2_data/production/scripts/file_to_thumper $CURDIR/$i
+end

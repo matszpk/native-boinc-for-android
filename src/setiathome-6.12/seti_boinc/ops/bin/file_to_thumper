@@ -1,0 +1,79 @@
+#! /usr/bin/env perl
+
+# where is the configuration file?
+$cfgfile = "/disks/thumper/raid5_d/users/seti/dr2_data/production/scripts/data_flow.cfg";
+
+# read it in and continue...
+$cfg = "";
+open (CNFFILE,$cfgfile) or die "cannot open configuration file: $cfgfile\nmake sure this variable is set properly";
+while (<CNFFILE>) { $cfg .= $_ }
+close (CNFFILE);
+eval $cfg;
+
+$file = $ARGV[0];
+if ($file eq "" || $file eq "-h" || $file eq "--help") {
+  print "file_to_thumper full_path_to_file :\n  copy data file to $nfsdatato (and do md5 checks)\n";
+  exit (1);
+  }
+
+if (ord($file) ne ord("/")) {
+  print "$file doesn't big with a \"/\" - make sure you enter a full path!\n";
+  exit (1);
+  }
+
+if (! -f $file) {
+  print "cannot find file: $file\n";
+  exit (1);
+  }
+
+$basefile = basename($file);
+
+# will file fit on remote partition?
+
+$filesize = `$ls -l $file | $awk '{print \$5}'`;
+chomp $filesize;
+$spaceleft = `$df -P $fullcheck | $tail -1 | $awk '{print \$4}'`;
+chomp $spaceleft;
+$spaceleft *= 1024;
+if (($filesize + $buffer) > $spaceleft) {
+  print "file: $file is too big to currently fit on $nfsdatato!\n";
+  exit (1);
+  }
+
+# move the file, etc.
+
+print "file: $file (get md5s... ";
+# get initial md5s
+$headmd5 = `$head -c $md5size $file | $md5sum | awk '{print \$1}'`;
+chomp $headmd5;
+$tailmd5 = `$tail -c $md5size $file | $md5sum | awk '{print \$1}'`;
+chomp $tailmd5;
+open (OUTFILE,">${file}.md5_head_${md5size}");
+print OUTFILE $headmd5 . "\n";
+close (OUTFILE);
+open (OUTFILE,">${file}.md5_tail_${md5size}");
+print OUTFILE $tailmd5 . "\n";
+close (OUTFILE);
+# copy everything over
+print "scp files... ";
+system ("$su - seti -c \"$scp $file ${scpdatato}/${basefile}.copying\" > /dev/null 2>&1");
+system ("$su - seti -c \"$scp ${file}.md5_head_${md5size} $scpmd5to\" > /dev/null 2>&1");
+system ("$su - seti -c \"$scp ${file}.md5_tail_${md5size} $scpmd5to\" > /dev/null 2>&1");
+# check remote md5s
+print "checking md5s... ";
+$rheadmd5 = `$head -c $md5size $nfsdatato/${basefile}.copying | $md5sum | awk '{print \$1}'`;
+chomp $rheadmd5;
+$rtailmd5 = `$tail -c $md5size $nfsdatato/${basefile}.copying | $md5sum | awk '{print \$1}'`;
+chomp $rtailmd5;
+if ($rheadmd5 ne $headmd5 || $rtailmd5 ne $tailmd5) {
+        print "failure!)\n";
+        send_mail("ALERT: file_to_thumper md5 mismatch","The file: $file failed to copy from $hostname to thumper due to md5 mismatch.");
+        system ("$touch $lockfile");
+        exit(1);
+}
+system ("$su - seti -c \"$mv $nfsdatato/${basefile}.copying $nfsdatato/${basefile}\" > /dev/null 2>&1");
+print "unlinking... ";
+#unlink "$file";
+unlink "${file}.md5_head_${md5size}";
+unlink "${file}.md5_tail_${md5size}";
+print "done!)\n";

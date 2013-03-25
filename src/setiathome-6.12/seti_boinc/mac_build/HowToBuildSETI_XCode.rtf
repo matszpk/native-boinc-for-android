@@ -1,0 +1,205 @@
+{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
+{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fswiss\fcharset77 Helvetica-Oblique;
+\f3\fmodern\fcharset77 Courier;\f4\fmodern\fcharset77 Courier-Bold;\f5\fnil\fcharset77 LucidaGrande;
+}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww16740\viewh9900\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\qc
+
+\f0\b\fs28 \cf0 Building the Macintosh SETI@home Client\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0\fs24 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\qc
+\cf0 Written by Charlie Fenton\
+Last updated 7/24/07\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\qc\pardirnatural
+
+\f0\b\fs28 \cf0 Step 1: Get the source files for the components\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f2\i\b0\fs24 \cf0 SETI@home source files are still archived using CVS, but BOINC source files are now archived using Subversion.  You can download svnX, a free GUI application for running Subversion from either\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\i0 \cf0 	{\field{\*\fldinst{HYPERLINK "http://www.apple.com/downloads/macosx/development_tools/svnx.html"}}{\fldrslt http://www.apple.com/downloads/macosx/development_tools/svnx.html}}\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f2\i \cf0 or\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\i0 \cf0 	{\field{\*\fldinst{HYPERLINK "http://www.lachoseinteractive.net/en/community/subversion/svnx/"}}{\fldrslt http://www.lachoseinteractive.net/en/community/subversion/svnx/}}\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f2\i \cf0 You also need to install Subversion itself.  One place to get it is:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\i0 \cf0 	{\field{\*\fldinst{HYPERLINK "http://www.codingmonkeys.de/mbo/"}}{\fldrslt http://www.codingmonkeys.de/mbo/}}\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+\cf0 F
+\f3 irst, create a parent directory to hold all the components for building the SETI@home client, and cd to it. Throughout this document, we will refer to this parent directory as
+\f1  
+\f0\b \{parent_dir\}
+\f1\b0 ; please substitute your path for this in all commands.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f2\i \cf0 Hint: you can avoid typing paths by dragging files or directories from the Finder onto the Terminal window. The path will be inserted at the current position of  the text cursor .\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f1\i0 \cf0 \
+ In the 
+\f0\b Terminal
+\f1\b0  application, type the following, substituting the path to your desired parent directory for \{parent_dir\}:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f3\fs26 \cf0 $mkdir  \{parent_dir\}/boinc\
+$ cd  \{parent_dir\}/boinc\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f1\fs24 \cf0 \
+Next, get the source tree for BOINC so you can build the BOINC libraries.\
+To determine the available branches and tags for BOINC, browse in \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+{\field{\*\fldinst{HYPERLINK "http://boinc.berkeley.edu/trac/browser"}}{\fldrslt \cf0 http://boinc.berkeley.edu/trac/browser}}\
+\
+SVN normally is built in directory usr/local/bin/, so you must include it in the standard search path:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f3\fs26 \cf0 $ export PATH=/usr/local/bin:$PATH\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f1\fs24 \cf0 \
+To get the BOINC sources from branch 
+\f0\b boinc_core_release_5_10
+\f1\b0 :\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f3\fs26 \cf0 $ svn co http://boinc.berkeley.edu/svn/branches/boinc_core_release_5_10/    \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f1\fs24 \cf0 \
+To get the sources from the trunk:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f3\fs26 \cf0 $ svn co http://boinc.berkeley.edu/svn/trunk/boinc/boinc\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f1\fs24 \cf0 \
+To get the BOINC sources from tag 
+\f0\b boinc_core_release_5_10_13
+\f1\b0 :\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f3\fs26 \cf0 $ svn co http://boinc.berkeley.edu/svn/tags/boinc_core_release_5_10_13/\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f1\fs24 \cf0 \
+Next, get the Fast Fourier Transform sources using CVS:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f3\fs26 \cf0 $cd \{parent_dir\}/\
+$ cvs -d :pserver:anonymous:@alien.ssl.berkeley.edu:/home/cvs/cvsroot checkout lib/fftw-3.1.1\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f1\fs24 \cf0 \
+To determine the available branches or tags for 
+\f0\b setiathome_enhanced
+\f1\b0 , look at the popup menu labeled 
+\f0\b Show only files with tag:
+\f1\b0  near the bottom of the web page at:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+{\field{\*\fldinst{HYPERLINK "http://setiathome.berkeley.edu/cgi-bin/cvsweb.cgi/seti_boinc/"}}{\fldrslt \cf0 http://setiathome.berkeley.edu/cgi-bin/cvsweb.cgi/seti_boinc/}}\
+\
+Then download the setiathome_enhanced source tree by substituting the desired branch or tag in the commands:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f3\fs26 \cf0 $ cd \{parent_dir\}/\
+$ cvs -d :pserver:anonymous:@alien.ssl.berkeley.edu:/home/cvs/cvsroot checkout [-r 
+\f4\b branch_or_tag_name
+\f3\b0 ] seti_boinc\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f1\fs24 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\qc\pardirnatural
+
+\f0\b\fs28 \cf0 Step 2: Build the BOINC libraries\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f1\b0\fs24 \cf0 \
+Find the file 
+\f0\b \{parent_dir\}/boinc/mac_build/HowToBuildBOINC_XCode.rtf
+\f5\b0  
+\f1 and follow the directions for building the BOINC libraries.  A version of this document can be found on-line at {\field{\*\fldinst{HYPERLINK "http://boinc.berkeley.edu/trac/wiki/MacBuild"}}{\fldrslt http://boinc.berkeley.edu/trac/wiki/MacBuild}} but the build procedures vary for different versions of BOINC.  You should always use the instructions in the BOINC source tree for the version you are building. 
+\f5 \
+
+\f3 \
+You do not need to build the BOINC Client or BOINC Manager.  You can ignore the information in that documentation on building BOINC project applications; follow these instructions instead.\
+\
+You should now have the following subdirectories inside your parent directory:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\fs26 \cf0     boinc/\
+    curl-x.y.z/\
+    jpeg-6b/\
+    lib/fftw-3.1.1/\
+    seti_boinc/\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f1\fs24 \cf0 \
+Note: you can rename the seti_boinc directory if you wish, and the curl directory will have the version number instead of x.y.z.  All other directories must have the exact names shown above.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\qc\pardirnatural
+
+\f0\b\fs28 \cf0 Step 2: Build the Fast Fourier Transform library\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f1\b0\fs24 \cf0 \
+In the 
+\f0\b Terminal
+\f1\b0  application, run the shell script seti_boinc/mac_build/
+\f5 buildfftw-3.1.1.sh by typing:\
+
+\f1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f3\fs26 \cf0 $ cd \{parent_dir\}/lib/fftw-3.3.1/\
+$ source \{parent_dir\}/seti_boinc/mac_build/buildfftw-3.1.1.sh\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f1\fs24 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\qc\pardirnatural
+
+\f0\b\fs28 \cf0 Step 3: Build the SETI@home application\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f1\b0\fs24 \cf0 \
+\
+Update the configuration files to the current version number.  In the Terminal application, run the shell script seti_boinc/mac_build/makeseticonfigs.sh by typing:\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f3\fs26 \cf0 $ sh seti_boinc/mac_build/makeseticonfigs.sh \{parent_dir\}/seti_boinc \{parent_dir\}/boinc\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f1\fs24 \cf0 Double-click on the XCode project \{parent_dir\}/seti_boinc/mac_build/seti_boinc.xcodeproj.\
+\
+In the Active Target popup menu, select seti_boinc_ppc.  In the Active Build Configuration popup menu, select Deployment and click on the Build icon.\
+Browse to \{parent_dir\}/seti_boinc/mac_build/Deployment and rename the seti_boinc_ppc file as desired (for example, 
+\f0\b setiathome-7.89.powerpc-apple-darwin
+\f1\b0 ).
+\f3 \
+
+\f1 \
+In the Active Target popup menu, select seti_boinc_i386.  In the Active Build Configuration popup menu, select Deployment and click on the Build icon.\
+Browse to \{parent_dir\}/seti_boinc/mac_build/Deployment and rename the seti_boinc_i386 file as desired (for example, 
+\f0\b setiathome_7.89_i686-apple-darwin
+\f1\b0 ).\
+\
+}

@@ -1,0 +1,48 @@
+<science_config>
+    <active>0</active>
+    <qpix_scheme>NEST</qpix_scheme>
+    <qpix_nside>2048</qpix_nside>
+    <fpix_width>10.0</fpix_width>
+    <total_bandwidth>2500000.0</total_bandwidth>
+    <freq_uncertainty>50.0</freq_uncertainty>
+    <fwhm_beamwidth>0.05</fwhm_beamwidth>
+    <sky_disc_radius>0.05</sky_disc_radius>
+    <observable_sky>14400.0</observable_sky>
+    <epoch>2000</epoch>
+    <bary_freq_window>10.0</bary_freq_window>
+    <nonbary_freq_window>50000.0</nonbary_freq_window>
+    <spike_obs_duration>0.0</spike_obs_duration>
+    <spike_obs_interval>0.0</spike_obs_sep_time>
+    <gauss_obs_duration>107.0</gauss_obs_duration>
+    <gauss_obs_interval>0.010417</gauss_obs_sep_time>
+    <pulse_obs_duration>12.5</pulse_obs_duration>
+    <pulse_obs_interval>0.0</pulse_obs_sep_time>
+    <triplet_obs_duration>0.0</triplet_obs_duration>
+    <triplet_obs_interval>0.0</triplet_obs_sep_time>
+    <min_app_version>0.0</min_app_version>
+    <info_xml>place_holder</info_xml>
+</science_config>
+<science_config>
+    <active>1</active>
+    <qpix_scheme>NEST</qpix_scheme>
+    <qpix_nside>2048</qpix_nside>
+    <fpix_width>10.0</fpix_width>
+    <total_bandwidth>2500000.0</total_bandwidth>
+    <freq_uncertainty>50.0</freq_uncertainty>
+    <fwhm_beamwidth>0.05</fwhm_beamwidth>
+    <sky_disc_radius>0.05</sky_disc_radius>
+    <observable_sky>14400.0</observable_sky>
+    <epoch>2000</epoch>
+    <bary_freq_window>10.</bary_freq_window>
+    <nonbary_freq_window>50000.</nonbary_freq_window>
+    <spike_obs_duration>0.0</spike_obs_duration>
+    <spike_obs_interval>0.000694</spike_obs_sep_time>
+    <gauss_obs_duration>107.0</gauss_obs_duration>
+    <gauss_obs_interval>0.000694</gauss_obs_sep_time>
+    <pulse_obs_duration>12.5</pulse_obs_duration>
+    <pulse_obs_interval>0.000694</pulse_obs_sep_time>
+    <triplet_obs_duration>12.5</triplet_obs_duration>
+    <triplet_obs_interval>0.000694</triplet_obs_sep_time>
+    <min_app_version>0.0</min_app_version>
+    <info_xml>place_holder</info_xml>
+</science_config>

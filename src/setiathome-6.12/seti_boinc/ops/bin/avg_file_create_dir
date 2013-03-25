@@ -1,0 +1,21 @@
+#! /usr/bin/env perl
+
+$now = time();
+@files = `/bin/ls -1`;
+$alltime = 0;
+$count = 0;
+foreach $file (@files) {
+  chomp $file;
+  if (($now - (stat($file))[9]) > 5184000) {
+    print "$file too old - skipping\n";
+    }
+  else {
+    $count++;
+    $alltime += (stat($file))[9];
+    print "$file\n";
+    }
+  }
+$avg = $alltime / $count;
+print "average mtime: $avg (" . localtime($avg) . ")\n";
+exit (0);
+

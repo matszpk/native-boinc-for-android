@@ -1,0 +1,92 @@
+CC=gcc
+BOINCDIR=@BOINCDIR@
+SSLDIR=@SSLDIR@
+INFORMIXDIR=@INFORMIXDIR@
+S4PATH=@S4PATH@
+S4LIBS=@S4LIBS@
+SETIHOME=..
+
+LINKOPTIONS=
+
+INCLUDE_DIRS= -I$(SETIHOME) -I$(SETIHOME)/client -I$(SETIHOME)/db \
+	      @MYSQL_CFLAGS@ \
+              @INFORMIX_CFLAGS@ @S4CFLAGS@ @RSA_CFLAGS@ \
+	      -I$(BOINCDIR)/api -I$(BOINCDIR)/sched -I$(BOINCDIR)/db -I$(BOINCDIR)/tools -I$(BOINCDIR)/lib
+
+DBLIBS=@INFORMIX_LIBS@ -lsocket -lm -lstdc++
+
+
+LINKOPTIONS=-Xlinker -R -Xlinker $(INFORMIXDIR)/lib:$(INFORMIXDIR)/lib/esql:$(LD_LIBRARY_PATH)
+
+
+CFLAGS= -g -Wall $(INCLUDE_DIRS) -DUSE_INFORMIX @PTHREAD_CFLAGS@
+
+
+SUFFIXES = .cpp .o
+
+.cpp.o: 
+	$(CC) $(CFLAGS) -c $<
+
+
+
+all: depend sah_splitter
+
+depend: *.cpp *.h Makefile
+	makedepend $(INCLUDE_DIRS) -I/usr/local/gcc/include/g++-v3/sparc-sun-solaris2.7 -I/usr/local/gcc/include/g++-v3 *.cpp
+	touch depend
+
+OBJECTS=angdist.o encode.o message.o splitter.o writeheader.o coordcvt.o  \
+        four1.o readheader.o wufiles.o polyphase.o dotransform.o  \
+	makebufs.o readtape.o validrun.o $(SETIHOME)/db/schema_master.o \
+	$(SETIHOME)/db/sqlifx.o $(SETIHOME)/db/sqlrow.o \
+	$(SETIHOME)/db/sqlblob.o $(SETIHOME)/db/sqlint8.o \
+	$(SETIHOME)/db/xml_util.o \
+	$(SETIHOME)/db/app_config.o \
+	$(SETIHOME)/client/seti_boinc-seti_header.o \
+	$(SETIHOME)/client/seti_boinc-timecvt.o \
+	$(SETIHOME)/client/seti_boinc-lcgamm.o
+
+#BOINC_OBJS= ../boinc_client/s_util.o ../client/header.o \
+#	../boinc_client/seti_header.o ../boinc_client/timecvt.o \
+#	/disks/philmor/a/users/eheien/boinc/lib/parse.o \
+#	/disks/philmor/a/users/eheien/boinc/lib/util.o
+#
+
+SYSLIBS = -lcrypto -ldl
+
+BOINCLIBS= -L$(BOINCDIR)/sched -lsched @MYSQL_LIBS@ @PTHREAD_LIBS@ -L$(BOINCDIR)/lib -lboinc -L$(SSLDIR) -lcrypto -lssl
+
+SPLITLIBS= -L. -lfftw \
+        $(S4LIBS) \
+        $(DBLIBS) \
+	$(BOINCLIBS) \
+        $(SYSLIBS)
+
+#SAH_OBJS= ../client/util.o ../client/header.o ../client/timecvt.o \
+#	../client/seti_header.o ../client/filesys.o ../client/socks.o ../client/network.o
+
+SAH_OBJS= hr_min_sec.o
+
+splitter: $(OBJECTS) $(SAH_OBJS)
+	gcc -o splitter $(OBJECTS) $(SAH_OBJS) $(SPLITLIBS)
+    
+sah_splitter: $(OBJECTS) $(SAH_OBJS)
+	gcc -o sah_splitter $(LINKOPTIONS) $(OBJECTS) $(SAH_OBJS) $(SPLITLIBS)
+
+TESTDBLIBS= -L$(ZLIBDIR) -L. -lz -lfftw \
+	-L /disks/asimov/a/apps/informix/lib \
+	-L /disks/asimov/a/apps/informix/lib/esql \
+	-lifsql -lifasf -lifgen -lifos -lifgls \
+	-lnsl -lsocket -laio -lm -ldl -lelf \
+	/disks/asimov/a/apps/informix/lib/esql/checkapi.o \
+	-lifglx
+
+
+testdb: testdb.o
+	gcc -o testdb testdb.o ../db/db.o $(TESTDBLIBS)
+
+
+clean:
+	/bin/rm -f *.o sah_splitter splitter
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.

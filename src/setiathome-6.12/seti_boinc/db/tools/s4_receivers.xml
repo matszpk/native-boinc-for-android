@@ -1,0 +1,357 @@
+<receiver_config>
+  <s4_id>0</s4_id>
+  <name>ao430</name>
+  <beam_width>0.166999996</beam_width>
+  <center_freq>430</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>0</az_orientation>
+  <az_corr_coeff length=43 encoding="x-csv">
+    7.4,5.4,-49.1,355,0,0,0,0,0,0,0,0,0
+  </az_corr_coeff>
+  <zen_corr_coeff length=47 encoding="x-csv">
+    -97.1,66.1,14.3,321.7,0,0,0,0,0,0,0,0,0
+  </zen_corr_coeff>
+</receiver_config>
+<receiver_config>
+  <s4_id>1</s4_id>
+  <name>ao1420</name>
+  <beam_width>0.0829999968</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>0</az_orientation>
+  <az_corr_coeff length=45 encoding="x-csv">
+    7.4,5.4,-49.1,-1091,0,0,0,0,0,0,0,0,0
+  </az_corr_coeff>
+  <zen_corr_coeff length=49 encoding="x-csv">
+    -5146.7,66.1,14.3,321.7,0,0,0,0,0,0,0,0,0
+  </zen_corr_coeff>
+</receiver_config>
+<receiver_config>
+  <s4_id>2</s4_id>
+  <name>aogreg1420</name>
+  <beam_width>0.0500000007</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>180</az_orientation>
+  <az_corr_coeff length=95 encoding="x-csv">
+    -16.41,-6.41,99.16,-713.84,-1028.24,-22.2,-12.08,7.31,111.56,2.49,-0.69,
+    -1.93,0.91
+  </az_corr_coeff>
+  <zen_corr_coeff length=88 encoding="x-csv">
+    -90.48,-100.92,-5.74,175.81,489.81,-11.42,-7.8,4,1.25,0.43,-0.42,-0.3,
+    -0.19
+  </zen_corr_coeff>
+</receiver_config>
+<receiver_config>
+  <s4_id>3</s4_id>
+  <name>Arecibo 1.4GHz Array, Beam 0, Pol 0</name>
+  <beam_width>0.05</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>180</az_orientation>
+  <az_corr_coeff length=93 encoding="x-csv">
+    -37,-6.05,92.35,-731.21,-1013.97,-24.53,-11.19,9.18,106.04,3.02,-1.74,
+    -3.46,1.29
+  </az_corr_coeff>
+  <zen_corr_coeff length=93 encoding="x-csv">
+    -57.55,-95.56,-4.13,141.69,677.51,-10.41,-7.71,-10.39,0.08,0.43,-0.62,
+    0.03,-0.36
+  </zen_corr_coeff>
+</receiver_config>
+<receiver_config>
+  <s4_id>4</s4_id>
+  <name>Arecibo 1.4GHz Array, Beam 0, Pol 1</name>
+  <beam_width>0.05</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>180</az_orientation>
+  <az_corr_coeff length=93 encoding="x-csv">
+    -37,-6.05,92.35,-731.21,-1013.97,-24.53,-11.19,9.18,106.04,3.02,-1.74,
+    -3.46,1.29
+  </az_corr_coeff>
+  <zen_corr_coeff length=93 encoding="x-csv">
+    -57.55,-95.56,-4.13,141.69,677.51,-10.41,-7.71,-10.39,0.08,0.43,-0.62,
+    0.03,-0.36
+  </zen_corr_coeff>
+</receiver_config>
+<receiver_config>
+  <s4_id>5</s4_id>
+  <name>Arecibo 1.4GHz Array, Beam 1, Pol 0</name>
+  <beam_width>0.05</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>180</az_orientation>
+  <az_corr_coeff length=93 encoding="x-csv">
+    -37,-6.05,92.35,-731.21,-1013.97,-24.53,-11.19,9.18,106.04,3.02,-1.74,
+    -3.46,1.29
+  </az_corr_coeff>
+  <zen_corr_coeff length=93 encoding="x-csv">
+    -57.55,-95.56,-4.13,141.69,677.51,-10.41,-7.71,-10.39,0.08,0.43,-0.62,
+    0.03,-0.36
+  </zen_corr_coeff>
+  <array_az_ellipse>329.06</array_az_ellipse>
+  <array_za_ellipse>384.005</array_za_ellipse>
+  <array_angle>120.0</array_angle>
+</receiver_config>
+<receiver_config>
+  <s4_id>6</s4_id>
+  <name>Arecibo 1.4GHz Array, Beam 1, Pol 1</name>
+  <beam_width>0.05</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>180</az_orientation>
+  <az_corr_coeff length=93 encoding="x-csv">
+    -37,-6.05,92.35,-731.21,-1013.97,-24.53,-11.19,9.18,106.04,3.02,-1.74,
+    -3.46,1.29
+  </az_corr_coeff>
+  <zen_corr_coeff length=93 encoding="x-csv">
+    -57.55,-95.56,-4.13,141.69,677.51,-10.41,-7.71,-10.39,0.08,0.43,-0.62,
+    0.03,-0.36
+  </zen_corr_coeff>
+  <array_az_ellipse>329.06</array_az_ellipse>
+  <array_za_ellipse>384.005</array_za_ellipse>
+  <array_angle>120.0</array_angle>
+</receiver_config>
+<receiver_config>
+  <s4_id>7</s4_id>
+  <name>Arecibo 1.4GHz Array, Beam 2, Pol 0</name>
+  <beam_width>0.05</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>180</az_orientation>
+  <az_corr_coeff length=93 encoding="x-csv">
+    -37,-6.05,92.35,-731.21,-1013.97,-24.53,-11.19,9.18,106.04,3.02,-1.74,
+    -3.46,1.29
+  </az_corr_coeff>
+  <zen_corr_coeff length=93 encoding="x-csv">
+    -57.55,-95.56,-4.13,141.69,677.51,-10.41,-7.71,-10.39,0.08,0.43,-0.62,
+    0.03,-0.36
+  </zen_corr_coeff>
+  <array_az_ellipse>329.06</array_az_ellipse>
+  <array_za_ellipse>384.005</array_za_ellipse>
+  <array_angle>180.0</array_angle>
+</receiver_config>
+<receiver_config>
+  <s4_id>8</s4_id>
+  <name>Arecibo 1.4GHz Array, Beam 2, Pol 1</name>
+  <beam_width>0.05</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>180</az_orientation>
+  <az_corr_coeff length=93 encoding="x-csv">
+    -37,-6.05,92.35,-731.21,-1013.97,-24.53,-11.19,9.18,106.04,3.02,-1.74,
+    -3.46,1.29
+  </az_corr_coeff>
+  <zen_corr_coeff length=93 encoding="x-csv">
+    -57.55,-95.56,-4.13,141.69,677.51,-10.41,-7.71,-10.39,0.08,0.43,-0.62,
+    0.03,-0.36
+  </zen_corr_coeff>
+  <array_az_ellipse>329.06</array_az_ellipse>
+  <array_za_ellipse>384.005</array_za_ellipse>
+  <array_angle>180.0</array_angle>
+</receiver_config>
+<receiver_config>
+  <s4_id>9</s4_id>
+  <name>Arecibo 1.4GHz Array, Beam 3, Pol 0</name>
+  <beam_width>0.05</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>180</az_orientation>
+  <az_corr_coeff length=93 encoding="x-csv">
+    -37,-6.05,92.35,-731.21,-1013.97,-24.53,-11.19,9.18,106.04,3.02,-1.74,
+    -3.46,1.29
+  </az_corr_coeff>
+  <zen_corr_coeff length=93 encoding="x-csv">
+    -57.55,-95.56,-4.13,141.69,677.51,-10.41,-7.71,-10.39,0.08,0.43,-0.62,
+    0.03,-0.36
+  </zen_corr_coeff>
+  <array_az_ellipse>329.06</array_az_ellipse>
+  <array_za_ellipse>384.005</array_za_ellipse>
+  <array_angle>-120.0</array_angle>
+</receiver_config>
+<receiver_config>
+  <s4_id>10</s4_id>
+  <name>Arecibo 1.4GHz Array, Beam 3, Pol 1</name>
+  <beam_width>0.05</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>180</az_orientation>
+  <az_corr_coeff length=93 encoding="x-csv">
+    -37,-6.05,92.35,-731.21,-1013.97,-24.53,-11.19,9.18,106.04,3.02,-1.74,
+    -3.46,1.29
+  </az_corr_coeff>
+  <zen_corr_coeff length=93 encoding="x-csv">
+    -57.55,-95.56,-4.13,141.69,677.51,-10.41,-7.71,-10.39,0.08,0.43,-0.62,
+    0.03,-0.36
+  </zen_corr_coeff>
+  <array_az_ellipse>329.06</array_az_ellipse>
+  <array_za_ellipse>384.005</array_za_ellipse>
+  <array_angle>-120.0</array_angle>
+</receiver_config>
+<receiver_config>
+  <s4_id>11</s4_id>
+  <name>Arecibo 1.4GHz Array, Beam 4, Pol 0</name>
+  <beam_width>0.05</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>180</az_orientation>
+  <az_corr_coeff length=93 encoding="x-csv">
+    -37,-6.05,92.35,-731.21,-1013.97,-24.53,-11.19,9.18,106.04,3.02,-1.74,
+    -3.46,1.29
+  </az_corr_coeff>
+  <zen_corr_coeff length=93 encoding="x-csv">
+    -57.55,-95.56,-4.13,141.69,677.51,-10.41,-7.71,-10.39,0.08,0.43,-0.62,
+    0.03,-0.36
+  </zen_corr_coeff>
+  <array_az_ellipse>329.06</array_az_ellipse>
+  <array_za_ellipse>384.005</array_za_ellipse>
+  <array_angle>-60.0</array_angle>
+</receiver_config>
+<receiver_config>
+  <s4_id>12</s4_id>
+  <name>Arecibo 1.4GHz Array, Beam 4, Pol 1</name>
+  <beam_width>0.05</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>180</az_orientation>
+  <az_corr_coeff length=93 encoding="x-csv">
+    -37,-6.05,92.35,-731.21,-1013.97,-24.53,-11.19,9.18,106.04,3.02,-1.74,
+    -3.46,1.29
+  </az_corr_coeff>
+  <zen_corr_coeff length=93 encoding="x-csv">
+    -57.55,-95.56,-4.13,141.69,677.51,-10.41,-7.71,-10.39,0.08,0.43,-0.62,
+    0.03,-0.36
+  </zen_corr_coeff>
+  <array_az_ellipse>329.06</array_az_ellipse>
+  <array_za_ellipse>384.005</array_za_ellipse>
+  <array_angle>-60.0</array_angle>
+</receiver_config>
+<receiver_config>
+  <s4_id>13</s4_id>
+  <name>Arecibo 1.4GHz Array, Beam 5, Pol 0</name>
+  <beam_width>0.05</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>180</az_orientation>
+  <az_corr_coeff length=93 encoding="x-csv">
+    -37,-6.05,92.35,-731.21,-1013.97,-24.53,-11.19,9.18,106.04,3.02,-1.74,
+    -3.46,1.29
+  </az_corr_coeff>
+  <zen_corr_coeff length=93 encoding="x-csv">
+    -57.55,-95.56,-4.13,141.69,677.51,-10.41,-7.71,-10.39,0.08,0.43,-0.62,
+    0.03,-0.36
+  </zen_corr_coeff>
+  <array_az_ellipse>329.06</array_az_ellipse>
+  <array_za_ellipse>384.005</array_za_ellipse>
+  <array_angle>0.0</array_angle>
+</receiver_config>
+<receiver_config>
+  <s4_id>14</s4_id>
+  <name>Arecibo 1.4GHz Array, Beam 5, Pol 1</name>
+  <beam_width>0.05</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>180</az_orientation>
+  <az_corr_coeff length=93 encoding="x-csv">
+    -37,-6.05,92.35,-731.21,-1013.97,-24.53,-11.19,9.18,106.04,3.02,-1.74,
+    -3.46,1.29
+  </az_corr_coeff>
+  <zen_corr_coeff length=93 encoding="x-csv">
+    -57.55,-95.56,-4.13,141.69,677.51,-10.41,-7.71,-10.39,0.08,0.43,-0.62,
+    0.03,-0.36
+  </zen_corr_coeff>
+  <array_az_ellipse>329.06</array_az_ellipse>
+  <array_za_ellipse>384.005</array_za_ellipse>
+  <array_angle>0.0</array_angle>
+</receiver_config>
+<receiver_config>
+  <s4_id>15</s4_id>
+  <name>Arecibo 1.4GHz Array, Beam 6, Pol 0</name>
+  <beam_width>0.05</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>180</az_orientation>
+  <az_corr_coeff length=93 encoding="x-csv">
+    -37,-6.05,92.35,-731.21,-1013.97,-24.53,-11.19,9.18,106.04,3.02,-1.74,
+    -3.46,1.29
+  </az_corr_coeff>
+  <zen_corr_coeff length=93 encoding="x-csv">
+    -57.55,-95.56,-4.13,141.69,677.51,-10.41,-7.71,-10.39,0.08,0.43,-0.62,
+    0.03,-0.36
+  </zen_corr_coeff>
+  <array_az_ellipse>329.06</array_az_ellipse>
+  <array_za_ellipse>384.005</array_za_ellipse>
+  <array_angle>60.0</array_angle>
+</receiver_config>
+<receiver_config>
+  <s4_id>16</s4_id>
+  <name>Arecibo 1.4GHz Array, Beam 6, Pol 1</name>
+  <beam_width>0.05</beam_width>
+  <center_freq>1420</center_freq>
+  <latitude>18.3538056</latitude>
+  <longitude>-66.7552222</longitude>
+  <elevation>497</elevation>
+  <diameter>168</diameter>
+  <az_orientation>180</az_orientation>
+  <az_corr_coeff length=93 encoding="x-csv">
+    -37,-6.05,92.35,-731.21,-1013.97,-24.53,-11.19,9.18,106.04,3.02,-1.74,
+    -3.46,1.29
+  </az_corr_coeff>
+  <zen_corr_coeff length=93 encoding="x-csv">
+    -57.55,-95.56,-4.13,141.69,677.51,-10.41,-7.71,-10.39,0.08,0.43,-0.62,
+    0.03,-0.36
+  </zen_corr_coeff>
+  <array_az_ellipse>329.06</array_az_ellipse>
+  <array_za_ellipse>384.005</array_za_ellipse>
+  <array_angle>60.0</array_angle>
+</receiver_config>
+
+

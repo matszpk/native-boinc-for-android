@@ -1,0 +1,22 @@
+This is the seti_boinc ops/bin directory. Here you will find all kinds
+of script/binary tools for day-to-day operations of seti (and other
+affiliated projects). If you add anything, please note here where you
+expect the actually script to live and run in normal life.
+
+### The following are in ~seti/dr2_data/productions/scripts and are
+### used for data_pipeline management. Note that data_flow.cfg is a
+### perl "include file" that many of the other scripts read in before
+### executing. Maybe that should go elsewhere at some point.
+
+avg_file_create_dir
+count_hard_links.csh
+count_wugs_wus_by_tape.csh
+data_flow.cfg
+erase_data_drive
+file_to_thumper
+fill_xfer_to_hpss
+make_hpss_script
+make_xfer_script
+run_jan.csh
+seti_hsi.csh
+xfer_to_hpss

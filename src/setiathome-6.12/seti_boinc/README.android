@@ -1,0 +1,19 @@
+HOW TO COMPILE FOR ANDROID:
+
+You need following things:
+* Android NDK (ofcourse)
+* automake, autoconf tools
+* compiled BOINC client 6.12 (directory)
+* compiler flags for VFP or NEON (check init.sh)
+* FFTS library (please download from https://github.com/anthonix/ffts)
+
+COMPILING and INSTALLING LibFFTS:
+please use following options for  the 'configure' script:
+  --enable-neon --enable-single --disable-dynamic-code
+Installation of a LibFFTS is required (you must do it before a building
+SETI@HOME). LibFFTS should be installed in BOINCROOTDIR directory.
+
+Before run building, please check change in 'build_android.sh' script:
+  BOINC_DIR - path to BOINC client compilation (mainly source directory)
+To compile, please run:
+source build_android.sh

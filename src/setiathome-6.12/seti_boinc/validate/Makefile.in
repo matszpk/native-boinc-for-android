@@ -1,0 +1,68 @@
+# under construction - jeffc
+@SET_MAKE@
+
+EXEEXT = @EXEEXT@
+OBJEXT = @OBJEXT@
+LIBEXT = @LIBEXT@
+DLLEXT = @DLLEXT@
+DOTEXEEXT = @DOTEXEEXT@
+
+SUFFIXES = .cpp .c .@OBJEXT@ .@DLLEXT@ .@LIBEXT@ @DOTEXEEXT@
+
+BOINCDIR = @BOINCDIR@
+
+CC = @CC@ 
+CFLAGS = @CFLAGS@ @DEFS@ -DTEXT_UI -DNDEBUG  @PTHREAD_CFLAGS@
+
+CXX = @CXX@ 
+CXXFLAGS = $(CFLAGS) 
+
+LDFLAGS = @LDFLAGS@ 
+
+CLIBS = @LIBS@ 
+
+#SUFFIXES = .cpp .@OBJEXT@
+
+#BOINC_INC	= -I$(BOINCDIR)/api -I$(BOINCDIR)/lib -I$(BOINCDIR)/sched -I$(BOINCDIR)/db
+BOINCDIR        = @BOINCDIR@
+BOINC_CFLAGS    = @BOINC_CFLAGS@
+BOINC_LIBS 	    = -L$(BOINCDIR)/sched -lsched @PTHREAD_LIBS@ -L$(BOINCDIR)/lib -lboinc
+MYSQL_CFLAGS    = @MYSQL_CFLAGS@
+MYSQL_LIBS      = @MYSQL_LIBS@
+INFORMIXDIR     = @INFORMIXDIR@
+INFORMIX_CFLAGS = @INFORMIX_CFLAGS@
+INFORMIX_LIBS   = @INFORMIX_LIBS@
+
+OBJS = \
+    sah_validate.$(OBJEXT) \
+    sah_result.$(OBJEXT) \
+    sah_boinc_db.$(OBJEXT)
+
+BOINC_OBJS = $(BOINCDIR)/sched/validator.o \
+        $(BOINCDIR)/sched/validate_util.o 
+
+
+PROG = sah_validate
+
+.cpp.@OBJEXT@:
+	$(CXX) $(CXXFLAGS) $(BOINC_CFLAGS) $(MYSQL_CFLAGS) -I.. -I../db -c -o $*.@OBJEXT@ $<
+
+.c.@OBJEXT@:
+	$(CC) $(CFLAGS) $(BOINC_CFLAGS) -I.. -I../db -c -o $*.@OBJEXT@ $<
+
+#all: Makefile dependencies $(PROGS)
+all: Makefile $(PROG)
+
+../aclocal.m4: ../m4/*.m4
+	@CAT@ ../m4/*.m4 >../aclocal.m4
+
+../configure: ../configure.ac ../aclocal.m4 ../config.h.in
+	(cd ..; make config.h)
+
+$(PROG): $(OBJS) $(BOINC_OBJS)
+	$(CXX) $(OBJS) $(BOINC_OBJS) -I../db $(BOINC_CFLAGS) $(CLIBS) $(BOINC_LIBS) $(MYSQL_LIBS) $(INFORMIX_LIBS) -o $(PROG)
+
+clean:
+	rm -f *.$(OBJEXT) $(PROG) dependencies config.log config.cache
+
+#include dependencies

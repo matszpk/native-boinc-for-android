@@ -1,0 +1,101 @@
+#! /usr/bin/env perl
+
+# where is the configuration file?
+$cfgfile = "/disks/thumper/raid5_d/users/seti/dr2_data/production/scripts/data_flow.cfg";
+
+# read it in and continue...
+$cfg = "";
+open (CNFFILE,$cfgfile) or die "cannot open configuration file: $cfgfile\nmake sure this variable is set properly";
+while (<CNFFILE>) { $cfg .= $_ }
+close (CNFFILE);
+eval $cfg;
+
+$drivedev = $ARGV[0];
+if ($drivedev eq "" || $drivedev eq "-h" || $drivedev eq "--help") {
+  print "usage: erase_data_drive device_name (i.e. /dev/sdx2)\n";
+  print " note: will only work on unmounted drives\n\n";
+  exit (1);
+  }
+
+if (! -b $drivedev) {
+  print "no such device: $drivedev - exiting...\n";
+  exit (1);
+  }
+
+$ismounted = `$mount | $awk '\$1 == "$drivedev"'`;
+if ($ismounted ne "") {
+  print "drive $drivedev currently mounted! exiting...\n";
+  exit (1);
+  }
+
+$tmpmount = "/mnt/temp_data_$$";
+print "making temporary mount point: $tmpmount...\n";
+mkdir $tmpmount || die "cannot make mount point: $tmpmount";
+
+print "mounting $drivedev on $tmpmount...\n";
+system ("$mount $drivedev $tmpmount");
+
+print ".AO_DATA number on the data drive is: ";
+$aonumber = "";
+if (-f "$tmpmount/.AO_DATA") { 
+  $aonumber = `$cat $tmpmount/.AO_DATA`;
+  chomp $aonumber;
+  }
+if ($aonumber eq "") { 
+  print "there is no number! exiting...\n";
+  chdir ("/root");
+  system ("$umount $drivedev");
+  rmdir $tmpmount || die "cannot remove mount point: $tmpmount";
+  exit (1);
+  }
+print "$aonumber\n";
+
+print "double checking data files are elsewhere...\n";
+chdir ($tmpmount); # go to mounted drive
+@datafiles = `$ls -1 [0-9][0-9][a-z][a-z][0-9][0-9][a-z][a-z]`;
+foreach $datafile (@datafiles) {
+  chomp $datafile;
+  print "  datafile: $datafile ";
+  if (-f "$xfer_to_hpss_dir/$datafile") { print "in xfer_to_hpss"; }
+  elsif (-f "$processing_dir/$datafile") { print "in processing"; }
+  else {
+    print "- checking at hpss... ";
+    $hsicommand = "$su seti -c \"$hsi --list $datafile\"";
+    $retval = system ($hsicommand . "> /dev/null");
+    $retval = $retval >> 8;
+    if ($retval == 0) { print "yes"; }
+    else {
+      # file not at hpss, or anywhere obvious
+      print "no! can't find anywhere obvious - exiting...\n";
+      chdir ("/root");
+      system ("$umount $drivedev");
+      rmdir $tmpmount || die "cannot remove mount point: $tmpmount";
+      exit (1);
+      }
+    }
+  print "\n";
+  }
+chdir ("/root");
+
+print "all files are somewhere else! moving on...\n";
+print "umounting $drivedev...\n";
+system ("$umount $drivedev");
+
+print "okay here we go: WIPING DRIVE with mke2fs...\n";
+system ("$mke2fs -m 1 -T largefile4 -j $drivedev");
+
+print "mounting empty $drivedev on $tmpmount...\n";
+system ("$mount $drivedev $tmpmount");
+
+print "creating .AO_DATA file with number $aonumber...\n";
+open (AODATA,">$tmpmount/.AO_DATA");
+print AODATA $aonumber;
+close (AODATA);
+chmod 0000, "$tmpmount/.AO_DATA";
+chdir ("/root"); # just to be sure we can unmount
+
+print "umounting $drivedev one last time...\n";
+system ("$umount $drivedev");
+
+print "removing temporary mount point: $tmpmount...\n";
+rmdir $tmpmount || die "cannot remove mount point: $tmpmount";

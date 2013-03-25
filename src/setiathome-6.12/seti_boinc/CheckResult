@@ -1,0 +1,288 @@
+#!/bin/sh
+#
+#	CheckResult - produce an html page with client test results
+#
+#	Usage: CheckResult <outfile.sah> [more outfile.sah files] > check.html
+#		must supply at least one argument, the name of
+#		an outfile.sah to check.  More than one file can
+#		be supplied to check.  Each file will produce a table
+#		in the resulting html output.  Place the output of this
+#		script into a file and read with a browser.
+#
+#	KNOWN PROBLEM:  Some clients output numbers in the form of:
+#		1.803966e+000 instead of 1.803966e+00
+#		This will cause a compare error.  A work-around on
+#		such platforms is to edit the reference outfile and
+#		change all the +0x to +00x and -0x to -00x
+#		
+#	ASSUMED: outfile.sah_version_2.0 is available here in ./
+#
+#	Set the reference file location if different in your setup:
+
+Reference="./outfile.sah_version_2.0"
+
+#	What kind of awk do you need ?  I note Solaris needs to use nawk,
+#	and others need to use simply awk.  Please set this to what you
+#	need to have for an awk.
+AWK=nawk
+
+#	trap signals and exit cleanly
+
+trap "CleanExit" 1 2 3 15
+
+###########################################################################
+#	subroutines
+###########################################################################
+Usage() {
+	echo "Usage: <outfile.sah> [more outfile.sah files] > check.html"
+	echo "\t<outfile.sah> - name of outfile.sah to check"
+	echo "\t[more outfile.sah files] - can check more than one"
+	echo "\t reference file is assumed to be:"
+	echo "\t ${Reference}"
+}
+
+###########################################################################
+#	There are no /tmps file to remove at this time.  If some are
+#		developed in the future, clean them up here.
+#
+CleanExit() {
+	exit 0
+}	#	caught signal
+
+###########################################################################
+Header() {
+cat << _EOF_
+<HTML><HEAD>
+<TITLE> SETI@home ${Reference} delta report SETI clients </TITLE>
+<META CONTENT=NOCACHE>
+</HEAD><BODY>
+_EOF_
+}	#	Header()
+
+###########################################################################
+TableStart() {
+cat << _EOF_
+<center>
+<table border>
+<caption>
+<b> SETI@home delta report for ${TITLE} </b>
+<hr>
+`date` - `date -u`
+<hr>
+</caption>
+<tr>
+<th colspan=5> When OK: <font color=\"00ff00\"> <center> (actual delta)
+	(allowed delta) </center> </font> </th> </tr>
+<tr><th colspan=5> When Bad: <font color=\"ff0000\"> <center> (actual
+	measurement) (reference measurement) </center> </font> </th> </tr>
+<tr>
+<th> power delta </th>
+<th> peak delta </th>
+<th> mean delta </th>
+<th> chisqr delta </th>
+<th> others ? </th>
+</tr>
+_EOF_
+}	#	TableStart()
+
+###########################################################################
+TableEnd(){
+cat << _EOF_
+</table></center>
+_EOF_
+}	#	TableEnd()
+
+###########################################################################
+Tailer(){
+cat << _EOF_
+<hr>
+The deltas are computed: &lt;reference value&gt; - &lt;test value&gt; <br>
+power delta - the difference between power= on the spike: lines <br>
+peak delta - the difference between peak= on the gaussian: lines<br>
+mean delta - the difference between mean= on the gaussian: lines<br>
+chisqr delta - the difference between chisqr= on the gaussian: lines<br>
+others ? - indication if other fields on any line have differences <br>
+<hr>
+<center>
+<A HREF="http://setiathome.ssl.berkeley.edu/stats.html"> SETI@home STATS </A> home page <br>
+<A HREF="http://setiathome.ssl.berkeley.edu/"> SETI@home </A> home page
+</center>
+<hr>
+<center> This page last updated: `date` - `date -u` </center>
+</BODY></HTML>
+_EOF_
+}	#	Tailer()
+###########################################################################
+###########################################################################
+#	start of main program
+
+#	(It might be better to make the reference file be the first
+#		argument ?)
+
+if [ ! -f "${Reference}" ]; then {
+	echo "Reference outfile does not exist.  Looking for:"
+	echo "\t${Reference}"
+	CleanExit
+} fi
+
+if [ "$#" -lt 1 ]; then {
+	Usage
+	CleanExit
+} fi
+
+Header			#	start the html file
+
+#	For each file on the command line, generate a table
+
+for Test in $*
+do
+
+TITLE="${Test}"
+
+#echo "<hr><center><h2> Checking file: ${Test} </h2></center>"
+
+echo "<pre>"
+if [ ! -f "${Test}" ]; then {
+	echo "\nERROR: specified file does not exist:"
+	echo "\t${Test}"
+} fi
+
+# first, see if there are the same number of lines in the outfiles
+
+TestWC=`cat ${Test} | wc -l`
+RefWC=`cat ${Reference} | wc -l`
+
+if [ "${TestWC}" -ne "${RefWC}" ]; then {
+	echo "ERROR: the two files do not have the same number of lines"
+	echo "'wc ${Test} ${Reference}'"
+	wc ${Test} ${Reference}
+} fi
+
+echo "</pre>"
+
+TableStart
+
+#	Processing is to read line by line from the reference file and
+#		the test file to check.  Parse out all the numbers on
+#		the lines, and compare all numbers.   Assuming format
+#		of output as it is currently in version 1.1 -> 1.3
+#		(this works even with the new v1.10, v2.0 format, although
+#			it is not checking the pow= value)
+
+$AWK '
+function check_error(reference,measured,tolerance) {
+	diff=reference-measured
+	errbar=reference*tolerance
+	if ( errbar < 0 ) { abserrbar = - errbar } else { abserrbar = errbar }
+	if ( diff < 0 ) { absdiff = - diff } else { absdiff = diff }
+	if ( (absdiff < .0000001) ) {
+printf "<td><font color=\"00ff00\"><center> 0.0 (%.3e) </center></font></td>", reference
+	} else if ( (absdiff - abserrbar) > 0 ) {
+printf "<td><font color=\"ff0000\"> %.6e (!= %.6e) </font></td>", measured, reference
+	} else {
+printf "<td><font color=\"00ff00\"><center>%.3e (%.3e)</center></font></td>", absdiff, abserrbar
+	}
+}
+function ogh(LineIn) {
+	n=split(LineIn, a, " ")
+	split(a[2], b, "="); ncfft=b[2]
+	split(a[3], b, "="); cr=b[2]
+	split(a[4], b, "="); fl=b[2]
+}
+function spike(LineIn) {
+	n=split(LineIn, a, " ")
+	split(a[2], b, "="); power=b[2]
+	split(a[3], b, "="); ra=b[2]
+	dec=a[5]
+	time=a[7]
+	split(a[8], b, "="); freq=b[2]
+	split(a[9], b, "="); fft_len=b[2]
+	split(a[10], b, "="); chirp_rate=b[2]
+}
+function gaussian(LineIn) {
+	n=split(LineIn, a, " ")
+	split(a[2], b, "="); peak=b[2]
+	split(a[3], b, "="); mean=b[2]
+	split(a[4], b, "="); ra=b[2]
+	dec=a[6]
+	time=a[8]
+	split(a[9], b, "="); freq=b[2]
+	split(a[10], b, "="); sigma=b[2]
+	split(a[11], b, "="); chisqr=b[2]
+	split(a[12], b, "="); fft_len=b[2]
+	split(a[13], b, "="); chirprate=b[2]
+}
+BEGIN {
+	Fname0="'${Reference}'"
+	Fname1="'${Test}'"
+	while ( (getline LineIn < Fname0) > 0 ) {
+		if ( match(LineIn, "^<ogh") ) {
+			ogh(LineIn)
+			ncfft0=ncfft; cr0=cr; fl0=fl;
+			} else if ( match(LineIn, "^<ogt") ) {
+			ogh(LineIn)
+			ncfft0=ncfft; cr0=cr; fl0=fl;
+			} else if ( match(LineIn, "^spike:") ) {
+			spike(LineIn)
+power0=power; ra0=ra; dec0=dec; time0=time; freq0=freq; fft_len0=fft_len;
+			chirp_rate0=chirp_rate;
+			} else if ( match(LineIn, "^gaussian:") ) {
+			gaussian(LineIn)
+peak0=peak; mean0=mean; gra0=ra; gdec0=dec; gtime0=time; gfreq0=freq;
+sigma0=sigma; chisqr0=chisqr; fft_len0=fft_len; chirprate0=chirprate;
+		}
+		if ( (getline LineIn < Fname1) <= 0 ) {
+			printf "<tr> <td colspan=5>end  of file on %s</td></tr>\n", Fname1
+		} else {
+		if ( match(LineIn, "^<ogh") ) {
+			ogh(LineIn)
+			ncfft1=ncfft; cr1=cr; fl1=fl;
+if ( (ncfft1 != ncfft0) || (cr1 != cr0) || (fl1 != fl0) ) {
+	printf"<tr><td></td><td></td><td></td><td></td> <td><font color=\"ff0000\"> yes </font> </td> </tr>\n"
+}
+			} else if ( match(LineIn, "^<ogt") ) {
+			ogh(LineIn)
+			ncfft1=ncfft; cr1=cr; fl1=fl;
+if ( (ncfft1 != ncfft0) || (cr1 != cr0) || (fl1 != fl0) ) {
+	printf"<tr><td></td><td></td><td></td><td></td> <td><font color=\"ff0000\"> yes </font> </td> </tr>\n"
+}
+			} else if ( match(LineIn, "^spike:") ) {
+			spike(LineIn)
+power1=power; ra1=ra; dec1=dec; time1=time; freq1=freq; fft_len1=fft_len;
+			chirp_rate1=chirp_rate;
+			printf "<tr> "
+			check_error(power0, power1, .001)
+			printf "<td></td><td></td><td></td>"
+if ( (ra1 != ra0) || (dec1 != dec0) || (time1 != time0) || (freq1 != freq0) || (fft_len1 != fft_len0) ) {
+	printf"<td><font color=\"ff0000\"> yes </font></td> </tr>\n"
+} else {
+printf "<td></td><tr>\n"
+}
+			} else if ( match(LineIn, "^gaussian:") ) {
+			gaussian(LineIn)
+peak1=peak; mean1=mean; gra1=ra; gdec1=dec; gtime1=time; gfreq1=freq;
+sigma1=sigma; chisqr1=chisqr; fft_len1=fft_len; chirprate1=chirprate;
+			printf "<tr><td></td>"
+			check_error(peak0, peak1, .001)
+			check_error(mean0, mean1, .001)
+			check_error(chisqr0, chisqr1, .001)
+			printf "\n"
+if ( (gra1 != gra0) || (gdec1 != gdec0) || (gtime1 != gtime0) || (gfreq1 != gfreq0) || (sigma1 != sigma0) || (fft_len1 != fft_len0) || (chirprate1 != chirprate0) ) {
+	printf"<td><font color=\"ff0000\" yes </font> </td> </tr>\n"
+} else {
+printf "<td></td><tr>\n"
+}
+		}
+		}
+	}
+        close Fname0
+        close Fname1
+}
+'
+TableEnd
+
+done
+
+Tailer	#	Finished with the html file
+
+CleanExit

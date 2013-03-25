@@ -1,0 +1,54 @@
+#! /usr/bin/env perl
+
+# where is the configuration file?
+$cfgfile = "/disks/thumper/raid5_d/users/seti/dr2_data/production/scripts/data_flow.cfg";
+
+# read it in and continue...
+$cfg = "";
+open (CNFFILE,$cfgfile) or die "cannot open configuration file: $cfgfile\nmake sure this variable is set properly";
+while (<CNFFILE>) { $cfg .= $_ }
+close (CNFFILE);
+eval $cfg;
+
+print "checking xfer_to_hpss directory for excess files...";
+chdir ($xfer_to_hpss_dir);
+@datafiles = `$ls -1 [0-9][0-9][a-z][a-z][0-9][0-9][a-z][a-z]`;
+foreach $datafile (@datafiles) {
+  chomp $datafile;
+  print "datafile: $datafile ";
+  $hsicommand = "$su seti -c \"$hsi --list $datafile\"";
+  $retval = system ($hsicommand . "> /dev/null");
+  $retval = $retval >> 8;
+  if ($retval == 0) { 
+    print "already at hpss - removing hard link";
+    system ("$su seti -c \"$rm $xfer_to_hpss_dir/$datafile\"");
+    }
+  else { print " - not transferred yet"; }
+  print "\n";
+  }
+
+chdir ($processing_dir);
+@datafiles = `$ls -1 [0-9][0-9][a-z][a-z][0-9][0-9][a-z][a-z]`;
+foreach $datafile (@datafiles) {
+  chomp $datafile;
+  print "datafile: $datafile ";
+  if (-f "${datafile}.at_hpss") { print "- .at_hpss exists - skipping"; }
+  else {
+    if (-f "$xfer_to_hpss_dir/$datafile") { print "- already hard linked in xfer_to_hpss - skipping"; }
+    else {
+      print "- checking at hpss... ";
+      $hsicommand = "$su seti -c \"$hsi --list $datafile\"";
+      $retval = system ($hsicommand . "> /dev/null");
+      $retval = $retval >> 8;
+      if ($retval == 0) { print "already at hpss - skipping"; }
+      else {
+        # file here and not at hpss, so make hard link in xfer to hpss dir:
+        system ("$su seti -c \"$ln $datafile $xfer_to_hpss_dir/$datafile\"");
+        print " - made hard link in xfer_to_hpss";
+        }
+      }
+    }
+  print "\n";
+  }
+exit (0);
+

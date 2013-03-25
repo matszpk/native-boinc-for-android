@@ -1,0 +1,325 @@
+11/22/05 jeffc
+Copied the function xyzeq() as it exists in s4 program s4precess to s4dop_xyzeq()
+in s4doppler.cc.
+
+08/03/06 mattl
+Major cleanup. Moved s4coord, s4tel, s4time into lib as well, and their
+respective .h files into include. Then did a massive "sed" to convert any
+reference of "s4" into "seti_" to make this library more generic. Also
+cleaned up a bunch of compiler warnings, and moved any few defines and macros
+from SIREN.h into the appropriate .h files in include/.
+
+08/03/06 jeffc
+Added a new file, seti_tapeutils.h, that contains 1 template - seti_GetDr2Data().  
+This will extract dr2 data from tapes, disk buffers, quicklooks (they all have 
+the same format).
+
+8/18/06 jeffc
+Fixed a bug in seti_GetDr2Data.
+
+    include/
+        seti_tapeutils.h
+
+9/24/06 jeffc
+This is an interim checkin of the interface to dr2 data.
+
+Still to do:
+    - function to return a channel of data along with its
+      headers
+    - finish setting up autoconfiguration for this CVS module
+
+    configure 
+    configure.ac 
+    seti_config.h.in
+
+    m4/                         new directory
+        sah_check_boinc.m4      new file
+
+    src/
+        seti_dr2utils.cc        new file
+
+    include/
+        seti_dr2utils.h         new file
+        seti_tapeutils.h        removed
+
+    lib/
+        Makefile 
+        Makefile.in 
+
+    demo/                       new directory
+        README                  new file                
+        Makefile                new file                   
+        print_dr2_data.cc       new file     
+        print_dr2_headers.cc    new file
+
+10/3/06 jeffc
+New function seti_StructureDr2Data() returns a channel of data
+along with it's headers.  The function determines which dsi to
+look for by way of the channel number.
+
+The typical application will obtain a vector of dr2 data as per 
+the example in demo/format_dr2_data.cc.
+
+Still to do:
+    - hook up the calculation of RA/Dec for beam 0 and the calculation
+      of the center frequency.
+    - populate scram_tt.{TurretDegreesAlfa, TurretDegreesTolerance}.
+    - finish setting up autoconfiguration for this CVS module 
+
+    demo/
+        Makefile 
+        print_dr2_data.cc 
+        print_dr2_headers.cc
+        format_dr2_data.cc
+    include/
+        seti_dr2utils.h 
+    lib/
+        Makefile 
+    src/
+        seti_dr2utils.cc
+
+
+10/9/06 jeffc
+Added header field "channel".
+Changed the location of AO .dat files to /home/seti/ao_dat_files. 
+
+    include/
+        seti_dr2utils.h
+    src/
+        seti_dr2utils.cc
+    AO_code/
+        aocoord/
+            azzaToRaDec.h
+
+10/10/06 korpela
+    Changed telescope ids to an enum.  Added the ALFA receivers.
+
+    include/
+        seti_tel.h
+
+10/10/06 jeffc
+Removed header fields agc_systime, centerfreq, st.
+Added header fields synth_time, synth_freq, sky_freq, vgc[].
+Changes memcpy() to assignment of header in seti_GetDr2Data(),
+
+    include/
+        seti_dr2utils.h
+    src/
+        seti_dr2utils.cc
+
+10/23/06 jeffc
+New parameter to seti_ao_timeMS2unixtime(), "now".  See code
+comments.
+Added directory AO_code.
+
+    src/
+         seti_aoutils.cpp
+         seti_dr2utils.cpp
+    AO_code/                new directory
+    
+
+10/24/06 korpela
+    Modified Makefiles to include .c files AO_code/aocoord directory
+    Corrected prototype in seti_aoutils.h and enabled code in seti_aoutils.cpp
+
+    lib/
+        Makefile.am
+    include/
+        seti_aoutils.h
+    include/
+        seti_aoutils.cpp
+
+11/1/06 jeffc
+    Added these fields to class dataheader_t: 
+    double            ra;             // ra for the beam from which the data in this block came
+    double            dec;            // dec for the beam from which the data in this block came
+    double            coord_jd;       // julian day time stamp for ra/dec
+    double            data_jd;        // julian day time stamp for the final data sample in this block
+    
+    and removed these fields from same:
+    beam0_ra
+    beam0_dec
+
+    Note that the new fields are initialized to zero but that is all.  Code
+    to populate them will follow.
+
+    include/
+        seti_dr2utils.h
+    src/
+        seti_dr2utils.cpp
+
+11/07/06 korpela
+    new classes seconds, hours, minutes, days, *_years and seti_time.
+
+    include/
+        seti_time.h
+    src/
+        seti_time.cpp
+
+11/22/06 jeffc
+    Made all time values in class dataheader_t of type seti_time.
+    Added code for constructor seti_time(char * AST).
+    Added a ut2_utc_diff() stub that just returns zero.
+    Added a dumb little print method to seti_time to help in debugging.
+    Commented out code that referenced fields in class receiver_config
+        that do not yet exist.  This should not affect current functioning.
+    Dummied out the printing of the time values in the dataheader_t print
+        method because this are now non-POD (Plain Old Data) types that
+        need proper print methods.
+
+    Caveats....
+    The AST code compiles and produces reasonable "looking" julian days
+    but is not, I think, really correct.  There may be a day offset 
+    issue, maybe a deeper problem.  I will be debugging this.  This
+    checkin is so that development that depends on having seti_times
+    within dataheader_t can move forward.
+    
+
+    src/
+        seti_coord.cpp          only change was to comment out unsupported code
+        seti_dr2utils.cpp
+        seti_time.cpp 
+    include/
+        seti_dr2utils.h
+        seti_time.h
+    demo/
+        Makefile
+        demo_seti_time.cpp      new file, not very useful at the moment
+
+
+11/29/06 jeffc
+    Various cleanups and field renames.  Removed field dataheader_t.ast as it
+    is redundant to dataheader_t.data_time.
+
+    include/
+        seti_dr2utils.h 
+        seti_time.h     
+    src/
+        seti_dr2utils.cpp 
+        seti_time.cpp 
+
+
+12/4/06 jeffc
+    Added methods julian() and printjd() to class seti_time.
+
+    demo/
+        demo_seti_time.cpp 
+    include/
+        seti_time.h
+    src/
+        seti_time.cpp
+
+02/08/07 korpela
+    Fixed problems with seti_byteorder.h.  Removed constructor taking "char *"
+    Modified functions taking a receiver id to explicitly use the type 
+    telescope_id
+
+    include/
+         seti_byteorder.h
+	 seti_dr2utils.h
+    src/
+         seti_doppler.cpp
+	 seti_dr2utils.cpp
+
+2/23/07 jeffc
+    Added -lsocket and -lnsl to the m4 definition of INFORMIX_LIBS.
+    Added some needed headers to demo/{print_dr2_data.cpp, print_dr2_headers.cpp}.
+    Also commented out the inclusion of timecvt.h from these two programs.  The
+    definition of JD0 in timecvt.h conflicted with that which is in seti_time.h. 
+    Also, the inclusion of timecvt.h was not needed.  
+
+    m4/
+	sah_informix.m4
+    demo/
+	print_dr2_data.cpp
+	print_dr2_headers.cpp
+
+3/1/07 jeffc
+    Added/changed some comments.
+
+    src/
+	seti_dr2utils.cpp
+
+4/17/07 jeffc
+    Added a HW input to SW channel map to the set of channel maps.
+    Added demo program print_dr2_data_all.cc.
+
+    src/
+	seti_dr2utils.cpp
+    include/
+	seti_dr2utils.h  
+    demo/
+	Makefile.am
+	print_dr2_data_all.cc
+
+4/30/07 jeffc
+    Added the basic interface to healpix.
+
+    configure.ac    
+    seti_config.h.in 
+    demo/   
+        Makefile.am
+    include/
+        seti_coord.h 
+        setilib.h 
+    lib/
+        Makefile.am
+    m4/ 
+        sah_check_healpix.m4 
+    src/    
+        seti_coord.cpp
+
+5/2/07 jeffc
+    Added function eod2stdepoch(), which used to live in the assimilator.
+
+    include/
+        seti_coord.h 
+    src/
+        seti_coord.cpp 
+
+5/2/07 jeffc
+    Added functions co_radeclfreq2npix() and co_npix2radeclfreq().
+
+    include/
+        seti_coord.h 
+    src/
+        seti_coord.cpp 
+
+7/13/07 jeffc
+    Re-init the buffer index in seti_GetDr2Data() if the caller
+    has rewound or reopened the data file.
+
+    Lots of mods to print_dr2_data_all.
+
+    Print 1s and 0s instead of 1s and -1s in print_dr2_data.  The 
+    output is easier to read that way.
+
+    include/
+        seti_dr2utils.h
+
+    demo/
+        print_dr2_data_all
+        print_dr2_data
+        
+7/20/07 jeffc
+    Added npix2qpix() and npix2fpix().
+
+    include/
+        seti_coord.h
+    src/
+        seti_coord.cpp
+
+
+8/23/07 jeffc
+    Code clean up.
+
+    demo/
+        Makefile.am
+    include/
+        seti_coord.h
+        seti_dr2utils.h
+    src/
+        seti_coord.cpp
+
+Jeff 10 Sep 2007
+    - The CVS repository is deprecated this date.  We now use SVN.

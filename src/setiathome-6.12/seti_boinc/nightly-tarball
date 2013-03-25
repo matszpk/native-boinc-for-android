@@ -1,0 +1,37 @@
+#!/bin/sh
+
+## $Id: nightly-tarball,v 1.6.2.6 2007/06/01 20:46:03 korpela Exp $
+
+# Create a nightly tarball from CVS export
+
+# need to set PATH because we might be running from a cron job.
+# on our Solaris servers, cvs is in /opt/misc/bin
+
+cd `dirname $0`
+
+#CVSROOT=/usr/local/warez/cvsroot                                               \
+#    CHECKOUT='cvs checkout -r HEAD lib/fftw-3.1.1 && mv lib/fftw-3.1.1 .' \
+#    DIR=fftw-3.1.1 \
+#    FILENAME_TGZ="fftw-3.1.1_seti.tar.gz"                          \
+#    FILENAME_ZIP="fftw-3.1.1_seti.zip"                             \
+#    DESTINATION="/home/boincadm/projects/sah/html/user/seti_source/nightly/" \
+#    ./export-tarball
+
+# CVSROOT=/usr/local/warez/cvsroot                                               \
+#    CHECKOUT='cvs checkout -r HEAD seti_boinc && (cd seti_boinc && ./trim_sources DOIT)' \
+#    DIR=seti_boinc                                                             \
+#    FILENAME_TGZ="seti_boinc-client-cvs-TODAY.tar.gz"                          \
+#    FILENAME_ZIP="seti_boinc-client-cvs-TODAY.zip"                             \
+#    DESTINATION="/home/boincadm/projects/sah/html/user/seti_source/nightly/" \
+#    ./export-tarball
+
+    CHECKOUT='svn export file:///home/svn/seti_boinc' \
+    DIR=seti_boinc                                                             \
+    FILENAME_TGZ="setiathome_enhanced-client-cvs-TODAY.tar.gz"                          \
+    FILENAME_ZIP="setiathome_enhanced-client-cvs-TODAY.zip"                             \
+    DESTINATION="/home/boincadm/projects/sah/html/user/seti_source/nightly/" \
+    ./export-tarball
+
+cd /home/boincadm/projects/sah/html/user/seti_source/nightly/
+find . -mtime +30 -exec mv {} old \;
+/bin/rm -rf /tmp/export-tarball-*

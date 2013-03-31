@@ -151,4 +151,51 @@ public class ClientId implements Parcelable {
 	public boolean isLocalHost() {
 		return mAddress.equals("127.0.0.1") || mAddress.equals("localhost");
 	}
+	
+	/* for foregin application (intent handling and others) */
+	public String parcelToString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(mNickname);
+		sb.append('\n');
+		sb.append(mAddress);
+		sb.append('\n');
+		sb.append(mPort);
+		sb.append('\n');
+		sb.append(mPassword);
+		return sb.toString();
+	}
+	
+	public static ClientId parcelFromString(String string) {
+		if (string == null)
+			return null;
+		
+		String nickname;
+		String address;
+		int port;
+		String password;
+		
+		int i1 = 0, i2 = -1;
+		i2 = string.indexOf('\n');
+		if (i2 == -1) // no data
+			return null;
+		nickname = string.substring(i1, i2);
+		
+		i1 = i2+1;
+		i2 = string.indexOf('\n', i1);
+		if (i2 == -1) // no data
+			return null;
+		address = string.substring(i1, i2);
+		
+		i1 = i2+1;
+		i2 = string.indexOf('\n', i1);
+		if (i2 == -1)
+			return null;
+		port = Integer.parseInt(string.substring(i1, i2));
+		
+		i1 = i2+1;
+		password = string.substring(i1);
+		if (password.length() == 0)
+			password = null; // no password
+		return new ClientId(0, nickname, address, port, password);
+	}
 }

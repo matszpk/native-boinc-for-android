@@ -224,11 +224,14 @@ public class ConnectionManagerService extends Service implements
 			// This is unsolicited disconnect
 			if (Logging.INFO) Log.i(TAG, "Unsolicited disconnect of ClientBridge");
 			mDisconnectedByManager = false;
-			synchronized(mWakeLocker) {
+			if (mWakeLocker != null) {
+				synchronized(mWakeLocker) {
+					mClientBridge = null;
+					// handle disconnect for power management
+					setUpWakeLock();
+				}
+			} else
 				mClientBridge = null;
-				// handle disconnect for power management
-				setUpWakeLock();
-			}
 		}
 		else {
 			if (mDyingBridges.contains(clientBridge)) {
@@ -319,11 +322,14 @@ public class ConnectionManagerService extends Service implements
 			if (Logging.DEBUG) Log.d(TAG, "disconnect() - started towards " + mClientBridge.getClientId().getNickname());
 			mDyingBridges.add(mClientBridge);
 			mClientBridge.disconnect();
-			synchronized(mWakeLocker) {
+			if (mWakeLocker != null) {
+				synchronized(mWakeLocker) {
+					mClientBridge = null;
+					// handle changes for power management
+					setUpWakeLock();
+				}
+			} else
 				mClientBridge = null;
-				// handle changes for power management
-				setUpWakeLock();
-			}
 		}
 		else {
 			if (Logging.DEBUG) Log.d(TAG, "disconnect() - not connected already ");

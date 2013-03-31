@@ -63,6 +63,7 @@ public interface PreferenceName {
 	public static final String NATIVE_UPDATE_FROM_SDCARD = "nativeUpdateFromSDCard";
 	public static final String NATIVE_DUMP_BOINC_DIR = "nativeDumpBoincDir";
 	public static final String NATIVE_REINSTALL = "nativeReinstall";
+	public static final String NATIVE_CONFIG_FILE = "nativeBoincApplyConfig";
 	public static final String NATIVE_DELETE_PROJ_BINS = "nativeDeleteProjectBins";
 	public static final String NATIVE_SHOW_LOGS = "nativeShowLogs";
 	

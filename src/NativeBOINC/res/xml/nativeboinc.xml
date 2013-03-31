@@ -102,6 +102,13 @@
        	    android:summary="@string/nativeDeleteProjectBinsSummary"
        	    android:persistent="false" />
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/nativeBoincConfiguration">
+        <Preference
+       	    android:key="nativeBoincApplyConfig"
+       	    android:title="@string/nativeApplyConfigFileTitle"
+       	    android:summary="@string/nativeApplyConfigFileSummary"
+       	    android:persistent="false" />
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/nativeBoincDiagnostics">
         <Preference
        	    android:key="nativeDumpBoincDir"

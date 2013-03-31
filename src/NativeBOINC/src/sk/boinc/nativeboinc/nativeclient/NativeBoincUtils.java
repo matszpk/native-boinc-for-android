@@ -9,6 +9,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -335,5 +337,63 @@ public class NativeBoincUtils {
 			if (writer != null)
 				writer.close();
 		}
+	}
+	
+	/**
+	 * cc_config.xml file handling
+	 */
+	public static String readCcConfigFile(Context context) throws IOException {
+		Reader inReader = null;
+		String ccConfigPath = BoincManagerApplication.getBoincDirectory(context)+
+				"/cc_config.xml";
+		
+		StringBuilder content = null;
+		
+		try {
+			File ccConfigFile = new File(ccConfigPath);
+			
+			if (!ccConfigFile.exists())
+				return null;
+			
+			inReader = new FileReader(ccConfigPath);
+			content = new StringBuilder();
+			
+			char[] buf = new char[1024];
+			while(true) {
+				int readed = inReader.read(buf);
+				if (readed == -1)
+					break;
+				content.append(buf, 0, readed);
+			}
+		} finally {
+			if (inReader != null)
+				inReader.close();
+		}
+		
+		return (content!=null) ? content.toString() : null;
+	}
+	
+	public static void writeCcConfigFile(Context context, String content) throws IOException {
+		Writer outWriter = null;
+		String ccConfigPath = BoincManagerApplication.getBoincDirectory(context)+
+				"/cc_config.xml";
+		
+		try {
+			outWriter = new FileWriter(ccConfigPath);
+			
+			outWriter.write(content);
+			outWriter.flush();
+		} finally {
+			if (outWriter != null)
+				outWriter.close();
+		}
+	}
+	
+	public static void removeCcConfigFile(Context context) {
+		String ccConfigPath = BoincManagerApplication.getBoincDirectory(context)+
+				"/cc_config.xml";
+		
+		File ccConfigFile = new File(ccConfigPath);
+		ccConfigFile.delete();
 	}
 }

@@ -85,6 +85,8 @@
 
 	<string name="boincClient">BOINC client</string>
 	
+	<string name="boincHosts">Boinc hosts</string>
+	
 	<!-- Units -->
 	<string name="unitKiB">KiB</string>
 	<string name="unitMiB">MiB</string>
@@ -349,6 +351,11 @@
 	<string name="nativeDeleteProjectBinsTitle">Delete project binaries</string>
 	<string name="nativeDeleteProjectBinsSummary">Deletes project binaries (from app_info.xml)</string>
 	
+	<string name="nativeBoincConfiguration">Configuration options</string>
+	
+	<string name="nativeApplyConfigFileTitle">Apply config file</string>
+	<string name="nativeApplyConfigFileSummary">Apply/delete cc_config.xml file</string>
+	
 	<string name="nativeBoincDiagnostics">Diagnostics options</string>
 	
 	<string name="nativeDumpBoincDirTitle">Dump BOINC files</string>
@@ -391,6 +398,16 @@
 	<string name="addHost">Add host</string>
 	<string name="remoteHostsLoadError">Unable to load remote hosts list</string>
 	<string name="remoteHostsSaveError">Unable to save remote hosts list</string>
+	
+	<!-- config file activity -->
+	<string name="configFile">Apply config file</string>
+	<string name="configContent">Config file content</string>
+	<string name="configFromSDCard">Load from SDCard</string>
+	<string name="deleteConfigFile">Delete config</string>
+	<string name="confirmConfigDelete">Do you want to delete config file?</string>
+	<string name="enterConfigPath">Entger config file path</string>
+	<string name="configFileReadError">Unable to read config file</string>
+	<string name="configFileWriteError">Unable to write config file</string>
 	
 	<string name="synchronizeBAM">Synchronize BAM</string>
 	<!--  progress dialog messages -->

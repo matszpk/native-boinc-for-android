@@ -121,7 +121,17 @@
 		<activity android:name=".HostListActivity"
 			android:label="@string/selectHost"
 			android:launchMode="singleTop"
-			android:theme="@style/Theme.NativeBoincActivity" />
+			android:theme="@style/Theme.NativeBoincActivity"/>
+		<!-- we duplicate activity for boinc -->
+		<activity android:name=".ShortcutActivity"
+			android:label="@string/boincHosts"
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+		</activity>
 
 		<activity android:name=".EditHostActivity"
 			android:label="@string/hostEdit"
@@ -224,6 +234,11 @@
 		
 		<activity android:name=".NewsActivity"
 		    android:label="@string/latestNews"
+			android:launchMode="singleTop"
+			android:theme="@style/Theme.NativeBoincActivity" />
+		
+		<activity android:name=".ConfigFileActivity"
+			android:label="@string/configFile"
 			android:launchMode="singleTop"
 			android:theme="@style/Theme.NativeBoincActivity" />
 	</application>

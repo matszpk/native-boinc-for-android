@@ -89,6 +89,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	private static final int ACTIVITY_NATIVE_CLIENT = 3;
 	
 	public static final String PARAM_CONNECT_NATIVE_CLIENT = "ConnectNative";
+	public static final String PARAM_CLIENT_TO_CONNECT = "ClientToConnect";
 
 	private static final int BACK_PRESS_PERIOD = 5;
 
@@ -111,6 +112,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	private boolean mInitialDataAvailable = false;
 
 	private boolean mDoConnectNativeClient = false;
+	private boolean mDoClientToConnect = false;
 	
 	private boolean mConnectClientAfterRestart = false;
 	private boolean mConnectClientAfterStart = false;
@@ -302,6 +304,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		mVisibilityTracker = mApp.getVisibilityTracker();
 		mJustUpgraded = mApp.getJustUpgradedStatus();
 
+		ClientId clientToConnect = null;
 		// Create handler for screen orientation
 		mScreenOrientation = new ScreenOrientationHandler(this);
 
@@ -312,7 +315,12 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			savedState.restoreState(this);
 			mIsRecreated = true;
 		} else { // restore from intent extra
-			mDoConnectNativeClient = getIntent().getBooleanExtra(PARAM_CONNECT_NATIVE_CLIENT, false);
+			Intent intent = getIntent();
+			mDoConnectNativeClient = intent.getBooleanExtra(PARAM_CONNECT_NATIVE_CLIENT, false);
+			clientToConnect = ClientId.parcelFromString(intent.getStringExtra(PARAM_CLIENT_TO_CONNECT));
+			mDoClientToConnect = (clientToConnect != null);
+			if (clientToConnect != null && clientToConnect.isNativeClient())
+				mDoConnectNativeClient = true; // if connect with native client
 			mIsRecreated = false;
 		}
 		
@@ -447,16 +455,27 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			// Just normal start
 			String autoConnectHost = globalPrefs.getString(PreferenceName.AUTO_CONNECT_HOST, null);
 			if (((autoConnectHost != null) && globalPrefs.getBoolean(PreferenceName.AUTO_CONNECT, false)) ||
-					(autoConnectHost == null) || mDoConnectNativeClient) {
+					(autoConnectHost == null) || mDoConnectNativeClient || clientToConnect != null) {
 				// if no autoConnect host and if doConnectNativeClient (should open native client)
 				if (Logging.DEBUG) Log.d(TAG, "doOpenNativeClient 2:"+mDoConnectNativeClient);
-				if (autoConnectHost == null || mDoConnectNativeClient)	// use nativeboinc as autoconnect
-					autoConnectHost = "nativeboinc";
-				// We should auto-connect to recently connected host
-				HostListDbAdapter dbHelper = new HostListDbAdapter(this);
-				dbHelper.open();
-				mSelectedClient = dbHelper.fetchHost(autoConnectHost);
-				dbHelper.close();
+				
+				boolean useClientToConnect = false;
+				if (autoConnectHost == null || mDoConnectNativeClient || clientToConnect != null) {
+					if (clientToConnect == null)  // use nativeboinc as autoconnect
+						autoConnectHost = "nativeboinc";
+					else {
+						mSelectedClient = clientToConnect;
+						useClientToConnect = true;
+					}
+				}
+				
+				if (!useClientToConnect) {
+					// We should auto-connect to recently connected host
+					HostListDbAdapter dbHelper = new HostListDbAdapter(this);
+					dbHelper.open();
+					mSelectedClient = dbHelper.fetchHost(autoConnectHost);
+					dbHelper.close();
+				}
 			}
 			if (Logging.INFO) {
 				if (mSelectedClient != null) 
@@ -482,6 +501,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 	 */
 	@Override
 	protected void onNewIntent(Intent intent) {
+		ClientId clientToConnect = ClientId.parcelFromString(intent.getStringExtra(PARAM_CLIENT_TO_CONNECT));
 		if (intent.getBooleanExtra(PARAM_CONNECT_NATIVE_CLIENT, false)) {
 			// select native boinc client
 			HostListDbAdapter dbHelper = new HostListDbAdapter(this);
@@ -491,6 +511,10 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 			if (nativeClient != null &&
 					(mConnectedClient == null || !mConnectedClient.equals(nativeClient))) {
 				mSelectedClient = nativeClient;
+			}
+		} else if (clientToConnect != null) { // for shortcuts
+			if ((mConnectedClient == null || !mConnectedClient.equals(clientToConnect))) {
+				mSelectedClient = clientToConnect;
 			}
 		}
 	}
@@ -996,6 +1020,9 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 					mSelectedClient = null;
 					mDoConnectNativeClient = false;
 				}
+			} else if (mDoClientToConnect) {
+				boincConnect();
+				mDoClientToConnect = false; // reset indicator
 			} else {
 				// Connected client is retrieved
 				if (Logging.DEBUG) Log.d(TAG, "Client " + mConnectedClient.getNickname() + " is connected");

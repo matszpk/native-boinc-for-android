@@ -38,10 +38,12 @@ Klient:
 * dodac mechanizm pobierania danych o baterii z innego programu
 * poprawić pobieranie info o zasobach aplikacji (ilosc wykorzystanej pamieci i itd) na
   różnych urządzeniach
+* dodać obsługę battery health, poprawić obsługę battery temp (plik temp i batt_temp)
+* wprowadzic poprawki z oficjalnego boinca na android (z berkeley)
+* dodać tryb bugcatch do wyłapywania błędów (opcjonalne)
 
 BOINC API:
 * poprawić SEGFAULT przy wychodzeniu z aplikacji (sprawdz dokładnie)
-*
 
 ................................
 

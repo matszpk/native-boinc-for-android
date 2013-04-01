@@ -1,7 +1,7 @@
-#Sun Sep 04 10:44:47 CEST 2011
+#Mon Apr 01 10:26:08 CEST 2013
 eclipse.preferences.version=1
 environment/project/0.467269560/PATH/delimiter=\:
-environment/project/0.467269560/PATH/operation=append
-environment/project/0.467269560/PATH/value=/home/mat/docs/dev/mobile/android-ndk-r5b/
+environment/project/0.467269560/PATH/operation=replace
+environment/project/0.467269560/PATH/value=/usr/lib64/mpi/gcc/openmpi/bin\:/home/mat/bin\:/usr/local/bin\:/usr/bin\:/bin\:/usr/bin/X11\:/usr/X11R6/bin\:/usr/games\:/usr/lib/mit/bin\:.\:/usr/local/bin\:/usr/local/bin\:/usr/local/bin\:/usr/local/bin\:/usr/local/bin\:/home/mat/docs/dev/mobile/android-ndk-r8b/
 environment/project/0.467269560/append=true
 environment/project/0.467269560/appendContributed=true

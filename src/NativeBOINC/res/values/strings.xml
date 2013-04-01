@@ -358,6 +358,8 @@
 	
 	<string name="nativeBoincDiagnostics">Diagnostics options</string>
 	
+	<string name="nativeBugCatcherTitle">BugCatcher mode</string>
+	<string name="nativeBugCatcherSummary">Enable BugCatcher mode and display/send bugs</string>
 	<string name="nativeDumpBoincDirTitle">Dump BOINC files</string>
 	<string name="nativeDumpBoincDirSummary">Dump whole BOINC directory into SDCard</string>
 	<string name="nativeShowLogsTitle">Show logs</string>
@@ -408,6 +410,13 @@
 	<string name="enterConfigPath">Entger config file path</string>
 	<string name="configFileReadError">Unable to read config file</string>
 	<string name="configFileWriteError">Unable to write config file</string>
+	
+	<!-- bug catcher activity -->
+	<string name="bugCatcher">Bug catcher mode</string>
+	<string name="bugCatcherDesc">This mode allow to catch a severe bugs in the BOINC and BOINC applications. Please enable this mode to help author to fix bugs.</string>
+	<string name="enableBugCatch">Enable BugCatchMode</string>
+	<string name="sendBugReports">Send reports</string>
+	<string name="bugsList">List of recent bugs</string>
 	
 	<string name="synchronizeBAM">Synchronize BAM</string>
 	<!--  progress dialog messages -->

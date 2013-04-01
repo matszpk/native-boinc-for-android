@@ -111,6 +111,11 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/nativeBoincDiagnostics">
         <Preference
+       	    android:key="nativeBugCatcher"
+       	    android:title="@string/nativeBugCatcherTitle"
+       	    android:summary="@string/nativeBugCatcherSummary"
+       	    android:persistent="false" />
+        <Preference
        	    android:key="nativeDumpBoincDir"
        	    android:title="@string/nativeDumpBoincDirTitle"
        	    android:summary="@string/nativeDumpBoincDirSummary"

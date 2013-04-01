@@ -16,13 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
 LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := nativeboinc_utils
-LOCAL_SRC_FILES := chmod.c putils.c execperms.c
+LOCAL_SRC_FILES := chmod.c putils.c execperms.c bugcatch.c
 
 include $(BUILD_SHARED_LIBRARY)
 

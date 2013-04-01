@@ -3,7 +3,7 @@ PLANY WERSJI 0.4.4/0.4.5
 -----------------------------------------
 
 --- Poprawki
-  * poprawienie obsługi widgeta gdy boinc zakończy pracę (ma być zawsze odświeżenie)
+/ * poprawienie obsługi widgeta gdy boinc zakończy pracę (ma być zawsze odświeżenie) (częściowo)
   * gdy ściąganie pliku ma być odświeżanie widgeta (opcjonalne)
   * (trudna poprawka) poprawienie obsługi przerywania komunikacji podczas instalacji/ściągania
   * przepisanie installservice (????)
@@ -25,12 +25,13 @@ PLANY WERSJI 0.4.4/0.4.5
     * w sidebar/downbar dodanie statystyk 
   * możliwość wyboru nowego/starego UI
 --- nowe opcje/funkcje
-  * dodanie możliwości wgrania/ustawienia cc_config.xml (mozliwe nowe okno z opcjami)
+/ * dodanie możliwości wgrania/ustawienia cc_config.xml (mozliwe nowe okno z opcjami)
   * screensaver dla aplikacji (opcjonalnie)
   * renderscript/opencl do liczenia w aplikacjach (pewnie w następnych wersjach)
   * dodanie wysyłania informacji o zainstalowanych wersjach (jako opcja do włączenia)
   * dodanie informacji o nagrzewaniu urządzenia (wg  lokalnych preferencji boinc)
-  * skróty połączeń do hostów w desktop
+/ * skróty połączeń do hostów w desktop
+  * tryb bugcatch (do łapania segfaultów, sigillów, sigbusów)
 
 Klient:
 * poprawic wychodzenie z programu (czasami jest zbyt powolne)

@@ -65,6 +65,7 @@ public interface PreferenceName {
 	public static final String NATIVE_REINSTALL = "nativeReinstall";
 	public static final String NATIVE_CONFIG_FILE = "nativeBoincApplyConfig";
 	public static final String NATIVE_DELETE_PROJ_BINS = "nativeDeleteProjectBins";
+	public static final String NATIVE_BUG_CATCHER = "nativeBugCatcher";
 	public static final String NATIVE_SHOW_LOGS = "nativeShowLogs";
 	
 	/* news receiver */

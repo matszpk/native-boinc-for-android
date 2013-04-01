@@ -81,6 +81,9 @@ public class NotificationController {
 	private Notification mNewsMessageNotification = null;
 	private Notification mNewBinariesNotification = null;
 	
+	private Notification mBugsDetectedNotification = null;
+	private DistribNotification mBugCatcherNotification = null;
+	
 	public NotificationController(Context appContext) {
 		mAppContext = appContext;
 		mNotificationManager = (NotificationManager)appContext.getSystemService(
@@ -690,9 +693,115 @@ public class NotificationController {
 	}
 	
 	/**
-	 * handling events on installer operations
+	 * bug catcher notifications
+	 */
+	public void notifyBugsDetected() {
+		Intent intent = new Intent(mAppContext, BugCatcherActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent,
+				PendingIntent.FLAG_UPDATE_CURRENT);
+		
+		String notifyText = mAppContext.getString(R.string.bugsDetectedTitle);
+		String notifySummary = mAppContext.getString(R.string.bugsDetectedSummary);
+		if (mBugsDetectedNotification != null)
+			mBugsDetectedNotification.when = System.currentTimeMillis();
+		else
+			mBugsDetectedNotification = new Notification(R.drawable.ic_download, notifyText,
+					System.currentTimeMillis());
+		
+		mBugsDetectedNotification.contentIntent = pendingIntent;
+		mBugsDetectedNotification.flags |= Notification.FLAG_AUTO_CANCEL;
+		
+		mBugsDetectedNotification.tickerText = notifyText;
+		mBugsDetectedNotification.setLatestEventInfo(mAppContext, notifyText, notifySummary, pendingIntent);
+		mNotificationManager.notify(NotificationId.BUG_DETECTED, mBugsDetectedNotification);
+	}
+	
+	public void removeBugsDetected() {
+		mNotificationManager.cancel(NotificationId.BUG_DETECTED);
+	}
+	
+	/**
+	 * bug catcher progress notification
 	 */
 	
+	private DistribNotification getBugCatcherNotification(boolean emptyIntent) {
+		Intent intent = null;
+		if (!emptyIntent) {
+			intent = new Intent(mAppContext, BugCatcherActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		} else
+			intent = new Intent();
+		
+		PendingIntent pendingIntent = PendingIntent.getActivity(mAppContext, 0, intent, 0);
+		
+		if (mBugCatcherNotification != null) {
+			mBugCatcherNotification.notification.when = System.currentTimeMillis();
+			mBugCatcherNotification.notification.contentIntent = pendingIntent;
+			return mBugCatcherNotification;
+		}
+		
+		RemoteViews contentView = new RemoteViews(mAppContext.getPackageName(),
+				R.layout.install_notification);
+		
+		Notification notification = new Notification(R.drawable.ic_progress,
+				mAppContext.getString(R.string.moveToBegin),
+				System.currentTimeMillis());
+		mBugCatcherNotification = new DistribNotification(NotificationId.BUG_CATCHER_PROGRESS,
+				notification, contentView);
+		
+		notification.contentIntent = pendingIntent;
+		
+		return mBugCatcherNotification;
+	}
+	
+	public void notifyBugCatcherBegin(String message) {
+		DistribNotification bugCatcherNotification = getBugCatcherNotification(false);
+		
+		bugCatcherNotification.notification.tickerText = message;
+		bugCatcherNotification.notification.contentView = bugCatcherNotification.contentView;
+		bugCatcherNotification.contentView.setProgressBar(R.id.operationProgress,
+				10000, 0, true);
+		bugCatcherNotification.contentView.setTextViewText(R.id.operationDesc, message);
+		
+		bugCatcherNotification.notification.flags &= ~Notification.FLAG_ONLY_ALERT_ONCE;
+		bugCatcherNotification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
+		
+		mNotificationManager.notify(NotificationId.BUG_CATCHER_PROGRESS,
+				bugCatcherNotification.notification);
+	}
+	
+	public void notifyBugCatcherProgress(String message, int count, int total) {
+		DistribNotification bugCatcherNotification = getBugCatcherNotification(false);
+		
+		bugCatcherNotification.notification.tickerText = message;
+		bugCatcherNotification.notification.contentView = bugCatcherNotification.contentView;
+		bugCatcherNotification.contentView.setProgressBar(R.id.operationProgress,
+				total, count, false);
+		bugCatcherNotification.contentView.setTextViewText(R.id.operationDesc, message);
+		
+		bugCatcherNotification.notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+		bugCatcherNotification.notification.flags &= ~Notification.FLAG_AUTO_CANCEL;
+		
+		mNotificationManager.notify(NotificationId.BUG_CATCHER_PROGRESS,
+				bugCatcherNotification.notification);
+	}
+	
+	public void notifyBugCatcherFinish(String message) {
+		Notification notification = getBugCatcherNotification(true).notification;
+		
+		notification.tickerText = message;
+		notification.setLatestEventInfo(mAppContext, message, message,
+				notification.contentIntent);
+		
+		notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;
+		
+		mNotificationManager.notify(NotificationId.BUG_CATCHER_PROGRESS, notification);
+	}
+	
+	/**
+	 * handling events on installer operations
+	 */
 	public void handleOnOperation(String distribName, String projectUrl, String opDescription) {
 		updateDistribInstallProgress(distribName, projectUrl, opDescription, -1, ProgressItem.STATE_IN_PROGRESS);
 		

@@ -16,23 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
+package sk.boinc.nativeboinc.bugcatch;
 
-package sk.boinc.nativeboinc.util;
-
-/**
- * @author mat
- *
- */
-public interface NotificationId {
-	public final static int INSTALL_BOINC_CLIENT = 0;
-	public final static int NATIVE_BOINC_SERVICE = 1;
-	public final static int BOINC_CLIENT_EVENT = 2;
-	public final static int INSTALL_DUMP_FILES = 3;
-	public final static int INSTALL_REINSTALL = 4;
-	public final static int NATIVE_BOINC_NEWS = 5;
-	public final static int NATIVE_NEW_BINARIES = 6;
-	public final static int MOVE_INSTALLATION_TO = 7;
-	public final static int BUG_DETECTED = 8;
-	public final static int BUG_CATCHER_PROGRESS = 9;
-	public final static int INSTALL_PROJECT_APPS_BASE = 100;
+public class BugReportInfo {
+	private String mReportId;
+	private String mContent; // only 10 lines of content (excluding header)
+	
+	public BugReportInfo(String id, String content) {
+		this.mReportId = id;
+		this.mContent = content;
+	}
+	
+	public String getId() {
+		return mReportId;
+	}
+	
+	public String getContent() {
+		return mContent;
+	}
 }

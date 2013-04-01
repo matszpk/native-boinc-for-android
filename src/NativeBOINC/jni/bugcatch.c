@@ -23,6 +23,8 @@
 #include <time.h>
 #include <errno.h>
 #include <unistd.h>
+#include <time.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/ptrace.h>
 #include <asm/user.h>
@@ -136,6 +138,9 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchInit(
 	// continue tracee
 	if (ptrace(PTRACE_CONT, pid, NULL, NULL) == -1)
 		return -1;
+
+	// init mkdir
+	mkdir("/data/data/sk.boinc.nativeboinc/files/bugcatch",0755);
 	return 0;
 }
 
@@ -226,35 +231,90 @@ static MemMapEntry* readMemMaps(const char* filename, int* num)
     return mapents;
 }
 
-static void reportMemory(int memfd, off64_t start, off64_t end)
+#define MEMBUF_SIZE 4096
+
+static void reportMemory(int reportfd, int memfd, off64_t start, off64_t end)
 {
     off64_t p;
-    unsigned char buf[32];
+    unsigned char* buf;
+    buf = malloc(MEMBUF_SIZE);
+    if (buf == NULL)
+    	return; // do nothing
+
     lseek64(memfd, start, SEEK_SET);
+
     for (p = start; p < end;)
     {
         int i,readed;
-        off_t toread = (end-p>=32)?32:end-p;
+        int written, totalwritten;
+        int toread = (end-p>=MEMBUF_SIZE)?MEMBUF_SIZE:end-p;
         readed = read(memfd, buf, toread);
         if (readed != toread)
         {
-            fprintf(stderr,"error:%d:%d\n",errno,readed);
-            perror("memfd read");
+            free(buf);
             return;
         }
-        printf("%08llx: ",p);
-        for (i = 0; i < readed; i++)
-            printf("%02hhx",buf[i]);
-        puts("");
+        // write it
+        totalwritten = 0;
+        while (totalwritten < toread)
+        {
+        	written = write(reportfd, buf+totalwritten, toread-totalwritten);
+        	if (written == -1)
+        	{ // error
+        		free(buf);
+        		return;
+        	}
+        	totalwritten += written;
+        }
         p+=toread;
     }
+    free(buf);
 }
+
+static void reportCmdLine(FILE* report_file, const char* cmdlinename)
+{
+	struct stat stbuf;
+	int cmdlinefd;
+	char* cmdline, *cmdlineend;
+	char* it;
+
+	if (stat(cmdlinename,&stbuf) == -1)
+		return; // do nothing
+
+	cmdline = malloc(stbuf.st_size);
+
+	cmdlinefd = open(cmdlinename,O_RDONLY);
+	if (cmdlinefd == -1)
+	{
+		free(cmdline);
+		return;
+	}
+	if (read(cmdlinefd, cmdline, stbuf.st_size) != stbuf.st_size)
+	{
+		close(cmdlinefd);
+		free(cmdline);
+		return;
+	}
+	close(cmdlinefd);
+
+	cmdlineend = cmdline + stbuf.st_size;
+	fprintf(report_file, "CommandLine=");
+	for (it = cmdline; it != cmdlineend && it-1 != cmdlineend;)
+	{
+		fprintf(report_file," \"%s\"",it);
+		it += strlen(it)+1;
+	}
+
+	free(cmdline);
+}
+
+#define MAX_STACK_SIZE 0x8000
 
 static int reportStupidBug(pid_t pid)
 {
     int i;
     siginfo_t siginfo;
-    char namebuf[64];
+    char namebuf[256];
     int usevfp = 1;
     struct pt_regs regs;
     struct user_vfp vfp;
@@ -263,37 +323,50 @@ static int reportStupidBug(pid_t pid)
     size_t stackstart, stackend = 0;
     int memfd;
 
+    time_t report_time;
+    FILE* report_file = NULL;
+    time(&report_time);
+
+    snprintf(namebuf,256,"/data/data/sk.boinc.nativeboinc/files/bugcatch/%d_content",report_time);
+    report_file = fopen(namebuf, "wb");
+    if (report_file == NULL)
+    	return -1;
+
+    fputs("---- NATIVEBOINC BUGCATCH REPORT HEADER ----\n",report_file);
+
+    fprintf(report_file,"BugReportId:%ld\n", report_time);
+    // process info
+    snprintf(namebuf,256,"/proc/%d/cmdline");
+    reportCmdLine(report_file,namebuf);
+
+    // signal info and CPU state
     if (ptrace(PTRACE_GETSIGINFO, pid, NULL, &siginfo) == -1)
-    {
-        perror("PTrace getsiginfo");
-        return 1;
-    }
+        return -1;
 
     if (ptrace(PTRACE_GETREGS, pid, NULL, &regs) == -1)
-    {
-        perror("PTrace regs");
-        return 1;
-    }
+        return -1;
 
     memset(&vfp, 0, sizeof(vfp));
     if (ptrace(PTRACE_GETVFPREGS, pid, NULL, &vfp) == -1)
         usevfp = 0;
 
-    printf("Pid:%d\nSignal:%d\nErrno:%d\nSignalCode:%d\nPointer:%p\nAddress:%p\n",
+    fprintf(report_file,"Pid:%d\nSignal:%d\nErrno:%d\nSignalCode:%d\nPointer:%p\nAddress:%p\n",
            pid, siginfo.si_signo, siginfo.si_errno,
            siginfo.si_code, siginfo.si_ptr, siginfo.si_addr);
 
+    fputs("Registers:\n",report_file);
     for (i = 0; i < 18; i++)
-        printf("reg%d:%08lx\n",i,regs.uregs[i]);
+        fprintf(report_file,"  reg%d:%08lx\n",i,regs.uregs[i]);
 
     if (usevfp)
     {
+    	fputs("VFP Registers:\n",report_file);
         for (i = 0; i < 32; i++)
-            printf("vfpreg%d:%016llx\n",i,vfp.fpregs[i]);
-        printf("fpscr:%08lx\n",vfp.fpscr);
-        fflush(stdout);
+            fprintf(report_file,"  vfp%d:%016llx\n",i,vfp.fpregs[i]);
+        fprintf(report_file,"  fpscr:%08lx\n",vfp.fpscr);
     }
 
+    // memory map info
     snprintf(namebuf,64,"/proc/%d/maps",pid);
     ments = readMemMaps(namebuf, &mentsCount);
 
@@ -302,13 +375,35 @@ static int reportStupidBug(pid_t pid)
     {
         for (i = 0; i < mentsCount; i++)
         {
-            //if (ments[i].type == MME_STACK)
-                //stackend = ments[i].end;
+        	const char* mtypestr;
+        	int mtype = ments[i].type;
             if (ments[i].start <= stackstart && ments[i].end > stackstart)
                 stackend = ments[i].end;
-            printf("MRange:%08zx-%08zx %08zx\nMMode:%o,MType=%d,MFile:%s\n",
+
+            switch(mtype)
+            {
+            case MME_FILE:
+            	mtypestr = "file";
+            	break;
+            case MME_STACK:
+				mtypestr = "stack";
+				break;
+            case MME_HEAP:
+            	mtypestr = "heap";
+            	break;
+            case MME_VECTORS:
+            	mtypestr = "vectors";
+            	break;
+            case MME_NONE:
+            	mtypestr = "none";
+            	break;
+            default:
+            	mtypestr = "unknown";
+            	break;
+            }
+            fprintf(report_file,"MRange:%08zx-%08zx %08zx\nMMode:%o,MType=%s,MFile:%s\n",
                ments[i].start, ments[i].end, ments[i].offset, ments[i].mode,
-               ments[i].type, ments[i].filename);
+               mtypestr, ments[i].filename);
         }
         fflush(stdout);
     }
@@ -321,12 +416,23 @@ static int reportStupidBug(pid_t pid)
     {
         if (stackend!=0)
         {
-            printf("Process stack:%08zx-%08zx\n",stackstart, stackend);
-            reportMemory(memfd, stackstart, stackend);
+        	int reportfd;
+        	if (stackend-stackstart >= MAX_STACK_SIZE) // cut stack
+        		stackend = stackstart += MAX_STACK_SIZE;
+            fprintf(report_file,"Process stack:%08zx-%08zx\n",stackstart, stackend);
+
+            snprintf(namebuf,256,"/data/data/sk.boinc.nativeboinc/files/bugcatch/%d_stack",report_time);
+            reportfd = open(namebuf, O_WRONLY|O_CREAT);
+            if (reportfd!=-1)
+            {
+            	reportMemory(reportfd, memfd, stackstart, stackend);
+            	close(reportfd);
+            }
         }
         close(memfd);
     }
 
+    fclose(report_file);
     return 0;
 }
 
@@ -364,7 +470,7 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchWaitF
 				if (ptrace(PTRACE_CONT, pid, NULL, NULL) == -1)
 				{
 					perror("PTrace cont");
-					return 1;
+					return -1;
 				}
 			}
 			else
@@ -377,7 +483,7 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchWaitF
 				if (ptrace(PTRACE_CONT, pid, NULL, WSTOPSIG(status)) == -1)
 				{
 					perror("PTrace cont");
-					return 1;
+					return -1;
 				}
 			}
 		}
@@ -389,5 +495,3 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchWaitF
 		return SIGNALED_EXIT | (WTERMSIG(status)&0xff);
 	return -1;
 }
-
-

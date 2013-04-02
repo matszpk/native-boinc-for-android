@@ -344,27 +344,34 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 	}
 
 	@Override
-	public void onBugReportBegin(String message) {
+	public void onBugReportBegin(String desc) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void onBugReportProgress(String message, String bugReportId,
+	public void onBugReportProgress(String desc, long bugReportId,
 			int count, int total) {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
-	public void onBugReportFinish(String message) {
+	public void onBugReportCancel(String desc) {
 		mSendBugs.setEnabled(true);
 		mClearBugs.setEnabled(true);
 		mBugsToSDCard.setEnabled(true);
 	}
 
 	@Override
-	public boolean onBugReportError(String bugReportId) {
+	public void onBugReportFinish(String desc) {
+		mSendBugs.setEnabled(true);
+		mClearBugs.setEnabled(true);
+		mBugsToSDCard.setEnabled(true);
+	}
+
+	@Override
+	public boolean onBugReportError(long bugReportId) {
 		mSendBugs.setEnabled(true);
 		mClearBugs.setEnabled(true);
 		mBugsToSDCard.setEnabled(true);

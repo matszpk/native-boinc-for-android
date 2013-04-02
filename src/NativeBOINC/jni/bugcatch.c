@@ -298,7 +298,7 @@ static void reportCmdLine(FILE* report_file, const char* cmdlinename)
 	close(cmdlinefd);
 
 	cmdlineend = cmdline + stbuf.st_size;
-	fprintf(report_file, "CommandLine=");
+	fprintf(report_file, "CommandLine:");
 	for (it = cmdline; it != cmdlineend && it-1 != cmdlineend;)
 	{
 		fprintf(report_file," \"%s\"",it);

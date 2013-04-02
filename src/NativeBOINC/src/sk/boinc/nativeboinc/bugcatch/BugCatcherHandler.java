@@ -18,7 +18,25 @@
  */
 package sk.boinc.nativeboinc.bugcatch;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import sk.boinc.nativeboinc.R;
+import sk.boinc.nativeboinc.debug.Logging;
+
+import android.net.ParseException;
+import android.os.Environment;
 import android.os.Handler;
+import android.util.Log;
 
 /**
  * @author mat
@@ -26,27 +44,436 @@ import android.os.Handler;
  */
 public class BugCatcherHandler extends Handler {
 
-	public BugCatcherHandler(BugCatcherService service, BugCatcherService.ListenerHandler listenerHandler) {
-		
+	private static final String TAG = "BugCatcherHandler";
+	
+	private BugCatcherService mBugCatcher = null;
+	private BugCatcherService.ListenerHandler mListenerHandler = null;
+	private BugCatcherThread mBugCatcherThread = null;
+	
+	private boolean mIsWorking = false;
+	
+	public BugCatcherHandler(BugCatcherService service, BugCatcherService.ListenerHandler listenerHandler,
+			BugCatcherThread thread) {
+		mBugCatcher = service;
+		mListenerHandler = listenerHandler;
+		mBugCatcherThread = thread;
 	}
 	
-	public void cancelAll() {
-		
+	public synchronized void cancelOperation() {
+		if (mIsWorking)
+			mBugCatcherThread.interrupt(); // interrupts
 	}
 	
 	public void destroy() {
-		
+		mBugCatcher = null;
+		mListenerHandler = null;
 	}
 	
 	public synchronized boolean isWorking() {
-		return false;
+		return mIsWorking;
+	}
+	
+	private List<File> filterBugReportContentFiles(File[] inFiles) {
+		List<File> outFiles = new ArrayList<File>(1); 
+		for (File file: inFiles) {
+			String fname = file.getName();
+			if (fname.endsWith("_context.txt"))
+				outFiles.add(file);
+		}
+		return outFiles;
 	}
 	
 	public void saveToSDCard() {
+		notifyWorking(true);
+		File bugCatchDir = new File(mBugCatcher.getFilesDir().getAbsolutePath()+"/bugcatcher");
 		
+		StringBuilder inPathSB = new StringBuilder();
+		inPathSB.append(bugCatchDir.getAbsolutePath());
+		int inBugDirLen = inPathSB.length();
+		/* prepare outpath */
+		StringBuilder outPathSB = new StringBuilder();
+		outPathSB.append(Environment.getExternalStorageDirectory());
+		outPathSB.append("/boincbugs/");
+		int outBugDirLen = outPathSB.length();
+		
+		notifyBugReportBegin(mBugCatcher.getString(R.string.bugCopyingBegin));
+		
+		byte[] buffer = new byte[1024];
+		File[] inFiles = bugCatchDir.listFiles();
+		
+		List<File> filteredFiles = filterBugReportContentFiles(inFiles);
+		int count = 0;
+		int total = filteredFiles.size();
+		
+		FileInputStream inStream = null;
+		FileOutputStream outStream = null;
+		long bugReportId = 0;
+		
+		try {
+			for (File file: filteredFiles) {
+				String fname = file.getName();
+				String idString = null;
+				if (fname.endsWith("_context.txt"))
+					idString = fname.substring(0, fname.length()-12);
+				
+				try {
+					bugReportId = Long.parseLong(idString);
+				} catch(ParseException ex) {
+					if (Logging.WARNING) Log.w(TAG, "Cant parse bugReportId");
+					count++;
+					continue;
+				}
+					
+				notifyBugReportProgress(mBugCatcher.getString(R.string.bugCopyingProgress),
+						bugReportId, count, total);
+				count++;
+				
+				if (Thread.interrupted()) {
+					notifyBugReportCancel(mBugCatcher.getString(R.string.bugCopyingCancel));
+					return;
+				}
+				
+				inStream = new FileInputStream(file);
+				outPathSB.delete(outBugDirLen, outPathSB.length());
+				outPathSB.append(fname);
+				outStream = new FileOutputStream(outPathSB.toString());
+				
+				while (true) {
+					int readed = inStream.read(buffer);
+					if (readed == -1)
+						break;
+					outStream.write(buffer, 0, readed);
+				}
+				
+				if (Thread.interrupted()) {
+					notifyBugReportCancel(mBugCatcher.getString(R.string.bugCopyingCancel));
+					return;
+				}
+				outStream.flush();
+				
+				inStream.close();
+				inStream = null;
+				outStream.close();
+				outStream = null;
+				
+				// second file
+				inPathSB.delete(inBugDirLen, inPathSB.length());
+				inPathSB.append(bugReportId);
+				inPathSB.append("_stack.bin");
+				File stackFile = new File(inPathSB.toString());
+				if (!stackFile.exists())
+					continue; // skip if doesnt exists
+				
+				inStream = new FileInputStream(stackFile);
+				
+				outPathSB.delete(outBugDirLen, outPathSB.length());
+				outPathSB.append(bugReportId);
+				outPathSB.append("_stack.bin");
+				outStream = new FileOutputStream(outPathSB.toString());
+				
+				while (true) {
+					int readed = inStream.read(buffer);
+					if (readed == -1)
+						break;
+					outStream.write(buffer, 0, readed);
+				}
+				
+				if (Thread.interrupted()) {
+					notifyBugReportCancel(mBugCatcher.getString(R.string.bugCopyingCancel));
+					return;
+				}
+				outStream.flush();
+				
+				inStream.close();
+				inStream = null;
+				outStream.close();
+				outStream = null;
+			}
+			
+			notifyBugReportFinish(mBugCatcher.getString(R.string.bugCopyingFinished));
+		} catch(IOException ex) {
+			// end if error
+			if (Logging.WARNING) Log.w(TAG, "Cant copy bugReportId");
+			notifyBugReportError(mBugCatcher.getString(R.string.bugCopyingError), bugReportId);
+			notifyWorking(false);
+			return;
+		} finally {
+			try {
+				if (inStream != null)
+					inStream.close();
+			} catch(IOException ex) { }
+			try {
+				if (outStream != null)
+					outStream.close();
+			} catch(IOException ex) { }
+			
+			notifyWorking(false);
+			Thread.interrupted(); // clear flag
+		}
 	}
 	
+	private static final int NOTIFY_PERIOD = 400;
+	
 	public void sendBugsToAuthor() {
+		notifyWorking(true);
 		
+		File bugCatchDir = new File(mBugCatcher.getFilesDir().getAbsolutePath()+"/bugcatcher");
+		
+		StringBuilder inPathSB = new StringBuilder();
+		inPathSB.append(bugCatchDir.getAbsolutePath());
+		int inBugDirLen = inPathSB.length();
+		
+		notifyBugReportBegin(mBugCatcher.getString(R.string.bugSendingBegin));
+		
+		byte[] buffer = new byte[1024];
+		File[] inFiles = bugCatchDir.listFiles();
+		
+		List<File> filteredFiles = filterBugReportContentFiles(inFiles);
+		int count = 0;
+		int total = filteredFiles.size();
+		int progressCount;
+		int progressTotal = total*200;
+		
+		long bugReportId = 0;
+		
+		FileInputStream inStream = null;
+		DataOutputStream outStream = null;
+		DataInputStream connInStream = null;
+		HttpURLConnection conn = null;
+		
+		String bugReportUrl = mBugCatcher.getString(R.string.bugReportUrl);
+		
+		try {
+			for (File file: filteredFiles) {
+				String fname = file.getName();
+				String idString = null;
+				if (fname.endsWith("_context.txt"))
+					idString = fname.substring(0, fname.length()-12);
+				
+				try {
+					bugReportId = Long.parseLong(idString);
+				} catch(ParseException ex) {
+					if (Logging.WARNING) Log.w(TAG, "Cant parse bugReportId");
+					count++;
+					continue;
+				}
+				
+				progressCount = count*200;
+				notifyBugReportProgress(mBugCatcher.getString(R.string.bugSendingProgress),
+						bugReportId, progressCount, progressTotal);
+				
+				if (Thread.interrupted()) {
+					notifyBugReportCancel(mBugCatcher.getString(R.string.bugSendingCancel));
+					return;
+				}
+				
+				/*** create POST request ***/
+				URL url = new URL(bugReportUrl);
+				conn = (HttpURLConnection)url.openConnection();
+				conn.setDoInput(true);
+				conn.setDoOutput(true);
+				conn.setUseCaches(false);
+				conn.setRequestMethod("POST");
+				conn.setRequestProperty("Connection", "Keep-Alive");
+				conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=cdHR5fWD8kWSa1Xa");
+				
+				outStream = new DataOutputStream(conn.getOutputStream());
+				inStream = new FileInputStream(file);
+				
+				long fileLength = file.length();
+				
+				outStream.writeBytes("Content-Disposition: form-data; name=\"content\";filename=\"content\"\r\n");
+				outStream.writeBytes("Content-Type: text/plain;charset=UTF-8\r\n");
+				outStream.writeBytes("Content-Length: "+fileLength);
+				outStream.writeBytes("\r\n");
+				
+				long processed = 0;
+				long currentTime = System.currentTimeMillis();
+				
+				while (true) {
+					
+					int readed = inStream.read(buffer);
+					if (readed == -1)
+						break;
+					outStream.write(buffer, 0, readed);
+					processed += readed;
+					
+					long newTime = System.currentTimeMillis();
+					if (newTime - currentTime >= NOTIFY_PERIOD) {
+						int addend = (int)((processed*100)/fileLength);
+						notifyBugReportProgress(mBugCatcher.getString(R.string.bugSendingProgress),
+								bugReportId, progressCount+addend, progressTotal);
+						currentTime = newTime;
+					}
+				}
+				
+				inStream.close();
+				inStream = null;
+				
+				outStream.writeBytes("\r\n--cdHR5fWD8kWSa1Xa--\r\n");
+				
+				// second file
+				inPathSB.delete(inBugDirLen, inPathSB.length());
+				inPathSB.append(bugReportId);
+				inPathSB.append("_stack.bin");
+				File stackFile = new File(inPathSB.toString());
+				if (stackFile.exists()) { // if exists
+					progressCount = count*200+100;
+					notifyBugReportProgress(mBugCatcher.getString(R.string.bugSendingProgress),
+							bugReportId, progressCount, progressTotal);
+					
+					outStream.writeBytes("Content-Disposition: form-data; name=\"stack\";filename=\"stack\"\r\n");
+					outStream.writeBytes("Content-Type: application/octet-stream\r\n");
+					outStream.writeBytes("Content-Length: "+stackFile.length());
+					outStream.writeBytes("\r\n");
+					
+					inStream = new FileInputStream(file);
+					
+					currentTime = System.currentTimeMillis();
+					while (true) {
+						int readed = inStream.read(buffer);
+						if (readed == -1)
+							break;
+						outStream.write(buffer, 0, readed);
+						
+						long newTime = System.currentTimeMillis();
+						if (newTime - currentTime >= NOTIFY_PERIOD) {
+							int addend = (int)((processed*100)/fileLength);
+							notifyBugReportProgress(mBugCatcher.getString(R.string.bugSendingProgress),
+									bugReportId, progressCount+addend, progressTotal);
+							currentTime = newTime;
+						}
+					}
+					
+					inStream.close();
+					inStream = null;
+					
+					outStream.writeBytes("\r\n--cdHR5fWD8kWSa1Xa--\r\n");
+				}
+				
+				outStream.close();
+				outStream = null;
+				
+				/* read response */
+				connInStream = new DataInputStream(conn.getInputStream());
+				int connLength = conn.getContentLength();
+				
+				if (conn.getResponseCode() != 200) {
+					notifyBugReportError(mBugCatcher.getString(R.string.bugSendingError), bugReportId);
+					return;
+				}
+				
+				byte[] responseData = new byte[connLength];
+				connInStream.read(responseData);
+				String s = new String(responseData);
+				if (!s.contains("\"OK\"")) {
+					notifyBugReportError(mBugCatcher.getString(R.string.bugSendingError), bugReportId);
+					return;
+				}
+				
+				connInStream.close();
+				connInStream = null;
+				
+				conn.disconnect();
+				conn = null;
+				count++;
+			}
+			
+			notifyBugReportFinish(mBugCatcher.getString(R.string.bugSendingFinished));
+			
+		} catch(InterruptedIOException ex) {
+			return; // cancelled
+		} catch(IOException ex) {
+			notifyBugReportError(mBugCatcher.getString(R.string.bugSendingError), bugReportId);
+			return;
+		} finally {
+			try {
+				if (inStream != null)
+					inStream.close();
+			} catch(IOException ex) { }
+			
+			try {
+				if (outStream != null)
+					outStream.close();
+			} catch(IOException ex) { }
+			
+			try {
+				if (connInStream != null)
+					connInStream.close();
+			} catch(IOException ex) { }
+			
+			if (conn != null)
+				conn.disconnect();
+			
+			notifyWorking(false);
+			Thread.interrupted(); // clear flag
+		}
+	}
+	
+	/**
+	 * notifying routines via listener handler
+	 */
+	private synchronized void notifyBugReportBegin(final String desc) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.notifyBugReportBegin(desc);
+			}
+		});
+	}
+	
+	private synchronized void notifyBugReportProgress(final String desc, final long bugReportId,
+			final int count, final int total) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.notifyBugReportProgress(desc, bugReportId, count, total);
+			}
+		});
+	}
+	
+	private synchronized void notifyBugReportError(final String desc, final long bugReportId) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.notifyBugReportError(desc, bugReportId);
+			}
+		});
+	}
+	
+	private synchronized void notifyBugReportCancel(final String desc) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.notifyBugReportCancel(desc);
+			}
+		});
+	}
+	
+	private synchronized void notifyBugReportFinish(final String desc) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mListenerHandler.notifyBugReportFinish(desc);
+			}
+		});
+	}
+	
+	private synchronized void notifyWorking(final boolean isWorking) {
+		boolean prevIsWorking = mIsWorking;
+		if (prevIsWorking != isWorking) {
+			mIsWorking = isWorking;
+			mListenerHandler.post(new Runnable() {
+				@Override
+				public void run() {
+					mListenerHandler.notifyChangeIsWorking(isWorking);
+				}
+			});
+		}
+		if (!isWorking && mBugCatcher.doStopWhenNotWorking()) {
+			// stop service
+			Log.d(TAG, "Stop when not working");
+			mBugCatcher.stopSelf();
+		}
 	}
 }

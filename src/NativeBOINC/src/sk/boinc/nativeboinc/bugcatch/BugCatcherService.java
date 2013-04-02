@@ -18,21 +18,26 @@
  */
 package sk.boinc.nativeboinc.bugcatch;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.NotificationController;
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
-import sk.boinc.nativeboinc.installer.AbstractInstallerListener;
 import sk.boinc.nativeboinc.util.PendingController;
 import sk.boinc.nativeboinc.util.PendingErrorHandler;
 
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ParseException;
 import android.os.Binder;
 import android.os.ConditionVariable;
 import android.os.Handler;
@@ -132,19 +137,27 @@ public class BugCatcherService extends Service {
 
 	public static class ListenerHandler extends Handler {
 		
-		public boolean notifyBugReportBegin(String message) {
+		public boolean notifyBugReportBegin(String desc) {
 			return false;
 		}
 		
-		public boolean notifyBugReportProgress(String message, String bugReportId, int count, int total) {
+		public boolean notifyBugReportProgress(String desc, long bugReportId, int count, int total) {
 			return false;
 		}
 		
-		public boolean notifyBugReportFinish(String message) {
+		public boolean notifyBugReportCancel(String desc) {
 			return false;
 		}
 		
-		public boolean notifyBugReportError(String message, String bugReportId) {
+		public boolean notifyBugReportFinish(String desc) {
+			return false;
+		}
+		
+		public boolean notifyBugReportError(String desc, long bugReportId) {
+			return false;
+		}
+		
+		public boolean notifyChangeIsWorking(boolean working) {
 			return false;
 		}
 	}
@@ -194,7 +207,7 @@ public class BugCatcherService extends Service {
 	public void stopBugCatcher() {
 		BugCatcherHandler handler = mBugCatcherHandler;
 		mBugCatcherHandler = null;
-		handler.cancelAll();
+		handler.cancelOperation();
 		mBugCatcherThread.stopThread();
 		mBugCatcherThread = null;
 		synchronized(this) {
@@ -236,8 +249,59 @@ public class BugCatcherService extends Service {
 		mBugCatcherThread.saveToSDCard();
 	}
 	
+	private static final Comparator<BugReportInfo> sBugReportComparer = new Comparator<BugReportInfo>() {
+		@Override
+		public int compare(BugReportInfo lhs, BugReportInfo rhs) {
+			// TODO Auto-generated method stub
+			return lhs.getId() < rhs.getId() ? -1 : lhs.getId() == rhs.getId() ? 0 : -1;
+		}
+	};
+	
+	/*
+	 * get bug report infos from source
+	 */
 	public static List<BugReportInfo> loadBugReports(Context context) {
-		return null;
+		List<BugReportInfo> bugReportInfos = new ArrayList<BugReportInfo>(1);
+		File bugCatchDir = new File(context.getFilesDir()+"/bugcatch");
+		for (File file: bugCatchDir.listFiles()) {
+			String fname = file.getName();
+			if (!fname.endsWith("_context.txt"))
+				continue; // ignore stack file
+			
+			BufferedReader reader = null;
+			try {
+				String idString = fname.substring(0, fname.length()-12);
+				long id = Long.parseLong(idString);
+				
+				reader = new BufferedReader(new FileReader(file));
+				reader.readLine(); // skip first line
+				reader.readLine(); // skip second line
+				String content = reader.readLine();
+				
+				if (content == null)
+					continue;
+				
+				content = content.substring(12); // skip "CommandLine:"
+				if (content.length() >= 160) // cut cmdline file if needed
+					content = content.substring(0, 160);
+				
+				bugReportInfos.add(new BugReportInfo(id, content));
+			} catch(ParseException ex) {
+				if (Logging.WARNING) Log.w(TAG, "Cant parse bugReportId");
+				continue;
+			} catch(IOException ex) {
+				if (Logging.WARNING) Log.w(TAG, "Cant read content");
+				continue; // skip,ignore
+			} finally {
+				try {
+					if (reader != null)
+						reader.close();
+				} catch(IOException ex) { }
+			}
+		}
+		
+		Collections.sort(bugReportInfos, sBugReportComparer);
+		return bugReportInfos;
 	}
 	
 	public void sendBugsToAuthor() {
@@ -258,12 +322,13 @@ public class BugCatcherService extends Service {
 			public boolean handleError(BugCatchOp bugCatchOp, Object error) {
 				if (error == null)
 					return false;
-				return listener.onBugReportError(null);
+				return listener.onBugReportError(0);
 			}
 		});
 	}
 	
 	public void cancelOperation() {
-		
+		if (mBugCatcherHandler != null)
+			mBugCatcherHandler.cancelOperation();
 	}
 }

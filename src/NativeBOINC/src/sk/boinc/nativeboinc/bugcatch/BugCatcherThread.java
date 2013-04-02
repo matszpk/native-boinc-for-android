@@ -54,7 +54,7 @@ private final static String TAG = "InstallerThread";
 		if (Logging.DEBUG) Log.d(TAG, "run() - Started " + Thread.currentThread().toString());
 		Looper.prepare();
 		
-		mHandler = new BugCatcherHandler(mBugCatcherService, mListenerHandler);
+		mHandler = new BugCatcherHandler(mBugCatcherService, mListenerHandler, this);
 		
 		if (mLock != null) {
 			mLock.open();

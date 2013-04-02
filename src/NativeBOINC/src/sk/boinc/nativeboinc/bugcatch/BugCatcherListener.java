@@ -8,10 +8,11 @@ package sk.boinc.nativeboinc.bugcatch;
  *
  */
 public interface BugCatcherListener {
-	public abstract void onBugReportBegin(String message);
-	public abstract void onBugReportProgress(String message, String bugReportId, int count, int total);
-	public abstract void onBugReportFinish(String message);
-	public abstract boolean onBugReportError(String bugReportId);
+	public abstract void onBugReportBegin(String desc);
+	public abstract void onBugReportProgress(String desc, long bugReportId, int count, int total);
+	public abstract void onBugReportCancel(String desc);
+	public abstract void onBugReportFinish(String desc);
+	public abstract boolean onBugReportError(long bugReportId);
 	
 	public abstract void isBugCatcherWorking(boolean isWorking);
 }

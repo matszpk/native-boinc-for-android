@@ -133,7 +133,9 @@ public class NativeBoincWorkerHandler extends Handler {
 		for (Result result: ccState.results) {
 			Project project = mProjects.get(result.project_url);
 			Workunit workunit = mWorkunits.get(result.wu_name);
-			App app = mApps.get(workunit.app_name);
+			App app = null;
+			if (workunit != null)
+				app = mApps.get(workunit.app_name);
 			if (project == null || workunit == null || app == null) {
 				if (Logging.WARNING) Log.d(TAG, "Warning datasets are incomplete! skipping result "+
 							result.name);

@@ -18,9 +18,6 @@
  */
 package sk.boinc.nativeboinc.news;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 /**
  * @author mat
  *

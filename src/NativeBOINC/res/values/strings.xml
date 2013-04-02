@@ -422,12 +422,14 @@
 	<string name="sendBugReports">Send reports</string>
 	<string name="sendBugs">Send bugs</string>
 	<string name="bugSendingBegin">Begin a sending bug reports to author</string>
-	<string name="bugSendingProgress">Sending %d bug reports to author</string>
+	<string name="bugSendingProgress">Sending bug reports to author</string>
 	<string name="bugSendingError">Can\'t send some bug reports</string>
+	<string name="bugSendingCancel">Sending bug reports cancelled</string>
 	<string name="bugSendingFinished">Sending bug reports finished</string>
 	<string name="bugCopyingBegin">Begin a copying bug reports to SDCard</string>
-	<string name="bugCopyingProgress">Copying %d bug reports to SDCard</string>
+	<string name="bugCopyingProgress">Copying bug reports to SDCard</string>
 	<string name="bugCopyingError">Can\'t copy some bug reports to SDCard</string>
+	<string name="bugCopyingCancel">Copying bug reports to SDCard cancelled</string>
 	<string name="bugCopyingFinished">Copying bug reports to SDCard</string>
 	<string name="bugCatchClearQuestion">Do you want to clear bug reports? If Yes, bug reports won\'t be sent to author.</string>
 	

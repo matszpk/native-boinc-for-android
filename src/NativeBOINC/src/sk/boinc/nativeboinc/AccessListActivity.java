@@ -267,18 +267,17 @@ public class AccessListActivity extends ServiceBoincActivity implements Abstract
 		});
 	}
 	
-	private void updateRunnerError() {
+	private void updateActivityState() {
 		if (mRunner == null)
 			return;
 		
+		setProgressBarIndeterminateVisibility(mRunner.serviceIsWorking());
 		mRunner.handlePendingErrorMessage(this);
 	}
 	
 	@Override
 	public void onRunnerConnected() {
-		setProgressBarIndeterminateVisibility(mRunner.serviceIsWorking());
-		// update runner error (show)
-		updateRunnerError();
+		updateActivityState();
 	}
 	
 	@Override
@@ -291,9 +290,7 @@ public class AccessListActivity extends ServiceBoincActivity implements Abstract
 		super.onResume();
 		
 		mAccessListAdapter.notifyDataSetChanged();
-		
-		// update runner error (show)
-		updateRunnerError();
+		updateActivityState();
 	}
 	
 	@Override

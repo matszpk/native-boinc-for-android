@@ -39,6 +39,7 @@ public interface PreferenceName {
 	public static final String LAST_ACTIVE_TAB = "lastActiveTab";
 	public static final String LIMIT_MESSAGES = "limitMessages";
 	public static final String LAST_MESSAGES_FILTER = "lastMessagesFilter";
+	public static final String BUG_CATCHER_ENABLED = "bugCatcherEnabled";
 	
 	/* for client */
 	public static final String CLIENT_VERSION = "clientVersion";

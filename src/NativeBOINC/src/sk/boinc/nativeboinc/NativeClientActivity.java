@@ -65,6 +65,7 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	
 	private static final int ACTIVITY_ACCESS_LIST = 1;
 	private static final int ACTIVITY_CONFIG_FILE = 2;
+	private static final int ACTIVITY_BUG_CATCHER = 3;
 	
 	private static final int DIALOG_APPLY_AFTER_RESTART = 1;
 	private static final int DIALOG_ENTER_DUMP_DIRECTORY = 2;
@@ -403,6 +404,17 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 			}
 		});
 		
+		/* show bug catcher activity */
+		pref = (Preference)findPreference(PreferenceName.NATIVE_BUG_CATCHER);
+		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				startActivityForResult(new Intent(NativeClientActivity.this, BugCatcherActivity.class),
+						ACTIVITY_BUG_CATCHER);
+				return true;
+			}
+		});
+		
 		/* show logs preference */
 		pref = (Preference)findPreference(PreferenceName.NATIVE_SHOW_LOGS);
 		pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -711,6 +723,12 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == ACTIVITY_BUG_CATCHER && resultCode == RESULT_OK) {
+			if (data != null && data.getBooleanExtra(BugCatcherActivity.RESULT_RESTARTED, false)) {
+				if (Logging.DEBUG) Log.d(TAG, "on bug catcher finish: client restarted");
+				mDoRestart = true;
+			}
+		}
 		if (requestCode == ACTIVITY_CONFIG_FILE && resultCode == RESULT_OK) {
 			if (data != null && data.getBooleanExtra(ConfigFileActivity.RESULT_RESTARTED, false)) {
 				if (Logging.DEBUG) Log.d(TAG, "on config file finish: client restarted");

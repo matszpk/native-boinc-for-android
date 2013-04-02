@@ -18,13 +18,23 @@
  */
 package sk.boinc.nativeboinc.bugcatch;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
+import sk.boinc.nativeboinc.BoincManagerApplication;
+import sk.boinc.nativeboinc.NotificationController;
+import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.installer.AbstractInstallerListener;
+import sk.boinc.nativeboinc.util.PendingController;
+import sk.boinc.nativeboinc.util.PendingErrorHandler;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
@@ -45,12 +55,17 @@ public class BugCatcherService extends Service {
 	
 	private final IBinder mBinder = new LocalBinder();
 	
+	private BoincManagerApplication mApp = null;
+	private NotificationController mNotificationController = null;
+	
 	private int mBindCounter = 0;
 	private boolean mUnlockStopWhenNotWorking = false;
 	private Object mStoppingLocker = new Object();
 	
 	private Runnable mBugCatchStopper = null;
 	private Handler mBugCatchHandler;
+	
+	private PendingController<BugCatchOp> mPendingController = new PendingController<BugCatchOp>("BugCatcher");
 	
 	private static final int DELAYED_DESTROY_INTERVAL = 4000;
 	
@@ -85,12 +100,12 @@ public class BugCatcherService extends Service {
 			bindCounter = mBindCounter;
 		}
 		if (Logging.DEBUG) Log.d(TAG, "Unbind. bind counter: " + bindCounter);
-		if (!isWorking() && bindCounter == 0) {
+		if (!serviceIsWorking() && bindCounter == 0) {
 			mBugCatchStopper = new Runnable() {
 				@Override
 				public void run() {
 					synchronized(mStoppingLocker) {
-						if (isWorking() || mBindCounter != 0) {
+						if (serviceIsWorking() || mBindCounter != 0) {
 							mUnlockStopWhenNotWorking = (mBindCounter == 0);
 							mBugCatchStopper = null;
 							return;
@@ -114,32 +129,141 @@ public class BugCatcherService extends Service {
 		return (mBindCounter == 0 && mUnlockStopWhenNotWorking);
 	}
 	
+
+	public static class ListenerHandler extends Handler {
+		
+		public boolean notifyBugReportBegin(String message) {
+			return false;
+		}
+		
+		public boolean notifyBugReportProgress(String message, String bugReportId, int count, int total) {
+			return false;
+		}
+		
+		public boolean notifyBugReportFinish(String message) {
+			return false;
+		}
+		
+		public boolean notifyBugReportError(String message, String bugReportId) {
+			return false;
+		}
+	}
+	
+	private ListenerHandler mListenerHandler = null;
+	private BugCatcherThread mBugCatcherThread = null;
+	private BugCatcherHandler mBugCatcherHandler = null;
+	
+	private ArrayList<BugCatcherListener> mListeners = new ArrayList<BugCatcherListener>();
+	
+	@Override
+	public void onCreate() {
+		if (Logging.DEBUG) Log.d(TAG, "onCreate");
+		mApp = (BoincManagerApplication)getApplication();
+		mNotificationController = mApp.getNotificationController();
+		mListenerHandler = new ListenerHandler();
+		mPendingController = new PendingController<BugCatchOp>("BugCatcher");
+		
+		startBugCatcher();
+	}
+	
 	@Override
 	public void onDestroy() {
 		if (Logging.DEBUG) Log.d(TAG, "onDestroy");
-		//stopInstaller();
-		//mNotificationController = null;
-		//mApp = null;
+		stopBugCatcher();
+		mNotificationController = null;
+		mApp = null;
+	}
+	
+	private void startBugCatcher() {
+		if (mBugCatcherThread != null)
+			return;	// do nothing
+		
+		if (Logging.DEBUG) Log.d(TAG, "Starting up BugCatcher");
+		ConditionVariable lock = new ConditionVariable(false);
+		mBugCatcherThread = new BugCatcherThread(lock, this, mListenerHandler);
+		mBugCatcherThread.start();
+		boolean runningOk = lock.block(2000); // Locking until new thread fully runs
+		if (!runningOk) {
+			if (Logging.ERROR) Log.e(TAG, "BugCatcherThread did not start in 1 second");
+			throw new RuntimeException("BugCatcher thread cannot start");
+		}
+		if (Logging.DEBUG) Log.d(TAG, "BugCatcherThread started successfully");
+		mBugCatcherHandler = mBugCatcherThread.getInstallerHandler();
+	}
+	
+	public void stopBugCatcher() {
+		BugCatcherHandler handler = mBugCatcherHandler;
+		mBugCatcherHandler = null;
+		handler.cancelAll();
+		mBugCatcherThread.stopThread();
+		mBugCatcherThread = null;
+		synchronized(this) {
+			mListeners.clear();
+		}
+		try {
+			Thread.sleep(200);
+		} catch(InterruptedException ex) { }
+		handler.destroy();
+	}
+	
+	public synchronized void addBugCatcherListener(BugCatcherListener listener) {
+		if (mListeners != null)
+			mListeners.add(listener);
+	}
+	
+	public synchronized void removeBugCatcherListener(BugCatcherListener listener) {
+		if (mListeners != null)
+			mListeners.remove(listener);
 	}
 	
 	
-	public boolean isWorking() {
-		return false;
+	public boolean serviceIsWorking() {
+		if (mBugCatcherHandler == null)
+			return false;
+		return mBugCatcherHandler.isWorking();
 	}
 
-	public static void clearBugReports() {
-		
+	public static void clearBugReports(Context context) {
+		File bugCatchDir = new File(context.getFilesDir()+"/bugcatch");
+		for (File file: bugCatchDir.listFiles())
+			file.delete();
 	}
 	
-	public static void saveToSDCard() {
+	public void saveToSDCard() {
+		if (mBugCatcherHandler == null) return;
 		
+		mNotificationController.notifyBugCatcherBegin(mApp.getString(R.string.bugCopyingBegin));
+		mBugCatcherThread.saveToSDCard();
 	}
 	
-	public static List<BugReportInfo> loadBugReports() {
+	public static List<BugReportInfo> loadBugReports(Context context) {
 		return null;
 	}
 	
 	public void sendBugsToAuthor() {
+		if (mBugCatcherHandler == null) return;
+		
+		mNotificationController.notifyBugCatcherBegin(mApp.getString(R.string.bugSendingBegin));
+		mBugCatcherThread.sendBugsToAuthor();
+	}
+	
+	/**
+	 * get pending install error
+	 * @return pending install error
+	 */
+	public boolean handlePendingErrors(final BugCatchOp bugCatchOp, final BugCatcherListener listener) {
+		return mPendingController.handlePendingErrors(bugCatchOp, new PendingErrorHandler<BugCatchOp>() {
+			
+			@Override
+			public boolean handleError(BugCatchOp bugCatchOp, Object error) {
+				if (error == null)
+					return false;
+				return listener.onBugReportError(null);
+			}
+		});
+	}
+	
+	public void cancelOperation() {
 		
 	}
 }

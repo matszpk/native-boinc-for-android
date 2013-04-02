@@ -33,6 +33,35 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/bugCatcher" />
+    <RelativeLayout android:id="@+id/progressItem"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dip"
+        android:paddingRight="10dip">
+        <TextView android:id="@+id/progressInfo"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:layout_alignParentLeft="true"
+	    	android:layout_toLeftOf="@+id/progressCancel"
+	    	android:paddingBottom="5dip" />
+        <Button android:id="@+id/progressCancel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:drawableRight="@android:drawable/ic_delete" /> 
+	    <ProgressBar
+			android:id="@+id/progressBar"
+			style="?android:attr/progressBarStyleHorizontal"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/progressInfo"
+			android:layout_alignParentLeft="true"
+			android:layout_toLeftOf="@+id/progressCancel"
+			android:layout_weight="1"
+			android:max="10000"
+			android:progress="10" />
+	</RelativeLayout>
     
     <LinearLayout
         android:layout_width="fill_parent"
@@ -40,7 +69,7 @@
         android:orientation="vertical"
         android:layout_weight="1">
 	    <ListView
-			android:id="@android:id/list"
+			android:id="@+id/bugsList"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
 	    <View android:layout_width="fill_parent"

@@ -18,32 +18,35 @@
  */
 package sk.boinc.nativeboinc.bugcatch;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import android.os.Handler;
 
-public class BugReportInfo {
-	private long mReportId;
-	private String mTime;
-	private String mContent; // only 10 lines of content (excluding header)
-	
-	private static final DateFormat sDisplayTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS"); 
-	
-	public BugReportInfo(long id, String content) {
-		this.mReportId = id;
-		this.mTime = sDisplayTimeFormat.format(new Date(id));
-		this.mContent = content;
+/**
+ * @author mat
+ *
+ */
+public class BugCatcherHandler extends Handler {
+
+	public BugCatcherHandler(BugCatcherService service, BugCatcherService.ListenerHandler listenerHandler) {
+		
 	}
 	
-	public long getId() {
-		return mReportId;
+	public void cancelAll() {
+		
 	}
 	
-	public String getTime() {
-		return mTime;
+	public void destroy() {
+		
 	}
 	
-	public String getContent() {
-		return mContent;
+	public synchronized boolean isWorking() {
+		return false;
+	}
+	
+	public void saveToSDCard() {
+		
+	}
+	
+	public void sendBugsToAuthor() {
+		
 	}
 }

@@ -556,6 +556,9 @@ public class InstallerService extends Service {
 			Thread.sleep(200);
 		} catch(InterruptedException ex) { }
 		handler.destroy();
+		// cancelling all in pending channels
+		for (int i = 0; i < mPendingChannels.length; i++)
+			mPendingChannels[i].cancelAll();
 	}
 	
 	/**

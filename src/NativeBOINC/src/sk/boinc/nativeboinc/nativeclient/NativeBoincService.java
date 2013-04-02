@@ -405,11 +405,13 @@ public class NativeBoincService extends Service implements MonitorListener,
 	public void onDestroy() {
 		if (Logging.DEBUG) Log.d(TAG, "onDestroy");
 		if (isRun()) {
-			mWorkerThread.shutdownClient();
-			
-			try { // waits 5 seconds
-				Thread.sleep(5000);
-			} catch(InterruptedException ex) { }
+			if (mWorkerThread != null) {
+				mWorkerThread.shutdownClient();
+				
+				try { // waits 5 seconds
+					Thread.sleep(5000);
+				} catch(InterruptedException ex) { }
+			}
 			
 			NativeBoincUtils.killAllNativeBoincs(this);
 			NativeBoincUtils.killAllBoincZombies();
@@ -437,6 +439,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 		mPartialWakeLock = null;
 		
 		mNotificationController = null;
+		
+		for (int i = 0; i < mWorkerPendingChannels.length; i++)
+			mWorkerPendingChannels[i].cancelAll();
 	}
 	
 	private List<AbstractNativeBoincListener> mListeners = new ArrayList<AbstractNativeBoincListener>();
@@ -480,6 +485,47 @@ public class NativeBoincService extends Service implements MonitorListener,
 	private void stopServiceInForeground() {
 		stopForeground(true);
 	}
+	
+	/* holds execution and waiting:
+	 * native boinc thread after running boinc, tries to connect with boinc, causes a missing
+	 * of process creation, whose needed to full tracing (must be catched by tracer) */
+	private class BugCatchBoincHolder extends Thread {
+		private volatile int mBoincPid = -1;
+		private int mExitCode;
+		private boolean mIsSDCard;
+		private String mBoincDir;
+		private String[] mBoincArgs;
+		private String mProgramName;
+		
+		public BugCatchBoincHolder(boolean isSDCard, String programName, String boincDir,
+				String[] boincArgs) {
+			mIsSDCard = isSDCard;
+			mProgramName = programName;
+			mBoincArgs = boincArgs;
+			mBoincDir = boincDir;
+		}
+		
+		@Override
+		public void run() {
+			if (mIsSDCard)
+				mBoincPid = ProcessUtils.bugCatchExecSD(mProgramName, mBoincDir, mBoincArgs);
+			else
+				mBoincPid = ProcessUtils.bugCatchExec(mProgramName, mBoincDir, mBoincArgs);
+			// init bug catcher
+			ProcessUtils.bugCatchInit(mBoincPid);
+			
+			try {
+				mExitCode = ProcessUtils.bugCatchWaitForProcess(mBoincPid);
+			} catch(InterruptedException ex) { }
+		}
+		
+		public int getExitCode() {
+			return mExitCode;
+		}
+		public int getBoincPid() {
+			return mBoincPid;
+		}
+	}
 		
 	private class NativeBoincThread extends Thread {
 		private static final String TAG = "NativeBoincThread";
@@ -501,6 +547,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 			boolean isSDCard = BoincManagerApplication.isSDCardInstallation(NativeBoincService.this);
 			String boincDir = BoincManagerApplication.getBoincDirectory(NativeBoincService.this, isSDCard);
 			
+			boolean bugCatcherEnabled = globalPrefs.getBoolean(PreferenceName.BUG_CATCHER_ENABLED, false);
+			
 			boolean usePartial = globalPrefs.getBoolean(PreferenceName.POWER_SAVING, false);
 			
 			mShutdownCommandWasPerformed = false;
@@ -516,10 +564,25 @@ public class NativeBoincService extends Service implements MonitorListener,
 			if (allowRemoteAccess)
 				boincArgs = new String[] { "--parent_lifecycle", "--allow_remote_gui_rpc" };
 			
-			if (isSDCard)
-				mBoincPid = ProcessUtils.execSD(programName, boincDir, boincArgs);
-			else
-				mBoincPid = ProcessUtils.exec(programName, boincDir, boincArgs);
+			BugCatchBoincHolder bugCatchBoincHolder = null;
+			
+			if (!bugCatcherEnabled) {
+				if (isSDCard)
+					mBoincPid = ProcessUtils.execSD(programName, boincDir, boincArgs);
+				else
+					mBoincPid = ProcessUtils.exec(programName, boincDir, boincArgs);
+			} else { // instead running directly we are using holder
+				bugCatchBoincHolder = new BugCatchBoincHolder(isSDCard, programName, boincDir, boincArgs);
+				bugCatchBoincHolder.start();
+				for (int i = 0; i < 4; i++) { // obtaining boinc pid
+					mBoincPid = bugCatchBoincHolder.getBoincPid();
+					if (mBoincPid != -1)
+						break; // is ran
+					try { // sleep by 0.1 second
+						Thread.sleep(100);
+					} catch(InterruptedException ex) { }
+				}
+			}
 			
 			if (mBoincPid == -1) {
 				if (Logging.ERROR) Log.e(TAG, "Running boinc_client failed");
@@ -619,14 +682,16 @@ public class NativeBoincService extends Service implements MonitorListener,
 			
 			// worker thread
 			ConditionVariable lock = new ConditionVariable(false);
-			mWorkerThread = new NativeBoincWorkerThread(mListenerHandler, NativeBoincService.this, lock, rpcClient);
-			mWorkerThread.start();
+			NativeBoincWorkerThread workerThread; 
+			workerThread = new NativeBoincWorkerThread(mListenerHandler, NativeBoincService.this, lock, rpcClient);
+			workerThread.start();
 			
 			boolean runningOk = lock.block(200); // Locking until new thread fully runs
 			if (!runningOk) {
 				if (Logging.ERROR) Log.e(TAG, "NativeBoincWorkerThread did not start in 0.2 second");
 			} else 
 				if (Logging.DEBUG) Log.d(TAG, "NativeBoincWorkerThread started successfully");
+			mWorkerThread = workerThread;
 			
 			// monitor thread
 			if (monitorAuthCode != null) {
@@ -652,7 +717,12 @@ public class NativeBoincService extends Service implements MonitorListener,
 			
 			try { /* waiting to quit */
 				if (Logging.DEBUG) Log.d(TAG, "Waiting for boinc_client");
-				exitCode = ProcessUtils.waitForProcess(mBoincPid);
+				if (!bugCatcherEnabled)
+					exitCode = ProcessUtils.waitForProcess(mBoincPid);
+				else { // if bug catcher enabled
+					bugCatchBoincHolder.join();
+					exitCode = bugCatchBoincHolder.getExitCode();
+				}
 			} catch(InterruptedException ex) {
 			}
 			
@@ -906,7 +976,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 			
 			mNativeKillerThread = new NativeKillerThread();
 			mNativeKillerThread.start();
-			mWorkerThread.shutdownClient();
+			if (mWorkerThread != null)
+				mWorkerThread.shutdownClient();
 		}
 	}
 	

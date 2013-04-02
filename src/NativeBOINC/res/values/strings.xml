@@ -26,6 +26,7 @@
 	<string name="service_desc">Enables participating to BOINC projects on Android devices</string>
 	<string name="install_service_desc">Native Client and BOINC application Installer service </string>
 	<string name="nboinc_service_desc">Native BOINC client service</string>
+	<string name="bugcatcher_service_desc">NativeBOINC BugCatcher service</string>
 
 	<string name="newsHandlerDesc">News Handler</string>
 	<!-- widget names -->
@@ -416,16 +417,19 @@
 	<string name="bugsDetectedTitle">Bugs detected!</string>
 	<string name="bugsDetectedSummary">Bugs has been detected. Please enable BugCatcher.</string>
 	<string name="bugCatcher">Bug catcher mode</string>
-	<string name="bugCatcherDesc">This mode allow to catch a severe bugs in the BOINC and BOINC applications.</string>
+	<string name="bugCatcherDesc">This mode allow to catch a severe bugs in a client and an apps.</string>
 	<string name="enableBugCatch">Enable BugCatchMode</string>
 	<string name="sendBugReports">Send reports</string>
 	<string name="sendBugs">Send bugs</string>
+	<string name="bugSendingBegin">Begin a sending bug reports to author</string>
 	<string name="bugSendingProgress">Sending %d bug reports to author</string>
 	<string name="bugSendingError">Can\'t send some bug reports</string>
 	<string name="bugSendingFinished">Sending bug reports finished</string>
-	<string name="bugCopyingProgress">Copying %d bug reports to author</string>
-	<string name="bugCopyingError">Can\'t copy some bug reports</string>
-	<string name="bugCopyingFinished">Copying bug reports finished</string>
+	<string name="bugCopyingBegin">Begin a copying bug reports to SDCard</string>
+	<string name="bugCopyingProgress">Copying %d bug reports to SDCard</string>
+	<string name="bugCopyingError">Can\'t copy some bug reports to SDCard</string>
+	<string name="bugCopyingFinished">Copying bug reports to SDCard</string>
+	<string name="bugCatchClearQuestion">Do you want to clear bug reports? If Yes, bug reports won\'t be sent to author.</string>
 	
 	<string name="synchronizeBAM">Synchronize BAM</string>
 	<!--  progress dialog messages -->

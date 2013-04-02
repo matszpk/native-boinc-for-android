@@ -23,7 +23,7 @@
 #include <time.h>
 #include <errno.h>
 #include <unistd.h>
-#include <time.h>
+#include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/ptrace.h>
@@ -323,18 +323,23 @@ static int reportStupidBug(pid_t pid)
     size_t stackstart, stackend = 0;
     int memfd;
 
-    time_t report_time;
+    struct timeval report_time;
     FILE* report_file = NULL;
-    time(&report_time);
+    int report_time_milli;
 
-    snprintf(namebuf,256,"/data/data/sk.boinc.nativeboinc/files/bugcatch/%d_content",report_time);
+    usleep(1000); // prevents overwritting existing report
+    gettimeofday(&report_time, NULL);
+    report_time_milli = report_time.tv_usec/1000;
+
+    snprintf(namebuf,256,"/data/data/sk.boinc.nativeboinc/files/bugcatch/%d%03d_content.txt",report_time.tv_sec,
+    		report_time_milli);
     report_file = fopen(namebuf, "wb");
     if (report_file == NULL)
     	return -1;
 
     fputs("---- NATIVEBOINC BUGCATCH REPORT HEADER ----\n",report_file);
 
-    fprintf(report_file,"BugReportId:%ld\n", report_time);
+    fprintf(report_file,"BugReportTime:%d.%03d\n", report_time.tv_sec, report_time_milli);
     // process info
     snprintf(namebuf,256,"/proc/%d/cmdline");
     reportCmdLine(report_file,namebuf);
@@ -421,7 +426,8 @@ static int reportStupidBug(pid_t pid)
         		stackend = stackstart += MAX_STACK_SIZE;
             fprintf(report_file,"Process stack:%08zx-%08zx\n",stackstart, stackend);
 
-            snprintf(namebuf,256,"/data/data/sk.boinc.nativeboinc/files/bugcatch/%d_stack",report_time);
+            snprintf(namebuf,256,"/data/data/sk.boinc.nativeboinc/files/bugcatch/%d%03d_stack.bin",
+            		report_time.tv_sec,report_time_milli);
             reportfd = open(namebuf, O_WRONLY|O_CREAT);
             if (reportfd!=-1)
             {
@@ -468,10 +474,7 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchWaitF
 			if (WSTOPSIG(status) == SIGTRAP || WSTOPSIG(status) == SIGSTOP)
 			{
 				if (ptrace(PTRACE_CONT, pid, NULL, NULL) == -1)
-				{
 					perror("PTrace cont");
-					return -1;
-				}
 			}
 			else
 			{
@@ -481,10 +484,7 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchWaitF
 					reportStupidBug(pid);
 
 				if (ptrace(PTRACE_CONT, pid, NULL, WSTOPSIG(status)) == -1)
-				{
 					perror("PTrace cont");
-					return -1;
-				}
 			}
 		}
 	} while (pid != mainPid || (!WIFEXITED(status) && !WIFSIGNALED(status)));

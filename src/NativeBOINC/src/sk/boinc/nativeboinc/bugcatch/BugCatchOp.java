@@ -18,32 +18,45 @@
  */
 package sk.boinc.nativeboinc.bugcatch;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-public class BugReportInfo {
-	private long mReportId;
-	private String mTime;
-	private String mContent; // only 10 lines of content (excluding header)
+/**
+ * @author mat
+ *
+ */
+public class BugCatchOp {
+	public final int opCode;
 	
-	private static final DateFormat sDisplayTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS"); 
+	public static final int OP_SEND_BUGS = 0;
+	public static final int OP_BUGS_TO_SDCARD = 0;
 	
-	public BugReportInfo(long id, String content) {
-		this.mReportId = id;
-		this.mTime = sDisplayTimeFormat.format(new Date(id));
-		this.mContent = content;
+	public static final BugCatchOp SendBugs = new BugCatchOp(OP_SEND_BUGS);
+	public static final BugCatchOp BugsToSDCard = new BugCatchOp(OP_BUGS_TO_SDCARD);
+	
+	protected BugCatchOp(int opCode) {
+		this.opCode = opCode;
 	}
 	
-	public long getId() {
-		return mReportId;
+	@Override
+	public boolean equals(Object ob) {
+		if (this == null)
+			return false;
+		if (this == ob)
+			return true;
+		
+		if (ob instanceof BugCatchOp) {
+			BugCatchOp op = (BugCatchOp)ob;
+			if (this.opCode != op.opCode)
+				return false;
+		}
+		return false;
 	}
 	
-	public String getTime() {
-		return mTime;
+	@Override
+	public int hashCode() {
+		return opCode;
 	}
 	
-	public String getContent() {
-		return mContent;
+	@Override
+	public String toString() {
+		return "["+opCode+"]";
 	}
 }

@@ -32,6 +32,7 @@ import java.util.List;
 
 import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.util.FileUtils;
 
 import android.net.ParseException;
 import android.os.Environment;
@@ -83,11 +84,12 @@ public class BugCatcherHandler extends Handler {
 		return outFiles;
 	}
 	
-	public void saveToSDCard() {
+	public void saveToSDCard(String bugSDCardDir) {
 		notifyWorking(true);
 		File bugCatchDir = new File(mBugCatcher.getFilesDir().getAbsolutePath()+"/bugcatch");
 		
 		if (!bugCatchDir.exists()) {
+			if (Logging.INFO) Log.i(TAG, "BugCatcher directory doesnt exists");
 			notifyBugReportFinish(BugCatchOp.BugsToSDCard,
 					mBugCatcher.getString(R.string.bugCopyingFinished));
 			notifyWorking(false);
@@ -99,8 +101,11 @@ public class BugCatcherHandler extends Handler {
 		int inBugDirLen = inPathSB.length();
 		/* prepare outpath */
 		StringBuilder outPathSB = new StringBuilder();
-		outPathSB.append(Environment.getExternalStorageDirectory());
-		outPathSB.append("/boincbugs/");
+		outPathSB.append(FileUtils.joinBaseAndPath(
+				Environment.getExternalStorageDirectory().getAbsolutePath(),
+				bugSDCardDir));
+		if (outPathSB.charAt(outPathSB.length()-1) != '/')
+			outPathSB.append('/');
 		int outBugDirLen = outPathSB.length();
 		
 		notifyBugReportBegin(BugCatchOp.BugsToSDCard, mBugCatcher.getString(R.string.bugCopyingBegin));
@@ -132,7 +137,9 @@ public class BugCatcherHandler extends Handler {
 					count++;
 					continue;
 				}
-					
+				
+				if (Logging.DEBUG) Log.d(TAG, "Copying bugreport "+bugReportId);
+				
 				notifyBugReportProgress(BugCatchOp.BugsToSDCard,
 						mBugCatcher.getString(R.string.bugCopyingProgress),
 						bugReportId, count, total);
@@ -173,8 +180,12 @@ public class BugCatcherHandler extends Handler {
 				inPathSB.append(bugReportId);
 				inPathSB.append("_stack.bin");
 				File stackFile = new File(inPathSB.toString());
-				if (!stackFile.exists())
+				if (!stackFile.exists()) {
+					if (Logging.INFO) Log.i(TAG, "No stack for report bug "+bugReportId);
 					continue; // skip if doesnt exists
+				}
+				
+				if (Logging.DEBUG) Log.d(TAG, "Copying stack bugreport "+bugReportId);
 				
 				inStream = new FileInputStream(stackFile);
 				
@@ -235,6 +246,7 @@ public class BugCatcherHandler extends Handler {
 		File bugCatchDir = new File(mBugCatcher.getFilesDir().getAbsolutePath()+"/bugcatch");
 		
 		if (!bugCatchDir.exists()) {
+			if (Logging.INFO) Log.i(TAG, "BugCatcher directory doesnt exists");
 			notifyBugReportFinish(BugCatchOp.BugsToSDCard,
 					mBugCatcher.getString(R.string.bugCopyingFinished));
 			notifyWorking(false);
@@ -282,6 +294,8 @@ public class BugCatcherHandler extends Handler {
 					continue;
 				}
 				
+				if (Logging.DEBUG) Log.d(TAG, "Sending bugreport "+bugReportId);
+				
 				progressCount = count*200;
 				notifyBugReportProgress(BugCatchOp.SendBugs,
 						mBugCatcher.getString(R.string.bugSendingProgress),
@@ -317,7 +331,6 @@ public class BugCatcherHandler extends Handler {
 				long currentTime = System.currentTimeMillis();
 				
 				while (true) {
-					
 					int readed = inStream.read(buffer);
 					if (readed == -1)
 						break;
@@ -350,6 +363,8 @@ public class BugCatcherHandler extends Handler {
 								mBugCatcher.getString(R.string.bugSendingCancel));
 						return;
 					}
+					
+					if (Logging.DEBUG) Log.d(TAG, "Sending stack bugreport "+bugReportId);
 					
 					progressCount = count*200+100;
 					notifyBugReportProgress(BugCatchOp.SendBugs,
@@ -384,6 +399,8 @@ public class BugCatcherHandler extends Handler {
 					inStream = null;
 					
 					outStream.writeBytes("\r\n--cdHR5fWD8kWSa1Xa--\r\n");
+				} else {
+					if (Logging.INFO) Log.i(TAG, "No stack for report bug "+bugReportId);
 				}
 				
 				outStream.close();
@@ -413,6 +430,14 @@ public class BugCatcherHandler extends Handler {
 				
 				conn.disconnect();
 				conn = null;
+				
+				// deleting obsolete bugreport
+				BugCatcherService.openLockForWrite();
+				file.delete();
+				if (stackFile.exists())
+					stackFile.delete();
+				BugCatcherService.closeLockForWrite();
+				
 				count++;
 			}
 			

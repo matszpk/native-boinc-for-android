@@ -706,7 +706,7 @@ public class NotificationController {
 		if (mBugsDetectedNotification != null)
 			mBugsDetectedNotification.when = System.currentTimeMillis();
 		else
-			mBugsDetectedNotification = new Notification(R.drawable.ic_download, notifyText,
+			mBugsDetectedNotification = new Notification(R.drawable.nb_bug_alpha, notifyText,
 					System.currentTimeMillis());
 		
 		mBugsDetectedNotification.contentIntent = pendingIntent;
@@ -744,7 +744,7 @@ public class NotificationController {
 		RemoteViews contentView = new RemoteViews(mAppContext.getPackageName(),
 				R.layout.install_notification);
 		
-		Notification notification = new Notification(R.drawable.ic_progress,
+		Notification notification = new Notification(R.drawable.nb_bug_alpha,
 				mAppContext.getString(R.string.moveToBegin),
 				System.currentTimeMillis());
 		mBugCatcherNotification = new DistribNotification(NotificationId.BUG_CATCHER_PROGRESS,

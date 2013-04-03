@@ -86,11 +86,11 @@ private final static String TAG = "InstallerThread";
 		});
 	}
 	
-	public void saveToSDCard() {
+	public void saveToSDCard(final String bugSDCardDir) {
 		mHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mHandler.saveToSDCard();
+				mHandler.saveToSDCard(bugSDCardDir);
 			}
 		});
 	}

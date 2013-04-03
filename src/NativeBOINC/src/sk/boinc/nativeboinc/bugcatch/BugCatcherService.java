@@ -327,12 +327,12 @@ public class BugCatcherService extends Service {
 	}
 	
 	/* progressing operations */
-	public boolean saveToSDCard() {
+	public boolean saveToSDCard(String sdcardDir) {
 		if (mBugCatcherHandler == null)
 			return false;
 		
 		if (mPendingController.begin(BugCatchOp.BugsToSDCard)) {
-			mBugCatcherThread.saveToSDCard();
+			mBugCatcherThread.saveToSDCard(sdcardDir);
 			return true;
 		}
 		return false;
@@ -353,8 +353,10 @@ public class BugCatcherService extends Service {
 		List<BugReportInfo> bugReportInfos = new ArrayList<BugReportInfo>(1);
 		File bugCatchDir = new File(context.getFilesDir()+"/bugcatch");
 		
-		if (!bugCatchDir.exists())
+		if (!bugCatchDir.exists()) {
+			if (Logging.DEBUG) Log.d(TAG, "BugCatcher directory doesnt exists");
 			return null; // directory doesnt exist
+		}
 		
 		openLockForRead();
 		File[] fileList = bugCatchDir.listFiles();
@@ -369,6 +371,8 @@ public class BugCatcherService extends Service {
 			try {
 				String idString = fname.substring(0, fname.length()-12);
 				long id = Long.parseLong(idString);
+				
+				if (Logging.DEBUG) Log.d(TAG, "Loading bugreport "+id);
 				
 				reader = new BufferedReader(new FileReader(file));
 				reader.readLine(); // skip first line
@@ -409,9 +413,14 @@ public class BugCatcherService extends Service {
 	public static synchronized void notifyNewBugReportId(final Context context,
 			final long reportBugId) {
 		
-		BoincManagerApplication app = (BoincManagerApplication)context.getApplicationContext();
+		final BoincManagerApplication app = (BoincManagerApplication)context.getApplicationContext();
 		// notify user about error
-		app.getNotificationController().notifyBugsDetected();
+		app.getStandardHandler().post(new Runnable() {
+			@Override
+			public void run() { 
+				app.getNotificationController().notifyBugsDetected();
+			}
+		});
 		
 		staticListenerHandler.post(new Runnable() {
 			@Override

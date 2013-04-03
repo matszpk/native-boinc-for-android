@@ -415,12 +415,13 @@
 	
 	<!-- bug catcher activity -->
 	<string name="bugsDetectedTitle">Bugs detected!</string>
-	<string name="bugsDetectedSummary">Bugs has been detected. Please enable BugCatcher.</string>
+	<string name="bugsDetectedSummary">Bugs has been detected. Please enter to BugCatcher.</string>
 	<string name="bugCatcher">Bug catcher mode</string>
 	<string name="bugCatcherDesc">This mode allow to catch a severe bugs in a client and an apps.</string>
 	<string name="enableBugCatch">Enable BugCatchMode</string>
 	<string name="sendBugReports">Send reports</string>
 	<string name="sendBugs">Send bugs</string>
+	<string name="bugsSDCardDirectory">Enter Bugs directory</string>
 	<string name="bugSendingBegin">Begin a sending bug reports to author</string>
 	<string name="bugSendingProgress">Sending bug reports to author</string>
 	<string name="bugSendingError">Can\'t send some bug reports</string>

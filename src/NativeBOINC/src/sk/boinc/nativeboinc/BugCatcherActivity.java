@@ -25,6 +25,7 @@ import sk.boinc.nativeboinc.bugcatch.BugCatcherListener;
 import sk.boinc.nativeboinc.bugcatch.BugCatcherService;
 import sk.boinc.nativeboinc.bugcatch.BugReportInfo;
 import sk.boinc.nativeboinc.debug.Logging;
+import sk.boinc.nativeboinc.installer.InstallationOps;
 import sk.boinc.nativeboinc.nativeclient.AbstractNativeBoincListener;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.StandardDialogs;
@@ -39,6 +40,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,6 +50,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -64,6 +67,7 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 	public static final String RESULT_RESTARTED = "Restarted";
 	
 	private static final int DIALOG_CLEAR_QUESTION = 1;
+	private static final int DIALOG_BUG_SDCARD_DIRECTORY = 2;
 	
 	private BugCatcherService mBugCatcher = null;
 	
@@ -245,10 +249,7 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 			@Override
 			public void onClick(View v) {
 				if (mBugCatcher != null) {
-					mBugCatcher.saveToSDCard();
-					// disable buttons when is working
-					mClearBugs.setEnabled(false);
-					mBugsToSDCard.setEnabled(false);
+					showDialog(DIALOG_BUG_SDCARD_DIRECTORY);
 				}
 			}
 		});
@@ -396,6 +397,30 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 				})
 				.setNegativeButton(R.string.noText, null)
 				.create();
+		case DIALOG_BUG_SDCARD_DIRECTORY: {
+			View view = LayoutInflater.from(this).inflate(R.layout.dialog_edit, null);
+			final EditText edit = (EditText)view.findViewById(android.R.id.edit);
+			edit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+			
+			return new AlertDialog.Builder(this)
+				.setIcon(android.R.drawable.ic_input_get)
+				.setTitle(R.string.bugsSDCardDirectory)
+				.setView(view)
+				.setPositiveButton(R.string.ok, new Dialog.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						String sdcardDir = edit.getText().toString();
+						if (sdcardDir.length() != 0) {
+							mBugCatcher.saveToSDCard(sdcardDir);
+							// disable buttons when is working
+							mClearBugs.setEnabled(false);
+							mBugsToSDCard.setEnabled(false);
+						}
+					}
+				})
+				.setNegativeButton(R.string.cancel, null)
+				.create();
+		}
 		}
 		return null;
 	}
@@ -404,6 +429,11 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 	public void onPrepareDialog(int dialogId, Dialog dialog, Bundle args) {
 		if (StandardDialogs.onPrepareDialog(this, dialogId, dialog, args))
 			return; // if standard dialog
+		
+		if (dialogId == DIALOG_BUG_SDCARD_DIRECTORY) {
+			EditText edit = (EditText)dialog.findViewById(android.R.id.edit);
+			edit.setText("boincbugs");
+		}
 	}
 	
 	@Override

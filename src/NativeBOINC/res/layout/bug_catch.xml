@@ -38,7 +38,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="10dip"
-        android:paddingRight="10dip">
+        android:paddingRight="10dip"
+        android:visibility="gone">
         <TextView android:id="@+id/progressInfo"
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"

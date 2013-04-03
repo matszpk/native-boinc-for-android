@@ -162,6 +162,46 @@ typedef struct {
     int type;
 } MemMapEntry;
 
+static const char* model_name = NULL;
+static const char* manufacturer = NULL;
+static const char* android_release = NULL;
+
+static void init_android_info(JNIEnv* env)
+{
+	jfieldID manufId, modelId, releaseId;
+	jobject modelStrObj, manufStrObj, releaseStrObj;
+	jclass build, build_ver;
+	const char* manufStr;
+	const char* modelStr;
+	const char* releaseStr;
+
+	if (model_name == NULL)
+	{
+		build = (*env)->FindClass(env, "android/os/Build");
+		build_ver = (*env)->FindClass(env, "android/os/Build/VERSION");
+
+		manufId = (*env)->GetStaticFieldID(env, build, "MANUFACTURER","Ljava/lang/String;");
+		modelId = (*env)->GetStaticFieldID(env, build, "MODEL","Ljava/lang/String;");
+		releaseId = (*env)->GetStaticFieldID(env, build_ver, "RELEASE","Ljava/lang/String;");
+
+		manufStrObj = (*env)->GetStaticObjectField(env, build, manufId);
+		modelStrObj = (*env)->GetStaticObjectField(env, build, modelId);
+		releaseStrObj = (*env)->GetStaticObjectField(env, build_ver, releaseId);
+
+		manufStr = (*env)->GetStringUTFChars(env, manufStrObj, 0);
+		modelStr = (*env)->GetStringUTFChars(env, modelStrObj, 0);
+		releaseStr = (*env)->GetStringUTFChars(env, releaseStrObj, 0);
+
+		model_name = strdup(modelStr);
+		manufacturer = strdup(manufStr);
+		android_release = strdup(releaseStr);
+
+		(*env)->ReleaseStringUTFChars(env, manufStrObj, manufStr);
+		(*env)->ReleaseStringUTFChars(env, modelStrObj, modelStr);
+		(*env)->ReleaseStringUTFChars(env, releaseStrObj, releaseStr);
+	}
+}
+
 static MemMapEntry* readMemMaps(const char* filename, int* num)
 {
     char line[128];
@@ -310,7 +350,7 @@ static void reportCmdLine(FILE* report_file, const char* cmdlinename)
 
 #define MAX_STACK_SIZE 0x8000
 
-static int reportStupidBug(pid_t pid)
+static long long reportStupidBug(pid_t pid)
 {
     int i;
     siginfo_t siginfo;
@@ -322,6 +362,7 @@ static int reportStupidBug(pid_t pid)
     MemMapEntry* ments;
     size_t stackstart, stackend = 0;
     int memfd;
+    long long report_bug_id;
 
     struct timeval report_time;
     FILE* report_file = NULL;
@@ -330,12 +371,13 @@ static int reportStupidBug(pid_t pid)
     usleep(1000); // prevents overwritting existing report
     gettimeofday(&report_time, NULL);
     report_time_milli = report_time.tv_usec/1000;
+    report_bug_id = (long long)report_time.tv_sec*1000ULL +  report_time_milli;
 
     snprintf(namebuf,256,"/data/data/sk.boinc.nativeboinc/files/bugcatch/%d%03d_content.txt",report_time.tv_sec,
     		report_time_milli);
     report_file = fopen(namebuf, "wb");
     if (report_file == NULL)
-    	return -1;
+    	return report_bug_id;
 
     fputs("---- NATIVEBOINC BUGCATCH REPORT HEADER ----\n",report_file);
 
@@ -346,14 +388,24 @@ static int reportStupidBug(pid_t pid)
 
     // signal info and CPU state
     if (ptrace(PTRACE_GETSIGINFO, pid, NULL, &siginfo) == -1)
-        return -1;
+    {
+    	fclose(report_file);
+        return report_bug_id;
+    }
 
     if (ptrace(PTRACE_GETREGS, pid, NULL, &regs) == -1)
-        return -1;
+    {
+    	fclose(report_file);
+        return report_bug_id;
+    }
 
     memset(&vfp, 0, sizeof(vfp));
     if (ptrace(PTRACE_GETVFPREGS, pid, NULL, &vfp) == -1)
         usevfp = 0;
+
+    // android info
+    fprintf(report_file, "Manufacturer:%s\nModelName:%s\nAndroidVer:%s\n",
+    		manufacturer, model_name, android_release);
 
     fprintf(report_file,"Pid:%d\nSignal:%d\nErrno:%d\nSignalCode:%d\nPointer:%p\nAddress:%p\n",
            pid, siginfo.si_signo, siginfo.si_errno,
@@ -439,7 +491,7 @@ static int reportStupidBug(pid_t pid)
     }
 
     fclose(report_file);
-    return 0;
+    return report_bug_id;
 }
 
 /**
@@ -451,10 +503,26 @@ static int reportStupidBug(pid_t pid)
 #define SIGNALED_EXIT 0x100
 
 JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchWaitForProcess(JNIEnv* env,
-		jclass thiz, jint mainPid) {
+		jclass thiz, jobject context, jint mainPid) {
 	FILE* file;
+	jclass bugCatcherService;
+	jmethodID openLockForWriteMethod;
+	jmethodID closeLockForWriteMethod;
+	jmethodID notifyNewBugReportIdMethod;
+
 	int status = 0;
 	pid_t pid;
+
+	bugCatcherService = (*env)->FindClass(env, "sk/boinc/nativeboinc/bugcatcher/BugCatcherService");
+	openLockForWriteMethod = (*env)->GetStaticMethodID(env, bugCatcherService,
+			"openLockForWriteMethod", "()V");
+	closeLockForWriteMethod = (*env)->GetStaticMethodID(env, bugCatcherService,
+			"closeLockForWriteMethod", "()V");
+	notifyNewBugReportIdMethod = (*env)->GetStaticMethodID(env, bugCatcherService,
+			"notifyNewBugReportId", "(JLandroid/content/Context;)V");
+
+	init_android_info(env);
+
 	do {
 		pid = waitpid(0, &status, __WALL);
 		if (pid == -1) {
@@ -481,7 +549,14 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchWaitF
 				int sigid = WSTOPSIG(status);
 				if (sigid == SIGSEGV || sigid == SIGILL || sigid == SIGBUS || sigid == SIGFPE ||
 					sigid == SIGABRT || sigid == SIGSTKFLT || sigid == SIGSYS)
-					reportStupidBug(pid);
+				{
+					long long report_bug_id;
+					(*env)->CallStaticVoidMethod(env, bugCatcherService, openLockForWriteMethod);
+					report_bug_id = reportStupidBug(pid);
+					(*env)->CallStaticVoidMethod(env, bugCatcherService, closeLockForWriteMethod);
+					(*env)->CallStaticVoidMethod(env, bugCatcherService, notifyNewBugReportIdMethod,
+							context, report_bug_id);
+				}
 
 				if (ptrace(PTRACE_CONT, pid, NULL, WSTOPSIG(status)) == -1)
 					perror("PTrace cont");

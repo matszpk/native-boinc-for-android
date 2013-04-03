@@ -515,7 +515,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 			ProcessUtils.bugCatchInit(mBoincPid);
 			
 			try {
-				mExitCode = ProcessUtils.bugCatchWaitForProcess(mBoincPid);
+				mExitCode = ProcessUtils.bugCatchWaitForProcess(NativeBoincService.this, mBoincPid);
 			} catch(InterruptedException ex) { }
 		}
 		

@@ -26,10 +26,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import sk.boinc.nativeboinc.BoincManagerApplication;
 import sk.boinc.nativeboinc.NotificationController;
-import sk.boinc.nativeboinc.R;
 import sk.boinc.nativeboinc.debug.Logging;
 import sk.boinc.nativeboinc.util.PendingController;
 import sk.boinc.nativeboinc.util.PendingErrorHandler;
@@ -73,6 +74,8 @@ public class BugCatcherService extends Service {
 	private PendingController<BugCatchOp> mPendingController = new PendingController<BugCatchOp>("BugCatcher");
 	
 	private static final int DELAYED_DESTROY_INTERVAL = 4000;
+	
+	private BugCatchProgress mBuCatchProgress = null;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -135,29 +138,86 @@ public class BugCatcherService extends Service {
 	}
 	
 
-	public static class ListenerHandler extends Handler {
+	public class ListenerHandler extends Handler {
 		
-		public boolean notifyBugReportBegin(String desc) {
+		public void onBugReportBegin(BugCatchOp bugCatchOp, String desc) {
+			mNotificationController.notifyBugCatcherBegin(desc);
+			
+			BugCatcherListener[] listeners = null;
+			synchronized(BugCatcherService.this) {
+				listeners = mListeners.toArray(new BugCatcherListener[0]);
+				
+				mBuCatchProgress = new BugCatchProgress(desc, 0, 0, 1);
+			}
+			for (BugCatcherListener listener: listeners)
+				listener.onBugReportBegin(desc);
+		}
+		
+		public void onBugReportProgress(BugCatchOp bugCatchOp, String desc, long bugReportId,
+				int count, int total) {
+			mNotificationController.notifyBugCatcherProgress(desc, count, total);
+			
+			BugCatcherListener[] listeners = null;
+			synchronized(BugCatcherService.this) {
+				listeners = mListeners.toArray(new BugCatcherListener[0]);
+				
+				mBuCatchProgress = new BugCatchProgress(desc, bugReportId, count, total);
+			}
+			for (BugCatcherListener listener: listeners)
+				listener.onBugReportProgress(desc, bugReportId, count, total);
+		}
+		
+		public void onBugReportCancel(BugCatchOp bugCatchOp, String desc) {
+			mNotificationController.notifyBugCatcherFinish(desc);
+			
+			BugCatcherListener[] listeners = null;
+			synchronized(BugCatcherService.this) {
+				listeners = mListeners.toArray(new BugCatcherListener[0]);
+			}
+			for (BugCatcherListener listener: listeners)
+				listener.onBugReportCancel(desc);
+					
+			mPendingController.finish(bugCatchOp);
+		}
+		
+		public void onBugReportFinish(BugCatchOp bugCatchOp, String desc) {
+			mNotificationController.notifyBugCatcherFinish(desc);
+			
+			BugCatcherListener[] listeners = null;
+			synchronized(BugCatcherService.this) {
+				listeners = mListeners.toArray(new BugCatcherListener[0]);
+				
+				mBuCatchProgress = new BugCatchProgress(desc, 0, 1, 1);
+			}
+			for (BugCatcherListener listener: listeners)
+				listener.onBugReportFinish(desc);
+			mPendingController.finish(bugCatchOp);
+		}
+		
+		public boolean onBugReportError(BugCatchOp bugCatchOp, String desc, long bugReportId) {
+			mNotificationController.notifyBugCatcherFinish(desc);
+			
+			BugCatcherListener[] listeners = null;
+			synchronized(BugCatcherService.this) {
+				listeners = mListeners.toArray(new BugCatcherListener[0]);
+			}
+			for (BugCatcherListener listener: listeners)
+				listener.onBugReportError(desc, bugReportId);
+			
+			mPendingController.finish(bugCatchOp);
 			return false;
 		}
 		
-		public boolean notifyBugReportProgress(String desc, long bugReportId, int count, int total) {
-			return false;
+		public void onNewBugReport(long reportBugId) {
+			BugCatcherListener[] listeners = null;
+			synchronized(BugCatcherService.this) {
+				listeners = mListeners.toArray(new BugCatcherListener[0]);
+			}
+			for (BugCatcherListener listener: listeners)
+				listener.onNewBugReport(reportBugId);
 		}
 		
-		public boolean notifyBugReportCancel(String desc) {
-			return false;
-		}
-		
-		public boolean notifyBugReportFinish(String desc) {
-			return false;
-		}
-		
-		public boolean notifyBugReportError(String desc, long bugReportId) {
-			return false;
-		}
-		
-		public boolean notifyChangeIsWorking(boolean working) {
+		public boolean onChangeIsWorking(boolean working) {
 			return false;
 		}
 	}
@@ -175,8 +235,12 @@ public class BugCatcherService extends Service {
 		mNotificationController = mApp.getNotificationController();
 		mListenerHandler = new ListenerHandler();
 		mPendingController = new PendingController<BugCatchOp>("BugCatcher");
-		
+		staticListenerHandler = mListenerHandler;
 		startBugCatcher();
+	}
+	
+	public synchronized BugCatchProgress getOpProgress() {
+		return mBuCatchProgress;
 	}
 	
 	@Override
@@ -185,6 +249,7 @@ public class BugCatcherService extends Service {
 		stopBugCatcher();
 		mNotificationController = null;
 		mApp = null;
+		staticListenerHandler = null;
 	}
 	
 	private void startBugCatcher() {
@@ -237,23 +302,47 @@ public class BugCatcherService extends Service {
 	}
 
 	public static void clearBugReports(Context context) {
-		File bugCatchDir = new File(context.getFilesDir()+"/bugcatch");
-		for (File file: bugCatchDir.listFiles())
-			file.delete();
+		openLockForRead();
+		try {
+			File bugCatchDir = new File(context.getFilesDir()+"/bugcatch");
+			if (!bugCatchDir.exists())
+				return; // no delete, main dir doesnt exist
+			for (File file: bugCatchDir.listFiles())
+				file.delete();
+		} finally {
+			closeLockForRead();
+		}
 	}
 	
-	public void saveToSDCard() {
-		if (mBugCatcherHandler == null) return;
+	/* progressing operations */
+	public boolean sendBugsToAuthor() {
+		if (mBugCatcherHandler == null)
+			return false;
 		
-		mNotificationController.notifyBugCatcherBegin(mApp.getString(R.string.bugCopyingBegin));
-		mBugCatcherThread.saveToSDCard();
+		if (mPendingController.begin(BugCatchOp.SendBugs)) {
+			mBugCatcherThread.sendBugsToAuthor();
+			return true;
+		}
+		return false;
+	}
+	
+	/* progressing operations */
+	public boolean saveToSDCard() {
+		if (mBugCatcherHandler == null)
+			return false;
+		
+		if (mPendingController.begin(BugCatchOp.BugsToSDCard)) {
+			mBugCatcherThread.saveToSDCard();
+			return true;
+		}
+		return false;
 	}
 	
 	private static final Comparator<BugReportInfo> sBugReportComparer = new Comparator<BugReportInfo>() {
 		@Override
 		public int compare(BugReportInfo lhs, BugReportInfo rhs) {
 			// TODO Auto-generated method stub
-			return lhs.getId() < rhs.getId() ? -1 : lhs.getId() == rhs.getId() ? 0 : -1;
+			return lhs.getId() < rhs.getId() ? 1 : lhs.getId() == rhs.getId() ? 0 : -1;
 		}
 	};
 	
@@ -263,7 +352,15 @@ public class BugCatcherService extends Service {
 	public static List<BugReportInfo> loadBugReports(Context context) {
 		List<BugReportInfo> bugReportInfos = new ArrayList<BugReportInfo>(1);
 		File bugCatchDir = new File(context.getFilesDir()+"/bugcatch");
-		for (File file: bugCatchDir.listFiles()) {
+		
+		if (!bugCatchDir.exists())
+			return null; // directory doesnt exist
+		
+		openLockForRead();
+		File[] fileList = bugCatchDir.listFiles();
+		closeLockForRead();
+		
+		for (File file: fileList) {
 			String fname = file.getName();
 			if (!fname.endsWith("_context.txt"))
 				continue; // ignore stack file
@@ -304,25 +401,60 @@ public class BugCatcherService extends Service {
 		return bugReportInfos;
 	}
 	
-	public void sendBugsToAuthor() {
-		if (mBugCatcherHandler == null) return;
+	/**
+	 * notify about new bug report
+	 */
+	private static ListenerHandler staticListenerHandler = null;
+	
+	public static synchronized void notifyNewBugReportId(final Context context,
+			final long reportBugId) {
 		
-		mNotificationController.notifyBugCatcherBegin(mApp.getString(R.string.bugSendingBegin));
-		mBugCatcherThread.sendBugsToAuthor();
+		BoincManagerApplication app = (BoincManagerApplication)context.getApplicationContext();
+		// notify user about error
+		app.getNotificationController().notifyBugsDetected();
+		
+		staticListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				ListenerHandler lh = staticListenerHandler;
+				if (lh != null)
+					lh.onNewBugReport(reportBugId);
+			}
+		});
+	}
+	
+	/**
+	 * bug reports source synchornization
+	 */
+	private static final ReadWriteLock sSourceLock = new ReentrantReadWriteLock();
+	
+	public static final void openLockForRead() {
+		sSourceLock.readLock().lock();
+	}
+	
+	public static final void closeLockForRead() {
+		sSourceLock.readLock().unlock();
+	}
+	
+	public static final void openLockForWrite() {
+		sSourceLock.writeLock().lock();
+	}
+	
+	public static final void closeLockForWrite() {
+		sSourceLock.writeLock().unlock();
 	}
 	
 	/**
 	 * get pending install error
 	 * @return pending install error
 	 */
-	public boolean handlePendingErrors(final BugCatchOp bugCatchOp, final BugCatcherListener listener) {
-		return mPendingController.handlePendingErrors(bugCatchOp, new PendingErrorHandler<BugCatchOp>() {
-			
+	public boolean handlePendingErrors(final BugCatcherListener listener) {
+		return mPendingController.handlePendingErrors(null, new PendingErrorHandler<BugCatchOp>() {
 			@Override
 			public boolean handleError(BugCatchOp bugCatchOp, Object error) {
 				if (error == null)
 					return false;
-				return listener.onBugReportError(0);
+				return listener.onBugReportError(null, 0);
 			}
 		});
 	}

@@ -16,26 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
-package sk.boinc.nativeboinc.util;
-
-import android.content.Context;
+package sk.boinc.nativeboinc.bugcatch;
 
 /**
  * @author mat
  *
  */
-public class ProcessUtils {
-
-	public native static int exec(String program, String dirPath, String[] args);
-	public native static int execSD(String program, String dirPath, String[] args);
-	public native static int waitForProcess(int pid) throws InterruptedException;
+public class BugCatchProgress {
+	public String desc;
+	public long reportBugId;
+	public int count;
+	public int total;
 	
-	public native static int bugCatchExec(String program, String dirPath, String[] args);
-	public native static int bugCatchInit(int pid);
-	public native static int bugCatchExecSD(String program, String dirPath, String[] args);
-	public native static int bugCatchWaitForProcess(Context context, int pid) throws InterruptedException;
+	public BugCatchProgress() {
+	}
 	
-	static {
-		System.loadLibrary("nativeboinc_utils");
+	public BugCatchProgress(String desc, long reportBugId, int count, int total) {
+		this.desc = desc;
+		this.reportBugId = reportBugId;
+		this.count = count;
+		this.total = total;
 	}
 }

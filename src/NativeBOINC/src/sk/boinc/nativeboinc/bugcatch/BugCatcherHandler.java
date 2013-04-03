@@ -85,7 +85,14 @@ public class BugCatcherHandler extends Handler {
 	
 	public void saveToSDCard() {
 		notifyWorking(true);
-		File bugCatchDir = new File(mBugCatcher.getFilesDir().getAbsolutePath()+"/bugcatcher");
+		File bugCatchDir = new File(mBugCatcher.getFilesDir().getAbsolutePath()+"/bugcatch");
+		
+		if (!bugCatchDir.exists()) {
+			notifyBugReportFinish(BugCatchOp.BugsToSDCard,
+					mBugCatcher.getString(R.string.bugCopyingFinished));
+			notifyWorking(false);
+			return;
+		}
 		
 		StringBuilder inPathSB = new StringBuilder();
 		inPathSB.append(bugCatchDir.getAbsolutePath());
@@ -96,10 +103,12 @@ public class BugCatcherHandler extends Handler {
 		outPathSB.append("/boincbugs/");
 		int outBugDirLen = outPathSB.length();
 		
-		notifyBugReportBegin(mBugCatcher.getString(R.string.bugCopyingBegin));
+		notifyBugReportBegin(BugCatchOp.BugsToSDCard, mBugCatcher.getString(R.string.bugCopyingBegin));
 		
 		byte[] buffer = new byte[1024];
+		BugCatcherService.openLockForRead();
 		File[] inFiles = bugCatchDir.listFiles();
+		BugCatcherService.closeLockForRead();
 		
 		List<File> filteredFiles = filterBugReportContentFiles(inFiles);
 		int count = 0;
@@ -124,12 +133,14 @@ public class BugCatcherHandler extends Handler {
 					continue;
 				}
 					
-				notifyBugReportProgress(mBugCatcher.getString(R.string.bugCopyingProgress),
+				notifyBugReportProgress(BugCatchOp.BugsToSDCard,
+						mBugCatcher.getString(R.string.bugCopyingProgress),
 						bugReportId, count, total);
 				count++;
 				
 				if (Thread.interrupted()) {
-					notifyBugReportCancel(mBugCatcher.getString(R.string.bugCopyingCancel));
+					notifyBugReportCancel(BugCatchOp.BugsToSDCard,
+							mBugCatcher.getString(R.string.bugCopyingCancel));
 					return;
 				}
 				
@@ -146,7 +157,8 @@ public class BugCatcherHandler extends Handler {
 				}
 				
 				if (Thread.interrupted()) {
-					notifyBugReportCancel(mBugCatcher.getString(R.string.bugCopyingCancel));
+					notifyBugReportCancel(BugCatchOp.BugsToSDCard,
+							mBugCatcher.getString(R.string.bugCopyingCancel));
 					return;
 				}
 				outStream.flush();
@@ -179,7 +191,8 @@ public class BugCatcherHandler extends Handler {
 				}
 				
 				if (Thread.interrupted()) {
-					notifyBugReportCancel(mBugCatcher.getString(R.string.bugCopyingCancel));
+					notifyBugReportCancel(BugCatchOp.BugsToSDCard,
+							mBugCatcher.getString(R.string.bugCopyingCancel));
 					return;
 				}
 				outStream.flush();
@@ -190,11 +203,13 @@ public class BugCatcherHandler extends Handler {
 				outStream = null;
 			}
 			
-			notifyBugReportFinish(mBugCatcher.getString(R.string.bugCopyingFinished));
+			notifyBugReportFinish(BugCatchOp.BugsToSDCard,
+					mBugCatcher.getString(R.string.bugCopyingFinished));
 		} catch(IOException ex) {
 			// end if error
 			if (Logging.WARNING) Log.w(TAG, "Cant copy bugReportId");
-			notifyBugReportError(mBugCatcher.getString(R.string.bugCopyingError), bugReportId);
+			notifyBugReportError(BugCatchOp.BugsToSDCard,
+					mBugCatcher.getString(R.string.bugCopyingError), bugReportId);
 			notifyWorking(false);
 			return;
 		} finally {
@@ -217,16 +232,25 @@ public class BugCatcherHandler extends Handler {
 	public void sendBugsToAuthor() {
 		notifyWorking(true);
 		
-		File bugCatchDir = new File(mBugCatcher.getFilesDir().getAbsolutePath()+"/bugcatcher");
+		File bugCatchDir = new File(mBugCatcher.getFilesDir().getAbsolutePath()+"/bugcatch");
+		
+		if (!bugCatchDir.exists()) {
+			notifyBugReportFinish(BugCatchOp.BugsToSDCard,
+					mBugCatcher.getString(R.string.bugCopyingFinished));
+			notifyWorking(false);
+			return;
+		}
 		
 		StringBuilder inPathSB = new StringBuilder();
 		inPathSB.append(bugCatchDir.getAbsolutePath());
 		int inBugDirLen = inPathSB.length();
 		
-		notifyBugReportBegin(mBugCatcher.getString(R.string.bugSendingBegin));
+		notifyBugReportBegin(BugCatchOp.SendBugs, mBugCatcher.getString(R.string.bugSendingBegin));
 		
 		byte[] buffer = new byte[1024];
+		BugCatcherService.openLockForRead();
 		File[] inFiles = bugCatchDir.listFiles();
+		BugCatcherService.closeLockForRead();
 		
 		List<File> filteredFiles = filterBugReportContentFiles(inFiles);
 		int count = 0;
@@ -259,11 +283,13 @@ public class BugCatcherHandler extends Handler {
 				}
 				
 				progressCount = count*200;
-				notifyBugReportProgress(mBugCatcher.getString(R.string.bugSendingProgress),
+				notifyBugReportProgress(BugCatchOp.SendBugs,
+						mBugCatcher.getString(R.string.bugSendingProgress),
 						bugReportId, progressCount, progressTotal);
 				
 				if (Thread.interrupted()) {
-					notifyBugReportCancel(mBugCatcher.getString(R.string.bugSendingCancel));
+					notifyBugReportCancel(BugCatchOp.SendBugs,
+							mBugCatcher.getString(R.string.bugSendingCancel));
 					return;
 				}
 				
@@ -301,7 +327,8 @@ public class BugCatcherHandler extends Handler {
 					long newTime = System.currentTimeMillis();
 					if (newTime - currentTime >= NOTIFY_PERIOD) {
 						int addend = (int)((processed*100)/fileLength);
-						notifyBugReportProgress(mBugCatcher.getString(R.string.bugSendingProgress),
+						notifyBugReportProgress(BugCatchOp.SendBugs,
+								mBugCatcher.getString(R.string.bugSendingProgress),
 								bugReportId, progressCount+addend, progressTotal);
 						currentTime = newTime;
 					}
@@ -318,8 +345,15 @@ public class BugCatcherHandler extends Handler {
 				inPathSB.append("_stack.bin");
 				File stackFile = new File(inPathSB.toString());
 				if (stackFile.exists()) { // if exists
+					if (Thread.interrupted()) {
+						notifyBugReportCancel(BugCatchOp.SendBugs,
+								mBugCatcher.getString(R.string.bugSendingCancel));
+						return;
+					}
+					
 					progressCount = count*200+100;
-					notifyBugReportProgress(mBugCatcher.getString(R.string.bugSendingProgress),
+					notifyBugReportProgress(BugCatchOp.SendBugs,
+							mBugCatcher.getString(R.string.bugSendingProgress),
 							bugReportId, progressCount, progressTotal);
 					
 					outStream.writeBytes("Content-Disposition: form-data; name=\"stack\";filename=\"stack\"\r\n");
@@ -339,7 +373,8 @@ public class BugCatcherHandler extends Handler {
 						long newTime = System.currentTimeMillis();
 						if (newTime - currentTime >= NOTIFY_PERIOD) {
 							int addend = (int)((processed*100)/fileLength);
-							notifyBugReportProgress(mBugCatcher.getString(R.string.bugSendingProgress),
+							notifyBugReportProgress(BugCatchOp.SendBugs,
+									mBugCatcher.getString(R.string.bugSendingProgress),
 									bugReportId, progressCount+addend, progressTotal);
 							currentTime = newTime;
 						}
@@ -359,7 +394,8 @@ public class BugCatcherHandler extends Handler {
 				int connLength = conn.getContentLength();
 				
 				if (conn.getResponseCode() != 200) {
-					notifyBugReportError(mBugCatcher.getString(R.string.bugSendingError), bugReportId);
+					notifyBugReportError(BugCatchOp.SendBugs,
+							mBugCatcher.getString(R.string.bugSendingError), bugReportId);
 					return;
 				}
 				
@@ -367,7 +403,8 @@ public class BugCatcherHandler extends Handler {
 				connInStream.read(responseData);
 				String s = new String(responseData);
 				if (!s.contains("\"OK\"")) {
-					notifyBugReportError(mBugCatcher.getString(R.string.bugSendingError), bugReportId);
+					notifyBugReportError(BugCatchOp.SendBugs,
+							mBugCatcher.getString(R.string.bugSendingError), bugReportId);
 					return;
 				}
 				
@@ -379,12 +416,16 @@ public class BugCatcherHandler extends Handler {
 				count++;
 			}
 			
-			notifyBugReportFinish(mBugCatcher.getString(R.string.bugSendingFinished));
+			notifyBugReportFinish(BugCatchOp.SendBugs,
+					mBugCatcher.getString(R.string.bugSendingFinished));
 			
 		} catch(InterruptedIOException ex) {
+			notifyBugReportCancel(BugCatchOp.SendBugs,
+					mBugCatcher.getString(R.string.bugSendingCancel));
 			return; // cancelled
 		} catch(IOException ex) {
-			notifyBugReportError(mBugCatcher.getString(R.string.bugSendingError), bugReportId);
+			notifyBugReportError(BugCatchOp.SendBugs,
+					mBugCatcher.getString(R.string.bugSendingError), bugReportId);
 			return;
 		} finally {
 			try {
@@ -413,48 +454,49 @@ public class BugCatcherHandler extends Handler {
 	/**
 	 * notifying routines via listener handler
 	 */
-	private synchronized void notifyBugReportBegin(final String desc) {
+	private synchronized void notifyBugReportBegin(final BugCatchOp bugCatchOp, final String desc) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.notifyBugReportBegin(desc);
+				mListenerHandler.onBugReportBegin(bugCatchOp, desc);
 			}
 		});
 	}
 	
-	private synchronized void notifyBugReportProgress(final String desc, final long bugReportId,
-			final int count, final int total) {
+	private synchronized void notifyBugReportProgress(final BugCatchOp bugCatchOp, final String desc,
+			final long bugReportId, final int count, final int total) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.notifyBugReportProgress(desc, bugReportId, count, total);
+				mListenerHandler.onBugReportProgress(bugCatchOp, desc, bugReportId, count, total);
 			}
 		});
 	}
 	
-	private synchronized void notifyBugReportError(final String desc, final long bugReportId) {
+	private synchronized void notifyBugReportError(final BugCatchOp bugCatchOp, final String desc,
+			final long bugReportId) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.notifyBugReportError(desc, bugReportId);
+				mListenerHandler.onBugReportError(bugCatchOp, desc, bugReportId);
 			}
 		});
 	}
 	
-	private synchronized void notifyBugReportCancel(final String desc) {
+	private synchronized void notifyBugReportCancel(final BugCatchOp bugCatchOp, final String desc) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.notifyBugReportCancel(desc);
+				mListenerHandler.onBugReportCancel(bugCatchOp, desc);
 			}
 		});
 	}
 	
-	private synchronized void notifyBugReportFinish(final String desc) {
+	private synchronized void notifyBugReportFinish(final BugCatchOp bugCatchOp, final String desc) {
 		mListenerHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				mListenerHandler.notifyBugReportFinish(desc);
+				mListenerHandler.onBugReportFinish(bugCatchOp, desc);
 			}
 		});
 	}
@@ -466,7 +508,7 @@ public class BugCatcherHandler extends Handler {
 			mListenerHandler.post(new Runnable() {
 				@Override
 				public void run() {
-					mListenerHandler.notifyChangeIsWorking(isWorking);
+					mListenerHandler.onChangeIsWorking(isWorking);
 				}
 			});
 		}

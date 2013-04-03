@@ -12,7 +12,9 @@ public interface BugCatcherListener {
 	public abstract void onBugReportProgress(String desc, long bugReportId, int count, int total);
 	public abstract void onBugReportCancel(String desc);
 	public abstract void onBugReportFinish(String desc);
-	public abstract boolean onBugReportError(long bugReportId);
+	public abstract boolean onBugReportError(String desc, long bugReportId);
+	
+	public abstract void onNewBugReport(long bugReportId);
 	
 	public abstract void isBugCatcherWorking(boolean isWorking);
 }

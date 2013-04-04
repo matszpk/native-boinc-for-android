@@ -431,7 +431,7 @@
 	<string name="bugCopyingProgress">Copying bug reports to SDCard</string>
 	<string name="bugCopyingError">Can\'t copy some bug reports to SDCard</string>
 	<string name="bugCopyingCancel">Copying bug reports to SDCard cancelled</string>
-	<string name="bugCopyingFinished">Copying bug reports to SDCard</string>
+	<string name="bugCopyingFinished">Copying bug reports to SDCard finished</string>
 	<string name="bugCatchClearQuestion">Do you want to clear bug reports? If Yes, bug reports won\'t be sent to author.</string>
 	
 	<string name="synchronizeBAM">Synchronize BAM</string>
@@ -833,5 +833,6 @@
 	<!-- <string name="newsRemoteFile">http://192.168.1.3:8080/examples/news.xml</string>-->
 	
 	<!-- bug report url -->
-	<string name="bugReportUrl">http://nativeboinc/site/json/report_bugcatch</string>
+	<!--<string name="bugReportUrl">http://nativeboinc/site/json/report_bugcatch</string>-->
+	<string name="bugReportUrl">http://192.168.1.3:8080/site/json/report_bugcatch</string>
 </resources>

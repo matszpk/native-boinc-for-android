@@ -18,12 +18,15 @@
  */
 package sk.boinc.nativeboinc.bugcatch;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -78,7 +81,7 @@ public class BugCatcherHandler extends Handler {
 		List<File> outFiles = new ArrayList<File>(1); 
 		for (File file: inFiles) {
 			String fname = file.getName();
-			if (fname.endsWith("_context.txt"))
+			if (fname.endsWith("_content.txt"))
 				outFiles.add(file);
 		}
 		return outFiles;
@@ -98,6 +101,7 @@ public class BugCatcherHandler extends Handler {
 		
 		StringBuilder inPathSB = new StringBuilder();
 		inPathSB.append(bugCatchDir.getAbsolutePath());
+		inPathSB.append('/');
 		int inBugDirLen = inPathSB.length();
 		/* prepare outpath */
 		StringBuilder outPathSB = new StringBuilder();
@@ -106,6 +110,11 @@ public class BugCatcherHandler extends Handler {
 				bugSDCardDir));
 		if (outPathSB.charAt(outPathSB.length()-1) != '/')
 			outPathSB.append('/');
+		
+		File outBugCatchDir = new File(outPathSB.toString());
+		if (!outBugCatchDir.exists())
+			outBugCatchDir.mkdirs();
+		
 		int outBugDirLen = outPathSB.length();
 		
 		notifyBugReportBegin(BugCatchOp.BugsToSDCard, mBugCatcher.getString(R.string.bugCopyingBegin));
@@ -117,7 +126,7 @@ public class BugCatcherHandler extends Handler {
 		
 		List<File> filteredFiles = filterBugReportContentFiles(inFiles);
 		int count = 0;
-		int total = filteredFiles.size();
+		int total = filteredFiles.size()*2;
 		
 		FileInputStream inStream = null;
 		FileOutputStream outStream = null;
@@ -127,7 +136,7 @@ public class BugCatcherHandler extends Handler {
 			for (File file: filteredFiles) {
 				String fname = file.getName();
 				String idString = null;
-				if (fname.endsWith("_context.txt"))
+				if (fname.endsWith("_content.txt"))
 					idString = fname.substring(0, fname.length()-12);
 				
 				try {
@@ -163,6 +172,15 @@ public class BugCatcherHandler extends Handler {
 					outStream.write(buffer, 0, readed);
 				}
 				
+				// delay
+				/*try {
+					Thread.sleep(2000);
+				} catch(InterruptedException ex) {
+					notifyBugReportCancel(BugCatchOp.BugsToSDCard,
+							mBugCatcher.getString(R.string.bugCopyingCancel));
+					return;
+				}*/
+				
 				if (Thread.interrupted()) {
 					notifyBugReportCancel(BugCatchOp.BugsToSDCard,
 							mBugCatcher.getString(R.string.bugCopyingCancel));
@@ -180,6 +198,12 @@ public class BugCatcherHandler extends Handler {
 				inPathSB.append(bugReportId);
 				inPathSB.append("_stack.bin");
 				File stackFile = new File(inPathSB.toString());
+				
+				notifyBugReportProgress(BugCatchOp.BugsToSDCard,
+						mBugCatcher.getString(R.string.bugCopyingProgress),
+						bugReportId, count, total);
+				count++;
+				
 				if (!stackFile.exists()) {
 					if (Logging.INFO) Log.i(TAG, "No stack for report bug "+bugReportId);
 					continue; // skip if doesnt exists
@@ -201,6 +225,15 @@ public class BugCatcherHandler extends Handler {
 					outStream.write(buffer, 0, readed);
 				}
 				
+				// delay
+				/*try {
+					Thread.sleep(2000);
+				} catch(InterruptedException ex) {
+					notifyBugReportCancel(BugCatchOp.BugsToSDCard,
+							mBugCatcher.getString(R.string.bugCopyingCancel));
+					return;
+				}*/
+				
 				if (Thread.interrupted()) {
 					notifyBugReportCancel(BugCatchOp.BugsToSDCard,
 							mBugCatcher.getString(R.string.bugCopyingCancel));
@@ -216,7 +249,7 @@ public class BugCatcherHandler extends Handler {
 			
 			notifyBugReportFinish(BugCatchOp.BugsToSDCard,
 					mBugCatcher.getString(R.string.bugCopyingFinished));
-		} catch(IOException ex) {
+		} catch(Exception ex) {
 			// end if error
 			if (Logging.WARNING) Log.w(TAG, "Cant copy bugReportId");
 			notifyBugReportError(BugCatchOp.BugsToSDCard,
@@ -255,6 +288,7 @@ public class BugCatcherHandler extends Handler {
 		
 		StringBuilder inPathSB = new StringBuilder();
 		inPathSB.append(bugCatchDir.getAbsolutePath());
+		inPathSB.append('/');
 		int inBugDirLen = inPathSB.length();
 		
 		notifyBugReportBegin(BugCatchOp.SendBugs, mBugCatcher.getString(R.string.bugSendingBegin));
@@ -274,7 +308,7 @@ public class BugCatcherHandler extends Handler {
 		
 		FileInputStream inStream = null;
 		DataOutputStream outStream = null;
-		DataInputStream connInStream = null;
+		BufferedReader connInReader = null;
 		HttpURLConnection conn = null;
 		
 		String bugReportUrl = mBugCatcher.getString(R.string.bugReportUrl);
@@ -283,7 +317,7 @@ public class BugCatcherHandler extends Handler {
 			for (File file: filteredFiles) {
 				String fname = file.getName();
 				String idString = null;
-				if (fname.endsWith("_context.txt"))
+				if (fname.endsWith("_content.txt"))
 					idString = fname.substring(0, fname.length()-12);
 				
 				try {
@@ -322,9 +356,11 @@ public class BugCatcherHandler extends Handler {
 				
 				long fileLength = file.length();
 				
+				outStream.writeBytes("--cdHR5fWD8kWSa1Xa\r\n");
 				outStream.writeBytes("Content-Disposition: form-data; name=\"content\";filename=\"content\"\r\n");
 				outStream.writeBytes("Content-Type: text/plain;charset=UTF-8\r\n");
-				outStream.writeBytes("Content-Length: "+fileLength);
+				outStream.writeBytes("Content-Length: "+fileLength+"\r\n");
+				outStream.writeBytes("Content-Transfer-Encoding: binary\r\n");
 				outStream.writeBytes("\r\n");
 				
 				long processed = 0;
@@ -350,14 +386,14 @@ public class BugCatcherHandler extends Handler {
 				inStream.close();
 				inStream = null;
 				
-				outStream.writeBytes("\r\n--cdHR5fWD8kWSa1Xa--\r\n");
-				
 				// second file
 				inPathSB.delete(inBugDirLen, inPathSB.length());
 				inPathSB.append(bugReportId);
 				inPathSB.append("_stack.bin");
 				File stackFile = new File(inPathSB.toString());
 				if (stackFile.exists()) { // if exists
+					outStream.writeBytes("\r\n--cdHR5fWD8kWSa1Xa\r\n");
+					
 					if (Thread.interrupted()) {
 						notifyBugReportCancel(BugCatchOp.SendBugs,
 								mBugCatcher.getString(R.string.bugSendingCancel));
@@ -373,10 +409,11 @@ public class BugCatcherHandler extends Handler {
 					
 					outStream.writeBytes("Content-Disposition: form-data; name=\"stack\";filename=\"stack\"\r\n");
 					outStream.writeBytes("Content-Type: application/octet-stream\r\n");
-					outStream.writeBytes("Content-Length: "+stackFile.length());
+					outStream.writeBytes("Content-Length: "+stackFile.length()+"\r\n");
+					outStream.writeBytes("Content-Transfer-Encoding: binary\r\n");
 					outStream.writeBytes("\r\n");
 					
-					inStream = new FileInputStream(file);
+					inStream = new FileInputStream(stackFile);
 					
 					currentTime = System.currentTimeMillis();
 					while (true) {
@@ -400,15 +437,14 @@ public class BugCatcherHandler extends Handler {
 					
 					outStream.writeBytes("\r\n--cdHR5fWD8kWSa1Xa--\r\n");
 				} else {
+					outStream.writeBytes("\r\n--cdHR5fWD8kWSa1Xa--\r\n");
 					if (Logging.INFO) Log.i(TAG, "No stack for report bug "+bugReportId);
 				}
 				
-				outStream.close();
-				outStream = null;
+				outStream.flush();
 				
 				/* read response */
-				connInStream = new DataInputStream(conn.getInputStream());
-				int connLength = conn.getContentLength();
+				connInReader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
 				
 				if (conn.getResponseCode() != 200) {
 					notifyBugReportError(BugCatchOp.SendBugs,
@@ -416,17 +452,17 @@ public class BugCatcherHandler extends Handler {
 					return;
 				}
 				
-				byte[] responseData = new byte[connLength];
-				connInStream.read(responseData);
-				String s = new String(responseData);
-				if (!s.contains("\"OK\"")) {
+				String s = connInReader.readLine();
+				if (s == null || !s.contains("\"OK\"")) {
 					notifyBugReportError(BugCatchOp.SendBugs,
 							mBugCatcher.getString(R.string.bugSendingError), bugReportId);
 					return;
 				}
 				
-				connInStream.close();
-				connInStream = null;
+				connInReader.close();
+				connInReader = null;
+				outStream.close();
+				outStream = null;
 				
 				conn.disconnect();
 				conn = null;
@@ -448,7 +484,7 @@ public class BugCatcherHandler extends Handler {
 			notifyBugReportCancel(BugCatchOp.SendBugs,
 					mBugCatcher.getString(R.string.bugSendingCancel));
 			return; // cancelled
-		} catch(IOException ex) {
+		} catch(Exception ex) {
 			notifyBugReportError(BugCatchOp.SendBugs,
 					mBugCatcher.getString(R.string.bugSendingError), bugReportId);
 			return;
@@ -464,8 +500,8 @@ public class BugCatcherHandler extends Handler {
 			} catch(IOException ex) { }
 			
 			try {
-				if (connInStream != null)
-					connInStream.close();
+				if (connInReader != null)
+					connInReader.close();
 			} catch(IOException ex) { }
 			
 			if (conn != null)

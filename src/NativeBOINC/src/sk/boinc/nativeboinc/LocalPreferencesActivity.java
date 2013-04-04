@@ -593,8 +593,8 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 		mUseAtMostCPUTime.setText(formatDouble(globalPrefs.cpu_usage_limit));
 		
 		mXferOnlyWhenWifi.setChecked(globalPrefs.xfer_only_when_wifi);
-		mMaxDownloadRate.setText(formatDouble(globalPrefs.max_bytes_sec_down));
-		mMaxUploadRate.setText(formatDouble(globalPrefs.max_bytes_sec_up));
+		mMaxDownloadRate.setText(formatDouble(globalPrefs.max_bytes_sec_down/1024.0));
+		mMaxUploadRate.setText(formatDouble(globalPrefs.max_bytes_sec_up/1024.0));
 		mTransferAtMost.setText(formatDouble(globalPrefs.daily_xfer_limit_mb));
 		mTransferPeriodDays.setText(Integer.toString(globalPrefs.daily_xfer_period_days));
 		mConnectAboutEvery.setText(formatDouble(globalPrefs.work_buf_min_days));
@@ -642,8 +642,8 @@ public class LocalPreferencesActivity extends ServiceBoincActivity implements Cl
 			globalPrefs.cpu_usage_limit = Double.parseDouble(mUseAtMostCPUTime.getText().toString());
 			
 			globalPrefs.xfer_only_when_wifi = mXferOnlyWhenWifi.isChecked();
-			globalPrefs.max_bytes_sec_down = Double.parseDouble(mMaxDownloadRate.getText().toString());
-			globalPrefs.max_bytes_sec_up = Double.parseDouble(mMaxUploadRate.getText().toString());
+			globalPrefs.max_bytes_sec_down = Double.parseDouble(mMaxDownloadRate.getText().toString())*1024.0;
+			globalPrefs.max_bytes_sec_up = Double.parseDouble(mMaxUploadRate.getText().toString())*1024.0;
 			globalPrefs.daily_xfer_limit_mb = Double.parseDouble(mTransferAtMost.getText().toString());
 			globalPrefs.daily_xfer_period_days = Integer.parseInt(
 					mTransferPeriodDays.getText().toString());

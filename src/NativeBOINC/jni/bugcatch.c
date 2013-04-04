@@ -27,6 +27,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/ptrace.h>
+#include <sys/utsname.h>
 #include <asm/user.h>
 #include <jni.h>
 
@@ -165,9 +166,11 @@ typedef struct {
 static const char* model_name = NULL;
 static const char* manufacturer = NULL;
 static const char* android_release = NULL;
+static const char* kernel_version = NULL;
 
 static void init_android_info(JNIEnv* env)
 {
+	struct utsname un;
 	jfieldID manufId, modelId, releaseId;
 	jobject modelStrObj, manufStrObj, releaseStrObj;
 	jclass build, build_ver;
@@ -178,7 +181,7 @@ static void init_android_info(JNIEnv* env)
 	if (model_name == NULL)
 	{
 		build = (*env)->FindClass(env, "android/os/Build");
-		build_ver = (*env)->FindClass(env, "android/os/Build/VERSION");
+		build_ver = (*env)->FindClass(env, "android/os/Build$VERSION");
 
 		manufId = (*env)->GetStaticFieldID(env, build, "MANUFACTURER","Ljava/lang/String;");
 		modelId = (*env)->GetStaticFieldID(env, build, "MODEL","Ljava/lang/String;");
@@ -199,6 +202,9 @@ static void init_android_info(JNIEnv* env)
 		(*env)->ReleaseStringUTFChars(env, manufStrObj, manufStr);
 		(*env)->ReleaseStringUTFChars(env, modelStrObj, modelStr);
 		(*env)->ReleaseStringUTFChars(env, releaseStrObj, releaseStr);
+
+		uname(&un);
+		kernel_version = strdup(un.release);
 	}
 }
 
@@ -311,17 +317,16 @@ static void reportMemory(int reportfd, int memfd, off64_t start, off64_t end)
     free(buf);
 }
 
+#define CMDLINE_MAXSIZE 8192
+
 static void reportCmdLine(FILE* report_file, const char* cmdlinename)
 {
-	struct stat stbuf;
 	int cmdlinefd;
 	char* cmdline, *cmdlineend;
 	char* it;
+	int size;
 
-	if (stat(cmdlinename,&stbuf) == -1)
-		return; // do nothing
-
-	cmdline = malloc(stbuf.st_size);
+	cmdline = malloc(CMDLINE_MAXSIZE);
 
 	cmdlinefd = open(cmdlinename,O_RDONLY);
 	if (cmdlinefd == -1)
@@ -329,7 +334,8 @@ static void reportCmdLine(FILE* report_file, const char* cmdlinename)
 		free(cmdline);
 		return;
 	}
-	if (read(cmdlinefd, cmdline, stbuf.st_size) != stbuf.st_size)
+	size = read(cmdlinefd, cmdline, CMDLINE_MAXSIZE);
+	if (size == -1)
 	{
 		close(cmdlinefd);
 		free(cmdline);
@@ -337,13 +343,15 @@ static void reportCmdLine(FILE* report_file, const char* cmdlinename)
 	}
 	close(cmdlinefd);
 
-	cmdlineend = cmdline + stbuf.st_size;
+	cmdlineend = cmdline + size;
+	cmdlineend[-1] = 0; // nul
 	fprintf(report_file, "CommandLine:");
 	for (it = cmdline; it != cmdlineend && it-1 != cmdlineend;)
 	{
 		fprintf(report_file," \"%s\"",it);
 		it += strlen(it)+1;
 	}
+	fputc('\n',report_file);
 
 	free(cmdline);
 }
@@ -383,7 +391,7 @@ static long long reportStupidBug(pid_t pid)
 
     fprintf(report_file,"BugReportTime:%d.%03d\n", report_time.tv_sec, report_time_milli);
     // process info
-    snprintf(namebuf,256,"/proc/%d/cmdline");
+    snprintf(namebuf,256,"/proc/%d/cmdline",pid);
     reportCmdLine(report_file,namebuf);
 
     // signal info and CPU state
@@ -404,8 +412,8 @@ static long long reportStupidBug(pid_t pid)
         usevfp = 0;
 
     // android info
-    fprintf(report_file, "Manufacturer:%s\nModelName:%s\nAndroidVer:%s\n",
-    		manufacturer, model_name, android_release);
+    fprintf(report_file, "Manufacturer:%s\nModelName:%s\nAndroidVer:%s\nKernelVer:%s\n",
+    		manufacturer, model_name, android_release, kernel_version);
 
     fprintf(report_file,"Pid:%d\nSignal:%d\nErrno:%d\nSignalCode:%d\nPointer:%p\nAddress:%p\n",
            pid, siginfo.si_signo, siginfo.si_errno,
@@ -480,7 +488,7 @@ static long long reportStupidBug(pid_t pid)
 
             snprintf(namebuf,256,"/data/data/sk.boinc.nativeboinc/files/bugcatch/%d%03d_stack.bin",
             		report_time.tv_sec,report_time_milli);
-            reportfd = open(namebuf, O_WRONLY|O_CREAT);
+            reportfd = open(namebuf, O_WRONLY|O_CREAT, 0644);
             if (reportfd!=-1)
             {
             	reportMemory(reportfd, memfd, stackstart, stackend);
@@ -513,13 +521,13 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchWaitF
 	int status = 0;
 	pid_t pid;
 
-	bugCatcherService = (*env)->FindClass(env, "sk/boinc/nativeboinc/bugcatcher/BugCatcherService");
+	bugCatcherService = (*env)->FindClass(env, "sk/boinc/nativeboinc/bugcatch/BugCatcherService");
 	openLockForWriteMethod = (*env)->GetStaticMethodID(env, bugCatcherService,
-			"openLockForWriteMethod", "()V");
+			"openLockForWrite", "()V");
 	closeLockForWriteMethod = (*env)->GetStaticMethodID(env, bugCatcherService,
-			"closeLockForWriteMethod", "()V");
+			"closeLockForWrite", "()V");
 	notifyNewBugReportIdMethod = (*env)->GetStaticMethodID(env, bugCatcherService,
-			"notifyNewBugReportId", "(JLandroid/content/Context;)V");
+			"notifyNewBugReportId", "(Landroid/content/Context;J)V");
 
 	init_android_info(env);
 

@@ -78,25 +78,22 @@
 	        android:background="?android:attr/listDivider"/>
 	</LinearLayout>
 	
-    <Button android:id="@+id/saveToSDCard" 
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="right"
-		android:layout_marginTop="10dip"
-		android:layout_marginLeft="10dip"
-		android:layout_marginRight="10dip"
-		android:text="@string/saveToSDCard" />
     <LinearLayout
         android:orientation="horizontal"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="right"
+		android:paddingTop="10dip"
 		android:paddingLeft="10dip"
 		android:paddingRight="10dip">
 	    <Button android:id="@+id/clear"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/clear" />
+        <Button android:id="@+id/saveToSDCard" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/saveToSDCard" />
 		<Button android:id="@+id/sendBugs" 
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

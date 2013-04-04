@@ -25,7 +25,6 @@ import sk.boinc.nativeboinc.bugcatch.BugCatcherListener;
 import sk.boinc.nativeboinc.bugcatch.BugCatcherService;
 import sk.boinc.nativeboinc.bugcatch.BugReportInfo;
 import sk.boinc.nativeboinc.debug.Logging;
-import sk.boinc.nativeboinc.installer.InstallationOps;
 import sk.boinc.nativeboinc.nativeclient.AbstractNativeBoincListener;
 import sk.boinc.nativeboinc.util.PreferenceName;
 import sk.boinc.nativeboinc.util.StandardDialogs;
@@ -68,6 +67,7 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 	
 	private static final int DIALOG_CLEAR_QUESTION = 1;
 	private static final int DIALOG_BUG_SDCARD_DIRECTORY = 2;
+	private static final int DIALOG_APPLY_AFTER_RESTART = 3;
 	
 	private BugCatcherService mBugCatcher = null;
 	
@@ -86,25 +86,25 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 	private TextView mProgressInfo = null;
 	private Button mProgressCancel = null;
 	
-	private String mOpFinishedMessage = null;
+	private boolean mDisplayProgress = false;
 	
 	private boolean mDelayedBugCatcherListenerRegistration = false;
 	
 	private static class SavedState {
 		private final boolean prevBugCatcherIsEnabled;
 		private final List<BugReportInfo> bugReports;
-		private final String opFinishedMessage;
+		private final boolean displayProgress;
 		
 		public SavedState(BugCatcherActivity activity) {
 			prevBugCatcherIsEnabled = activity.mPrevBugCatcherIsEnabled;
 			bugReports = activity.mBugReports;
-			opFinishedMessage = activity.mOpFinishedMessage;
+			displayProgress = activity.mDisplayProgress;
 		}
 		
 		public void restore(BugCatcherActivity activity) {
 			activity.mPrevBugCatcherIsEnabled = prevBugCatcherIsEnabled;
 			activity.mBugReports = bugReports;
-			activity.mOpFinishedMessage = opFinishedMessage;
+			activity.mDisplayProgress = displayProgress;
 		}
 	}
 	
@@ -173,7 +173,7 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 		}		
 	};
 	
-	private BugCatcherServiceConnection mBugCatcherServiceConnection = null;
+	private BugCatcherServiceConnection mBugCatcherServiceConnection = new BugCatcherServiceConnection();
 	
 	private void doBindBugCatcherService() {
 		bindService(new Intent(this, BugCatcherService.class),
@@ -234,6 +234,8 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 					// disable buttons when is working
 					mClearBugs.setEnabled(false);
 					mSendBugs.setEnabled(false);
+					mBugsToSDCard.setEnabled(false);
+					mDisplayProgress = true;
 				}
 			}
 		});
@@ -274,24 +276,27 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 				setProgressBarIndeterminateVisibility(mRunner.serviceIsWorking());
 			mRunner.handlePendingErrorMessage(this);
 		}
+		
+		mBugReports = BugCatcherService.loadBugReports(this);
+		mBugReportsListAdapter.notifyDataSetChanged();
+		
 		// if bug catcher initialized
 		if (mBugCatcher != null) {
 			boolean bugCatcherIsWorking = mBugCatcher.serviceIsWorking();
 			setProgressBarIndeterminateVisibility(bugCatcherIsWorking &&
 					mRunner.serviceIsWorking());
+			// if no error and error occured, then error message retrieved from progress
 			boolean isError = mBugCatcher.handlePendingErrors(this);
 				
 			updateButtonsWorking(bugCatcherIsWorking);
 			
-			if (bugCatcherIsWorking) {
+			if (bugCatcherIsWorking || mDisplayProgress) {
 				BugCatchProgress progress = mBugCatcher.getOpProgress();
 				if (progress != null)
-					updateProgress(progress.desc, progress.count, progress.total, false);
+					updateProgress(progress.desc, progress.count, progress.total, !bugCatcherIsWorking);
 				else
 					hideProgress();
-			} else if (mOpFinishedMessage != null)
-				updateProgress(mOpFinishedMessage, 0, 1, true);
-			else if (!isError)
+			} else if (!isError) // no error no progress
 				hideProgress();
 		}
 	}
@@ -316,6 +321,7 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 		} else
 			mProgressBar.setVisibility(View.GONE);
 		mProgressCancel.setEnabled(!finished);
+		mDisplayProgress = true;
 	}
 	
 	private void hideProgress() {
@@ -324,9 +330,10 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 	}
 	
 	private void updateButtonsWorking(boolean working) {
-		mSendBugs.setEnabled(!working);
-		mClearBugs.setEnabled(!working);
-		mBugsToSDCard.setEnabled(!working);
+		boolean empty = (mBugReports == null || mBugReports.size()==0);
+		mSendBugs.setEnabled(!working && !empty);
+		mClearBugs.setEnabled(!working && !empty);
+		mBugsToSDCard.setEnabled(!working && !empty);
 	}
 	
 	@Override
@@ -350,9 +357,6 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 			mDelayedBugCatcherListenerRegistration = true;
 		// update runner error (show)
 		updateActivityState();
-		
-		mBugReports = BugCatcherService.loadBugReports(this);
-		mBugReportsListAdapter.notifyDataSetChanged();
 	}
 	
 	@Override
@@ -365,6 +369,10 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 	public void onBackPressed() {
 		boolean bugCatcherIsEnabled = mSharedPrefs.getBoolean(PreferenceName.BUG_CATCHER_ENABLED, false);
 		if (mPrevBugCatcherIsEnabled != bugCatcherIsEnabled) {
+			if (isTaskRoot() && mRunner != null && mRunner.isRun()) {
+				showDialog(DIALOG_APPLY_AFTER_RESTART);
+				return;
+			}
 			// force restart
 			Intent data = new Intent();
 			data.putExtra(RESULT_RESTARTED, true);
@@ -393,6 +401,9 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 						
 						mBugReports = BugCatcherService.loadBugReports(BugCatcherActivity.this);
 						mBugReportsListAdapter.notifyDataSetChanged();
+						
+						boolean bugCatcherWorking = (mBugCatcher != null && mBugCatcher.serviceIsWorking());
+						updateButtonsWorking(bugCatcherWorking);
 					}
 				})
 				.setNegativeButton(R.string.noText, null)
@@ -412,13 +423,44 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 						String sdcardDir = edit.getText().toString();
 						if (sdcardDir.length() != 0) {
 							mBugCatcher.saveToSDCard(sdcardDir);
-							// disable buttons when is working
-							mClearBugs.setEnabled(false);
-							mBugsToSDCard.setEnabled(false);
+							mDisplayProgress = true;
 						}
 					}
 				})
 				.setNegativeButton(R.string.cancel, null)
+				.create();
+		}
+		case DIALOG_APPLY_AFTER_RESTART: {
+			return new AlertDialog.Builder(this)
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setTitle(R.string.warning)
+				.setMessage(R.string.applyAfterRestart)
+				.setPositiveButton(R.string.restart, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (mRunner != null) {
+							mRunner.restartClient();
+							// finish activity with notification
+							Intent data = new Intent();
+							setResult(RESULT_OK, data);
+							finish();
+						}
+					}
+				})
+				.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// finish activity
+						finish();
+					}
+				})
+				.setOnCancelListener(new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						// finish activity
+						finish();
+					}
+				})
 				.create();
 		}
 		}
@@ -452,51 +494,57 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 
 	@Override
 	public void onBugReportBegin(String desc) {
-		// TODO Auto-generated method stub
-		
+		// disable buttons when is working
+		mClearBugs.setEnabled(false);
+		mSendBugs.setEnabled(false);
+		mBugsToSDCard.setEnabled(false);
 	}
 
 	@Override
 	public void onBugReportProgress(String desc, long bugReportId,
 			int count, int total) {
-		// TODO Auto-generated method stub
-		
+		updateProgress(desc, count, total, false);
 	}
 	
 	@Override
 	public void onBugReportCancel(String desc) {
-		updateButtonsWorking(false);
 		BugCatchProgress progress = mBugCatcher.getOpProgress();
 		if (progress != null)
 			updateProgress(desc, progress.count, progress.total, true);
 		else
 			updateProgress(desc, 0, 1, true);
-		mOpFinishedMessage = desc;
+		
+		// update bugs list
+		mBugReports = BugCatcherService.loadBugReports(BugCatcherActivity.this);
+		mBugReportsListAdapter.notifyDataSetChanged();
+		updateButtonsWorking(false);
 	}
 
 	@Override
 	public void onBugReportFinish(String desc) {
-		updateButtonsWorking(false);
 		BugCatchProgress progress = mBugCatcher.getOpProgress();
 		if (progress != null)
 			updateProgress(desc, progress.count, progress.total, true);
 		else
 			updateProgress(desc, 1, 1, true);
-		mOpFinishedMessage = desc;
 		// update bugs list
 		mBugReports = BugCatcherService.loadBugReports(BugCatcherActivity.this);
 		mBugReportsListAdapter.notifyDataSetChanged();
+		updateButtonsWorking(false);
 	}
 
 	@Override
 	public boolean onBugReportError(String desc, long bugReportId) {
-		updateButtonsWorking(false);
 		BugCatchProgress progress = mBugCatcher.getOpProgress();
 		if (progress != null)
 			updateProgress(desc, progress.count, progress.total, true);
 		else
 			updateProgress(desc, 0, 1, true);
-		mOpFinishedMessage = desc;
+		
+		// update bugs list
+		mBugReports = BugCatcherService.loadBugReports(BugCatcherActivity.this);
+		mBugReportsListAdapter.notifyDataSetChanged();
+		updateButtonsWorking(false);
 		return true;
 	}
 	
@@ -505,6 +553,8 @@ public class BugCatcherActivity extends ServiceBoincActivity implements Abstract
 		// update bugs list
 		mBugReports = BugCatcherService.loadBugReports(BugCatcherActivity.this);
 		mBugReportsListAdapter.notifyDataSetChanged();
+		boolean bugCatcherWorking = (mBugCatcher != null && mBugCatcher.serviceIsWorking()); 
+		updateButtonsWorking(bugCatcherWorking);
 	}
 	
 	@Override

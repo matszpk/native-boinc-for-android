@@ -69,7 +69,6 @@ public class BugCatcherService extends Service {
 	private Object mStoppingLocker = new Object();
 	
 	private Runnable mBugCatchStopper = null;
-	private Handler mBugCatchHandler;
 	
 	private PendingController<BugCatchOp> mPendingController = new PendingController<BugCatchOp>("BugCatcher");
 	
@@ -93,9 +92,9 @@ public class BugCatcherService extends Service {
 			mUnlockStopWhenNotWorking = false;
 			if (Logging.DEBUG) Log.d(TAG, "Rebind. bind counter: " + mBindCounter);
 		}
-		if (mBugCatchHandler != null && mBugCatchStopper != null) {
+		if (mBugCatcherHandler != null && mBugCatchStopper != null) {
 			if (Logging.DEBUG) Log.d(TAG, "Rebind");
-			mBugCatchHandler.removeCallbacks(mBugCatchStopper);
+			mBugCatcherHandler.removeCallbacks(mBugCatchStopper);
 			mBugCatchStopper = null;
 		}
 	}
@@ -124,7 +123,7 @@ public class BugCatcherService extends Service {
 					stopSelf();
 				}
 			};
-			mBugCatchHandler.postDelayed(mBugCatchStopper, DELAYED_DESTROY_INTERVAL);
+			mBugCatcherHandler.postDelayed(mBugCatchStopper, DELAYED_DESTROY_INTERVAL);
 		} else {
 			synchronized(mStoppingLocker) {
 				mUnlockStopWhenNotWorking = (mBindCounter == 0);
@@ -173,6 +172,8 @@ public class BugCatcherService extends Service {
 			BugCatcherListener[] listeners = null;
 			synchronized(BugCatcherService.this) {
 				listeners = mListeners.toArray(new BugCatcherListener[0]);
+				
+				mBuCatchProgress = new BugCatchProgress(desc, 0, 1, 1);
 			}
 			for (BugCatcherListener listener: listeners)
 				listener.onBugReportCancel(desc);
@@ -192,6 +193,9 @@ public class BugCatcherService extends Service {
 			for (BugCatcherListener listener: listeners)
 				listener.onBugReportFinish(desc);
 			mPendingController.finish(bugCatchOp);
+					
+			if (bugCatchOp.equals(BugCatchOp.OP_SEND_BUGS)) // remove bugs
+				mNotificationController.removeBugsDetected();
 		}
 		
 		public boolean onBugReportError(BugCatchOp bugCatchOp, String desc, long bugReportId) {
@@ -200,6 +204,8 @@ public class BugCatcherService extends Service {
 			BugCatcherListener[] listeners = null;
 			synchronized(BugCatcherService.this) {
 				listeners = mListeners.toArray(new BugCatcherListener[0]);
+				
+				mBuCatchProgress = new BugCatchProgress(desc, 0, 1, 1);
 			}
 			for (BugCatcherListener listener: listeners)
 				listener.onBugReportError(desc, bugReportId);
@@ -266,7 +272,7 @@ public class BugCatcherService extends Service {
 			throw new RuntimeException("BugCatcher thread cannot start");
 		}
 		if (Logging.DEBUG) Log.d(TAG, "BugCatcherThread started successfully");
-		mBugCatcherHandler = mBugCatcherThread.getInstallerHandler();
+		mBugCatcherHandler = mBugCatcherThread.getBugCatcherHandler();
 	}
 	
 	public void stopBugCatcher() {
@@ -312,6 +318,9 @@ public class BugCatcherService extends Service {
 		} finally {
 			closeLockForRead();
 		}
+		// remove bugs detected notification
+		BoincManagerApplication app = (BoincManagerApplication)context.getApplicationContext();
+		app.getNotificationController().removeBugsDetected();
 	}
 	
 	/* progressing operations */
@@ -364,7 +373,7 @@ public class BugCatcherService extends Service {
 		
 		for (File file: fileList) {
 			String fname = file.getName();
-			if (!fname.endsWith("_context.txt"))
+			if (!fname.endsWith("_content.txt"))
 				continue; // ignore stack file
 			
 			BufferedReader reader = null;
@@ -382,9 +391,12 @@ public class BugCatcherService extends Service {
 				if (content == null)
 					continue;
 				
-				content = content.substring(12); // skip "CommandLine:"
-				if (content.length() >= 160) // cut cmdline file if needed
-					content = content.substring(0, 160);
+				if (content.startsWith("CommandLine:")) {
+					content = content.substring(12); // skip "CommandLine:"
+					if (content.length() >= 160) // cut cmdline file if needed
+						content = content.substring(0, 160);
+				} else
+					content = "";
 				
 				bugReportInfos.add(new BugReportInfo(id, content));
 			} catch(ParseException ex) {
@@ -422,14 +434,16 @@ public class BugCatcherService extends Service {
 			}
 		});
 		
-		staticListenerHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				ListenerHandler lh = staticListenerHandler;
-				if (lh != null)
-					lh.onNewBugReport(reportBugId);
-			}
-		});
+		if (staticListenerHandler != null) {
+			staticListenerHandler.post(new Runnable() {
+				@Override
+				public void run() {
+					ListenerHandler lh = staticListenerHandler;
+					if (lh != null)
+						lh.onNewBugReport(reportBugId);
+				}
+			});
+		}
 	}
 	
 	/**

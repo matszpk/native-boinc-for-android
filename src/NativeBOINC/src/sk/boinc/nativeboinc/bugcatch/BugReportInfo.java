@@ -27,7 +27,7 @@ public class BugReportInfo {
 	private String mTime;
 	private String mContent; // only 10 lines of content (excluding header)
 	
-	private static final DateFormat sDisplayTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:SS"); 
+	private static final DateFormat sDisplayTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
 	
 	public BugReportInfo(long id, String content) {
 		this.mReportId = id;

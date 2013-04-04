@@ -710,7 +710,6 @@ public class NotificationController {
 					System.currentTimeMillis());
 		
 		mBugsDetectedNotification.contentIntent = pendingIntent;
-		mBugsDetectedNotification.flags |= Notification.FLAG_AUTO_CANCEL;
 		
 		mBugsDetectedNotification.tickerText = notifyText;
 		mBugsDetectedNotification.setLatestEventInfo(mAppContext, notifyText, notifySummary, pendingIntent);

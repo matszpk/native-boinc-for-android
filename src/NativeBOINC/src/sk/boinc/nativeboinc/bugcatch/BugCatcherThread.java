@@ -45,7 +45,7 @@ private final static String TAG = "InstallerThread";
 		setDaemon(true);
 	}
 	
-	public BugCatcherHandler getInstallerHandler() {
+	public BugCatcherHandler getBugCatcherHandler() {
 		return mHandler;
 	}
 	

@@ -40,6 +40,7 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchExec(
 	int pid = 0;
 	int waitTrials = 5;
 	bugCatchIsReady = 0;
+
 	pid = fork();
 	if (pid == 0) { // in new process
 		jsize i;
@@ -60,7 +61,7 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchExec(
 		args[argsLength+1] = NULL;
 
 		chdir(dirPath);
-		usleep(50000); // waiting for parent process for exec
+		usleep(700000); // waiting for parent process for exec
 		execv(program, args);
 		exit(0);
 	}
@@ -72,6 +73,7 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchExecS
 	int pid = 0;
 	int waitTrials = 5;
 	bugCatchIsReady = 0;
+
 	pid = fork();
 	if (pid == 0) { // in new process
 		jsize i;
@@ -112,7 +114,7 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchExecS
 		args[argsLength+1] = NULL;
 
 		chdir(dirPath);
-		usleep(50000); // waiting for parent process for exec
+		usleep(700000); // waiting for parent process for exec
 		execve(program, args, envp);
 		exit(0);
 	}
@@ -122,14 +124,14 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchExecS
 JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchInit(JNIEnv* env,
 		jclass thiz, jint pid)
 {
-	int initTrials = 5;
+	int initTrials = 30;
 	if (ptrace(PTRACE_ATTACH, pid, NULL, NULL)==-1)
 		return -1;
 
 	int options = PTRACE_O_TRACECLONE|PTRACE_O_TRACEVFORK|PTRACE_O_TRACEFORK|PTRACE_O_TRACEEXEC;
 
 	do {
-		usleep(1000);
+		usleep(10000);
 		initTrials--;
 	} while (initTrials != 0 && ptrace(PTRACE_SETOPTIONS, pid, 0, options) == -1);
 

@@ -512,7 +512,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 			else
 				mBoincPid = ProcessUtils.bugCatchExec(mProgramName, mBoincDir, mBoincArgs);
 			// init bug catcher
-			ProcessUtils.bugCatchInit(mBoincPid);
+			if (ProcessUtils.bugCatchInit(mBoincPid) == -1)
+				if (Logging.WARNING) Log.w(TAG, "Cant attach process!!!");
 			
 			try {
 				mExitCode = ProcessUtils.bugCatchWaitForProcess(NativeBoincService.this, mBoincPid);
@@ -574,7 +575,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 			} else { // instead running directly we are using holder
 				bugCatchBoincHolder = new BugCatchBoincHolder(isSDCard, programName, boincDir, boincArgs);
 				bugCatchBoincHolder.start();
-				for (int i = 0; i < 4; i++) { // obtaining boinc pid
+				for (int i = 0; i < 12; i++) { // obtaining boinc pid
 					mBoincPid = bugCatchBoincHolder.getBoincPid();
 					if (mBoincPid != -1)
 						break; // is ran

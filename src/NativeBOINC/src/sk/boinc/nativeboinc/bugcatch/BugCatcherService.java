@@ -389,14 +389,13 @@ public class BugCatcherService extends Service {
 				String content = reader.readLine();
 				
 				if (content == null)
-					continue;
-				
-				if (content.startsWith("CommandLine:")) {
+					content = "BROKEN!!!"; // broken!!!
+				else if (content.startsWith("CommandLine:")) {
 					content = content.substring(12); // skip "CommandLine:"
 					if (content.length() >= 160) // cut cmdline file if needed
 						content = content.substring(0, 160);
 				} else
-					content = "";
+					content = "BROKEN!!!";
 				
 				bugReportInfos.add(new BugReportInfo(id, content));
 			} catch(ParseException ex) {

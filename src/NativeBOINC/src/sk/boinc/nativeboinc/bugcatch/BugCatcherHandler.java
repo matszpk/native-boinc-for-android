@@ -23,6 +23,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
@@ -337,6 +338,43 @@ public class BugCatcherHandler extends Handler {
 					notifyBugReportCancel(BugCatchOp.SendBugs,
 							mBugCatcher.getString(R.string.bugSendingCancel));
 					return;
+				}
+				
+				/* checking content */
+				{
+					boolean isBroken = false;
+					BufferedReader reader = null;
+					try {
+						reader = new BufferedReader(new FileReader(file));
+						reader.readLine(); // skip first line
+						reader.readLine(); // skip second line
+						String content = reader.readLine(); // content
+						
+						if (content == null || !content.startsWith("CommandLine:"))
+							isBroken = true;
+					} catch(IOException ex) {
+						isBroken = true;
+					} finally {
+						if (reader != null)
+							reader.close();
+					}
+					
+					if (isBroken) {
+						if (Logging.WARNING) Log.w(TAG, "File "+bugReportId+" is BROKEN!");
+						// second file
+						inPathSB.delete(inBugDirLen, inPathSB.length());
+						inPathSB.append(bugReportId);
+						inPathSB.append("_stack.bin");
+						File stackFile = new File(inPathSB.toString());
+						
+						BugCatcherService.openLockForWrite();
+						file.delete();
+						if (stackFile.exists())
+							stackFile.delete();
+						BugCatcherService.closeLockForWrite();
+						count++;
+						continue;
+					}
 				}
 				
 				/*** create POST request ***/

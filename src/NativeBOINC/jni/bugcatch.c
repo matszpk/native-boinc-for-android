@@ -168,7 +168,7 @@ typedef struct {
     size_t start, end;
     size_t offset;
     mode_t mode;
-    char filename[64];
+    char filename[256];
     int type;
 } MemMapEntry;
 
@@ -219,7 +219,7 @@ static void init_android_info(JNIEnv* env)
 
 static MemMapEntry* readMemMaps(const char* filename, int* num)
 {
-    char line[128];
+    char line[256];
     FILE* file = NULL;
     MemMapEntry* mapents = NULL;
     int mentsCount = 0;
@@ -231,7 +231,7 @@ static MemMapEntry* readMemMaps(const char* filename, int* num)
 
     mapents = malloc(sizeof(MemMapEntry)*allocedMentsNum);
 
-    while(fgets(line, 128, file)!=NULL)
+    while(fgets(line, 255, file)!=NULL)
     {
         MemMapEntry ment;
         char mode1,mode2,mode3,mode4;

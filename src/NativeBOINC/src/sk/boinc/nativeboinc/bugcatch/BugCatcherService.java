@@ -194,7 +194,7 @@ public class BugCatcherService extends Service {
 				listener.onBugReportFinish(desc);
 			mPendingController.finish(bugCatchOp);
 					
-			if (bugCatchOp.equals(BugCatchOp.OP_SEND_BUGS)) // remove bugs
+			if (bugCatchOp.equals(BugCatchOp.SendBugs)) // remove bugs
 				mNotificationController.removeBugsDetected();
 		}
 		

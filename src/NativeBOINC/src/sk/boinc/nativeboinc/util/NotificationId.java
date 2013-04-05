@@ -34,5 +34,6 @@ public interface NotificationId {
 	public final static int MOVE_INSTALLATION_TO = 7;
 	public final static int BUG_DETECTED = 8;
 	public final static int BUG_CATCHER_PROGRESS = 9;
+	public final static int BUG_CATCHER_FAIL = 10;
 	public final static int INSTALL_PROJECT_APPS_BASE = 100;
 }

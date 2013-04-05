@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import sk.boinc.nativeboinc.BoincManagerActivity;
 import sk.boinc.nativeboinc.BoincManagerApplication;
+import sk.boinc.nativeboinc.BugCatchErrorActivity;
 import sk.boinc.nativeboinc.ClientMonitorErrorActivity;
 import sk.boinc.nativeboinc.NotificationController;
 import sk.boinc.nativeboinc.R;
@@ -69,7 +70,6 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 /**
  * @author mat
@@ -519,7 +519,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 					@Override
 					public void run() {
 						// info about error
-						Toast.makeText(mApp, R.string.bugCatchAttachError, Toast.LENGTH_LONG).show();
+						Intent intent = new Intent(NativeBoincService.this, BugCatchErrorActivity.class);
+						intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						startActivity(intent);
 					}
 				});
 			}

@@ -125,10 +125,17 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchInit(
 		jclass thiz, jint pid)
 {
 	int initTrials = 30;
-	if (ptrace(PTRACE_ATTACH, pid, NULL, NULL)==-1)
+	int options = PTRACE_O_TRACECLONE|PTRACE_O_TRACEVFORK|PTRACE_O_TRACEFORK|PTRACE_O_TRACEEXEC;
+
+	do {
+		usleep(10000);
+		initTrials--;
+	} while (initTrials != 0 && ptrace(PTRACE_ATTACH, pid, NULL, NULL)==-1);
+
+	if (initTrials == 0)
 		return -1;
 
-	int options = PTRACE_O_TRACECLONE|PTRACE_O_TRACEVFORK|PTRACE_O_TRACEFORK|PTRACE_O_TRACEEXEC;
+	initTrials = 30;
 
 	do {
 		usleep(10000);

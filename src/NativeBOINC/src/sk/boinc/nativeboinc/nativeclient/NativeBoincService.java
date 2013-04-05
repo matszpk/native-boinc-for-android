@@ -69,6 +69,7 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * @author mat
@@ -512,8 +513,16 @@ public class NativeBoincService extends Service implements MonitorListener,
 			else
 				mBoincPid = ProcessUtils.bugCatchExec(mProgramName, mBoincDir, mBoincArgs);
 			// init bug catcher
-			if (ProcessUtils.bugCatchInit(mBoincPid) == -1)
+			if (ProcessUtils.bugCatchInit(mBoincPid) == -1) {
 				if (Logging.WARNING) Log.w(TAG, "Cant attach process!!!");
+				mListenerHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						// info about error
+						Toast.makeText(mApp, R.string.bugCatchAttachError, Toast.LENGTH_LONG).show();
+					}
+				});
+			}
 			
 			try {
 				mExitCode = ProcessUtils.bugCatchWaitForProcess(NativeBoincService.this, mBoincPid);

@@ -61,7 +61,7 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchExec(
 		args[argsLength+1] = NULL;
 
 		chdir(dirPath);
-		usleep(700000); // waiting for parent process for exec
+		usleep(800000); // waiting for parent process for exec
 		execv(program, args);
 		exit(0);
 	}
@@ -114,7 +114,7 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchExecS
 		args[argsLength+1] = NULL;
 
 		chdir(dirPath);
-		usleep(700000); // waiting for parent process for exec
+		usleep(800000); // waiting for parent process for exec
 		execve(program, args, envp);
 		exit(0);
 	}

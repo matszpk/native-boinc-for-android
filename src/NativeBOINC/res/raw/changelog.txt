@@ -1,3 +1,10 @@
+Version 0.4.4 (beta) (2013-04-05):
+- added BugCatcher mode, which allow to catch and send boinc bug reports
+- added desktop shortcut handling
+- added cc_config.xml loading and editing
+- fixed NPEs and crashes
+- fixed upload/download prefs units in local prefs
+
 Version 0.4.3.3 (beta) (2013-03-23):
 - fixed severe bug in NativeBOINC (fallback shutdown didnt work)
 - added a new news highlighting
@@ -50,60 +57,5 @@ Version 0.4.2 (beta) (2013-01-23):
 - fixed localhost autorefresh policy
 - extended autorefresh options
 - added set GPU mode in 'Manage client' screen
-
-Version 0.4.1.4 (beta) (2012-12-24):
-- fixed empty access password handling
-- fixed error handling
-
-Version 0.4.1.3 (beta) (2012-12-05):
-- fixed the checking installation during mainscreen start up
-- fixed context menu on the project tab
-- enabled fast scroll on tasks tab
-
-Version 0.4.1.2 (beta) (2012-11-22):
-- fixed client startup
-- added 'network communication' button in tablet widget 
-
-Version 0.4.1.1 (beta) (2012-11-03):
-- added selection client version before installation (if you have problems with 0.5.9x)
-
-Version 0.4.1 (beta) (2012-11-02):
-- added proxy settings
-- fixed project installation canceling
-- preventing the running of the two operation at same time (installhandler)
-
-Version 0.4.0.5.3 (beta) (2012-10-21):
-- fixed client monitor handling (exception)
-- fixed colors in the notifications
-
-Version 0.4.0.5.2 (beta) (2012-10-14):
-- fixed move to installation
-- fixed operation cancelling
-- fixed tabs behavior
-
-Version 0.4.0.5.1 (beta) (2012-10-11):
-- fixed exec for sdcard installation
-- fixed tabs behavior (fixing unhandled exceptions)  
-
-Version 0.4.0.5 (beta) (2012-10-09):
-- added installation on SDCard!
-- fixed NPE on empty hostname (nativeclient screen)
-- fixed main screen resuming
-- added support for projects with hosted applications
-- added local preferences clearing
-- added deleting app_info.xml for attached projects
-- other minor fixes
-
-Version 0.4.0.2 (beta) (2012-09-17):
-- fixed local prefs and fix NPE
-
-Version 0.4.0.1 (beta) (2012-08-22)
-- changed address of distribution files to files.nativeboinc.org
-
-Version 0.4 (beta) (2012-08-15)
-- fixed unexpected behavior when connection broken
-- fixed and improved notice item list
-- added news features: News and Automatic update checks
-- fixed encoding at saving config files
 
 more change descriptions at https://github.com/matszpk/native-boinc-for-android/.

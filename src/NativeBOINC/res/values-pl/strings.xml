@@ -351,8 +351,15 @@
 	<string name="nativeDeleteProjectBinsTitle">Usuń binaria projektów</string>
 	<string name="nativeDeleteProjectBinsSummary">Usuwa binaria projektów (z app_info.xml)</string>
 	
+	<string name="nativeBoincConfiguration">Opcje konfiguracji</string>
+	
+	<string name="nativeApplyConfigFileTitle">Zastosuj plik konfig.</string>
+	<string name="nativeApplyConfigFileSummary">Zastosuj/usuń plik cc_config.xml</string>
+	
 	<string name="nativeBoincDiagnostics">Opcje diagnostyczne</string>
 	
+	<string name="nativeBugCatcherTitle">Tryb BugCatcher</string>
+	<string name="nativeBugCatcherSummary">Włącza tryb BugCatcher i wyświetla/wysyła błędy</string>
 	<string name="nativeDumpBoincDirTitle">Zrzuć pliki BOINC\'a</string>
 	<string name="nativeDumpBoincDirSummary">Zrzuć cały katalog BOINC\'a na kartę SD</string>
 	<string name="nativeShowLogsTitle">Pokaż logi</string>

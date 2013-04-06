@@ -86,6 +86,8 @@
 
 	<string name="boincClient">Klient BOINC</string>
 	
+	<string name="boincHosts">Hosty Boinc</string>
+	
 	<!-- Units -->
 	<string name="unitKiB">KiB</string>
 	<string name="unitMiB">MiB</string>

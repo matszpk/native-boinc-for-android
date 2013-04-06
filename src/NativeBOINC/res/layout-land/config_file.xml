@@ -48,7 +48,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="right"
-		android:paddingLeft="10dip"
+		android:paddingLeft="0dip"
 		android:paddingRight="10dip">
 		<Button android:id="@+id/cancel"
 			android:layout_width="wrap_content"
@@ -65,9 +65,8 @@
 		<Button android:id="@+id/ok"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginLeft="10dip"
-			android:paddingLeft="20dip"
-			android:paddingRight="20dip"
+			android:paddingLeft="15dip"
+			android:paddingRight="15dip"
 			android:text="@string/ok" />
 	</LinearLayout>
 </LinearLayout>

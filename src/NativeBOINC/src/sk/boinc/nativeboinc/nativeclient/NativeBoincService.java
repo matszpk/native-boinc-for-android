@@ -70,6 +70,7 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * @author mat
@@ -522,6 +523,14 @@ public class NativeBoincService extends Service implements MonitorListener,
 						Intent intent = new Intent(NativeBoincService.this, BugCatchErrorActivity.class);
 						intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 						startActivity(intent);
+					}
+				});
+			} else {
+				// if run ok
+				mListenerHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						Toast.makeText(mApp, R.string.bugCatcher, Toast.LENGTH_LONG).show();
 					}
 				});
 			}

@@ -521,6 +521,11 @@
 
 	<string name="youCanChange">Teraz możesz zmienić:</string>
 	
+	<string name="distribsLoadFailed">FATALNY BŁĄD!!! Ładowanie dystrybucji nie powiodło się! Proszę zaktualizować binaria!</string>
+	<!-- ca-bundle.crt -->
+	<string name="caCertInstalling">Instalowanie certyfikatów</string>
+	<string name="caCertInstallFailed">Nie można zainstalować certyfikatów!</string>
+	
 	<!-- Change password activity -->
 	<string name="accessPassword">Hasło dostępu</string>
 	<string name="hostname">Nazwa hosta</string>

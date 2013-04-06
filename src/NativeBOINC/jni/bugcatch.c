@@ -551,12 +551,7 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchWaitF
 			return -1;
 		}
 
-		if (WIFEXITED(status))
-			printf("%d Exited with return %d\n", pid, WEXITSTATUS(status));
-		else if (WIFSIGNALED(status))
-			printf("%d killed by %d\n", pid, WTERMSIG(status));
-		else if (WIFSTOPPED(status)) {
-			printf("%d stopped by %d\n", pid, WSTOPSIG(status));
+		if (WIFSTOPPED(status)) {
 			if (WSTOPSIG(status) == SIGTRAP || WSTOPSIG(status) == SIGSTOP)
 				ptrace(PTRACE_CONT, pid, NULL, NULL);
 			else

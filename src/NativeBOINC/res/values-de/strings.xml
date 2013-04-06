@@ -26,6 +26,7 @@
 	<string name="service_desc">Ermöglicht es in BOINC Projekten auf Android Geräten teilzunehmen</string>
 	<string name="install_service_desc">Native Client und BOINC Anwendungsinstallations-Dienst</string>
 	<string name="nboinc_service_desc">Native BOINC Client-Dienst</string>
+	<string name="bugcatcher_service_desc">NativeBOINC BugCatcher Dienst</string>
 
 	<string name="newsHandlerDesc">Neuigkeitenverwlter</string>
 	<!-- widget names -->
@@ -52,6 +53,7 @@
 	<string name="license">Lizenz</string>
 	<string name="notConnected">Nicht verbunden</string>
 	<string name="notice">Nachricht</string>
+	<string name="clear">Leeren</string>
 	<string name="ok">OK</string>
 	<string name="apply">Anwenden</string>
 	<string name="projectSuspendedByUser">Projekt vom Benutzer angehalten</string>
@@ -84,6 +86,8 @@
 	<string name="installedBinaries">Installierte Anwendungen</string>
 
 	<string name="boincClient">BOINC Client</string>
+	
+	<string name="boincHosts">Boinc Rechner</string>
 	
 	<!-- Units -->
 	<string name="unitKiB">KiB</string>
@@ -349,8 +353,15 @@
 	<string name="nativeDeleteProjectBinsTitle">Projektanwendungen löschen</string>
 	<string name="nativeDeleteProjectBinsSummary">Projektanwendungen löschen (aus app_info.xml)</string>
 	
+	<string name="nativeBoincConfiguration">Konfigurationsoptionen</string>
+	
+	<string name="nativeApplyConfigFileTitle">Konfigurationsdatei anwenden</string>
+	<string name="nativeApplyConfigFileSummary">cc_config.xml-Datei anwenden/löschen</string>
+	
 	<string name="nativeBoincDiagnostics">Diagnoseoptionen</string>
 	
+	<string name="nativeBugCatcherTitle">BugCatcher Modus</string>
+	<string name="nativeBugCatcherSummary">BugCatcher Modus aktivieren und Fehlerberichte anzeigen/senden</string>
 	<string name="nativeDumpBoincDirTitle">BOINC Dateien kopieren</string>
 	<string name="nativeDumpBoincDirSummary">Kompletten BOINC Ordner auf SDCard kopieren</string>
 	<string name="nativeShowLogsTitle">Protokolle anzeigen</string>
@@ -374,7 +385,7 @@
 	
 	<!-- reinstall boinc -->
 	<string name="boincReinstall">BOINC Neuinstallation</string>
-    <string name="reinstallBegin">Starte Neuinstallation von BOINC</string>
+	<string name="reinstallBegin">Starte Neuinstallation von BOINC</string>
 	<string name="reinstallInProgress">BOINC neu installieren</string>
 	<string name="reinstallFinish">Neuinstallation abgeschlossen</string>
 	<string name="reinstallQuestion">Neuinstallation entfernt den kompletten BOINC Ordner (mit Projekten). Möchten Sie BOINC wirklich neu installieren?</string>
@@ -392,6 +403,39 @@
 	<string name="remoteHostsLoadError">Konnte die Remoterechner-Liste nicht laden</string>
 	<string name="remoteHostsSaveError">Konnte die Remoterechner-Liste nicht speichern</string>
 	
+	<!-- config file activity -->
+	<string name="configFile">Konfigurationsdatei anwenden</string>
+	<string name="configContent">Inhalt der Konfigurationsdatei</string>
+	<string name="configFromSDCard">Von SD-Karte laden</string>
+	<string name="deleteConfigFile">Konfiguration löschen</string>
+	<string name="confirmConfigDelete">Möchten Sie die Konfigurationsdatei löschen?</string>
+	<string name="enterConfigPath">Geben Sie den Pfad zur Konfigurationsdatei ein</string>
+	<string name="configFileReadError">Konfigurationsdatei konnte nicht gelesen werden</string>
+	<string name="configFileWriteError">Konfigurationsdatei konnte nicht geschrieben werden</string>
+	
+	<!-- bug catcher activity -->
+	<string name="bugsDetectedTitle">Fehler festgestellt!</string>
+	<string name="bugsDetectedSummary">Es wurden Fehler festgestellt. Bitte gehen Sie in den BugCatcher-Modus.</string>
+	<string name="bugCatcher">BugCatcher Modus</string>
+	<string name="bugCatcherDesc">Dieser Modus ermöglicht Ihnen ernsthafte Fehler in einem Clienten und einer Anwendung mitzuschreiben.</string>
+	<string name="enableBugCatch">BugCatcher-Modus aktivieren</string>
+	<string name="sendBugReports">Fehlerberichte senden</string>
+	<string name="sendBugs">Fehler senden</string>
+	<string name="bugCatchAttachFailMessage">Sehr wahrscheinlich hat Ihr Gerät eine vom Hersteller bereitgestellte Android-Version. Diese Version von NativeBOINC ist nicht debuggbar.
+	    Um den BugCatcher Modus auszuführen, installieren Sie bitte die BugCatcher-Modus Version (debuggbar), die es ermöglicht den BugCatcher-Modus zu nutzen.
+	    Die BugCatcher-Modus-Version ist unter http://nativeboinc.org/site/uncat/downloads zum Herunterladen verfügbar</string>
+	<string name="bugsSDCardDirectory">Betrete den Fehlerorder</string>
+	<string name="bugSendingBegin">Beginne die Fehlerberichte an den Autor zu senden</string>
+	<string name="bugSendingProgress">Die Fehlererichte werden an den Autor gesendet</string>
+	<string name="bugSendingError">Einige Fehlerberichte konnten nicht gesendet werden</string>
+	<string name="bugSendingCancel">Senden der Fehlerberichte abgebrochen</string>
+	<string name="bugSendingFinished">Senden der Fehlerberichte abgeschlossen</string>
+	<string name="bugCopyingBegin">Beginnne die Fehlerberichte auf die SD-Karte zu kopieren</string>
+	<string name="bugCopyingProgress">Fehlerberichte werden auf die SD-Karte kopiert</string>
+	<string name="bugCopyingError">Einige Fehlerberichte konnten nicht auf die SD-Karte kopiert werden</string>
+	<string name="bugCopyingCancel">Kopieren der Fehlerberichte abgebrochen</string>
+	<string name="bugCopyingFinished">Kopieren der Fehlerberichte abgeschlossen</string>
+	<string name="bugCatchClearQuestion">Möchten Sie die Fehlerberichte leeren? Wenn ja, werden die Fehlerberichte nicht an den Autor gesednet.</string>	
 	<string name="synchronizeBAM">BAM sync.</string>
 	<!--  progress dialog messages -->
 	<string name="synchronizingBAM">Synchronisiere BAM&#8230;</string>
@@ -477,6 +521,11 @@
 	<string name="installProjectNotifyFinish">Anwendungen wurden installiert</string>
 
 	<string name="youCanChange">Jetzt, können Sie ändern:</string>
+	
+	<string name="distribsLoadFailed">SCHWERWIEGENDER FEHLER!!! Laden der Distributionen fehlgeschlagen! Aktualisieren Sie bitte Ihre Anwendungen!</string>
+	<!-- ca-bundle.crt -->
+	<string name="caCertInstalling">Zertifikate werden installiert</string>
+	<string name="caCertInstallFailed">Zertifikate konnten nicht installiert werden!</string>
 	
 	<!-- Change password activity -->
 	<string name="accessPassword">Zugriffspasswort</string>

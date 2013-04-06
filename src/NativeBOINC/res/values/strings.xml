@@ -423,7 +423,7 @@
 	<string name="sendBugs">Send bugs</string>
 	<string name="bugCatchAttachFailMessage">Very likely your device has a stock Android version. This version of the NativeBOINC is not debuggable.
 	    To run BugCatchMode please install BugCatchMode version (debuggable) which allow to you use BugCatchMode.
-	    BugCatchMode version available at http://nativeboinc.org/site/uncat/downloads/.</string>
+	    BugCatchMode version available at http://nativeboinc.org/site/uncat/downloads</string>
 	<string name="bugsSDCardDirectory">Enter Bugs directory</string>
 	<string name="bugSendingBegin">Begin a sending bug reports to author</string>
 	<string name="bugSendingProgress">Sending bug reports to author</string>

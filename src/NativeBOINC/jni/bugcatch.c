@@ -558,10 +558,7 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchWaitF
 		else if (WIFSTOPPED(status)) {
 			printf("%d stopped by %d\n", pid, WSTOPSIG(status));
 			if (WSTOPSIG(status) == SIGTRAP || WSTOPSIG(status) == SIGSTOP)
-			{
-				if (ptrace(PTRACE_CONT, pid, NULL, NULL) == -1)
-					perror("PTrace cont");
-			}
+				ptrace(PTRACE_CONT, pid, NULL, NULL);
 			else
 			{
 				int sigid = WSTOPSIG(status);
@@ -576,8 +573,7 @@ JNIEXPORT jint JNICALL Java_sk_boinc_nativeboinc_util_ProcessUtils_bugCatchWaitF
 							context, report_bug_id);
 				}
 
-				if (ptrace(PTRACE_CONT, pid, NULL, WSTOPSIG(status)) == -1)
-					perror("PTrace cont");
+				ptrace(PTRACE_CONT, pid, NULL, WSTOPSIG(status));
 			}
 		}
 	} while (pid != mainPid || (!WIFEXITED(status) && !WIFSIGNALED(status)));

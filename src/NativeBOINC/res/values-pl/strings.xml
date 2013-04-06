@@ -26,6 +26,7 @@
 	<string name="service_desc">Umożliwia uczestnictwo w projekcie BOINC na urządzeniach z Androidem</string>
 	<string name="install_service_desc">Native Client and BOINC application Installer service </string>
 	<string name="nboinc_service_desc">Native BOINC client service</string>
+	<string name="bugcatcher_service_desc">NativeBOINC BugCatcher service</string>
 
 	<!-- widget names -->
 	<string name="widget2x1">NativeBOINC mały</string>
@@ -51,6 +52,7 @@
 	<string name="license">Licencja</string>
 	<string name="notConnected">Nie połączony</string>
 	<string name="notice">Powiadomienie</string>
+	<string name="clear">Wyczyść</string>
 	<string name="ok">OK</string>
 	<string name="apply">Zastosuj</string>
 	<string name="projectSuspendedByUser">Projekt wstrzymany przez użytk.</string>
@@ -389,6 +391,40 @@
 	<string name="addHost">Dodaj hosta</string>
 	<string name="remoteHostsLoadError">Nie można załadować listy zdalnych hostów</string>
 	<string name="remoteHostsSaveError">Nie mozna zapisać listy zdalnych hostów</string>
+	
+	<!-- config file activity -->
+	<string name="configFile">Zastosuj plik konfig.</string>
+	<string name="configContent">Zawartość pliku konfiguracyjnego</string>
+	<string name="configFromSDCard">Ładuj z karty SD</string>
+	<string name="deleteConfigFile">Usuń konfig.</string>
+	<string name="confirmConfigDelete">Cy chcesz usunąć plik konfiguracji?</string>
+	<string name="enterConfigPath">Wpisz ścieżkę pliku konfig.</string>
+	<string name="configFileReadError">Nie mogę odczytać pliku konfiguracji</string>
+	<string name="configFileWriteError">Nie mogę zapisać pliku konfiguracji</string>
+	
+	<!-- bug catcher activity -->
+	<string name="bugsDetectedTitle">Błędy wykryte!</string>
+	<string name="bugsDetectedSummary">Błędy zostały wykryte. Proszę wejść do BugCatchera.</string>
+	<string name="bugCatcher">Tryb BugCatcher</string>
+	<string name="bugCatcherDesc">Ten tryb pozwala na schwytanie trudnego błędu w kliencie i aplikacji.</string>
+	<string name="enableBugCatch">Włącz tryb BugCatcher</string>
+	<string name="sendBugReports">Wyślij raporty</string>
+	<string name="sendBugs">Wyślij błędy</string>
+	<string name="bugCatchAttachFailMessage">Bardzo prawdopodobne, że twoje urządzenie ma firmową wersję Androida.
+	    Ta wersja NativeBOINC\'a nie jest debugowalna. Do uruchomienia BugCatchMode proszę zainstalować wersję BugCatchMode (debugowalną),
+	    która pozwala Ci na użycie trybu BugCatch. Wersja BugCatchMode jest dostępna na http://nativeboinc.org/site/uncat/downloads</string>
+	<string name="bugsSDCardDirectory">Wpisz katalog błędów</string>
+	<string name="bugSendingBegin">Rozpoczęto wysyłąnie błędów do autora</string>
+	<string name="bugSendingProgress">Wysyłanie błędów do autora</string>
+	<string name="bugSendingError">Nie mogę wysłać jakichs raportów błędów</string>
+	<string name="bugSendingCancel">Wysyłanie raportów błędów anulowane</string>
+	<string name="bugSendingFinished">Wysyłanie raportów błędów zakończone</string>
+	<string name="bugCopyingBegin">Rozpoczęto kopiowanie raportów błędów na kartę SD</string>
+	<string name="bugCopyingProgress">Kopiowanie raportów błędów na kartę SD</string>
+	<string name="bugCopyingError">Nie mogę skopiować jakichs raportów błędów na kartę SD</string>
+	<string name="bugCopyingCancel">Kopiowanie raportów błędów na kartę SD anulowane</string>
+	<string name="bugCopyingFinished">Kopiowanie raportów błędów na kartę SD zakończone</string>
+	<string name="bugCatchClearQuestion">Czy chcesz wyczyścić raporty błędów? Jeśli Tak, raporty błędów nie będą wysłane do autora.</string>
 	
 	<string name="synchronizeBAM">Synchronizuj z BAM</string>
 	<!--  progress dialog messages -->

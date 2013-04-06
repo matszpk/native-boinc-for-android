@@ -407,7 +407,7 @@
 	<string name="configFile">Konfigurationsdatei anwenden</string>
 	<string name="configContent">Inhalt der Konfigurationsdatei</string>
 	<string name="configFromSDCard">Von SD-Karte laden</string>
-	<string name="deleteConfigFile">Konfiguration löschen</string>
+	<string name="deleteConfigFile">Konfig. löschen</string>
 	<string name="confirmConfigDelete">Möchten Sie die Konfigurationsdatei löschen?</string>
 	<string name="enterConfigPath">Geben Sie den Pfad zur Konfigurationsdatei ein</string>
 	<string name="configFileReadError">Konfigurationsdatei konnte nicht gelesen werden</string>

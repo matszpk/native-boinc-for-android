@@ -1,4 +1,7 @@
-Version 0.4.4 (beta) (2013-04-05):
+Version 0.4.4.1 (beta) (2013-04-06):
+- updated english, german and polish translations
+
+Version 0.4.4 (beta) (2013-04-06):
 - added BugCatcher mode, which allow to catch and send boinc bug reports
 - added desktop shortcut handling
 - added cc_config.xml loading and editing

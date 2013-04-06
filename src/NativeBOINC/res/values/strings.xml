@@ -409,28 +409,28 @@
 	<string name="configFromSDCard">Load from SDCard</string>
 	<string name="deleteConfigFile">Delete config</string>
 	<string name="confirmConfigDelete">Do you want to delete config file?</string>
-	<string name="enterConfigPath">Entger config file path</string>
+	<string name="enterConfigPath">Enter config file path</string>
 	<string name="configFileReadError">Unable to read config file</string>
 	<string name="configFileWriteError">Unable to write config file</string>
 	
 	<!-- bug catcher activity -->
 	<string name="bugsDetectedTitle">Bugs detected!</string>
-	<string name="bugsDetectedSummary">Bugs has been detected. Please enter to BugCatcher.</string>
+	<string name="bugsDetectedSummary">Bugs have been detected. Please enter to BugCatcher.</string>
 	<string name="bugCatcher">Bug catcher mode</string>
-	<string name="bugCatcherDesc">This mode allow to catch a severe bugs in a client and an apps.</string>
+	<string name="bugCatcherDesc">This mode allows you to catch a severe bug in a client and an app.</string>
 	<string name="enableBugCatch">Enable BugCatchMode</string>
 	<string name="sendBugReports">Send reports</string>
 	<string name="sendBugs">Send bugs</string>
 	<string name="bugCatchAttachFailMessage">Very likely your device has a stock Android version. This version of the NativeBOINC is not debuggable.
-	    To run BugCatchMode please install BugCatchMode version (debuggable) which allow to you use BugCatchMode.
-	    BugCatchMode version available at http://nativeboinc.org/site/uncat/downloads</string>
+	    To run BugCatchMode please install BugCatchMode version (debuggable) which allows you to use BugCatchMode.
+	    BugCatchMode version is available at http://nativeboinc.org/site/uncat/downloads</string>
 	<string name="bugsSDCardDirectory">Enter Bugs directory</string>
-	<string name="bugSendingBegin">Begin a sending bug reports to author</string>
+	<string name="bugSendingBegin">Begin sending bug reports to author</string>
 	<string name="bugSendingProgress">Sending bug reports to author</string>
 	<string name="bugSendingError">Can\'t send some bug reports</string>
 	<string name="bugSendingCancel">Sending bug reports cancelled</string>
 	<string name="bugSendingFinished">Sending bug reports finished</string>
-	<string name="bugCopyingBegin">Begin a copying bug reports to SDCard</string>
+	<string name="bugCopyingBegin">Begin copying bug reports to SDCard</string>
 	<string name="bugCopyingProgress">Copying bug reports to SDCard</string>
 	<string name="bugCopyingError">Can\'t copy some bug reports to SDCard</string>
 	<string name="bugCopyingCancel">Copying bug reports to SDCard cancelled</string>
@@ -526,7 +526,7 @@
 	<string name="distribsLoadFailed">FATAL ERROR!!! Loading distributions failed! Please Update binaries!</string>
 	<!-- ca-bundle.crt -->
 	<string name="caCertInstalling">Installing certificates</string>
-	<string name="caCertInstallFailed">Unable to installing certificates!</string>
+	<string name="caCertInstallFailed">Unable to install certificates!</string>
 	
 	<!-- Change password activity -->
 	<string name="accessPassword">Access password</string>
@@ -556,8 +556,8 @@
 	<string name="projectStatusSuspended">Suspended by user</string>
 	<string name="projectStatusNNW">Won\'t get new tasks</string>
 	
-	<string name="warnDetachProject">Are you sure want to detach project (%1$s)?</string>
-	<string name="warnDetachProjects">Are you sure want to detach selected projects?</string>
+	<string name="warnDetachProject">Are you sure that you want to detach project (%1$s)?</string>
+	<string name="warnDetachProjects">Are you sure that you want to detach selected projects?</string>
 	
 	<string name="projectCredits">Total:%1$.0f RAC:%2$.0f Host:%3$.0f HostRAC:%4$.0f</string>
 	<string name="projectDetailedInfo">

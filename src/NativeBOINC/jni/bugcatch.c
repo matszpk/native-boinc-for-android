@@ -243,6 +243,7 @@ static MemMapEntry* readMemMaps(const char* filename, int* num)
         if (line[linelen-1] == '\n')
             line[linelen-1] = 0;
 
+        ment.filename[0] = 0;
         parsedElems = sscanf(line, "%08zx-%08zx %c%c%c%c %08zx %02hhx:%02hhx %d %s",
                &ment.start, &ment.end, &mode1, &mode2, &mode3, &mode4, &ment.offset,
                &devmaj, &devmin, &inode, ment.filename);

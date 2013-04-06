@@ -346,11 +346,13 @@ public class BugCatcherHandler extends Handler {
 					BufferedReader reader = null;
 					try {
 						reader = new BufferedReader(new FileReader(file));
-						reader.readLine(); // skip first line
+						String header = reader.readLine(); // skip first line
 						reader.readLine(); // skip second line
 						String content = reader.readLine(); // content
 						
-						if (content == null || !content.startsWith("CommandLine:"))
+						if (content == null || !content.startsWith("CommandLine:") ||
+								header == null ||
+								!header.equals("---- NATIVEBOINC BUGCATCH REPORT HEADER ----"))
 							isBroken = true;
 					} catch(IOException ex) {
 						isBroken = true;

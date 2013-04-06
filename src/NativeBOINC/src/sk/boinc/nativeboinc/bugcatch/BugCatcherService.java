@@ -384,18 +384,18 @@ public class BugCatcherService extends Service {
 				if (Logging.DEBUG) Log.d(TAG, "Loading bugreport "+id);
 				
 				reader = new BufferedReader(new FileReader(file));
-				reader.readLine(); // skip first line
+				String header = reader.readLine(); // skip first line
 				reader.readLine(); // skip second line
 				String content = reader.readLine();
 				
-				if (content == null)
+				if (header == null || !header.equals("---- NATIVEBOINC BUGCATCH REPORT HEADER ----") ||
+						content == null || !content.startsWith("CommandLine:"))
 					content = "BROKEN!!!"; // broken!!!
-				else if (content.startsWith("CommandLine:")) {
+				else { // all is ok
 					content = content.substring(12); // skip "CommandLine:"
 					if (content.length() >= 160) // cut cmdline file if needed
 						content = content.substring(0, 160);
-				} else
-					content = "BROKEN!!!";
+				}
 				
 				bugReportInfos.add(new BugReportInfo(id, content));
 			} catch(ParseException ex) {

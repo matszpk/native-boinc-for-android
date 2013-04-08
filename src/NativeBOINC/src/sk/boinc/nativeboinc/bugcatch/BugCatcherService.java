@@ -288,6 +288,7 @@ public class BugCatcherService extends Service {
 			Thread.sleep(200);
 		} catch(InterruptedException ex) { }
 		handler.destroy();
+		mPendingController.cancelAll();
 	}
 	
 	public synchronized void addBugCatcherListener(BugCatcherListener listener) {

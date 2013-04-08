@@ -26,6 +26,7 @@
     <string name="service_desc">Umožňuje zapojit se do BOINC projektů na zařízeních s Androidem</string>
     <string name="install_service_desc">Služba nativního klienta a služba instalátoru BOINC aplikace</string>
     <string name="nboinc_service_desc">Služba nativního klienta BOINC</string>
+	<string name="bugcatcher_service_desc">Služba NativeBOINC BugCatcher</string>
 
 	<string name="newsHandlerDesc">Seznam novinek</string>
 	<!-- widget names -->
@@ -44,7 +45,7 @@
     <string name="cancelAll">Zrušit vše</string>
     <string name="changelog">ChangeLog</string>
     <string name="close">Zavřít</string>
-    <string name="connecting">Připojuji se&#8230;</string>
+	<string name="connecting">Připojuji se&#8230;</string>
     <string name="disabled">Zakázaný</string>
     <string name="dismiss">Odmítnout</string>
     <string name="error">Chyba</string>
@@ -52,8 +53,9 @@
     <string name="license">Licence</string>
     <string name="notConnected">Nepřipojen</string>
     <string name="notice">Poznámka</string>
-    <string name="ok">OK</string>
-    <string name="apply">Použít</string>
+	<string name="clear">Vyčistit</string>
+	<string name="ok">OK</string>
+	<string name="apply">Použít</string>
     <string name="projectSuspendedByUser">Projekt pozastaven uživatelem</string>
     <string name="received">Přijato</string>
     <string name="retrievingData">Stahuji data&#8230;</string>
@@ -72,9 +74,9 @@
     <string name="saveToSDCard">Uložit na SD kartu</string>
 
 	<string name="restart">Restartovat</string>
-    <string name="clientRestarting">Restartuji nativního klienta&#8230;</string>
+	<string name="clientRestarting">Restartuji nativního klienta&#8230;</string>
 
-    <string name="selectAll">Označit vše</string>
+	<string name="selectAll">Označit vše</string>
     <string name="unselectAll">Odznačit vše</string>
 
     <string name="yesText">Ano</string>
@@ -84,6 +86,8 @@
     <string name="installedBinaries">Nainstalované programy</string>
    
     <string name="boincClient">BOINC klient</string>
+
+	<string name="boincHosts">Boinc zařízení</string>
 
 	<!-- Units -->
 	<string name="unitKiB">KiB</string>
@@ -126,19 +130,19 @@
 	<string name="aboutTitle">Základní údaje</string>
     <string name="aboutHomepageUrl">http://nativeboinc.org/</string>
     <string name="aboutText">
-      %1$s je plnohodnotný nativní BOINC klient pro Android s integrovaným
-      AndroBOINC managerem v1.6.7b3.\n
-      Děkuji, že používáte můj software.\n
-      Copyright &#169; 2012 matszpk\n
-      Původní AndroBOINC od Pavla Michalce(Paulo M.)\n
-      \n
-      Poděkování:\n
-      Troll81 - za návrh loga.\n
-      BOINC@Poland - za podporu.\n
-      Haer a eLPeCKo (CNT) - český překlad.\n
-      Daniel Winzen - německý překlad.\n
-      Paolo (bax) - italština překlad.\n
-    </string>
+		%1$s je plnohodnotný nativní BOINC klient pro Android s integrovaným
+		AndroBOINC managerem v1.6.7b3.\n
+		Děkuji, že používáte můj software.\n
+		Copyright &#169; 2012 matszpk\n
+		Původní AndroBOINC od Pavla Michalce(Paulo M.)\n
+		\n
+		Poděkování:\n
+		Troll81 - za návrh loga.\n
+		BOINC@Poland - za podporu.\n
+		Haer a eLPeCKo (CNT) - český překlad.\n
+		Daniel Winzen - německý překlad.\n
+		Paolo (bax) - italský překlad.\n
+	</string>
 
 	<!-- Preferences -->
 	<string name="prefCategoryUI">Uživatelské rozhraní</string>
@@ -226,12 +230,12 @@
     <string name="localPrefMemoryWhenInUse">% RAM je-li používán</string>
     <string name="localPrefMemoryWhenInIdle">% RAM není-li používán</string>
     <string name="localPrefCheckpointToDisk">Zapisovat záchytné body max každých</string>
-    <string name="seconds">s</string>
+    <string name="seconds">sek</string>
     <string name="localPrefWrong">Špatná hodnota!</string>
     <string name="localPrefLeaveApplications">Ponechat pozastavenou aplikaci v paměti</string>
     <string name="applyDefault">Použít výchozí</string>
 
-    <!-- time preferences -->
+	<!-- time preferences -->
     <string name="cpuTimePrefTitle">Předvolby využití CPU</string>
     <string name="netTimePrefTitle">Předvolby využití sítě</string>
 
@@ -247,7 +251,7 @@
     <string name="setHour">Nastavit hodiny</string>
 
 	<!-- Network status -->
-	<string name="networkUnavailable">Síťové spojení nedostupné.</string>
+	<string name="networkUnavailable">Network connection unavailable.</string>
 
 	<!-- ManageClient Activity -->
 	<string name="currentHostTitle">Současné zařízení</string>
@@ -332,7 +336,7 @@
     <string name="nativeAccessListTitle">Seznam přístupových zařízení</string>
     <string name="nativeAccessListSummary">Seznam zařízení s přístupem na BOINC klienta</string>
 
-    <string name="nativeBoincInstallation">Možnosti instalace</string>
+	<string name="nativeBoincInstallation">Možnosti instalace</string>
 
 	<string name="nativeMoveToSDCardTitle">Přesunout na paměťovou kartu SD</string>
 	<string name="nativeMoveToSDCardSummary">Přesunout BOINC na paměťovou kartu SD</string>
@@ -349,8 +353,15 @@
 	<string name="nativeDeleteProjectBinsTitle">Smazat aplikační programy</string>
 	<string name="nativeDeleteProjectBinsSummary">Smazat aplikační programy (z app_info.xml)</string>
 
+	<string name="nativeBoincConfiguration">Možnosti konfigurace</string>
+
+	<string name="nativeApplyConfigFileTitle">Použít konfigurační soubor</string>
+	<string name="nativeApplyConfigFileSummary">Použít/smazat soubor cc_config.xml</string>
+
 	<string name="nativeBoincDiagnostics">Možnosti diagnostiky</string>
 
+	<string name="nativeBugCatcherTitle">BugCatcher režim</string>
+	<string name="nativeBugCatcherSummary">Povolit režim BugCatcher a zobrazit/odeslat chyby</string>
 	<string name="nativeDumpBoincDirTitle">Vypsat BOINC soubory</string>
     <string name="nativeDumpBoincDirSummary">Vypsat celý adresář BOINC na SD kartu</string>
     <string name="nativeShowLogsTitle">Zobrazit logy</string>
@@ -376,7 +387,8 @@
 	<string name="boincReinstall">Reinstalace BOINCu</string>
     <string name="reinstallBegin">Zahájit reinstalaci BOINCu</string>
     <string name="reinstallInProgress">Přeinstalovávám BOINC</string>
-    <string name="reinstallQuestion">Přeinstalace odstraní celý BOINC adresář (včetně dat projektů). Opravdu chcete přeinstalovat BOINC?</string>
+	<string name="reinstallFinish">Přeinstalování dokončeno</string>
+	<string name="reinstallQuestion">Přeinstalace odstraní celý BOINC adresář (včetně dat projektů). Opravdu chcete přeinstalovat BOINC?</string>
     <string name="waitingForShutdown">Čekám na ukončení</string>
 
 	<!-- move from/to sdcard -->
@@ -390,6 +402,40 @@
     <string name="addHost">Přidat zařízení</string>
     <string name="remoteHostsLoadError">Nezdařilo se stáhnout seznam vzdálených zařízení</string>
     <string name="remoteHostsSaveError">Nezdařilo se uložit seznam vzdálených zařízení</string>
+
+	<!-- config file activity -->
+	<string name="configFile">Použít konfigurační soubor</string>
+	<string name="configContent">Obsah konfiguračního souboru</string>
+	<string name="configFromSDCard">Načíst z SD karty</string>
+	<string name="deleteConfigFile">Smazat konfiguraci</string>
+	<string name="confirmConfigDelete">Chcete smazat konfigurační soubor ?</string>
+	<string name="enterConfigPath">Zadejte cestu ke konfiguračnímu souboru</string>
+	<string name="configFileReadError">Nemůžu načíst konfigurační soubor</string>
+	<string name="configFileWriteError">Nemůžu zapsat konfigurační soubor</string>
+
+	<!-- bug catcher activity -->
+	<string name="bugsDetectedTitle">Detekovány chyby!</string>
+	<string name="bugsDetectedSummary">Byly detekovány chyby. Prosím zapnite režim BugCatcher.</string>
+	<string name="bugCatcher">Režim BugCatcher</string>
+	<string name="bugCatcherDesc">Tento režim Vám dovolí odhalit závažné chyby v klientovi a aplikaci.</string>
+	<string name="enableBugCatch">Povolit režim BugCatcher</string>
+	<string name="sendBugReports">Poslat hlášení</string>
+	<string name="sendBugs">Poslat chyby</string>
+	<string name="bugCatchAttachFailMessage">Pravděpodobně má Vaše zařízení záladní verzi Androidu. Na této verzi NativeBOINC nelze spustit detekci chyb.
+	    Aby jste mohli spustit režim BugCatcher, prosím nainstalujte verzi s režimem BugCatcher kde lze spustit režim BugCatcher.
+	    Verze s režimem BugCatcher je dostupná na adrese http://nativeboinc.org/site/uncat/downloads</string>
+	<string name="bugsSDCardDirectory">Zadejte složku pro ukládání chyb</string>
+	<string name="bugSendingBegin">Začít posílat hlášení o chybách autorovi</string>
+	<string name="bugSendingProgress">Posílám hlášení o chybách autorovi</string>
+	<string name="bugSendingError">Nebylo možné odeslat některé hlášení o chybách</string>
+	<string name="bugSendingCancel">Odesílání hlášení o chybách zrušeno</string>
+	<string name="bugSendingFinished">Odesílání hlášení o chybách dokončeno</string>
+	<string name="bugCopyingBegin">Začínám kopírovat hlášení o chybách na SD kartu</string>
+	<string name="bugCopyingProgress">Kopíruji hlášení o chybách na SD kartu</string>
+	<string name="bugCopyingError">Nemůžu zkopírovat některé hlášení o chybách na SD kartu</string>
+	<string name="bugCopyingCancel">Kopírování hlášení o chybách na SD kartu zrušeno</string>
+	<string name="bugCopyingFinished">Kopírování hlášení o chybách na SD kartu dokončeno</string>
+	<string name="bugCatchClearQuestion">Chcete vyčistit hlášení o chybách ? Pokud ano, hlášení nebudou odeslána autorovi.</string>
 
 	<string name="synchronizeBAM">Synchronizovat s BAM</string>
 	<!--  progress dialog messages -->
@@ -477,6 +523,11 @@
 
 	<string name="youCanChange">Nyní můžete změnit:</string>
 
+	<string name="distribsLoadFailed">FATÁLNÍ CHYBA!!! Načítání distribucí selhalo! Prosím aktualizujte aplikační programy!</string>
+	<!-- ca-bundle.crt -->
+	<string name="caCertInstalling">Instaluji certifikáty</string>
+	<string name="caCertInstallFailed">Nemůžu nainstalovat certifikáty!</string>
+
 	<!-- Change password activity -->
 	<string name="accessPassword">Přístupové heslo</string>
     <string name="hostname">Jméno zařízení</string>
@@ -508,38 +559,38 @@
     <string name="warnDetachProject">Jste si jisti, že chcete odpojit tento projekt  (%1$s)?</string>
     <string name="warnDetachProjects">Jste si jisti, že chcete odpojit vybrané projekty?</string>
 
-    <string name="projectCredits">Celkem:%1$.0f RAC:%2$.0f Zařízení:%3$.0f RACzařízení:%4$.0f</string> 
+	<string name="projectCredits">Celkem:%1$.0f RAC:%2$.0f Zařízení:%3$.0f RACzařízení:%4$.0f</string> 
     <string name="projectDetailedInfo">
-      &lt;b>Projekt:&lt;/b> %1$s&lt;br>\n
-      &lt;b>Účet:&lt;/b> %2$s&lt;br>\n
-      &lt;b>Tým:&lt;/b> %3$s&lt;br>\n
-      &lt;b>CPU nenáročné:&lt;/b> %4$s&lt;br>\n
-      &lt;b>Kredit uživatele:&lt;/b> %5$.2f&lt;br>\n
-      &lt;b>RAC uživatele:&lt;/b> %6$.2f&lt;br>\n
-      &lt;b>Kredit zařízení:&lt;/b> %7$.2f&lt;br>\n
-      &lt;b>RAC zařízení:&lt;/b> %8$.2f&lt;br>\n
-      &lt;b>Podíl zdrojů:&lt;/b> %9$s&lt;br>\n
-      &lt;b>Využití disku:&lt;/b> %10$s&lt;br>\n
-      &lt;b>ID zařízení:&lt;/b> %11$d&lt;br>\n
-      &lt;b>Umístění zařízení:&lt;/b> %12$s&lt;br>\n
+		&lt;b>Projekt:&lt;/b> %1$s&lt;br>\n
+		&lt;b>Účet:&lt;/b> %2$s&lt;br>\n
+		&lt;b>Tým:&lt;/b> %3$s&lt;br>\n
+		&lt;b>CPU nenáročné:&lt;/b> %4$s&lt;br>\n
+		&lt;b>Kredit uživatele:&lt;/b> %5$.2f&lt;br>\n
+		&lt;b>RAC uživatele:&lt;/b> %6$.2f&lt;br>\n
+		&lt;b>Kredit zařízení:&lt;/b> %7$.2f&lt;br>\n
+		&lt;b>RAC zařízení:&lt;/b> %8$.2f&lt;br>\n
+		&lt;b>Podíl zdrojů:&lt;/b> %9$s&lt;br>\n
+		&lt;b>Využití disku:&lt;/b> %10$s&lt;br>\n
+		&lt;b>ID zařízení:&lt;/b> %11$d&lt;br>\n
+		&lt;b>Umístění zařízení:&lt;/b> %12$s&lt;br>\n
 	</string>
 	<string name="projectDetailedInfoNormal">
-      &lt;b>CPU priorita plánování:&lt;/b> %1$.2f&lt;br>\n
-      &lt;b>CPU priorita stahování práce:&lt;/b> %2$.2f&lt;br>\n
+		&lt;b>CPU priorita plánování:&lt;/b> %1$.2f&lt;br>\n
+		&lt;b>CPU priorita stahování práce:&lt;/b> %2$.2f&lt;br>\n
     </string>
     <string name="projectDetailedInfoATI">
-      &lt;b>ATI priorita plánování:&lt;/b> %1$.2f&lt;br>\n
-      &lt;b>ATI priorita stahování práce:&lt;/b> %2$.2f&lt;br>\n
+		&lt;b>ATI priorita plánování:&lt;/b> %1$.2f&lt;br>\n
+		&lt;b>ATI priorita stahování práce:&lt;/b> %2$.2f&lt;br>\n
     </string>
     <string name="projectDetailedInfoNVIDIA">
-      &lt;b>nVidia priorita plánování:&lt;/b> %1$.2f&lt;br>\n
-      &lt;b>nVidia priorita stahování práce:&lt;/b> %2$.2f&lt;br>\n
+		&lt;b>nVidia priorita plánování:&lt;/b> %1$.2f&lt;br>\n
+		&lt;b>nVidia priorita stahování práce:&lt;/b> %2$.2f&lt;br>\n
     </string>
     <string name="projectDetailedInfoNormalEnd">
-      &lt;b>Korekční faktor trvání:&lt;/b> %1$.4f&lt;br>\n
+		&lt;b>Korekční faktor trvání:&lt;/b> %1$.4f&lt;br>\n
     </string>
     <string name="projectDetailedInfoEnd">
-      &lt;b>Stav:&lt;/b> %1$s
+		&lt;b>Stav:&lt;/b> %1$s
     </string>
 
 	<!--  messages activity -->
@@ -560,7 +611,7 @@
 	<string name="taskCtxMenuTitle">Příkazy</string>
     <string name="taskSuspend">Pozastavit</string>
     <string name="taskResume">Obnovit</string>
-    <string name="taskAbort">Přerušit úkol</string>
+    <string name="taskAbort">Přerušit</string>
     <string name="taskProperties">Vlastnosti</string>
     <string name="warnAbortTask">Jste si jisti, že chcete zrušit tento úkol (%1$s)?</string>
     <string name="warnAbortTasks">Jste si jisti, že chcete zrušit vybrané úkoly?</string>

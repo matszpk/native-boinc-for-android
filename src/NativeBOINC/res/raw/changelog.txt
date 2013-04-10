@@ -1,3 +1,7 @@
+Version 0.4.4.1.1 (beta) (2013-04-10):
+- updated Czech translations
+- fixed NPE crashes
+
 Version 0.4.4.1 (beta) (2013-04-06):
 - updated english, german and polish translations
 

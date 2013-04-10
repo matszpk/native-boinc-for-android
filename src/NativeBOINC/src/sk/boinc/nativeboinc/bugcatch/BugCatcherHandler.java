@@ -63,13 +63,16 @@ public class BugCatcherHandler extends Handler {
 	}
 	
 	public synchronized void cancelOperation() {
-		if (mIsWorking)
-			mBugCatcherThread.interrupt(); // interrupts
+		if (mIsWorking) {
+			if (mBugCatcherThread != null)
+				mBugCatcherThread.interrupt(); // interrupts
+		}
 	}
 	
 	public void destroy() {
 		mBugCatcher = null;
 		mListenerHandler = null;
+		mBugCatcherThread = null;
 	}
 	
 	public synchronized boolean isWorking() {

@@ -475,8 +475,9 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 	    						return; // do nothing
 	    					
 	    					if (mSelectedProjects.isEmpty()) {
-		    					mConnectionManager.projectOperation(ClientOp.PROJECT_DETACH,
-		    							mChoosenProject.masterUrl);
+	    						if (mChoosenProject != null)
+			    					mConnectionManager.projectOperation(ClientOp.PROJECT_DETACH,
+			    							mChoosenProject.masterUrl);
 	    					} else
 	    						mConnectionManager.projectsOperation(ClientOp.PROJECT_DETACH,
 	    								mSelectedProjects.toArray(new String[0]));
@@ -510,9 +511,11 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 		case DIALOG_WARN_DETACH:
 			text = (TextView)dialog.findViewById(R.id.dialogText);
 			if (mSelectedProjects.isEmpty()) {
-				String projName = (mChoosenProject.project != null) ? mChoosenProject.project :
-					mChoosenProject.masterUrl;
-				text.setText(getString(R.string.warnDetachProject, projName));
+				if (mChoosenProject != null) {
+					String projName = (mChoosenProject.project != null) ? mChoosenProject.project :
+						mChoosenProject.masterUrl;
+					text.setText(getString(R.string.warnDetachProject, projName));
+				}
 			} else
 				text.setText(getString(R.string.warnDetachProjects));
 			break;

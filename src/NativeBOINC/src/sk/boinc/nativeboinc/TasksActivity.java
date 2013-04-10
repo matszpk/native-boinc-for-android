@@ -514,8 +514,9 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 	    						return; // do nothing
 	    					
 	    					if (mSelectedTasks.isEmpty()) {
-		    					mConnectionManager.taskOperation(ClientOp.TASK_ABORT,
-		    							mChoosenTask.projectUrl, mChoosenTask.taskName);
+	    						if (mChoosenTask != null)
+	    							mConnectionManager.taskOperation(ClientOp.TASK_ABORT,
+	    									mChoosenTask.projectUrl, mChoosenTask.taskName);
 	    					} else
 	    						mConnectionManager.tasksOperation(ClientOp.TASK_ABORT,
 	    								mSelectedTasks.toArray(new TaskDescriptor[0]));
@@ -549,9 +550,10 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 			break;
 		case DIALOG_WARN_ABORT:
 			text = (TextView)dialog.findViewById(R.id.dialogText);
-			if (mSelectedTasks.isEmpty())
-				text.setText(getString(R.string.warnAbortTask, mChoosenTask.taskName));
-			else
+			if (mSelectedTasks.isEmpty()) {
+				if (mChoosenTask != null)
+					text.setText(getString(R.string.warnAbortTask, mChoosenTask.taskName));
+			} else
 				text.setText(getString(R.string.warnAbortTasks));
 			break;
 		}

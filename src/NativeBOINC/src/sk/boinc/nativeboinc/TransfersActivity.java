@@ -486,8 +486,9 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 	    						return;
 	    					
 	    					if (mSelectedTransfers.isEmpty()) {
-	    						mConnectionManager.transferOperation(ClientOp.TRANSFER_ABORT, mChoosenTransfer.projectUrl,
-	    								mChoosenTransfer.fileName);
+	    						if (mChoosenTransfer != null)
+	    							mConnectionManager.transferOperation(ClientOp.TRANSFER_ABORT, mChoosenTransfer.projectUrl,
+	    									mChoosenTransfer.fileName);
 	    					} else
 	    						mConnectionManager.transfersOperation(ClientOp.TRANSFER_ABORT,
 	    								mSelectedTransfers.toArray(new TransferDescriptor[0]));
@@ -521,9 +522,10 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 			break;
 		case DIALOG_WARN_ABORT:
 			text = (TextView)dialog.findViewById(R.id.dialogText);
-			if (mSelectedTransfers.isEmpty())
-				text.setText(getString(R.string.warnAbortTransfer, mChoosenTransfer.fileName));
-			else
+			if (mSelectedTransfers.isEmpty()) {
+				if (mChoosenTransfer != null)
+					text.setText(getString(R.string.warnAbortTransfer, mChoosenTransfer.fileName));
+			} else
 				text.setText(getString(R.string.warnAbortTransfers));
 			break;
 		}

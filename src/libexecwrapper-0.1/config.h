@@ -16,7 +16,5 @@
 #define EW_PATH "/data/data/sk.boinc.nativeboinc/lib/libexecwrapper.so"
 #define EW_PATH_LEN 53
 
-#define SDCARDENVNAME "LIBEXECWRAPPER_SDCARDDIR"
-
 #define EXECS_NAME ".__execs__"
 #define EXECS_NAME_LEN 10

@@ -142,7 +142,13 @@ static int check_sdcard(const char* pathname)
   struct stat stbuf;
   if (!is_sdcard_dev_determined)
   {
-    if (real_stat("/mnt/sdcard",&stbuf)==-1)
+    char* env_sdcard_dir = NULL;
+    
+    env_sdcard_dir = getenv(SDCARDENVNAME);
+    if (env_sdcard_dir == NULL)
+        env_sdcard_dir = "/mnt/sdcard";
+    
+    if (real_stat(env_sdcard_dir,&stbuf)==-1)
       return 0;
     sdcard_dev = stbuf.st_dev;
 #ifdef DEBUG

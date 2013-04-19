@@ -416,25 +416,51 @@ static char* myrealpath(const char* path, char* resolved)
 static int is_sdcard_dev_determined = 0;
 static dev_t sdcard_dev = -1;
 
+static char* sdcard_dir = NULL;
+static char sdcard_dir_slash[256];
+static size_t sdcard_dir_slash_len = 0;
+
+static void init_sdcard_dirs(void)
+{
+  if (sdcard_dir == NULL)
+  {
+    char* xsdcard_dir = NULL;
+    size_t len = 0;
+    size_t lastchar = 0;
+    xsdcard_dir = getenv(SDCARDENVNAME);
+    if (env_sdcard_dir == NULL)
+      xsdcard_dir = "/mnt/sdcard";
+    len = strlen(xsdcard_dir);
+    lastchar = len>254?254:len;
+    
+    strncpy(sdcard_dir_slash, xsdcard_dir, lastchar);
+    sdcard_dir_slash[lastchar] = '/';
+    sdcard_dir_slash[lastchar+1] = 0;
+    sdcard_dir = xsdcard_dir; // save after determining
+    sdcard_dir_slash_len = lastchar+1;
+  }
+}
+
 static int check_sdcard(const char* pathname)
 {
   struct stat stbuf;
   if (!is_sdcard_dev_determined)
   {
-    if (real_stat("/mnt/sdcard",&stbuf)==-1)
+    init_sdcard_dirs();  
+    if (real_stat(sdcard_dir,&stbuf)==-1)
       return 0;
     sdcard_dev = stbuf.st_dev;
     is_sdcard_dev_determined = 1;
   }
   
-  if (strcmp(pathname,"/mnt/sdcard")==0 || strcmp(pathname,"/mnt/sdcard/")==0)
+  if (strcmp(pathname,sdcard_dir)==0 || strcmp(pathname,sdcard_dir_slash)==0)
     return 0;
   
   if (real_stat(pathname,&stbuf)==-1)
   {
     if (real_access(pathname,F_OK)==-1)  // dir path is not available
     {
-      if (strncmp(pathname,"/mnt/sdcard/",12)==0)
+      if (strncmp(pathname,sdcard_dir_slash,sdcard_dir_slash_len)==0)
         return 1;
     }
     return 0;
@@ -447,20 +473,21 @@ static int check_sdcard_link(const char* pathname)
   struct stat stbuf;
   if (!is_sdcard_dev_determined)
   {
-    if (real_stat("/mnt/sdcard",&stbuf)==-1)
+    init_sdcard_dirs();  
+    if (real_stat(sdcard_dir,&stbuf)==-1)
       return 0;
     sdcard_dev = stbuf.st_dev;
     is_sdcard_dev_determined = 1;
   }
   
-  if (strcmp(pathname,"/mnt/sdcard")==0 || strcmp(pathname,"/mnt/sdcard/")==0)
+  if (strcmp(pathname,sdcard_dir)==0 || strcmp(pathname,sdcard_dir_slash)==0)
     return 0;
   
   if (real_lstat(pathname,&stbuf)==-1)
   {
     if (real_access(pathname,F_OK)==-1) // dir path is not available
     {
-      if (strncmp(pathname,"/mnt/sdcard/",12)==0)
+      if (strncmp(pathname,sdcard_dir_slash,sdcard_dir_slash_len)==0)
         return 1;
     }
     return 0;
@@ -473,7 +500,8 @@ static int check_sdcard_fd(int fd)
   struct stat stbuf;
   if (!is_sdcard_dev_determined)
   {
-    if (real_stat("/mnt/sdcard",&stbuf)==-1)
+    init_sdcard_dirs();
+    if (real_stat(sdcard_dir,&stbuf)==-1)
       return 0;
     sdcard_dev = stbuf.st_dev;
     is_sdcard_dev_determined = 1;
@@ -948,7 +976,8 @@ int fchmod(int fd, mode_t mode)
     free(realpathname);
     return real_fchmod(fd, mode);
   }
-  if (strcmp(realpathname,"/mnt/sdcard")==0)
+  // sdcard_dir initialized in check_sdcard_fd
+  if (strcmp(realpathname,sdcard_dir)==0)
   {
     free(realpathname);
     return real_fchmod(fd, mode);
@@ -1060,7 +1089,8 @@ int fchown(int fd, uid_t uid, gid_t gid)
     free(realpathname);
     return real_fchown(fd, uid, gid);  // cant determine realpath
   }
-  if (strcmp(realpathname,"/mnt/sdcard")==0)
+  
+  if (strcmp(realpathname,sdcard_dir)==0)
   {
     free(realpathname);
     return real_fchown(fd, uid, gid);
@@ -1785,7 +1815,7 @@ int ftruncate(int fd, off_t length)
     free(realpathname);
     return real_ftruncate(fd, length);  // cant determine realpath
   }
-  if (strcmp(realpathname,"/mnt/sdcard")==0)
+  if (strcmp(realpathname,sdcard_dir)==0)
   {
     free(realpathname);
     return real_ftruncate(fd, length);
@@ -1905,7 +1935,7 @@ int fstat(int fd, struct stat* buf)
     free(realpathname);
     return real_fstat(fd, buf);  // cant determine realpath
   }
-  if (strcmp(realpathname,"/mnt/sdcard")==0)
+  if (strcmp(realpathname,sdcard_dir)==0)
   {
     free(realpathname);
     return real_fstat(fd, buf);
@@ -2091,7 +2121,7 @@ int futimes(int fd, const struct timeval times[2])
     free(realpathname);
     return real_futimes(fd, times);  // cant determine realpath
   }
-  if (strcmp(realpathname,"/mnt/sdcard")==0)
+  if (strcmp(realpathname,sdcard_dir)==0)
   {
     free(realpathname);
     return real_futimes(fd, times);

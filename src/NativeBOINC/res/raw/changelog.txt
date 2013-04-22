@@ -1,3 +1,7 @@
+Version 0.4.4.1.2 (beta) (2013-04-22):
+- fixed libexecwrapper (improved sdcard dir detection)
+- added usertime, systime to BugCatcher reports
+
 Version 0.4.4.1.1 (beta) (2013-04-10):
 - updated Czech translations
 - fixed NPE crashes

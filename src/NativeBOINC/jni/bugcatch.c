@@ -176,6 +176,8 @@ static const char* model_name = NULL;
 static const char* manufacturer = NULL;
 static const char* android_release = NULL;
 static const char* kernel_version = NULL;
+/** NativeBoinc version **/
+static const char* nativeboinc_version = "0.4.4.1.2b";
 
 static void init_android_info(JNIEnv* env)
 {
@@ -425,9 +427,12 @@ static long long reportStupidBug(pid_t pid)
     fprintf(report_file, "Manufacturer:%s\nModelName:%s\nAndroidVer:%s\nKernelVer:%s\n",
     		manufacturer, model_name, android_release, kernel_version);
 
-    fprintf(report_file,"Pid:%d\nSignal:%d\nErrno:%d\nSignalCode:%d\nPointer:%p\nAddress:%p\n",
-           pid, siginfo.si_signo, siginfo.si_errno,
-           siginfo.si_code, siginfo.si_ptr, siginfo.si_addr);
+    fprintf(report_file, "NativeBOINCVer:%s\n",nativeboinc_version);
+
+    fprintf(report_file,"Pid:%d\nSignal:%d\nErrno:%d\nSignalCode:%d\nPointer:%p\nAddress:%p\n"
+    		"UserTime:%d\nSysTime:%d\n",
+           pid, siginfo.si_signo, siginfo.si_errno,siginfo.si_code,
+           siginfo.si_ptr, siginfo.si_addr, siginfo.si_utime, siginfo.si_stime);
 
     fputs("Registers:\n",report_file);
     for (i = 0; i < 18; i++)

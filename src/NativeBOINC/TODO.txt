@@ -31,7 +31,13 @@ PLANY WERSJI 0.4.4/0.4.5
   * dodanie wysyłania informacji o zainstalowanych wersjach (jako opcja do włączenia)
   * dodanie informacji o nagrzewaniu urządzenia (wg  lokalnych preferencji boinc)
 / * skróty połączeń do hostów w desktop
-  * tryb bugcatch (do łapania segfaultów, sigillów, sigbusów)
+/ * tryb bugcatch (do łapania segfaultów, sigillów, sigbusów)
+  * dodać możliwość instalacji na zewnętrznej pamięci sdcard (/mnt/extSdCard)
+
+  * rozszerz zakres informacji bugcatcher:
+    - dodaj czas wykonania, ew. kod aplikacji 
+  * poprawić obsługę libexecwrapper
+    - sprawdzanie katalogu sdcard (mozliwe nazwy, pobieranie z native boinc poprzez envvar)
 
 Klient:
 * poprawic wychodzenie z programu (czasami jest zbyt powolne)
@@ -41,7 +47,7 @@ Klient:
   różnych urządzeniach
 * dodać obsługę battery health, poprawić obsługę battery temp (plik temp i batt_temp)
 * wprowadzic poprawki z oficjalnego boinca na android (z berkeley)
-* dodać tryb bugcatch do wyłapywania błędów (opcjonalne)
+* dodaj nową platformę (dla neon)
 
 BOINC API:
 * poprawić SEGFAULT przy wychodzeniu z aplikacji (sprawdz dokładnie)

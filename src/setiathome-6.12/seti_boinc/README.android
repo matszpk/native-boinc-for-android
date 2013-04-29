@@ -9,9 +9,12 @@ You need following things:
 
 COMPILING and INSTALLING LibFFTS:
 please use following options for  the 'configure' script:
-  --enable-neon --enable-single --disable-dynamic-code
+  --enable-neon --enable-single --enable-dynamic-code
 Installation of a LibFFTS is required (you must do it before a building
 SETI@HOME). LibFFTS should be installed in BOINCROOTDIR directory.
+
+Also you should compile and install ffts-vfp-prefix (support for VFP).
+Instead --enable-neon please use --enable-vfp.
 
 Before run building, please check change in 'build_android.sh' script:
   BOINC_DIR - path to BOINC client compilation (mainly source directory)

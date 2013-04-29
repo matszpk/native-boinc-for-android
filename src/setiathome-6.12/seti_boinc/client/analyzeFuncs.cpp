@@ -95,6 +95,8 @@ const char *SAH_PACKAGE_STRING=CUSTOM_STRING;
 #elif defined(USE_FFTS)
 #pragma message ("----FFTS----")
 #include "ffts/ffts.h"
+#pragma message ("----FFTS_VFP_P----")
+#include "ffts/ffts_vfp_p.h"
 #else
 #pragma message ("----ooura----")
 #include "fft8g.h"
@@ -197,8 +199,10 @@ bool checkNEON()
 #endif
 
 #ifdef USE_FFTS
-static bool useFFTS = true;
-static bool useFFTS2 = true;
+/* true - use ffts (neon version) */
+/* false - use ffts (vfp version) */
+static bool useFFTSNEON = true;
+static bool usePFFFT2 = false;
 #endif
 
 #ifdef HAVE_PFFFT
@@ -213,19 +217,18 @@ int seti_analyze (ANALYSIS_STATE& state) {
     float* PowerSpectrum = NULL;
     float* tPowerSpectrum; // Transposed power spectra if used.
 #if defined(ANDROID) && defined(USE_FFTS)
-    useFFTS = checkNEON();
-    useFFTS2 = useFFTS;
+    useFFTSNEON = checkNEON();
 #endif
         
 #if defined(ANDROID) && defined(USE_FFTS)
-    if (useFFTS)
+    if (useFFTSNEON)
     {
         long x = swi.analysis_cfg.bsmooth_chunk_size;
         for (; (x & 1L) == 0; x>>=1);
         if (x != 1L)
         {
             fputs("Use pffft because no 2**n\n",stderr);
-            useFFTS2 = false;
+            usePFFFT2 = true;
         }
     }
 #endif
@@ -250,9 +253,6 @@ int seti_analyze (ANALYSIS_STATE& state) {
     int FftNum, need_transpose;
     unsigned long bitfield=swi.analysis_cfg.analysis_fft_lengths;
     unsigned long FftLen;
-#if defined(HAVE_PFFFT) && defined(USE_FFTS)
-    PFFFT_Setup* analysis_plans_pffft[MAX_NUM_FFTS];
-#endif
 #ifdef USE_IPP
     IppsFFTSpec_C_32fc* FftSpec[MAX_NUM_FFTS];
     int BufSize;
@@ -268,6 +268,9 @@ int seti_analyze (ANALYSIS_STATE& state) {
     // fields need by the ooura fft logic
     int * BitRevTab[MAX_NUM_FFTS];
     float * CoeffTab[MAX_NUM_FFTS];
+#endif
+#ifdef USE_FFTS_VFP_P
+    vfp_ffts_plan_t *analysis_plans_vfp[MAX_NUM_FFTS];
 #endif
 
     // Allocate data array and work area arrays.
@@ -321,11 +324,11 @@ int seti_analyze (ANALYSIS_STATE& state) {
                 SETIERROR (MALLOC_FAILED, "ippsFFTInitAlloc failed");
             }
 #elif defined(USE_FFTS)
-#  ifdef HAVE_PFFFT
-            if (!useFFTS)
-                analysis_plans_pffft[FftNum] = pffft_new_setup(FftLen, PFFFT_COMPLEX);
+#ifdef USE_FFTS_VFP_P
+            if (!useFFTSNEON)
+                analysis_plans_vfp[FftNum] = vfp_ffts_init_1d(FftLen, 1);
             else
-#  endif
+#endif
             analysis_plans[FftNum] = ffts_init_1d(FftLen, 1);
 #elif !defined(USE_FFTWF)
             // See docs in fft8g.C for sizing guidelines for BitRevTab and CoeffTab.
@@ -353,16 +356,12 @@ int seti_analyze (ANALYSIS_STATE& state) {
             free_a(scratch);
             free_a(WorkData);
 #endif /* USE_FFTWF */
-#if defined(HAVE_PFFFT)
-            if (!useFFTS)
-                maxFftLen = std::max(maxFftLen, FftLen);
-#endif
         }
         FftLen*=2;
         bitfield>>=1;
     }
 #if defined(HAVE_PFFFT)
-    if (!useFFTS || !useFFTS2)  // use PFFFT
+    if (usePFFFT2)  // use PFFFT
         pffft_work = (float*)malloc_a(2*sizeof(float)*maxFftLen, MEM_ALIGN);
 #endif
 
@@ -620,13 +619,11 @@ int seti_analyze (ANALYSIS_STATE& state) {
                                  (Ipp32fc*)WorkData,
                                  FftSpec[FftNum], FftBuf);
 #elif defined(USE_FFTS)
-#    ifdef HAVE_PFFFT
-            if (!useFFTS)
-                pffft_transform(analysis_plans_pffft[FftNum],
-                                (const float*)&ChirpedData[CurrentSub], (float*)WorkData,
-                                pffft_work, PFFFT_BACKWARD);
+#ifdef USE_FFTS_VFP_P
+            if (!useFFTSNEON)
+                vfp_ffts_execute(analysis_plans_vfp[FftNum], &ChirpedData[CurrentSub], WorkData);
             else
-#    endif
+#endif
             ffts_execute(analysis_plans[FftNum], &ChirpedData[CurrentSub], WorkData);
 #elif defined(USE_FFTWF)
             fftwf_execute_dft(analysis_plans[FftNum], &ChirpedData[CurrentSub], WorkData);
@@ -635,6 +632,10 @@ int seti_analyze (ANALYSIS_STATE& state) {
             cdft(fftlen*2, 1, WorkData, BitRevTab[FftNum], CoeffTab[FftNum]);
 #endif
             
+#ifdef FFT_DEBUG
+            for (int i = 0; i < fftlen; i++)
+                printf("%d:%3.8e,%3.8e\n",i,WorkData[i][0],WorkData[i][1]);
+#endif
             // replace freq with power
             state.FLOP_counter+=(double)fftlen;
             GetPowerSpectrum( WorkData,
@@ -824,6 +825,8 @@ int v_BaseLineSmooth(
 #elif defined(USE_FFTS)
     static ffts_plan_t* backward_transform = NULL;
     static ffts_plan_t* forward_transform = NULL;
+    static vfp_ffts_plan_t* backward_transform_vfp = NULL;
+    static vfp_ffts_plan_t* forward_transform_vfp = NULL;
 #elif defined(USE_FFTWF)
     static fftwf_plan backward_transform, forward_transform;
 #endif /* USE_FFTWF */
@@ -844,13 +847,26 @@ int v_BaseLineSmooth(
             if (FftSpec) ippsFFTFree_C_32fc (FftSpec);
 #elif defined(USE_FFTS)
 #  ifdef HAVE_PFFFT
-            if (!useFFTS2)
+            if (usePFFFT2)
                 pffft_destroy_setup(pffft_x_transform);
             else
             {
 #  endif
-                if (backward_transform) ffts_free(backward_transform);
-                if (forward_transform) ffts_free(forward_transform);
+
+#ifdef USE_FFTS_VFP_P
+                if (useFFTSNEON)
+                {
+#endif
+                    if (backward_transform) ffts_free(backward_transform);
+                    if (forward_transform) ffts_free(forward_transform);
+#ifdef USE_FFTS_VFP_P
+                }
+                else
+                {
+                    if (backward_transform_vfp) vfp_ffts_free(backward_transform_vfp);
+                    if (forward_transform_vfp) vfp_ffts_free(forward_transform_vfp);
+                }
+#endif
 #  ifdef HAVE_PFFFT
             }
 #  endif
@@ -884,13 +900,25 @@ int v_BaseLineSmooth(
                                  ippAlgHintAccurate);
 #elif defined(USE_FFTS)
 #  ifdef HAVE_PFFFT
-        if (!useFFTS2)
+        if (usePFFFT2)
             pffft_x_transform = pffft_new_setup(NumPointsInChunk, PFFFT_COMPLEX);
         else
         {
 #  endif
-            backward_transform = ffts_init_1d(NumPointsInChunk, 1);
-            forward_transform = ffts_init_1d(NumPointsInChunk, -1);
+#ifdef USE_FFTS_VFP_P
+            if (useFFTSNEON)
+            {
+#endif
+                backward_transform = ffts_init_1d(NumPointsInChunk, 1);
+                forward_transform = ffts_init_1d(NumPointsInChunk, -1);
+#ifdef USE_FFTS_VFP_P
+            }
+            else
+            {
+                backward_transform_vfp = vfp_ffts_init_1d(NumPointsInChunk, 1);
+                forward_transform_vfp = vfp_ffts_init_1d(NumPointsInChunk, -1);
+            }
+#endif
 #  ifdef HAVE_PFFFT
         }
 #  endif
@@ -935,24 +963,41 @@ int v_BaseLineSmooth(
         memcpy( DataOutChunk, DataInChunk, (int)(NumPointsInChunk*sizeof(sah_complex)) );
 #endif
 
+#ifdef FFT_DEBUG
+            for (int i = 0; i < NumPointsInChunk; i++)
+                printf("bi1:%d:%3.8e,%3.8e\n",i,DataInChunk[i][0],DataInChunk[i][1]);
+#endif
         // transform to freq
 #ifdef USE_IPP
         ippsFFTInv_CToC_32fc ((Ipp32fc*)DataOutChunk, (Ipp32fc*)DataOutChunk,
                               FftSpec, NULL);
 #elif defined(USE_FFTS)
 #  ifdef HAVE_PFFFT
-        if (!useFFTS2)
+        if (usePFFFT2)
             pffft_transform(pffft_x_transform, (const float*)DataInChunk,
                             (float*)DataOutChunk, pffft_work, PFFFT_BACKWARD);
         else
 #  endif
-        ffts_execute(backward_transform,DataInChunk,DataOutChunk);
+        {
+#  ifdef USE_FFTS_VFP_P
+            if (useFFTSNEON)
+#  endif
+                ffts_execute(backward_transform,DataInChunk,DataOutChunk);
+#  ifdef USE_FFTS_VFP_P
+            else
+                vfp_ffts_execute(backward_transform_vfp,DataInChunk,DataOutChunk);
+#  endif
+        }
 #elif !defined(USE_FFTWF)
         cdft(NumPointsInChunk*2, 1, DataOutChunk, BitRevTab, CoeffTab);
 #else
         fftwf_execute_dft(backward_transform,DataInChunk,DataOutChunk);
 #endif
-        
+
+#ifdef FFT_DEBUG
+            for (int i = 0; i < NumPointsInChunk; i++)
+                printf("b1:%d:%3.8e,%3.8e\n",i,DataOutChunk[i][0],DataOutChunk[i][1]);
+#endif
         GetPowerSpectrum(
             DataOutChunk, PowerSpectrum, NumPointsInChunk
         );
@@ -1007,23 +1052,39 @@ int v_BaseLineSmooth(
         }
 
         // End: normalize in freq. domain via sliding boxcar
-        
+#ifdef FFT_DEBUG
+            for (int i = 0; i < NumPointsInChunk; i++)
+                printf("bi2:%d:%3.8e,%3.8e\n",i,DataOutChunk[i][0],DataOutChunk[i][1]);
+#endif
         // transform back to time
 #ifdef USE_IPP
         ippsFFTFwd_CToC_32fc((Ipp32fc*)DataOutChunk, (Ipp32fc*)DataOutChunk,
                              FftSpec, NULL);
 #elif defined(USE_FFTS)
 #  ifdef HAVE_PFFFT
-        if (!useFFTS2)
+        if (usePFFFT2)
             pffft_transform(pffft_x_transform, (const float*)DataOutChunk,
                             (float*)DataInChunk, pffft_work, PFFFT_FORWARD);
         else
 #  endif
-        ffts_execute(forward_transform, DataOutChunk, DataInChunk);
+        {
+#  ifdef USE_FFTS_VFP_P
+            if (useFFTSNEON)
+#  endif
+                ffts_execute(forward_transform, DataOutChunk, DataInChunk);
+#  ifdef USE_FFTS_VFP_P
+            else
+                vfp_ffts_execute(forward_transform_vfp, DataOutChunk, DataInChunk);
+#  endif
+        }
 #elif !defined(USE_FFTWF)
         cdft(NumPointsInChunk*2, -1, DataOutChunk, BitRevTab, CoeffTab);
 #else
         fftwf_execute(forward_transform);
+#endif
+#ifdef FFT_DEBUG
+            for (int i = 0; i < NumPointsInChunk; i++)
+                printf("b2:%d:%3.8e,%3.8e\n",i,DataInChunk[i][0],DataInChunk[i][1]);
 #endif
         analysis_state.FLOP_counter+=10.0*NumPointsInChunk*log((double)NumPointsInChunk)/log(2.0)+10.0*NumPointsInChunk;
         // return powers to normal

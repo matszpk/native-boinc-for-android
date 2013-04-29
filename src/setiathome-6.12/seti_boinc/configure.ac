@@ -250,6 +250,11 @@ AC_CHECK_LIB([ffts], [ffts_init_1d], [
     APP_LIBS="-lffts ${APP_LIBS}"
 ],[],[-lm])
 
+AC_CHECK_LIB([ffts_vfp_p], [vfp_ffts_init_1d], [
+    AC_DEFINE([HAVE_LIBFFTS_VFP_P],[1],[Define to 1 if you have the ffts_vfp_p library])
+    APP_LIBS="-lffts_vfp_p ${APP_LIBS}"
+],[],[-lm])
+
 AM_CONDITIONAL(ENABLE_PFFFT, [test "${enable_pffft}" = yes])
 if test "${enable_pffft}" = yes; then
     AC_DEFINE([HAVE_PFFFT],[1],[Define to 2 if you want PFFFT library])
@@ -478,6 +483,10 @@ AH_BOTTOM([
 
 #if defined(HAVE_LIBFFTS)
 #define USE_FFTS
+#endif
+
+#if defined(HAVE_LIBFFTS_VFP_P)
+#define USE_FFTS_VFP_P
 #endif
 
 #if defined(USE_INFORMIX) && defined(USE_MYSQL) && defined(HAVE_NAMESPACES)

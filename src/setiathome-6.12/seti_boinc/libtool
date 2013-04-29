@@ -78,7 +78,7 @@ build_os=linux-gnu
 echo="echo"
 
 # The archiver.
-AR="/usr/bin/ar"
+AR="/home/mat/docs/dev/mobile/android-ndk-r8b/toolchains/arm-linux-androideabi-4.7.2/prebuilt/linux-x86/bin//arm-linux-androideabi-ar"
 AR_FLAGS="cru"
 
 # A C compiler.
@@ -196,7 +196,7 @@ library_names_spec="\${libname}\${release}\${shared_ext}\$versuffix \${libname}\
 soname_spec="\${libname}\${release}\${shared_ext}\$major"
 
 # Commands used to build and install an old-style archive.
-RANLIB="ranlib"
+RANLIB="/home/mat/docs/dev/mobile/android-ndk-r8b/toolchains/arm-linux-androideabi-4.7.2/prebuilt/linux-x86/bin//arm-linux-androideabi-ranlib"
 old_archive_cmds="\$AR \$AR_FLAGS \$oldlib\$oldobjs\$old_deplibs~\$RANLIB \$oldlib"
 old_postinstall_cmds="\$RANLIB \$oldlib~chmod 644 \$oldlib"
 old_postuninstall_cmds=""
@@ -6879,7 +6879,7 @@ build_os=linux-gnu
 echo="echo"
 
 # The archiver.
-AR="/usr/bin/ar"
+AR="/home/mat/docs/dev/mobile/android-ndk-r8b/toolchains/arm-linux-androideabi-4.7.2/prebuilt/linux-x86/bin//arm-linux-androideabi-ar"
 AR_FLAGS="cru"
 
 # A C compiler.
@@ -6997,7 +6997,7 @@ library_names_spec="\${libname}\${release}\${shared_ext}\$versuffix \${libname}\
 soname_spec="\${libname}\${release}\${shared_ext}\$major"
 
 # Commands used to build and install an old-style archive.
-RANLIB="ranlib"
+RANLIB="/home/mat/docs/dev/mobile/android-ndk-r8b/toolchains/arm-linux-androideabi-4.7.2/prebuilt/linux-x86/bin//arm-linux-androideabi-ranlib"
 old_archive_cmds="\$AR \$AR_FLAGS \$oldlib\$oldobjs\$old_deplibs~\$RANLIB \$oldlib"
 old_postinstall_cmds="\$RANLIB \$oldlib~chmod 644 \$oldlib"
 old_postuninstall_cmds=""
@@ -7181,7 +7181,7 @@ build_os=linux-gnu
 echo="echo"
 
 # The archiver.
-AR="/usr/bin/ar"
+AR="/home/mat/docs/dev/mobile/android-ndk-r8b/toolchains/arm-linux-androideabi-4.7.2/prebuilt/linux-x86/bin//arm-linux-androideabi-ar"
 AR_FLAGS="cru"
 
 # A C compiler.
@@ -7299,7 +7299,7 @@ library_names_spec="\${libname}\${release}\${shared_ext}\$versuffix \${libname}\
 soname_spec="\${libname}\${release}\${shared_ext}\$major"
 
 # Commands used to build and install an old-style archive.
-RANLIB="ranlib"
+RANLIB="/home/mat/docs/dev/mobile/android-ndk-r8b/toolchains/arm-linux-androideabi-4.7.2/prebuilt/linux-x86/bin//arm-linux-androideabi-ranlib"
 old_archive_cmds="\$AR \$AR_FLAGS \$oldlib\$oldobjs\$old_deplibs~\$RANLIB \$oldlib"
 old_postinstall_cmds="\$RANLIB \$oldlib~chmod 644 \$oldlib"
 old_postuninstall_cmds=""

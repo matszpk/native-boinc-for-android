@@ -161,6 +161,9 @@
 /* Define to 1 if you have the ffts library */
 #define HAVE_LIBFFTS 1
 
+/* Define to 1 if you have the ffts_vfp_p library */
+#define HAVE_LIBFFTS_VFP_P 1
+
 /* Define to 1 if you have the math library */
 #define HAVE_LIBM 1
 
@@ -600,6 +603,10 @@
 
 #if defined(HAVE_LIBFFTS)
 #define USE_FFTS
+#endif
+
+#if defined(HAVE_LIBFFTS_VFP_P)
+#define USE_FFTS_VFP_P
 #endif
 
 #if defined(USE_INFORMIX) && defined(USE_MYSQL) && defined(HAVE_NAMESPACES)

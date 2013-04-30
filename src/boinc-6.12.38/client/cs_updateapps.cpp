@@ -100,7 +100,6 @@ int CLIENT_STATE::do_update_project_apps() {
             // deleting remaining files
             while (!dir_scan(filename, dir, 256)) {
                 strlcpy(updatepath+ulen+1,filename,1024-ulen-1);
-                upda
                 ::remove(updatepath);
             }
             dir_close(dir);

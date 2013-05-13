@@ -525,7 +525,6 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		
 		mFirstStartingAtAppStartup = false;
 		
-		// TODO: handle native boinc error
 		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 		return false;
 	}

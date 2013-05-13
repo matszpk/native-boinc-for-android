@@ -95,7 +95,6 @@ public class NewsParser extends BaseParser {
 					if (localName.equalsIgnoreCase("title")) {
 						mMessage.setTitle(mCurrentElement.toString());
 					} else if (localName.equalsIgnoreCase("time")) {
-						/* TODO: handle timezones */
 						mMessage.setTimestamp(NewsUtil.sDateFormat.parse(mCurrentElement.toString()).getTime());
 					} else if (localName.equalsIgnoreCase("content")) {
 						mMessage.setContent(mCurrentElement.toString());

@@ -41,8 +41,8 @@ public class StringUtil {
 	
 	public final static String normalizeHttpUrl(String url) {
 		String out = url.trim();
-		
-		if (!url.startsWith("http://"))
+		/* check http or https */
+		if (!url.startsWith("http://") && !url.startsWith("https://"))
 			out = "http://" + url;
 		if (!url.endsWith("/"))
 			out = out+"/";

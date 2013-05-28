@@ -106,6 +106,11 @@ public class NativeBoincService extends Service implements MonitorListener,
 	private boolean mPreviousStateOfIsWorking = false;
 	private boolean mIsWorking = false;
 	
+	/*
+	 * cpu usage suspend happens (indicator)
+	 */
+	private boolean mCpuThrottleSuspendAll = false;
+	
 	@Override
 	public int getInstallerChannelId() {
 		return NATIVEBOINC_ID;
@@ -352,6 +357,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 	@Override
 	public void onCreate() {
 		if (Logging.DEBUG) Log.d(TAG, "onCreate");
+		mCpuThrottleSuspendAll = false;
 		PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
 		
 		mApp = (BoincManagerApplication)getApplication();
@@ -1424,12 +1430,19 @@ public class NativeBoincService extends Service implements MonitorListener,
 			mNotificationController.notifyClientEvent(title, title, true);
 			break;
 		case ClientEvent.EVENT_SUSPEND_ALL_TASKS:
-			title = getString(R.string.eventSuspendAll);
-			mNotificationController.notifyClientEvent(title, title, false);
+			if (event.suspendReason != ClientEvent.SUSPEND_REASON_CPU_THROTTLE) {
+				// notify only if reason is not CPU THROTTLE!
+				title = getString(R.string.eventSuspendAll);
+				mNotificationController.notifyClientEvent(title, title, false);
+				mCpuThrottleSuspendAll = true; // inform, that tasks has been suspended by cpu throttle
+			}
 			break;
 		case ClientEvent.EVENT_RUN_TASKS:
-			title = getString(R.string.eventRunTasks);
-			mNotificationController.notifyClientEvent(title, title, false);
+			if (!mCpuThrottleSuspendAll) { // if not reason cpu throttle
+				title = getString(R.string.eventRunTasks);
+				mNotificationController.notifyClientEvent(title, title, false);
+			}
+			mCpuThrottleSuspendAll = false;
 			break;
 		}
 	}

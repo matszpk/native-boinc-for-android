@@ -31,8 +31,10 @@
 struct MONITOR_EVENT {
     int type;
     char* project_url;
+    int suspend_reason;
     
     MONITOR_EVENT(int type, const char* project_url);
+    MONITOR_EVENT(int type, int suspend_reason);
     ~MONITOR_EVENT();
 };
 
@@ -71,6 +73,7 @@ public:
     void get_fdset(FDSET_GROUP&, FDSET_GROUP&);
     void got_select(FDSET_GROUP&);
     void push_event(int event_type, const char* project_url);
+    void push_event(int event_type, int suspend_reason);
     void broadcast_events();
     bool is_event_pushed(int event_type);
 };

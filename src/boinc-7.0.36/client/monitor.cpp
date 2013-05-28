@@ -66,6 +66,8 @@ void MONITOR_CONN::send_event(const MONITOR_EVENT* event) {
     m.printf("<reply>\n  <type>%d</type>\n",event->type);
     if (event->project_url!=NULL)
         m.printf("  <project>%s</project>\n",event->project_url);
+    if (event->type == MONITOR_EVENT_SUSPEND_ALL_TASKS)
+        m.printf("  <suspend_reason>%d</suspend_reason>\n",event->suspend_reason);
     m.puts("</reply>\n\003");
     char* buf;
     int n;
@@ -79,10 +81,17 @@ void MONITOR_CONN::send_event(const MONITOR_EVENT* event) {
  */
 MONITOR_EVENT::MONITOR_EVENT(int type, const char* project_url) {
     this->type = type;
+    this->suspend_reason = 0;
     if (project_url!=NULL)
         this->project_url = strdup(project_url);
     else
         this->project_url = NULL;
+}
+
+MONITOR_EVENT::MONITOR_EVENT(int type, int suspend_reason) {
+    this->type = type;
+    this->suspend_reason = suspend_reason;
+    this->project_url = NULL;
 }
 
 MONITOR_EVENT::~MONITOR_EVENT() {
@@ -342,6 +351,13 @@ char* MONITOR_INSTANCE::create_auth_code() {
 void MONITOR_INSTANCE::push_event(int event_type, const char* project_url) {
     //msg_printf(NULL,MSG_INFO, "[monitor] Pushing event:%d", event_type);
     MONITOR_EVENT* event = new MONITOR_EVENT(event_type, project_url);
+    pending_events.push_back(event);
+}
+
+
+void MONITOR_INSTANCE::push_event(int event_type, int suspend_reason) {
+    //msg_printf(NULL,MSG_INFO, "[monitor] Pushing event:%d", event_type);
+    MONITOR_EVENT* event = new MONITOR_EVENT(event_type, suspend_reason);
     pending_events.push_back(event);
 }
 

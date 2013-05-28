@@ -868,7 +868,7 @@ bool CLIENT_STATE::poll_slow_events() {
             no_active_tasks = true;
             if (!monitor.is_event_pushed(MONITOR_EVENT_RUN_BENCHMARK))
                 // push only if EVENT_RUN_BENCHMARK not pushed
-                monitor.push_event(MONITOR_EVENT_SUSPEND_ALL_TASKS, NULL);
+                monitor.push_event(MONITOR_EVENT_SUSPEND_ALL_TASKS, suspend_reason);
         }
     } else if (first_change_on_active_tasks || no_active_tasks) {
         no_active_tasks = false;

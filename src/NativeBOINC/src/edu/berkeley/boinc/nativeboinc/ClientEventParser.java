@@ -35,9 +35,13 @@ public class ClientEventParser extends BoincBaseParser {
 	private boolean mWithClientEvent = false;
 	private int mClientEventType = -1;
 	private String mProjectUrl = null;
+	private int mSuspendReason = 0;
 	
 	public ClientEvent getClientEvent() {
-		return new ClientEvent(mClientEventType, mProjectUrl);
+		if (mClientEventType == ClientEvent.EVENT_SUSPEND_ALL_TASKS)
+			return new ClientEvent(mClientEventType, mSuspendReason);
+		else
+			return new ClientEvent(mClientEventType, mProjectUrl);
 	}
 
 	public static ClientEvent parse(String rpcResult) {
@@ -73,6 +77,8 @@ public class ClientEventParser extends BoincBaseParser {
 						mClientEventType = Integer.parseInt(getCurrentElement());
 					} else if (localName.equalsIgnoreCase("project")) {
 						mProjectUrl = getCurrentElement();
+					} else if (localName.equalsIgnoreCase("suspend_reason")) {
+						mSuspendReason = Integer.parseInt(getCurrentElement());
 					}
 				}
 			}

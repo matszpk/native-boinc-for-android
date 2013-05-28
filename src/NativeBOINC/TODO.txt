@@ -39,7 +39,10 @@ PLANY WERSJI 0.4.5/0.4.6
   * poprawić obsługę libexecwrapper (rozszerzono sprawdzanie katalogu sdcard)
     - sprawdzanie katalogu sdcard (mozliwe nazwy, pobieranie z native boinc poprzez envvar)
   // istotne
-  * popraw obsługę suspend/resume dla użycia CPU <100% (nie wyświetlaj notyfikacji, istotne)
+  * popraw obsługę suspend/resume dla użycia CPU <100% (nie wyświetlaj notyfikacji, istotne) (zrobione)
+  //
+  * dodaj możliwość użycia wbudowanego klucza PGP z nativeboinc (z ostrzeżeniem, że póżniej będzie trzeba
+    zaktualizować). Dodaj możliwość pobrania klucza PGP z sieci lub automatyczne pobieranie z sieci.
 
 Klient:
 * poprawic wychodzenie z programu (klienta) (czasami jest zbyt powolne)

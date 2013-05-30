@@ -92,7 +92,7 @@ seti_boinc_SOURCES = \
     vector/x86_float4.cpp \
     vector/hires_timer.cpp \
     $(ARMOPT_SOURCES) \
-    ${PFFFT_SOURCES} \
+    $(PFFFT_SOURCES) \
     analyzeFuncs.cpp \
     analyzeReport.cpp \
     analyzePoT.cpp \

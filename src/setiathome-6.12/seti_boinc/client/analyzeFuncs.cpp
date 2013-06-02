@@ -221,7 +221,6 @@ int seti_analyze (ANALYSIS_STATE& state) {
 #endif
         
 #if defined(ANDROID) && defined(USE_FFTS)
-    if (useFFTSNEON)
     {
         long x = swi.analysis_cfg.bsmooth_chunk_size;
         for (; (x & 1L) == 0; x>>=1);

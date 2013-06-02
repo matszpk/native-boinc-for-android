@@ -18,7 +18,7 @@
                 .global neon_GetPowerSpectrum
                 .type   neon_GetPowerSpectrum, %function
 neon_GetPowerSpectrum:
-                push {r4,r5,lr}
+                push {r4,r5}
                 vpush {d8,d9,d10,d11,d12,d13,d14,d15}
                 ldr r3,.LGOT1
 .LPIC1:
@@ -118,7 +118,7 @@ neon_GetPowerSpectrum:
 .Lendmicroloop:
                 mov r0,#0
                 vpop {d8,d9,d10,d11,d12,d13,d14,d15}
-                pop {r4,r5,lr}
+                pop {r4,r5}
                 bx lr
                 
 

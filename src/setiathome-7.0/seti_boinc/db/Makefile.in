@@ -1,0 +1,74 @@
+# $Id: Makefile.in,v 1.14.2.1 2007/03/13 17:41:27 vonkorff Exp $
+#
+#
+
+@SET_MAKE@
+
+EXEEXT = @EXEEXT@
+OBJEXT = @OBJEXT@
+LIBEXT = @LIBEXT@
+DLLEXT = @DLLEXT@
+DOTEXEEXT = @DOTEXEEXT@
+
+
+SUFFIXES = .ec .cpp .c .@OBJEXT@ .@DLLEXT@ .@LIBEXT@ @DOTEXEEXT@
+
+BOINCDIR = @BOINCDIR@
+INFORMIXDIR = @INFORMIXDIR@
+MYSQL_LIBS = @MYSQL_LIBS@
+MYSQL_CFLAGS = @MYSQL_CFLAGS@
+INFORMIX_CFLAGS = @INFORMIX_CFLAGS@
+
+DBLIBS=@INFORMIX_LIBS@ @MYSQL_LIBS@ -lsocket  -lm -lstdc++ @PTHREAD_LIBS@
+
+CC = @CC@
+CXX = @CXX@
+CFLAGS = @CFLAGS@ -I.. -I$(BOINCDIR) -I$(BOINCDIR)/lib -I$(BOINCDIR)/api $(INFORMIX_CFLAGS) $(MYSQL_CFLAGS) @PTHREAD_CFLAGS@
+CXXFLAGS = $(CFLAGS)
+
+.cpp.@OBJEXT@:
+	$(CXX) $(CXXFLAGS) -o $*.@OBJEXT@ -c $<
+
+
+all: dependencies app_config.@OBJEXT@ schema_master_client.@OBJEXT@ sqlrow_client.@OBJEXT@ schema_master.@OBJEXT@ sqlrow.@OBJEXT@ sqlifx.@OBJEXT@ sqlblob.@OBJEXT@ sqlint8.@OBJEXT@ xml_util.@OBJEXT@
+
+schema_master.cpp: schema_master.sql find_references.awk schema_to_class.awk
+	chmod +x schema_to_class
+	./schema_to_class schema_master.sql
+
+schema_master.h: schema_master.sql find_references.awk schema_to_class.awk
+	chmod +x schema_to_class
+	./schema_to_class schema_master.sql
+
+
+schema_master_client.@OBJEXT@: schema_master.cpp schema_master.h db_table.h Makefile
+	$(CXX) $(CXXFLAGS) -DCLIENT -c -o schema_master_client.@OBJEXT@ schema_master.cpp
+
+sqlrow_client.@OBJEXT@: sqlrow.cpp sqlrow.h Makefile
+	$(CXX) $(CXXFLAGS) -DCLIENT -c -o sqlrow_client.@OBJEXT@ sqlrow.cpp
+
+schema_master.@OBJEXT@: schema_master.cpp schema_master.h db_table.h 
+
+sqlifx.cpp: sqlifx.ec
+	$(INFORMIXDIR)/bin/esql -e $<
+	mv $*.c $*.cpp
+
+sqlifx.@OBJEXT@: sqlifx.cpp
+
+xml_util.@OBJEXT@: xml_util.cpp
+
+app_config.@OBJEXT@: app_config.cpp
+
+.ec.cpp:
+	$(INFORMIXDIR)/bin/esql -e $<
+	mv $*.c $*.cpp
+
+Makefile: Makefile.in ../config.status ../configure ../configure.ac
+	(cd ..; $(MAKE) config.status)
+
+dependencies: schema_master.cpp *.cpp *.h 
+	$(CXX) $(CXXFLAGS) -M *.cpp > dependencies
+        
+
+
+include dependencies

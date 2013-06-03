@@ -1,0 +1,9 @@
+This document will describe how to install seti with graphics. 
+
+Make sure that boinc has been installed with graphics enabled. Follow
+the instructions Makefile.Readme in seti_boinc/client to make sure
+that Makefile.in.graphics will work with  your system. Rename
+Makefile.in.graphics as Makefile.in. From the seti_boinc/ directory
+run configure (or ./configure), then make. The executable will then be
+xseti[version and system info] and your app_info.xml file should
+reflect that name.

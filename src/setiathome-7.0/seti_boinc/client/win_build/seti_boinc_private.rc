@@ -1,0 +1,42 @@
+/* THIS FILE WILL BE OVERWRITTEN BY DEV-C++ */
+/* DO NOT EDIT! */
+
+#include <windows.h> // include for version info constants
+
+
+//
+// SUPPORT FOR WINDOWS XP THEMES:
+// THIS WILL MAKE THE PROGRAM USE THE COMMON CONTROLS
+// LIBRARY VERSION 6.0 (IF IT IS AVAILABLE)
+//
+1 24 "./setiathome_7.00_windows_intelx86.exe.Manifest"
+
+//
+// TO CHANGE VERSION INFORMATION, EDIT PROJECT OPTIONS...
+//
+1 VERSIONINFO
+FILEVERSION 7,0,0,0
+PRODUCTVERSION 7,0,0,0
+FILETYPE VFT_APP
+{
+  BLOCK "StringFileInfo"
+	 {
+		 BLOCK "040904E4"
+		 {
+			 VALUE "CompanyName", "Space Sciences Laboratory"
+			 VALUE "FileVersion", "7.00"
+			 VALUE "FileDescription", "setiathome_v7"
+			 VALUE "InternalName", "setiathome_v7"
+			 VALUE "LegalCopyright", "Copyright 2011, Regents University of California"
+			 VALUE "LegalTrademarks", ""
+			 VALUE "OriginalFilename", ""
+			 VALUE "ProductName", "setiathome_v7"
+			 VALUE "ProductVersion", "7.00"
+		 }
+	 }
+  BLOCK "VarFileInfo"
+	 {
+		 VALUE "Translation", 0x0409, 1252
+	 }
+}
+

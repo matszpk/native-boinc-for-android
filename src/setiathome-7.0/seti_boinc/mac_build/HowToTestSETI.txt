@@ -1,0 +1,31 @@
+[1] Quit BOINC
+
+[2] Set Screensaver to something other than BOINC
+
+[3] Create a test folder
+
+[4] Copy the following files to your test folder: 
+[path]/seti_boinc/mac_build/build/Deployment/seti_boinc_xxx
+[path]/seti_boinc/mac_build/build/Deployment/seti_graphics_xxx
+[path]/set_boinc/client/test_workunits/reference_work_unit.sah
+[path]/set_boinc/client/test_workunits/reference_work_unit.sah
+[path]/set_boinc/client/better_banner.jpg
+
+where "xxx" is either i386 or ppc, depending on the CPU type.
+
+[5] Rename reference_work_unit.sah to work_unit.sah
+[6] Rename better_banner.jpg to seti_logo
+
+[7] In Terminal:
+   cd to the test folder
+   ./seti_boinc_i386 -verbose
+ or
+  ./seti_boinc_ppc -verbose
+
+(NOTE: -standalone flag implies no graphics")
+
+[8] Open another Terminal window, and type the following while seti_boinc is running:
+   cd to the test folder
+   ./seti_graphics_i386
+ or
+  ./seti_graphics_ppc

@@ -1,0 +1,121 @@
+#! /bin/tcsh -x
+
+set PATH=/opt/misc:/opt/misc/bin:/usr/ccs/bin:/usr/openwin/bin:/usr/openwin/bin/xview:/usr/lang:/usr/ucb:/bin:/usr/bin:/usr/local/bin:/usr/hosts:/usr/bin/X11:/usr/casual/sparc:/usr/etc:/usr/local/lib/tex/bin:/usr/local/lib/frame/bin:/disks/asimov/a/apps/informix/bin:.:/disks/albert/d/office/bin:/usr/ucb:/disks/albert/e/users/eurd/data_analysis/bin:/usr/local/lib/g++-include.bak:/disks/siren/a/users/seti/s4/siren/bin:/disks/albert/d/orfeus:/disks/albert/d/chips:/disks/asimov/a/apps/informix/bin:/usr/local/tex
+# export PATH
+set LD_LIBRARY_PATH=/usr/lib/X11:/usr/openwin/lib:/usr/lib:/lib:/disks/islay/a/users/korpela/bin/lib:/disks/asimov/a/apps/informix/lib:/disks/asimov/a/apps/informix/lib/esql
+# export LD_LIBRARY_PATH
+set INFORMIXDIR=/disks/asimov/a/apps/informix
+# export INFORMIXDIR
+set INFORMIXSERVER=ejk_tcp
+# export INFORMIXSERVER
+
+set SPLIT_PROG_LOC=/disks/milkyway/a/users/anderson/seti/splitter/bin/
+set SPLIT_PROG_NAME=splitter
+set SPLIT_LOG_LOC=/disks/milkyway/a/users/anderson/seti/sethi/hi_tape_logs/
+# set HI_TAPE_DIR=/disks/philmor/a/users/eheien/hitest/
+set SPLIT_TAPE_DIR=/disks/setifiler1/wutape/tapedir/
+set SPLIT_SUFFIX=.split
+set HIDONE_SUFFIX=.hidone
+set SPLITDONE_SUFFIX=.splitdone
+set EMAIL_LIST="jeffc@ssl.berkeley.edu mattl@ssl.berkeley.edu"
+set FOUND_FILE=0
+set HOST=`hostname`
+set SPLIT_HALT_MSG=splitter_stop
+
+# Check to see if this machine is already running the splitter program
+set PROG_RUNNING=`/usr/ucb/ps -auxww | grep "$SPLIT_PROG_NAME" | grep -v "disksplitter" | wc | awk '{print $1}'`
+echo "$PROG_RUNNING"
+if( $PROG_RUNNING > 1 ) then
+  echo "Splitter is already running on this machine.  Quitting."
+  exit
+endif
+
+# Get rid of all .split files here with HOSTNAME in them(?)
+
+while ( ! -f $SPLIT_TAPE_DIR$SPLIT_HALT_MSG )
+
+set FOUND_FILE=0
+cd $SPLIT_TAPE_DIR
+
+set FILE_LIST=`ls . | grep ".tape" | grep -v "done" | grep -v "reading" | grep -v "hi" | grep -v "msg" | grep -v "split"`
+
+if( -z "$FILE_LIST" ) then
+    exit
+endif
+
+foreach file ($FILE_LIST)
+  if ( $FOUND_FILE == 0 && ! -f $file$SPLITDONE_SUFFIX ) then
+      if( -f $file$SPLIT_SUFFIX ) then
+        set FOUND_FILE=0
+      else
+        echo $HOST > $file$SPLIT_SUFFIX
+        set TAPE_FILE=$file
+        set SPLIT_FILE=$SPLIT_TAPE_DIR$file
+        set SPLIT_MARK_FILE=$SPLIT_TAPE_DIR$file$SPLIT_SUFFIX
+        set HI_DONE_FILE=$SPLIT_TAPE_DIR$file$HIDONE_SUFFIX
+        set SPLIT_DONE_FILE=$SPLIT_TAPE_DIR$file$SPLITDONE_SUFFIX
+        set FOUND_FILE=1
+      endif
+  endif
+end
+
+cd /mydisks/a/servers/splitter/
+/bin/rm -f error.log rcd.chk
+touch error.log
+touch rcd.chk
+
+if ( $FOUND_FILE == 0 ) then
+# echo "" | /usr/ucb/mail -s"no more splitter tape files" $EMAIL_LIST
+  exit
+else
+  if( -f /disks/milkyway/a/users/anderson/seti/watchdogs/go_spliiter ) then
+    /bin/rm -f wu_inbox/.*
+#set START_MSG=`echo "Splitter is starting on tape" $SPLIT_FILE "on" $HOST`
+    cat error.log rcd.chk | /usr/ucb/mail -s""$HOST" splitter starting" $EMAIL_LIST
+    /bin/nice $SPLIT_PROG_LOC$SPLIT_PROG_NAME $SPLIT_FILE $1 -resume >>& splitterlog
+    set TEMP=`grep -i "end" error.log`
+    if( "$TEMP" != "" ) then
+        sleep 60 # wait for it to finish moving the files from wu_inbox
+        cat error.log rcd.chk | /usr/ucb/mail -s""$HOST" splitter finished" $EMAIL_LIST
+       /bin/rm -f error.log rcd.chk
+       /bin/rm -f wu_inbox/.*
+       /bin/rm -f $SPLIT_MARK_FILE
+       if( -f $HI_DONE_FILE ) then
+           /bin/rm -f $HI_DONE_FILE
+           /bin/rm -f `cd $SPLIT_TAPE_DIR; ls -l | grep $TAPE_FILE | awk '{print $NF}'`
+           /bin/rm -f $SPLIT_FILE
+       else
+           touch -f $SPLIT_DONE_FILE
+       endif
+    endif
+    /bin/rm -f $SPLIT_MARK_FILE
+    exit
+  else
+    /bin/rm -f $SPLIT_MARK_FILE
+    exit
+  endif
+endif
+
+#if ( 0 == 1 ) then
+# if ( grep -i done hi_log ) then
+#  cat error.log rcd.chk | /usr/ucb/mail -s"end of tape on $HOST" $EMAIL_LIST
+#  touch $HI_FILE$HIDONE_SUFFIX
+#  if ( -f $HI_FILE$HIDONE_SUFFIX ) then
+# unlink $SPLITFILE
+#  fi
+# unlink .$SPLITFILE
+#  /bin/rm error.log rcd.chk
+#  /bin/rm wu_inbox/.*
+# nice -10 $SPLITTER_PROG_LOC $SPLITFILE -resume 2>> splitterlog &
+#else
+#  if [ -f $MARKER$HOST ]
+#  then
+#    /bin/rm wu_inbox/.*
+#    cat error.log rcd.chk | /usr/ucb/mail -s"restarting HI analysis on $HOST" $EMAIL_LIST
+# nice -10 $SPLITTER_PROG_LOC $SPLITFILE -resume 2>> splitterlog &
+#  else
+#    cat error.log rcd.chk | /usr/ucb/mail -s"hi analysis disabled on $HOST" $EMAIL_LIST
+#  fi
+#endif
+end
+

@@ -1,0 +1,7 @@
+About ffts-vfp-prefix:
+
+Special version of libffts especially for dual SETI@Home application (for VFP and NEON).
+
+This version adds prefix 'vfp_' to anything library function (prevents symbol collisions).
+
+Use only with SETI@Home.

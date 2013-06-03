@@ -1,0 +1,27 @@
+This readme will explain the differences between Makefile.in and Makefile.in.graphics, 
+as well as usage and possible changes to be made to be system compliant.
+
+To use Makefile.in.graphics just rename it Makefile.in and configure seti_boinc. The 
+changes between the original Makefile.in and Makefile.in.graphics are:
+
+CFLAGS: addition of -DBOINC_APP_GRAPHICS
+BOINC_INC: addition of -I/usr/openwin/share/include (possibly extraneous)
+	   addition of -I$(BOINCDIR)/boincglut/include
+		       -I../jpeglib
+CXX, CC: addition of -g debug option (not vital)
+GUIOBJS: addition of all the files prexisting under OBJS, as well as
+		graphics_api, x_opengl, grahpics_data from ../../boinc/api and sah_gfx_base, sah_gfx, and gdata (all .$(OBJEXT))
+GUILIBS: addition of -lX11, -lXmu, -L$(BOINCDIR)/boincglut/lib/glut -lboincglut
+         -L../jpeglib -ljpeg 
+	THE FOLLOWING ADDITION IS SYSTEM DEPENDENT: the location of the GL
+	and GLU libraries on the system (ie /usr/X11R6/lib in Linux, 	
+	-L/usr/openwin/lib/ on Solaris) followed by -lGL and -lGLU
+all: change PROGS to GUIPROG (possible to have both? I couldn't figure out how)
+GUIPROG: addition of main.$(OBJEXT) to dependencies
+	 addition of main.$(OBJEXT), gutil.$(OBJEXT), reduce.$(OBJEXT), 
+	$(LIBS), -lpthread to rule
+
+The only thing that should need to be changed is the location of the GL libraries 
+as mentioned, but it's possible that other changes should be made.
+
+- Noaa Avital

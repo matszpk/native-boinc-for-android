@@ -1,0 +1,53 @@
+#!/bin/sh
+# $Id: trim_sources,v 1.23.2.1 2006/01/05 23:54:44 korpela Exp $
+
+# delete sources we don't want to distribute.
+
+# so we don't accidentally run this script:
+test "$1" = DOIT || { echo "syntax: $0 DOIT" ; exit 1 ; }
+
+find . -depth \( \!                                               \
+    \(                                                            \
+    -path ./COPYING -o                                            \
+    -path ./config.guess -o                                       \
+    -path ./config.h.in -o                                        \
+    -path ./config.sub -o                                         \
+    -path ./configure -o                                          \
+    -path ./configure.ac -o                                       \
+    -path ./_autosetup -o                                         \
+    -path ./install-sh -o                                         \
+    -path ./Makefile.am -o                                        \
+    -path ./Makefile.in -o                                        \
+    -path ./Makefile.incl -o                                      \
+    -path ./aclocal.m4 -o                                         \
+    -path ./ltmain.sh -o                                          \
+    -path ./missing -o                                            \
+    -path ./compile -o                                            \
+    -path ./depcomp -o                                            \
+    -path ./config.h -o                                           \
+    -path ./client/\* -o                                          \
+    -path ./client/test_workunits/\* -o                           \
+    -path ./image_libs/\* -o                                      \
+    -path ./jpeglib/\* -o                                         \
+    -path ./tools/\* -o                                       \
+    -path ./win_build/\* -o                                       \
+    -path ./glut/\* -o                                            \
+    -path ./db/\* -o                                              \
+    -path ./m4/\*                                                 \
+    \) -o \(                                                      \
+    -path ./client/win_build/\*.jpg -o                            \
+    -path ./client/win_build/\*.bmp                               \
+    \) -o \(                                                      \
+    -path ./db/tools/\*                                           \
+    \) -o -path '*/CVS/*'                                         \
+    \)                                                            \
+    -type f -exec rm {} \; -o                                     \
+    -type d -empty -exec rmdir {} \;
+
+awk '{if ($1 != "db/tools/Makefile" &&                            \
+          $1 != "validate/Makefile" &&                            \
+          $1 != "assimilator/Makefile" &&                         \
+          $1 != "splitter/Makefile")                              \
+      print $0}' configure.ac > configure.ac.trimmed
+mv configure.ac.trimmed configure.ac
+./_autosetup

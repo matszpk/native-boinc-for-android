@@ -1,0 +1,31 @@
+
+Authors of SETI@home:
+Eric J. Korpela <korpela at ssl.berkeley.edu>
+Jeff Cobb <jeffc at ssl.berkeley.edu>
+Matt Lebofsky <mattl at ssl.berkeley.edu>
+David Anderson <davea at ssl.berkeley.edu>
+Charlie Fenton 
+Rom Walton <rwalton at ssl.berkeley.edu>
+Tetsuji Rai <t-rai at umin.ac.jp>
+Eric Heien
+Hiram Clawson
+Alex Kan <alexkan at tbp.berkeley.edu> 
+Ben Herndon
+Josef Segur 
+Simon Zadra
+Jason Groothuis
+Raistmer
+
+Authors of FFTW (reachable at fftw at fftw.org):
+Matteo Frigo <athena at fftw.org>
+Stevenj G. Johnson <stevenj at alum.mit.edu>
+Stefan Kral <skral at fftw.org> wrote genfft-k7/*.ml*
+
+Authors of fft8g.[cpp,h]
+Takuya Ooura <ooura at kurims.kyoto-u.ac.jp>
+Eric J. Korpela <korpela at ssl.berkeley.edu>
+Jeff Cobb <jeffc at ssl.berkeley.edu>
+
+Author of ASMLIB
+Agner Fog
+

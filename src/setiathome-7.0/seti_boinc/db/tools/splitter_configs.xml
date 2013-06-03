@@ -1,0 +1,11 @@
+<splitter_config>
+    <version>0.20</version>
+    <data_type>encoded</data_type>
+    <fft_len>2048</fft_len>
+    <ifft_len>8</ifft_len>
+    <filter>fft</filter>
+    <window>welsh</window>
+    <samples_per_wu>1048576</samples_per_wu>
+    <highpass>0.0</highpass>
+    <blanker_filter>randomize</blanker_filter>
+</splitter_config>

@@ -1,0 +1,103 @@
+# 	file holding conversion from  utc to ut1.
+#	this uses an offset (in millisecs) for a utc date that you
+#	specify and a rate ms/day. 
+#
+#	The file format is:
+#	col1 # is a comment
+#	year daynumber offset rate.
+#   the year,daynumber,offset, rate are mjd/utc based.
+#
+#	you can have multiple lines of year daynumber...
+#	The pointing program will search for the largest year and daynumber that
+#	is less than or equal to the current date. 
+#
+#	You must restart pointing for the new value to take affect.
+#	The dayNumber search will use AST 0 hours when comparing which
+#	year/daynumber to use UTC to UT1 (since we update the trak clock tick 
+#   at ast 0 hours not utc 0 hours).
+#
+# history
+# 29apr98 - updated routines to use current mjd as offset. Before dut1 was
+#			-155 ms, after it was -15.86. this was a fixed error since
+#			jul97.
+# remember to move new copy to idl/data
+#----------------------------------------------------------------------
+#   Note on how to update the values:
+#
+#  - you must update this after every leap second, and whenever the
+#	 linear approximation no longer matches the correct value.
+#  1. get the data values from the eos bulletin
+#     web site: http://maia.usno.navy.mil/
+#     click on Earth orientation Parameters (EOP)....
+#  2. store file in /home/online/vw/etc/Pnt/ut1Utcmmmyy.dat
+#  3. edit file removing all text except the prediction lines you
+#     want to fit... eg:
+#     2006 12  8  54077      -0.0738      0.3429      0.24181
+#  4. edit  utcToUt1.pro in this directory inserting new filename and
+#           number of points you kept in 3.
+#  5. from idl .run utcToUt1. look at plot and see where it turns over.
+#	  decrease npts till you get a good linear fit. Then 
+#	  edit ut1Utcmmmyy.dat to hold that many points
+#  6. enter in utcToUt1.dat at the bottom the info:
+#     year daynoStartOf Fit  offsetMs  rate/dayMs
+#     these are on the plot.
+#  7. the actual code in pnting converts dayno back to julday so there
+#     are no problems crossing year boundaries.
+#
+#    y= m*(dnum-dnum0) + offsetAtDnum0
+#      y  is the offset for daynumber dnum
+#      m  is the slope in millisecs/day
+#      dnum0 is the day number listed in the file below
+#      offsetAtDnum0 is the offset for dnum0 listed in file below
+#
+# year  daynumber  offset 0UTC  rateUt1 
+#                  at dayNum 
+#                  millisecs    millisecs/day
+# 
+#   30sept    1july
+# ((.39872)-(.526928))/(273-182)..30sept- 1jul 1997..
+1997     182         526.9          -1.4089    
+#
+#     27apr98     31jan98
+#  (-.013644)- (.164900))/(117 - 31)
+1998     117		 -13.644        -2.0761
+#
+# linfit prediction 1oct98 to 31dec98..see file ut1Utc01oct98.dat
+1998     274        -156.997        -1.443
+#
+# linfit prediction 1jan99 to daynum 150..see file ut1Utc01jan99.dat
+1999       1         722.215        -1.495
+# linfit prediction 16apr to dec31. linear weight 1->0.file:ut1Utcapr99.dat
+#  max deviation 20 millisecs till day 306 then goes to hell
+1999       106       584.49          -.524
+#
+# linfit prediction 8sep99->31dec99 linfit, weight 1 filte ut1Utcsep99.dat
+1999	   251       488.01         -1.3053
+#
+# linfit prediction 28feb00->18jun99 linfit, file: ut1Utcfeb00.dat 140 pnts
+2000	    28       334.334        -1.253
+#
+# linfit prediction 05jan01->02jun01 linfit, file: ut1Utcjan01.dat 150 pnts
+2001        5        98.0766        -.997906
+# linfit prediction 19sep01->30apr02 linfit, file: ut1Utcsep01.dat 224 pnts
+2001       262      -34.2684        -.739952
+# linfit prediction 20sep02->27may02 linfit, file: ut1Utcsep02.dat 250 pnts
+# peak error over region: 8ms rms: 3.7 ms
+2002       263     -233.771         -.659164
+# linfit prediction 01aug03->06apr04 linfit, file: ut1Utcaug03.dat 250 pnts
+# peak error over region: 15ms rms: 5.9 ms
+2003       213     -339.259 -.351523 
+# linfit prediction 01jan06->08deg06 linfit, file: ut1Utcjan06.dat 342 pnts
+# peak error over region: 35ms rms: 20 ms
+2006         1      311.989 -.193788 
+# linfit prediction 08dec06->25jun07 linfit, file: ut1Utcdec06.dat 200 pnts
+# peak error over region: 15ms rms: 60 ms
+2006       342      71.140 -1.174340 
+# linfit prediction 27dec07->21nov08 linfit, file: ut1Utcdec07.dat 361 pnts
+# peak error over region: -35ms rms: 20 ms
+2007       331     -261.167 -.701459
+# linfit prediction 01jan09->11dec09 linfit, file: ut1Utcjan09.dat 345 pnts
+# peak error over region:  38ms rms: 22.7 ms
+2009         1      367.131 -.691979
+# peak error over region:  30ms rms: 17.4 ms
+2010         36      59.162 -.661890 

@@ -1,0 +1,29 @@
+#! /usr/bin/env perl
+
+# where is the configuration file?
+$cfgfile = "/disks/thumper/raid5_d/users/seti/dr2_data/production/scripts/data_flow.cfg";
+
+# read it in and continue...
+$cfg = "";
+open (CNFFILE,$cfgfile) or die "cannot open configuration file: $cfgfile\nmake sure this variable is set properly";
+while (<CNFFILE>) { $cfg .= $_ }
+close (CNFFILE);
+eval $cfg;
+
+$file = $ARGV[0];
+if ($file eq "" || $file eq "-h" || $file eq "--help") {
+  print "xfer_to_hpss full_path_to_file :\n  copy data file to hpss\n";
+  exit (1);
+  }
+
+if (ord($file) ne ord("/")) {
+  print "$file doesn't big with a \"/\" - make sure you enter a full path!\n";
+  exit (1);
+  }
+
+if (! -f $file) {
+  print "cannot find file: $file\n";
+  exit (1);
+  }
+
+

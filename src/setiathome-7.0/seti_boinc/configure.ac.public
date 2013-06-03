@@ -1,0 +1,141 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+
+AC_PREREQ(2.57)
+AC_INIT(setiathome, 4.0, ports@setiathome.ssl.berkeley.edu)
+AC_CONFIG_SRCDIR([client/analyze.h])
+AC_CONFIG_HEADER([config.h])
+
+major_version=`echo AC_PACKAGE_VERSION | sed 's/\..*//'`
+minor_version=`echo AC_PACKAGE_VERSION | sed 's/.*\.//' | sed 's/^0//'`
+AC_SUBST([MAJOR_VERSION], [$major_version])
+AC_SUBST([MINOR_VERSION], [$minor_version])
+AC_DEFINE_UNQUOTED([VERSION_MAJOR],$major_version, [SETI@home major version number])
+AC_DEFINE_UNQUOTED([VERSION_MINOR],$minor_version, [SETI@home minor version number])
+AC_DEFINE_UNQUOTED([SAH_APP_NAME],["$PACKAGE_NAME"], [Define to the BOINC application name for setiathome])
+
+AC_CANONICAL_HOST
+
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_CXXCPP
+AC_PROG_AWK
+AC_PROG_RANLIB
+AC_PATH_PROG(SED,[sed])
+AC_PATH_PROG(TR,[tr])
+AC_PATH_PROGS(AR,[ar lib])
+AC_PATH_PROG(AUTOCONF,[autoconf])
+AC_PATH_PROG(AUTOHEADER,[autoheader])
+AC_PATH_PROGS(INDENT,[astyle indent])
+AC_PATH_PROG(SORT,[sort])
+AC_PATH_PROG(UNIQ,[uniq])
+AC_PATH_PROG(CAT,[cat type])
+AC_PATH_PROG(MV,[mv])
+AC_PATH_PROGS(RM,[rm Rm del erase delete])
+if test -n `echo $INDENT | grep astyle`
+then
+  AC_SUBST([INDENT_FLAGS],["--c --indent-classes --indent-switches --brackets=attach --convert-tabs"])
+else
+  AC_SUBST([INDENT_FLAGS],["-kr"])
+fi
+AC_PROG_MAKE_SET
+SAH_DLLEXT
+SAH_LIBEXT
+if test -n "$EXEEXT"
+then
+  DOTEXEEXT=".$EXEEXT"
+fi
+AC_SUBST(DOTEXEEXT)
+AC_SYS_LARGEFILE
+
+# Checks for libraries.
+AC_LANG(C++)
+AC_CHECK_LIB([cygipc],[shmget])
+AC_CHECK_LIB([aio], [aio_fork])
+AC_CHECK_LIB([dl], [dlclose])
+AC_CHECK_LIB([elf], [elf_hash])
+AC_CHECK_LIB([fftw], [fftw_create_plan])
+AC_CHECK_LIB([m], [sin])
+AC_CHECK_LIB([nsl], [gethostbyname])
+AC_CHECK_LIB([socket], [bind])
+AC_CHECK_LIB([z], [uncompress])
+AC_CHECK_LIB([stdc++], [main])
+SAH_GRX_LIBS
+SAH_CHECK_BOINC
+SAH_CHECK_MYSQL
+SAH_CHECK_INFORMIX
+SAH_FIND_S4PATH
+AC_CACHE_SAVE
+
+# Checks for header files.
+AC_HEADER_STDC
+SAH_LARGEFILE_BREAKS_CXX
+SAH_HEADER_STDCXX
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS([fcntl.h inttypes.h limits.h memory.h stdlib.h string.h strings.h sys/ioctl.h sys/statvfs.h sys/time.h unistd.h dirent.h])
+SAH_GRX_INCLUDES
+AC_CACHE_SAVE
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_CONST
+AC_C_INLINE
+AC_C_LONG_DOUBLE
+AC_TYPE_OFF_T
+AC_TYPE_SIZE_T
+AC_STRUCT_ST_BLOCKS
+AC_STRUCT_TM
+AC_CHECK_SIZEOF([long int])
+AC_CHECK_SIZEOF([long double])
+AC_CHECK_TYPES([long long,_int64,bool])
+AC_CACHE_SAVE
+
+# Checks for library functions.
+AC_LANG(C)
+AC_FUNC_FORK
+AC_HEADER_MAJOR
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+AC_FUNC_STAT
+AC_FUNC_STRFTIME
+AC_CHECK_FUNCS([atexit floor getcwd memset munmap putenv sqrt strchr strstr atoll])
+SAH_CHECK_NAMESPACES
+AH_TEMPLATE([HAVE_STD_MIN],[Define to 1 if min is in namespace std::])
+AH_TEMPLATE([HAVE_STD_MAX],[Define to 1 if max is in namespace std::])
+AH_TEMPLATE([HAVE_STD_TRANSFORM],[Define to 1 if transform is in namespace std::])
+SAH_FUNCS_IN_NAMESPACE([['min(0,0)'] ['max(0,0)'] ['transform((char *)0,(char *)0,(char *)0,(int(*)(int))malloc)']],std)
+
+AC_CACHE_SAVE
+
+AH_TOP([
+#ifndef _SAH_CONFIG_H_
+#define _SAH_CONFIG_H_
+
+#ifdef _WIN32
+#include "win-config.h"
+#endif
+])
+
+
+AH_BOTTOM([ 
+
+/* Define USE_NAMESPACES if you may access more than one database from the
+ * same program
+ */
+#if defined(USE_INFORMIX) && defined(USE_MYSQL) && defined(HAVE_NAMESPACES)
+#define USE_NAMESPACES
+#endif
+
+#include "std_fixes.h"
+
+#endif
+])
+
+AC_CONFIG_FILES([Makefile
+                 client/Makefile
+                 db/Makefile
+		 db/schema_to_class
+                ])
+AC_OUTPUT
+chmod +x db/schema_to_class

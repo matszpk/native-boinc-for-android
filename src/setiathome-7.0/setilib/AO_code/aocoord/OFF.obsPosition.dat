@@ -1,0 +1,64 @@
+18 21 14.2    harris pnt program. pg 131 report 17..verified
+ 4 27   .720
+# updated position 18dec98 22:45
+# 	18 20 36.6 deg min sec     tapasi vlbi
+#	 4 27 .793  hr  min sec     west long tapasi vlbi
+#
+#   66d 45m 11.89    tapazi vlbi pos.. and 496 meters
+#    18 21 14.00   alex via kiriaki 
+#
+#	data file holding info on observatory position.
+#	format is:
+#	# in col 1 is a comment 
+#	1.observatory atronomical lat in deg(int), min(int), sec(float)
+#	2.observatory west longitude  int hour, min,secs(float)
+#       put lattitude on one line as 3 numbers (separated by spaces).
+#	put west longitude on following line  3 numbers per line.
+#	any characters after the 3 numbers on a line will be ignored..
+#	it's ok to put comments between the two lines.. just make sure
+#	lattitude preceeds west longitude.
+#
+#  notes: 
+#	   1. geocentric long is the same as geodetic long.
+#
+#  some latitudes of obs.
+#            18 21 14.2    harris pnt program. pg 131 report 17..verified
+#            18 13 53.118  geocentric lat...rankin aoSitePos
+#            18 20 36.0    Astron. almanac. observatories...
+#            18 20 36.6    tapazi vlbi pos
+#            18 13 46.177  tempo geocentric position (from xyz below)
+#            18 21 14.00   alex via kiriaki 
+#			 18 20 39.44   gps receiver center of bearing by aerostat people
+#
+#  west longitude of observatory. used int ut1ToLmst. raDecToFdPos
+#          04h 27m   .720s harris pnt pg 128 report 17 (not verified in prog)
+#          66d 45m 10.8s
+#
+#          04h 27m   .6975  aoSitePos. rankin's routines.
+#          66d 45m 10.46
+# 
+#          04h 27m   .793s  tapazi
+#          66d 45m 11.89    tapazi vlbi pos.. and 496 meters
+#
+#		   04h 27m  0.6702s tempo geocentric	 
+#          66d 45m 10.054    
+#
+#  		   04h 27m   .6975  alex via kiriaki
+#	       66d 45m 10.46
+#
+#		   66  45  10.00    gps rcvr center of bearing . aerostat people.      
+#
+#  geocentric coordinates used by tempo (from jpl) 
+#    x    			y             z
+# 2390490.0     -5564764.0      1994727.0      1  ARECIBO XYZ (JPL)   3  AO
+#  lat:asin(z/rad) 
+#  long:atan(y/x) 
+#   
+#The following coordinates are now being used for VLBI. 
+#These numbers were derived by running astrometric software on residual VLBI 
+#delay/fringe rates (after our age old coordinates were used to correlate the 
+#data) in ~2002 by Dave Graham at MPIfR.
+#>From NRAO's SCHED's location.dat file:
+#	DBCODE=AR  DBNAME=ARECIBO  AXISTYPE='altz'  AXISOFF=  0.0000
+#	X=  2390486.9000 Y= -5564731.4400 Z=  1994720.4500 
+#DXDT=  0.00990   DYDT=  0.00454   DZDT=  0.01008 EPOCH=52275 

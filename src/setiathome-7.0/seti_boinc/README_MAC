@@ -1,0 +1,1 @@
+./configure --enable-fast-math -C --with-apple-opengl-framework --with-boinc-platform=powerpc-apple-darwin --without-x --disable-dynamic-graphics --with-my-libjpeg --with-my-jpeglib

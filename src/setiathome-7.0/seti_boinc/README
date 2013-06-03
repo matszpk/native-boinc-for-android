@@ -1,0 +1,57 @@
+setiathome(1)		User Commands		Version 6.90 - Feb 2011
+
+NAME
+    seti_boinc - the SETI@home client program
+
+SYNOPSIS
+    seti_boinc [options]
+
+DESCRIPTION
+    seti_boinc is the boinc version of the SETI@home client.
+    It runs under the BOINC client which downloads radio telescope data 
+    from a network server, analyzes the data looking for signals of 
+    extraterrestrial origin, and uploads results to the server, 
+    repeating this cycle indefinitely.  
+    See http://setiathome.berkeley.edu for more information.
+
+FILES
+    In order to use seti_boinc to analyze data from the seti@home project
+    you must first download the BOINC client software which is avalable
+    through the setiathome web page http://setiathome.berkeley.edu/
+    If used on a supported host platform, the BOINC client will automatically
+    download the most recent versions of the seti@home client software.
+
+    If you are compiling for an unsupported host platform, you may need to use
+    the boinc anonymous platform mechanism described at
+    http://boinc.berkeley.edu/anonymous_platform.php
+
+    The program generates several files with .sah extension
+    in the directory from which it's run.
+    These should not be modified.
+
+
+OPTIONS
+    -nographics
+	Do not show graphics while running.
+
+    -version
+	Show software version
+    
+SEE ALSO:
+	There is much more information to be found about the operation
+	of the client at the following WEB sites:
+		http://setiathome.berkeley.edu/
+		http://boinc.berkeley.edu/
+	with discussions of add-on programs and scripts to control
+	the BOINC client in various situations.
+
+        The most recent version of the seti_boinc source code can be found at
+	http://setiathome.berkeley.edu/
+
+	The most recent version of the official FFTW library can be found at
+	http://www.fftw.org/.  A version containing any modifications made for
+	SETI@home can be found at http://setiathome.berkeley.edu/
+	If you are unable to find it there, please contact Eric Korpela 
+	<korpela at ssl.berkeley.edu>.
+
+

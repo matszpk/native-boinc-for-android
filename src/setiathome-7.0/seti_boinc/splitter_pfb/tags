@@ -1,0 +1,463 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ARECIBO_LAT	splitparms.h	53;"	d
+ARECIBO_LON	splitparms.h	54;"	d
+AST	splitparms.h	50;"	d
+AltAzCorrection	coordcvt.cpp	/^void AltAzCorrection(double *alt, double *az) {$/;"	f	namespace:SPLITTER
+COMPLEX	fftw.h	74;"	d
+COORDCVT_H	coordcvt.h	11;"	d
+D2R	coordcvt.cpp	109;"	d	file:
+DB_FNS_H	db_fns.h	8;"	d
+DL_IMPORT	fftw.h	141;"	d
+DL_IMPORT	fftw.h	143;"	d
+DL_IMPORT	fftw.h	145;"	d
+DL_IMPORT	fftw.h	148;"	d
+DTOR	angdist.cpp	16;"	d	file:
+DTOR	mb_angdist.cpp	24;"	d	file:
+EXIT_NORMAL_EOF	mb_splitter.h	/^const int EXIT_NORMAL_EOF       = 0;$/;"	v
+EXIT_NORMAL_NOT_EOF	mb_splitter.h	/^const int EXIT_NORMAL_NOT_EOF   = 2;$/;"	v
+FFTWND_FORCE_BUFFERED	fftw.h	289;"	d
+FFTWND_HAS_PRINT_PLAN	fftw.h	401;"	d
+FFTW_1_0_COMPATIBILITY	fftw.h	68;"	d
+FFTW_BACKWARD	fftw.h	/^     FFTW_FORWARD = -1, FFTW_BACKWARD = 1$/;"	e	enum:__anon2
+FFTW_COMPLEX	fftw.h	/^typedef fftw_complex FFTW_COMPLEX;$/;"	t
+FFTW_ENABLE_FLOAT	fftw.h	40;"	d
+FFTW_ESTIMATE	fftw.h	278;"	d
+FFTW_FAILURE	fftw.h	/^     FFTW_SUCCESS = 0, FFTW_FAILURE = -1$/;"	e	enum:__anon3
+FFTW_FORWARD	fftw.h	/^     FFTW_FORWARD = -1, FFTW_BACKWARD = 1$/;"	e	enum:__anon2
+FFTW_GENERIC	fftw.h	/^     FFTW_NOTW, FFTW_TWIDDLE, FFTW_GENERIC, FFTW_RADER,$/;"	e	enum:fftw_node_type
+FFTW_H	fftw.h	26;"	d
+FFTW_HAS_FPRINT_PLAN	fftw.h	335;"	d
+FFTW_HAS_PLAN_SPECIFIC	fftw.h	295;"	d
+FFTW_HAS_WISDOM	fftw.h	322;"	d
+FFTW_HC2HC	fftw.h	/^     FFTW_REAL2HC, FFTW_HC2REAL, FFTW_HC2HC, FFTW_RGENERIC$/;"	e	enum:fftw_node_type
+FFTW_HC2REAL	fftw.h	/^     FFTW_REAL2HC, FFTW_HC2REAL, FFTW_HC2HC, FFTW_RGENERIC$/;"	e	enum:fftw_node_type
+FFTW_IN_PLACE	fftw.h	282;"	d
+FFTW_MEASURE	fftw.h	279;"	d
+FFTW_NOTW	fftw.h	/^     FFTW_NOTW, FFTW_TWIDDLE, FFTW_GENERIC, FFTW_RADER,$/;"	e	enum:fftw_node_type
+FFTW_OUT_OF_PLACE	fftw.h	281;"	d
+FFTW_RADER	fftw.h	/^     FFTW_NOTW, FFTW_TWIDDLE, FFTW_GENERIC, FFTW_RADER,$/;"	e	enum:fftw_node_type
+FFTW_REAL	fftw.h	/^typedef fftw_real FFTW_REAL;$/;"	t
+FFTW_REAL2HC	fftw.h	/^     FFTW_REAL2HC, FFTW_HC2REAL, FFTW_HC2HC, FFTW_RGENERIC$/;"	e	enum:fftw_node_type
+FFTW_RGENERIC	fftw.h	/^     FFTW_REAL2HC, FFTW_HC2REAL, FFTW_HC2HC, FFTW_RGENERIC$/;"	e	enum:fftw_node_type
+FFTW_SUCCESS	fftw.h	/^     FFTW_SUCCESS = 0, FFTW_FAILURE = -1$/;"	e	enum:__anon3
+FFTW_THREADSAFE	fftw.h	285;"	d
+FFTW_TWIDDLE	fftw.h	/^     FFTW_NOTW, FFTW_TWIDDLE, FFTW_GENERIC, FFTW_RADER,$/;"	e	enum:fftw_node_type
+FFTW_USE_WISDOM	fftw.h	283;"	d
+FFT_LEN	splitparms.h	27;"	d
+FILESIZE	randomdata.cpp	12;"	d	file:
+FILESIZE	squarewave.cpp	12;"	d	file:
+FRAME_DATA_SIZE	randomdata.cpp	10;"	d	file:
+FRAME_DATA_SIZE	squarewave.cpp	10;"	d	file:
+HANNING	polyphase.h	3;"	d
+HEADER_SIZE	randomdata.cpp	11;"	d	file:
+HEADER_SIZE	squarewave.cpp	11;"	d	file:
+IFFT_LEN	splitparms.h	28;"	d
+MAKEBUFS_H	makebufs.h	11;"	d
+MAX	mb_splitter.h	16;"	d
+MAX	splitter.h	16;"	d
+MAX_POSITION_HISTORY	splitparms.h	23;"	d
+MAX_WUS_ONDISK	splitparms.h	17;"	d
+MIN	mb_splitter.h	17;"	d
+MIN	splitter.h	17;"	d
+NBYTES	splitparms.h	21;"	d
+NONE	polyphase.h	1;"	d
+NSAMPLES	splitparms.h	22;"	d
+NSTRIPS	splitparms.h	29;"	d
+NUM_FRAMES	randomdata.cpp	9;"	d	file:
+NUM_FRAMES	squarewave.cpp	9;"	d	file:
+N_SIMULT_SPLITTERS	splitparms.h	18;"	d
+N_WINDOWS	polyphase.h	5;"	d
+P_FFT_LEN	polyphase.h	6;"	d
+READTAPE_H	readtape.h	10;"	d
+REAL	fftw.h	73;"	d
+RECORDER_BUFFER_BYTES	splitparms.h	44;"	d
+RECORDER_BUFFER_SAMPLES	splitparms.h	45;"	d
+SAMPLES_PER_OBUF	dotransform.cpp	32;"	d	file:
+SAMPLES_PER_OBUF	dotransform.h	17;"	d
+SAMPLES_PER_OBUF	mb_dotransform.cpp	30;"	d	file:
+SAMPLES_PER_OBUF	mb_dotransform.h	15;"	d
+SAMPLES_PER_OBUF	mb_polyphase.cpp	26;"	d	file:
+SAMPLES_PER_OBUF	polyphase.cpp	25;"	d	file:
+SAMPLES_PER_OBUF	polyphase.h	14;"	d
+SPLITPARMS_H	splitparms.h	10;"	d
+SPLITTER	coordcvt.cpp	/^namespace SPLITTER {$/;"	n	file:
+SPLITTER_H	mb_splitter.h	11;"	d
+SPLITTER_H	splitter.h	11;"	d
+SPLITTER_VERSION	splitparms.h	16;"	d
+SPLITTYPES_H	mb_splittypes.h	10;"	d
+SPLITTYPES_H	splittypes.h	10;"	d
+SWAP	four1.cpp	11;"	d	file:
+SWAP	four1.cpp	57;"	d	file:
+TAPE_BUFFER_SIZE	splitparms.h	37;"	d
+TAPE_DATA_SIZE	splitparms.h	33;"	d
+TAPE_FRAMES_IN_BUFFER	splitparms.h	39;"	d
+TAPE_FRAMES_PER_RECORD	splitparms.h	34;"	d
+TAPE_FRAMES_PER_WU	splitparms.h	40;"	d
+TAPE_FRAME_SIZE	splitparms.h	35;"	d
+TAPE_HEADER_SIZE	splitparms.h	32;"	d
+TAPE_RECORDS_IN_BUFFER	splitparms.h	38;"	d
+TAPE_RECORD_SIZE	splitparms.h	36;"	d
+TBUF_OFFSET	dotransform.cpp	108;"	d	file:
+TBUF_OFFSET	dotransform.h	18;"	d
+TBUF_OFFSET	mb_dotransform.h	16;"	d
+TBUF_OFFSET	mb_polyphase.cpp	97;"	d	file:
+TBUF_OFFSET	polyphase.cpp	96;"	d	file:
+TBUF_OFFSET	polyphase.h	15;"	d
+USE_MYSQL	mb_splitter.cpp	10;"	d	file:
+USE_MYSQL	mb_wufiles.cpp	10;"	d	file:
+USE_MYSQL	readtape.cpp	10;"	d	file:
+USE_MYSQL	splitter.cpp	10;"	d	file:
+USE_MYSQL	wufiles.cpp	10;"	d	file:
+UTC	splitparms.h	49;"	d
+WELCH	polyphase.h	2;"	d
+WU_FILESIZE	splitparms.h	24;"	d
+WU_OVERLAP_BYTES	splitparms.h	43;"	d
+WU_OVERLAP_FRAMES	splitparms.h	42;"	d
+WU_OVERLAP_RECORDS	splitparms.h	41;"	d
+WU_SUBDIR	splitparms.h	14;"	d
+alfa	mb_splitter.cpp	/^int alfa;$/;"	v
+angdist	angdist.cpp	/^double angdist(const SCOPE_STRING &a, const SCOPE_STRING &b) {$/;"	f
+angdist	angdist.cpp	/^double angdist(double r1, double d1, double r2, double d2) {$/;"	f
+angdist	mb_angdist.cpp	/^double angdist(const coordinate_t &a, const coordinate_t &b) {$/;"	f
+angdist	mb_angdist.cpp	/^double angdist(double r1, double d1, double r2, double d2) {$/;"	f
+app	mb_splitter.cpp	/^DB_APP app;$/;"	v
+app	splitter.cpp	/^DB_APP app;$/;"	v
+atnight	mb_splitter.cpp	/^int atnight;$/;"	v
+atnight	splitter.cpp	/^int atnight;$/;"	v
+beam	mb_splitter.cpp	/^int beam;$/;"	v
+bin_data	mb_wufiles.cpp	/^std::vector<std::vector<unsigned char> > bin_data;$/;"	v
+bin_data	wufiles.cpp	/^static std::vector<unsigned char> bin_data[NSTRIPS];$/;"	v	file:
+boinc_config	mb_splitter.cpp	/^SCHED_CONFIG boinc_config;$/;"	v
+boinc_config	splitter.cpp	/^SCHED_CONFIG boinc_config;$/;"	v
+buffer_pos	mb_splittypes.h	/^typedef struct buffer_pos {$/;"	s
+buffer_pos	splittypes.h	/^typedef struct buffer_pos {$/;"	s
+buffer_pos_t	mb_splittypes.h	/^} buffer_pos_t;$/;"	t	typeref:struct:buffer_pos
+buffer_pos_t	splittypes.h	/^} buffer_pos_t;$/;"	t	typeref:struct:buffer_pos
+byte	splittypes.h	/^  long byte;$/;"	m	struct:buffer_pos
+c_im	fftw.h	57;"	d
+c_re	fftw.h	56;"	d
+cdesc	fftw.h	/^     const fftw_codelet_desc *cdesc;$/;"	m	struct:fftw_twiddle_struct
+cdesc	fftw.h	/^     fftw_codelet_desc *cdesc;$/;"	m	struct:fftw_rader_data_struct
+centerfreq	mb_splittypes.h	/^  double centerfreq,samplerate;$/;"	m	struct:tapeheader
+centerfreq	splittypes.h	/^  double centerfreq,samplerate;$/;"	m	struct:tapeheader
+check_for_halt	mb_splitter.cpp	/^int check_for_halt() {$/;"	f
+check_for_halt	splitter.cpp	/^int check_for_halt() {$/;"	f
+check_free_disk_space	mb_splitter.cpp	/^int check_free_disk_space() {$/;"	f
+check_free_disk_space	splitter.cpp	/^int check_free_disk_space() {$/;"	f
+cleanup	mb_splitter.cpp	/^void cleanup(void) {$/;"	f
+cleanup	splitter.cpp	/^void cleanup(void) {$/;"	f
+cmap_interp	cmap_interp.cpp	/^coordinate_t cmap_interp(std::map<seti_time,coordinate_t> &map, seti_time &t) {$/;"	f
+codelet	fftw.h	/^	       fftw_generic_codelet *codelet;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon8
+codelet	fftw.h	/^	       fftw_hc2hc_codelet *codelet;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon12
+codelet	fftw.h	/^	       fftw_hc2real_codelet *codelet;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon11
+codelet	fftw.h	/^	       fftw_notw_codelet *codelet;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon6
+codelet	fftw.h	/^	       fftw_rader_codelet *codelet;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon9
+codelet	fftw.h	/^	       fftw_real2hc_codelet *codelet;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon10
+codelet	fftw.h	/^	       fftw_rgeneric_codelet *codelet;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon13
+codelet	fftw.h	/^	       fftw_twiddle_codelet *codelet;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon7
+codelet	fftw.h	/^     void (*codelet) ();	\/* pointer to the codelet itself *\/$/;"	m	struct:__anon4
+codelet_desc	fftw.h	/^	       const fftw_codelet_desc *codelet_desc;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon10
+codelet_desc	fftw.h	/^	       const fftw_codelet_desc *codelet_desc;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon11
+codelet_desc	fftw.h	/^	       const fftw_codelet_desc *codelet_desc;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon12
+codelet_desc	fftw.h	/^	       const fftw_codelet_desc *codelet_desc;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon6
+codelet_desc	fftw.h	/^	       const fftw_codelet_desc *codelet_desc;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon7
+coord_history	mb_splitter.cpp	/^std::map<seti_time,coordinate_t> coord_history;$/;"	v
+cost	fftw.h	/^     double cost;$/;"	m	struct:fftw_plan_struct
+cprint	mb_splitter.cpp	/^void cprint(char *p) {$/;"	f
+cprint	splitter.cpp	/^void cprint(char *p) {$/;"	f
+current_record	readtape.cpp	/^int current_record;$/;"	v
+databuf	dotransform.cpp	/^float databuf[FFT_LEN*2];$/;"	v
+dataclass	mb_splitter.cpp	/^int dataclass;$/;"	v
+dataclass	splitter.cpp	/^int dataclass;$/;"	v
+dataseq	mb_splittypes.h	/^  unsigned long dataseq;$/;"	m	struct:tapeheader
+dataseq	splittypes.h	/^  unsigned long dataseq;$/;"	m	struct:tapeheader
+daynames	writeheader.cpp	/^char *daynames[]={"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};$/;"	v
+delbuffer	makebufs.cpp	/^void delbuffer(void) {$/;"	f
+delbuffer_sig	makebufs.cpp	/^void delbuffer_sig(int i) {$/;"	f
+dir	fftw.h	/^	       fftw_direction dir;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon12
+dir	fftw.h	/^	       fftw_direction dir;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon13
+dir	fftw.h	/^     fftw_direction dir;	\/* direction *\/$/;"	m	struct:__anon4
+dir	fftw.h	/^     fftw_direction dir;$/;"	m	struct:__anon14
+dir	fftw.h	/^     fftw_direction dir;$/;"	m	struct:fftw_plan_struct
+do_polyphase	mb_polyphase.cpp	/^void do_polyphase(buffer_pos_t *start_of_wu, buffer_pos_t *end_of_wu) {$/;"	f
+do_polyphase	polyphase.cpp	/^void do_polyphase(buffer_pos_t *start_of_wu, buffer_pos_t *end_of_wu) {$/;"	f
+do_transform	dotransform.cpp	/^void do_transform(buffer_pos_t *start_of_wu, buffer_pos_t *end_of_wu) {$/;"	f
+do_transform	mb_dotransform.cpp	/^void do_transform(std::vector<dr2_compact_block_t> &tapebuffer) {$/;"	f
+end_of_wu	mb_splitter.cpp	/^buffer_pos_t start_of_wu,end_of_wu;  \/* position of start and end of wu in$/;"	v
+end_of_wu	splitter.cpp	/^buffer_pos_t start_of_wu,end_of_wu;  \/* position of start and end of wu in$/;"	v
+errorlog	mb_splitter.cpp	/^FILE *wulog,*errorlog;$/;"	v
+errorlog	splitter.cpp	/^FILE *wulog,*errorlog;$/;"	v
+f_data	mb_polyphase.cpp	/^float *f_data;$/;"	v
+f_data	polyphase.cpp	/^float *f_data;$/;"	v
+fftw_codelet_desc	fftw.h	/^} fftw_codelet_desc;$/;"	t	typeref:struct:__anon4
+fftw_complex	fftw.h	/^} fftw_complex;$/;"	t	typeref:struct:__anon1
+fftw_die_type_function	fftw.h	/^typedef void  (*fftw_die_type_function) (const char *errString);$/;"	t
+fftw_direction	fftw.h	/^} fftw_direction;$/;"	t	typeref:enum:__anon2
+fftw_free_type_function	fftw.h	/^typedef void  (*fftw_free_type_function) (void *p);$/;"	t
+fftw_generic_codelet	fftw.h	/^typedef void (fftw_generic_codelet) $/;"	t
+fftw_hc2hc_codelet	fftw.h	/^typedef void (fftw_hc2hc_codelet)$/;"	t
+fftw_hc2real_codelet	fftw.h	/^typedef void (fftw_hc2real_codelet)$/;"	t
+fftw_malloc_type_function	fftw.h	/^typedef void *(*fftw_malloc_type_function) (size_t n);$/;"	t
+fftw_node_type	fftw.h	/^enum fftw_node_type {$/;"	g
+fftw_notw_codelet	fftw.h	/^typedef void (fftw_notw_codelet) $/;"	t
+fftw_plan	fftw.h	/^typedef struct fftw_plan_struct *fftw_plan;$/;"	t	typeref:struct:fftw_plan_struct
+fftw_plan_node	fftw.h	/^} fftw_plan_node;$/;"	t	typeref:struct:fftw_plan_node_struct
+fftw_plan_node_struct	fftw.h	/^typedef struct fftw_plan_node_struct {$/;"	s
+fftw_plan_struct	fftw.h	/^struct fftw_plan_struct {$/;"	s
+fftw_rader_codelet	fftw.h	/^typedef void (fftw_rader_codelet) $/;"	t
+fftw_rader_data	fftw.h	/^} fftw_rader_data;$/;"	t	typeref:struct:fftw_rader_data_struct
+fftw_rader_data_struct	fftw.h	/^typedef struct fftw_rader_data_struct {$/;"	s
+fftw_real	fftw.h	/^typedef double fftw_real;$/;"	t
+fftw_real	fftw.h	/^typedef float fftw_real;$/;"	t
+fftw_real2hc_codelet	fftw.h	/^typedef void (fftw_real2hc_codelet)$/;"	t
+fftw_rgeneric_codelet	fftw.h	/^typedef void (fftw_rgeneric_codelet)$/;"	t
+fftw_status	fftw.h	/^} fftw_status;$/;"	t	typeref:enum:__anon3
+fftw_twiddle	fftw.h	/^} fftw_twiddle;$/;"	t	typeref:struct:fftw_twiddle_struct
+fftw_twiddle_codelet	fftw.h	/^typedef void (fftw_twiddle_codelet)$/;"	t
+fftw_twiddle_struct	fftw.h	/^typedef struct fftw_twiddle_struct {$/;"	s
+fftwnd_data	fftw.h	/^} fftwnd_data;$/;"	t	typeref:struct:__anon14
+fftwnd_plan	fftw.h	/^typedef fftwnd_data *fftwnd_plan;$/;"	t
+filecopy	mb_wufiles.cpp	/^int filecopy(char *oldname,char *newname) {$/;"	f
+filecopy	wufiles.cpp	/^int filecopy(char *oldname,char *newname) {$/;"	f
+fill_tape_buffer	readtape.cpp	/^int fill_tape_buffer(unsigned char *buffer, int n_records) {$/;"	f
+filter_i	mb_polyphase.cpp	/^double *filter_r, *filter_i;$/;"	v
+filter_i	polyphase.cpp	/^double *filter_r, *filter_i;$/;"	v
+filter_r	mb_polyphase.cpp	/^double *filter_r, *filter_i;$/;"	v
+filter_r	polyphase.cpp	/^double *filter_r, *filter_i;$/;"	v
+filter_window	mb_splitter.cpp	/^int filter_window = 0;$/;"	v
+filter_window	splitter.cpp	/^int filter_window = 0;$/;"	v
+flags	fftw.h	/^     int flags;$/;"	m	struct:fftw_plan_struct
+flags	fftw.h	/^     int p, flags, refcount;$/;"	m	struct:fftw_rader_data_struct
+four1	four1.cpp	/^void four1(float data[], unsigned long nn, int isign) {$/;"	f
+frame	mb_splittypes.h	/^  int frame;$/;"	m	struct:buffer_pos
+frame	splittypes.h	/^  int frame;$/;"	m	struct:buffer_pos
+frameseq	mb_splittypes.h	/^  unsigned long frameseq;$/;"	m	struct:tapeheader
+frameseq	splittypes.h	/^  unsigned long frameseq;$/;"	m	struct:tapeheader
+g	fftw.h	/^     int g, ginv;$/;"	m	struct:fftw_rader_data_struct
+generic	fftw.h	/^	  } generic;$/;"	m	union:fftw_plan_node_struct::__anon5	typeref:struct:fftw_plan_node_struct::__anon5::__anon8
+get_last_block	db_fns.cpp	/^int get_last_block(tapeheader_t *tapeheader) {$/;"	f
+ginv	fftw.h	/^     int g, ginv;$/;"	m	struct:fftw_rader_data_struct
+gregorian	mb_splitter.cpp	/^int gregorian;$/;"	v
+gregorian	splitter.cpp	/^int gregorian;$/;"	v
+hc2hc	fftw.h	/^	  } hc2hc;$/;"	m	union:fftw_plan_node_struct::__anon5	typeref:struct:fftw_plan_node_struct::__anon5::__anon12
+hc2real	fftw.h	/^	  } hc2real;$/;"	m	union:fftw_plan_node_struct::__anon5	typeref:struct:fftw_plan_node_struct::__anon5::__anon11
+header	randomdata.cpp	/^char header[HEADER_SIZE];$/;"	v
+header	squarewave.cpp	/^char header[HEADER_SIZE];$/;"	v
+horz_to_equatorial	coordcvt.cpp	/^void horz_to_equatorial(double alt, double azimuth, double lsthour,$/;"	f	namespace:SPLITTER
+hr_min_sec	hr_min_sec.cpp	/^char* hr_min_sec (double x) {$/;"	f
+im	fftw.h	/^     fftw_real re, im;$/;"	m	struct:__anon1
+is_in_place	fftw.h	/^     int is_in_place;		\/* 1 if for in-place FFTs, 0 otherwise *\/$/;"	m	struct:__anon14
+is_tape	readtape.cpp	/^int is_tape;$/;"	v
+iters	mb_splitter.cpp	/^int iters=-1;$/;"	v
+iters	splitter.cpp	/^int iters=-1;$/;"	v
+jd_to_lmst	coordcvt.cpp	/^double jd_to_lmst(double jd, double longitude) {$/;"	f	namespace:SPLITTER
+key	mb_splitter.cpp	/^R_RSA_PRIVATE_KEY key;$/;"	v
+key	splitter.cpp	/^R_RSA_PRIVATE_KEY key;$/;"	v
+main	mb_splitter.cpp	/^int main(int argc, char *argv[]) {$/;"	f
+main	randomdata.cpp	/^int main(void) {$/;"	f
+main	splitter.cpp	/^int main(int argc, char *argv[]) {$/;"	f
+main	squarewave.cpp	/^int main(void) {$/;"	f
+make_FIR	mb_polyphase.cpp	/^void make_FIR (int n_points, int M, int window, double *output) {$/;"	f
+make_FIR	polyphase.cpp	/^void make_FIR (int n_points, int M, int window, double *output) {$/;"	f
+make_wu_headers	mb_wufiles.cpp	/^int make_wu_headers(std::vector<dr2_compact_block_t> &tapebuffer, telescope_id$/;"	f
+make_wu_headers	wufiles.cpp	/^int make_wu_headers(tapeheader_t tapeheader[],workunit wuheader[],$/;"	f
+makebuffers	makebufs.cpp	/^void makebuffers(unsigned char **tapebuffer) {$/;"	f
+max_wus_ondisk	mb_splitter.cpp	/^int max_wus_ondisk=MAX_WUS_ONDISK;$/;"	v
+max_wus_ondisk	splitter.cpp	/^int max_wus_ondisk=MAX_WUS_ONDISK;$/;"	v
+message	mb_message.cpp	/^void message(char *msg) {$/;"	f
+message	message.cpp	/^void message(char *msg) {$/;"	f
+minvfsbuf	mb_splitter.cpp	/^unsigned long minvfsbuf=-1;$/;"	v
+minvfsbuf	splitter.cpp	/^unsigned long minvfsbuf=-1;$/;"	v
+missed	mb_splittypes.h	/^  int missed;$/;"	m	struct:tapeheader
+missed	splittypes.h	/^  int missed;$/;"	m	struct:tapeheader
+monthnames	writeheader.cpp	/^char *monthnames[]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep"$/;"	v
+n	fftw.h	/^     int *n;			\/*$/;"	m	struct:__anon14
+n	fftw.h	/^     int n;$/;"	m	struct:fftw_plan_struct
+n	fftw.h	/^     int n;$/;"	m	struct:fftw_twiddle_struct
+n_after	fftw.h	/^     int *n_after;		\/* n_after[i] = product of n[j] for j > i *\/$/;"	m	struct:__anon14
+n_before	fftw.h	/^     int *n_before;		\/*$/;"	m	struct:__anon14
+name	fftw.h	/^     const char *name;		\/* name of the codelet *\/$/;"	m	struct:__anon4
+name	mb_splittypes.h	/^  char name[36];$/;"	m	struct:tapeheader
+name	splittypes.h	/^  char name[36];$/;"	m	struct:tapeheader
+nbuffers	fftw.h	/^     int nbuffers, nwork;$/;"	m	struct:__anon14
+next	fftw.h	/^     struct fftw_plan_struct *next;$/;"	m	struct:fftw_plan_struct	typeref:struct:fftw_plan_struct::fftw_plan_struct
+next	fftw.h	/^     struct fftw_rader_data_struct *next;$/;"	m	struct:fftw_rader_data_struct	typeref:struct:fftw_rader_data_struct::fftw_rader_data_struct
+next	fftw.h	/^     struct fftw_twiddle_struct *next;$/;"	m	struct:fftw_twiddle_struct	typeref:struct:fftw_twiddle_struct::fftw_twiddle_struct
+nodb	mb_splitter.cpp	/^int nodb;$/;"	v
+nodb	splitter.cpp	/^int nodb;$/;"	v
+nodeu	fftw.h	/^     } nodeu;$/;"	m	struct:fftw_plan_node_struct	typeref:union:fftw_plan_node_struct::__anon5
+noencode	mb_splitter.cpp	/^int noencode;$/;"	v
+noencode	splitter.cpp	/^int noencode;$/;"	v
+norewind	mb_splitter.cpp	/^int norewind;$/;"	v
+norewind	splitter.cpp	/^int norewind;$/;"	v
+notw	fftw.h	/^	  } notw;$/;"	m	union:fftw_plan_node_struct::__anon5	typeref:struct:fftw_plan_node_struct::__anon5::__anon6
+ntwiddle	fftw.h	/^     int ntwiddle;		\/* number of twiddle factors *\/$/;"	m	struct:__anon4
+numdiskbufs	mb_splittypes.h	/^  int numdiskbufs;$/;"	m	struct:tapeheader
+numdiskbufs	splittypes.h	/^  int numdiskbufs;$/;"	m	struct:tapeheader
+numringbufs	mb_splittypes.h	/^  int numringbufs;$/;"	m	struct:tapeheader
+numringbufs	splittypes.h	/^  int numringbufs;$/;"	m	struct:tapeheader
+nwork	fftw.h	/^     int nbuffers, nwork;$/;"	m	struct:__anon14
+obuf_pos	dotransform.cpp	/^int obuf_pos; \/* Tracks current postition in the output buffers *\/$/;"	v
+obuf_pos	mb_dotransform.cpp	/^int obuf_pos; \/* Tracks current postition in the output buffers *\/$/;"	v
+offset	mb_splittypes.h	/^  long offset;$/;"	m	struct:buffer_pos
+omega	fftw.h	/^     fftw_complex *omega;$/;"	m	struct:fftw_rader_data_struct
+open_tape_device	readtape.cpp	/^int open_tape_device(char *device) {$/;"	f
+output_buf	dotransform.cpp	/^unsigned char output_buf[NSTRIPS][SAMPLES_PER_OBUF];  $/;"	v
+output_samples	dotransform.cpp	/^void output_samples(float *data, int i, int buf_pos) {$/;"	f
+output_samples	mb_dotransform.cpp	/^void output_samples(float *data, int i, int buf_pos) {$/;"	f
+output_xml	mb_splitter.cpp	/^int output_xml;$/;"	v
+output_xml	splitter.cpp	/^int output_xml;$/;"	v
+p	fftw.h	/^     int p, flags, refcount;$/;"	m	struct:fftw_rader_data_struct
+parse_tape_headers	readheader.cpp	/^int parse_tape_headers(unsigned char *tapebuffer, tapeheader_t *tapeheaders) {$/;"	f
+plan	fftw.h	/^     struct fftw_plan_struct *plan;$/;"	m	struct:fftw_rader_data_struct	typeref:struct:fftw_rader_data_struct::fftw_plan_struct
+plans	fftw.h	/^     fftw_plan *plans;		\/* 1d fftw plans for each dimension *\/$/;"	m	struct:__anon14
+pol	mb_splitter.cpp	/^int pol;$/;"	v
+polyphase	mb_splitter.cpp	/^int polyphase;$/;"	v
+polyphase	splitter.cpp	/^int polyphase;$/;"	v
+polyphase_seg	mb_polyphase.cpp	/^void polyphase_seg(float* data) {$/;"	f
+polyphase_seg	polyphase.cpp	/^void polyphase_seg(float* data) {$/;"	f
+process_command_line	mb_splitter.cpp	/^int process_command_line(int argc, char *argv[],char **tape_device,$/;"	f
+process_command_line	splitter.cpp	/^int process_command_line(int argc, char *argv[],char **tape_device,$/;"	f
+process_seg	dotransform.cpp	/^void process_seg(float* data) {$/;"	f
+process_seg	mb_dotransform.cpp	/^void process_seg(std::vector<complex<signed char> > &data,int offset) {$/;"	f
+projectdir	mb_splitter.cpp	/^char * projectdir = NULL;$/;"	v
+projectdir	splitter.cpp	/^char * projectdir = NULL;$/;"	v
+rader	fftw.h	/^	  } rader;$/;"	m	union:fftw_plan_node_struct::__anon5	typeref:struct:fftw_plan_node_struct::__anon5::__anon9
+rader_data	fftw.h	/^	       fftw_rader_data *rader_data;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon9
+randn	mb_dotransform.cpp	/^float randn() {$/;"	f
+randu	mb_dotransform.cpp	/^float randu() {$/;"	f
+rank	fftw.h	/^     int rank;			\/* $/;"	m	struct:__anon14
+rcdtype	mb_splittypes.h	/^  int rcdtype;$/;"	m	struct:tapeheader
+rcdtype	splittypes.h	/^  int rcdtype;$/;"	m	struct:tapeheader
+rcvr	mb_splitter.cpp	/^receiver_config rcvr;$/;"	v
+re	fftw.h	/^     fftw_real re, im;$/;"	m	struct:__anon1
+read_checkpoint	readtape.cpp	/^int read_checkpoint() {$/;"	f
+read_tape_header	readheader.cpp	/^int read_tape_header(char *buffer, tapeheader_t *header)$/;"	f
+real2hc	fftw.h	/^	  } real2hc;$/;"	m	union:fftw_plan_node_struct::__anon5	typeref:struct:fftw_plan_node_struct::__anon5::__anon10
+records_in_buffer	splitter.cpp	/^int records_in_buffer;$/;"	v
+recurse	fftw.h	/^	       struct fftw_plan_node_struct *recurse;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon12	typeref:struct:fftw_plan_node_struct::__anon5::__anon12::fftw_plan_node_struct
+recurse	fftw.h	/^	       struct fftw_plan_node_struct *recurse;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon13	typeref:struct:fftw_plan_node_struct::__anon5::__anon13::fftw_plan_node_struct
+recurse	fftw.h	/^	       struct fftw_plan_node_struct *recurse;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon7	typeref:struct:fftw_plan_node_struct::__anon5::__anon7::fftw_plan_node_struct
+recurse	fftw.h	/^	       struct fftw_plan_node_struct *recurse;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon8	typeref:struct:fftw_plan_node_struct::__anon5::__anon8::fftw_plan_node_struct
+recurse	fftw.h	/^	       struct fftw_plan_node_struct *recurse;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon9	typeref:struct:fftw_plan_node_struct::__anon5::__anon9::fftw_plan_node_struct
+refcnt	fftw.h	/^     int refcnt;$/;"	m	struct:fftw_plan_node_struct
+refcnt	fftw.h	/^     int refcnt;$/;"	m	struct:fftw_plan_struct
+refcnt	fftw.h	/^     int refcnt;$/;"	m	struct:fftw_twiddle_struct
+refcount	fftw.h	/^     int p, flags, refcount;$/;"	m	struct:fftw_rader_data_struct
+rename_wu_files	mb_wufiles.cpp	/^void rename_wu_files() {$/;"	f
+rename_wu_files	wufiles.cpp	/^void rename_wu_files() {$/;"	f
+result_template	mb_splitter.cpp	/^const char *result_template=$/;"	v
+result_template	splitter.cpp	/^const char *result_template=$/;"	v
+result_template_filename	mb_splitter.cpp	/^char result_template_filename[1024];$/;"	v
+result_template_filename	splitter.cpp	/^char result_template_filename[1024];$/;"	v
+result_template_filename_id	mb_splitter.cpp	/^const char *result_template_filename_id = "result_0.xml";$/;"	v
+result_template_filename_id	splitter.cpp	/^const char *result_template_filename_id = "result_0.xml";$/;"	v
+result_template_filepath	mb_splitter.cpp	/^char result_template_filepath[1024];$/;"	v
+result_template_filepath	splitter.cpp	/^char result_template_filepath[1024];$/;"	v
+resumetape	mb_splitter.cpp	/^int resumetape;$/;"	v
+resumetape	splitter.cpp	/^int resumetape;$/;"	v
+rgeneric	fftw.h	/^	  } rgeneric;$/;"	m	union:fftw_plan_node_struct::__anon5	typeref:struct:fftw_plan_node_struct::__anon5::__anon13
+root	fftw.h	/^     fftw_plan_node *root;$/;"	m	struct:fftw_plan_struct
+sah_config	mb_splitter.cpp	/^APP_CONFIG sah_config;$/;"	v
+sah_config	splitter.cpp	/^APP_CONFIG sah_config;$/;"	v
+samplerate	mb_splittypes.h	/^  double centerfreq,samplerate;$/;"	m	struct:tapeheader
+samplerate	splittypes.h	/^  double centerfreq,samplerate;$/;"	m	struct:tapeheader
+select_record	readtape.cpp	/^int select_record(int record_number) {$/;"	f
+seqno	mb_splitter.cpp	/^int seqno;$/;"	v
+seqno	splitter.cpp	/^int seqno;$/;"	v
+signature	fftw.h	/^     int signature;		\/* unique id *\/$/;"	m	struct:__anon4
+size	fftw.h	/^	       int size;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon10
+size	fftw.h	/^	       int size;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon11
+size	fftw.h	/^	       int size;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon12
+size	fftw.h	/^	       int size;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon13
+size	fftw.h	/^	       int size;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon6
+size	fftw.h	/^	       int size;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon7
+size	fftw.h	/^	       int size;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon8
+size	fftw.h	/^	       int size;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon9
+size	fftw.h	/^     int size;			\/* size of the codelet *\/$/;"	m	struct:__anon4
+source	mb_splittypes.h	/^  int source;$/;"	m	struct:tapeheader
+source	splittypes.h	/^  int source;$/;"	m	struct:tapeheader
+splitter_bits_to_float	dotransform.cpp	/^void splitter_bits_to_float(unsigned short *raw, float *data, int nsamples) {$/;"	f
+splitter_bits_to_float	mb_dotransform.cpp	/^void splitter_bits_to_float(unsigned short *raw, float *data, int nsamples) {$/;"	f
+splitter_encode	encode.cpp	/^void splitter_encode(unsigned char *bin, int nbytes, FILE *f) {$/;"	f
+splitter_settings	mb_splitter.cpp	/^settings splitter_settings;$/;"	v
+st	mb_splittypes.h	/^  TIME st;$/;"	m	struct:tapeheader
+st	splittypes.h	/^  TIME st;$/;"	m	struct:tapeheader
+start_of_wu	mb_splitter.cpp	/^buffer_pos_t start_of_wu,end_of_wu;  \/* position of start and end of wu in$/;"	v
+start_of_wu	splitter.cpp	/^buffer_pos_t start_of_wu,end_of_wu;  \/* position of start and end of wu in$/;"	v
+start_time	mb_splitter.cpp	/^double start_time;$/;"	v
+start_time	splitter.cpp	/^double start_time;$/;"	v
+startblock	mb_splitter.cpp	/^int startblock;$/;"	v
+startblock	splitter.cpp	/^int startblock;$/;"	v
+stop_time	mb_splitter.cpp	/^double stop_time;$/;"	v
+stop_time	splitter.cpp	/^double stop_time;$/;"	v
+tape_busy	readtape.cpp	/^int tape_busy() {$/;"	f
+tape_eject	readtape.cpp	/^int tape_eject() {$/;"	f
+tape_fd	readtape.cpp	/^static int tape_fd;$/;"	v	file:
+tape_info	readtape.cpp	/^static tape tape_info;$/;"	v	file:
+tape_read_record	readtape.cpp	/^int tape_read_record(char *buffer) {$/;"	f
+tape_rewind	readtape.cpp	/^int tape_rewind() {$/;"	f
+tape_status	readtape.cpp	/^struct mtget tape_status;$/;"	v	typeref:struct:mtget
+tape_struct	db_fns.cpp	/^static tape tape_struct;$/;"	v	file:
+tapebuffd	makebufs.cpp	/^int tapebuffd;$/;"	v
+tapebuffer	mb_splitter.cpp	/^std::vector<dr2_compact_block_t> tapebuffer;$/;"	v
+tapebuffer	splitter.cpp	/^unsigned char *tapebuffer;     \/* A buffer for a tape section *\/$/;"	v
+tapebufname	makebufs.cpp	/^char tapebufname[30];$/;"	v
+tapeheader	mb_splittypes.h	/^typedef struct tapeheader {$/;"	s
+tapeheader	splittypes.h	/^typedef struct tapeheader {$/;"	s
+tapeheader_t	mb_splittypes.h	/^} tapeheader_t;$/;"	t	typeref:struct:tapeheader
+tapeheader_t	splittypes.h	/^} tapeheader_t;$/;"	t	typeref:struct:tapeheader
+tapeheaders	splitter.cpp	/^tapeheader_t tapeheaders[TAPE_FRAMES_IN_BUFFER];$/;"	v
+telstr	mb_splittypes.h	/^  SCOPE_STRING telstr;$/;"	m	struct:tapeheader
+telstr	splittypes.h	/^  SCOPE_STRING telstr;$/;"	m	struct:tapeheader
+telstr_coord_convert	coordcvt.cpp	/^void telstr_coord_convert(SCOPE_STRING *telstr, double lat, double lon) {$/;"	f
+trigger_file_path	mb_splitter.cpp	/^char trigger_file_path[1024]="\/disks\/setifiler1\/wutape\/tapedir\/splitter_stop";$/;"	v
+trigger_file_path	splitter.cpp	/^char trigger_file_path[1024]="\/disks\/setifiler1\/wutape\/tapedir\/splitter_stop";$/;"	v
+tw	fftw.h	/^	       fftw_twiddle *tw;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon12
+tw	fftw.h	/^	       fftw_twiddle *tw;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon13
+tw	fftw.h	/^	       fftw_twiddle *tw;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon7
+tw	fftw.h	/^	       fftw_twiddle *tw;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon8
+tw	fftw.h	/^	       fftw_twiddle *tw;$/;"	m	struct:fftw_plan_node_struct::__anon5::__anon9
+twarray	fftw.h	/^     fftw_complex *twarray;$/;"	m	struct:fftw_twiddle_struct
+twiddle	fftw.h	/^	  } twiddle;$/;"	m	union:fftw_plan_node_struct::__anon5	typeref:struct:fftw_plan_node_struct::__anon5::__anon7
+twiddle_order	fftw.h	/^     const int *twiddle_order;	\/* $/;"	m	struct:__anon4
+type	fftw.h	/^     enum fftw_node_type type;	\/* TWIDDLE or NO_TWIDDLE *\/$/;"	m	struct:__anon4	typeref:enum:__anon4::fftw_node_type
+type	fftw.h	/^     enum fftw_node_type type;$/;"	m	struct:fftw_plan_node_struct	typeref:enum:fftw_plan_node_struct::fftw_node_type
+update_checkpoint	readtape.cpp	/^static void update_checkpoint() {$/;"	f	file:
+useanalysiscfgid	mb_splitter.cpp	/^int useanalysiscfgid = 0;$/;"	v
+usereceivercfgid	mb_splitter.cpp	/^int usereceivercfgid = 0;$/;"	v
+userecordercfgid	mb_splitter.cpp	/^int userecordercfgid = 0;$/;"	v
+usesplittercfgid	mb_splitter.cpp	/^int usesplittercfgid = 0;$/;"	v
+valid_run	mb_validrun.cpp	/^bool valid_run(std::vector<dr2_compact_block_t> &tapebuffer) {$/;"	f
+valid_run	validrun.cpp	/^int valid_run(tapeheader_t tapeheader[],buffer_pos_t *start_of_wu, $/;"	f
+version	mb_splittypes.h	/^  char version[16];$/;"	m	struct:tapeheader
+version	splittypes.h	/^  char version[16];$/;"	m	struct:tapeheader
+wait_for_db_wus_ondisk	mb_splitter.cpp	/^int wait_for_db_wus_ondisk() {$/;"	f
+wait_for_db_wus_ondisk	splitter.cpp	/^int wait_for_db_wus_ondisk() {$/;"	f
+wait_until_night	mb_splitter.cpp	/^int wait_until_night() {$/;"	f
+wait_until_night	splitter.cpp	/^int wait_until_night() {$/;"	f
+wd	mb_splitter.cpp	/^char wd[1024];$/;"	v
+wd	splitter.cpp	/^char wd[1024];$/;"	v
+wisdom_signature	fftw.h	/^     int wisdom_signature;$/;"	m	struct:fftw_plan_struct
+wisdom_type	fftw.h	/^     enum fftw_node_type wisdom_type;$/;"	m	struct:fftw_plan_struct	typeref:enum:fftw_plan_struct::fftw_node_type
+work	fftw.h	/^     fftw_complex *work;	\/* $/;"	m	struct:__anon14
+write_tape_header	writeheader.cpp	/^int write_tape_header(char *buffer, tapeheader_t *header) {$/;"	f
+write_wufile_blocks	mb_wufiles.cpp	/^void write_wufile_blocks(int nbytes) {$/;"	f
+write_wufile_blocks	wufiles.cpp	/^void write_wufile_blocks(int nbytes) {$/;"	f
+wu_database_id	mb_wufiles.cpp	/^std::vector<long long> wu_database_id;$/;"	v
+wu_database_id	wufiles.cpp	/^int wu_database_id[NSTRIPS];$/;"	v
+wu_template	mb_splitter.cpp	/^const char *wu_template=$/;"	v
+wu_template	splitter.cpp	/^const char *wu_template=$/;"	v
+wu_template_filename	mb_splitter.cpp	/^char wu_template_filename[1024];$/;"	v
+wu_template_filename	splitter.cpp	/^char wu_template_filename[1024];$/;"	v
+wu_template_filename_id	mb_splitter.cpp	/^const char *wu_template_filename_id = "wu_0.xml";$/;"	v
+wu_template_filename_id	splitter.cpp	/^const char *wu_template_filename_id = "wu_0.xml";$/;"	v
+wuheaders	mb_splitter.cpp	/^std::vector<workunit> wuheaders;$/;"	v
+wuheaders	splitter.cpp	/^workunit wuheaders[NSTRIPS];$/;"	v
+wulog	mb_splitter.cpp	/^FILE *wulog,*errorlog;$/;"	v
+wulog	splitter.cpp	/^FILE *wulog,*errorlog;$/;"	v

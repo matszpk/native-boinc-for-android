@@ -345,6 +345,9 @@ double HOST_INFO::host_battery_temp() {
 // If you can't figure out, return false
 //
 bool HOST_INFO::host_is_running_on_batteries() {
+    if (gstate.battery_info_initialized)
+        return !gstate.battery_info.plugged;
+    
 #if defined(__APPLE__)
     CFDictionaryRef pSource = NULL;
     CFStringRef psState;
@@ -380,9 +383,6 @@ bool HOST_INFO::host_is_running_on_batteries() {
     static char path3[64] = "";
     static char path4[64] = "";
 #endif
-    
-    if (gstate.battery_info_initialized)
-        return !gstate.battery_info.plugged;
 
     if (Detect == method) {
         // try APM in ProcFS

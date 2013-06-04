@@ -1154,6 +1154,30 @@ static void handle_auth_monitor(char* buf, bool is_local, MIOFILE& fout) {
     }
 }
 
+/*
+ * request: receive battery info
+ */
+static void handle_battery_info(char* buf, bool is_local, MIOFILE& fout) {
+    if (is_local) {
+        MIOFILE in;
+        in.init_buf_read(buf);
+    
+        if (gstate.battery_info.parse(in)!=0)
+            return;
+        
+        /*msg_printf(0, MSG_INFO, "Battery info reveived: %s,%s,%f,%f\n",
+                gstate.battery_info.present?"1":"0",
+                gstate.battery_info.plugged?"1":"0",
+                gstate.battery_info.level,
+                gstate.battery_info.temperature);*/
+        gstate.battery_info_initialized = true;
+        fout.printf("<success/>\n");
+    } else { // no access if not local
+        fout.printf("<failed/>\n");
+        return;
+    }
+}
+
 static bool complete_post_request(char* buf) {
     if (strncmp(buf, "POST", 4)) return false;
     char* p = strstr(buf, "Content-Length: ");
@@ -1401,6 +1425,8 @@ int GUI_RPC_CONN::handle_rpc() {
     } else if (match_req(request_msg, "get_notices")) {
         handle_get_notices(request_msg, *this, mf, false);
         clear_notice_refresh();
+    } else if (match_req(request_msg, "battery_info")) {
+        handle_battery_info(request_msg, is_local, mf);
     } else {
 
         // RPCs after this point require authentication,

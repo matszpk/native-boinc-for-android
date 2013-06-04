@@ -626,6 +626,15 @@ struct SIMPLE_GUI_INFO {
     void print();
 };
 
+struct BATTERY_INFO {
+    bool present;
+    bool plugged;
+    double level;
+    double temperature;
+    int parse(XML_PARSER&);
+    void print();
+};
+
 class RPC_CLIENT {
 public:
     int sock;
@@ -729,6 +738,8 @@ public:
     int get_global_prefs_override_struct(GLOBAL_PREFS&, GLOBAL_PREFS_MASK&);
     int set_global_prefs_override_struct(GLOBAL_PREFS&, GLOBAL_PREFS_MASK&);
     int set_debts(std::vector<PROJECT>);
+    
+    int send_battery_info(BATTERY_INFO& batInfo);
 };
 
 struct RPC {

@@ -788,4 +788,12 @@ public:
     std::string name;
 };
 
+struct BATTERY_INFO {
+    bool present;
+    bool plugged;
+    double level;
+    double temperature;
+    int parse(MIOFILE&);
+};
+
 #endif

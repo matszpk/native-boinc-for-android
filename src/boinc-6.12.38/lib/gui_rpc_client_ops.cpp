@@ -79,6 +79,21 @@ DISPLAY_INFO::DISPLAY_INFO() {
     memset(this, 0, sizeof(DISPLAY_INFO));
 }
 
+
+int BATTERY_INFO::parse(XML_PARSER& xp) {
+    char tag[256];
+    bool is_tag;
+    
+    while (!xp.get(tag, sizeof(tag), is_tag)) {
+        if (strcmp(tag, "/battery_info")) return 0;
+        if (xp.parse_bool(tag, "present", present)) continue;
+        if (xp.parse_bool(tag, "plugged", plugged)) continue;
+        if (xp.parse_double(tag, "level", level)) continue;
+        if (xp.parse_double(tag, "temperature", temperature)) continue;
+    }
+    return ERR_XML_PARSE;
+}
+
 int GUI_URL::parse(MIOFILE& in) {
     char buf[256];
     while (in.fgets(buf, 256)) {
@@ -2535,3 +2550,25 @@ int RPC_CLIENT::get_notices_public(int seqno, NOTICES& notices) {
     return parse_notices(rpc.fin, notices);
 }
 
+int RPC_CLIENT::send_battery_info(BATTERY_INFO& batInfo) {
+    RPC rpc(this);
+    int retval;
+    char buf[1024];
+    
+    sprintf(buf, "<battery_info>\n"
+            "  <present>%d</present>\n"
+            "  <plugged>%d</plugged>\n"
+            "  <level>%3.1f</level>\n"
+            "  <temperature>%3.1f</temperature>\n"
+            "</battery_info>\n",
+            batInfo.present?1:0,
+            batInfo.plugged?1:0,
+            batInfo.level, batInfo.temperature);
+    
+    retval = rpc.do_rpc(buf);
+    if (!retval) {
+        retval = rpc.parse_reply();
+    }
+
+    return retval;
+}

@@ -137,6 +137,8 @@ CLIENT_STATE::CLIENT_STATE()
     initialized = false;
     no_active_tasks = false;
     first_change_on_active_tasks = true;
+    // battery info
+    battery_info_initialized = false;
     last_wakeup_time = dtime();
 }
 

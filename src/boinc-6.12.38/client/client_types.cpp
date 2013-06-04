@@ -2119,3 +2119,19 @@ double MODE::delay() {
 	}
 }
 
+/*
+ * battery info
+ */
+
+
+int BATTERY_INFO::parse(MIOFILE& in) {
+    char buf[256];
+    while (in.fgets(buf, 256)) {
+        if (match_tag(buf, "</battery_info>")) return 0;
+        if (parse_bool(buf, "<present>", present)) continue;
+        if (parse_bool(buf, "<plugged>", plugged)) continue;
+        if (parse_double(buf, "<level>", level)) continue;
+        if (parse_double(buf, "<temperature>", temperature)) continue;
+    }
+    return ERR_XML_PARSE;
+}

@@ -207,17 +207,24 @@ static const char* battery_dirs[] = {
     "ds2760-battery.0",
     NULL
 };
+static const char* batt_dirname = NULL;
+static char batt_present_path[256]="/sys/class/power_supply/battery/present";
 
 // Returns current host battery level
 double HOST_INFO::host_battery_level() {
     static bool batt_files_not_found = false;
-    static char batt_present_path[256]="";
     static char batt_capacity_path[256]="";
+    
+    if (gstate.battery_info_initialized) {
+        if (!gstate.battery_info.present)
+            return -1.0;
+        return gstate.battery_info.level;
+    }
     
     if (batt_files_not_found) // if not detected
         return -1.0;
     
-    if (batt_present_path[0]==0) {
+    if (batt_dirname==NULL) {
         // detect
         int i;
         for (i = 0; battery_dirs[i]!=NULL; i++) {
@@ -230,6 +237,7 @@ double HOST_INFO::host_battery_level() {
                 snprintf(batt_capacity_path, sizeof(batt_capacity_path),
                      "/sys/class/power_supply/%s/capacity",battery_dirs[i]);
                 
+                batt_dirname = battery_dirs[i];
                 msg_printf(NULL, MSG_INFO, "[battery detect] I found directory:"
                     "/sys/class/power_supply/%s",battery_dirs[i]);
                 break;
@@ -237,6 +245,7 @@ double HOST_INFO::host_battery_level() {
         }
         if (battery_dirs[i] == NULL) { // if not found
             msg_printf(NULL, MSG_USER_ALERT, "[battery detect] I cant detect battery!");
+            gstate.monitor.push_event(MONITOR_EVENT_BATTERY_NOT_DETECTED, NULL);
             batt_files_not_found = true;
             return -1.0;
         }
@@ -264,8 +273,44 @@ double HOST_INFO::host_battery_level() {
 double HOST_INFO::host_battery_temp() {
     static bool use_semc_battery_data=false;
     static bool use_temp_file=false;
+    static bool batt_temps_path_initialized = false;
     int present = 0;
-    FILE* f = fopen("/sys/class/power_supply/battery/present","rb");
+    static char batt_batt_temp_path[256];
+    static char batt_temp_path[256];
+    if (gstate.battery_info_initialized) {
+        if (!gstate.battery_info.present)
+            return -10000.0;
+        return gstate.battery_info.temperature;
+    }
+    
+    if (batt_dirname == NULL) {
+        /* !! IMPORTANT !!
+         * in next version have to be unified with host_battery_level
+         */
+        host_battery_level(); // initialize batt_dir_name
+    }
+    if (batt_dirname != NULL && !batt_temps_path_initialized) {
+        snprintf(batt_batt_temp_path,sizeof(batt_batt_temp_path),
+                "/sys/class/power_supply/%s/batt_temp",batt_dirname);
+        FILE* f = fopen(batt_batt_temp_path,"rb");
+        if (f!=NULL)
+            fclose(f);
+        else // if not opened, use default
+            strcpy(batt_batt_temp_path,"/sys/class/power_supply/battery/batt_temp");
+        
+        snprintf(batt_temp_path,sizeof(batt_temp_path),
+                "/sys/class/power_supply/%s/temp",batt_dirname);
+        
+        f = fopen(batt_temp_path,"rb");
+        if (f!=NULL)
+            fclose(f);
+        else // if not opened, use default
+            strcpy(batt_temp_path,"/sys/class/power_supply/battery/temp");
+        batt_temps_path_initialized = true;
+    }
+    
+    FILE* f = fopen(batt_present_path,"rb");
+    
     if (f==NULL)    // not found
         return -10000.0;
     fscanf(f,"%d",&present);
@@ -276,7 +321,7 @@ double HOST_INFO::host_battery_temp() {
     f = NULL;
     int temp=0;
     if (!use_semc_battery_data && !use_temp_file) {
-        f = fopen("/sys/class/power_supply/battery/batt_temp","rb");
+        f = fopen(batt_batt_temp_path,"rb");
         if (f!=NULL) {
             fscanf(f,"%d",&temp);
             fclose(f);
@@ -295,7 +340,7 @@ double HOST_INFO::host_battery_temp() {
         }
     }
     if (use_temp_file) {
-        f = fopen("/sys/class/power_supply/battery/temp","rb");
+        f = fopen(batt_temp_path,"rb");
         if (f==NULL)
             return -10000.0;
         fscanf(f,"%d",&temp);
@@ -309,6 +354,9 @@ double HOST_INFO::host_battery_temp() {
 // If you can't figure out, return false
 //
 bool HOST_INFO::host_is_running_on_batteries() {
+    if (gstate.battery_info_initialized)
+        return !gstate.battery_info.plugged;
+
 #if defined(__APPLE__)
     CFDictionaryRef pSource = NULL;
     CFStringRef psState;
@@ -344,7 +392,7 @@ bool HOST_INFO::host_is_running_on_batteries() {
     static char path3[64] = "";
     static char path4[64] = "";
 #endif
-
+    
     if (Detect == method) {
         // try APM in ProcFS
         FILE *fapm = fopen("/proc/apm", "r");

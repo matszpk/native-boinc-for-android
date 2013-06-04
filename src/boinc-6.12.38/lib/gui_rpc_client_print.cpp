@@ -58,6 +58,14 @@ void GUI_URL::print() {
     );
 }
 
+void BATTERY_INFO::print() {
+    if (present)
+        printf("battery: level=%3.1f,temperature=%.1f, %s\n", level, temperature,
+            plugged?"plugged":"unplugged");
+    else
+        printf("battery not present, %s\n", plugged?"plugged":"unplugged");
+}
+
 void PROJECT::print_disk_usage() {
     printf("   master URL: %s\n", master_url);
     printf("   disk usage: %.2fMB\n", disk_usage/MEGA);

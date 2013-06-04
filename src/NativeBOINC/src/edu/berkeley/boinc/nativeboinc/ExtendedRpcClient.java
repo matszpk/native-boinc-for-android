@@ -97,11 +97,21 @@ public class ExtendedRpcClient extends RpcClient {
 	public boolean sendBatteryInfo(BatteryInfo batteryInfo) {
 		try {
 			mRequest.setLength(0);
-			mRequest.append("<battery_info>\n  <level>");
-			mRequest.append(batteryInfo.level);
-			mRequest.append("</level>\n  <temperature>");
-			mRequest.append(batteryInfo.temperature);
-			mRequest.append("</temperature>\n</battery_info>\n");
+			mRequest.append("<battery_info>\n  <present>");
+			mRequest.append(batteryInfo.present?"1":"0");
+			if (batteryInfo.present) {
+				mRequest.append("</present>\n  <plugged>");
+				mRequest.append(batteryInfo.plugged?"1":"0");
+				mRequest.append("</plugged>\n  <level>");
+				mRequest.append(batteryInfo.level);
+				mRequest.append("</level>\n  <temperature>");
+				mRequest.append(batteryInfo.temperature);
+				mRequest.append("</temperature>\n</battery_info>\n");
+			} else {
+				mRequest.append("</present>\n<plugged>");
+				mRequest.append(batteryInfo.plugged?"1":"0");
+				mRequest.append("</plugged>\n</battery_info>\n");
+			}
 			sendRequest(mRequest.toString());
 			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
 			if (parser == null)

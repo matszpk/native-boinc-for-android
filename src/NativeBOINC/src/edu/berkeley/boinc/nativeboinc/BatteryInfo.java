@@ -24,16 +24,18 @@ package edu.berkeley.boinc.nativeboinc;
  *
  */
 public class BatteryInfo {
+	public boolean present;
+	public boolean plugged;
 	public double level;
 	public double temperature;
-	public int state;
 	
 	public BatteryInfo() {
 	}
 	
 	public BatteryInfo(BatteryInfo info) {
+		this.present = info.present;
+		this.plugged = info.plugged;
 		this.level = info.level;
 		this.temperature = info.temperature;
-		this.state = info.state;
 	}
 }

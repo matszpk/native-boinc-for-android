@@ -69,6 +69,7 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 	
 	private SimpleDateFormat mDateFormat;
 	
+	private boolean mBatteryPresent = false;
 	private int mBatteryLevel = -1;
 	private int mTemperature = -1;
 	
@@ -89,8 +90,14 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(Intent.ACTION_BATTERY_CHANGED)) {
-				mBatteryLevel = intent.getIntExtra("level", 0);
-				mTemperature = intent.getIntExtra("temperature", 0);
+				mBatteryPresent = intent.getBooleanExtra("present", false);
+				if (mBatteryPresent) {
+					int scale = intent.getIntExtra("scale", -1);
+					mBatteryLevel = intent.getIntExtra("level", 0);
+					if (scale > 0) // rescale if not standard scale
+						mBatteryLevel = (mBatteryLevel*100)/scale;
+					mTemperature = intent.getIntExtra("temperature", 0);
+				}
 			}
 		}
 	};
@@ -122,13 +129,14 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 			}
 			
 			// bar text
-			if (mBatteryLevel != -1)
+			boolean batPresent = mBatteryPresent;
+			if (mBatteryLevel != -1 && batPresent)
 				mBarText.setText(mBatteryLevel + mDateFormat.format(new Date()));
 			else
 				mBarText.setText("---" + mDateFormat.format(new Date()));
 			
 			
-			if (mTemperature != -1)
+			if (mTemperature != -1 && batPresent)
 				mThermBarText.setText((mTemperature/10) + "." + (mTemperature%10) + " °C");
 			else
 				mThermBarText.setText("---");

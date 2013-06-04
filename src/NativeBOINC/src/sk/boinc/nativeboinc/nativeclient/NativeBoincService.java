@@ -109,6 +109,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 	private boolean mPreviousStateOfIsWorking = false;
 	private boolean mIsWorking = false;
 	
+	private AtomicBoolean mStartingClient = new AtomicBoolean(false);
+	private AtomicBoolean mShuttingDownClient = new AtomicBoolean(false);
+	
 	/*
 	 * cpu usage suspend happens (indicator)
 	 */
@@ -367,8 +370,15 @@ public class NativeBoincService extends Service implements MonitorListener,
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(Intent.ACTION_BATTERY_CHANGED)) {
 				BatteryInfo batteryInfo = new BatteryInfo();
-				batteryInfo.level = (int)intent.getIntExtra("level", 0);
-				batteryInfo.temperature = ((int)intent.getIntExtra("level", 0))/10.0;
+				batteryInfo.present = intent.getBooleanExtra("present", false);
+				batteryInfo.plugged = intent.getIntExtra("plugged", 0)!=0; 
+				if (batteryInfo.present) {
+					int scale = (int)intent.getIntExtra("scale", -1);
+					batteryInfo.level = (int)intent.getIntExtra("level", 0);
+					if (scale > 0)
+						batteryInfo.level = (batteryInfo.level*100)/scale;
+					batteryInfo.temperature = ((int)intent.getIntExtra("temperature", 0))/10.0;
+				}
 				mBatteryInfo = batteryInfo;
 			}
 		}
@@ -488,6 +498,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 			mMonitorThread.quitFromThread();
 		// force stop
 		stopNotifyingBatteryState();
+		mShuttingDownClient.set(false);
 		
 		synchronized(this) {
 			mListeners.clear();
@@ -1001,7 +1012,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 	 */
 	public void startClient(boolean secondStart) {
 		if (Logging.DEBUG) Log.d(TAG, "Starting NativeBoincThread");
-		if (mNativeBoincThread == null) {
+		if (mNativeBoincThread == null && !mStartingClient.getAndSet(true)) {
 			clearPendingErrorMessage();
 			
 			String text = getString(R.string.nativeClientStarting);
@@ -1044,7 +1055,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 	 */
 	public void shutdownClient() {
 		if (Logging.DEBUG) Log.d(TAG, "Shutting down native client");
-		if (mNativeBoincThread != null) {
+		if (mNativeBoincThread != null && !mShuttingDownClient.getAndSet(true)) {
 			clearPendingErrorMessage();
 			stopNotifyingBatteryState();
 			
@@ -1219,6 +1230,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 	private synchronized void notifyClientStart() {
 		// inform that, service finished work
 		mIsWorking = false;
+		mStartingClient.set(false);
 		if (mStartAtRestarting || mApp.restartedAfterReinstall()) {
 			mIsRestarted = true;
 			mStartAtRestarting = false;
@@ -1258,6 +1270,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 					mMonitorThread.quitFromThread();
 					mMonitorThread = null;
 				}
+				mShuttingDownClient.set(false);
 				// inform that, service finished work
 				mIsWorking = false;
 				notifyChangeIsWorking();

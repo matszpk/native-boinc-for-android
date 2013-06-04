@@ -23,5 +23,6 @@
   	android:minWidth="300dp"
   	android:minHeight="300dp"
   	android:updatePeriodMillis="0"
-  	android:initialLayout="@layout/tablet_widget">>
+  	android:previewImage="@drawable/tablet_widget"
+  	android:initialLayout="@layout/tablet_widget">
 </appwidget-provider>

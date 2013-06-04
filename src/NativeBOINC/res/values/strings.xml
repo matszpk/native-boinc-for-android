@@ -505,7 +505,7 @@
 	<string name="installAddProject">Please tap \'Add  project\' button to add first BOINC project, or \'Synchronize BAM\' if you want to synchronize client with BAM.</string>
 	<string name="installFinished">Installation has finished. Please tap \'Finish\' button.</string>
 	<string name="installWidgetFinished">Hint: We recommends to use NativeBOINC widget to control native client.</string>
-	<string name="installInfoFinished">Hint: You can also browse Project Wiki on \'http://nativeboinc.org/\' to get help and informations.</string>
+	<string name="installInfoFinished">Hint: You can also browse main site on \'http://nativeboinc.org/\' to get help and informations.</string>
 	<string name="installFinishedBenchmark">During installing first project, BOINC can run benchmark, which works by 30 seconds.</string>
 
 	<string name="installReadBefore">READ BEFORE INSTALLATION:</string>
@@ -706,6 +706,7 @@
 	<string name="nativeClientShutdown">Native client was stopped</string>
 	
 	<string name="nativeClientWorking">Native client is working</string>
+	<string name="nativeClientNotifyingBatteryInfo">BOINC client receives about battery state from NativeBOINC.</string>
 	
 	<!-- boinc Exit code text -->
 	<string name="nativeClientWaitFailed">Native client was loosed (but still working)!</string>
@@ -756,6 +757,7 @@
 	<string name="nativeClientConfigError">Unable to configure native client</string>
 	<string name="nativeClientUpdateAppsError">Unable to update apps</string>
 	<string name="nativeClientNetCommError">Unable to network communication</string>
+	<string name="nativeClientBatteryInfoError">Unable to notify client about battery state</string>
 	<string name="nativeClientResultsError">Unable to get results from native client</string>
 	<string name="nativeClientProjectsError">Unable to get projects from native client</string>
 	

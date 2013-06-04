@@ -52,14 +52,17 @@ import sk.boinc.nativeboinc.util.TaskItem;
 import sk.boinc.nativeboinc.util.UpdateItem;
 
 import edu.berkeley.boinc.lite.Project;
+import edu.berkeley.boinc.nativeboinc.BatteryInfo;
 import edu.berkeley.boinc.nativeboinc.ClientEvent;
 import edu.berkeley.boinc.nativeboinc.ExtendedRpcClient;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Binder;
@@ -299,6 +302,24 @@ public class NativeBoincService extends Service implements MonitorListener,
 			channel.finish(WorkerOp.DoNetComm);
 		}
 		
+		public void sendBatteryInfoDone(int channelId) {
+			PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
+			
+			AbstractNativeBoincListener[] listeners = null;
+			synchronized (NativeBoincService.this) {
+				listeners = mListeners.toArray(new AbstractNativeBoincListener[0]);
+			}
+			
+			for (AbstractNativeBoincListener listener: listeners)
+				if (listener instanceof NativeBoincBatteryInfoListener) {
+					NativeBoincBatteryInfoListener callback = (NativeBoincBatteryInfoListener)listener;
+					if (callback.getRunnerServiceChannelId() == channelId)
+						callback.onSendBatteryInfoDone();
+				}
+			
+			channel.finish(WorkerOp.DoNetComm);
+		}
+		
 		public void notifyChangeIsWorking(boolean isWorking) {
 			AbstractNativeBoincListener[] listeners = null;
 			synchronized (NativeBoincService.this) {
@@ -332,6 +353,40 @@ public class NativeBoincService extends Service implements MonitorListener,
 					((NativeBoincAutoInstallListener)listener).projectsNotFound(projectUrls);
 		}
 	}
+	
+	private boolean mBatteryNotifying = false;
+	private BatteryInfo mBatteryInfo = null;
+	private static final int BATTERY_NOTIFY_PERIOD = 5000;
+					
+	/*
+	 * notify battery info handler
+	 */
+	private BroadcastReceiver mBatteryStateReceiver = new BroadcastReceiver() {
+		
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals(Intent.ACTION_BATTERY_CHANGED)) {
+				BatteryInfo batteryInfo = new BatteryInfo();
+				batteryInfo.level = (int)intent.getIntExtra("level", 0);
+				batteryInfo.temperature = ((int)intent.getIntExtra("level", 0))/10.0;
+				mBatteryInfo = batteryInfo;
+			}
+		}
+	};
+	
+	private Runnable mBatteryNotifier = new Runnable() {
+
+		@Override
+		public void run() {
+			if (mBatteryInfo != null) {
+				BatteryInfo batInfo = new BatteryInfo(mBatteryInfo);
+				sendBatteryInfo(NATIVEBOINC_ID, batInfo);
+			}
+			// next run
+			if (mListenerHandler != null && mBatteryNotifying)
+				mListenerHandler.postDelayed(mBatteryNotifier, BATTERY_NOTIFY_PERIOD);
+		}
+	};
 	
 	private ListenerHandler mListenerHandler = null;
 	private MonitorThread.ListenerHandler mMonitorListenerHandler;
@@ -431,6 +486,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 			mWakeLockHolder.destroy();
 		if (mMonitorThread != null)
 			mMonitorThread.quitFromThread();
+		// force stop
+		stopNotifyingBatteryState();
 		
 		synchronized(this) {
 			mListeners.clear();
@@ -989,6 +1046,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 		if (Logging.DEBUG) Log.d(TAG, "Shutting down native client");
 		if (mNativeBoincThread != null) {
 			clearPendingErrorMessage();
+			stopNotifyingBatteryState();
 			
 			mShutdownCommandWasPerformed = true;
 			/* start killer */
@@ -1136,6 +1194,21 @@ public class NativeBoincService extends Service implements MonitorListener,
 		return false;
 	}
 	
+	public boolean sendBatteryInfo(int channelId, BatteryInfo batteryInfo) {
+		if (Logging.DEBUG) Log.d(TAG, "send battery info");
+		
+		PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
+		
+		WorkerOp workerOp = WorkerOp.SendBatteryInfo;
+		if (mWorkerThread != null) {
+			if (channel.begin(workerOp)) {
+				mWorkerThread.sendBatteryInfo(channelId, batteryInfo);
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/* retrieve pending output for specified operation */
 	public Object getPedingWorkerOutput(int channelId, WorkerOp workerOp) {
 		PendingController<WorkerOp> channel = mWorkerPendingChannels[channelId];
@@ -1233,6 +1306,28 @@ public class NativeBoincService extends Service implements MonitorListener,
 					mListenerHandler.notifyChangeIsWorking(currentIsWorking);
 				}
 			});
+		}
+	}
+	
+	/**
+	 * start notify battery info
+	 */
+	private void startNotifyingBatteryState() {
+		if (!mBatteryNotifying) {
+			if (mListenerHandler != null) {
+				registerReceiver(mBatteryStateReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+				mListenerHandler.post(mBatteryNotifier);
+			}
+			mBatteryNotifying = true;
+		}
+	}
+	
+	public void stopNotifyingBatteryState() {
+		if (mBatteryNotifying) {
+			if (mListenerHandler != null)
+				mListenerHandler.removeCallbacks(mBatteryNotifier);
+			unregisterReceiver(mBatteryStateReceiver);
+			mBatteryNotifying = false;
 		}
 	}
 	
@@ -1443,6 +1538,11 @@ public class NativeBoincService extends Service implements MonitorListener,
 				mNotificationController.notifyClientEvent(title, title, false);
 			}
 			mCpuThrottleSuspendAll = false;
+			break;
+		case ClientEvent.EVENT_BATTERY_NOT_DETECTED:
+			// start notify client about battery state
+			startNotifyingBatteryState();
+			Toast.makeText(mApp, R.string.nativeClientNotifyingBatteryInfo, Toast.LENGTH_LONG).show();
 			break;
 		}
 	}

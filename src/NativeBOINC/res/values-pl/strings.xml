@@ -503,7 +503,7 @@
 	<string name="installAddProject">Proszę stuknąć przycisk \'Dodaj projekt\' by dodać pierwszy projekt BOINC, lub \'Synchronizuj z BAM\' jeśli chcesz synchronizować klienta z BAM.</string>
 	<string name="installFinished">Instalacja została zakończona. Proszę stuknąć przycisk \'Zakończ\'.</string>
 	<string name="installWidgetFinished">Podpowiedź: Zalecamy używanie widgeta NativeBOINC do kontrolowania klienta natywnego.</string>
-	<string name="installInfoFinished">Hint: You can also browse Project Wiki on \'http://nativeboinc.org/\' to get help and informations.</string>
+	<string name="installInfoFinished">Podpowiedź: Możesz przeglądać stronę \'http://nativeboinc.org/\' w celu dowiedzienia się o informacjach i pomocy.</string>
 	<string name="installFinishedBenchmark">Podczas instalowania perwszego projektu, BOINC może uruchomić benchmark, który pracuje przez 30 sekund.</string>
 
 	<string name="installReadBefore">PRZECZYTAJ PRZED INSTALACJĄ:</string>

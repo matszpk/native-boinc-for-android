@@ -1,6 +1,6 @@
 /* 
- * AndroBOINC - BOINC Manager for Android
- * Copyright (C) 2010, Pavol Michalec
+ * NativeBOINC - Native BOINC Client with Manager
+ * Copyright (C) 2011, Mateusz Szpakowski
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,6 +87,30 @@ public class ExtendedRpcClient extends RpcClient {
 		catch (IOException e) {
 			if (Logging.WARNING) Log.w(TAG, "error in authenticateMonitor()", e);
 			return null;
+		}
+	}
+	
+	/**
+	 * inform client about battery state
+	 * @return true if success
+	 */
+	public boolean sendBatteryInfo(BatteryInfo batteryInfo) {
+		try {
+			mRequest.setLength(0);
+			mRequest.append("<battery_info>\n  <level>");
+			mRequest.append(batteryInfo.level);
+			mRequest.append("</level>\n  <temperature>");
+			mRequest.append(batteryInfo.temperature);
+			mRequest.append("</temperature>\n</battery_info>\n");
+			sendRequest(mRequest.toString());
+			SimpleReplyParser parser = SimpleReplyParser.parse(receiveReply());
+			if (parser == null)
+				return false;
+			mLastErrorMessage = parser.getErrorMessage();
+			return parser.result();
+		} catch(IOException e) {
+			if (Logging.WARNING) Log.w(TAG, "error in sendBatteryInfo()", e);
+			return false;
 		}
 	}
 }

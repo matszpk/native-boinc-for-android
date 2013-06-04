@@ -35,7 +35,7 @@ PLANY WERSJI 0.4.5/0.4.6
   * dodać możliwość instalacji na zewnętrznej pamięci sdcard (/mnt/extSdCard)
 
   * rozszerz zakres informacji bugcatcher:
-    - dodaj czas wykonania, ew. kod aplikacji (kod aplikacji nie ma)
+    - dodaj czas wykonania, ew. kod aplikacji (kod aplikacji nie ma), kody bibliotek)
   * poprawić obsługę libexecwrapper (rozszerzono sprawdzanie katalogu sdcard)
     - sprawdzanie katalogu sdcard (mozliwe nazwy, pobieranie z native boinc poprzez envvar)
   // istotne
@@ -43,7 +43,7 @@ PLANY WERSJI 0.4.5/0.4.6
   //
   * dodaj możliwość użycia wbudowanego klucza PGP z nativeboinc (z ostrzeżeniem, że póżniej będzie trzeba
     zaktualizować). Dodaj możliwość pobrania klucza PGP z sieci lub automatyczne pobieranie z sieci.
-
+  
 Klient:
 * poprawic wychodzenie z programu (klienta) (czasami jest zbyt powolne)
 * zbadać dlaczego projekty znikają po aktualizacjach
@@ -52,7 +52,7 @@ Klient:
   różnych urządzeniach
 * dodać obsługę battery health, poprawić obsługę battery temp (plik temp i batt_temp)
 * wprowadzic poprawki z oficjalnego boinca na android (z berkeley)
-* dodaj nową platformę (dla neon)
+* sprawdź działanie zmiany priorytetu
 
 BOINC API:
 * poprawić SEGFAULT przy wychodzeniu z aplikacji (sprawdz dokładnie)

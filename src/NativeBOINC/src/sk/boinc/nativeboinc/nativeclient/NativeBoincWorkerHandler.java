@@ -34,6 +34,7 @@ import edu.berkeley.boinc.lite.Project;
 import edu.berkeley.boinc.lite.Result;
 import edu.berkeley.boinc.lite.RpcClient;
 import edu.berkeley.boinc.lite.Workunit;
+import edu.berkeley.boinc.nativeboinc.BatteryInfo;
 import edu.berkeley.boinc.nativeboinc.ExtendedRpcClient;
 import edu.berkeley.boinc.nativeboinc.UpdateProjectAppsReply;
 import android.content.Context;
@@ -302,6 +303,22 @@ public class NativeBoincWorkerHandler extends Handler {
 	}
 	
 	/**
+	 * send battery info
+	 */
+	public void sendBatteryInfo(int channelId, BatteryInfo batteryInfo) {
+		if (Logging.DEBUG) Log.d(TAG, "Send battery info");
+		
+		if (mRpcClient == null)
+			return;
+		
+		if (!mRpcClient.sendBatteryInfo(batteryInfo)) {
+			notifyNativeBoincServiceError(channelId, WorkerOp.SendBatteryInfo,
+					mContext.getString(R.string.nativeClientBatteryInfoError));
+		}
+		notifySendBatteryInfo(channelId);
+	}
+	
+	/**
 	 * shutdowns client
 	 */
 	public void shutdownClient() {
@@ -371,6 +388,16 @@ public class NativeBoincWorkerHandler extends Handler {
 			public void run() {
 				if (mListenerHandler != null)
 					mListenerHandler.networkCommunicationDone(channelId);
+			}
+		});
+	}
+	
+	private synchronized void notifySendBatteryInfo(final int channelId) {
+		mListenerHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				if (mListenerHandler != null)
+					mListenerHandler.sendBatteryInfoDone(channelId);
 			}
 		});
 	}

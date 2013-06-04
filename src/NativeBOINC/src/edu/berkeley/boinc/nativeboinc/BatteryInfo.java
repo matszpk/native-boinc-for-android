@@ -19,13 +19,21 @@
 
 package edu.berkeley.boinc.nativeboinc;
 
-import java.util.ArrayList;
-
 /**
  * @author mat
  *
  */
-public class UpdateProjectAppsReply {
-	public int error_num = 0;
-	public ArrayList<String> messages = new ArrayList<String>();
+public class BatteryInfo {
+	public double level;
+	public double temperature;
+	public int state;
+	
+	public BatteryInfo() {
+	}
+	
+	public BatteryInfo(BatteryInfo info) {
+		this.level = info.level;
+		this.temperature = info.temperature;
+		this.state = info.state;
+	}
 }

@@ -16,16 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
-
-package edu.berkeley.boinc.nativeboinc;
-
-import java.util.ArrayList;
+package sk.boinc.nativeboinc.nativeclient;
 
 /**
  * @author mat
  *
  */
-public class UpdateProjectAppsReply {
-	public int error_num = 0;
-	public ArrayList<String> messages = new ArrayList<String>();
+public interface NativeBoincBatteryInfoListener extends NativeBoincServiceListener {
+	public abstract void onSendBatteryInfoDone();
 }

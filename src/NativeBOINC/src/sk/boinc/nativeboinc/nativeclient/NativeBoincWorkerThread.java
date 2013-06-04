@@ -18,6 +18,7 @@
  */
 package sk.boinc.nativeboinc.nativeclient;
 
+import edu.berkeley.boinc.nativeboinc.BatteryInfo;
 import edu.berkeley.boinc.nativeboinc.ExtendedRpcClient;
 import sk.boinc.nativeboinc.debug.Logging;
 import android.content.Context;
@@ -127,6 +128,15 @@ public class NativeBoincWorkerThread extends Thread {
 			@Override
 			public void run() {
 				mHandler.doNetworkCommunication(channelId);
+			}
+		});
+	}
+	
+	public void sendBatteryInfo(final int channelId, final BatteryInfo batteryInfo) {
+		mHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				mHandler.sendBatteryInfo(channelId, batteryInfo);
 			}
 		});
 	}

@@ -320,7 +320,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 						callback.onSendBatteryInfoDone();
 				}
 			
-			channel.finish(WorkerOp.DoNetComm);
+			channel.finish(WorkerOp.SendBatteryInfo);
 		}
 		
 		public void notifyChangeIsWorking(boolean isWorking) {
@@ -498,7 +498,9 @@ public class NativeBoincService extends Service implements MonitorListener,
 			mMonitorThread.quitFromThread();
 		// force stop
 		stopNotifyingBatteryState();
+		// reset starting/shuttingdown indicators
 		mShuttingDownClient.set(false);
+		mStartingClient.set(false);
 		
 		synchronized(this) {
 			mListeners.clear();
@@ -1295,6 +1297,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 		mIsWorking = false;
 		mStartAtRestarting = false;
 		mIsRestarted = false;
+		mShuttingDownClient.set(false);
+		mStartingClient.set(false);
 		notifyChangeIsWorking();
 		
 		mListenerHandler.post(new Runnable() {
@@ -1542,8 +1546,8 @@ public class NativeBoincService extends Service implements MonitorListener,
 				// notify only if reason is not CPU THROTTLE!
 				title = getString(R.string.eventSuspendAll);
 				mNotificationController.notifyClientEvent(title, title, false);
+			} else
 				mCpuThrottleSuspendAll = true; // inform, that tasks has been suspended by cpu throttle
-			}
 			break;
 		case ClientEvent.EVENT_RUN_TASKS:
 			if (!mCpuThrottleSuspendAll) { // if not reason cpu throttle

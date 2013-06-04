@@ -47,7 +47,7 @@ PLANY WERSJI 0.4.5/0.4.6
 Klient:
 * poprawic wychodzenie z programu (klienta) (czasami jest zbyt powolne)
 * zbadać dlaczego projekty znikają po aktualizacjach
-* dodac mechanizm pobierania danych o baterii z innego programu
+* dodac mechanizm pobierania danych o baterii z innego programu (zrobione)
 * poprawić pobieranie info o zasobach aplikacji (ilosc wykorzystanej pamieci i itd) na
   różnych urządzeniach
 * dodać obsługę battery health, poprawić obsługę battery temp (plik temp i batt_temp)

@@ -1207,11 +1207,11 @@ static void handle_battery_info(GUI_RPC_CONN& grc) {
         if (gstate.battery_info.parse(grc.xp)!=0)
             return;
         
-        msg_printf(0, MSG_INFO, "Battery info reveived: %s,%s,%f,%f\n",
+        /*msg_printf(0, MSG_INFO, "Battery info reveived: %s,%s,%f,%f\n",
                 gstate.battery_info.present?"1":"0",
                 gstate.battery_info.plugged?"1":"0",
                 gstate.battery_info.level,
-                gstate.battery_info.temperature);
+                gstate.battery_info.temperature);*/
         gstate.battery_info_initialized = true;
         grc.mfout.printf("<success/>\n");
     } else { // no access if not local

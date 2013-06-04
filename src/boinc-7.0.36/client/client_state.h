@@ -99,6 +99,10 @@ struct CLIENT_STATE {
     NET_STATS net_stats;
     ACTIVE_TASK_SET active_tasks;
     HOST_INFO host_info;
+    /* battery info from other program */
+    bool battery_info_initialized;
+    BATTERY_INFO battery_info;
+    /* battery info from other program -- */
 
     VERSION_INFO core_client_version;
     string statefile_platform_name;

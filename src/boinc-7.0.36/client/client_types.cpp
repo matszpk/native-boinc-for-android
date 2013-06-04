@@ -1199,3 +1199,20 @@ double RUN_MODE::delay() {
         return 0;
     }
 }
+
+
+/*
+ * battery info
+ */
+
+
+int BATTERY_INFO::parse(XML_PARSER& xp) {
+    while (!xp.get_tag()) {
+        if (xp.match_tag("/battery_info")) return 0;
+        if (xp.parse_bool("present", present)) continue;
+        if (xp.parse_bool("plugged", plugged)) continue;
+        if (xp.parse_double("level", level)) continue;
+        if (xp.parse_double("temperature", temperature)) continue;
+    }
+    return ERR_XML_PARSE;
+}

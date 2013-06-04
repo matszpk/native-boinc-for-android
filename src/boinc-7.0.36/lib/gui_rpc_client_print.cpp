@@ -61,6 +61,14 @@ void DAILY_XFER_HISTORY::print() {
     }
 }
 
+void BATTERY_INFO::print() {
+    if (present)
+        printf("battery: level=%3.1f,temperature=%.1f, %s\n", level, temperature,
+            plugged?"plugged":"unplugged");
+    else
+        printf("battery not present, %s\n", plugged?"plugged":"unplugged");
+}
+
 void GUI_URL::print() {
     printf(
         "GUI URL:\n"

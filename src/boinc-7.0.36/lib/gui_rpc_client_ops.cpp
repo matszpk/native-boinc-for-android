@@ -100,6 +100,17 @@ int DAILY_XFER_HISTORY::parse(XML_PARSER& xp) {
     return 0;
 }
 
+int BATTERY_INFO::parse(XML_PARSER& xp) {
+    while (!xp.get_tag()) {
+        if (xp.match_tag("/battery_info")) return 0;
+        if (xp.parse_bool("present", present)) continue;
+        if (xp.parse_bool("plugged", plugged)) continue;
+        if (xp.parse_double("level", level)) continue;
+        if (xp.parse_double("temperature", temperature)) continue;
+    }
+    return ERR_XML_PARSE;
+}
+
 int GUI_URL::parse(XML_PARSER& xp) {
     while (!xp.get_tag()) {
         if (!xp.is_tag) continue;
@@ -2578,4 +2589,27 @@ int RPC_CLIENT::get_daily_xfer_history(DAILY_XFER_HISTORY& dxh) {
     retval = rpc.do_rpc("<get_daily_xfer_history/>\n");
     if (retval) return retval;
     return dxh.parse(rpc.xp);
+}
+
+int RPC_CLIENT::send_battery_info(BATTERY_INFO& batInfo) {
+    RPC rpc(this);
+    int retval;
+    char buf[1024];
+    
+    sprintf(buf, "<battery_info>\n"
+            "  <present>%d</present>\n"
+            "  <plugged>%d</plugged>\n"
+            "  <level>%3.1f</level>\n"
+            "  <temperature>%3.1f</temperature>\n"
+            "</battery_info>\n",
+            batInfo.present?1:0,
+            batInfo.plugged?1:0,
+            batInfo.level, batInfo.temperature);
+    
+    retval = rpc.do_rpc(buf);
+    if (!retval) {
+        retval = rpc.parse_reply();
+    }
+
+    return retval;
 }

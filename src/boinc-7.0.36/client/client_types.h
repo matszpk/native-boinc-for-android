@@ -376,6 +376,14 @@ struct PLATFORM {
     std::string name;
 };
 
+struct BATTERY_INFO {
+    bool present;
+    bool plugged;
+    double level;
+    double temperature;
+    int parse(XML_PARSER&);
+};
+
 extern int parse_project_files(XML_PARSER&, std::vector<FILE_REF>&);
 
 #endif

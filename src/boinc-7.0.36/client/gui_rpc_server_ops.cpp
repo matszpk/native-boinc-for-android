@@ -1199,6 +1199,27 @@ static void handle_auth_monitor(GUI_RPC_CONN& grc) {
     }
 }
 
+/*
+ * request: receive battery info
+ */
+static void handle_battery_info(GUI_RPC_CONN& grc) {
+    if (grc.is_local) {
+        if (gstate.battery_info.parse(grc.xp)!=0)
+            return;
+        
+        msg_printf(0, MSG_INFO, "Battery info reveived: %s,%s,%f,%f\n",
+                gstate.battery_info.present?"1":"0",
+                gstate.battery_info.plugged?"1":"0",
+                gstate.battery_info.level,
+                gstate.battery_info.temperature);
+        gstate.battery_info_initialized = true;
+        grc.mfout.printf("<success/>\n");
+    } else { // no access if not local
+        grc.mfout.printf("<failed/>\n");
+        return;
+    }
+}
+
 static bool complete_post_request(char* buf) {
     if (strncmp(buf, "POST", 4)) return false;
     char* p = strstr(buf, "Content-Length: ");
@@ -1329,6 +1350,8 @@ GUI_RPC gui_rpcs[] = {
     GUI_RPC("project_reset", handle_project_reset,                  true,   true,   false),
     GUI_RPC("project_update", handle_project_update,                true,   true,   false),
     GUI_RPC("retry_file_transfer", handle_retry_file_transfer,      true,   true,   false),
+    
+    GUI_RPC("battery_info", handle_battery_info,                    true,   false,  false),
 };
 
 // return nonzero only if we need to close the connection

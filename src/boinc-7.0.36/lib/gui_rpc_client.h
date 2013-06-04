@@ -626,6 +626,15 @@ struct DAILY_XFER_HISTORY {
     void print();
 };
 
+struct BATTERY_INFO {
+    bool present;
+    bool plugged;
+    double level;
+    double temperature;
+    int parse(XML_PARSER&);
+    void print();
+};
+
 struct RPC_CLIENT {
     int sock;
     double start_time;
@@ -726,6 +735,8 @@ struct RPC_CLIENT {
     int get_cc_config(CONFIG& config, LOG_FLAGS& log_flags);
     int set_cc_config(CONFIG& config, LOG_FLAGS& log_flags);
     int get_daily_xfer_history(DAILY_XFER_HISTORY&);
+    
+    int send_battery_info(BATTERY_INFO& batInfo);
 };
 
 struct RPC {

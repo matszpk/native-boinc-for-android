@@ -51,7 +51,7 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	
 	private static final String TAG = "ProgressActivity";
 	
-	private ProgressItem[] mCurrentProgress;
+	private ProgressItem[] mCurrentProgress = null;
 	
 	@Override
 	public int getInstallerChannelId() {
@@ -444,6 +444,8 @@ public class ProgressActivity extends ServiceBoincActivity implements InstallerP
 	}
 	
 	private int getProgressItem(String distribName) {
+		if (mInstaller == null) // if activity exited
+			return -1;
 		ProgressItem progress = null;
 		int position = 0;
 		if (mCurrentProgress == null) {

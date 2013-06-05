@@ -381,6 +381,12 @@ struct BATTERY_INFO {
     bool plugged;
     double level;
     double temperature;
+    BATTERY_INFO() {
+        present = false;
+        plugged = false;
+        level = -1.0;
+        temperature = -10000.0;
+    }
     int parse(XML_PARSER&);
 };
 

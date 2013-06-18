@@ -210,6 +210,14 @@ static const char* battery_dirs[] = {
 static const char* batt_dirname = NULL;
 static char batt_present_path[256]="/sys/class/power_supply/battery/present";
 
+static void send_battery_detect_problem() {
+    static bool notify_battery_detect_problem_sent = false;
+    if (!notify_battery_detect_problem_sent) {
+        gstate.monitor.push_event(MONITOR_EVENT_BATTERY_NOT_DETECTED, NULL);
+        notify_battery_detect_problem_sent = true;
+    }
+}
+
 // Returns current host battery level
 double HOST_INFO::host_battery_level() {
     static bool batt_files_not_found = false;
@@ -245,7 +253,7 @@ double HOST_INFO::host_battery_level() {
         }
         if (battery_dirs[i] == NULL) { // if not found
             msg_printf(NULL, MSG_USER_ALERT, "[battery detect] I cant detect battery!");
-            gstate.monitor.push_event(MONITOR_EVENT_BATTERY_NOT_DETECTED, NULL);
+            send_battery_detect_problem();
             batt_files_not_found = true;
             return -1.0;
         }
@@ -341,8 +349,11 @@ double HOST_INFO::host_battery_temp() {
     }
     if (use_temp_file) {
         f = fopen(batt_temp_path,"rb");
-        if (f==NULL)
+        if (f==NULL) {
+            msg_printf(NULL, MSG_USER_ALERT, "[battery detect] I cant detect battery temperature!");
+            send_battery_detect_problem();
             return -10000.0;
+        }
         fscanf(f,"%d",&temp);
         fclose(f);
     }
@@ -523,7 +534,12 @@ bool HOST_INFO::host_is_running_on_batteries() {
                 fsys = fopen(path4, "r");
                 if (!fsys)
 #endif
+                {
+                    msg_printf(NULL, MSG_USER_ALERT, "[battery detect] I cant power supply!");
+                    // inform about problems parent program
+                    send_battery_detect_problem();
                     return false;
+                }
             }
 
             int online;

@@ -237,7 +237,8 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 		
 		/* native autostart */
 		ListPreference listPref = (ListPreference)findPreference(PreferenceName.NATIVE_AUTOSTART);
-		
+		// disable all option for boinc client
+		listPref.setEnabled(!mApp.isNoBoincInstallation());
 		listPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 			
 			@Override
@@ -803,14 +804,11 @@ public class NativeClientActivity extends PreferenceActivity implements Abstract
 	
 	@Override
 	public void onOperation(String distribName, String opDescription) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onOperationProgress(String distribName, String opDescription,
 			int progress) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override

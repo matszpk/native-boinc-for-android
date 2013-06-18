@@ -26,15 +26,20 @@ import java.io.File;
  */
 public class RuntimeUtils {
 
+	private static int sCpusCount = -1;
+	
 	public static int getRealCPUCount() {
-		int cpusCount = Runtime.getRuntime().availableProcessors();
-		
-		for (int i = 0; i < 17; i++) {
-			File cpuFile = new File("/sys/devices/system/cpu/cpu"+i);
-			if (!cpuFile.exists())
-				return Math.max(cpusCount, i);
+		if (sCpusCount == -1) {
+			int cpusCount = Runtime.getRuntime().availableProcessors();
+			
+			for (int i = 0; i < 17; i++) {
+				File cpuFile = new File("/sys/devices/system/cpu/cpu"+i);
+				if (!cpuFile.exists())
+					return Math.max(cpusCount, i);
+			}
+			sCpusCount = Math.max(cpusCount, 17);
 		}
 		
-		return Math.max(cpusCount, 17);
+		return sCpusCount;
 	}
 }

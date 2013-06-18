@@ -344,8 +344,6 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 
 	@Override
 	public void binariesToUpdateFromSDCard(String[] projectNames) {
-		// TODO Auto-generated method stub
-		
 	}
 }
 

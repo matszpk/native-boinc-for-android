@@ -212,8 +212,6 @@ public class RefreshWidgetHandler extends Handler implements NativeBoincStateLis
 
 	@Override
 	public void onChangeRunnerIsWorking(boolean isWorking) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

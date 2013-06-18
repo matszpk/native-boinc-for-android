@@ -1700,23 +1700,18 @@ public class NativeBoincService extends Service implements MonitorListener,
 
 	@Override
 	public void currentClientDistrib(ClientDistrib clientDistrib) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void onChangeInstallerIsWorking(boolean isWorking) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void binariesToUpdateFromSDCard(String[] projectNames) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	/* event handling for project installation */

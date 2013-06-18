@@ -323,22 +323,15 @@ public class UpdateFromSDCardActivity extends ServiceBoincActivity implements
 	}
 
 	@Override
-	public void currentProjectDistribList(
-			ArrayList<ProjectDistrib> projectDistribs) {
-		// TODO Auto-generated method stub
-
+	public void currentProjectDistribList(ArrayList<ProjectDistrib> projectDistribs) {
 	}
 
 	@Override
 	public void currentClientDistrib(ClientDistrib clientDistrib) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

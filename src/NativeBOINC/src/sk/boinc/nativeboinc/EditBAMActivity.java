@@ -352,7 +352,6 @@ public class EditBAMActivity extends ServiceBoincActivity implements ClientAccou
 
 	@Override
 	public boolean currentBAMInfo(AccountMgrInfo accountMgrInfo) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 }

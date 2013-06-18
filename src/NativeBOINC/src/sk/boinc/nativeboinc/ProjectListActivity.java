@@ -679,8 +679,6 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 
 	@Override
 	public void onPollCancel(int opFlags) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -690,19 +688,14 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 
 	@Override
 	public void onClientIsWorking(boolean isWorking) {
-		// TODO Auto-generated method stub
 		setProgressBarIndeterminateVisibility(isWorking);
 	}
 
 	@Override
 	public void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void binariesToUpdateFromSDCard(String[] projectNames) {
-		// TODO Auto-generated method stub
-		
 	}
 }

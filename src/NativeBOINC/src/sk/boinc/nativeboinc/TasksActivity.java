@@ -846,8 +846,6 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 
 	@Override
 	public void onClientIsWorking(boolean isWorking) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

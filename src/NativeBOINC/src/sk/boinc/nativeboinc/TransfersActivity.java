@@ -740,8 +740,6 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 
 	@Override
 	public void onClientIsWorking(boolean isWorking) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override

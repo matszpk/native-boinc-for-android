@@ -351,7 +351,6 @@ public class BugCatcherService extends Service {
 	private static final Comparator<BugReportInfo> sBugReportComparer = new Comparator<BugReportInfo>() {
 		@Override
 		public int compare(BugReportInfo lhs, BugReportInfo rhs) {
-			// TODO Auto-generated method stub
 			return lhs.getId() < rhs.getId() ? 1 : lhs.getId() == rhs.getId() ? 0 : -1;
 		}
 	};

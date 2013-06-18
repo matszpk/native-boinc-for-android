@@ -458,8 +458,6 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 	
 	@Override
 	public void onClientIsWorking(boolean isWorking) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override

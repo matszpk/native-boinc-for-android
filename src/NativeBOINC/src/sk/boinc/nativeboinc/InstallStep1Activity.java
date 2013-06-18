@@ -30,7 +30,9 @@ import sk.boinc.nativeboinc.installer.ProjectDistrib;
 import sk.boinc.nativeboinc.util.ProgressState;
 import sk.boinc.nativeboinc.util.StandardDialogs;
 import sk.boinc.nativeboinc.util.UpdateItem;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -63,6 +65,8 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	private CheckBox mSelectOlder = null;
 	
 	private Spinner mInstallPlaceSpinner = null;
+	
+	private static final int DIALOG_INSTALL_CANCEL = 1;
 	
 	@Override
 	public int getInstallerChannelId() {
@@ -232,7 +236,34 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 	
 	@Override
 	public Dialog onCreateDialog(int dialogId, Bundle args) {
-		return StandardDialogs.onCreateDialog(this, dialogId, args);
+		Dialog dialog = StandardDialogs.onCreateDialog(this, dialogId, args);
+		if (dialog != null)
+			return dialog;
+		
+		if (dialogId == DIALOG_INSTALL_CANCEL) {
+			return new AlertDialog.Builder(this)
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setTitle(R.string.warning)
+				.setMessage(R.string.applyAfterRestart)
+				.setPositiveButton(R.string.yesText, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						mApp.setNoBoincInstallation();
+						mApp.setInstallerStage(BoincManagerApplication.INSTALLER_FINISH_STAGE);
+						// finish activity
+						onBackPressed();
+					}
+				})
+				.setNegativeButton(R.string.noText, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// finish activity
+						onBackPressed();
+					}
+				})
+				.create();
+		}
+		return null;
 	}
 
 	@Override
@@ -290,13 +321,11 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 
 	@Override
 	public void binariesToUpdateOrInstall(UpdateItem[] updateItems) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void binariesToUpdateFromSDCard(String[] projectNames) {
-		// TODO Auto-generated method stub
 		
 	}
 }

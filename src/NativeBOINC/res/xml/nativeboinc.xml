@@ -49,81 +49,95 @@
 			android:title="@string/nativeHostnameTitle"
 			android:summary="@string/nativeHostnameSummaryNone"
 			android:defaultValue=""
-			android:persistent="false" />
+			android:persistent="false"
+			android:dependency="nativeAutostart"/>
         <CheckBoxPreference 
             android:key="nativeRemoteAccess"
             android:title="@string/nativeRemoteAccessTitle"
             android:summaryOff="@string/nativeRemoteAccessSummaryOff"
             android:summaryOn="@string/nativeRemoteAccessSummaryOn"
             android:defaultValue="true"
-            android:persistent="true" />
+            android:persistent="true"
+            android:dependency="nativeAutostart" />
         <EditTextPreference
             android:key="nativeAccessPassword"
 			android:title="@string/nativeAccessPasswordTitle"
 			android:summary="@string/nativeAccessPasswordSummary"
 			android:inputType="textPassword"
 			android:defaultValue=""
-			android:persistent="false" />
+			android:persistent="false"
+			android:dependency="nativeAutostart" />
         <Preference
             android:key="nativeAccessList"
             android:title="@string/nativeAccessListTitle"
             android:summary="@string/nativeAccessListSummary" 
-            android:persistent="false"/>
+            android:persistent="false"
+            android:dependency="nativeAutostart"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/nativeBoincInstallation">
         <Preference
             android:key="nativeMoveInstallation"
             android:title="@string/nativeMoveToIntMemTitle"
             android:summary="@string/nativeMoveToIntMemSummary"
-            android:persistent="false" />
+            android:persistent="false"
+            android:dependency="nativeAutostart" />
         <Preference
             android:key="nativeInstalledBinaries"
             android:title="@string/nativeInstalledBinariesTitle"
             android:summary="@string/nativeInstalledBinariesSummary" 
-            android:persistent="false" />
+            android:persistent="false"
+            android:dependency="nativeAutostart" />
        	<Preference
        	    android:key="nativeUpdateBinaries"
        	    android:title="@string/nativeUpdateBinariesTitle"
        	    android:summary="@string/nativeUpdateBinariesSummary"
-       	    android:persistent="false" />
+       	    android:persistent="false"
+       	    android:dependency="nativeAutostart" />
        	<Preference
        	    android:key="nativeUpdateFromSDCard"
        	    android:title="@string/nativeUpdateFromSDCardTitle"
        	    android:summary="@string/nativeUpdateFromSDCardSummary"
-       	    android:persistent="false" />
+       	    android:persistent="false"
+       	    android:dependency="nativeAutostart" />
        	<Preference
        	    android:key="nativeReinstall"
        	    android:title="@string/nativeReinstallTitle"
        	    android:summary="@string/nativeReinstallSummary"
-       	    android:persistent="false" />
+       	    android:persistent="false"
+       	    android:dependency="nativeAutostart" />
        	<Preference
        	    android:key="nativeDeleteProjectBins"
        	    android:title="@string/nativeDeleteProjectBinsTitle"
        	    android:summary="@string/nativeDeleteProjectBinsSummary"
-       	    android:persistent="false" />
+       	    android:persistent="false"
+       	    android:dependency="nativeAutostart" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/nativeBoincConfiguration">
         <Preference
        	    android:key="nativeBoincApplyConfig"
        	    android:title="@string/nativeApplyConfigFileTitle"
        	    android:summary="@string/nativeApplyConfigFileSummary"
-       	    android:persistent="false" />
+       	    android:persistent="false"
+       	    android:dependency="nativeAutostart" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/nativeBoincDiagnostics">
         <Preference
        	    android:key="nativeBugCatcher"
        	    android:title="@string/nativeBugCatcherTitle"
        	    android:summary="@string/nativeBugCatcherSummary"
-       	    android:persistent="false" />
+       	    android:persistent="false"
+       	    android:dependency="nativeAutostart" />
         <Preference
        	    android:key="nativeDumpBoincDir"
        	    android:title="@string/nativeDumpBoincDirTitle"
        	    android:summary="@string/nativeDumpBoincDirSummary"
-       	    android:persistent="false" />
+       	    android:persistent="false"
+       	    android:dependency="nativeAutostart" />
         <Preference
        	    android:key="nativeShowLogs"
        	    android:title="@string/nativeShowLogsTitle"
        	    android:summary="@string/nativeShowLogsSummary"
-       	    android:persistent="false" />
+       	    android:persistent="false"
+       	    android:dependency="nativeAutostart" />
     </PreferenceCategory>
 </PreferenceScreen>

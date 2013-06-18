@@ -242,7 +242,6 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 
 	@Override
 	public boolean onNativeBoincClientError(String message) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 	
@@ -284,7 +283,6 @@ public class ScreenLockActivity extends Activity implements NativeBoincReplyList
 
 	@Override
 	public void onChangeRunnerIsWorking(boolean isWorking) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override

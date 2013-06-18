@@ -47,6 +47,7 @@ public interface PreferenceName {
 	public static final String INSTALLER_STAGE = "installerStage";
 	public static final String WAITING_FOR_BENCHMARK = "waitingForBenchmark";
 	public static final String INSTALL_PLACE = "installPlace";
+	public static final String NO_BOINC_INSTALLATION = "noBoincInstallation";
 	
 	public static final String SELECT_OLDER_CLIENT = "selectOlderClient";
 	

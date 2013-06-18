@@ -163,7 +163,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		
 		mApp = (BoincManagerApplication)installerService.getApplicationContext();
 		
-		Log.d(TAG, "Number of processors:"+ RuntimeUtils.getRealCPUCount());
+		//Log.d(TAG, "Number of processors:"+ RuntimeUtils.getRealCPUCount());
 		mExecutorService = Executors.newFixedThreadPool(RuntimeUtils.getRealCPUCount());
 		
 		mDownloader = new Downloader(installerService, this);
@@ -2234,8 +2234,6 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 
 	@Override
 	public void onChangeRunnerIsWorking(boolean isWorking) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

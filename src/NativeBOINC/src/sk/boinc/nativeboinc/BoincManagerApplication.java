@@ -89,6 +89,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	public final static int INSTALLER_PROJECT_INSTALLING_STAGE = 4;
 	public final static int INSTALLER_FINISH_STAGE = 5;
 	private int mInstallerStage = INSTALLER_NO_STAGE;
+	private boolean mNoBoincInstallation = false;
 	
 	private NativeBoincService mRunner = null;
 	
@@ -227,6 +228,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		
 		mGlobalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 		mInstallerStage = mGlobalPrefs.getInt(PreferenceName.INSTALLER_STAGE, INSTALLER_NO_STAGE);
+		mNoBoincInstallation = mGlobalPrefs.getBoolean(PreferenceName.NO_BOINC_INSTALLATION, false);
 		
 		mSecondTryStartHandler = new SecondStartTryHandler();
 		mRefreshWidgetHandler = new RefreshWidgetHandler(this);
@@ -299,8 +301,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	 *         false if this application version was already run previously
 	 */
 	public boolean getJustUpgradedStatus() {
-		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-		int upgradeInfoShownVersion = globalPrefs.getInt(PreferenceName.UPGRADE_INFO_SHOWN_VERSION, 0);
+		int upgradeInfoShownVersion = mGlobalPrefs.getInt(PreferenceName.UPGRADE_INFO_SHOWN_VERSION, 0);
 		int currentVersion = 0;
 		try {
 			currentVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
@@ -316,7 +317,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		}
 		// Just upgraded; mark the status in preferences
 		if (Logging.DEBUG) Log.d(TAG, "First run after upgrade: currentVersion=" + currentVersion + ", upgradeInfoShownVersion=" + upgradeInfoShownVersion);
-		SharedPreferences.Editor editor = globalPrefs.edit();
+		SharedPreferences.Editor editor = mGlobalPrefs.edit();
 		editor.putInt(PreferenceName.UPGRADE_INFO_SHOWN_VERSION, currentVersion).commit();
 		return true;
 	}
@@ -424,6 +425,15 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		return mStringBuilder.toString();
 	}
 	
+	public boolean isNoBoincInstallation() {
+		return mNoBoincInstallation;
+	}
+	
+	public void setNoBoincInstallation() {
+		mGlobalPrefs.edit().putBoolean(PreferenceName.NO_BOINC_INSTALLATION, true).commit();
+		mNoBoincInstallation = true;
+	}
+	
 	public boolean isInstallerRun() {
 		return mInstallerStage != INSTALLER_NO_STAGE;
 	}
@@ -434,8 +444,6 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	
 	public void setInstallerStage(int stage) {
 		mInstallerStage = stage;
-		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-		
 		if (Logging.DEBUG) Log.d(TAG, "Set installer stage:"+stage);
 		
 		int installerStageToSave = mInstallerStage;
@@ -445,7 +453,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 		else if (mInstallerStage == INSTALLER_PROJECT_INSTALLING_STAGE)
 			installerStageToSave = INSTALLER_PROJECT_STAGE;
 		
-		globalPrefs.edit().putInt(PreferenceName.INSTALLER_STAGE, installerStageToSave).commit();
+		mGlobalPrefs.edit().putInt(PreferenceName.INSTALLER_STAGE, installerStageToSave).commit();
 	}
 	
 	public void backToPreviousInstallerStage() {
@@ -457,8 +465,7 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 	
 	public void unsetInstallerStage() {
 		mInstallerStage = INSTALLER_NO_STAGE;
-		SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-		globalPrefs.edit().putInt(PreferenceName.INSTALLER_STAGE, mInstallerStage).commit();
+		mGlobalPrefs.edit().putInt(PreferenceName.INSTALLER_STAGE, mInstallerStage).commit();
 	}
 	
 	public void runInstallerActivity(Context context) {

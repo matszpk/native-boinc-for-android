@@ -807,8 +807,6 @@ public class ProjectsActivity extends ListActivity implements ClientUpdateProjec
 
 	@Override
 	public void onClientIsWorking(boolean isWorking) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

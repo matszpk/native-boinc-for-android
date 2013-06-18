@@ -326,7 +326,6 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 
 	@Override
 	public void clientConnectionProgress(BoincOp boincOp, int progress) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -369,8 +368,6 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 
 	@Override
 	public void onClientIsWorking(boolean isWorking) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

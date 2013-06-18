@@ -161,11 +161,16 @@ public class NativeBoincWidgetProvider extends AppWidgetProvider {
 				views.setViewVisibility(R.id.widgetProgress, View.GONE);
 			}
 			
-			if (isRun) {
-				views.setViewVisibility(R.id.widgetStart, View.GONE);
-				views.setViewVisibility(R.id.widgetStop, View.VISIBLE);
+			if (!appContext.isNoBoincInstallation()) {
+				if (isRun) {
+					views.setViewVisibility(R.id.widgetStart, View.GONE);
+					views.setViewVisibility(R.id.widgetStop, View.VISIBLE);
+				} else {
+					views.setViewVisibility(R.id.widgetStart, View.VISIBLE);
+					views.setViewVisibility(R.id.widgetStop, View.GONE);
+				}
 			} else {
-				views.setViewVisibility(R.id.widgetStart, View.VISIBLE);
+				views.setViewVisibility(R.id.widgetStart, View.GONE);
 				views.setViewVisibility(R.id.widgetStop, View.GONE);
 			}
 			

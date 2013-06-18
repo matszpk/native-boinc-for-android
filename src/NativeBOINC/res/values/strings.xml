@@ -520,6 +520,10 @@
 	<string name="installProjectNotifyBegin">Installing applications for </string>
 	<string name="installProjectBegin">Installing applications</string>
 	<string name="installProjectNotifyFinish">Applications were installed</string>
+	
+	<string name="installBoincCancelQuestion">Do you want to definately resign with the BOINC client installation?
+If yes, a client installation will be possible after reinstallation (or data removal) of the NativeBOINC.
+Choose \'Yes\' if you want only a NativeBOINC as BOINC manager.</string>
 
 	<string name="youCanChange">Now, you can change:</string>
 	

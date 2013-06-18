@@ -486,7 +486,8 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		}
 		
 		/* check whether installer should be run (if should be, then run) */
-		checkToRunInstaller();
+		if (!mApp.isNoBoincInstallation()) // if no boinc installation
+			checkToRunInstaller();
 		
 		// handling first starting at app startup
 		if (mApp.isFirstStartingAtAppStartup() && !mConnectClientAfterStart) {
@@ -751,14 +752,20 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		item = menu.findItem(R.id.menuDisconnect);
 		item.setVisible(mConnectedClient != null);
 		item = menu.findItem(R.id.menuStartUp);
-		if (mRunner != null)
-			item.setVisible(!mRunner.isRun());
-		else
+		if (mRunner != null) {
+			if (!mApp.isNoBoincInstallation())
+				item.setVisible(!mRunner.isRun());
+			else
+				item.setVisible(false);
+		} else
 			item.setVisible(false);
 		item = menu.findItem(R.id.menuShutdown);
-		if (mRunner != null)
-			item.setVisible(mRunner.isRun());
-		else
+		if (mRunner != null) {
+			if (!mApp.isNoBoincInstallation())
+				item.setVisible(mRunner.isRun());
+			else
+				item.setVisible(false);
+		} else
 			item.setVisible(false);
 		return true;
 	}

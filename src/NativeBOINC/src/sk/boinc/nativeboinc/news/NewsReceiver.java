@@ -146,7 +146,6 @@ public class NewsReceiver extends BroadcastReceiver implements OnSharedPreferenc
 		
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
-			// TODO Auto-generated method stub
 			//if (Logging.DEBUG) Log.d(TAG, "Installer connected");
 			mInstaller = ((InstallerService.LocalBinder)service).getService();
 			mWaitingSem.release();

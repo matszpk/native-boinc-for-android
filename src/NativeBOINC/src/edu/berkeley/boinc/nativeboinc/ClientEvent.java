@@ -30,6 +30,7 @@ public class ClientEvent {
 	public final static int EVENT_RUN_TASKS = 4;
 	public final static int EVENT_RUN_BENCHMARK = 5;
 	public final static int EVENT_FINISH_BENCHMARK = 6;
+	/* download monitoring will be implemented later */
 	public final static int EVENT_START_DOWNLOAD = 7;
 	public final static int EVENT_FINISH_DOWNLOAD = 8;
 	public final static int EVENT_BATTERY_NOT_DETECTED = 9;

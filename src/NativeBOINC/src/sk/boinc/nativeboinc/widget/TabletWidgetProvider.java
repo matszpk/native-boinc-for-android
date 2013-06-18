@@ -173,12 +173,18 @@ public class TabletWidgetProvider extends AppWidgetProvider {
 			} else
 				hideTaskViews(views);
 			
-			if (isRun) {
-				views.setViewVisibility(R.id.widgetStart, View.GONE);
-				views.setViewVisibility(R.id.widgetStop, View.VISIBLE);
-				views.setViewVisibility(R.id.widgetNetComm, View.VISIBLE);
+			if (!appContext.isNoBoincInstallation()) {
+				if (isRun) {
+					views.setViewVisibility(R.id.widgetStart, View.GONE);
+					views.setViewVisibility(R.id.widgetStop, View.VISIBLE);
+					views.setViewVisibility(R.id.widgetNetComm, View.VISIBLE);
+				} else {
+					views.setViewVisibility(R.id.widgetStart, View.VISIBLE);
+					views.setViewVisibility(R.id.widgetStop, View.GONE);
+					views.setViewVisibility(R.id.widgetNetComm, View.GONE);
+				}
 			} else {
-				views.setViewVisibility(R.id.widgetStart, View.VISIBLE);
+				views.setViewVisibility(R.id.widgetStart, View.GONE);
 				views.setViewVisibility(R.id.widgetStop, View.GONE);
 				views.setViewVisibility(R.id.widgetNetComm, View.GONE);
 			}

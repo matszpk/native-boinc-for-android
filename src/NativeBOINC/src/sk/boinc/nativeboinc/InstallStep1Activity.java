@@ -141,7 +141,7 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 		cancelButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onBackPressed();
+				showDialog(DIALOG_INSTALL_CANCEL);
 			}
 		});
 
@@ -244,7 +244,7 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 			return new AlertDialog.Builder(this)
 				.setIcon(android.R.drawable.ic_dialog_alert)
 				.setTitle(R.string.warning)
-				.setMessage(R.string.applyAfterRestart)
+				.setMessage(R.string.installBoincCancelQuestion)
 				.setPositiveButton(R.string.yesText, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {

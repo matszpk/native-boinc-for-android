@@ -416,7 +416,7 @@ public class NewsReceiver extends BroadcastReceiver implements OnSharedPreferenc
 		protected Void doInBackground(Void... params) {
 			synchronized (NewsReceiver.class) {
 				handleNews();
-				if (!mUsedOutsideReceiver)
+				if (!mUsedOutsideReceiver && !mApp.isNoBoincInstallation())
 					handleUpdateBinaries();
 			}
 			return null;

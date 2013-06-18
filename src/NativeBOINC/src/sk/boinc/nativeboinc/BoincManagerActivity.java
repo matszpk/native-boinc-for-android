@@ -607,7 +607,10 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		// Update name of connected client (or show "not connected")
 		updateTitle();
 		// Show Information about upgrade, if applicable
-		mInDuringInstallation = mApp.isInstallerRun() || !InstallerService.isClientInstalled(this);
+		if (!mApp.isNoBoincInstallation())
+			mInDuringInstallation = mApp.isInstallerRun() || !InstallerService.isClientInstalled(this);
+		else // no boinc installation
+			mInDuringInstallation = false;
 		
 		if (Logging.DEBUG) Log.d(TAG, "mInDuringInstallation:"+mInDuringInstallation);
 		if (mJustUpgraded && !mInDuringInstallation) {

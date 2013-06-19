@@ -177,11 +177,15 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 			updateActivityState();
 	}
 	
-	@Override
-	public void onBackPressed() {
+	private void closeActivity() {
 		if (mInstaller != null)
 			mInstaller.cancelSimpleOperation();
 		finish();
+	}
+	
+	@Override
+	public void onBackPressed() {
+		showDialog(DIALOG_INSTALL_CANCEL);
 	}
 	
 	@Override
@@ -251,14 +255,14 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 						mApp.setNoBoincInstallation();
 						mApp.setInstallerStage(BoincManagerApplication.INSTALLER_FINISH_STAGE);
 						// finish activity
-						onBackPressed();
+						closeActivity();
 					}
 				})
 				.setNegativeButton(R.string.noText, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						// finish activity
-						onBackPressed();
+						closeActivity();
 					}
 				})
 				.create();

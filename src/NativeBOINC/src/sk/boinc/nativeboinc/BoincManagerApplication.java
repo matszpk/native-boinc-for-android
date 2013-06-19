@@ -294,13 +294,11 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 
 	/**
 	 * Finds whether this is the application was upgraded recently.
-	 * It also marks the status in preferences, so even if first call of this
-	 * method after upgrade returns true, all subsequent calls will return false.
 	 * 
 	 * @return true if this is first call of this method after application upgrade, 
 	 *         false if this application version was already run previously
 	 */
-	public boolean getJustUpgradedStatus() {
+	public boolean getUpgradedStatus() {
 		int upgradeInfoShownVersion = mGlobalPrefs.getInt(PreferenceName.UPGRADE_INFO_SHOWN_VERSION, 0);
 		int currentVersion = 0;
 		try {
@@ -315,11 +313,31 @@ public class BoincManagerApplication extends Application implements NativeBoincS
 			// NOT upgraded, we shown info already
 			return false;
 		}
+		return true;
+	}
+	
+	/**
+	 * update upgraded status to current version (confirm displaying changelog)
+	 */
+	public void updateUpgradedStatus() {
+		int upgradeInfoShownVersion = mGlobalPrefs.getInt(PreferenceName.UPGRADE_INFO_SHOWN_VERSION, 0);
+		int currentVersion = 0;
+		try {
+			currentVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+		}
+		catch (NameNotFoundException e) {
+			if (Logging.ERROR) Log.e(TAG, "Cannot retrieve application version");
+			return;
+		}
+		if (Logging.DEBUG) Log.d(TAG, "currentVersion=" + currentVersion + ", upgradeInfoShownVersion=" + upgradeInfoShownVersion);
+		if (currentVersion == upgradeInfoShownVersion) {
+			// NOT upgraded, we shown info already
+			return;
+		}
 		// Just upgraded; mark the status in preferences
 		if (Logging.DEBUG) Log.d(TAG, "First run after upgrade: currentVersion=" + currentVersion + ", upgradeInfoShownVersion=" + upgradeInfoShownVersion);
 		SharedPreferences.Editor editor = mGlobalPrefs.edit();
 		editor.putInt(PreferenceName.UPGRADE_INFO_SHOWN_VERSION, currentVersion).commit();
-		return true;
 	}
 
 	public String getApplicationVersion() {

@@ -302,7 +302,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 
 		mApp = (BoincManagerApplication)getApplication();
 		mVisibilityTracker = mApp.getVisibilityTracker();
-		mJustUpgraded = mApp.getJustUpgradedStatus();
+		mJustUpgraded = mApp.getUpgradedStatus();
 
 		ClientId clientToConnect = null;
 		// Create handler for screen orientation
@@ -616,6 +616,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		if (mJustUpgraded && !mInDuringInstallation) {
 			mJustUpgraded = false; // Do not show again
 			mProgressDialogAllowed = false;
+			mApp.updateUpgradedStatus();
 			// Now show the dialog about upgrade
 			showDialog(DIALOG_UPGRADE_INFO);
 		}

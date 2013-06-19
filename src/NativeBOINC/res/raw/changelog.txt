@@ -1,3 +1,10 @@
+Version 0.4.4.2 (beta) (2013-06-19):
+- fixed behavior for CPU throttling (computing for CPU time<100%)
+- fixed screen lock (battery info)
+- sending to client battery info when client cant detect battery
+- allow for installation without boinc client (only manager)
+- added widget previews
+
 Version 0.4.4.1.3 (beta) (2013-05-13):
 - properly treats https url in "Enter project URL" dialog in "Select project" screen.
 

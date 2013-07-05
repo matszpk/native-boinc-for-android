@@ -2150,6 +2150,8 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 	@Override
 	public synchronized void updatedProjectApps(String projectUrl) {
 		ProjectAppsInstaller appsInstaller = mProjectAppsInstallers.remove(projectUrl);
+		if (appsInstaller == null)
+			return; // do nothing
 		if (Logging.DEBUG) Log.d(TAG, "After update on client side: "+
 				appsInstaller.mProjectDistrib.projectName);
 		

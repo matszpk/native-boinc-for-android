@@ -1,6 +1,7 @@
 Version 0.4.4.2.1 (beta) (2013-07-05):
 - added hungarian translation
 - updated version in BugCatcher code
+- small NPE fix
 
 Version 0.4.4.2 (beta) (2013-06-19):
 - fixed behavior for CPU throttling (computing for CPU time<100%)

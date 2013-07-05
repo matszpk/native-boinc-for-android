@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* 
+ * NativeBOINC - Native BOINC Client with Manager
+ * Copyright (C) 2011, Mateusz Szpakowski
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+ -->
+ <TabHost xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@android:id/tabhost"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<LinearLayout
+		android:orientation="vertical"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent">
+		<TabWidget
+			android:id="@android:id/tabs"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="0" />
+		<FrameLayout android:id="@android:id/tabcontent"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_weight="1" >
+			
+		    <!--  computing options -->
+		    <ScrollView  android:id="@+id/localPrefComputeOptions"
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="fill_parent">
+		  		<LinearLayout
+				  	android:orientation="vertical"
+				  	android:layout_width="fill_parent"
+				  	android:layout_height="wrap_content">
+					<CheckBox
+			  			android:id="@+id/localPrefComputeOnBatteries"
+			  			android:layout_width="fill_parent"
+			  			android:layout_height="wrap_content"
+			  			android:text="@string/localPrefComputeOnBatteries" />
+					<CheckBox
+			  			android:id="@+id/localPrefRunAlwaysWhenPlugged"
+			  			android:layout_width="fill_parent"
+			  			android:layout_height="wrap_content"
+			  			android:text="@string/localPrefRunAlwaysWhenPlugged" />
+			  		<CheckBox
+			  			android:id="@+id/localPrefComputeInUse"
+			  			android:layout_width="fill_parent"
+			  			android:layout_height="wrap_content"
+			  			android:text="@string/localPrefComputeInUse" />
+			  		<CheckBox
+			  			android:id="@+id/localPrefUseGPUInUse"
+			  			android:layout_width="fill_parent"
+			  			android:layout_height="wrap_content"
+			  			android:text="@string/localPrefUseGPUInUse" />
+			  		<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefComputeIdleFor" />
+						<EditText 
+							android:id="@+id/localPrefComputeIdleFor"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/minutes"
+							android:maxLines="1" />
+					</LinearLayout>
+					<LinearLayout
+						android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefComputeUsageLessThan" />
+						<EditText 
+							android:id="@+id/localPrefComputeUsageLessThan"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/percent" />
+					</LinearLayout>
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefSwitchBetween" />
+						<EditText 
+							android:id="@+id/localPrefSwitchBetween"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/minutes"
+							android:maxLines="1" />
+					</LinearLayout>
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefBatteryNL" />
+						<EditText 
+							android:id="@+id/localPrefBatteryNL"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/percent" />
+					</LinearLayout>
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefTempLT" />
+						<EditText 
+							android:id="@+id/localPrefTempLT"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/degreeC"
+							android:maxLines="1" />
+					</LinearLayout>
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefUseAtMost" />
+						<EditText 
+							android:id="@+id/localPrefUseAtMostCPUs"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefPercentCPUs" />
+					</LinearLayout>
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefUseAtMost" />
+						<EditText 
+							android:id="@+id/localPrefUseAtMostCPUTime"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefPercentCPUTime" />
+					</LinearLayout>
+					
+					<Button android:id="@+id/localPrefCPUTimePrefs"
+					    android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/cpuTimePrefTitle" />
+			  	</LinearLayout>
+		    </ScrollView>
+		    
+		    <ScrollView  android:id="@+id/localPrefNetworkOptions"
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="fill_parent">
+		  		<LinearLayout
+				  	android:orientation="vertical"
+				  	android:layout_width="fill_parent"
+				  	android:layout_height="wrap_content">
+					<CheckBox
+			  			android:id="@+id/localPrefOnlyWhenWifi"
+			  			android:layout_width="fill_parent"
+			  			android:layout_height="wrap_content"
+			  			android:text="@string/localPrefXferOnlyWhenWifi" />
+		  		    <LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefMaxDownloadRate" />
+						<EditText 
+							android:id="@+id/localPrefMaxDownloadRate"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/kBytesSec" />
+					</LinearLayout>
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefMaxUploadRate" />
+						<EditText 
+							android:id="@+id/localPrefMaxUploadRate"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/kBytesSec" />
+					</LinearLayout>
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefTransferAtMost" />
+						<EditText 
+							android:id="@+id/localPrefTransferAtMost"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefmBytesEvery" />
+						<EditText 
+							android:id="@+id/localPrefTransferPeriodDays"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/days" />
+					</LinearLayout>
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefConnectAboutEvery" />
+						<EditText 
+							android:id="@+id/localPrefConnectAboutEvery"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/days" />
+					</LinearLayout>
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefAdditWorkBuffer" />
+						<EditText 
+							android:id="@+id/localPrefAdditWorkBuffer"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/days" />
+					</LinearLayout>
+					<CheckBox
+			  			android:id="@+id/localPrefSkipImageVerify"
+			  			android:layout_width="fill_parent"
+			  			android:layout_height="wrap_content"
+			  			android:text="@string/localPrefSkipImageVerify" />
+					
+					<Button android:id="@+id/localPrefNetTimePrefs"
+					    android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/netTimePrefTitle" />
+				</LinearLayout>
+			</ScrollView>
+		    
+		    <ScrollView  android:id="@+id/localPrefDiskRAMOptions"
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="fill_parent">
+		  		<LinearLayout
+				  	android:orientation="vertical"
+				  	android:layout_width="fill_parent"
+				  	android:layout_height="wrap_content">
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefUseAtMost" />
+						<EditText 
+							android:id="@+id/localPrefUseAtMostDiskSpace"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefGBDisk" />
+					</LinearLayout>
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefLeaveAtLeast" />
+						<EditText 
+							android:id="@+id/localPrefLeaveAtLeastDiskFree"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefGBDiskFree" />
+					</LinearLayout>
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefUseAtMost" />
+						<EditText 
+							android:id="@+id/localPrefUseAtMostTotalDisk"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefPercentTotalDisk" />
+					</LinearLayout>
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefCheckpointToDisk" />
+						<EditText 
+							android:id="@+id/localPrefCheckpointToDisk"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/seconds" />
+					</LinearLayout>
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefUseAtMost" />
+						<EditText 
+							android:id="@+id/localPrefUseAtMostMemoryInUse"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefMemoryWhenInUse" />
+					</LinearLayout>
+					<LinearLayout
+			  			android:orientation="horizontal"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:paddingTop="3dip">
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:textSize="@dimen/labelTextSize"
+							android:text="@string/localPrefUseAtMost" />
+						<EditText 
+							android:id="@+id/localPrefUseAtMostMemoryInIdle"
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:inputType="numberDecimal"
+							android:maxWidth="@dimen/localPrefEditSize" />
+						<TextView
+							android:layout_width="wrap_content"
+							android:layout_height="wrap_content"
+							android:text="@string/localPrefMemoryWhenInIdle" />
+					</LinearLayout>
+					<CheckBox
+			  			android:id="@+id/localPrefLeaveApplications"
+			  			android:layout_width="fill_parent"
+			  			android:layout_height="wrap_content"
+			  			android:textSize="@dimen/labelTextSize"
+			  			android:text="@string/localPrefLeaveApplications" />
+	  			</LinearLayout>
+			</ScrollView>
+		</FrameLayout>
+		
+		<LinearLayout android:orientation="horizontal"
+	  		android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:paddingTop="10dip"
+			android:paddingLeft="10dip"
+			android:paddingRight="10dip"
+			android:layout_gravity="right"
+			android:layout_weight="0" >
+			<Button
+				android:id="@+id/localPrefCancel" 
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/cancel" />
+			<Button
+				android:id="@+id/localPrefDefault" 
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="10dip"
+				android:text="@string/applyDefault" />
+			<Button
+				android:id="@+id/localPrefApply" 
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="10dip"
+				android:paddingLeft="10dip"
+				android:paddingRight="10dip"
+				android:text="@string/apply" />
+	    </LinearLayout>
+	</LinearLayout>
+</TabHost>

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+/* 
+ * AndroBOINC - BOINC Manager for Android
+ * Copyright (C) 2010, Pavol Michalec
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+-->
+<resources>
+
+	<!-- Screen rotation mode -->
+	<string-array name="prefScreenOrientationDisplay">
+		<item>Rendszerbeállítás szerint</item>
+		<item>Álló</item>
+		<item>Fekvő</item>
+		<item>Automata elforgatás</item>
+	</string-array>
+	<string-array name="prefScreenOrientationValues"> 
+		                 <!-- values from android.content.pm.ActivityInfo: -->
+		<item>-1</item>  <!-- SCREEN_ORIENTATION_UNSPECIFIED -->
+		<item>1</item>   <!-- SCREEN_ORIENTATION_PORTRAIT    -->
+		<item>0</item>   <!-- SCREEN_ORIENTATION_LANDSCAPE   -->
+		<item>4</item>   <!-- SCREEN_ORIENTATION_SENSOR      -->
+	</string-array>
+
+	<!-- Automatic updates of display -->
+	<string-array name="prefAutoUpdatesDisplay">
+		<item>Nincs engedélyezve</item>
+		<item>1mp</item>
+		<item>5mp</item>
+		<item>10mp</item>
+		<item>30mp</item>
+		<item>60mp</item>
+	</string-array>
+	<string-array name="prefAutoUpdatesValues">
+		<item>0</item>
+		<item>1</item>
+		<item>5</item>
+		<item>10</item>
+		<item>30</item>
+		<item>60</item>
+	</string-array>
+
+	<!-- screen lock update -->
+	<string-array name="prefScreenLockUpdateDisplay">
+		<item>1mp</item>
+		<item>5mp</item>
+		<item>10mp</item>
+		<item>30mp</item>
+		<item>60mp</item>
+	</string-array>
+
+	<string-array name="prefScreenLockUpdateValues">
+		<item>1</item>
+		<item>5</item>
+		<item>10</item>
+		<item>30</item>
+		<item>60</item>
+	</string-array>
+
+	<!-- widget update -->
+	<string-array name="prefWidgetUpdateDisplay">
+		<item>1mp</item>
+		<item>5mp</item>
+		<item>10mp</item>
+		<item>30mp</item>
+		<item>60mp</item>
+	</string-array>
+
+	<string-array name="prefWidgetUpdateValues">
+		<item>1</item>
+		<item>5</item>
+		<item>10</item>
+		<item>30</item>
+		<item>60</item>
+	</string-array>
+
+	<!-- Run modes for client (display) -->
+	<string-array name="clientModeRun">
+		<item>Mindig</item>
+		<item>A beállítások alapján</item>
+		<item>Felfüggesztve</item>
+	</string-array>
+	<!-- Network modes for client (display) -->
+	<string-array name="clientModeNetwork">
+		<item>Mindig</item>
+		<item>A beállítások alapján</item>
+		<item>Felfüggesztve</item>
+	</string-array>
+	<!-- GPU modes for client (display) -->
+	<string-array name="clientModeGpu">
+		<item>Mindig</item>
+		<item>A beállítások alapján</item>
+		<item>Felgfüggesztve</item>
+	</string-array>
+	<!-- Modes for client (values) - both run and network -->
+	<string-array name="clientModeValues">
+		<item>1</item>
+		<item>2</item>
+		<item>3</item>
+	</string-array>
+
+	<!-- States of task (all tasks) -->
+	<string-array name="resultStates">
+		<item>Új</item>                 <!-- 0 RESULT_NEW               -->
+		<item>Letöltés</item>         <!-- 1 RESULT_FILES_DOWNLOADING -->
+		<item>Letöltve</item>          <!-- 2 RESULT_FILES_DOWNLOADED  -->
+		<item>Számítási hiba</item>   <!-- 3 RESULT_COMPUTE_ERROR     -->
+		<item>Feltöltés</item>           <!-- 4 RESULT_FILES_UPLOADING   -->
+		<item>Kész van a visszaküldéshez!</item>     <!-- 5 RESULT_FILES_UPLOADED    -->
+		<item>Megszakítva</item>             <!-- 6 RESULT_ABORTED           -->
+	</string-array>
+	<!-- States of task (active tasks only) -->
+	<string-array name="activeTaskStates">
+		<item>Kész van a starthoz!</item>  <!-- 0 PROCESS_UNINITIALIZED (process doesn't exist yet) -->
+		<item>Fut...</item>         <!-- 1 PROCESS_EXECUTING (process is running, as far as we know) -->
+		<item>Kilépett</item>          <!-- 2 *PROCESS_EXITED -->
+		<item>Kilépett</item>          <!-- 3 *PROCESS_WAS_SIGNALED     -->
+		<item>Kilépett</item>          <!-- 4 *PROCESS_EXIT_UNKNOWN   -->
+		<item>Megszakítva</item>         <!-- 5 PROCESS_ABORT_PENDING (process exceeded limits; send "abort" message, waiting to exit)   -->
+		<item>Megszakítva</item>         <!-- 6 *PROCESS_ABORTED          -->
+		<item>Hiba a feladat elkezdésekor</item> <!-- 7 *PROCESS_COULDNT_START   -->
+		<item>Kilépés</item>         <!-- 8 PROCESS_QUIT_PENDING (we've sent it a "quit" message, waiting to exit) -->
+		<item>Várakozás a futásra</item>  <!-- 9 PROCESS_SUSPENDED (we've sent it a "suspend" message)        -->
+	</string-array>
+
+	<string-array name="pollOps">
+	    <item>Csatolás/kapcsolódás a BAM-hoz</item>
+	    <item>Szinkronizálás a BAM-mal</item>
+	    <item>Keresés a felhasználói fiókban</item>
+	    <item>Projekt felhasználó fiók készítés</item>
+	    <item>Project attach</item>
+	    <item>Projekt konfiguráció</item>
+	</string-array>
+
+	<string-array name="messageFilterLabels">
+	    <item>Filter: Ismeretlen</item>
+	    <item>Filter: Információ</item>
+	    <item>Filter: Felhasználói risztás</item>
+	    <item>Filter: Belső hiba</item>
+	</string-array>
+
+	<string-array name="messageFilterMenuItems">
+	    <item>Ismeretlen</item>
+	    <item>Információ</item>
+	    <item>felhasználói riasztás</item>
+	    <item>Belső hiba</item>
+	</string-array>
+
+	<string-array name="nativeAutostartLabels">
+	    <item>Nincs autómatikus indítás</item>
+	    <item>A program elindításkor</item>
+	    <item>A rendszer bootolásakor</item>
+	    <item>Mindig van autómata indítás</item>
+	</string-array>
+
+	<string-array name="nativeAutostartValues">
+	    <item>0</item>
+	    <item>1</item>
+	    <item>2</item>
+	    <item>3</item>
+	</string-array>
+
+	<string-array name="placesToInstallLabels">
+	    <item>Belső memória</item>
+	    <item>SD/SDHC kártya</item>
+	</string-array>
+</resources>

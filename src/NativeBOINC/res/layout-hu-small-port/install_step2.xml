@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+    <ScrollView
+        android:layout_width="fill_parent"
+  		android:layout_height="0dip"
+  		android:layout_weight="1">
+  		<LinearLayout 
+  			android:orientation="vertical"
+		  	android:layout_width="fill_parent"
+		  	android:layout_height="wrap_content">
+		    <TextView
+				android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:textSize="@dimen/labelTextSize"
+		  		android:text="@string/installSuccessfully" />
+		    <TextView
+				android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:textSize="@dimen/labelTextSize"
+		  		android:paddingTop="10dip"
+		  		android:text="@string/installNetworkAccess1" />
+		    <TextView 
+	            android:layout_width="wrap_content"
+	  			android:layout_height="wrap_content"
+	  			android:textSize="@dimen/labelTextSize"
+	  			android:paddingTop="10dip"
+	  			android:paddingBottom="10dip"
+	  			android:text="@string/youCanChange" />
+		    <LinearLayout
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content" 
+		        android:orientation="horizontal">
+		        <Button android:id="@+id/changePassword"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/accessPassword" />
+		        <TextView 
+		            android:layout_width="wrap_content"
+		  			android:layout_height="wrap_content"
+		  			android:textSize="@dimen/labelTextSize"
+		  			android:text="@string/orText" />
+		        <Button android:id="@+id/changeHostname"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/hostname" /> 
+		    </LinearLayout>
+		  	<TextView
+				android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:textSize="@dimen/labelTextSize"
+		  		android:paddingTop="10dip"
+		  		android:text="@string/installAddProject" />
+		  	<TextView
+				android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:textSize="@dimen/labelTextSize"
+		  		android:paddingTop="10dip"
+		  		android:text="@string/installFinishedBenchmark" />
+		</LinearLayout>
+	</ScrollView>
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right"
+		android:paddingTop="10dip">
+  		<Button android:id="@+id/syncBAM"
+	  	    android:enabled="false"
+		    android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/synchronizeBAM" />
+    </LinearLayout>
+  	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right"
+		android:paddingTop="10dip">
+  		<Button android:id="@+id/installCancel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/cancel" />
+	  	<Button android:id="@+id/addProject" 
+		    android:enabled="false"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/addProject" />
+	</LinearLayout>
+</LinearLayout>

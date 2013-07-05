@@ -1,0 +1,821 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+/* 
+ * AndroBOINC - BOINC Manager for Android
+ * Copyright (C) 2010, Pavol Michalec
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+-->
+<resources>
+	<!-- Basic application stuff -->
+	<string name="app_name">NativeBOINC</string>
+	<string name="app_desc">Native BOINC Androidra, AndroBIONC-kal </string>
+	<string name="service_desc">Lehetőséget ad Android készülékkel részt venni a BOINC projektekben </string>
+	<string name="install_service_desc">Native Client és BOINC alkalmazás telepítő szolgáltatás </string>
+	<string name="nboinc_service_desc">Native BOINC kliens szolgáltatás</string>
+	<string name="bugcatcher_service_desc">NativeBOINC BugCatcher szolgáltatás</string>
+
+	<string name="newsHandlerDesc">News kezelő</string>
+	<!-- widget names -->
+	<string name="widget2x1">Kicsi NativeBOINC widget</string>
+	<string name="widgetTablet">Nagy NativeBOINC widget</string>
+
+	<string name="autostartReceiver">Autostart receiver</string>
+
+	<!-- Some common, generic strings -->
+	<string name="back">Vissza</string>
+	<string name="next">Következő</string>
+	<string name="finish">Cél/kész van</string>
+	<string name="info">Információ</string>
+	<string name="authorization">Authorization&#8230;</string>
+	<string name="cancel">Mégse</string>
+	<string name="cancelAll">Minden érvénytelenítése</string>
+	<string name="changelog">Valtozá-Napló</string>
+	<string name="close">Bezár</string>
+	<string name="connecting">kapcsolodás&#8230;</string>
+	<string name="disabled">Letiltás</string>
+	<string name="dismiss">Elutasítás</string>
+	<string name="error">Hiba</string>
+	<string name="homepage">Főoldal(web)</string>
+	<string name="license">Licensz</string>
+	<string name="notConnected">Nincs kapcsolódva</string>
+	<string name="notice">Notice</string>
+	<string name="clear">Törlés/tisztítás</string>
+	<string name="ok">OK</string>
+	<string name="apply">Alkalmaz</string>
+	<string name="projectSuspendedByUser">A projekt felfüggesztve a felhasználó által</string>
+	<string name="received">Fogadva</string>
+	<string name="retrievingData">Adatok fogadása&#8230;</string>
+	<string name="retrievingInitialData">Adatok beolvasása&#8230;</string>
+	<string name="sent">Sent</string>
+	<string name="shutdown">Kikapcsolás</string>
+	<string name="sources">Forrás kód</string>
+	<string name="taskSuspendedByUser">Folyamat felfüggesztve a felhasználó által</string>
+	<string name="unknown">ismeretlen</string>
+	<string name="upgradedTo">Upgraded to</string>
+	<string name="warning">Veszély</string>
+	<string name="now">Most</string>
+	<string name="battery">Akkumulátor</string>
+	<string name="defaultText">Alapértelmezett</string>
+	<string name="copy">Másolás</string>
+	<string name="saveToSDCard">Mentés az SD kártyára</string>
+
+	<string name="restart">Újraindítás</string>
+	<string name="clientRestarting">A natív kliens újraindítása&#8230;</string>
+
+	<string name="selectAll">Az összes kiválsztása</string>
+	<string name="unselectAll">Az összes kijelölés megszüntése</string>
+
+	<string name="yesText">Igen</string>
+	<string name="noText">Nem</string>
+	<string name="orText">vagy</string>
+
+	<string name="installedBinaries">Installed binaries</string>
+
+	<string name="boincClient">BOINC kliens</string>
+
+	<string name="boincHosts">Boinc hosztok</string>
+
+	<!-- Units -->
+	<string name="unitKiB">KiB</string>
+	<string name="unitMiB">MiB</string>
+	<string name="unitGiB">GiB</string>
+	<string name="unitB">B</string>
+	<string name="unitKB">KB</string>
+	<string name="unitMB">MB</string>
+	<string name="unitGB">GB</string>
+	<string name="unitBps">B/s</string>
+	<string name="unitKBps">KB/s</string>
+	<string name="unitMBps">MB/s</string>
+	<string name="gflops">GFLOPS</string>
+
+	<!-- Main Activity -->
+	<string name="temp_info">Nyomd meg a menü gombot</string>
+	<string name="projects">Projektek</string>
+	<string name="tasks">Folyamatok</string>
+	<string name="transfers">Adatátvitelek</string>
+	<string name="messages">Üzenetek</string>
+	<string name="notices">Értesítések</string>
+	<string name="closeWarning">Nyomd meg újra a vissza gombot 5 másodpercen belűl</string>
+
+	<!-- Menu items -->
+	<string name="menuStartUp">Indítás</string>
+	<string name="menuShutdown">Kikapcsolás</string>
+	<string name="menuAbout">Rólunk</string>
+	<string name="menuAddNewHost">Add new host</string>
+	<string name="menuConnect">Kapcsolódás</string>
+	<string name="menuDisconnect">Szétkapcsolás</string>
+	<string name="menuHosts">Manage hosts</string>
+	<string name="menuHostInfo">Több információ</string>
+	<string name="menuManage">Kliens kezelése</string>
+	<string name="menuPreferences">Beállítások</string>
+	<string name="menuReconnect">Újrakapcsolódás</string>
+	<string name="menuRefresh">Frissítés</string>
+	<string name="menuNativeClient">Natív kliens</string>
+
+	<!-- About -->
+	<string name="aboutTitle">Alapvető információk</string>
+	<string name="aboutHomepageUrl">http://nativeboinc.org/</string>
+	<string name="aboutText">
+		%1$s teljesen kiforrott natív BOINC kliens Androidra integrálva
+		A AndroBOINC menedzser alapján. v1.6.7b3.\n
+		Köszönet, hogy használod a programom .\n
+		Copyright &#169; 2012-2013 matszpk\n
+		Eredeti AndroiBionc Pavel Michalec-től (Paulo M.)\n
+		\n
+		Köszönet:\n
+		Troll81 - a logo dizájnolásáért.\n
+		BOINC@Poland - a támogatásért.\n
+		Haer and eLPeCKo from CNT - cseh fordítás.\n
+		Daniel Winzen - német fordítás.\n
+		Paolo (bax) - olasz fordítás\n
+                uno20001 - magyar fordítás\n
+	</string>
+
+	<!-- Preferences -->
+	<string name="prefCategoryUI">Felhasználói felület</string>
+	<string name="prefScreenOrientation">Képernyő forgatás</string>
+	<string name="prefKeepScreenOn">Képernyő ébrentartás</string>
+	<string name="prefKeepScreenOnEnabled">Képernyő kikapcsolásának akadályozása</string>
+	<string name="prefKeepScreenOnDisabled">Képernyő kikapcsol, inaktivitás után</string>
+	<string name="prefAutoConnectTitle">Autómatikus kapcsolódás</string>
+	<string name="prefAutoConnectDisabled">Nincs automatikus indítás elindításkor</string>
+	<string name="prefAutoConnectEnabled">Kapcsolódj a legutóbbi klienshez elindításkor</string>
+	<string name="prefCategoryNativeBoinc">Native BOINC kliens</string>
+	<string name="prefPowerSaving">Energiatakarékosság</string>
+	<string name="prefPowerSavingOnDisabled">Nincs képernyőzár</string>
+	<string name="prefPowerSavingOnEnabled">Engedélyezd a képernyőzárt és a CPU underclocking-t</string>
+	<string name="prefScreenLockUpdateInterval">Képernyőzár frissítési periódus</string>
+	<string name="prefScreenLockUpdateIntervalSummary">Képernyőzár frissítése minden</string>
+	<string name="prefWidgetUpdateInterval">Widget frissítési periódus</string>
+	<string name="prefWidgetUpdateIntervalSummary">Widget frissítése minden</string>
+	<string name="prefCategoryNetworkBW">Hálózat sávszélessége</string>
+	<string name="prefAutoUpdateIntervalWiFi">WIFI frissítési periódus</string>
+	<string name="prefAutoUpdateIntervalMobile">Mobil firssítése priódus</string>
+	<string name="prefAutoUpdateIntervalLocalhost">Helyi hálózat frissítási periódus</string>
+	<string name="prefAutoUpdateIntervalSummary">Automatikus frissítés minden</string>
+	<string name="prefLimitMessagesTitle">Az üzenetek maximális száma</string>
+	<string name="prefLimitMessagesDisabled">Minden üzenet letöltése kapcsolódáskor (megnöveli az adathasználat)</string>
+	<string name="prefLimitMessagesEnabled">Retrieve only 50 recent messages on connect (csökkenti az adathasználatot)</string>
+	<string name="prefNetworkUsageStats">Hálózat használata: </string>
+	<string name="prefNetworkUsageDisabled">Nincsenek statisztikák</string>
+	<string name="prefNetworkUsageNull">Fogadva: 0B, Elküldve: 0B</string>
+	<string name="prefNetworkUsageDisclaimer">
+		The numbers displayed in network usage here are not exact.
+		Do not rely on them.
+	</string>
+	<string name="prefOptOutText">Do not show me this notice again.</string>
+	<string name="prefCategoryAbout">Rólunk</string>
+	<string name="prefAboutTitle">Az alkalmazásról</string>
+	<string name="prefChangelogSummary">Változtatások</string>
+	<string name="prefLicenseSummary">Licensz szövege</string>
+	<string name="prefNewsUpdatePeriodTitle">Hírek frissítési periódus</string>
+	<string name="prefNewsUpdatePeriodSummary">hírek frissítése minden</string>
+	<string name="prefViewItemTypeTitle">Az elem típusának megtekintése</string>
+	<string name="prefViewItemTypeSummary">Az elem típusának megtekintése</string>
+
+	<!--  Local Preferences -->
+	<string name="localPreferences">Helyi beállítások</string>
+
+	<string name="localPrefComputeOptions">Számolás...</string>
+
+	<string name="localPrefComputeOnBatteries">Csak akkor fut, ha a készülék nincs töltőn</string>
+	<string name="localPrefRunAlwaysWhenPlugged">Fut, ha töltőn van</string>
+	<string name="localPrefComputeInUse">Fut, míg a készülék használatban van</string>
+	<string name="localPrefUseGPUInUse">Használja a GPU-t, ha a készülék használatban van</string>
+	<string name="localPrefComputeIdleFor">Akkor fut, ha a készülék nyugalmi állapotban van</string>
+	<string name="minutes">perc</string>
+	<string name="localPrefComputeUsageLessThan">Kissebb CPU használat mint:</string>
+	<string name="percent">%</string>
+	<string name="localPrefSwitchBetween">Váltás a folyamatok között minden</string>
+	<string name="localPrefBatteryNL">Míg az akkumulátor töltöttsége min</string>
+	<string name="localPrefTempLT">Míg az akkumulátor hőmérséklete max.</string>
+	<string name="degreeC">°C</string>
+	<string name="localPrefUseAtMost">Max,</string>
+	<string name="localPrefPercentCPUTime">%-a a CPU-időnek</string>
+	<string name="localPrefPercentCPUs">%-a CPU teljesíményének</string>
+
+	<string name="localPrefNetworkUsage">Hálózat</string>
+
+	<string name="localPrefXferOnlyWhenWifi">Adatátvitel, ha a WIFI be van kapcsolva</string>
+	<string name="localPrefMaxDownloadRate">Maximális letöltési arány</string>
+	<string name="localPrefMaxUploadRate">Maximális feltöltési arány</string>
+	<string name="localPrefConnectAboutEvery">Csatlakozz minden</string>
+	<string name="localPrefAdditWorkBuffer">További munka betöltése</string>
+	<string name="kBytesSec">KBájt/mp</string>
+	<string name="localPrefTransferAtMost">Maximum letöltés:</string>
+	<string name="localPrefmBytesEvery">MB minden</string>
+	<string name="days">napok</string>
+	<string name="localPrefSkipImageVerify">A kép igazolásának átugrása</string>
+
+	<string name="localPrefDiskRAMUsage">Lemez &amp; RAM</string>
+
+	<string name="localPrefLeaveAtLeast">Max</string>
+	<string name="localPrefGBDisk">GB</string>
+	<string name="localPrefGBDiskFree">GB szabad lemez</string>
+	<string name="localPrefPercentTotalDisk">%-a szabad lemezterületnek</string>
+
+	<string name="localPrefMemoryWhenInUse">%.(használatban)</string>
+	<string name="localPrefMemoryWhenInIdle">%.(nem használatban)</string>
+	<string name="localPrefCheckpointToDisk">Checkpoint a lemezre, minden</string>
+	<string name="seconds">mp</string>
+	<string name="localPrefWrong">Hibás érték!</string>
+	<string name="localPrefLeaveApplications">A program felfüggesztése esetén maradjon a futó folyamatok között</string>
+	<string name="applyDefault">Alapérték!</string>
+
+	<!-- time preferences -->
+	<string name="cpuTimePrefTitle">Számolási idő beállításai</string>
+	<string name="netTimePrefTitle">Hálózati idő beállításai</string>
+
+	<string name="timePrefEveryDay">A hát minden napján</string>
+	<string name="monday">Hétfő</string>
+	<string name="tuesday">Kedd</string>
+	<string name="wednesday">Szerda</string>
+	<string name="thursday">Csütörtök</string>
+	<string name="friday">Péntek</string>
+	<string name="saturday">Szombat</string>
+	<string name="sunday">Vasárnap</string>
+
+	<string name="setHour">Óra beállítása</string>
+
+	<!-- Network status -->
+	<string name="networkUnavailable">Nincs hálózati kapcsolat.</string>
+
+	<!-- ManageClient Activity -->
+	<string name="currentHostTitle">Jelenlegi kiszolgáló(hoszt)</string>
+	<string name="noHostConnected">Nincs kiszolgálóhoz(host) kapcsolódva</string>
+	<string name="clientConnecting">Kapcsolódás a klienshez: &#8230;</string>
+	<string name="selectHostTitle">Jelenlegi kiszolgáló(host)</string>
+	<string name="selectHostNoneAvailable">A BOINC kliens nincs konfigurálva.</string>
+	<string name="selectHostDialogTitle">Kiszolgáló(host) kiválasztása</string>
+	<string name="clientNameNone">Nincs/semmi</string>
+	<string name="clientIdNone">0</string>
+	<string name="manageCategoryOptions">Opciók</string>
+	<string name="clientAddProjectTitle">BOINC projekt hozzáadása</string>
+	<string name="clientAddProjectSummary">BOINC projekt hozzáadása</string>
+	<string name="clientUpdateTitle">Bináris fájlok frissítése...</string>
+	<string name="clientUpdateSummary">BOINC kliens vagy a projekt folyamatok frissítése</string>
+	<string name="clientSyncBAMTitle">Szinkronizálás a BAM-mal</string>
+	<string name="clientSyncBAMSummary">Szinkronizálás megpróbálása a BAM-mal</string>
+	<string name="clientStopBAMTitle">BAM használatának leállítása</string>
+	<string name="clientStopBAMSummary">BAM menedzser használatának leállítása</string>
+	<string name="clientStopBAMNotify">BAM menedzser használatának leállítása</string>
+	<string name="clientLocalPrefsTitle">Helyi beállítások</string>
+	<string name="clientLocalPrefsSummary">helyi beállítások a kliens számára</string>
+	<string name="clientGlobalPrefsTitle">Használd a globális beállításokat</string>
+	<string name="clientGlobalPrefsSummary">Használd a globális (web-alapú) beállításokat</string>
+	<string name="manageCategoryActivity">Aktivitás</string>
+	<string name="clientActivityRunTitle">Futási mód</string>
+	<string name="clientActivityRunDialogTitle">Futási mód</string>
+	<string name="clientActivityNetworkTitle">Hálózati aktivitás</string>
+	<string name="clientActivityNetworkDialogTitle">Hálózati aktivitás</string>
+	<string name="clientActivityGpuTitle">GPU aktivitás</string>
+	<string name="clientActivityGpuDialogTitle">GPU aktivitás</string>
+	<string name="manageCategoryAdvanced">Haladó</string>
+	<string name="clientProxySettingsTitle">Proxy beállítások</string>
+	<string name="clientProxySettingsSummary">Kapcsolódás proxyval</string>
+	<string name="clientRunBenchTitle">Porcesszor benchmark teszt futtatása</string>
+	<string name="clientRunBenchSummary">BOINC, processzor benchmark teszt futtatása</string>
+	<string name="clientRunBenchNotify">Porcesszor benchmark futtatása</string>
+	<string name="clientDoNetCommTitle">Hálózati kummunikáció</string>
+	<string name="clientDoNetCommSummary">Minden hálózati kommunikáció \'elintézése\'</string>
+	<string name="clientDoNetCommNotify">A hálózati kommunikáció indítása</string>
+	<string name="clientShutdownTitle">Kliens szüneteltetése</string>
+	<string name="clientShutdownSummary">Kapcsolja ki a jelenleg csatlakoztatott központi klienst </string>
+	<string name="clientShutdownNotify">Állítsa le a jelenleg csatlakoztatott központi klienst</string>
+	<string name="warnShutdownText">A csatlakoztatott központi kliens le fog állni. Ez a menedzser ezek után nem tud kapcsolódni hozzá.</string>
+
+	<!-- proxy settings -->
+	<string name="proxySettings">Proxy beállítások</string>
+	<string name="proxyHttpProxy">HTTP Proxy</string>
+	<string name="proxySocksProxy">SOCKS Proxy</string>
+	<string name="proxyUseHttpProxy">HTTP proxy szerver használata</string>
+	<string name="proxyUseSocksProxy">SOCKS proxy szerver használata</string>
+	<string name="proxyServerAddress">Szerver cím</string>
+	<string name="proxyServerPort">Szerver port</string>
+	<string name="proxyServerUserName">Felhasználónév</string>
+	<string name="proxyServerUserPassword">Jelszó</string>
+	<string name="proxyNoForHosts">Ne használja </string>
+
+	<!--  NativeClient activity -->
+	<string name="nativeAutostart">Kliens idítás</string>
+	<string name="nativeAutostartTitle">Autómatikus indítás</string>
+
+	<string name="newsAndUpdates">Hírek és firssítések</string>
+	<string name="nativeLatestNewsTitle">Legutóbbi hírek</string>
+	<string name="nativeLatestNewsSummary">Mutasd a legutóbbi hírek listáját</string>
+
+	<string name="notifyNewsUpdatesTitle">Értesítés a legújabb hírekről és bináris féjlokról</string>
+	<string name="notifyNewsUpdatesSummaryOn">Értesítsen az új hírekről és bináris fájlokról minden 6. órában</string>
+	<string name="notifyNewsUpdatesSummaryOff">NE értesítsen az új hírekről és bináris fájlokról minden 6. órában</string>
+
+	<string name="nativeBoincClient">Native BOINC kliens</string>
+	<string name="nativeBoincNetwork">Hálózati beállítások</string>
+
+	<string name="nativeHostnameTitle">Eszköz név változtatás</string>
+	<string name="nativeHostnameSummaryNone">Fogadva a hálózati rendszertől</string>
+	<string name="nativeHostnameSummaryCurrent">Jelenlegi név</string>
+	<string name="nativeRemoteAccessTitle">Engedélyezi a távoli hozzáférést</string>
+	<string name="nativeRemoteAccessSummaryOn">Távoli elérés engedélyezése más eszközök számára</string>
+	<string name="nativeRemoteAccessSummaryOff">Disallow remote access for other hosts</string>
+	<string name="nativeAccessPasswordTitle">Hozzáférési jelszó</string>
+	<string name="nativeAccessPasswordSummary">A kliens jelszó módosítása</string>
+	<string name="nativeAccessListTitle">Hozzáférés a kiszolgálókhoz - lista</string>
+	<string name="nativeAccessListSummary">A kiszolgálók listája, akiknek van hozzáfáráse a BOINC klienshez.</string>
+
+	<string name="nativeBoincInstallation">Telepítési opciók</string>
+
+	<string name="nativeMoveToSDCardTitle">Áthelyzés az SD kártáyra</string>
+	<string name="nativeMoveToSDCardSummary">BOINC áthelyezése az SD kártyára</string>
+	<string name="nativeMoveToIntMemTitle">Áthelyezés a belső memóriába</string>
+	<string name="nativeMoveToIntMemSummary">BOINC áthelyezése a belső memóriába</string>
+	<string name="nativeInstalledBinariesTitle">Telepített bináris fájlok</string>
+	<string name="nativeInstalledBinariesSummary">Telepített bináris fájlok listája</string>
+	<string name="nativeUpdateBinariesTitle">Binárisok frissítése</string>
+	<string name="nativeUpdateBinariesSummary">Kliens és a porjekt bináris fájljainak frissítése</string>
+	<string name="nativeUpdateFromSDCardTitle">Frissítés az SD kártyáról</string>
+	<string name="nativeUpdateFromSDCardSummary">Kliens és a projekt folyamatok frissítése az SD kártyáról</string>
+	<string name="nativeReinstallTitle">BOINC újratelepítése</string>
+	<string name="nativeReinstallSummary">BOINC újratelepítés elvégzése</string>
+	<string name="nativeDeleteProjectBinsTitle">A projekt bináris fájljainak törlése</string>
+	<string name="nativeDeleteProjectBinsSummary">A projekt bináris fájljainak törlése (az app_info.xml-ből)</string>
+
+	<string name="nativeBoincConfiguration">Konfigurációs opciók</string>
+
+	<string name="nativeApplyConfigFileTitle">Konfigurációs fájl alkalmazása</string>
+	<string name="nativeApplyConfigFileSummary">Alkalmazása/törölése cc_config.xml fájl</string>
+
+	<string name="nativeBoincDiagnostics">Diagnosztikai opciók</string>
+
+	<string name="nativeBugCatcherTitle">BugCatcher mód</string>
+	<string name="nativeBugCatcherSummary">Engedélyezd a BugCather módot, bug-ok küldése/kijelzése</string>
+	<string name="nativeDumpBoincDirTitle">BOINC fájlok kiírása</string>
+	<string name="nativeDumpBoincDirSummary">Az egész BOINC kiírása az SD kártyára</string>
+	<string name="nativeShowLogsTitle">Napló-fájlok mutatása</string>
+	<string name="nativeShowLogsSummary">Utolsó napló fájlok mutatása a BOINC kliensből</string>
+
+	<string name="nativeBoincLogs">A legutóbbi BOINC napló fájlok</string>
+	<string name="nativeBoincLogsHelp">Az opciókhoz nyomd meg a menü gombot.</string>
+
+	<string name="updateFromSDCard">Bináris fájlok frissítése az SD kártyáról</string>
+	<string name="enterUpdateDir">Írd be a frissítési mappát</string>
+	<string name="applyAfterRestart">A beállítások érvényesítéséhez úja kell indítania a klienst. Megteszi most?</string>
+
+	<!-- dump boinc files -->
+	<string name="enterDumpDir">Enter dump directory</string>
+
+	<string name="dumpFiles">Dump files</string>
+	<string name="dumpBoincBegin">Begin dumping BOINC files</string>
+	<string name="dumpBoincProgress">Dumping BOINC files</string>
+	<string name="dumpBoincFinish">Dumping BOINC files finished</string>
+	<string name="dumpBoincWarn">Directory %s exists. During dumping will be deleted! Do you really want to continue dumping of BOINC files?</string>
+
+	<!-- reinstall boinc -->
+	<string name="boincReinstall">BOINC újratelepítése</string>
+	<string name="reinstallBegin">BOINC újratelepítés elkezdése</string>
+	<string name="reinstallInProgress">BOINC újratelepítése</string>
+	<string name="reinstallFinish">Vége az újratelepítésnek</string>
+	<string name="reinstallQuestion">Az újratelepítéskor letörlődik a BOINC mappája (a projektekkel együtt). Valóban újra akarod telepíteni a BOINC-ot?</string>
+	<string name="waitingForShutdown">Várakozás a leállításra</string>
+
+	<!-- move from/to sdcard -->
+	<string name="boincMoveTo">BOINC áthelyezése</string>
+	<string name="moveToBegin">BOINC áthelyezése elkezdődött</string>
+	<string name="moveToProgress">BOINC áthelyezés folyamatban</string>
+	<string name="moveToFinish">A BOINC áthelyezése megtörtént</string>
+
+	<!-- access host list activity -->
+	<string name="accessHostList">Hoszt lista</string>
+	<string name="addHost">Hoszt hozzáadása</string>
+	<string name="remoteHostsLoadError">Nem tudom beolvasni a távoli gépek listáját </string>
+	<string name="remoteHostsSaveError">Nem tudom elmenteni a távoli gépek listáját </string>
+
+	<!-- config file activity -->
+	<string name="configFile">Alkalmazd a konfigurációt</string>
+	<string name="configContent">Konfigurációs fájl tartalma:</string>
+	<string name="configFromSDCard">Betöltés memóriából</string>
+	<string name="deleteConfigFile">Konfiguráció törlése</string>
+	<string name="confirmConfigDelete">Törölni akarod a konfigurációs fáljt?</string>
+	<string name="enterConfigPath">Írd be a konfigurációs fálj elérési útvonalát!</string>
+	<string name="configFileReadError">Nem tudom olvasni a konfigurációs fájlt!</string>
+	<string name="configFileWriteError">Nem tudom írni a konfigurációs fájlt!</string>
+
+	<!-- bug catcher activity -->
+	<string name="bugsDetectedTitle">Találtam egy BUG-ot!</string>
+	<string name="bugsDetectedSummary">Egy bug észlelve. Írd be a BugCatcher-be.</string>
+	<string name="bugCatcher">Bug catcher mód</string>
+	<string name="bugCatcherDesc">Ez a mód engedélyezi, hogy elkapjunk egy bug-ot a kliensben.</string>
+	<string name="enableBugCatch">Engedélyezve a BugCatcher mód</string>
+	<string name="sendBugReports">Visszajelzés küldése</string>
+	<string name="sendBugs">BUG küldése</string>
+	<string name="bugCatchAttachFailMessage">Very likely your device has a stock Android version. This version of the NativeBOINC is not debuggable.
+	    To run BugCatchMode please install BugCatchMode version (debuggable) which allows you to use BugCatchMode.
+	    BugCatchMode version is available at http://nativeboinc.org/site/uncat/downloads</string>
+	<string name="bugsSDCardDirectory">Enter Bugs directory</string>
+	<string name="bugSendingBegin">Begin sending bug reports to author</string>
+	<string name="bugSendingProgress">BUG visszajelzés küldése a készítőnek</string>
+	<string name="bugSendingError">Can\'t send some bug reports</string>
+	<string name="bugSendingCancel">BUG visszajelzés küldés megszakítva</string>
+	<string name="bugSendingFinished">Sending bug reports finished</string>
+	<string name="bugCopyingBegin">Begin copying bug reports to SDCard</string>
+	<string name="bugCopyingProgress">BUG visszajelzések másolása az SD kártyára</string>
+	<string name="bugCopyingError">Can\'t copy some bug reports to SDCard</string>
+	<string name="bugCopyingCancel">Copying bug reports to SDCard cancelled</string>
+	<string name="bugCopyingFinished">BUG viszzajelzések másolása az SD kártyára befejeződött</string>
+	<string name="bugCatchClearQuestion">Do you want to clear bug reports? If Yes, bug reports won\'t be sent to author.</string>
+
+	<string name="synchronizeBAM">Szinkronizálás a BAM-mal</string>
+	<!--  progress dialog messages -->
+	<string name="synchronizingBAM">Szinkronizálás a BAM-mal&#8230;</string>
+
+	<string name="shutdownAskText">Ki akaraod kapcsolni a natív klienst?</string>
+
+	<!-- logs -->
+	<string name="enterOutputFilePath">Enter output file path</string>
+	<string name="boincLogsSaveError">Unable to save to SDCard BOINC logs</string>
+
+	<!-- HostList Activity -->
+	<string name="selectHost">Kiszolgáló kiválasztása</string>
+	<string name="hostAddNew">Új kiszolgáló hozzáadása</string>
+	<string name="hostEdit">Kiszolgáló szerkesztése</string>
+	<string name="hostDelete">Kiszolgáló(k) törlése</string>
+	<string name="hostSetDefault">Alapértelmezett kiszolgáló beállítása</string>
+	<string name="noHostDefined">Nincs kiszolgáló meghatározva</string>
+	<string name="hostNone">Nincs kiszolgáló</string>
+	<string name="hostNoneSummary">Lekapcsolódás a jelenlegi kiszolgálóról</string>
+	<string name="hostOperation">Kiszolgálói opciók</string>
+
+	<!-- ProjectList Activity -->
+	<string name="projectList">Projekt kiválasztása</string>
+	<string name="noProjects">A projekt lista üres</string>
+	<string name="otherProject">Egyéb projekt</string>
+	<string name="otherProjectDetails">Egyéb projekt kiválasztása</string>
+	<string name="projectsFromClient">Mutasd a projekteket a kliens számára</string>
+	<string name="projectsFromClientDetails">Mutas a projekteket a BOINC kliens számára</string>
+	<string name="projectListHelp">Ez a lista nem támogatott. Ha több információt szeretnél nyomj hosszan az elemre.</string>
+
+	<string name="projectUrl">Írd be a projekt URL-címét</string>
+
+	<!-- Host edit dialog -->
+	<string name="editHostNickname">Kiszolgáló nicknév</string>
+	<string name="editHostAddress">Cím</string>
+	<string name="editHostPort">Port</string>
+	<string name="editHostPassword">Jelszó</string>
+
+	<!-- BAM edit dialog -->
+	<string name="editBAM">BAM menedzser szerkesztése</string>
+	<string name="editBAMName">Felhasználónév</string>
+	<string name="editBAMUrl">URL-cím</string>
+	<string name="editBAMPassword">jelszó</string>
+	<string name="editBAMDefaultUrl">http://bam.boincstats.com/</string>
+	<string name="attachBAMInProgress">Hozzáadás a BAM-hoz folyamatban&#8230;</string>
+
+	<!-- Add Project dialog  -->
+	<string name="addProject">Projekt hozzáadása</string>
+	<string name="addProjectCreate">Regisztráció</string>
+	<string name="addProjectUse">Belépés</string>
+	<string name="addProjectName">Felhasználónév</string>
+	<string name="addProjectEmail">Email cím</string>
+	<string name="addProjectPassword">jelszó</string>
+	<string name="addProjectMinPassword">Minimum jelszó hossz</string>
+	<string name="termsOfUse">Használati feltételek</string>
+	<string name="addingProject">Projekt hozzáadása&#8230;</string>
+
+	<!-- Install Wizard Activity -->
+	<string name="installWizard">Telepítési varázsló</string>
+	<string name="installWelcome">Köszöntünk a NativeBOINC-ban</string>
+	<string name="installClientInstall">Érintsd meg a \'Tovább\' gombot, hogy letöltsd és telepítsd a natív BOINC klienst.</string>
+	<string name="haveProblemsSelectOlder">Problémáim vannak a 0.5.9x verzióval, válaszd 0.4.9x verziót</string>
+	<string name="versionToInstall">Telepítési verzió</string>
+	<string name="placeToInstall">Telepítési hely</string>
+	<string name="installSuccessfully">NativeBOINC sikeresen telepítve!</string>
+	<string name="installAddProject">Érintsd meg az \'Projekt hozzáadása\' gombot és válaszd ki az első BOINC projektet, vagy \'Szinkronizálás a BAM-mal\' ha szinkronizálni szeretnéd a klienst a BAM-mal.</string>
+	<string name="installFinished">A telepítés sikerült érintsd meg \'Kész\' gombot.</string>
+	<string name="installWidgetFinished">Tanács: Használd a NativeBOINC widget-jét, hogy irányítsd a prrogramot.</string>
+	<string name="installInfoFinished">Tanács: A projektek közt böngészhetsz a WIKI-n \'http://nativeboinc.org/\' Ha segítséget kérnél vagy informálódni szeretnél.</string>
+	<string name="installFinishedBenchmark">Az első projekt telepítése előtt a BOINC kliens futtat egy Benchmark-ot, amely 30 másodpercen beül véget ér</string>
+
+	<string name="installReadBefore">TELEPÍTÉS ELŐTT OLVASD EL!</string>
+	<string name="installAttention2">Ha a program váratlanul leáll használd \'Kényszerített leállítást\' és indítsd el újra.
+	    A program leállítja a klieseket a kezdéskor.</string>
+	<string name="installAttention3">A BOINC kliens a háttérben dolgozik, ahhoz hogy kikapcsold használd a \'Kikapcsolás\' gombot</string>
+
+	<string name="installNetworkAccess1">BOINC kliens lehetővé teszi, hogy csatlakozz hálózaton a BOINC Managerhez.</string>
+
+	<string name="installClientNotifyBegin">BOINC kliens telepítése</string>
+	<string name="installClientNotifyFinish">BOINC kliens telepítve</string>
+	<string name="installProjectNotifyBegin">Folyamatok telepítése:</string>
+	<string name="installProjectBegin">Folyamatok telepítése kész</string>
+	<string name="installProjectNotifyFinish">Folyamat telepítésre került</string>
+
+	<string name="youCanChange">Most megváltoztathatod:</string>
+
+	<string name="distribsLoadFailed">VÉGZETES HIBA!!! A disztribúciók betöltése sikertelen! Frissítsd a tömötrített fájlokat!</string>
+	<!-- ca-bundle.crt -->
+	<string name="caCertInstalling">Tanusítvány telepítése</string>
+	<string name="caCertInstallFailed">Nem lehet telepíteni a tanusítványokat</string>
+
+	<!-- Change password activity -->
+	<string name="accessPassword">Hozzáférési jelszó</string>
+	<string name="hostname">Hoszt név</string>
+
+	<!--  info ..... -->
+	<string name="clientInfo">Kliens információk</string>
+	<string name="appInfo">Program információ</string>
+	<string name="clientVersion">Kliens verzió</string>
+	<string name="description">Leírás</string>
+	<string name="changes">Változtatások</string>
+
+	<string name="noInstallOpsText">Nincs művelet a háttérben.</string>
+	<string name="installProgressText">NativeBOINC a háttérben végez műveleteket.</string>
+	<string name="operationsProgress">Operations progress</string>
+
+	<!-- ProjectsActivity -->
+	<string name="projectCtxMenuTitle">Parancs</string>
+	<string name="projectUpdate">Frissítés</string>
+	<string name="projectSuspend">Felfüggesztve</string>
+	<string name="projectResume">Folytatás</string>
+	<string name="projectDetach">Törlés</string>
+	<string name="projectNNW">Nincs új "/munka"/</string>
+	<string name="projectANW">Új "/munka"/ engedélyzeve</string>
+	<string name="projectProperties">Tulajdonságok</string>
+	<string name="projectStatusActive">Aktív</string>
+	<string name="projectStatusSuspended">Felfüggesztve a felhasználó által</string>
+	<string name="projectStatusNNW">Nincs új folyamat</string>
+
+	<string name="warnDetachProject">Biztos le akarod választani a projektet (%1$s)?</string>
+	<string name="warnDetachProjects">Biztos le akarod választani a projekteket?</string>
+
+	<string name="projectCredits">Összesen:%1$.0f RAC:%2$.0f Kiszolgáló:%3$.0f KiszolgálóRAC:%4$.0f</string>
+	<string name="projectDetailedInfo">
+		&lt;b>Projekt:&lt;/b> %1$s&lt;br>\n
+		&lt;b>Felhasználó fiók:&lt;/b> %2$s&lt;br>\n
+		&lt;b>Csapat:&lt;/b> %3$s&lt;br>\n
+		&lt;b>Intenzív CPU használat:&lt;/b> %4$s&lt;br>\n
+		&lt;b>Felhasználói kreditek:&lt;/b> %5$.2f&lt;br>\n
+		&lt;b>Felhsználói RAC:&lt;/b> %6$.2f&lt;br>\n
+		&lt;b>Kiszolgálói kreditek:&lt;/b> %7$.2f&lt;br>\n
+		&lt;b>Kiszolgáló RAC:&lt;/b> %8$.2f&lt;br>\n
+		&lt;b>Erőforrás megosztás:&lt;/b> %9$s&lt;br>\n
+		&lt;b>Memóriahasználat:&lt;/b> %10$s&lt;br>\n
+		&lt;b>Kiszolgáló azonosítója:&lt;/b> %11$d&lt;br>\n
+		&lt;b>Kiszolgáló helyzete:&lt;/b> %12$s&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoNormal">
+	    &lt;b>CPU feladtok elvégzésének prioritása:&lt;/b> %1$.2f&lt;br>\n
+		&lt;b>CPU munkamenet letöltési prioritás:&lt;/b> %2$.2f&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoATI">
+	    &lt;b>ATI feladtok elvégzésének prioritása:&lt;/b> %1$.2f&lt;br>\n
+		&lt;b>ATI munkamenet letöltési prioritás:&lt;/b> %2$.2f&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoNVIDIA">
+	    &lt;b>nVidia feladtok elvégzésének prioritása:&lt;/b> %1$.2f&lt;br>\n
+		&lt;b>nVidia munkamenet letöltési prioritás:&lt;/b> %2$.2f&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoNormalEnd">
+		&lt;b>Időtartam korrekciós tényező:&lt;/b> %1$.4f&lt;br>\n
+	</string>
+	<string name="projectDetailedInfoEnd">
+	    &lt;b>Státusz:&lt;/b> %1$s
+	</string>
+
+	<!--  messages activity -->
+	<string name="messageFilters">Üzenet filterek</string>
+
+	<!-- Update activity -->
+	<string name="updateBinaries">Fájlok frissítése</string>
+	<string name="updateNewAvailable">Új fájlok elérhetőek</string>
+	<string name="updateNoNew">Nincsenek új fájlok</string>
+	<string name="updateBoincClient">BOINC Kliens</string>
+	<string name="updateUpdating">Frissítése</string>
+
+	<!-- Delete project binaries -->
+	<string name="deleteProjectBins">Porjekt fájlok törlése</string>
+	<string name="noProjectsWithInstalledBins">Nincs projekt telepített fájlokkal</string>
+
+	<!-- TasksActivity -->
+	<string name="taskCtxMenuTitle">Parancsok</string>
+	<string name="taskSuspend">Felfüggesztés</string>
+	<string name="taskResume">Folytatás</string>
+	<string name="taskAbort">Megszakítás</string>
+	<string name="taskProperties">Properties</string>
+	<string name="warnAbortTask">Meg akarod szakítani a következő folyamatot: (%1$s)?</string>
+	<string name="warnAbortTasks">Meg akarod szakítani a kijelölt folyamatokat?</string>
+	<string name="taskDetailedInfoCommon">
+		&lt;b>Folyamat:&lt;/b> %1$s&lt;br>\n
+		&lt;b>Projekt:&lt;/b> %2$s&lt;br>\n
+		&lt;b>Projekt folyamat:&lt;/b> %3$s&lt;br>\n
+		&lt;b>Fogadva:&lt;/b> %4$s&lt;br>\n
+		&lt;b>Folyamatban:&lt;/b> %5$s&lt;br>\n
+		&lt;b>Eltelt idő:&lt;/b> %6$s&lt;br>\n
+		&lt;b>A befejezésig:&lt;/b> %7$s&lt;br>\n
+		&lt;b>Jelentési határidő:&lt;/b> %8$s&lt;br>\n
+		&lt;b>Becsült folyamat méret:&lt;/b> %9$s&lt;br>\n
+		&lt;b>Maximális RAM használat:&lt;/b> %10$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoRun">
+		&lt;b>Virtuális memória méret:&lt;/b> %1$s&lt;br>\n
+		&lt;b>Munka beállítás méret:&lt;/b> %2$s&lt;br>\n
+		&lt;b>CPU idő:&lt;/b> %3$s&lt;br>\n
+		&lt;b>Utolsó ellenőrzés (CPU idő):&lt;/b> %4$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoRunPid">
+		&lt;b>Folyamat azonosító:&lt;/b> %1$d&lt;br>\
+	</string>
+	<string name="taskDetailedInfoRunDir">
+	    &lt;b>Könyvtár:&lt;/b> %1$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoRes">
+		&lt;b>Források:&lt;/b> %1$s&lt;br>\n
+	</string>
+	<string name="taskDetailedInfoEnd">
+		&lt;b>Státusz:&lt;/b> %1$s
+	</string>
+
+	<!-- TransfersActivity -->
+	<string name="downloadFailed">Letöltés sikertelen</string>
+	<string name="downloading">Letöltés</string>
+	<string name="downloadPending">Letöltés folyamatban</string>
+	<string name="projectBackoff">Prjekt visszalépés</string>
+	<string name="retryIn">Újra a(z)</string>
+	<string name="transferAbort">Megszakítás</string>
+	<string name="transferProperties">Properties</string>
+	<string name="transferRetry">Újra</string>
+	<string name="uploadFailed">Feltöltés sikertelen</string>
+	<string name="uploading">Feltöltés</string>
+	<string name="uploadPending">Feltöltés folyamatban</string>
+	<string name="warnAbortTransfer">Are you sure you want to abort transfer of this file (%1$s)?</string>
+	<string name="warnAbortTransfers">Are you sure you want to abort transfer of selected files?</string>
+	<string name="transferDetailedInfo">
+		&lt;b>Fájl:&lt;/b> %1$s&lt;br>\n
+		&lt;b>Projekt:&lt;/b> %2$s&lt;br>\n
+		&lt;b>Méret:&lt;/b> %3$s&lt;br>\n
+		&lt;b>Progress:&lt;/b> %4$s&lt;br>\n
+		&lt;b>Eltelt:&lt;/b> %5$s&lt;br>\n
+		&lt;b>Sebesség:&lt;/b> %6$s&lt;br>\n
+		&lt;b>Státusz:&lt;/b> %7$s
+	</string>
+
+	<!-- Screen Lock activity -->
+	<string name="lockWeAreComputing">Számolunk &#8230;</string>
+	<string name="lockNotRan">Nem futott</string>
+	<string name="lockTasksSuspended">Folyamat felfüggesztve</string>
+	<string name="lockToUnlock">Nyomd meg a HOME (ház) gombot a feloldáshoz</string>
+
+	<string name="clientDisconnected">Kliens szétkapcsolt</string>
+	<!-- Client Error display -->
+	<string name="clientError">Kliens hiba</string>
+	<string name="clientErrorNum">Hiba szám:</string>
+
+	<!-- operation strings -->
+	<string name="downloadPGPKey">PGP kulcs letöltése</string>
+	<string name="verifySignature">Aláírás érvényesítése</string>
+	<string name="downloadNativeClient">Natív kliens letöltése</string>
+	<string name="unpackNativeClient">Natív kliens kicsomagolása</string>
+	<string name="unpackApplication">A projekt folyamatok kicsomagolása</string>
+
+	<string name="downloadApplication">A projekt folyamatainak letöltése</string>
+
+	<string name="operationCancelled">A művelet nem sikerült</string>
+	<string name="operationFinished">A művelet sikerült</string>
+
+	<string name="nativeClientFirstStart">A Natív kliens első indítása</string>
+	<string name="nativeClientFirstStartError">A Natív kliens első indítása sikertelen</string>
+	<string name="nativeClientFirstKill">A Natív kliens folyamatának "/megölése"/</string>
+	<string name="nativeClientAwaitForShutdown">Várakozás a kikapcsolásra</string>
+
+	<string name="nativeClientConfigured">Natív kliens konfigurálva</string>
+
+	<string name="nativeClientStarting">Natív kliens indítása</string>
+	<string name="nativeClientStart">Natív kliens elindítva</string>
+	<string name="nativeClientStopping">Natív kliens leállítása</string>
+	<string name="nativeClientShutdown">Natív kliens leállítva</string>
+
+	<string name="nativeClientWorking">Natív kliens dolgozik...</string>
+
+	<!-- boinc Exit code text -->
+	<string name="nativeClientWaitFailed">Native client was loosed (but still working)!</string>
+	<string name="nativeClientNormalExitWithCode">A Natív kliens kilépett a kóddal</string>
+	<string name="nativeClientSignaled">A Natív kliens kilépett a jel miatt</string>
+	<string name="nativeClientStoppedByForeign">A Natív kliens megálította a külső kliensek felé való bejelentést</string>
+	<string name="nativeClientStopUnknownReason">Ismeretlen hiba miatt a NativeBOINC leállította magát</string>
+
+	<!-- native client events -->
+	<string name="eventAttachedProject">Új projekt hozzáadva</string>
+	<string name="eventAttachedProjectMessage">Projekt %s -ből/-ból hozzáadva</string>
+	<string name="eventDetachedProject">Projekt törölve</string>
+	<string name="eventDetachedProjectMessage">Projekt %s -ből/-ból leválasztva</string>
+	<string name="eventBencharkRun">Benchmark futott</string>
+	<string name="eventBencharkFinished">A benchmark véget ért</string>
+	<string name="eventSuspendAll">Az összes folyamatot felfüggesztettük</string>
+	<string name="eventRunTasks">Folyamatok folyatatása</string>
+
+	<string name="appListDownload">Projekt folyamatok listájának letöltése</string>
+	<string name="clientListDownload">Kliens lista letöltése</string>
+	<string name="waitingForClientUpdateAndRun">Várakozás a kliens frissítésére és futtatására</string>
+	<string name="finalizeProjectAppInstall">Projekt folyamat telepítésének véglegesítése</string>
+
+	<string name="waitingForBenchmarkFinish">Várakozás a benchmark-ra</string>
+
+	<!-- Error strings -->
+	<string name="clientDistribNotFound">Nem sikerült meghatározni a kliens elosztást</string>
+	<string name="installError">Telepítési hiba</string>
+	<string name="downloadPGPKeyError">Nem lehet letölteni PGP kulcsot</string>
+	<string name="loadPGPKeyError">Nem lehet betölteni a PGP kulcsot</string>
+	<string name="downloadNativeClientError">Nem lehet letölteni a natív klienst</string>
+	<string name="downloadApplicationError">Nem lehet letölteni a projekt folyamatokat</string>
+	<string name="downloadSignatureError">Nem lehet letölteni az aláírást</string>
+	<string name="verifySignatureError">Nem lehet igazolni az aláírást</string>
+	<string name="verifySignatureFailed">Signature verification failed</string>
+	<string name="unpackNativeClientError">Nem lehet kicsomagolni a natív klienst </string>
+	<string name="unpackApplicationError">Nem lehet kicsomagolni a project folyamtokat</string>
+	<string name="copyApplicationError">Nem lehet másolni a projekt folyamatokat</string>
+	<string name="changePermissionsError">Nem lehet módosítani a jogosultságokat</string>
+	<string name="copyNativeClientError">Nem lehet másolni a Native klienst</string>
+
+	<string name="runNativeClientError">Nem lehet futtatni a natív klienst </string>
+	<string name="connectNativeClientError">Nem lehet kapcsolódnia natív klienssel</string>
+	<string name="getAccessPasswordError">Nem lehet lekérni a jelszavat</string>
+	<string name="setAccessPasswordError">Nem lehet jelszavat beállítani</string>
+	<string name="nativeAuthorizeError">Nincs engedélyezve a hozzáférés</string>
+
+	<string name="nativeClientConfigError">Nem lehet konfigurálni a natív klienst</string>
+	<string name="nativeClientUpdateAppsError">Nem lehet frissíteni a projekt folyamatokat</string>
+	<string name="nativeClientNetCommError">Nincs internetkapcsolat</string>
+	<string name="nativeClientResultsError">Nincsenek eredméynek a natív klensből</string>
+	<string name="nativeClientProjectsError">Nincsenek projektek a natív kliensből</string>
+
+	<string name="appListDownloadError">Nem lehet letölteni a projekt folyamatok listáját.</string>
+	<string name="appListParseError">Nem lehet feldolgozni a projekt folyamatok listáját.</string>
+	<string name="clientListDownloadError">Nem lehet letölteni a kliens listát</string>
+	<string name="clientListParseError">Nem lehet beolvasni a kliens listát</string>
+	<string name="projectAppNotFound">A projekt programja nem található</string>
+
+	<string name="updateProjectAppError">Nem lehet véglegesíteni a projekt folyamatát: </string>
+
+	<string name="updateClientModeError">Hiba történt, miközben a BOINC frissíti a kliens módot</string>
+	<string name="boincOperationError">Hiba történt, miközben a BOINC végrehajtja a műveletet</string>
+	<string name="boincPollError">Hiba történt, miközben a BOINC lehívja a műveletet</string>
+
+	<string name="binSDCardDirReadError">Nem lehet beolvasni az SD kártyán lévő könyvtárat</string>
+	<string name="getProjectsFromClientError">Nem lehet letölteni a projektek listáját a klienstől!</string>
+	<string name="badDataInClientDistrib">Hiányos a kliensek elosztása!</string>
+	<string name="badDataInProjectDistribs">Hiányos a projektek elosztása!</string>
+
+	<string name="unexpectedError">Váratlan hiba</string>
+
+	<string name="errorNumFormat">(hiba: %d)</string>
+
+	<string name="cantAuthorizeClientMonitor">Nem\' lehet engedélyezni a kliens monitort!</string>
+	<string name="cantAuthorizeClientMonitorMessage">Nem\' lehet engedélyezni a kliens monitort! Nem\' lehet autómatikusan telepíteni a projekt bináris fájljait (Projekt hozzáadása után tudod használni a FRISSÍTSE A TÖMÖRÍTETT FÁJLOKAT opciót) vagy fogadni a klienstől. Újra tudod indítani a BOINC kliens (ajánljuk).</string>
+
+	<string name="cantDeleteProjectBins">Nem lehet törölni a projekt tömörített fájljait</string>
+	<!-- HostInfo display -->
+	<string name="hostInfoPart1">
+		&lt;b>Domain név:&lt;/b> %1$s&lt;br />
+		&lt;b>IP-cím:&lt;/b> %2$s&lt;br />
+		&lt;b> ID:&lt;/b> %3$s&lt;br />
+		&lt;b>Operációs renszer neve:&lt;/b> %4$s&lt;br />
+		&lt;b>Operációs renszer verziója:&lt;/b> %5$s&lt;br />
+		&lt;b>#Porcesszorok:&lt;/b> %6$s&lt;br />
+		&lt;b>Eladó:&lt;/b> %7$s&lt;br />
+		&lt;b>Model:&lt;/b> %8$s&lt;br />
+		&lt;b>Features:&lt;/b> %9$s&lt;br />
+	</string>
+	<string name="hostInfoVB">
+	    &lt;b>VirtualBox verzió:&lt;/b> %1$s&lt;br />
+	</string>
+	<string name="hostInfoPart2">
+		&lt;b>MFLOPS:&lt;/b> %1$s&lt;br />
+		&lt;b>MIPS:&lt;/b> %2$s&lt;br />
+		&lt;b>Memória sávszélessége:&lt;/b> %3$s&lt;br />
+		&lt;b>Kiszámolt sebesség:&lt;/b> %4$s&lt;br />
+		&lt;b>Memória mérete:&lt;/b> %5$s&lt;br />
+		&lt;b>Cache méret:&lt;/b> %6$s&lt;br />
+		&lt;b>Csere mérete:&lt;/b> %7$s&lt;br />
+		&lt;b>Lemez méret:&lt;/b> %8$s&lt;br />
+		&lt;b>Szabad hely a lemezen:&lt;/b> %9$s&lt;br />
+	</string>
+
+	<!-- news, news -->
+	<string name="latestNews">Legfirssebbhírek</string>
+	<string name="newsNotifyText">Új hír fogadva!</string>
+	<string name="newsMessage">Üzenetek</string>
+	<string name="noNewsAvailable">A hírek nem elérhetőek</string>
+
+	<string name="newBinariesAvailable">Új tömörített fájlok elérhetőek</string>
+</resources>

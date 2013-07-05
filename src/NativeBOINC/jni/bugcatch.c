@@ -177,7 +177,7 @@ static const char* manufacturer = NULL;
 static const char* android_release = NULL;
 static const char* kernel_version = NULL;
 /** NativeBoinc version **/
-static const char* nativeboinc_version = "0.4.4.1.2b";
+static const char* nativeboinc_version = "0.4.4.2.1b";
 
 static void init_android_info(JNIEnv* env)
 {

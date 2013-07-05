@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* 
+ * NativeBOINC - Native BOINC Client with Manager
+ * Copyright (C) 2011, Mateusz Szpakowski
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+ -->
+<LinearLayout
+  	xmlns:android="http://schemas.android.com/apk/res/android"
+  	android:orientation="vertical"
+  	android:layout_width="fill_parent"
+  	android:layout_height="wrap_content"
+  	android:padding="10dip">
+  	<TextView android:id="@+id/installProgressText"
+  		android:layout_width="fill_parent"
+  		android:layout_height="wrap_content"
+  		android:textSize="@dimen/labelTextSize"
+  		android:text="@string/noInstallOpsText" />
+  	<ListView android:id="@+id/installProgressList"
+  		android:layout_width="fill_parent"
+  		android:layout_height="0dip"
+  		android:layout_weight="1"
+  		android:paddingTop="5dip"
+    	android:paddingBottom="5dip" />
+  	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right"
+		android:paddingTop="10dip">
+		<Button android:id="@+id/progressNext"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:visibility="gone"
+			android:enabled="false"
+			android:text="@string/next" />
+	</LinearLayout>
+  	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="right"
+		android:paddingTop="10dip">
+		<Button android:id="@+id/progressCancelAll" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/cancelAll" />
+		<Button android:id="@+id/progressBack"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/back" />
+	</LinearLayout>
+</LinearLayout>

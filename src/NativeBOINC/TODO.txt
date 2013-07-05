@@ -25,6 +25,9 @@ PLANY WERSJI 0.4.5/0.4.6
     * w sidebar/downbar dodanie statystyk 
   * możliwość wyboru nowego/starego UI
 --- nowe opcje/funkcje
+    (ważne dla dalszych funkcji bugcatch)
+  * zmień ustalanie wersji z bugcatch.c z statycznego na dynamiczne (nie trzeba aktualizować kodu)
+
 / * dodanie możliwości wgrania/ustawienia cc_config.xml (mozliwe nowe okno z opcjami)
   * screensaver dla aplikacji (opcjonalnie)
   * renderscript/opencl do liczenia w aplikacjach (pewnie w następnych wersjach)

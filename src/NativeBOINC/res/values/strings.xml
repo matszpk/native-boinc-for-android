@@ -506,7 +506,7 @@
 	<string name="installAddProject">Please tap \'Add  project\' button to add first BOINC project, or \'Synchronize BAM\' if you want to synchronize client with BAM.</string>
 	<string name="installFinished">Installation has finished. Please tap \'Finish\' button.</string>
 	<string name="installWidgetFinished">Hint: We recommends to use NativeBOINC widget to control native client.</string>
-	<string name="installInfoFinished">Hint: You can also browse main site on \'http://nativeboinc.org/\' to get help and informations.</string>
+	<string name="installInfoFinished">Hint: You can also browse main site on \'http://nativeboinc.org/\' to get help and information.</string>
 	<string name="installFinishedBenchmark">During installing first project, BOINC can run benchmark, which works by 30 seconds.</string>
 
 	<string name="installReadBefore">READ BEFORE INSTALLATION:</string>
@@ -522,9 +522,9 @@
 	<string name="installProjectBegin">Installing applications</string>
 	<string name="installProjectNotifyFinish">Applications were installed</string>
 	
-	<string name="installBoincCancelQuestion">Do you want to definately resign with the BOINC client installation?
+	<string name="installBoincCancelQuestion">Do you want to definitely resign with the BOINC client installation?
 If yes, a client installation will be possible after reinstallation (or data removal) of the NativeBOINC.
-Choose \'Yes\' if you want only a NativeBOINC as BOINC manager.</string>
+Choose \'Yes\' if you only want to use NativeBOINC as BOINC manager.</string>
 
 	<string name="youCanChange">Now, you can change:</string>
 	
@@ -538,8 +538,8 @@ Choose \'Yes\' if you want only a NativeBOINC as BOINC manager.</string>
 	<string name="hostname">Hostname</string>
 
 	<!--  info ..... -->
-	<string name="clientInfo">Client informations</string>
-	<string name="appInfo">Application informations</string>
+	<string name="clientInfo">Client information</string>
+	<string name="appInfo">Application information</string>
 	<string name="clientVersion">Client version</string>
 	<string name="description">Description</string>
 	<string name="changes">Changes</string>
@@ -780,8 +780,8 @@ Choose \'Yes\' if you want only a NativeBOINC as BOINC manager.</string>
 	
 	<string name="binSDCardDirReadError">Unable to read SDCard directory</string>
 	<string name="getProjectsFromClientError">Unable to retrieve projects from client</string>
-	<string name="badDataInClientDistrib">Client distribution has incomplete informations!</string>
-	<string name="badDataInProjectDistribs">Project distributions has incomplete informations!</string>
+	<string name="badDataInClientDistrib">Client distribution has incomplete information!</string>
+	<string name="badDataInProjectDistribs">Project distributions has incomplete information!</string>
 	
 	<string name="unexpectedError">Unexpected error</string>
 	

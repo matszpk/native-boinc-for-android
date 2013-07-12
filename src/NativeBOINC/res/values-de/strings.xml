@@ -47,7 +47,7 @@
 	<string name="close">Schließen</string>
 	<string name="connecting">Verbinde&#8230;</string>
 	<string name="disabled">Deaktiviert</string>
-	<string name="dismiss">Abweisen</string>
+	<string name="dismiss">Schließen</string>
 	<string name="error">Fehler</string>
 	<string name="homepage">Webseite</string>
 	<string name="license">Lizenz</string>
@@ -505,7 +505,7 @@
 	<string name="installAddProject">Bitte drücken Sie auf die \'Projekt hinzuf.\' Schaltfläche um das erste BOINC Projekt hinzuzufügen, oder \'BAM Sync.\' wenn Sie den Client mit BAM synchronisieren möchten.</string>
 	<string name="installFinished">Installation wurde abgeschlossen. Bitte drücken Sie auf die \'Fertig\' Schaltfläche.</string>
 	<string name="installWidgetFinished">Hinweis: Wir empfehlen Ihnen das NativeBOINC Widget zu nutzen um den Native Client zu kontrollieren.</string>
-	<string name="installInfoFinished">Hinweis: Sie können das Projekt Wiki auf \'http://nativeboinc.org/\' durchsuchen um Hilfe und Informationen zu bekommen.</string>
+	<string name="installInfoFinished">Hinweis: Sie können die Projektseite auf \'http://nativeboinc.org/\' besuchen um Hilfe und Informationen zu erhalten.</string>
 	<string name="installFinishedBenchmark">Während der Installation des ersten Projekts, kann BOINC Benchmarks ausführen, die 30 Sekunden arbeiten.</string>
 
 	<string name="installReadBefore">VOR DER INSTALLATION LESEN:</string>
@@ -520,6 +520,10 @@
 	<string name="installProjectNotifyBegin">Installiere Anwendungen für </string>
 	<string name="installProjectBegin">Installiere Anwendungen</string>
 	<string name="installProjectNotifyFinish">Anwendungen wurden installiert</string>
+	
+	<string name="installBoincCancelQuestion">Möchten Sie die Installation des BOINC Clienten wirklich abbrechen?
+Wenn Ja, ist eine Installation des Clienten nach einer Neuinstallation (oder Datenlöschung) von NativeBOINC möglich.
+Wählen Sie \'Ja\', wenn Sie NativeBOINC nur als BOINC manager benutzen möchen.</string>
 
 	<string name="youCanChange">Jetzt, können Sie ändern:</string>
 	
@@ -706,6 +710,7 @@
 	<string name="nativeClientShutdown">Native Client wurde gestoppt</string>
 	
 	<string name="nativeClientWorking">Native Client läuft</string>
+	<string name="nativeClientNotifyingBatteryInfo">BOINC Client empfängt den Zustand des Akkus von NativeBOINC.</string>
 	
 	<!-- boinc Exit code text -->
 	<string name="nativeClientWaitFailed">Native Client ist verloren gegangen (aber läuft noch)!</string>
@@ -756,6 +761,7 @@
 	<string name="nativeClientConfigError">Konnte Native Client nicht konfigurieren</string>
 	<string name="nativeClientUpdateAppsError">Konnte Anwendungen nicht aktualisieren</string>
 	<string name="nativeClientNetCommError">Konnte Netzwerkkommunikation nicht ausführen</string>
+	<string name="nativeClientBatteryInfoError">Der Client konnte nicht über den Zustand des Akkus benachrichtigt werden</string>
 	<string name="nativeClientResultsError">Konnte kein Ergebnis von Native Client bekommen</string>
 	<string name="nativeClientProjectsError">Konnte keine Projekte vom Native Client bekommen</string>
 	

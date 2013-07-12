@@ -1,3 +1,7 @@
+Version 0.4.4.2.2 (beta) (2013-07-12):
+- updated German translations
+- some small fixes for English translation
+
 Version 0.4.4.2.1 (beta) (2013-07-05):
 - added hungarian translation
 - updated version in BugCatcher code

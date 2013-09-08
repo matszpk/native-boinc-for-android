@@ -938,7 +938,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 		if (Logging.DEBUG) Log.d(TAG, "First start client, pid:"+boincPid);
 		
 		if (boincPid == -1) {
-			if (Logging.DEBUG) Log.d(TAG, "Running boinc_client failed");
+			if (Logging.ERROR) Log.e(TAG, "Running boinc_client failed");
 			return false;
 		}
 		

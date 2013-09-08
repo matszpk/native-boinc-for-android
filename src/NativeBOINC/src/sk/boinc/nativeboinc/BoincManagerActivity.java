@@ -378,7 +378,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		getTabWidget().getChildAt(0).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.d(TAG, "Click tab: 0");
+				if (Logging.DEBUG) Log.d(TAG, "Click tab: 0");
 				TabHost tabHost = getTabHost();
 				if (tabHost.getCurrentTab() != 0)
 					getTabHost().setCurrentTab(0);
@@ -391,7 +391,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		getTabWidget().getChildAt(1).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.d(TAG, "Click tab: 1");
+				if (Logging.DEBUG) Log.d(TAG, "Click tab: 1");
 				TabHost tabHost = getTabHost();
 				if (tabHost.getCurrentTab() != 1)
 					getTabHost().setCurrentTab(1);
@@ -404,7 +404,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		getTabWidget().getChildAt(2).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.d(TAG, "Click tab: 2");
+				if (Logging.DEBUG) Log.d(TAG, "Click tab: 2");
 				TabHost tabHost = getTabHost();
 				if (tabHost.getCurrentTab() != 2)
 					getTabHost().setCurrentTab(2);
@@ -417,7 +417,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		getTabWidget().getChildAt(3).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.d(TAG, "Click tab: 3");
+				if (Logging.DEBUG) Log.d(TAG, "Click tab: 3");
 				TabHost tabHost = getTabHost();
 				if (tabHost.getCurrentTab() != 3)
 					getTabHost().setCurrentTab(3);
@@ -431,7 +431,7 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		getTabWidget().getChildAt(4).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.d(TAG, "Click tab: 4");
+				if (Logging.DEBUG) Log.d(TAG, "Click tab: 4");
 				TabHost tabHost = getTabHost();
 				if (tabHost.getCurrentTab() != 4)
 					getTabHost().setCurrentTab(4);
@@ -443,13 +443,13 @@ public class BoincManagerActivity extends TabActivity implements ClientUpdateNot
 		});
 		
 		
-		getTabHost().setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+		/*getTabHost().setOnTabChangedListener(new TabHost.OnTabChangeListener() {
 			
 			@Override
 			public void onTabChanged(String tabId) {
-				Log.d(TAG, "Change tab: "+ tabId);
+				if (Logging.DEBUG) Log.d(TAG, "Change tab: "+ tabId);
 			}
-		});
+		});*/
 		
 		if (savedState == null) {
 			// Just normal start

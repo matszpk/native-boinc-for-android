@@ -241,7 +241,7 @@ public class UpdateActivity extends ServiceBoincActivity implements InstallerUpd
 	
 	@Override
 	public void onInstallerConnected() {
-		Log.d(TAG, "onInstallerConnected");
+		if (Logging.DEBUG) Log.d(TAG, "onInstallerConnected");
 		updateActivityState();
 	}
 	

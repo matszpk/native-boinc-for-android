@@ -261,7 +261,7 @@ public class ProjectListActivity extends ServiceBoincActivity implements Install
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position,
 					long id) {
-				Log.d(TAG, "Long click in "+ position);
+				if (Logging.DEBUG) Log.d(TAG, "Long click in "+ position);
 				if (!mGetFromInstaller) // if not installer
 					return false;
 				

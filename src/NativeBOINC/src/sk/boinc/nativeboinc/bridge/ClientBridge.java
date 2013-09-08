@@ -125,7 +125,7 @@ public class ClientBridge implements ClientRequestHandler {
 		
 		// only used internally by ClientBridgeWorkerHandler 
 		public void notifyOperationBegin(BoincOp boincOp) {
-			Log.d(TAG, "RunInternally:"+boincOp);
+			if (Logging.DEBUG) Log.d(TAG, "RunInternally:"+boincOp);
 			mClientPendingController.begin(boincOp);
 		}
 		
@@ -498,7 +498,7 @@ public class ClientBridge implements ClientRequestHandler {
 		 * cancel poll operations
 		 */
 		public void cancelPollOperations(final int opFlags) {
-			Log.d(TAG, "on cancel poll operations:"+opFlags);;
+			if (Logging.DEBUG) Log.d(TAG, "on cancel poll operations:"+opFlags);;
 			// finish bam sync and add project operations
 			mClientPendingController.finishSelected(new PendingOpSelector<BoincOp>() {
 				@Override

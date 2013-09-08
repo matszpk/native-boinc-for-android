@@ -1150,7 +1150,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 					try {
 						mClientUpdatedAndRanSem.acquire();
 					} catch(InterruptedException ex) {
-						Log.d(TAG, "Cancelled during waiting for client update");
+						if (Logging.DEBUG) Log.d(TAG, "Cancelled during waiting for client update");
 						notifyCancel(mProjectDistrib.projectName, mProjectDistrib.projectUrl);
 						return;
 					} finally {
@@ -2137,7 +2137,7 @@ public class InstallerHandler extends Handler implements NativeBoincUpdateListen
 		}
 		if (!currentIsWorking && mInstallerService.doStopWhenNotWorking()) {
 			// stop service
-			Log.d(TAG, "Stop when not working");
+			if (Logging.DEBUG) Log.d(TAG, "Stop when not working");
 			mInstallerService.stopSelf();
 		}
 	}

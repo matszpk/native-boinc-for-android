@@ -293,8 +293,7 @@ public class InstallStep1Activity extends ServiceBoincActivity implements Instal
 
 	@Override
 	public void currentClientDistrib(ClientDistrib clientDistrib) {
-		if (Logging.DEBUG)
-			Log.d(TAG, "clientDistrib");
+		if (Logging.DEBUG) Log.d(TAG, "clientDistrib");
 
 		mClientDistrib = clientDistrib;
 		mClientDistribProgressState = ProgressState.FINISHED;

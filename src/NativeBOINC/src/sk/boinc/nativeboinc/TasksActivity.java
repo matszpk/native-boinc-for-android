@@ -378,7 +378,7 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 		mScreenOrientation.setOrientation();
 		mRequestUpdates = true;
 		
-		Log.d(TAG, "onUpdataskprogress:"+mUpdateTasksInProgress);
+		if (Logging.DEBUG) Log.d(TAG, "onUpdataskprogress:"+mUpdateTasksInProgress);
 		if (mConnectedClient != null) {
 			if (mUpdateTasksInProgress) {
 				ArrayList<TaskInfo> tasks = (ArrayList<TaskInfo>)mConnectionManager
@@ -850,7 +850,7 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 
 	@Override
 	public void onStartAutoRefresh(int requestType) {
-		Log.d(TAG, "on start auto refresh");
+		if (Logging.DEBUG) Log.d(TAG, "on start auto refresh");
 		if (requestType == AutoRefresh.TASKS) // in progress
 			mUpdateTasksInProgress = true;
 	}

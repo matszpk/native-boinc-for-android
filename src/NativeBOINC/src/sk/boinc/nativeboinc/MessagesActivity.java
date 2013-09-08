@@ -259,7 +259,7 @@ public class MessagesActivity extends ListActivity implements ClientUpdateMessag
 		mScreenOrientation.setOrientation();
 		mRequestUpdates = true;
 		
-		Log.d(TAG, "onUpdaMessagesprogress:"+mUpdateMessagesInProgress);
+		if (Logging.DEBUG) Log.d(TAG, "onUpdaMessagesprogress:"+mUpdateMessagesInProgress);
 		if (mConnectedClient != null) {
 			if (mUpdateMessagesInProgress) {
 				ArrayList<MessageInfo> messages = (ArrayList<MessageInfo>)mConnectionManager

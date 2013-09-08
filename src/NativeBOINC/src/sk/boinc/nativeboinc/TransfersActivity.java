@@ -350,7 +350,7 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 		mScreenOrientation.setOrientation();
 		mRequestUpdates = true;
 		
-		Log.d(TAG, "onUpdaTransfersprogress:"+mUpdateTransfersInProgress);
+		if (Logging.DEBUG) Log.d(TAG, "onUpdaTransfersprogress:"+mUpdateTransfersInProgress);
 		if (mConnectedClient != null) {
 			if (mUpdateTransfersInProgress) {
 				ArrayList<TransferInfo> transfers = (ArrayList<TransferInfo>)mConnectionManager
@@ -658,7 +658,7 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 					
 					if (autoRefresh != -1) {
 						long period = SystemClock.elapsedRealtime()-mLastUpdateTime;
-						Log.d(TAG, "period at update:"+period+","+(autoRefresh*1000-period));
+						if (Logging.DEBUG) Log.d(TAG, "period at update:"+period+","+(autoRefresh*1000-period));
 						mConnectionManager.addToScheduledUpdates(this, AutoRefresh.TRANSFERS,
 								(int)(autoRefresh*1000-period));
 					} else

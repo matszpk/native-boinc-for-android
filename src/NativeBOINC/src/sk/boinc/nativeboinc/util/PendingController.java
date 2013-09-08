@@ -134,7 +134,7 @@ public class PendingController<Operation> {
 			return;
 		}
 		
-		Log.d(mTag, "Do finish:"+pendingOp+",out.");
+		if (Logging.DEBUG) Log.d(mTag, "Do finish:"+pendingOp+",out.");
 		
 		opEntry.isRan = false;
 		opEntry.output = output;

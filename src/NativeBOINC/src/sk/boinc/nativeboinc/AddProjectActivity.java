@@ -253,7 +253,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 		
 		if (mConnectionManager != null) {
 			mConnectedClient = mConnectionManager.getClientId();
-			Log.d(TAG, "onResume");
+			if (Logging.DEBUG) Log.d(TAG, "onResume");
 			if (!mAddProjectForNativeClient || mRunner != null)
 				updateActivityState();
 		}
@@ -355,7 +355,7 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 			// if failed
 		} else {
 			// successfuly loaded
-			Log.d(TAG, "Successfully loaded projectconfig");
+			if (Logging.DEBUG) Log.d(TAG, "Successfully loaded projectconfig");
 			afterInitProjectConfig();
 		}
 		
@@ -391,14 +391,14 @@ public class AddProjectActivity extends ServiceBoincActivity implements ClientPr
 	@Override
 	protected void onConnectionManagerConnected() {
 		mConnectedClient = mConnectionManager.getClientId();
-		Log.d(TAG, "onConnManagerConnected");
+		if (Logging.DEBUG) Log.d(TAG, "onConnManagerConnected");
 		if (!mAddProjectForNativeClient || mRunner != null)
 			updateActivityState();
 	}
 	
 	@Override
 	protected void onRunnerConnected() {
-		Log.d(TAG, "onConnRunnerConnected");
+		if (Logging.DEBUG) Log.d(TAG, "onConnRunnerConnected");
 		if (mAddProjectForNativeClient && mConnectionManager != null)
 			updateActivityState();
 		if (mToMarkProjectUrl) {

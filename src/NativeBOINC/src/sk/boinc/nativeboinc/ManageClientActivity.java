@@ -772,7 +772,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		mDoGetBAMInfo = false;
 		mDoUpdateHostInfo = false;
 		mSyncingBAMInProgress = false;
-		Log.d(TAG, "client error");
+		if (Logging.DEBUG) Log.d(TAG, "client error");
 		StandardDialogs.showClientErrorDialog(this, errorNum, message);
 		// update preferences
 		updateParticularPreferences();

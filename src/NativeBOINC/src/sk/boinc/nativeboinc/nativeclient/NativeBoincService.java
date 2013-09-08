@@ -935,10 +935,10 @@ public class NativeBoincService extends Service implements MonitorListener,
 			boincPid = ProcessUtils.exec(programName, boincDir,
 					new String[] { "--allow_remote_gui_rpc" });
 		
-		Log.d(TAG, "First start client, pid:"+boincPid);
+		if (Logging.DEBUG) Log.d(TAG, "First start client, pid:"+boincPid);
 		
 		if (boincPid == -1) {
-			if (Logging.ERROR) Log.d(TAG, "Running boinc_client failed");
+			if (Logging.DEBUG) Log.d(TAG, "Running boinc_client failed");
 			return false;
 		}
 		
@@ -1372,7 +1372,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 		
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
-			Log.d(TAG, "Installer is unbounded");
+			if (Logging.DEBUG) Log.d(TAG, "Installer is unbounded");
 			if (mInstaller != null)
 				mInstaller.removeInstallerListener(NativeBoincService.this);
 			mInstaller = null;
@@ -1380,7 +1380,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 		
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
-			Log.d(TAG, "Installer is bounded");
+			if (Logging.DEBUG) Log.d(TAG, "Installer is bounded");
 			mInstaller = ((InstallerService.LocalBinder)service).getService();
 			mInstaller.addInstallerListener(NativeBoincService.this);
 			// update installed distrib list before installing applications (IMPORTANT)
@@ -1504,7 +1504,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 	
 	private void startInstallProjectApplication(String projectUrl) {
 		if (mInstaller == null) {
-			Log.d(TAG, "Installer service not bound");
+			if (Logging.DEBUG) Log.d(TAG, "Installer service not bound");
 			/* if not initialized */
 			synchronized(mPendingProjectAppsToInstall) {
 				mPendingProjectAppsToInstall.add(projectUrl);
@@ -1612,7 +1612,7 @@ public class NativeBoincService extends Service implements MonitorListener,
 		mIfProjectDistribsListUpdated = false;	// reset this indicator
 		mProjectDistribsListUpdating.set(false);
 		/* do unbound installer service */
-		Log.d(TAG, "Unbound installer service");
+		if (Logging.DEBUG) Log.d(TAG, "Unbound installer service");
 		unbindService(mInstallerConn);
 		mInstaller.removeInstallerListener(this);
 		mInstaller = null;

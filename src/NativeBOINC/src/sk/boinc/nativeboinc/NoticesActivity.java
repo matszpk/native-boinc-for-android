@@ -238,7 +238,7 @@ public class NoticesActivity extends ListActivity implements ClientUpdateNotices
 		mScreenOrientation.setOrientation();
 		mRequestUpdates = true;
 		
-		Log.d(TAG, "onUpdateNoticesProgress:"+mUpdateNoticesInProgress);
+		if (Logging.DEBUG) Log.d(TAG, "onUpdateNoticesProgress:"+mUpdateNoticesInProgress);
 		if (mConnectedClient != null) {
 			if (mUpdateNoticesInProgress) {
 				ArrayList<NoticeInfo> notices = (ArrayList<NoticeInfo>)mConnectionManager

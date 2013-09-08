@@ -69,7 +69,7 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 		mGlobalPrefs.registerOnSharedPreferenceChangeListener(this);
 		
 		if (service.isRun()) {
-			if (Logging.DEBUG) Log.i(TAG, "Registering monitor listener");
+			if (Logging.INFO) Log.i(TAG, "Registering monitor listener");
 			service.addMonitorListener(this);
 			mRegisteredAsMonitorListener = true;
 		}
@@ -82,7 +82,7 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 	
 	public void destroy() {
 		// if quit
-		if (Logging.DEBUG) Log.i(TAG, "destroy: Unregistering listeners");
+		if (Logging.INFO) Log.i(TAG, "destroy: Unregistering listeners");
 		mListenerHandler.removeCallbacks(mAutoRelease);
 		mListenerHandler.removeCallbacks(mAutoRefresh);
 		mGlobalPrefs.unregisterOnSharedPreferenceChangeListener(this);
@@ -202,7 +202,7 @@ public class WakeLockHolder implements NativeBoincStateListener, MonitorListener
 	public void onClientStart() {
 		// register listener
 		if (!mRegisteredAsMonitorListener) {
-			if (Logging.DEBUG) Log.i(TAG, "Registering monitor listener");
+			if (Logging.INFO) Log.i(TAG, "Registering monitor listener");
 			mNativeBoincService.addMonitorListener(this);
 			mRegisteredAsMonitorListener = true;
 		}

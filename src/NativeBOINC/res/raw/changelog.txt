@@ -1,5 +1,6 @@
-Version 0.4.4.2.3 (beta) (2013-08-09):
-- fixed NPE in Manage Client activity
+Version 0.4.4.2.3 (beta) (2013-09-08):
+- fixed NPEs in various places
+- disable debug logging
 
 Version 0.4.4.2.2 (beta) (2013-07-12):
 - updated German translations

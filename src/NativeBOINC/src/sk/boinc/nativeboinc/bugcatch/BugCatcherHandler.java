@@ -616,7 +616,7 @@ public class BugCatcherHandler extends Handler {
 		}
 		if (!isWorking && mBugCatcher.doStopWhenNotWorking()) {
 			// stop service
-			Log.d(TAG, "Stop when not working");
+			if (Logging.DEBUG) Log.d(TAG, "Stop when not working");
 			mBugCatcher.stopSelf();
 		}
 	}

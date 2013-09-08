@@ -138,7 +138,7 @@ public class NativeBoincWorkerHandler extends Handler {
 			if (workunit != null)
 				app = mApps.get(workunit.app_name);
 			if (project == null || workunit == null || app == null) {
-				if (Logging.WARNING) Log.d(TAG, "Warning datasets are incomplete! skipping result "+
+				if (Logging.WARNING) Log.w(TAG, "Warning datasets are incomplete! skipping result "+
 							result.name);
 				continue;
 			}

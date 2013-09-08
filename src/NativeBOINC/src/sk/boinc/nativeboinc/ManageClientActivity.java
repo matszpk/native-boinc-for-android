@@ -596,7 +596,7 @@ public class ManageClientActivity extends PreferenceActivity implements ClientMa
 		}
 		case DIALOG_HOST_INFO:
 			TextView text = (TextView)dialog.findViewById(R.id.dialogText);
-			if (mHostInfo.htmlText != null)
+			if (mHostInfo != null && mHostInfo.htmlText != null)
 				text.setText(Html.fromHtml(mHostInfo.htmlText));
 			break;
 		}

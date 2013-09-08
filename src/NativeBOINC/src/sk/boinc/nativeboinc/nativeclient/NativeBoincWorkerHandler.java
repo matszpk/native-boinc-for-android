@@ -230,13 +230,13 @@ public class NativeBoincWorkerHandler extends Handler {
 			while (listIter.hasNext()) {
 				String projectUrl = listIter.next();
 				reply = mRpcClient.updateProjectAppsPoll(projectUrl);
-				if (reply.error_num == RpcClient.ERR_IN_PROGRESS) {
+				if (reply != null && reply.error_num == RpcClient.ERR_IN_PROGRESS) {
 					count++;
 				} else {
 					// remove finished
 					listIter.remove();
 					
-					if (reply.error_num == 0) {
+					if (reply != null && reply.error_num == 0) {
 						if (Logging.INFO) Log.i(TAG, "after update_apps for "+projectUrl);
 						notifyUpdatedProject(mUpdatePollerChannelId, projectUrl);
 					}

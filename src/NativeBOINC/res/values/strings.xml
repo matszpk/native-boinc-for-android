@@ -511,6 +511,8 @@
 	<string name="installFinishedBenchmark">During installing first project, BOINC can run benchmark, which works by 30 seconds.</string>
 
 	<string name="installReadBefore">READ BEFORE INSTALLATION:</string>
+	<string name="installAttention">On the devices (modern tablets) with internal (inside device) SDCard memory,
+	    the SDCard installation is not recommended, because some problems has not been solved.</string>
 	<string name="installAttention2">If application closes unexpectedly, please use \'Force close\' and run again.
 	    Application kills all clients at start up.</string>
 	<string name="installAttention3">BOINC client will be working in background. Please use \'Shutdown\' option to shutdown client.</string>

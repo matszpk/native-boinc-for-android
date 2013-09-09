@@ -97,6 +97,11 @@
 		  		android:textSize="@dimen/labelTextSize"
 		  		android:textStyle="bold"
 		  		android:text="@string/installReadBefore" />
+  		  	<TextView
+		  		android:layout_width="fill_parent"
+		  		android:layout_height="wrap_content"
+		  		android:textSize="@dimen/labelTextSize"
+		  		android:text="@string/installAttention" />
 		  	<TextView
 		  		android:layout_width="fill_parent"
 		  		android:layout_height="wrap_content"

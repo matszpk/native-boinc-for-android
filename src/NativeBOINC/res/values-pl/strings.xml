@@ -509,6 +509,8 @@
 	<string name="installFinishedBenchmark">Podczas instalowania perwszego projektu, BOINC może uruchomić benchmark, który pracuje przez 30 sekund.</string>
 
 	<string name="installReadBefore">PRZECZYTAJ PRZED INSTALACJĄ:</string>
+	<string name="installAttention">Na urządzenia z wewnętrzną pamięcia SDCard (wewnątrz urządzenia) instalacja na SDCard nie jest zalecana
+	    ze względu na nierozwiązane problemy.</string>
 	<string name="installAttention2">Jeśli aplikacja zamknie się niespodziewanie, proszę użyć \'Wymuś zatrzymanie\' i uruchomić ponownie.
 	    Aplikacja zabije wszystkie klienty przy starcie.</string>
 	<string name="installAttention3">Klient BOINC będzie pracować w tle. Proszę użyć opcji \'Wyłącz\' do wyłączenia klienta.</string>

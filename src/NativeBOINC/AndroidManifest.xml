@@ -22,7 +22,7 @@
 	    android:name="BoincManagerApplication"
 		android:label="@string/app_name"
 		android:description="@string/app_desc"
-		android:icon="@drawable/nativeboinc" android:debuggable="false">
+		android:icon="@drawable/nativeboinc" android:debuggable="true">
 
 		<activity android:name=".BoincManagerActivity"
 		    android:theme="@style/Theme.NativeBoincActivity"

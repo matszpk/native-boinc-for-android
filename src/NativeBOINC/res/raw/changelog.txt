@@ -1,4 +1,4 @@
-Version 0.4.4.2.3 (beta) (2013-09-08):
+Version 0.4.4.2.3 (beta) (2013-09-09):
 - fixed NPEs in various places
 - disable debug logging
 

@@ -1,7 +1,7 @@
 boinc-6.XX.XX - BOINC source codes
 boinc-7.0.XX - BOINC source codes (version 7.0.X)
 curl-7.XX.XX - required library by BOINC
-openssl-7.XX.XX - required library by BOINC
+openssl-1.XX.XX - required library by BOINC
 libexecwrapper-0.1 - exec wrapper which enables executing programs on the sdcard (by simulating)
 init.sh - setup script
 

@@ -728,7 +728,7 @@ Choose \'Yes\' if you only want to use NativeBOINC as BOINC manager.</string>
 	<string name="eventAttachedProjectMessage">Project from %s was attached</string>
 	<string name="eventDetachedProject">Project was detached</string>
 	<string name="eventDetachedProjectMessage">Project from %s was detached</string>
-	<string name="eventBencharkRun">Benchmark was ran</string>
+	<string name="eventBencharkRun">Benchmark was started</string>
 	<string name="eventBencharkFinished">Benchmark was finished</string>
 	<string name="eventSuspendAll">All tasks were suspended</string>
 	<string name="eventRunTasks">Tasks were resumed</string>

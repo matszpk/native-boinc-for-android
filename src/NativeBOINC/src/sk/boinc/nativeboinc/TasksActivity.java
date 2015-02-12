@@ -503,7 +503,7 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 	    		.setIcon(android.R.drawable.ic_dialog_alert)
 	    		.setTitle(R.string.warning)
 				.setView(LayoutInflater.from(this).inflate(R.layout.dialog, null))
-	    		.setPositiveButton(R.string.taskAbort,
+	    		.setPositiveButton(R.string.yesText,
 	    			new DialogInterface.OnClickListener() {
 	    				public void onClick(DialogInterface dialog, int whichButton) {
 	    					//TaskInfo task = (TaskInfo)getListAdapter().getItem(mPosition);
@@ -522,7 +522,7 @@ public class TasksActivity extends ListActivity implements ClientUpdateTasksRece
 	    								mSelectedTasks.toArray(new TaskDescriptor[0]));
 	    				}
 	    			})
-	    		.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+	    		.setNegativeButton(R.string.noText, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						onDismissWarnAbortDialog();

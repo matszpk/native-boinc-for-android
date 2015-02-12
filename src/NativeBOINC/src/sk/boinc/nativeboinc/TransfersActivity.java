@@ -477,7 +477,7 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 	    		.setIcon(android.R.drawable.ic_dialog_alert)
 	    		.setTitle(R.string.warning)
 				.setView(LayoutInflater.from(this).inflate(R.layout.dialog, null))
-	    		.setPositiveButton(R.string.transferAbort,
+	    		.setPositiveButton(R.string.yesText,
 	    			new DialogInterface.OnClickListener() {
 	    				public void onClick(DialogInterface dialog, int whichButton) {
 	    					onDismissWarnAbortDialog();
@@ -494,7 +494,7 @@ public class TransfersActivity extends ListActivity implements ClientUpdateTrans
 	    								mSelectedTransfers.toArray(new TransferDescriptor[0]));
 	    				}
 	    			})
-	    		.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+	    		.setNegativeButton(R.string.noText, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						onDismissWarnAbortDialog();
